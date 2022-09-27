@@ -1,23 +1,27 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
 
-from ansys.product.library import __version__
-from pyansys_sphinx_theme import pyansys_logo_black
+from ansys_sphinx_theme import pyansys_logo_black as logo
 
 # Project information
-project = "ansys-product-library"
+project = "ansys-motorcad-core"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
-author = "Ansys Inc."
-release = version = __version__
+author = "ANSYS, Inc."
+release = version = "0.1.dev0"
 
-# use the default pyansys logo
-html_logo = pyansys_logo_black
-html_theme = "pyansys_sphinx_theme"
+# Select desired logo, theme, and declare the html title
+html_logo = logo
+html_theme = "ansys_sphinx_theme"
+html_short_title = html_title = "pymotorcad-core"
 
 # specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pyansys-sphinx-theme",
+    "github_url": "https://github.com/pyansys/pymotorcad",
     "show_prev_next": False,
+    "show_breadcrumbs": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
 }
 
 # Sphinx extensions
@@ -38,6 +42,7 @@ intersphinx_mapping = {
     # "matplotlib": ("https://matplotlib.org/stable", None),
     # "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     # "pyvista": ("https://docs.pyvista.org/", None),
+    # "grpc": ("https://grpc.github.io/grpc/python/", None),
 }
 
 # numpydoc configuration
