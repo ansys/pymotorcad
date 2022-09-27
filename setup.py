@@ -20,7 +20,14 @@ setup(
     license_file="LICENSE",
     description="A python rpc-json interface for motor-cad",
     long_description=open("README.rst").read(),
-    install_requires=["importlib-metadata >=4.0"],
+
+    install_requires=[
+        "importlib-metadata >=4.12.0",
+        "psutil >= 5.9.0",
+        "requests >= 2.27.1",
+        "packaging >= 21.3"
+    ],
+
     python_requires=">=3.7",
     packages=find_namespace_packages(where="src", include="ansys*"),
     package_dir={"": "src"},
