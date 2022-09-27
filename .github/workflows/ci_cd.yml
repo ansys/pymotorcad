@@ -1,0 +1,161 @@
+# check spelling, codestyle
+name: GitHub CI
+
+# run only on main branch.  This avoids duplicated actions on PRs
+on:
+  pull_request:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+
+jobs:
+  style:
+    name: Pre-commit Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install pre-commit requirements
+        run: |
+          pip install poetry
+          poetry install -E pre-commit
+
+      - name: Run pre-commit
+        run: |
+          poetry run pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+
+  main:
+    name: Build and Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Create wheel
+        run: |
+          pip install build
+          python -m build --wheel
+
+      - name: Validate wheel
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Install library, with test extra
+        run: pip install $(echo dist/*)[test]
+
+      - name: Unit testing
+        run: |
+          cd tests  # so we're testing the install, not local
+          pytest -vx
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: ansys-product-library-wheel
+          path: dist/
+          retention-days: 7
+
+  docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install library, with docs extra
+        run: |
+          pip install poetry
+          poetry install -E docs
+
+      - name: Build HTML
+        run: |
+          poetry run make -C doc html SPHINXOPTS="-W"
+
+      - name: Build PDF Documentation
+        run: |
+          sudo apt update
+          sudo apt-get install -y texlive-latex-extra latexmk
+          poetry run make -C doc latexpdf
+
+      - name: Upload HTML Documentation
+        uses: actions/upload-artifact@v2
+        with:
+          name: Documentation-html
+          path: doc/build/html
+          retention-days: 7
+
+      - name: Upload PDF Documentation
+        uses: actions/upload-artifact@v2
+        with:
+          name: Documentation-pdf
+          path: doc/build/latex/*.pdf
+          retention-days: 7
+
+  Release:
+    if: contains(github.ref, 'refs/tags')
+    needs: [main, style, docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: ansys-product-library-wheel
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Documentation-pdf
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Documentation-html
+          path: ~/html
+
+      # list current directory
+      - name: List directory structure
+        run: ls -R
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          BRANCH: gh-pages
+          FOLDER: ~/html
+          CLEAN: true
+
+      # note how we use the PyPI tokens
+      - name: Upload to Azure PyPi (disabled)
+        run: |
+          pip install twine
+          # twine upload --skip-existing ./**/*.whl
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./**/*.whl
+            ./**/*.zip
+            ./**/*.pdf
