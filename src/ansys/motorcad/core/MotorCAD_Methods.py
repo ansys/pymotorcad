@@ -1,15 +1,15 @@
 """MotorCAD_Methods
 version: """
 
-from os import path, environ
+from os import environ, path
 import re
 import socket
-import time
 import subprocess
+import time
 
-import requests
-import psutil
 from packaging import version
+import psutil
+import requests
 
 DETACHED_PROCESS = 0x00000008
 CREATE_NEW_PROCESS_GROUP = 0x00000200
@@ -18,60 +18,60 @@ DEFAULT_INSTANCE = -1
 
 SERVER_IP = "http://localhost"
 
-kMethodSuccess = 0
+_METHOD_SUCCESS = 0
 
-MotorCADExeGlobal = ""
+MOTORCAD_EXE_GLOBAL = ""
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 
-def SetServerIP(aIP):
+def set_server_ip(ip):
     """IP of machine that MotorCAD is running on"""
     global SERVER_IP
-    SERVER_IP = aIP
+    SERVER_IP = ip
 
 
-def SetDefaultInstance(aPort):
+def set_default_instance(port):
     """Used when running script from MotorCAD"""
     global DEFAULT_INSTANCE
-    DEFAULT_INSTANCE = aPort
+    DEFAULT_INSTANCE = port
 
 
-def SetMotorCADExe(exeLocation):
-    global MotorCADExeGlobal
-    MotorCADExeGlobal = exeLocation
+def set_motorcad_exe(exe_location):
+    global MOTORCAD_EXE_GLOBAL
+    MOTORCAD_EXE_GLOBAL = exe_location
 
 
 class MotorCADError(Exception):
     pass
 
 
-class MotorCAD_base:
+class MotorCADBase:
     """Each MotorCAD object has a Motor-CAD.exe instance attached to it"""
 
     def __init__(
-            self,
-            Port,
-            OpenNewInstance,
-            EnableExceptions,
-            EnableSuccessVariable,
-            ReuseParallelInstances=False,
-            CompatibilityMode=False,
+        self,
+        port,
+        open_new_instance,
+        enable_exceptions,
+        enable_success_variable,
+        reuse_parallel_instances=False,
+        compatibility_mode=False,
     ):
         """Description of function
         Parameters
         ----------
-        Port : int
+        port : int
             Port to use for communication
-        OpenNewInstance: Boolean
+        open_new_instance: Boolean
             Open a new instance or try to connect to existing instance
-        EnableExceptions : Boolean
+        enable_exceptions : Boolean
             Show Motor-CAD communication errors as Python exceptions
-        EnableSuccessVariable: Boolean
+        enable_success_variable: Boolean
                 Motor-CAD methods return a success variable (first object in tuple)
-        ReuseParallelInstances: Boolean, optional
+        reuse_parallel_instances: Boolean, optional
             Reuse MotorCAD instances when running in parallel. Need to free instances after use.
-        CompatibilityMode: Boolean, optional
+        compatibility_mode: Boolean, optional
             Try to run an old script written for ActiveX
         Returns
         -------
@@ -80,52 +80,52 @@ class MotorCAD_base:
 
         self._port = -1
         self._connected = False
-        self._lastErrorMessage = ""
-        self._Program_Version = ""
+        self._last_error_message = ""
+        self._program_version = ""
         self._pid = -1
 
-        self.EnableExceptions = EnableExceptions
-        self.ReuseParallelInstances = ReuseParallelInstances
+        self.enable_exceptions = enable_exceptions
+        self.reuse_parallel_instances = reuse_parallel_instances
 
-        self._OpenNewInstance = OpenNewInstance
+        self._open_new_instance = open_new_instance
 
-        self.EnableSuccessVariable = EnableSuccessVariable
+        self.enable_success_variable = enable_success_variable
 
-        self._compatibility_mode = CompatibilityMode
+        self._compatibility_mode = compatibility_mode
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
-            Port = DEFAULT_INSTANCE
-            self._OpenNewInstance = False
+            port = DEFAULT_INSTANCE
+            self._open_new_instance = False
 
-        if self.ReuseParallelInstances is True:
-            self._OpenNewInstance = False
+        if self.reuse_parallel_instances is True:
+            self._open_new_instance = False
 
-        if self._OpenNewInstance is True:
-            if Port != -1:
-                self._port = int(Port)
+        if self._open_new_instance is True:
+            if port != -1:
+                self._port = int(port)
 
             self.__OpenMotorCADLocal()
 
-        else:  # (self._OpenNewInstance == False)
-            if Port != -1:
-                self._port = int(Port)
+        else:  # (self._open_new_instance == False)
+            if port != -1:
+                self._port = int(port)
 
-            else:  # Port is not defined
+            else:  # port is not defined
                 self.__FindFreeMotorCAD()
 
-        self._pid = self.get_proccess_id()
+        self._pid = self.get_process_id()
 
         # Check for response
         if self.__WaitForResponse(2) is True:
             self._connected = True
             # Store Motor-CAD version number for any required backwards compatibility
 
-            self._Program_Version = self._GetProgramVersion()
+            self._program_version = self._GetProgramVersion()
 
         else:
             raise MotorCADError(
-                "Failed to connect to Motor-CAD instance: Port="
+                "Failed to connect to Motor-CAD instance: port="
                 + str(self._port)
                 + ", Url="
                 + str(self.__GetUrl())
@@ -135,9 +135,9 @@ class MotorCAD_base:
         """Close Motor-CAD when MotorCAD object leaves memory"""
         if self._connected is True:
             if (
-                    (self.ReuseParallelInstances is False)
-                    and (self._OpenNewInstance is True)
-                    and (self._compatibility_mode is False)
+                (self.reuse_parallel_instances is False)
+                and (self._open_new_instance is True)
+                and (self._compatibility_mode is False)
             ):
                 # Close Motor-CAD if not asked to keep open
                 try:
@@ -148,7 +148,7 @@ class MotorCAD_base:
                     pass
 
     def __RaiseIfAllowed(self, aErrorMessage):
-        if self.EnableExceptions is True:
+        if self.enable_exceptions is True:
             raise MotorCADError(aErrorMessage)
 
     def __GetUrl(self):
@@ -167,9 +167,7 @@ class MotorCAD_base:
                 + str(self.__GetUrl())
             )
 
-        MotorProcess = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
-        )
+        MotorProcess = subprocess.Popen([self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"])
 
         PID = MotorProcess.pid
 
@@ -178,19 +176,21 @@ class MotorCAD_base:
         self.__WaitForServerToStart(MotorUtil)
 
     def __FindMotorCADExe(self):
-        if MotorCADExeGlobal != "":
-            MotorExe = MotorCADExeGlobal
+        if MOTORCAD_EXE_GLOBAL != "":
+            MotorExe = MOTORCAD_EXE_GLOBAL
             return MotorExe
 
-        strAltMethod = "Try setting Motor-CAD exe manually before creating MotorCAD() object with MotorCAD_Methods.SetMotorCADExe(location)"
+        strAltMethod = (
+            "Try setting Motor-CAD exe manually before creating MotorCAD() "
+            "object with MotorCAD_Methods.set_motorcad_exe(location)"
+        )
 
         # Find Motor-CAD exe
         MotorBatchFilePath = environ.get("MOTORCAD_ACTIVEX")
 
         if MotorBatchFilePath is None:
             raise MotorCADError(
-                "Failed to retrieve MOTORCAD_ACTIVEX environment variable. "
-                + strAltMethod
+                "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + strAltMethod
             )
 
         try:
@@ -218,7 +218,8 @@ class MotorCAD_base:
                         raise MotorCADError(
                             "File  does not exist: "
                             + MotorExe
-                            + "\nTry updating batch file location in Defaults->Automation->Update to Current Version."
+                            + "\nTry updating batch file location in "
+                            + "Defaults->Automation->Update to Current Version."
                             + "\nAlternative Method: "
                             + strAltMethod
                         )
@@ -236,15 +237,13 @@ class MotorCAD_base:
         foundFreeInstance = False
         for proc in psutil.process_iter():
             procName = proc.name()
-            if any(
-                    motor_proc_name in procName for motor_proc_name in MOTORCAD_PROC_NAMES
-            ):
+            if any(motor_proc_name in procName for motor_proc_name in MOTORCAD_PROC_NAMES):
                 port = self.__GetPortFromProcess(proc)
 
                 # If Motor-CAD has RPC server running
                 if port != -1:
                     self._port = port
-                    if self.ReuseParallelInstances is True:
+                    if self.reuse_parallel_instances is True:
                         try:
                             success = self.__SetBusy()
                             if success == 0:
@@ -260,9 +259,7 @@ class MotorCAD_base:
                         foundFreeInstance = True
 
         if foundFreeInstance is False:
-            if (self.ReuseParallelInstances is True) or (
-                    self._compatibility_mode is True
-            ):
+            if (self.reuse_parallel_instances is True) or (self._compatibility_mode is True):
                 self.__OpenMotorCADLocal()
             else:
                 raise MotorCADError(
@@ -290,7 +287,7 @@ class MotorCAD_base:
 
         self.__WaitForResponse(20)
 
-    def IsOpen(self):
+    def is_open(self):
         if self._pid != -1:
             return psutil.pid_exists(self._pid)
         else:
@@ -341,9 +338,9 @@ class MotorCAD_base:
                         newErrorString = newErrorString[-1]
 
                         newErrorString = (
-                                aMethod
-                                + ": One or more parameter types were invalid. HINT ["
-                                + newErrorString
+                            aMethod
+                            + ": One or more parameter types were invalid. HINT ["
+                            + newErrorString
                         )
                         errorString = newErrorString
                     except Exception:
@@ -351,7 +348,7 @@ class MotorCAD_base:
                         pass
 
                 success = -99
-                self._lastErrorMessage = errorString
+                self._last_error_message = errorString
 
                 self.__RaiseIfAllowed(errorString)
                 return
@@ -363,25 +360,27 @@ class MotorCAD_base:
                 # This doesn't have the normal success var
                 successValue = 1
             else:
-                successValue = kMethodSuccess
+                successValue = _METHOD_SUCCESS
 
             if success != successValue:
                 # This is an error caused by bad user code
                 # Exception is enabled by default
-                # Can get error message (GetLastErrorMessage) instead
+                # Can get error message (get_last_error_message) instead
                 if response["result"]["errorMessage"] != "":
                     errorMessage = response["result"]["errorMessage"]
                 else:
-                    errorMessage = "An error occurred in Motor-CAD"  # put some generic error message
+                    errorMessage = (
+                        "An error occurred in Motor-CAD"  # put some generic error message
+                    )
 
-                self._lastErrorMessage = errorMessage
+                self._last_error_message = errorMessage
 
                 self.__RaiseIfAllowed(errorMessage)
 
             resultList = []
 
             if aSuccessVar is None:
-                aSuccessVar = self.EnableSuccessVariable
+                aSuccessVar = self.enable_success_variable
 
             if aSuccessVar is True:
                 resultList.append(success)
@@ -417,20 +416,20 @@ class MotorCAD_base:
         params = ["program_version"]
         return self.__SendAndReceive(method, params, aSuccessVar=False)
 
-    def get_proccess_id(self):
+    def get_process_id(self):
         method = "GetVariable"
         params = ["MotorCADprocessID"]
-        return (int(self.__SendAndReceive(method, params, aSuccessVar=False)))
+        return int(self.__SendAndReceive(method, params, aSuccessVar=False))
 
     def __SetBusy(self):
         method = "SetBusy"
         return self.__SendAndReceive(method)
 
-    def SetFree(self):
-        method = "SetFree"
+    def set_free(self):
+        method = "set_free"
         return self.__SendAndReceive(method)
 
-    def GetLastErrorMessage(self):
+    def get_last_error_message(self):
         """Returns the most recent error message
 
         Returns
@@ -438,7 +437,7 @@ class MotorCAD_base:
         ErrorMessage : str
             Most recent error message
         """
-        return self._lastErrorMessage
+        return self._last_error_message
 
     # Motor-CAD functions start here
 
@@ -555,7 +554,8 @@ class MotorCAD_base:
         Parameters
         ----------
         numMessages : int
-            The number of recent messages to be returned. If numMessages=0 all messsages in history will be returned.
+            The number of recent messages to be returned.
+            If numMessages=0 all messages in history will be returned.
 
         Returns
         -------
@@ -574,7 +574,8 @@ class MotorCAD_base:
         return self.__SendAndReceive(method)
 
     def InitialiseTabNames(self):
-        """Initialises the available tabs in the Motor-CAD UI. Call before using SaveMotorCADScreenToFile or DisplayScreen. Motor-CAD UI must be visible.
+        """Initialises the available tabs in the Motor-CAD UI.
+        Call before using SaveMotorCADScreenToFile or DisplayScreen. Motor-CAD UI must be visible.
 
         Returns
         -------
@@ -586,12 +587,14 @@ class MotorCAD_base:
         return self.__SendAndReceive(method)
 
     def SaveMotorCADScreenToFile(self, screenName, fileName):
-        """Save the whole Motor-CAD screen of the specified tab as a image file, (bmp, jpg, png). InitialiseTabNames must be called before using this function. Motor-CAD UI must be visible.
+        """Save the whole Motor-CAD screen of the specified tab as a image file, (bmp, jpg, png).
+        InitialiseTabNames must be called before using this function. Motor-CAD UI must be visible.
 
         Parameters
         ----------
         screenName : str
-            Path of the screen to save, must be in the format of "tabName;tabName;tabName" e.g. "Geometry;Axial"
+            Path of the screen to save,
+            must be in the format of "tabName;tabName;tabName" e.g. "Geometry;Axial"
         fileName : str
             File where the image is to be saved (full path)
 
@@ -623,7 +626,7 @@ class MotorCAD_base:
             0 indicates a successful result
             -1 indicates failure
         """
-        if version.parse(self._Program_Version) < version.parse("15.2.0"):
+        if version.parse(self._program_version) < version.parse("15.2.0"):
             # Backwards compatibility for v15.1.x
             method = "Set_Visible"
         else:  # v15.2 onwards
@@ -803,18 +806,18 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def SaveTemplate(
-            self,
-            templateFileName,
-            name,
-            sector,
-            machineType,
-            application,
-            windingType,
-            maxSpeed,
-            power,
-            cooling,
-            driveType,
-            notes,
+        self,
+        templateFileName,
+        name,
+        sector,
+        machineType,
+        application,
+        windingType,
+        maxSpeed,
+        power,
+        cooling,
+        driveType,
+        notes,
     ):
         method = "SaveTemplate"
         params = [
@@ -1175,7 +1178,7 @@ class MotorCAD_base:
     # ------------------------------------ Geometry ------------------------------------
 
     def SetWindingCoil(
-            self, phase, path, coil, goSlot, goPosition, returnSlot, returnPosition, turns
+        self, phase, path, coil, goSlot, goPosition, returnSlot, returnPosition, turns
     ):
         method = "SetWindingCoil"
         params = [
@@ -1292,9 +1295,7 @@ class MotorCAD_base:
         params = [{"variant": graphName}, pointNumber]
         return self.__SendAndReceive(method, params)
 
-    def GetMagnetic3DGraphPoint(
-            self, graphName, sliceNumber, pointNumber, timeStepNumber
-    ):
+    def GetMagnetic3DGraphPoint(self, graphName, sliceNumber, pointNumber, timeStepNumber):
         """Gets a specified point from a MotorCAD graph
 
         Parameters
@@ -1350,9 +1351,7 @@ class MotorCAD_base:
 
     # ------------------------------------ FEA ------------------------------------
 
-    def SetPowerInjectionValue(
-            self, name, node1, Value, RPM_Ref, RPM_Coef, description
-    ):
+    def SetPowerInjectionValue(self, name, node1, Value, RPM_Ref, RPM_Coef, description):
         method = "SetPowerInjectionValue"
         params = [name, node1, Value, RPM_Ref, RPM_Coef, description]
         return self.__SendAndReceive(method, params)
@@ -1391,15 +1390,15 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def Add_Region_Thermal_A(
-            self,
-            regName,
-            ThermalConductivity,
-            Tcc,
-            RefTemp,
-            JVal,
-            Sigma,
-            Density,
-            LossDensity,
+        self,
+        regName,
+        ThermalConductivity,
+        Tcc,
+        RefTemp,
+        JVal,
+        Sigma,
+        Density,
+        LossDensity,
     ):
         method = "Add_Region_Thermal_A"
         params = [
@@ -1437,27 +1436,25 @@ class MotorCAD_base:
         method = "SolveProblem"
         return self.__SendAndReceive(method)
 
-    def Add_Region_Thermal(
-            self, RegName, ThermalConductivity, Tcc, RefTemp, JVal, Sigma, Density
-    ):
+    def Add_Region_Thermal(self, RegName, ThermalConductivity, Tcc, RefTemp, JVal, Sigma, Density):
         method = "Add_Region_Thermal"
         params = [RegName, ThermalConductivity, Tcc, RefTemp, JVal, Sigma, Density]
         return self.__SendAndReceive(method, params)
 
     def AddCircularConductor_A(
-            self,
-            xc,
-            yc,
-            copperRadius,
-            insRadius,
-            angDegree,
-            PointsNo,
-            Mb,
-            Line,
-            Column,
-            RegionName,
-            JAux,
-            LossDensity,
+        self,
+        xc,
+        yc,
+        copperRadius,
+        insRadius,
+        angDegree,
+        PointsNo,
+        Mb,
+        Line,
+        Column,
+        RegionName,
+        JAux,
+        LossDensity,
     ):
         method = "AddCircularConductor_A"
         params = [
@@ -1477,20 +1474,20 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def AddRectangularConductor_A(
-            self,
-            xc,
-            yc,
-            Width,
-            Height,
-            InsWidth,
-            angDeg,
-            PointsNo,
-            Mb,
-            line,
-            column,
-            regName,
-            JAux,
-            LossDensity,
+        self,
+        xc,
+        yc,
+        Width,
+        Height,
+        InsWidth,
+        angDeg,
+        PointsNo,
+        Mb,
+        line,
+        column,
+        regName,
+        JAux,
+        LossDensity,
     ):
         method = "AddRectangularConductor_A"
         params = [
@@ -1536,29 +1533,25 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def AddArc_Boundary_RT(
-            self, direction, rc, tc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
+        self, direction, rc, tc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
     ):
         method = "AddArc_Boundary_RT"
         params = [direction, rc, tc, Th1, Th2, R, dircode, symmcode, virtcode, initcode]
         return self.__SendAndReceive(method, params)
 
     def AddArc_Boundary_XY(
-            self, direction, xc, yc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
+        self, direction, xc, yc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
     ):
         method = "AddArc_Boundary_XY"
         params = [direction, xc, yc, Th1, Th2, R, dircode, symmcode, virtcode, initcode]
         return self.__SendAndReceive(method, params)
 
-    def AddLine_Boundary_RT(
-            self, rs, ts, re, te, dircode, symmcode, virtcode, initcode
-    ):
+    def AddLine_Boundary_RT(self, rs, ts, re, te, dircode, symmcode, virtcode, initcode):
         method = "AddLine_Boundary_RT"
         params = [rs, ts, re, te, dircode, symmcode, virtcode, initcode]
         return self.__SendAndReceive(method, params)
 
-    def AddLine_Boundary_XY(
-            self, xs, ys, xe, ye, dircode, symmcode, virtcode, initcode
-    ):
+    def AddLine_Boundary_XY(self, xs, ys, xe, ye, dircode, symmcode, virtcode, initcode):
         method = "AddLine_Boundary_XY"
         params = [xs, ys, xe, ye, dircode, symmcode, virtcode, initcode]
         return self.__SendAndReceive(method, params)
@@ -1588,7 +1581,7 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def SetFEAPathPoint(
-            self, pathName, pathLocation, coordSystem, rorx, tory, calculation, expression
+        self, pathName, pathLocation, coordSystem, rorx, tory, calculation, expression
     ):
         method = "SetFEAPathPoint"
         params = [
@@ -1603,16 +1596,16 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def SetFEAPathArc(
-            self,
-            pathName,
-            pathLocation,
-            r,
-            thetaStart,
-            thetaEnd,
-            points,
-            FEAmethod,
-            calculation,
-            expression,
+        self,
+        pathName,
+        pathLocation,
+        r,
+        thetaStart,
+        thetaEnd,
+        points,
+        FEAmethod,
+        calculation,
+        expression,
     ):
         method = "SetFEAPathArc"
         params = [
@@ -1629,17 +1622,17 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def SetFEAPathLine(
-            self,
-            pathName,
-            pathLocation,
-            coordSystem,
-            rorXStart,
-            torYStart,
-            rorXEnd,
-            torYEnd,
-            points,
-            calculation,
-            expression,
+        self,
+        pathName,
+        pathLocation,
+        coordSystem,
+        rorXStart,
+        torYStart,
+        rorXEnd,
+        torYEnd,
+        points,
+        calculation,
+        expression,
     ):
         method = "SetFEAPathLine"
         params = [
@@ -1701,7 +1694,7 @@ class MotorCAD_base:
         return self.__SendAndReceive(method)
 
     def AddMagnetRegion_RT(
-            self, r, theta, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
+        self, r, theta, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
     ):
         method = "AddMagnetRegion_RT"
         params = [
@@ -1716,7 +1709,7 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
     def AddMagnetRegion_XY(
-            self, x, y, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
+        self, x, y, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
     ):
         method = "AddMagnetRegion_XY"
         params = [x, y, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode]
@@ -1977,52 +1970,52 @@ class MotorCAD_base:
         return self.__SendAndReceive(method, params)
 
 
-class MotorCAD(MotorCAD_base):
+class MotorCAD(MotorCADBase):
     """Standard MotorCAD object"""
 
     def __init__(
-            self,
-            Port=-1,
-            OpenNewInstance=True,
-            EnableExceptions=True,
-            EnableSuccessVariable=False,
+        self,
+        port=-1,
+        open_new_instance=True,
+        enable_exceptions=True,
+        enable_success_variable=False,
     ):
         """Connect to existing Motor-CAD instance or open a new one
         Parameters
         ----------
-        Port : int
+        port : int
             Port to use for communication
-        OpenNewInstance: Boolean
+        open_new_instance: Boolean
             Open a new instance or try to connect to existing instance
-        EnableExceptions : Boolean
+        enable_exceptions : Boolean
             Show Motor-CAD communication errors as Python exceptions
-        EnableSuccessVariable: Boolean
+        enable_success_variable: Boolean
                 Motor-CAD methods return a success variable (first object in tuple)
 
         Returns
         -------
         MotorCAD object
         """
-        super().__init__(Port, OpenNewInstance, EnableExceptions, EnableSuccessVariable)
+        super().__init__(port, open_new_instance, enable_exceptions, enable_success_variable)
 
-    # This gives an area to add functions to without touching MotorCAD_base
+    # This gives an area to add functions to without touching MotorCADBase
     # Move these classes to another file?
 
 
-class MotorCAD_Compatibility(MotorCAD_base):
+class MotorCADCompatibility(MotorCADBase):
     """Creates a MotorCAD object that behaves the same as old ActiveX methods.
     Can be used for old scripts that were written for ActiveX"""
 
     def __init__(self):
-        Port = -1
-        OpenNewInstance = False
-        EnableExceptions = False
-        EnableSuccessVariable = True
+        port = -1
+        open_new_instance = False
+        enable_exceptions = False
+        enable_success_variable = True
 
         super().__init__(
-            Port,
-            OpenNewInstance,
-            EnableExceptions,
-            EnableSuccessVariable,
-            CompatibilityMode=True,
+            port,
+            open_new_instance,
+            enable_exceptions,
+            enable_success_variable,
+            compatibility_mode=True,
         )
