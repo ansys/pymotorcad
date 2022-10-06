@@ -278,7 +278,10 @@ class MotorCADBase:
 
             if port != -1:
                 self._port = port
-                break
+
+                # Check port has active RPC connection
+                if self.__WaitForResponse(1) is True:
+                    break
 
             time.sleep(pause_time)
             numberOfTries = numberOfTries + 1
