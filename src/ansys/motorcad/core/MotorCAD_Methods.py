@@ -1,5 +1,4 @@
-"""MotorCAD_Methods
-version: """
+"""Module containing MotorCAD class for connecting to Motor-CAD exe."""
 
 from os import environ, path
 import re
@@ -26,28 +25,31 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 
 def set_server_ip(ip):
-    """IP of machine that MotorCAD is running on"""
+    """IP of machine that MotorCAD is running on."""
     global SERVER_IP
     SERVER_IP = ip
 
 
 def set_default_instance(port):
-    """Used when running script from MotorCAD"""
+    """Use when running script from MotorCAD."""
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
 
 def set_motorcad_exe(exe_location):
+    """Set location of Motor-CAD.exe to launch."""
     global MOTORCAD_EXE_GLOBAL
     MOTORCAD_EXE_GLOBAL = exe_location
 
 
 class MotorCADError(Exception):
+    """Error raised when an issue is raised by Motor-CAD exe."""
+
     pass
 
 
 class MotorCADBase:
-    """Each MotorCAD object has a Motor-CAD.exe instance attached to it"""
+    """Each MotorCAD object has a Motor-CAD.exe instance attached to it."""
 
     def __init__(
         self,
@@ -58,7 +60,8 @@ class MotorCADBase:
         reuse_parallel_instances=False,
         compatibility_mode=False,
     ):
-        """Description of function
+        """Create MotorCAD object for communication.
+
         Parameters
         ----------
         port : int
@@ -77,7 +80,6 @@ class MotorCADBase:
         -------
         MotorCAD object
         """
-
         self._port = -1
         self._connected = False
         self._last_error_message = ""
@@ -132,7 +134,7 @@ class MotorCADBase:
             )
 
     def __del__(self):
-        """Close Motor-CAD when MotorCAD object leaves memory"""
+        """Close Motor-CAD when MotorCAD object leaves memory."""
         if self._connected is True:
             if (
                 (self.reuse_parallel_instances is False)
@@ -152,7 +154,7 @@ class MotorCADBase:
             raise MotorCADError(aErrorMessage)
 
     def __GetUrl(self):
-        """Gets url for RPC communication"""
+        """Get url for RPC communication."""
         url = SERVER_IP + ":" + str(self._port) + "/jsonrpc"
         return url
 
@@ -291,6 +293,13 @@ class MotorCADBase:
         self.__WaitForResponse(20)
 
     def is_open(self):
+        """Check if Motor-CAD exe is still running.
+
+        Returns
+        -------
+        boolean
+            True if Motor-CAD exe is running.
+        """
         if self._pid != -1:
             return psutil.pid_exists(self._pid)
         else:
@@ -433,7 +442,7 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def get_last_error_message(self):
-        """Returns the most recent error message
+        """Return the most recent error message.
 
         Returns
         -------
@@ -446,22 +455,22 @@ class MotorCADBase:
 
     # ------------------------------------ Variables ------------------------------------
 
-    def GetArrayVariable_2d(self, arrayName, arrayIndex1, arrayIndex2):
+    def GetArrayVariable_2d(self, array_name, array_index1, array_index2):
         method = "GetArrayVariable_2d"
-        params = [arrayName, arrayIndex1, arrayIndex2]
+        params = [array_name, array_index1, array_index2]
         return self.__SendAndReceive(method, params)
 
-    def SetArrayVariable_2d(self, arrayName, arrayIndex1, arrayIndex2, newValue):
+    def SetArrayVariable_2d(self, array_name, array_index1, array_index2, new_value):
         method = "SetArrayVariable_2d"
-        params = [arrayName, arrayIndex1, arrayIndex2, {"variant": newValue}]
+        params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.__SendAndReceive(method, params)
 
     def RestoreCompatibilitySettings(self):
         method = "RestoreCompatibilitySettings"
         return self.__SendAndReceive(method)
 
-    def GetVariable(self, variableName):
-        """Gets a MotorCAD variable
+    def GetVariable(self, variable_name):
+        """Get a MotorCAD variable.
 
         Parameters
         ----------
@@ -470,74 +479,60 @@ class MotorCADBase:
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         result: int|float|str|bool
             Value of MotorCAD variable
         """
         method = "GetVariable"
-        params = [variableName]
+        params = [variable_name]
         return self.__SendAndReceive(method, params)
 
-    def GetArrayVariable(self, arrayName, arrayIndex):
-        """Gets a MotorCAD array variable
+    def GetArrayVariable(self, array_name, array_index):
+        """Get a MotorCAD array variable.
 
         Parameters
         ----------
-        arrayName : str
+        array_name : str
             Name of array
-        arrayIndex : int
+        array_index : int
             Position variable in array
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         result: int|float|str|bool
             Value of MotorCAD variable
         """
         method = "GetArrayVariable"
-        params = [arrayName, arrayIndex]
+        params = [array_name, array_index]
         return self.__SendAndReceive(method, params)
 
-    def SetVariable(self, variableName, variableValue):
-        """Sets a MotorCAD variable
+    def SetVariable(self, variable_name, variable_value):
+        """Set a MotorCAD variable.
 
         Parameters
         ----------
-        variableName : str
+        variable_name : str
             Name of variable
-        variableValue : int|float|str|bool
+        variable_value : int|float|str|bool
             Sets the variable to this value
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "SetVariable"
-        params = [variableName, {"variant": variableValue}]
+        params = [variable_name, {"variant": variable_value}]
         return self.__SendAndReceive(method, params)
 
-    def SetArrayVariable(self, arrayName, arrayIndex, variableValue):
-        """Sets a MotorCAD array variable
+    def SetArrayVariable(self, array_name, array_index, variable_value):
+        """Set a MotorCAD array variable.
 
         Parameters
         ----------
-        arrayName : str
+        array_name : str
             Name of array
-        arrayIndex : int
+        array_index : int
             Position in array
-        variableValue : int|float|str|bool
+        variable_value : int|float|str|bool
             Sets the variable to this value
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "SetArrayVariable"
-        params = [arrayName, arrayIndex, {"variant": variableValue}]
+        params = [array_name, array_index, {"variant": variable_value}]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ UI ------------------------------------
@@ -546,30 +541,27 @@ class MotorCADBase:
         method = "IsStopRequested"
         return self.__SendAndReceive(method)
 
-    def DisableErrorMessages(self, Active):
+    def DisableErrorMessages(self, active):
         method = "DisableErrorMessages"
-        params = [Active]
+        params = [active]
         return self.__SendAndReceive(method, params)
 
-    def GetMessages(self, numMessages):
-        """Returns a list of the last N messages from the message history
+    def GetMessages(self, num_messages):
+        """Return a list of the last N messages from the message history.
 
         Parameters
         ----------
-        numMessages : int
+        num_messages : int
             The number of recent messages to be returned.
             If numMessages=0 all messages in history will be returned.
 
         Returns
         -------
-        success : int
-            0 indicates success
-            -1 indicates failure
         messages : str
             List of messages (most recent first, separated by ;)
         """
         method = "GetMessages"
-        params = [numMessages]
+        params = [num_messages]
         return self.__SendAndReceive(method, params)
 
     def UpdateInterface(self):
@@ -577,38 +569,28 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def InitialiseTabNames(self):
-        """Initialises the available tabs in the Motor-CAD UI.
-        Call before using SaveMotorCADScreenToFile or DisplayScreen. Motor-CAD UI must be visible.
+        """Initialise the available tabs in the Motor-CAD UI.
 
-        Returns
-        -------
-        success : int
-            0 indicates success
-            -1 indicates failure
+        Call before using SaveMotorCADScreenToFile or DisplayScreen. Motor-CAD UI must be visible.
         """
         method = "InitialiseTabNames"
         return self.__SendAndReceive(method)
 
-    def SaveMotorCADScreenToFile(self, screenName, fileName):
+    def SaveMotorCADScreenToFile(self, screen_name, file_name):
         """Save the whole Motor-CAD screen of the specified tab as a image file, (bmp, jpg, png).
+
         InitialiseTabNames must be called before using this function. Motor-CAD UI must be visible.
 
         Parameters
         ----------
-        screenName : str
+        screen_name : str
             Path of the screen to save,
             must be in the format of "tabName;tabName;tabName" e.g. "Geometry;Axial"
-        fileName : str
+        file_name : str
             File where the image is to be saved (full path)
-
-        Returns
-        -------
-        success : int
-            0 indicates success
-            -1 indicates failure
         """
         method = "SaveMotorCADScreenToFile"
-        params = [screenName, fileName]
+        params = [screen_name, file_name]
         return self.__SendAndReceive(method, params)
 
     def GetLicence(self):
@@ -616,18 +598,12 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def SetVisible(self, visible):
-        """Sets the visibility of the Motor-CAD user interface
+        """Set the visibility of the Motor-CAD user interface.
 
         Parameters
         ----------
         visible : bool
             When true, the Motor-CAD user interface is shown. When false, the UI is hidden.
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
-            -1 indicates failure
         """
         if version.parse(self._program_version) < version.parse("15.2.0"):
             # Backwards compatibility for v15.1.x
@@ -638,9 +614,9 @@ class MotorCADBase:
         params = [visible]
         return self.__SendAndReceive(method, params)
 
-    def AvoidImmediateUpdate(self, avoidUpdate):
+    def AvoidImmediateUpdate(self, avoid_update):
         method = "AvoidImmediateUpdate"
-        params = [{"variant": avoidUpdate}]
+        params = [{"variant": avoid_update}]
         return self.__SendAndReceive(method, params)
 
     def ClearMessageLog(self):
@@ -648,293 +624,240 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def ShowMessage(self, message):
-        """Display a message in the MotorCAD message window
+        """Display a message in the MotorCAD message window.
 
         Parameters
         ----------
         message : str
             Message to display
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "ShowMessage"
         params = [message]
         return self.__SendAndReceive(method, params)
 
     def showmessage(self, message):
-        """ "See ShowMessage. For backwards compatibility"""
+        """See ShowMessage - for backwards compatibility."""
         return self.ShowMessage(message)
 
     def ShowMagneticContext(self):
-        """Show magnetic context in Motor-CAD
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
-        """
+        """Show magnetic context in Motor-CAD."""
         method = "ShowMagneticContext"
         return self.__SendAndReceive(method)
 
     def ShowMechanicalContext(self):
-        """Show mechanical context in Motor-CAD
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
-        """
+        """Show mechanical context in Motor-CAD."""
         method = "ShowMechanicalContext"
         return self.__SendAndReceive(method)
 
     def ShowThermalContext(self):
-        """Show thermal context in Motor-CAD
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
-        """
+        """Show thermal context in Motor-CAD."""
         method = "ShowThermalContext"
         return self.__SendAndReceive(method)
 
-    def DisplayScreen(self, screenName):
-        """Shows a screen within Motor-CAD
+    def DisplayScreen(self, screen_name):
+        """Show a screen within Motor-CAD.
 
         Parameters
         ----------
-        screenName : str
+        screen_name : str
             Screen to display
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "DisplayScreen"
-        params = [screenName]
+        params = [screen_name]
         return self.__SendAndReceive(method, params)
 
     def Quit(self):
-        """Quits MotorCAD"""
+        """Quit MotorCAD."""
         method = "Quit"
         return self.__SendAndReceive(method)
 
-    def SaveScreenToFile(self, screenName, fileName):
-        """Saves a screen as an image
+    def SaveScreenToFile(self, screen_name, file_name):
+        """Save a screen as an image.
 
         Parameters
         ----------
-        screenName : str
+        screen_name : str
             Screen to save
-        fileName : str
+        file_name : str
             File to save image full path
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "SaveScreenToFile"
-        params = [screenName, fileName]
+        params = [screen_name, file_name]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ Files ------------------------------------
 
-    def LoadDutyCycle(self, fileName):
+    def LoadDutyCycle(self, file_name):
         method = "LoadDutyCycle"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveDutyCycle(self, fileName):
+    def SaveDutyCycle(self, file_name):
         method = "SaveDutyCycle"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def ExportMatrices(self, fileName):
+    def ExportMatrices(self, file_name):
         method = "ExportMatrices"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def LoadCustomDriveCycle(self, fileName):
+    def LoadCustomDriveCycle(self, file_name):
         method = "LoadCustomDriveCycle"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def LoadFEAResult(self, fileName, solutionNumber):
+    def LoadFEAResult(self, file_name, solution_number):
         method = "LoadFEAResult"
-        params = [fileName, solutionNumber]
+        params = [file_name, solution_number]
         return self.__SendAndReceive(method, params)
 
-    def ExportToAnsysElectronicsDesktop(self, fileName):
+    def ExportToAnsysElectronicsDesktop(self, file_name):
         method = "ExportToAnsysElectronicsDesktop"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def ExportResults(self, solutionType, fileName):
+    def ExportResults(self, solution_type, file_name):
         method = "ExportResults"
-        params = [solutionType, fileName]
+        params = [solution_type, file_name]
         return self.__SendAndReceive(method, params)
 
-    def LoadDXFFile(self, fileName):
+    def LoadDXFFile(self, file_name):
         method = "LoadDXFFile"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def CreateReport(self, filePath, templatefilePath):
+    def CreateReport(self, file_path, template_file_path):
         method = "CreateReport"
-        params = [filePath, templatefilePath]
+        params = [file_path, template_file_path]
         return self.__SendAndReceive(method, params)
 
-    def LoadReportStructure(self, filePath):
+    def LoadReportStructure(self, file_path):
         method = "LoadReportStructure"
-        params = [filePath]
+        params = [file_path]
         return self.__SendAndReceive(method, params)
 
-    def ExportForceAnimation(self, animation, fileName):
+    def ExportForceAnimation(self, animation, file_name):
         method = "ExportForceAnimation"
-        params = [animation, fileName]
+        params = [animation, file_name]
         return self.__SendAndReceive(method, params)
 
     def LoadReportTree(self):
         method = "LoadReportTree"
         return self.__SendAndReceive(method)
 
-    def LoadTemplate(self, templateName):
+    def LoadTemplate(self, template_name):
         method = "LoadTemplate"
-        params = [templateName]
+        params = [template_name]
         return self.__SendAndReceive(method, params)
 
     def SaveTemplate(
         self,
-        templateFileName,
+        template_file_name,
         name,
         sector,
-        machineType,
+        machine_type,
         application,
-        windingType,
-        maxSpeed,
+        winding_type,
+        max_speed,
         power,
         cooling,
-        driveType,
+        drive_type,
         notes,
     ):
         method = "SaveTemplate"
         params = [
-            templateFileName,
+            template_file_name,
             name,
             sector,
-            machineType,
+            machine_type,
             application,
-            windingType,
-            maxSpeed,
+            winding_type,
+            max_speed,
             power,
             cooling,
-            driveType,
+            drive_type,
             notes,
         ]
         return self.__SendAndReceive(method, params)
 
-    def LoadWindingPattern(self, fileName):
+    def LoadWindingPattern(self, file_name):
         method = "LoadWindingPattern"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveWindingPattern(self, fileName):
+    def SaveWindingPattern(self, file_name):
         method = "SaveWindingPattern"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def ExportMultiForceData(self, fileName):
+    def ExportMultiForceData(self, file_name):
         method = "ExportMultiForceData"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
     def GeometryExport(self):
         method = "GeometryExport"
         return self.__SendAndReceive(method)
 
-    def ExportToAnsysDiscovery(self, fileName):
+    def ExportToAnsysDiscovery(self, file_name):
         method = "ExportToAnsysDiscovery"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def ExportNVHResultsData(self, fileName):
+    def ExportNVHResultsData(self, file_name):
         method = "ExportNVHResultsData"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def LoadFromFile(self, motFile):
-        """Loads a .mot file into the MotorCAD instance
+    def LoadFromFile(self, mot_file):
+        """Load a .mot file into the MotorCAD instance.
 
         Parameters
         ----------
-        motFile : str
+        mot_file : str
             Full path to file including file name. You can use r'filepath' syntax to force
             Python to ignore special characters.
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "LoadFromFile"
-        params = [motFile]
+        params = [mot_file]
         return self.__SendAndReceive(method, params)
 
-    def SaveToFile(self, motFile):
-        """Saves the current .mot file
+    def SaveToFile(self, mot_file):
+        """Save the current .mot file.
 
         Parameters
         ----------
-        motFile : str
+        mot_file : str
             Full path to file including file name. You can use r'filepath' syntax to force
             Python to ignore special characters.
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "SaveToFile"
-        params = [motFile]
+        params = [mot_file]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ Internal Scripting ------------------------------------
 
-    def SaveScript(self, fileName):
+    def SaveScript(self, file_name):
         method = "SaveScript"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def LoadScript(self, scriptFile):
-        """Loads a script file into Motor-CAD internal scripting
+    def LoadScript(self, script_file):
+        """Load a script file into Motor-CAD internal scripting.
 
         Parameters
         ----------
-        scriptFile : str
+        script_file : str
             Full path to file including file name. You can use r'filepath' syntax to force
             Python to ignore special characters.
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
         """
         method = "LoadScript"
-        params = [scriptFile]
+        params = [script_file]
         return self.__SendAndReceive(method, params)
 
     def RunScript(self):
-        """Runs script file in Motor-CAD internal scripting
-        Returns
-        -------
-        success : int
-            0 indicates a successful result
-        """
+        """Run script file in Motor-CAD internal scripting."""
         method = "RunScript"
         return self.__SendAndReceive(method)
 
@@ -948,26 +871,27 @@ class MotorCADBase:
         method = "DoMagneticThermalCalculation"
         return self.__SendAndReceive(method)
 
-    def GetIMSaturationFactor(self, iMag):
-        """NO SUCCESS VARIABLE
+    def GetIMSaturationFactor(self, i_mag):
+        """NO SUCCESS VARIABLE.
+
         Returns
         -------
         satFactor : real
             Saturation Factor
         """
         method = "GetIMSaturationFactor"
-        params = [iMag]
+        params = [i_mag]
         satFactor = self.__SendAndReceive(method, params, aSuccessVar=False)
         return satFactor
 
-    def GetIMIronLoss(self, slip, backEMF):
+    def GetIMIronLoss(self, slip, back_emf):
         method = "GetIMIronLoss"
-        params = [slip, backEMF]
+        params = [slip, back_emf]
         return self.__SendAndReceive(method, params)
 
-    def Set3DComponentVisibility(self, groupName, componentName, visibility):
+    def Set3DComponentVisibility(self, group_name, component_name, visibility):
         method = "Set3DComponentVisibility"
-        params = [groupName, componentName, visibility]
+        params = [group_name, component_name, visibility]
         return self.__SendAndReceive(method, params)
 
     def SetAllEmagCalculations(self, state):
@@ -983,14 +907,14 @@ class MotorCADBase:
         method = "CalculateTorqueEnvelope"
         return self.__SendAndReceive(method)
 
-    def SaveResults(self, solutionType):
+    def SaveResults(self, solution_type):
         method = "SaveResults"
-        params = [solutionType]
+        params = [solution_type]
         return self.__SendAndReceive(method, params)
 
-    def LoadResults(self, solutionType):
+    def LoadResults(self, solution_type):
         method = "LoadResults"
-        params = [solutionType]
+        params = [solution_type]
         return self.__SendAndReceive(method, params)
 
     def CalculateIMSaturationModel(self):
@@ -1005,14 +929,14 @@ class MotorCADBase:
         method = "CalculateForceHarmonics_Temporal"
         return self.__SendAndReceive(method)
 
-    def GetForceFrequencyDomainAmplitude(self, row, column, loadpoint):
+    def GetForceFrequencyDomainAmplitude(self, row, column, load_point):
         method = "GetForceFrequencyDomainAmplitude"
-        params = [row, column, loadpoint]
+        params = [row, column, load_point]
         return self.__SendAndReceive(method, params)
 
-    def UpdateForceAnalysisResults(self, FFTDataType):
+    def UpdateForceAnalysisResults(self, fft_data_type):
         method = "UpdateForceAnalysisResults"
-        params = [FFTDataType]
+        params = [fft_data_type]
         return self.__SendAndReceive(method, params)
 
     def DoMultiForceCalculation(self):
@@ -1020,57 +944,27 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def DoSteadyStateAnalysis(self):
-        """Do thermal steady state analysis
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Do thermal steady state analysis."""
         method = "DoSteadyStateAnalysis"
         return self.__SendAndReceive(method)
 
     def DoTransientAnalysis(self):
-        """Do thermal transient analysis
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Do thermal transient analysis."""
         method = "DoTransientAnalysis"
         return self.__SendAndReceive(method)
 
     def DoMagneticCalculation(self):
-        """Run the Motor-CAD magnetic calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Run the Motor-CAD magnetic calculation."""
         method = "DoMagneticCalculation"
         return self.__SendAndReceive(method)
 
     def DoWeightCalculation(self):
-        """Run the Motor-CAD weight calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Run the Motor-CAD weight calculation."""
         method = "DoWeightCalculation"
         return self.__SendAndReceive(method)
 
     def DoMechanicalCalculation(self):
-        """Run the Motor-CAD mechanical calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Run the Motor-CAD mechanical calculation."""
         method = "DoMechanicalCalculation"
         return self.__SendAndReceive(method)
 
@@ -1088,110 +982,74 @@ class MotorCADBase:
         method = "GetModelBuilt_Lab"
         return self.__SendAndReceive(method)
 
-    def ShowResultsViewer_Lab(self, calculationType):
+    def ShowResultsViewer_Lab(self, calculation_type):
         method = "ShowResultsViewer_Lab"
-        params = [calculationType]
+        params = [calculation_type]
         return self.__SendAndReceive(method, params)
 
-    def ExportFigure_Lab(self, calculationType, variable, fileName):
+    def ExportFigure_Lab(self, calculation_type, variable, file_name):
         method = "ExportFigure_Lab"
-        params = [calculationType, variable, fileName]
+        params = [calculation_type, variable, file_name]
         return self.__SendAndReceive(method, params)
 
     def CalculateGenerator_Lab(self):
         method = "CalculateGenerator_Lab"
         return self.__SendAndReceive(method)
 
-    def LoadExternalModel_Lab(self, fileName):
+    def LoadExternalModel_Lab(self, file_name):
         method = "LoadExternalModel_Lab"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
     def ClearModelBuild_Lab(self):
-        """Clears the Lab model build
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Clear the Lab model build."""
         method = "ClearModelBuild_Lab"
         return self.__SendAndReceive(method)
 
     def SetMotorLABContext(self):
-        """Changes Motor-CAD to Lab Context"""
+        """Change Motor-CAD to Lab Context."""
         method = "SetMotorLABContext"
         return self.__SendAndReceive(method)
 
     def BuildModel_Lab(self):
-        """Builds the Lab model
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Build the Lab model."""
         method = "BuildModel_Lab"
         return self.__SendAndReceive(method)
 
     def CalculateOperatingPoint_Lab(self):
-        """Calculates Lab operating point
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Calculate Lab operating point."""
         method = "CalculateOperatingPoint_Lab"
         return self.__SendAndReceive(method)
 
     def CalculateMagnetic_Lab(self):
-        """Does Lab magnetic calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Do Lab magnetic calculation."""
         method = "CalculateMagnetic_Lab"
         return self.__SendAndReceive(method)
 
     def CalculateThermal_Lab(self):
-        """Does Lab thermal calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Do Lab thermal calculation."""
         method = "CalculateThermal_Lab"
         return self.__SendAndReceive(method)
 
     def CalculateDutyCycle_Lab(self):
-        """Does Lab duty cycle calculation
-
-        Returns
-        -------
-        success : int
-            0 indicates a successful calculation
-        """
+        """Calculate Lab duty cycle."""
         method = "CalculateDutyCycle_Lab"
         return self.__SendAndReceive(method)
 
     # ------------------------------------ Geometry ------------------------------------
 
     def SetWindingCoil(
-        self, phase, path, coil, goSlot, goPosition, returnSlot, returnPosition, turns
+        self, phase, path, coil, go_slot, go_position, return_slot, return_position, turns
     ):
         method = "SetWindingCoil"
         params = [
             phase,
             path,
             coil,
-            goSlot,
-            goPosition,
-            returnSlot,
-            returnPosition,
+            go_slot,
+            go_position,
+            return_slot,
+            return_position,
             turns,
         ]
         return self.__SendAndReceive(method, params)
@@ -1201,162 +1059,151 @@ class MotorCADBase:
         params = [phase, path, coil]
         return self.__SendAndReceive(method, params)
 
-    def CheckIfGeometryIsValid(self, editGeometry):
-        """Checks if Motor-CAD geometry is valid
+    def CheckIfGeometryIsValid(self, edit_geometry):
+        """Check if Motor-CAD geometry is valid.
 
         Returns
         -------
         success : int
             1 indicates valid geometry
-            NOTE: This is different to the standard convention
         """
         method = "CheckIfGeometryIsValid"
-        params = [editGeometry]
+        params = [edit_geometry]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ Graphs ------------------------------------
 
-    def LoadMagnetisationCurves(self, fileName):
+    def LoadMagnetisationCurves(self, file_name):
         method = "LoadMagnetisationCurves"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveMagnetisationCurves(self, fileName):
+    def SaveMagnetisationCurves(self, file_name):
         method = "SaveMagnetisationCurves"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def GetMagneticGraphPoint(self, graphName, pointNumber):
-        """Gets a specified point from a MotorCAD Magnetic graph
+    def GetMagneticGraphPoint(self, graph_name, point_number):
+        """Get a specified point from a MotorCAD Magnetic graph.
 
         Parameters
         ----------
-        graphName : str|int
+        graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             MotorCAD (help -> graph viewer)
-        pointNumber : int
+        point_number : int
             Point number to retrieve x and y values from
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         xValue : float
             value of x coordinate from graph
         yValue : float
             value of y coordinate from graph
         """
         method = "GetMagneticGraphPoint"
-        params = [{"variant": graphName}, pointNumber]
+        params = [{"variant": graph_name}, point_number]
         return self.__SendAndReceive(method, params)
 
-    def GetTemperatureGraphPoint(self, graphName, pointNumber):
-        """Gets a specified point from a MotorCAD Thermal graph
+    def GetTemperatureGraphPoint(self, graph_name, point_number):
+        """Get a specified point from a MotorCAD Thermal graph.
 
         Parameters
         ----------
-        graphName : str|int
+        graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             MotorCAD (help -> graph viewer)
-        pointNumber : int
+        point_number : int
             Point number to retrieve x and y values from
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         xValue : float
             value of x coordinate from graph
         yValue : float
             value of y coordinate from graph
         """
         method = "GetTemperatureGraphPoint"
-        params = [{"variant": graphName}, pointNumber]
+        params = [{"variant": graph_name}, point_number]
         return self.__SendAndReceive(method, params)
 
-    def GetPowerGraphPoint(self, graphName, pointNumber):
-        """Gets a specified point from a MotorCAD graph
+    def GetPowerGraphPoint(self, graph_name, point_number):
+        """Get a specified point from a MotorCAD graph.
 
         Parameters
         ----------
-        graphName : str|int
+        graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             MotorCAD (help -> graph viewer)
-        pointNumber : int
+        point_number : int
             Point number to retrieve x and y values from
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         xValue : float
             value of x coordinate from graph
         yValue : float
             value of y coordinate from graph
         """
         method = "GetPowerGraphPoint"
-        params = [{"variant": graphName}, pointNumber]
+        params = [{"variant": graph_name}, point_number]
         return self.__SendAndReceive(method, params)
 
-    def GetMagnetic3DGraphPoint(self, graphName, sliceNumber, pointNumber, timeStepNumber):
-        """Gets a specified point from a MotorCAD graph
+    def GetMagnetic3DGraphPoint(self, graph_name, slice_number, point_number, time_step_number):
+        """Get a specified point from a MotorCAD graph.
 
         Parameters
         ----------
-        graphName : str|int
+        graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             MotorCAD (help -> graph viewer)
-        sliceNumber
+        slice_number
 
-        pointNumber : int
+        point_number : int
             Point number to retrieve x and y values from
-        timeStepNumber
+        time_step_number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         xValue : float
             value of x coordinate from graph
         yValue : float
             value of y coordinate from graph
         """
         method = "GetMagnetic3DGraphPoint"
-        params = [{"variant": graphName}, sliceNumber, pointNumber, timeStepNumber]
+        params = [{"variant": graph_name}, slice_number, point_number, time_step_number]
         return self.__SendAndReceive(method, params)
 
-    def GetFEAGraphPoint(self, graphID, sliceNumber, pointNumber, timeStepNumber):
-        """Gets a specified point from a MotorCAD graph
+    def GetFEAGraphPoint(self, graph_id, slice_number, point_number, time_step_number):
+        """Get a specified point from a MotorCAD graph.
 
         Parameters
         ----------
-        graphID : str|int
+        graph_id : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             MotorCAD (help -> graph viewer)
-        sliceNumber
+        slice_number
 
-        pointNumber : int
+        point_number : int
             Point number to retrieve x and y values from
-        timeStepNumber
+        time_step_number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         xValue : float
             value of x coordinate from graph
         yValue : float
             value of y coordinate from graph
         """
         method = "GetFEAGraphPoint"
-        params = [{"variant": graphID}, sliceNumber, pointNumber, timeStepNumber]
+        params = [{"variant": graph_id}, slice_number, point_number, time_step_number]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ FEA ------------------------------------
 
-    def SetPowerInjectionValue(self, name, node1, Value, RPM_Ref, RPM_Coef, description):
+    def SetPowerInjectionValue(self, name, node1, value, rpm_ref, rpm_coef, description):
         method = "SetPowerInjectionValue"
-        params = [name, node1, Value, RPM_Ref, RPM_Coef, description]
+        params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.__SendAndReceive(method, params)
 
     def SetFixedTemperatureValue(self, name, node1, value, description):
@@ -1382,97 +1229,99 @@ class MotorCADBase:
         params = [xs, ys, xe, ye]
         return self.__SendAndReceive(method, params)
 
-    def SetBndCond(self, dirCode, c1, c2, c3):
+    def SetBndCond(self, dir_code, c1, c2, c3):
         method = "SetBndCond"
-        params = [dirCode, c1, c2, c3]
+        params = [dir_code, c1, c2, c3]
         return self.__SendAndReceive(method, params)
 
-    def StoreProblemData(self, PType, EqType, Symmode, SymmAxis, TimeMode, dt, tmax):
+    def StoreProblemData(self, p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max):
         method = "StoreProblemData"
-        params = [PType, EqType, Symmode, SymmAxis, TimeMode, dt, tmax]
+        params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
         return self.__SendAndReceive(method, params)
 
     def Add_Region_Thermal_A(
         self,
-        regName,
-        ThermalConductivity,
-        Tcc,
-        RefTemp,
-        JVal,
-        Sigma,
-        Density,
-        LossDensity,
+        reg_name,
+        thermal_conductivity,
+        tcc,
+        ref_temp,
+        j_val,
+        sigma,
+        density,
+        loss_density,
     ):
         method = "Add_Region_Thermal_A"
         params = [
-            regName,
-            ThermalConductivity,
-            Tcc,
-            RefTemp,
-            JVal,
-            Sigma,
-            Density,
-            LossDensity,
+            reg_name,
+            thermal_conductivity,
+            tcc,
+            ref_temp,
+            j_val,
+            sigma,
+            density,
+            loss_density,
         ]
         return self.__SendAndReceive(method, params)
 
-    def AddPoint_XY(self, x, y, regName):
+    def AddPoint_XY(self, x, y, reg_name):
         method = "AddPoint_XY"
-        params = [x, y, regName]
+        params = [x, y, reg_name]
         return self.__SendAndReceive(method, params)
 
     def CreateOptimisedMesh(self):
         method = "CreateOptimisedMesh"
         return self.__SendAndReceive(method)
 
-    def CreateOptimisedMesh_Thermal(self, copperRegion, insRegion, impregRegion):
+    def CreateOptimisedMesh_Thermal(self, copper_region, ins_region, impreg_region):
         method = "CreateOptimisedMesh_Thermal"
-        params = [copperRegion, insRegion, impregRegion]
+        params = [copper_region, ins_region, impreg_region]
         return self.__SendAndReceive(method, params)
 
-    def SetMeshGeneratorParam(self, maxBndLength, BndFactor, maxAngle):
+    def SetMeshGeneratorParam(self, max_bnd_length, bnd_factor, max_angle):
         method = "SetMeshGeneratorParam"
-        params = [maxBndLength, BndFactor, maxAngle]
+        params = [max_bnd_length, bnd_factor, max_angle]
         return self.__SendAndReceive(method, params)
 
     def SolveProblem(self):
         method = "SolveProblem"
         return self.__SendAndReceive(method)
 
-    def Add_Region_Thermal(self, RegName, ThermalConductivity, Tcc, RefTemp, JVal, Sigma, Density):
+    def Add_Region_Thermal(
+        self, reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density
+    ):
         method = "Add_Region_Thermal"
-        params = [RegName, ThermalConductivity, Tcc, RefTemp, JVal, Sigma, Density]
+        params = [reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density]
         return self.__SendAndReceive(method, params)
 
     def AddCircularConductor_A(
         self,
         xc,
         yc,
-        copperRadius,
-        insRadius,
-        angDegree,
-        PointsNo,
-        Mb,
-        Line,
-        Column,
-        RegionName,
-        JAux,
-        LossDensity,
+        copper_radius,
+        ins_radius,
+        ang_degree,
+        points_no,
+        mb,
+        line,
+        column,
+        region_name,
+        j_aux,
+        loss_density,
     ):
         method = "AddCircularConductor_A"
         params = [
             xc,
             yc,
-            copperRadius,
-            insRadius,
-            angDegree,
-            PointsNo,
-            Mb,
-            Line,
-            Column,
-            RegionName,
-            JAux,
-            LossDensity,
+            copper_radius,
+            ins_radius,
+            ang_degree,
+            points_no,
+            mb,
+            line,
+            column,
+            region_name,
+            j_aux,
+            loss_density,
         ]
         return self.__SendAndReceive(method, params)
 
@@ -1480,39 +1329,39 @@ class MotorCADBase:
         self,
         xc,
         yc,
-        Width,
-        Height,
-        InsWidth,
-        angDeg,
-        PointsNo,
-        Mb,
+        width,
+        height,
+        ins_width,
+        ang_deg,
+        points_no,
+        mb,
         line,
         column,
-        regName,
-        JAux,
-        LossDensity,
+        reg_name,
+        j_aux,
+        loss_density,
     ):
         method = "AddRectangularConductor_A"
         params = [
             xc,
             yc,
-            Width,
-            Height,
-            InsWidth,
-            angDeg,
-            PointsNo,
-            Mb,
+            width,
+            height,
+            ins_width,
+            ang_deg,
+            points_no,
+            mb,
             line,
             column,
-            regName,
-            JAux,
-            LossDensity,
+            reg_name,
+            j_aux,
+            loss_density,
         ]
         return self.__SendAndReceive(method, params)
 
-    def AddArc_XY(self, xc, yc, Th1, Th2, R):
+    def AddArc_XY(self, xc, yc, th1, th2, r):
         method = "AddArc_XY"
-        params = [xc, yc, Th1, Th2, R]
+        params = [xc, yc, th1, th2, r]
         return self.__SendAndReceive(method, params)
 
     def SetRegionColour(self, region, colour):
@@ -1520,62 +1369,62 @@ class MotorCADBase:
         params = [region, colour]
         return self.__SendAndReceive(method, params)
 
-    def AddPoint_RT(self, r, t, regName):
+    def AddPoint_RT(self, r, t, reg_name):
         method = "AddPoint_RT"
-        params = [r, t, regName]
+        params = [r, t, reg_name]
         return self.__SendAndReceive(method, params)
 
-    def AddLine_RT(self, rs, ts, re, te):
+    def AddLine_RT(self, rs, ts, re, t_e):
         method = "AddLine_RT"
-        params = [rs, ts, re, te]
+        params = [rs, ts, re, t_e]
         return self.__SendAndReceive(method, params)
 
-    def AddArc_RT(self, rc, tc, Th1, Th2, R):
+    def AddArc_RT(self, rc, tc, th1, th2, r):
         method = "AddArc_RT"
-        params = [rc, tc, Th1, Th2, R]
+        params = [rc, tc, th1, th2, r]
         return self.__SendAndReceive(method, params)
 
     def AddArc_Boundary_RT(
-        self, direction, rc, tc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
+        self, direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code
     ):
         method = "AddArc_Boundary_RT"
-        params = [direction, rc, tc, Th1, Th2, R, dircode, symmcode, virtcode, initcode]
+        params = [direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
         return self.__SendAndReceive(method, params)
 
     def AddArc_Boundary_XY(
-        self, direction, xc, yc, Th1, Th2, R, dircode, symmcode, virtcode, initcode
+        self, direction, xc, yc, th1, th2, R, dir_code, sym_code, virt_code, init_code
     ):
         method = "AddArc_Boundary_XY"
-        params = [direction, xc, yc, Th1, Th2, R, dircode, symmcode, virtcode, initcode]
+        params = [direction, xc, yc, th1, th2, R, dir_code, sym_code, virt_code, init_code]
         return self.__SendAndReceive(method, params)
 
-    def AddLine_Boundary_RT(self, rs, ts, re, te, dircode, symmcode, virtcode, initcode):
+    def AddLine_Boundary_RT(self, rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code):
         method = "AddLine_Boundary_RT"
-        params = [rs, ts, re, te, dircode, symmcode, virtcode, initcode]
+        params = [rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code]
         return self.__SendAndReceive(method, params)
 
-    def AddLine_Boundary_XY(self, xs, ys, xe, ye, dircode, symmcode, virtcode, initcode):
+    def AddLine_Boundary_XY(self, xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code):
         method = "AddLine_Boundary_XY"
-        params = [xs, ys, xe, ye, dircode, symmcode, virtcode, initcode]
+        params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
         return self.__SendAndReceive(method, params)
 
     def InitiateGeometryFromScript(self):
         method = "InitiateGeometryFromScript"
         return self.__SendAndReceive(method)
 
-    def AddPoint_Magnetic_RT(self, r, t, magName, brAngle, brMult, polarity):
+    def AddPoint_Magnetic_RT(self, r, t, mag_name, br_angle, br_mult, polarity):
         method = "AddPoint_Magnetic_RT"
-        params = [r, t, magName, brAngle, brMult, polarity]
+        params = [r, t, mag_name, br_angle, br_mult, polarity]
         return self.__SendAndReceive(method, params)
 
-    def AddPoint_Magnetic_XY(self, x, y, magName, brAngle, brMult, polarity):
+    def AddPoint_Magnetic_XY(self, x, y, mag_name, br_angle, br_mult, polarity):
         method = "AddPoint_Magnetic_XY"
-        params = [x, y, magName, brAngle, brMult, polarity]
+        params = [x, y, mag_name, br_angle, br_mult, polarity]
         return self.__SendAndReceive(method, params)
 
-    def AddArc_CentreStartEnd_RT(self, rc, tc, rs, ts, re, te):
+    def AddArc_CentreStartEnd_RT(self, rc, tc, rs, ts, re, t_e):
         method = "AddArc_CentreStartEnd_RT"
-        params = [rc, tc, rs, ts, re, te]
+        params = [rc, tc, rs, ts, re, t_e]
         return self.__SendAndReceive(method, params)
 
     def AddArc_CentreStartEnd_XY(self, xc, yc, xs, ys, xe, ye):
@@ -1584,15 +1433,15 @@ class MotorCADBase:
         return self.__SendAndReceive(method, params)
 
     def SetFEAPathPoint(
-        self, pathName, pathLocation, coordSystem, rorx, tory, calculation, expression
+        self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
     ):
         method = "SetFEAPathPoint"
         params = [
-            pathName,
-            pathLocation,
-            coordSystem,
-            rorx,
-            tory,
+            path_name,
+            path_location,
+            coord_system,
+            ror_x,
+            tor_y,
             calculation,
             expression,
         ]
@@ -1600,25 +1449,25 @@ class MotorCADBase:
 
     def SetFEAPathArc(
         self,
-        pathName,
-        pathLocation,
+        path_name,
+        path_location,
         r,
-        thetaStart,
-        thetaEnd,
+        theta_start,
+        theta_end,
         points,
-        FEAmethod,
+        fea_method,
         calculation,
         expression,
     ):
         method = "SetFEAPathArc"
         params = [
-            pathName,
-            pathLocation,
+            path_name,
+            path_location,
             r,
-            thetaStart,
-            thetaEnd,
+            theta_start,
+            theta_end,
             points,
-            FEAmethod,
+            fea_method,
             calculation,
             expression,
         ]
@@ -1626,70 +1475,70 @@ class MotorCADBase:
 
     def SetFEAPathLine(
         self,
-        pathName,
-        pathLocation,
-        coordSystem,
-        rorXStart,
-        torYStart,
-        rorXEnd,
-        torYEnd,
+        path_name,
+        path_location,
+        coord_system,
+        ror_x_start,
+        tor_y_start,
+        ror_x_end,
+        tor_y_end,
         points,
         calculation,
         expression,
     ):
         method = "SetFEAPathLine"
         params = [
-            pathName,
-            pathLocation,
-            coordSystem,
-            rorXStart,
-            torYStart,
-            rorXEnd,
-            torYEnd,
+            path_name,
+            path_location,
+            coord_system,
+            ror_x_start,
+            tor_y_start,
+            ror_x_end,
+            tor_y_end,
             points,
             calculation,
             expression,
         ]
         return self.__SendAndReceive(method, params)
 
-    def SaveFEAData(self, file, firstStep, finalStep, outputs, regions, separator):
+    def SaveFEAData(self, file, first_step, final_step, outputs, regions, separator):
         method = "SaveFEAData"
-        params = [file, firstStep, finalStep, outputs, regions, separator]
+        params = [file, first_step, final_step, outputs, regions, separator]
         return self.__SendAndReceive(method, params)
 
-    def AddPoint_CustomMaterial_XY(self, x, y, regName, matName, colour):
+    def AddPoint_CustomMaterial_XY(self, x, y, reg_name, mat_name, colour):
         method = "AddPoint_CustomMaterial_XY"
-        params = [x, y, regName, matName, colour]
+        params = [x, y, reg_name, mat_name, colour]
         return self.__SendAndReceive(method, params)
 
-    def GetRegionValue(self, expression, regionName):
+    def GetRegionValue(self, expression, region_name):
         method = "GetRegionValue"
-        params = [expression, regionName]
+        params = [expression, region_name]
         return self.__SendAndReceive(method, params)
 
-    def GetRegionLoss(self, expression, regionName, radius1, radius2, angle1, angle2):
+    def GetRegionLoss(self, expression, region_name, radius1, radius2, angle1, angle2):
         method = "GetRegionLoss"
-        params = [expression, regionName, radius1, radius2, angle1, angle2]
+        params = [expression, region_name, radius1, radius2, angle1, angle2]
         return self.__SendAndReceive(method, params)
 
-    def EditMagnetRegion(self, regionName, magnetMaterial, brAngle, brMultiplier):
+    def EditMagnetRegion(self, region_name, magnet_material, br_angle, br_multiplier):
         method = "EditMagnetRegion"
-        params = [regionName, magnetMaterial, brAngle, brMultiplier]
+        params = [region_name, magnet_material, br_angle, br_multiplier]
         return self.__SendAndReceive(method, params)
 
-    def AddRegion_XY(self, x, y, regionName):
+    def AddRegion_XY(self, x, y, region_name):
         method = "AddRegion_XY"
-        params = [x, y, regionName]
+        params = [x, y, region_name]
         return self.__SendAndReceive(method, params)
 
-    def AddRegion_RT(self, r, t, regionName):
+    def AddRegion_RT(self, r, t, region_name):
         method = "AddRegion_RT"
-        params = [r, t, regionName]
+        params = [r, t, region_name]
         return self.__SendAndReceive(method, params)
 
-    def DeleteRegions(self, regionName):
+    def DeleteRegions(self, region_name):
         method = "DeleteRegions"
-        params = [regionName]
+        params = [region_name]
         return self.__SendAndReceive(method, params)
 
     def ResetRegions(self):
@@ -1697,29 +1546,29 @@ class MotorCADBase:
         return self.__SendAndReceive(method)
 
     def AddMagnetRegion_RT(
-        self, r, theta, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
+        self, r, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
     ):
         method = "AddMagnetRegion_RT"
         params = [
             r,
             theta,
-            regionName,
-            magnetMaterial,
-            brAngle,
-            brMultiplier,
-            polarityCode,
+            region_name,
+            magnet_material,
+            br_angle,
+            br_multiplier,
+            polarity_code,
         ]
         return self.__SendAndReceive(method, params)
 
     def AddMagnetRegion_XY(
-        self, x, y, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode
+        self, x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code
     ):
         method = "AddMagnetRegion_XY"
-        params = [x, y, regionName, magnetMaterial, brAngle, brMultiplier, polarityCode]
+        params = [x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code]
         return self.__SendAndReceive(method, params)
 
     def GetPointValue(self, parameter, x, y):
-        """Gets a specified point from Motor-CAD FEA
+        """Get a specified point from Motor-CAD FEA.
 
         Parameters
         ----------
@@ -1732,8 +1581,6 @@ class MotorCADBase:
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         value : float
             value from FEA
         units : string
@@ -1745,14 +1592,14 @@ class MotorCADBase:
 
     # ------------------------------------ Thermal ------------------------------------
 
-    def SetResistanceValue(self, name, node1, node2, Value, description):
+    def SetResistanceValue(self, name, node1, node2, value, description):
         method = "SetResistanceValue"
-        params = [name, node1, node2, Value, description]
+        params = [name, node1, node2, value, description]
         return self.__SendAndReceive(method, params)
 
-    def SetResistanceMultiplier(self, name, node1, node2, Value, description):
+    def SetResistanceMultiplier(self, name, node1, node2, value, description):
         method = "SetResistanceMultiplier"
-        params = [name, node1, node2, Value, description]
+        params = [name, node1, node2, value, description]
         return self.__SendAndReceive(method, params)
 
     def ClearExternalCircuit(self):
@@ -1769,100 +1616,94 @@ class MotorCADBase:
         params = [name, node1, row, column, colour, description]
         return self.__SendAndReceive(method, params)
 
-    def SetCapacitanceValue(self, name, node1, Value, description):
+    def SetCapacitanceValue(self, name, node1, value, description):
         method = "SetCapacitanceValue"
-        params = [name, node1, Value, description]
+        params = [name, node1, value, description]
         return self.__SendAndReceive(method, params)
 
-    def SetPowerSourceValue(self, name, node1, Value, RPM_Ref, RPM_Coef, description):
+    def SetPowerSourceValue(self, name, node1, value, rpm_ref, rpm_coef, description):
         method = "SetPowerSourceValue"
-        params = [name, node1, Value, RPM_Ref, RPM_Coef, description]
+        params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.__SendAndReceive(method, params)
 
-    def LoadExternalCircuit(self, CircuitFileName):
+    def LoadExternalCircuit(self, circuit_file_name):
         method = "LoadExternalCircuit"
-        params = [CircuitFileName]
+        params = [circuit_file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveExternalCircuit(self, CircuitFileName):
+    def SaveExternalCircuit(self, circuit_file_name):
         method = "SaveExternalCircuit"
-        params = [CircuitFileName]
+        params = [circuit_file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveTransientPowerValues(self, fileName):
+    def SaveTransientPowerValues(self, file_name):
         method = "SaveTransientPowerValues"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveTransientTemperatures(self, fileName):
+    def SaveTransientTemperatures(self, file_name):
         method = "SaveTransientTemperatures"
-        params = [fileName]
+        params = [file_name]
         return self.__SendAndReceive(method, params)
 
-    def RemoveExternalComponent(self, componentType, name, node1):
+    def RemoveExternalComponent(self, component_type, name, node1):
         method = "RemoveExternalComponent"
-        params = [componentType, name, node1]
+        params = [component_type, name, node1]
         return self.__SendAndReceive(method, params)
 
-    def GetNodeTemperature(self, nodeNumber):
-        """Gets the temperature of a thermal node
+    def GetNodeTemperature(self, node_number):
+        """Get the temperature of a thermal node.
 
         Parameters
         ----------
-        nodeNumber : int
+        node_number : int
             Thermal node number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         value : float
             Temperature of thermal node
         """
         method = "GetNodeTemperature"
-        params = [nodeNumber]
+        params = [node_number]
         return self.__SendAndReceive(method, params)
 
-    def GetNodeCapacitance(self, nodeNumber):
-        """Gets the capacitance of a thermal node
+    def GetNodeCapacitance(self, node_number):
+        """Get the capacitance of a thermal node.
 
         Parameters
         ----------
-        nodeNumber : int
+        node_number : int
             Thermal node number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         value : float
             Capacitance of thermal node
         """
         method = "GetNodeCapacitance"
-        params = [nodeNumber]
+        params = [node_number]
         return self.__SendAndReceive(method, params)
 
-    def GetNodePower(self, nodeNumber):
-        """Gets the power of a thermal node
+    def GetNodePower(self, node_number):
+        """Get the power of a thermal node.
 
         Parameters
         ----------
-        nodeNumber : int
+        node_number : int
             Thermal node number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         value : float
             Power of thermal node
         """
         method = "GetNodePower"
-        params = [nodeNumber]
+        params = [node_number]
         return self.__SendAndReceive(method, params)
 
     def GetNodeToNodeResistance(self, node1, node2):
-        """Gets node to node resistance
+        """Get node to node resistance.
 
         Parameters
         ----------
@@ -1872,8 +1713,6 @@ class MotorCADBase:
             Thermal node number
         Returns
         -------
-        success : int
-            0 indicates a successful result
         value : float
             Resistance value
         """
@@ -1881,12 +1720,12 @@ class MotorCADBase:
         params = [node1, node2]
         return self.__SendAndReceive(method, params)
 
-    def GetNodeExists(self, nodeNumber):
-        """Checks if node exists
+    def GetNodeExists(self, node_number):
+        """Check if node exists.
 
         Parameters
         ----------
-        nodeNumber : int
+        node_number : int
             Thermal node number
 
         Returns
@@ -1895,86 +1734,86 @@ class MotorCADBase:
             True if node exists
         """
         method = "GetNodeExists"
-        params = [nodeNumber]
+        params = [node_number]
         nodeExists = self.__SendAndReceive(method, params, aSuccessVar=False)
         return nodeExists
 
-    def GetOffsetNodeNumber(self, nodeNumber, sliceNumber, cuboidNumber):
-        """Get offset node number
+    def GetOffsetNodeNumber(self, node_number, slice_number, cuboid_number):
+        """Get offset node number.
 
         Parameters
         ----------
-        sliceNumber : int
+        node_number  : int
+            node number
+        slice_number : int
             slice number
-        cuboidNumber : int
+        cuboid_number : int
             cuboid number
 
         Returns
         -------
-        success : int
-            0 indicates a successful result
         offsetNodeNumber : int
             offset node number
         """
         method = "GetOffsetNodeNumber"
-        params = [nodeNumber, sliceNumber, cuboidNumber]
+        params = [node_number, slice_number, cuboid_number]
         return self.__SendAndReceive(method, params)
 
     # ------------------------------------ Materials ------------------------------------
 
-    def SetFluid(self, coolingType, fluid):
+    def SetFluid(self, cooling_type, fluid):
         method = "SetFluid"
-        params = [coolingType, fluid]
+        params = [cooling_type, fluid]
         return self.__SendAndReceive(method, params)
 
-    def SetComponentMaterial(self, componentName, materialName):
+    def SetComponentMaterial(self, component_name, material_name):
         method = "SetComponentMaterial"
-        params = [componentName, materialName]
+        params = [component_name, material_name]
         return self.__SendAndReceive(method, params)
 
-    def GetComponentMaterial(self, componentName):
+    def GetComponentMaterial(self, component_name):
         method = "GetComponentMaterial"
-        params = [componentName]
+        params = [component_name]
         return self.__SendAndReceive(method, params)
 
-    def ImportSolidMaterial(self, fileName, materialName):
+    def ImportSolidMaterial(self, file_name, material_name):
         method = "ImportSolidMaterial"
-        params = [fileName, materialName]
+        params = [file_name, material_name]
         return self.__SendAndReceive(method, params)
 
-    def ExportSolidMaterial(self, fileName, materialName):
+    def ExportSolidMaterial(self, file_name, material_name):
         method = "ExportSolidMaterial"
-        params = [fileName, materialName]
+        params = [file_name, material_name]
         return self.__SendAndReceive(method, params)
 
-    def DeleteSolidMaterial(self, materialName):
+    def DeleteSolidMaterial(self, material_name):
         method = "DeleteSolidMaterial"
-        params = [materialName]
+        params = [material_name]
         return self.__SendAndReceive(method, params)
 
-    def CalculateIronLossCoefficients(self, materialName):
+    def CalculateIronLossCoefficients(self, material_name):
         method = "CalculateIronLossCoefficients"
-        params = [materialName]
+        params = [material_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveIronLossCoefficients(self, materialName):
+    def SaveIronLossCoefficients(self, material_name):
         method = "SaveIronLossCoefficients"
-        params = [materialName]
+        params = [material_name]
         return self.__SendAndReceive(method, params)
 
-    def CalculateMagnetParameters(self, materialName):
+    def CalculateMagnetParameters(self, material_name):
         method = "CalculateMagnetParameters"
-        params = [materialName]
+        params = [material_name]
         return self.__SendAndReceive(method, params)
 
-    def SaveMagnetParameters(self, materialName):
+    def SaveMagnetParameters(self, material_name):
         method = "SaveMagnetParameters"
-        params = [materialName]
+        params = [material_name]
         return self.__SendAndReceive(method, params)
 
 
 class MotorCAD(MotorCADBase):
-    """Standard MotorCAD object"""
+    """Standard MotorCAD object."""
 
     def __init__(
         self,
@@ -1983,7 +1822,8 @@ class MotorCAD(MotorCADBase):
         enable_exceptions=True,
         enable_success_variable=False,
     ):
-        """Connect to existing Motor-CAD instance or open a new one
+        """Connect to existing Motor-CAD instance or open a new one.
+
         Parameters
         ----------
         port : int
@@ -2006,15 +1846,17 @@ class MotorCAD(MotorCADBase):
 
 
 class MotorCADCompatibility(MotorCADBase):
-    """Creates a MotorCAD object that behaves the same as old ActiveX methods.
-    Can be used for old scripts that were written for ActiveX"""
+    """Create a MotorCAD object that behaves the same as old ActiveX methods.
+
+    Can be used for old scripts that were written for ActiveX
+    """
 
     def __init__(self):
+        """Create MotorCADCompatibility object."""
         port = -1
         open_new_instance = False
         enable_exceptions = False
         enable_success_variable = True
-
         super().__init__(
             port,
             open_new_instance,

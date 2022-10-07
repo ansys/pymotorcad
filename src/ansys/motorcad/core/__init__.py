@@ -1,8 +1,4 @@
-"""
-motorcad.
-
-core
-"""
+"""motorcad.core."""
 
 try:
     import importlib.metadata as importlib_metadata
