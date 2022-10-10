@@ -47,6 +47,76 @@ class MotorCADError(Exception):
     pass
 
 
+def _get_port_from_motorcad_process(process):
+    connection_list = process.connections()
+    if len(connection_list) > 0:
+        for connect in connection_list:
+            if connect.family == socket.AddressFamily.AF_INET6:
+                port = connect.laddr.port
+                return port
+    # Failed to get port from process
+    return -1
+
+
+def _find_motor_cad_exe():
+    if MOTORCAD_EXE_GLOBAL != "":
+        motor_exe = MOTORCAD_EXE_GLOBAL
+        return motor_exe
+
+    str_alt_method = (
+        "Try setting Motor-CAD exe manually before creating MotorCAD() "
+        "object with MotorCAD_Methods.set_motorcad_exe(location)"
+    )
+
+    # Find Motor-CAD exe
+    motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+
+    if motor_batch_file_path is None:
+        raise MotorCADError(
+            "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + str_alt_method
+        )
+
+    try:
+        motor_batch_file_path = path.normpath(motor_batch_file_path)
+        # Get rid of quotations from environ.get
+        motor_batch_file_path = motor_batch_file_path.replace('"', "")
+    except Exception as e:
+        raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
+
+    try:
+        # Grab MotorCAD exe from activex batch file
+        motor_batch_file = open(motor_batch_file_path, "r")
+
+        motor_batch_file_lines = motor_batch_file.readlines()
+
+        for MotorBatchFileLine in motor_batch_file_lines:
+            motor_exe_list = re.split('"', MotorBatchFileLine)
+            if "call" in motor_exe_list[0]:
+                # Check we're on the right line
+                motor_exe = motor_exe_list[1]
+                if path.isfile(motor_exe):
+                    return motor_exe
+                else:
+                    # Not a valid path
+                    raise MotorCADError(
+                        "File  does not exist: "
+                        + motor_exe
+                        + "\nTry updating batch file location in "
+                        + "Defaults->Automation->Update to Current Version."
+                        + "\nAlternative Method: "
+                        + str_alt_method
+                    )
+        else:
+            # Couldn't find line containing call
+            raise
+
+    except MotorCADError:
+        # Raise our custom Error Message
+        raise
+    except Exception:
+        raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
+
+
 class MotorCADCore:
     """Each MotorCAD object has a Motor-CAD.exe instance attached to it."""
 
@@ -82,8 +152,8 @@ class MotorCADCore:
         self._port = -1
         self._connected = False
         self._last_error_message = ""
-        self._program_version = ""
-        self._pid = -1
+        self.program_version = ""
+        self.pid = -1
 
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
@@ -106,30 +176,30 @@ class MotorCADCore:
             if port != -1:
                 self._port = int(port)
 
-            self.__OpenMotorCADLocal()
+            self._open_motor_cad_local()
 
         else:  # (self._open_new_instance == False)
             if port != -1:
                 self._port = int(port)
 
             else:  # port is not defined
-                self.__FindFreeMotorCAD()
+                self._find_free_motor_cad()
 
-        self._pid = self.get_process_id()
+        self.pid = self.get_process_id()
 
         # Check for response
-        if self.__WaitForResponse(2) is True:
+        if self._wait_for_response(2) is True:
             self._connected = True
             # Store Motor-CAD version number for any required backwards compatibility
 
-            self._program_version = self._GetProgramVersion()
+            self.program_version = self._get_program_version()
 
         else:
             raise MotorCADError(
                 "Failed to connect to Motor-CAD instance: port="
                 + str(self._port)
                 + ", Url="
-                + str(self._GetUrl())
+                + str(self._get_url())
             )
 
     def __del__(self):
@@ -142,113 +212,55 @@ class MotorCADCore:
             ):
                 # Close Motor-CAD if not asked to keep open
                 try:
-                    self.Quit()
+                    self.quit()
                 except Exception:
                     # Don't raise exception at this point
                     # Motor-CAD might already have been closed by user
                     pass
 
-    def _RaiseIfAllowed(self, aErrorMessage):
+    def _raise_if_allowed(self, error_message):
         if self.enable_exceptions is True:
-            raise MotorCADError(aErrorMessage)
+            raise MotorCADError(error_message)
 
-    def _GetUrl(self):
+    def _get_url(self):
         """Get url for RPC communication."""
         url = SERVER_IP + ":" + str(self._port) + "/jsonrpc"
         return url
 
-    def __OpenMotorCADLocal(self):
-        self.__MotorExe = self.__FindMotorCADExe()
+    def _open_motor_cad_local(self):
+        self.__MotorExe = _find_motor_cad_exe()
 
         if self.__MotorExe == "":
-            self._RaiseIfAllowed(
+            self._raise_if_allowed(
                 "Failed to find instance of Motor-CAD to open"
                 + str(self._port)
                 + ", Url="
-                + str(self._GetUrl())
+                + str(self._get_url())
             )
 
-        MotorProcess = subprocess.Popen([self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"])
+        motor_process = subprocess.Popen([self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"])
 
-        PID = MotorProcess.pid
+        pid = motor_process.pid
 
-        MotorUtil = psutil.Process(PID)
+        motor_util = psutil.Process(pid)
 
-        self.__WaitForServerToStart(MotorUtil)
+        self._wait_for_server_to_start(motor_util)
 
-    def __FindMotorCADExe(self):
-        if MOTORCAD_EXE_GLOBAL != "":
-            MotorExe = MOTORCAD_EXE_GLOBAL
-            return MotorExe
-
-        strAltMethod = (
-            "Try setting Motor-CAD exe manually before creating MotorCAD() "
-            "object with MotorCAD_Methods.set_motorcad_exe(location)"
-        )
-
-        # Find Motor-CAD exe
-        MotorBatchFilePath = environ.get("MOTORCAD_ACTIVEX")
-
-        if MotorBatchFilePath is None:
-            raise MotorCADError(
-                "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + strAltMethod
-            )
-
-        try:
-            MotorBatchFilePath = path.normpath(MotorBatchFilePath)
-            # Get rid of quotations from environ.get
-            MotorBatchFilePath = MotorBatchFilePath.replace('"', "")
-        except Exception as e:
-            raise MotorCADError("Failed to get file path. " + str(e) + strAltMethod)
-
-        try:
-            # Grab MotorCAD exe from activex batch file
-            MotorBatchFile = open(MotorBatchFilePath, "r")
-
-            MotorBatchFileLines = MotorBatchFile.readlines()
-
-            for MotorBatchFileLine in MotorBatchFileLines:
-                MotorExeList = re.split('"', MotorBatchFileLine)
-                if "call" in MotorExeList[0]:
-                    # Check we're on the right line
-                    MotorExe = MotorExeList[1]
-                    if path.isfile(MotorExe):
-                        return MotorExe
-                    else:
-                        # Not a valid path
-                        raise MotorCADError(
-                            "File  does not exist: "
-                            + MotorExe
-                            + "\nTry updating batch file location in "
-                            + "Defaults->Automation->Update to Current Version."
-                            + "\nAlternative Method: "
-                            + strAltMethod
-                        )
-            else:
-                # Couldn't find line containing call
-                raise
-
-        except MotorCADError:
-            # Raise our custom Error Message
-            raise
-        except Exception:
-            raise MotorCADError("Error reading Motor-CAD batch file. " + strAltMethod)
-
-    def __FindFreeMotorCAD(self):
-        foundFreeInstance = False
+    def _find_free_motor_cad(self):
+        found_free_instance = False
         for proc in psutil.process_iter():
-            procName = proc.name()
-            if any(motor_proc_name in procName for motor_proc_name in MOTORCAD_PROC_NAMES):
-                port = self.__GetPortFromProcess(proc)
+            proc_name = proc.name()
+            if any(motor_proc_name in proc_name for motor_proc_name in MOTORCAD_PROC_NAMES):
+                port = _get_port_from_motorcad_process(proc)
 
                 # If Motor-CAD has RPC server running
                 if port != -1:
                     self._port = port
                     if self.reuse_parallel_instances is True:
                         try:
-                            success = self.__SetBusy()
+                            success = self._set_busy()
                             if success == 0:
-                                foundFreeInstance = True
+                                found_free_instance = True
                                 break
                         except Exception:
                             pass
@@ -257,151 +269,142 @@ class MotorCADCore:
                             # Happens when you try to launch multiple at same time
                     else:
                         # If we are not reusing instances then no need to check if busy
-                        foundFreeInstance = True
+                        found_free_instance = True
 
-        if foundFreeInstance is False:
+        if found_free_instance is False:
             if (self.reuse_parallel_instances is True) or (self._compatibility_mode is True):
-                self.__OpenMotorCADLocal()
+                self._open_motor_cad_local()
             else:
                 raise MotorCADError(
                     "Could not find a Motor-CAD instance to connect to."
                     + "\n Ensure that Motor-CAD RPC server is enabled"
                 )
 
-    def __WaitForServerToStart(self, aProcess):
-        numberOfTries = 0
+    def _wait_for_server_to_start(self, process):
+        number_of_tries = 0
         timeout = 300  # in seconds
         # Don't poll this too much
         pause_time = 0.5
 
-        while pause_time * numberOfTries < timeout:
-            port = self.__GetPortFromProcess(aProcess)
+        while pause_time * number_of_tries < timeout:
+            port = _get_port_from_motorcad_process(process)
 
             if port != -1:
                 self._port = port
 
                 # Check port has active RPC connection
-                if self.__WaitForResponse(1) is True:
+                if self._wait_for_response(1) is True:
                     break
 
             time.sleep(pause_time)
-            numberOfTries = numberOfTries + 1
+            number_of_tries = number_of_tries + 1
         else:
             raise MotorCADError("Failed to find Motor-CAD port")
 
-        self.__WaitForResponse(20)
+        self._wait_for_response(20)
 
-    def __GetPortFromProcess(self, aProcess):
-        connectionList = aProcess.connections()
-        if len(connectionList) > 0:
-            for connect in connectionList:
-                if connect.family == socket.AddressFamily.AF_INET6:
-                    port = connect.laddr.port
-                    return port
-        # Failed to get port from process
-        return -1
-
-    def _SendAndReceive(self, aMethod, aParams=[], aSuccessVar=None):
-        errorMessage = ""
+    def send_and_receive(self, method, params=None, success_var=None):
+        if params is None:
+            params = []
 
         payload = {
-            "method": aMethod,
-            "params": aParams,
+            "method": method,
+            "params": params,
             "jsonrpc": "2.0",
             "id": self._port,  # Can be any number not just linked to port
         }
 
         try:
             # Special case as there won't be a response
-            if aMethod == "Quit":
-                requests.post(self._GetUrl(), json=payload).json()
+            if method == "Quit":
+                requests.post(self._get_url(), json=payload).json()
                 return
             else:
-                response = requests.post(self._GetUrl(), json=payload).json()
+                response = requests.post(self._get_url(), json=payload).json()
 
         except Exception as e:
             # This can occur when an assert fails in Motor-CAD debug
             success = -1
-            self._RaiseIfAllowed("RPC Communication failed: " + str(e))
+            self._raise_if_allowed("RPC Communication failed: " + str(e))
 
         else:  # No exceptions in RPC communication
             if "error" in response:
-                errorString = "RPC Communication Error: " + response["error"]["message"]
+                error_string = "RPC Communication Error: " + response["error"]["message"]
 
-                if "Invalid params" in errorString:
+                if "Invalid params" in error_string:
                     try:
                         # common error - give a better error message
-                        newErrorString = errorString.split("hint")
+                        new_error_string = error_string.split("hint")
                         # Get last part
-                        newErrorString = newErrorString[-1]
+                        new_error_string = new_error_string[-1]
 
-                        newErrorString = (
-                            aMethod
-                            + ": One or more parameter types were invalid. HINT ["
-                            + newErrorString
+                        new_error_string = (
+                                method
+                                + ": One or more parameter types were invalid. HINT ["
+                                + new_error_string
                         )
-                        errorString = newErrorString
+                        error_string = new_error_string
                     except Exception:
                         # use old error string if that failed
                         pass
 
                 success = -99
-                self._last_error_message = errorString
+                self._last_error_message = error_string
 
-                self._RaiseIfAllowed(errorString)
+                self._raise_if_allowed(error_string)
                 return
 
             else:
                 success = response["result"]["success"]
 
-            if aMethod == "CheckIfGeometryIsValid":
+            if method == "CheckIfGeometryIsValid":
                 # This doesn't have the normal success var
-                successValue = 1
+                success_value = 1
             else:
-                successValue = _METHOD_SUCCESS
+                success_value = _METHOD_SUCCESS
 
-            if success != successValue:
+            if success != success_value:
                 # This is an error caused by bad user code
                 # Exception is enabled by default
                 # Can get error message (get_last_error_message) instead
                 if response["result"]["errorMessage"] != "":
-                    errorMessage = response["result"]["errorMessage"]
+                    error_message = response["result"]["errorMessage"]
                 else:
-                    errorMessage = (
+                    error_message = (
                         "An error occurred in Motor-CAD"  # put some generic error message
                     )
 
-                self._last_error_message = errorMessage
+                self._last_error_message = error_message
 
-                self._RaiseIfAllowed(errorMessage)
+                self._raise_if_allowed(error_message)
 
-            resultList = []
+            result_list = []
 
-            if aSuccessVar is None:
-                aSuccessVar = self.enable_success_variable
+            if success_var is None:
+                success_var = self.enable_success_variable
 
-            if aSuccessVar is True:
-                resultList.append(success)
+            if success_var is True:
+                result_list.append(success)
 
             if len(response["result"]["output"]) > 0:
                 if len(response["result"]["output"]) == 1:
-                    resultList.append(response["result"]["output"][0])
+                    result_list.append(response["result"]["output"][0])
                 else:
-                    resultList.extend(list(response["result"]["output"]))
+                    result_list.extend(list(response["result"]["output"]))
 
-            if len(resultList) > 1:
-                return tuple(resultList)
-            elif len(resultList) == 1:
-                return resultList[0]
+            if len(result_list) > 1:
+                return tuple(result_list)
+            elif len(result_list) == 1:
+                return result_list[0]
 
-    def __WaitForResponse(self, aMaxRetries):
+    def _wait_for_response(self, max_retries):
         method = "Handshake"
 
         delay = 1
 
-        for _ in range(aMaxRetries):
+        for _ in range(max_retries):
             try:
-                response = self._SendAndReceive(method, aSuccessVar=True)
+                response = self.send_and_receive(method, success_var=True)
                 if response != "":
                     return True
             except Exception:
@@ -409,23 +412,23 @@ class MotorCADCore:
 
         return False
 
-    def _GetProgramVersion(self):
+    def _get_program_version(self):
         method = "GetVariable"
         params = ["program_version"]
-        return self._SendAndReceive(method, params, aSuccessVar=False)
+        return self.send_and_receive(method, params, success_var=False)
 
     def get_process_id(self):
         method = "GetVariable"
         params = ["MotorCADprocessID"]
-        return int(self._SendAndReceive(method, params, aSuccessVar=False))
+        return int(self.send_and_receive(method, params, success_var=False))
 
-    def __SetBusy(self):
+    def _set_busy(self):
         method = "SetBusy"
-        return self._SendAndReceive(method)
+        return self.send_and_receive(method)
 
     def set_free(self):
         method = "set_free"
-        return self._SendAndReceive(method)
+        return self.send_and_receive(method)
 
     def get_last_error_message(self):
         """Return the most recent error message.
@@ -436,3 +439,8 @@ class MotorCADCore:
             Most recent error message
         """
         return self._last_error_message
+
+    def quit(self):
+        """Quit MotorCAD."""
+        method = "Quit"
+        return self.send_and_receive(method)

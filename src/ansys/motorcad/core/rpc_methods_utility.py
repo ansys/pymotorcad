@@ -16,7 +16,7 @@ class _RpcMethodsUtility:
         boolean
             True if Motor-CAD exe is running.
         """
-        if self._pid != -1:
-            return psutil.pid_exists(self._pid)
+        if self.mc_connection.pid != -1:
+            return psutil.pid_exists(self.mc_connection.pid)
         else:
             raise MotorCADError("Motor-CAD process not created")
