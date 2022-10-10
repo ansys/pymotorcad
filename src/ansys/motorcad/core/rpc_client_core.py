@@ -238,7 +238,9 @@ class MotorCADCore:
                 + str(self._get_url())
             )
 
-        motor_process = subprocess.Popen([self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"])
+        motor_process = subprocess.Popen(
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
+        )
 
         pid = motor_process.pid
 
@@ -339,9 +341,9 @@ class MotorCADCore:
                         new_error_string = new_error_string[-1]
 
                         new_error_string = (
-                                method
-                                + ": One or more parameter types were invalid. HINT ["
-                                + new_error_string
+                            method
+                            + ": One or more parameter types were invalid. HINT ["
+                            + new_error_string
                         )
                         error_string = new_error_string
                     except Exception:

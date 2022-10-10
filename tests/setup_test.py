@@ -1,7 +1,5 @@
-import os
-
-import ansys.motorcad.core as pymotorcad
 from RPC_Test_Common import get_dir_path
+import ansys.motorcad.core as pymotorcad
 
 
 def reset_to_default_file(mc):

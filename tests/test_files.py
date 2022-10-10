@@ -1,6 +1,7 @@
-from setup_test import setup_test_env
-from RPC_Test_Common import get_dir_path
 from os import path, remove
+
+from RPC_Test_Common import get_dir_path
+from setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -34,8 +35,8 @@ def test_save_to_file():
     if path.exists(file_path):
         remove(file_path)
 
-    assert(path.exists(file_path) is False)
+    assert path.exists(file_path) is False
 
     mc.save_to_file(file_path)
 
-    assert(path.exists(file_path) is True)
+    assert path.exists(file_path) is True
