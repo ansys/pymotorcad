@@ -6,8 +6,5 @@ mc = setup_test_env()
 
 def test_do_weight_calculation():
     # not sure how to test this?
-    mc.DoWeightCalculation()
+    mc.do_weight_calculation()
 
-
-def test_do_steady_state_analysis():
-    assert False

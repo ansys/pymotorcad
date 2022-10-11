@@ -10,23 +10,20 @@ mc = setup_test_env()
 def test_load_from_file():
     # This has some differences to the default file so can test it's loaded correctly
     file_path = get_dir_path() + r"\test_files\SaveLoadFiles.mot"
-    mc.SetVariable("slot_number", 21)
-    mc.SaveToFile(file_path)
+    mc.set_variable("slot_number", 21)
+    mc.save_to_file(file_path)
 
-    mc.SetVariable("slot_number", 9)
+    mc.set_variable("slot_number", 9)
     # make sure slot number has definitely changed
     value = mc.get_variable("slot_number")
     assert value == 9
 
     # go back to saved file
-    mc.LoadFromFile(file_path)
+    mc.load_from_file(file_path)
 
     # make sure slot number has definitely changed
     value = mc.get_variable("slot_number")
     assert value == 21
-
-    # reset to default
-    mc.SetVariable("slot_number", 18)
 
 
 def test_save_to_file():
