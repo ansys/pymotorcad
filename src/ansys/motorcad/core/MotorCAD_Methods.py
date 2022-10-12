@@ -1,12 +1,13 @@
 """Module containing MotorCAD class for connecting to Motor-CAD exe."""
 
+from warnings import warn
 
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
-from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCoreOld
+from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCore, _RpcMethodsCoreOld
 from ansys.motorcad.core.rpc_methods_utility import _RpcMethodsUtility
 
 
-class _MotorCADCore(_RpcMethodsCoreOld, _RpcMethodsUtility):
+class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
     """Core class contains RPC client and core API functions."""
 
     def __init__(
@@ -20,7 +21,7 @@ class _MotorCADCore(_RpcMethodsCoreOld, _RpcMethodsUtility):
             port, open_new_instance, enable_exceptions, enable_success_variable
         )
 
-        _RpcMethodsCoreOld.__init__(self, mc_connection=self.connection)
+        _RpcMethodsCore.__init__(self, mc_connection=self.connection)
         _RpcMethodsUtility.__init__(self, mc_connection=self.connection)
 
 
@@ -60,23 +61,33 @@ class MotorCAD(_MotorCADCore):
         )
 
 
-class MotorCADCompatibility(_MotorCADCore):
+class MotorCADCompatibility(_RpcMethodsCoreOld):
     """Create a MotorCAD object that behaves the same as old ActiveX methods.
 
+    Contains old CamelCase function names.
     Can be used for old scripts that were written for ActiveX
     """
 
-    def __init__(self):
-        """Create MotorCADCompatibility object."""
-        port = -1
-        open_new_instance = False
-        enable_exceptions = False
-        enable_success_variable = True
+    warn(
+        "This class uses old CamelCase Motor-CAD function names. "
+        "Please use MotorCAD object for new scripts",
+        DeprecationWarning,
+    )
 
-        _MotorCADCore.__init__(
-            self,
+    def __init__(
+        self,
+        port=-1,
+        open_new_instance=False,
+        enable_exceptions=False,
+        enable_success_variable=True,
+    ):
+        """Create MotorCADCompatibility object."""
+        self.connection = _MotorCADConnection(
             port=port,
             open_new_instance=open_new_instance,
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
+            compatibility_mode=True,
         )
+
+        _RpcMethodsCoreOld.__init__(self, self.connection)
