@@ -1,6 +1,8 @@
-"""rpc_methods_core_old."""
+"""Contains all the JSON-RPC API calls for Motor-CAD with the old function names.
 
-
+For backwards compatibility.
+Not for direct use. Inherited by
+"""
 from sys import _getframe
 from warnings import warn
 

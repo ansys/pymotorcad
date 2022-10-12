@@ -1,13 +1,31 @@
 """Module containing MotorCAD class for connecting to Motor-CAD exe."""
 
 
-from ansys.motorcad.core.rpc_client_core import MotorCADCore
+from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCoreOld
 from ansys.motorcad.core.rpc_methods_utility import _RpcMethodsUtility
 
 
-class MotorCAD(_RpcMethodsCoreOld, _RpcMethodsUtility):
-    """Standard MotorCAD object."""
+class _MotorCADCore(_RpcMethodsCoreOld, _RpcMethodsUtility):
+    """Core class contains RPC client and core API functions."""
+
+    def __init__(
+        self,
+        port=-1,
+        open_new_instance=True,
+        enable_exceptions=True,
+        enable_success_variable=False,
+    ):
+        self.connection = _MotorCADConnection(
+            port, open_new_instance, enable_exceptions, enable_success_variable
+        )
+
+        _RpcMethodsCoreOld.__init__(self, mc_connection=self.connection)
+        _RpcMethodsUtility.__init__(self, mc_connection=self.connection)
+
+
+class MotorCAD(_MotorCADCore):
+    """Standard MotorCAD object for users."""
 
     def __init__(
         self,
@@ -33,15 +51,16 @@ class MotorCAD(_RpcMethodsCoreOld, _RpcMethodsUtility):
         -------
         MotorCAD object
         """
-        self.connection = MotorCADCore(
-            port, open_new_instance, enable_exceptions, enable_success_variable
+        _MotorCADCore.__init__(
+            self,
+            port=port,
+            open_new_instance=open_new_instance,
+            enable_exceptions=enable_exceptions,
+            enable_success_variable=enable_success_variable,
         )
 
-        _RpcMethodsCoreOld.__init__(self, mc_connection=self.connection)
-        _RpcMethodsUtility.__init__(self, mc_connection=self.connection)
 
-
-class MotorCADCompatibility(_RpcMethodsCoreOld, _RpcMethodsUtility):
+class MotorCADCompatibility(_MotorCADCore):
     """Create a MotorCAD object that behaves the same as old ActiveX methods.
 
     Can be used for old scripts that were written for ActiveX
@@ -54,13 +73,10 @@ class MotorCADCompatibility(_RpcMethodsCoreOld, _RpcMethodsUtility):
         enable_exceptions = False
         enable_success_variable = True
 
-        self.connection = MotorCADCore(
-            port,
-            open_new_instance,
-            enable_exceptions,
-            enable_success_variable,
-            compatibility_mode=True,
+        _MotorCADCore.__init__(
+            self,
+            port=port,
+            open_new_instance=open_new_instance,
+            enable_exceptions=enable_exceptions,
+            enable_success_variable=enable_success_variable,
         )
-
-        _RpcMethodsCoreOld.__init__(self, mc_connection=self.connection)
-        _RpcMethodsUtility.__init__(self, mc_connection=self.connection)

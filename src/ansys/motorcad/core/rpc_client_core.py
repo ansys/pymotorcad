@@ -1,4 +1,4 @@
-"""rpc_client_core."""
+"""Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 
 from os import environ, path
 import re
@@ -117,7 +117,7 @@ def _find_motor_cad_exe():
         raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
 
 
-class MotorCADCore:
+class _MotorCADConnection:
     """Each MotorCAD object has a Motor-CAD.exe instance attached to it."""
 
     def __init__(
