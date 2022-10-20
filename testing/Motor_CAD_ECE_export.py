@@ -3,8 +3,8 @@ from ansys.motorcad.core import MotorCADError
 import matplotlib.pyplot as plt
 import scipy.io
 import numpy as np
-import math 
-import tkinter as tk
+import math
+import json
 
 # Retain pyqt4 compatibility
 import os
@@ -15,82 +15,44 @@ mcad = pymotorcad.MotorCAD()
 
 mcad.set_variable('MessageDisplayState', 2) # Ensure Motor-CAD does not create any dialogs requesting user response
 
-# Message box creation
+# read_parameters function allows to import the initial settings from a json file
+def read_parameters(json_file):
+    with open(json_file, "r") as f:
+        param_dict = json.load(f)
+    return param_dict
 
-root=tk.Tk()
-root.title("Entry Boxes")
-root.geometry("350x550")
-
-my_entries = []
-entry_list = []
-def something():
-    
-    
-    for entries in my_entries:
-        entry_list.append(str(entries.get()))
-    root.destroy()
-    
-mot_name=tk.Label(root, text='.mot file location')
-mot_name.grid(row=0,column=0,pady=15)
-speed=tk.Label(root, text='Shaft Speed [rpm]')
-speed.grid(row=1,column=0,pady=15)
-voltage=tk.Label(root, text='DC Bus Voltage [V]')
-voltage.grid(row=2,column=0,pady=15)
-temp=tk.Label(root, text='Machine Temperature [C]')
-temp.grid(row=3,column=0,pady=15)
-current=tk.Label(root, text='Id-q max [Apeak]')
-current.grid(row=4,column=0,pady=15)
-step=tk.Label(root, text='Current step [A]')
-step.grid(row=5,column=0,pady=15)
-map_name=tk.Label(root, text='Map name')
-map_name.grid(row=6,column=0,pady=15)
-txt_name=tk.Label(root, text='.txt file name')
-txt_name.grid(row=7,column=0,pady=15)
-sml_name=tk.Label(root, text='.sml file name')
-sml_name.grid(row=8,column=0,pady=15)
-
-
-
-for x in range(9):
-    my_entry = tk.Entry(root)
-    my_entry.grid(row=x, column=1, pady=15)
-    my_entries.append(my_entry)
-    
-
-my_button=tk.Button(root, text=' OK ', command=something, height=3, width=10)
-my_button.grid(row=9, column=1, padx=20, pady=20)
-root.mainloop()
-
-motfile=entry_list[0]
-shaft_speed=entry_list[1]
-dc_bus_voltage=float(entry_list[2])
-machine_temp=float(entry_list[3])
-IdMax=float(entry_list[4])
-CurrentStepd=float(entry_list[5])
-map_name=entry_list[6]
-txtfile=entry_list[7]
-smlfile=entry_list[8]
+json_file ='C:/Workspace/pymotorCAD/testing/ECE_config.json'
+in_data = read_parameters(json_file)
+mot_file = in_data["mot_file"]
+shaft_speed = in_data["shaft_speed"]
+dc_bus_voltage = float(in_data["dc_bus_voltage"])
+machine_temp = float(in_data["machine_temp"])
+Id_max = float(in_data["Id_max"])
+current_step = float(in_data["current_step"])
+map_name = in_data["map_name"]
+txt_file = in_data["txt_file"]
+sml_file = in_data["sml_file"]
 
 #I. Input Settings
 
-mcad.load_from_file(motfile)
+mcad.load_from_file(mot_file)
 
 #II. Alignment Angle Detection
 
 PointsPerCycle = 30
-mcad.set_variable("DCBusVoltage",dc_bus_voltage)
-mcad.set_variable('ArmatureConductor_Temperature',machine_temp)
-mcad.set_variable('Magnet_Temperature',machine_temp)
-mcad.set_variable('Shaft_Temperature',machine_temp)
-mcad.set_variable('CurrentDefinition',0)
-mcad.set_variable('MagneticThermalCoupling',0)
-mcad.set_variable('BackEMFCalculation',True)
-mcad.set_variable('TorquePointsPerCycle',PointsPerCycle)
-mcad.set_variable('ShaftSpeed',shaft_speed)
-mcad.set_variable('PeakCurrent',0)
-mcad.set_variable('CoggingTorqueCalculation',False)
-mcad.set_variable('TorqueCalculation',False)
-mcad.set_variable('TorqueSpeedCalculation',False)
+mcad.set_variable("DCBusVoltage", dc_bus_voltage)
+mcad.set_variable('ArmatureConductor_Temperature', machine_temp)
+mcad.set_variable('Magnet_Temperature', machine_temp)
+mcad.set_variable('Shaft_Temperature', machine_temp)
+mcad.set_variable('CurrentDefinition', 0)
+mcad.set_variable('MagneticThermalCoupling', 0)
+mcad.set_variable('BackEMFCalculation', True)
+mcad.set_variable('TorquePointsPerCycle', PointsPerCycle)
+mcad.set_variable('ShaftSpeed', shaft_speed)
+mcad.set_variable('PeakCurrent', 0)
+mcad.set_variable('CoggingTorqueCalculation', False)
+mcad.set_variable('TorqueCalculation', False)
+mcad.set_variable('TorqueSpeedCalculation', False)
 try:
     mcad.do_magnetic_calculation()
 except MotorCADError:
@@ -138,21 +100,20 @@ PointsPerCycle=360/elecdeg
 
 # III. Saturation Map Calculation
 
-IqMax = IdMax
-CurrentStepq = CurrentStepd
-mcad.set_variable('TorquePointsPerCycle',PointsPerCycle)
-mcad.set_variable('SaturationMap_ExportFile',map_name)
-mcad.set_variable('SaturationMap_InputDefinition',1)
-mcad.set_variable('SaturationMap_CalculationMethod',1)
-mcad.set_variable('SaturationMap_FEACalculationType',1)
-mcad.set_variable('SaturationMap_ResultType',1)
-mcad.set_variable('LossMap_Export',False)
-mcad.set_variable('SaturationMap_Current_D_Max',IdMax)
-mcad.set_variable('SaturationMap_Current_D_Step',CurrentStepd)
-mcad.set_variable('SaturationMap_Current_D_Min',-IdMax)
-mcad.set_variable('SaturationMap_Current_Q_Max',IqMax)
-mcad.set_variable('SaturationMap_Current_Q_Step',CurrentStepq)
-mcad.set_variable('SaturationMap_Current_Q_Min',-IqMax)
+
+mcad.set_variable('TorquePointsPerCycle', PointsPerCycle)
+mcad.set_variable('SaturationMap_ExportFile', map_name)
+mcad.set_variable('SaturationMap_InputDefinition', 1)
+mcad.set_variable('SaturationMap_CalculationMethod', 1)
+mcad.set_variable('SaturationMap_FEACalculationType', 1)
+mcad.set_variable('SaturationMap_ResultType', 1)
+mcad.set_variable('LossMap_Export', False)
+mcad.set_variable('SaturationMap_Current_D_Max', Id_max)
+mcad.set_variable('SaturationMap_Current_D_Step', current_step)
+mcad.set_variable('SaturationMap_Current_D_Min', -Id_max)
+mcad.set_variable('SaturationMap_Current_Q_Max', Id_max)
+mcad.set_variable('SaturationMap_Current_Q_Step', current_step)
+mcad.set_variable('SaturationMap_Current_Q_Min', -Id_max)
 
 try:
     mcad.calculate_saturation_map()
@@ -274,7 +235,7 @@ plt.show()
 
 rows=len(index_1)
 
-fileID=open(txtfile,'w')
+fileID=open(txt_file,'w')
 fileID.write('%6s\r\n'%('B_BasicData'))
 fileID.write('%6s\r\n'%('  Version   1.0'))
 fileID.write('%6s %i\r\n'%('  Poles', p*2))
@@ -315,7 +276,7 @@ fileID.close()
 
 # VI.b Writing the .sml file
 
-fileID=open(smlfile,'w')
+fileID=open(sml_file,'w')
 fileID.write('%6s\r\n'%('MODELDEF ECER_Model1'))
 fileID.write('%s\r\n'%('{'))
 fileID.write('%6s\r\n'%('PORT electrical: A0;'))
