@@ -910,11 +910,6 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
-    def add_arc_xy(self, xc, yc, th1, th2, r):
-        method = "AddArc_XY"
-        params = [xc, yc, th1, th2, r]
-        return self.connection.send_and_receive(method, params)
-
     def set_region_colour(self, region, colour):
         method = "SetRegionColour"
         params = [region, colour]
@@ -923,16 +918,6 @@ class _RpcMethodsCore:
     def add_point_rt(self, r, t, reg_name):
         method = "AddPoint_RT"
         params = [r, t, reg_name]
-        return self.connection.send_and_receive(method, params)
-
-    def add_line_rt(self, rs, ts, re, t_e):
-        method = "AddLine_RT"
-        params = [rs, ts, re, t_e]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_rt(self, rc, tc, th1, th2, r):
-        method = "AddArc_RT"
-        params = [rc, tc, th1, th2, r]
         return self.connection.send_and_receive(method, params)
 
     def add_arc_boundary_rt(
@@ -959,10 +944,6 @@ class _RpcMethodsCore:
         params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
-    def initiate_geometry_from_script(self):
-        method = "InitiateGeometryFromScript"
-        return self.connection.send_and_receive(method)
-
     def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
         method = "AddPoint_Magnetic_RT"
         params = [r, t, mag_name, br_angle, br_mult, polarity]
@@ -971,16 +952,6 @@ class _RpcMethodsCore:
     def add_point_magnetic_xy(self, x, y, mag_name, br_angle, br_mult, polarity):
         method = "AddPoint_Magnetic_XY"
         params = [x, y, mag_name, br_angle, br_mult, polarity]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_centre_start_end_rt(self, rc, tc, rs, ts, re, t_e):
-        method = "AddArc_CentreStartEnd_RT"
-        params = [rc, tc, rs, ts, re, t_e]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_centre_start_end_xy(self, xc, yc, xs, ys, xe, ye):
-        method = "AddArc_CentreStartEnd_XY"
-        params = [xc, yc, xs, ys, xe, ye]
         return self.connection.send_and_receive(method, params)
 
     def set_fea_path_point(
@@ -1139,6 +1110,151 @@ class _RpcMethodsCore:
         """
         method = "GetPointValue"
         params = [{"variant": parameter}, x, y]
+        return self.connection.send_and_receive(method, params)
+
+    def clear_all_data(self):
+        method = "ClearAllData"
+        return self.connection.send_and_receive(method)
+
+    # ------------------------------------ Custom Geometry ------------------------------------
+    def initiate_geometry_from_script(self):
+        """Tells Motor-CAD to use geometry from scripting.
+
+        Also clears current scripting geometry.
+        """
+        method = "InitiateGeometryFromScript"
+        return self.connection.send_and_receive(method)
+
+    def add_line_xy(self, x_start, y_start, x_end, y_end):
+        """Add line to Motor-CAD axial geometry with x and y coordinate system.
+
+        Parameters
+        ----------
+        x_start : float
+            start position x coordinate
+        y_start : float
+            start position y coordinate
+        x_end : float
+            end position x coordinate
+        y_end : float
+            end position y coordinate
+        """
+        method = "AddLine_XY"
+        params = [x_start, y_start, x_end, y_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_line_rt(self, radius_start, theta_start, radius_end, theta_end):
+        """Add line to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_start : float
+            start position radial coordinate
+        theta_start : float
+            start position angular coordinate
+        radius_end : float
+            end position radial coordinate
+        theta_end : float
+            end position angular coordinate
+        """
+        method = "AddLine_RT"
+        params = [radius_start, theta_start, radius_end, theta_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_xy(self, x_centre, y_centre, theta_start, theta_end, radius):
+        """Add arc to Motor-CAD axial geometry with x and y coordinate system.
+
+        Uses centre point, radius and angles. Use degrees for angles.
+
+        Parameters
+        ----------
+        x_centre : float
+            centre position x coordinate
+        y_centre : float
+            centre position x coordinate
+        theta_start : float
+            angular coordinate of arc start point
+        theta_end : float
+            angular coordinate of arc end point
+        radius : float
+            radius of arc from centre point
+        """
+        method = "AddArc_XY"
+        params = [x_centre, y_centre, theta_start, theta_end, radius]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_rt(self, radius_center, theta_centre, theta_start, theta_end, radius):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses centre point, radius and angles. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_center : float
+            centre position radial coordinate
+        theta_centre : float
+            centre position angular coordinate
+        theta_start : float
+            angular coordinate of arc start point
+        theta_end : float
+            angular coordinate of arc end point
+        radius : float
+            radius of arc from centre point
+        """
+        method = "AddArc_RT"
+        params = [radius_center, theta_centre, theta_start, theta_end, radius]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_centre_start_end_xy(self, x_centre, y_centre, x_start, y_start, x_end, y_end):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses start, end, centre coordinates. Use degrees for angles.
+
+        Parameters
+        ----------
+        x_centre : float
+            centre position x coordinate
+        y_centre : float
+            centre position y coordinate
+        x_start : float
+            start position x coordinate
+        y_start : float
+            start position y coordinate
+        x_end : float
+            end position x coordinate
+        y_end : float
+            end position y coordinate
+        """
+        method = "AddArc_CentreStartEnd_XY"
+        params = [x_centre, y_centre, x_start, y_start, x_end, y_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_centre_start_end_rt(
+        self, radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end
+    ):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses start, end, centre coordinates. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_centre : float
+            centre position radial coordinate
+        theta_centre : float
+            centre position angular coordinate
+        radius_start : float
+            start position radial coordinate
+        theta_start : float
+            start position angular coordinate
+        radius_end : float
+            end position radial coordinate
+        theta_end : float
+            end position angular coordinate
+        """
+        method = "AddArc_CentreStartEnd_RT"
+        params = [radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end]
         return self.connection.send_and_receive(method, params)
 
     # ------------------------------------ Thermal ------------------------------------
