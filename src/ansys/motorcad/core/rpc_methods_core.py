@@ -775,11 +775,6 @@ class _RpcMethodsCore:
         method = "ClearAllData"
         return self.connection.send_and_receive(method)
 
-    def add_line_xy(self, xs, ys, xe, ye):
-        method = "AddLine_XY"
-        params = [xs, ys, xe, ye]
-        return self.connection.send_and_receive(method, params)
-
     def set_bnd_cnd(self, dir_code, c1, c2, c3):
         method = "SetBndCond"
         params = [dir_code, c1, c2, c3]
@@ -788,30 +783,6 @@ class _RpcMethodsCore:
     def store_problem_data(self, p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max):
         method = "StoreProblemData"
         params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
-        return self.connection.send_and_receive(method, params)
-
-    def add_region_thermal_a(
-        self,
-        reg_name,
-        thermal_conductivity,
-        tcc,
-        ref_temp,
-        j_val,
-        sigma,
-        density,
-        loss_density,
-    ):
-        method = "Add_Region_Thermal_A"
-        params = [
-            reg_name,
-            thermal_conductivity,
-            tcc,
-            ref_temp,
-            j_val,
-            sigma,
-            density,
-            loss_density,
-        ]
         return self.connection.send_and_receive(method, params)
 
     def add_point_xy(self, x, y, reg_name):
@@ -1048,16 +1019,6 @@ class _RpcMethodsCore:
         params = [region_name, magnet_material, br_angle, br_multiplier]
         return self.connection.send_and_receive(method, params)
 
-    def add_region_xy(self, x, y, region_name):
-        method = "AddRegion_XY"
-        params = [x, y, region_name]
-        return self.connection.send_and_receive(method, params)
-
-    def add_region_rt(self, r, t, region_name):
-        method = "AddRegion_RT"
-        params = [r, t, region_name]
-        return self.connection.send_and_receive(method, params)
-
     def delete_regions(self, region_name):
         method = "DeleteRegions"
         params = [region_name]
@@ -1066,28 +1027,6 @@ class _RpcMethodsCore:
     def reset_regions(self):
         method = "ResetRegions"
         return self.connection.send_and_receive(method)
-
-    def add_magnet_region_rt(
-        self, r, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
-    ):
-        method = "AddMagnetRegion_RT"
-        params = [
-            r,
-            theta,
-            region_name,
-            magnet_material,
-            br_angle,
-            br_multiplier,
-            polarity_code,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_magnet_region_xy(
-        self, x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code
-    ):
-        method = "AddMagnetRegion_XY"
-        params = [x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code]
-        return self.connection.send_and_receive(method, params)
 
     def get_point_value(self, parameter, x, y):
         """Get a specified point from Motor-CAD FEA.
@@ -1111,10 +1050,6 @@ class _RpcMethodsCore:
         method = "GetPointValue"
         params = [{"variant": parameter}, x, y]
         return self.connection.send_and_receive(method, params)
-
-    def clear_all_data(self):
-        method = "ClearAllData"
-        return self.connection.send_and_receive(method)
 
     # ------------------------------------ Custom Geometry ------------------------------------
     def initiate_geometry_from_script(self):
@@ -1255,6 +1190,106 @@ class _RpcMethodsCore:
         """
         method = "AddArc_CentreStartEnd_RT"
         params = [radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_region_xy(self, x, y, region_name):
+        """Add region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use x,y coordinate system.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        """
+        method = "AddRegion_XY"
+        params = [x, y, region_name]
+        return self.connection.send_and_receive(method, params)
+
+    def add_region_rt(self, radius, theta, region_name):
+        """Add region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use r,t coordinate system.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta : float
+            region position angular coordinate
+        region_name : string
+            name of region
+        """
+        method = "AddRegion_RT"
+        params = [radius, theta, region_name]
+        return self.connection.send_and_receive(method, params)
+
+    def add_magnet_region_xy(
+        self, x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code
+    ):
+        """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use x,y coordinate system.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        magnet_material : string
+            magnet material to use
+        br_angle : float
+            magnet angle
+        br_multiplier : float
+            magnet Br multiplier, default is 1
+        polarity_code : integer
+            magnet polarity. 0 is north, 1 is south
+        """
+        method = "AddMagnetRegion_XY"
+        params = [x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code]
+        return self.connection.send_and_receive(method, params)
+
+    def add_magnet_region_rt(
+        self, radius, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
+    ):
+        """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use r,t coordinate system.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta : float
+            region position angular coordinate
+        region_name : string
+            name of region
+        magnet_material : string
+            magnet material to use
+        br_angle : float
+            magnet angle
+        br_multiplier : float
+            magnet Br multiplier, default is 1
+        polarity_code : integer
+            magnet polarity. 0 is north, 1 is south
+        """
+        method = "AddMagnetRegion_RT"
+        params = [
+            radius,
+            theta,
+            region_name,
+            magnet_material,
+            br_angle,
+            br_multiplier,
+            polarity_code,
+        ]
         return self.connection.send_and_receive(method, params)
 
     # ------------------------------------ Thermal ------------------------------------
