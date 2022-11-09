@@ -1292,6 +1292,15 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
+    def get_region_properties_xy(self, x, y, region_name):
+        """Get properties of region from name and coordinates.
+
+        Returns list of parameters. Currently only used for testing other geometry functions.
+        """
+        method = "GetRegionProperties_XY"
+        params = [x, y, region_name]
+        return self.connection.send_and_receive(method, params)
+
     # ------------------------------------ Thermal ------------------------------------
 
     def set_resistance_value(self, name, node1, node2, value, description):
