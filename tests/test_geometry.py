@@ -274,3 +274,49 @@ def test_add_magnet_region_rt():
 def test_get_region_properties_xy():
     # This is tested a lot in other functions
     assert True
+
+
+def test_add_point_custom_material_xy():
+    mc.initiate_geometry_from_script()
+
+    x_c = 5
+    y_c = 5
+
+    draw_square()
+
+    region_name = "test_region"
+    material_name = "Epoxy"
+    colour = "0xff0000"
+    mc.add_point_custom_material_xy(x_c, y_c, region_name, material_name, colour)
+
+    mc.create_optimised_mesh()
+
+    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+
+    assert region["RegionName"] == region_name
+    assert region["MaterialName"] == material_name
+    assert hex(region["Colour"]) == colour
+
+
+def test_add_point_custom_material_rt():
+    mc.initiate_geometry_from_script()
+
+    x_c = 5
+    y_c = 5
+
+    r_c, t_c = xy_to_rt(x_c, y_c)
+
+    draw_square()
+
+    region_name = "test_region"
+    material_name = "M43"
+    colour = "0xff00"
+    mc.add_point_custom_material_rt(r_c, t_c, region_name, material_name, colour)
+
+    mc.create_optimised_mesh()
+
+    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+
+    assert region["RegionName"] == region_name
+    assert region["MaterialName"] == material_name
+    assert hex(region["Colour"]) == colour

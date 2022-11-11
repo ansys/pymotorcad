@@ -999,11 +999,6 @@ class _RpcMethodsCore:
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
 
-    def add_point_custom_material_xy(self, x, y, reg_name, mat_name, colour):
-        method = "AddPoint_CustomMaterial_XY"
-        params = [x, y, reg_name, mat_name, colour]
-        return self.connection.send_and_receive(method, params)
-
     def get_region_value(self, expression, region_name):
         method = "GetRegionValue"
         params = [expression, region_name]
@@ -1299,6 +1294,56 @@ class _RpcMethodsCore:
         """
         method = "GetRegionProperties_XY"
         params = [x, y, region_name]
+        return self.connection.send_and_receive(method, params)
+
+    def add_point_custom_material_xy(self, x, y, region_name, material_name, colour):
+        """Add region to geometry and specify material.
+
+        Not for adding magnets. Use add_magnet_region_xy for this.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        material_name : string
+            name of material. Motor-CAD material names can be found in Input Data -> materials.
+            Material type (laminated/solid/air) is set automatically.
+
+        colour : string
+            VCL colour as a string (see https://wiki.freepascal.org/Colors)
+            This can be a hexadecimal value e.g. "$008000" or a colour name e.g. "clGreen"
+        """
+        method = "AddPoint_CustomMaterial_XY"
+        params = [x, y, region_name, material_name, colour]
+        return self.connection.send_and_receive(method, params)
+
+    def add_point_custom_material_rt(self, radius, theta, region_name, material_name, colour):
+        """Add region to geometry and specify material.
+
+        Not for adding magnets. Use add_magnet_region_rt for this.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta float
+            region position angular coordinate
+        region_name : string
+            name of region
+        material_name : string
+            name of material. Motor-CAD material names can be found in Input Data -> materials.
+            Material type (laminated/solid/air) is set automatically.
+
+        colour : string
+            VCL colour as a string (see https://wiki.freepascal.org/Colors)
+            This can be a hexadecimal value e.g. "$008000" or a colour name e.g. "clGreen"
+        """
+        method = "AddPoint_CustomMaterial_RT"
+        params = [radius, theta, region_name, material_name, colour]
         return self.connection.send_and_receive(method, params)
 
     # ------------------------------------ Thermal ------------------------------------
