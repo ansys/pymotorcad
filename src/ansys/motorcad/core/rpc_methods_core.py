@@ -275,6 +275,14 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def load_dxf_file(self, file_name):
+        """Load a *.dxf geometry file.
+
+        Parameters
+        ----------
+        file_name : str
+            DXF file. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadDXFFile"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
