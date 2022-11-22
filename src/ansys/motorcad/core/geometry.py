@@ -27,7 +27,7 @@ def xy_to_rt(x, y):
 
 
 def rt_to_xy(radius, theta):
-    """Convert Motor-CAD polar coordinates to polar coordinates in degrees.
+    """Convert Motor-CAD polar coordinates to cartesian coordinates in degrees.
 
     Parameters
     ----------

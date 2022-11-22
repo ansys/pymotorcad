@@ -785,6 +785,30 @@ class _RpcMethodsCore:
         params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
         return self.connection.send_and_receive(method, params)
 
+    def add_region_thermal_a(
+        self,
+        reg_name,
+        thermal_conductivity,
+        tcc,
+        ref_temp,
+        j_val,
+        sigma,
+        density,
+        loss_density,
+    ):
+        method = "Add_Region_Thermal_A"
+        params = [
+            reg_name,
+            thermal_conductivity,
+            tcc,
+            ref_temp,
+            j_val,
+            sigma,
+            density,
+            loss_density,
+        ]
+        return self.connection.send_and_receive(method, params)
+
     def add_point_xy(self, x, y, reg_name):
         method = "AddPoint_XY"
         params = [x, y, reg_name]
@@ -1083,11 +1107,11 @@ class _RpcMethodsCore:
         radius_start : float
             start position radial coordinate
         theta_start : float
-            start position angular coordinate
+            start position angular coordinate (degrees)
         radius_end : float
             end position radial coordinate
         theta_end : float
-            end position angular coordinate
+            end position angular coordinate (degrees)
         """
         method = "AddLine_RT"
         params = [radius_start, theta_start, radius_end, theta_end]
@@ -1105,9 +1129,9 @@ class _RpcMethodsCore:
         y_centre : float
             centre position x coordinate
         theta_start : float
-            angular coordinate of arc start point
+            angular coordinate of arc start point (degrees)
         theta_end : float
-            angular coordinate of arc end point
+            angular coordinate of arc end point (degrees)
         radius : float
             radius of arc from centre point
         """
@@ -1127,9 +1151,9 @@ class _RpcMethodsCore:
         theta_centre : float
             centre position angular coordinate
         theta_start : float
-            angular coordinate of arc start point
+            angular coordinate of arc start point (degrees)
         theta_end : float
-            angular coordinate of arc end point
+            angular coordinate of arc end point (degrees)
         radius : float
             radius of arc from centre point
         """
@@ -1173,15 +1197,15 @@ class _RpcMethodsCore:
         radius_centre : float
             centre position radial coordinate
         theta_centre : float
-            centre position angular coordinate
+            centre position angular coordinate (degrees)
         radius_start : float
             start position radial coordinate
         theta_start : float
-            start position angular coordinate
+            start position angular coordinate (degrees)
         radius_end : float
             end position radial coordinate
         theta_end : float
-            end position angular coordinate
+            end position angular coordinate (degrees)
         """
         method = "AddArc_CentreStartEnd_RT"
         params = [radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end]
@@ -1208,14 +1232,14 @@ class _RpcMethodsCore:
     def add_region_rt(self, radius, theta, region_name):
         """Add region to Motor-CAD geometry - overwrites existing region if already exists.
 
-        Use r,t coordinate system.
+        Use r,t coordinate system. Use degrees for angles.
 
         Parameters
         ----------
         radius : float
             region position radial coordinate
         theta : float
-            region position angular coordinate
+            region position angular coordinate (degrees)
         region_name : string
             name of region
         """
@@ -1228,7 +1252,7 @@ class _RpcMethodsCore:
     ):
         """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
 
-        Use x,y coordinate system.
+        Use x,y coordinate system. Use degrees for angles.
 
         Parameters
         ----------
@@ -1241,7 +1265,7 @@ class _RpcMethodsCore:
         magnet_material : string
             magnet material to use
         br_angle : float
-            magnet angle
+            magnet angle  (degrees)
         br_multiplier : float
             magnet Br multiplier, default is 1
         polarity_code : integer
@@ -1256,20 +1280,20 @@ class _RpcMethodsCore:
     ):
         """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
 
-        Use r,t coordinate system.
+        Use r,t coordinate system. Use degrees for angles.
 
         Parameters
         ----------
         radius : float
             region position radial coordinate
         theta : float
-            region position angular coordinate
+            region position angular coordinate (degrees)
         region_name : string
             name of region
         magnet_material : string
             magnet material to use
         br_angle : float
-            magnet angle
+            magnet angle (degrees)
         br_multiplier : float
             magnet Br multiplier, default is 1
         polarity_code : integer
@@ -1287,13 +1311,14 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
-    def get_region_properties_xy(self, x, y, region_name):
+    def _get_region_properties_xy(self, x, y, region_type):
         """Get properties of region from name and coordinates.
 
         Returns list of parameters. Currently only used for testing other geometry functions.
+        EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
         """
         method = "GetRegionProperties_XY"
-        params = [x, y, region_name]
+        params = [x, y, region_type]
         return self.connection.send_and_receive(method, params)
 
     def add_point_custom_material_xy(self, x, y, region_name, material_name, colour):
@@ -1324,14 +1349,14 @@ class _RpcMethodsCore:
     def add_point_custom_material_rt(self, radius, theta, region_name, material_name, colour):
         """Add region to geometry and specify material.
 
-        Not for adding magnets. Use add_magnet_region_rt for this.
+        Not for adding magnets. Use add_magnet_region_rt for this. Use degrees for angles.
 
         Parameters
         ----------
         radius : float
             region position radial coordinate
-        theta float
-            region position angular coordinate
+        theta : float
+            region position angular coordinate (degrees)
         region_name : string
             name of region
         material_name : string

@@ -1,11 +1,13 @@
 from math import pi
 
-from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from setup_test import setup_test_env
+from tests.RPC_Test_Common import almost_equal
+from tests.setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
+
+DXF_IMPORT_REGION = "DXF Import"
 
 
 # Draw square with centre at 5,5
@@ -40,7 +42,7 @@ def test_add_line_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(5, 5, "DXF Import")
+    region = mc._get_region_properties_xy(5, 5, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], 100)
 
@@ -67,7 +69,7 @@ def test_add_line_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(5, 5, "DXF Import")
+    region = mc._get_region_properties_xy(5, 5, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], 100)
 
@@ -88,7 +90,7 @@ def test_add_arc_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(10, 10, "DXF Import")
+    region = mc._get_region_properties_xy(10, 10, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -112,7 +114,7 @@ def test_add_arc_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -137,7 +139,7 @@ def test_add_arc_centre_start_end_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -164,7 +166,7 @@ def test_add_arc_centre_start_end_rt():
 
     x_c, y_c = rt_to_xy(r_c, t_c)
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -183,7 +185,7 @@ def test_add_region_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == region_name
 
@@ -203,7 +205,7 @@ def test_add_region_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == region_name
 
@@ -239,7 +241,7 @@ def test_add_magnet_region_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == magnet_name
 
@@ -266,13 +268,19 @@ def test_add_magnet_region_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == magnet_name
 
 
 def test_get_region_properties_xy():
-    # This is tested a lot in other functions
+    # Placeholder function so that we know this has been tested in other functions.
+    # - could expand this in the future to have standalone test.
+
+    # We already test this function in:
+    # test_add_point_custom_material_rt/xy
+    # test_add_magnet_region_rt/xy
+    # test_add_region_rt/xy
     assert True
 
 
@@ -291,7 +299,7 @@ def test_add_point_custom_material_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
@@ -315,7 +323,7 @@ def test_add_point_custom_material_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc.get_region_properties_xy(x_c, y_c, "DXF Import")
+    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
