@@ -30,7 +30,16 @@ def draw_square():
 
 
 def test_initiate_geometry_from_script():
-    # Tested in other geometry functions
+    # Placeholder function so that we know this has been tested in other functions.
+    # - could expand this in the future to have standalone test.
+
+    # We already test this function in:
+    # test_add_point_custom_material_rt/xy
+    # test_add_magnet_region_rt/xy
+    # test_add_region_rt/xy
+    # test_add_line_rt/xy
+    # test_add_arc_rt/xy
+    # test_add_arc_centre_start_end_rt/xy
     assert True
 
 
