@@ -191,11 +191,6 @@ class _RpcMethodsCore:
         """Check if there is a licence available for the current context and machine type.
 
         The licence is checked out if available.
-
-        Returns
-        -------
-        success : int
-            0 on success and -1 on failure.
         """
         method = "GetLicence"
         return self.connection.send_and_receive(method)
