@@ -545,7 +545,7 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def SetBndCond(self, *args):
-        replacement_function = self.new_methods.set_bnd_cnd
+        replacement_function = self.new_methods.set_bnd_cond
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 

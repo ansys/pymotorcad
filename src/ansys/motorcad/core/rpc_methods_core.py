@@ -123,11 +123,6 @@ class _RpcMethodsCore:
 
     # ------------------------------------ UI ------------------------------------
 
-    def is_stop_requested(self):
-        """Intercept button clicks in python since it does not use a separate thread."""
-        method = "IsStopRequested"
-        return self.connection.send_and_receive(method)
-
     def disable_error_messages(self, active):
         """Disable or enable message display.
 
@@ -157,10 +152,6 @@ class _RpcMethodsCore:
         method = "GetMessages"
         params = [num_messages]
         return self.connection.send_and_receive(method, params)
-
-    def update_interface(self):
-        method = "UpdateInterface"
-        return self.connection.send_and_receive(method)
 
     def initialise_tab_names(self):
         """Initialise the available tabs in the Motor-CAD UI.
@@ -210,19 +201,6 @@ class _RpcMethodsCore:
             method = "SetVisible"
 
         params = [visible]
-        return self.connection.send_and_receive(method, params)
-
-    def avoid_immediate_update(self, avoid_update):
-        """Set to true to speed up the setting of inputs.
-
-        The steady state calc will only now be calculated when DoSteadyStateAnalysis is called.
-
-        Parameters
-        ----------
-        avoid_update: bool
-        """
-        method = "AvoidImmediateUpdate"
-        params = [{"variant": avoid_update}]
         return self.connection.send_and_receive(method, params)
 
     def clear_message_log(self):
@@ -669,48 +647,6 @@ class _RpcMethodsCore:
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
-    def get_im_sat_factor(self, i_mag):
-        """Get saturation factor.
-
-        The E-magnetic model must be solved prior to method call.
-
-        Parameters
-        ----------
-        i_mag : real
-            The magnetizing current
-        Returns
-        -------
-        satFactor : real
-            Saturation Factor
-        """
-        method = "GetIMSaturationFactor"
-        params = [i_mag]
-        return self.connection.send_and_receive(method, params, success_var=False)
-
-    def get_im_iron_loss(self, slip, back_emf):
-        """Get analytic iron loss using data from FEA solution.
-
-        The E-magnetic model must be solved prior to method call.
-
-        Parameters
-        ----------
-        slip : float
-            The induction motor slip.
-        back_emf : float
-
-        Returns
-        -------
-        EddyLoss : float
-            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron eddy
-            current losses
-        HysLoss : float
-            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron
-            hysteresis losses
-        """
-        method = "GetIMIronLoss"
-        params = [slip, back_emf]
-        return self.connection.send_and_receive(method, params)
-
     def set_3d_component_visibility(self, group_name, component_name, visibility):
         """Set the visibility of a component specified by group name, and component name.
 
@@ -728,18 +664,6 @@ class _RpcMethodsCore:
         """
         method = "Set3DComponentVisibility"
         params = [group_name, component_name, visibility]
-        return self.connection.send_and_receive(method, params)
-
-    def set_all_emag_calculations(self, state):
-        """Control whether all or none of the performance tests are enabled.
-
-        Parameters
-        ----------
-        state : bool
-            True enables all performance tests.
-        """
-        method = "SetAllEmagCalculations"
-        params = [state]
         return self.connection.send_and_receive(method, params)
 
     def calculate_saturation_map(self):
@@ -1182,171 +1106,45 @@ class _RpcMethodsCore:
     # ------------------------------------ FEA ------------------------------------
 
     def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
+        """Set or creates a power injection."""
         method = "SetPowerInjectionValue"
         params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.connection.send_and_receive(method, params)
 
     def set_fixed_temperature_value(self, name, node1, value, description):
+        """Set or creates a fixed temperature on a node."""
         method = "SetFixedTemperatureValue"
         params = [name, node1, value, description]
         return self.connection.send_and_receive(method, params)
 
     def clear_fixed_temperature_value(self, node1):
+        """Remove a fixed temperature from a node."""
         method = "ClearFixedTemperatureValue"
         params = [node1]
         return self.connection.send_and_receive(method, params)
 
     def do_slot_finite_element(self):
+        """Carry out slot finite element analysis."""
         method = "DoSlotFiniteElement"
         return self.connection.send_and_receive(method)
 
     def clear_all_data(self):
+        """Clear data and initialise FEA."""
         method = "ClearAllData"
         return self.connection.send_and_receive(method)
 
-    def set_bnd_cnd(self, dir_code, c1, c2, c3):
-        method = "SetBndCond"
-        params = [dir_code, c1, c2, c3]
-        return self.connection.send_and_receive(method, params)
-
-    def store_problem_data(self, p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max):
-        method = "StoreProblemData"
-        params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
-        return self.connection.send_and_receive(method, params)
-
-    def add_region_thermal_a(
-        self,
-        reg_name,
-        thermal_conductivity,
-        tcc,
-        ref_temp,
-        j_val,
-        sigma,
-        density,
-        loss_density,
-    ):
-        method = "Add_Region_Thermal_A"
-        params = [
-            reg_name,
-            thermal_conductivity,
-            tcc,
-            ref_temp,
-            j_val,
-            sigma,
-            density,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_xy(self, x, y, reg_name):
-        method = "AddPoint_XY"
-        params = [x, y, reg_name]
-        return self.connection.send_and_receive(method, params)
-
     def create_optimised_mesh(self):
+        """Create FEA geometry and mesh.
+
+        Call at the end of creating custom scripting geometry.
+        """
         method = "CreateOptimisedMesh"
         return self.connection.send_and_receive(method)
-
-    def create_optimised_mesh_thermal(self, copper_region, ins_region, impreg_region):
-        method = "CreateOptimisedMesh_Thermal"
-        params = [copper_region, ins_region, impreg_region]
-        return self.connection.send_and_receive(method, params)
-
-    def set_mesh_generator_param(self, max_bnd_length, bnd_factor, max_angle):
-        method = "SetMeshGeneratorParam"
-        params = [max_bnd_length, bnd_factor, max_angle]
-        return self.connection.send_and_receive(method, params)
-
-    def solve_problem(self):
-        method = "SolveProblem"
-        return self.connection.send_and_receive(method)
-
-    def add_region_thermal(
-        self, reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density
-    ):
-        method = "Add_Region_Thermal"
-        params = [reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density]
-        return self.connection.send_and_receive(method, params)
-
-    def add_circular_conductor_a(
-        self,
-        xc,
-        yc,
-        copper_radius,
-        ins_radius,
-        ang_degree,
-        points_no,
-        mb,
-        line,
-        column,
-        region_name,
-        j_aux,
-        loss_density,
-    ):
-        method = "AddCircularConductor_A"
-        params = [
-            xc,
-            yc,
-            copper_radius,
-            ins_radius,
-            ang_degree,
-            points_no,
-            mb,
-            line,
-            column,
-            region_name,
-            j_aux,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_rectangular_conductor_a(
-        self,
-        xc,
-        yc,
-        width,
-        height,
-        ins_width,
-        ang_deg,
-        points_no,
-        mb,
-        line,
-        column,
-        reg_name,
-        j_aux,
-        loss_density,
-    ):
-        method = "AddRectangularConductor_A"
-        params = [
-            xc,
-            yc,
-            width,
-            height,
-            ins_width,
-            ang_deg,
-            points_no,
-            mb,
-            line,
-            column,
-            reg_name,
-            j_aux,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def set_region_colour(self, region, colour):
-        method = "SetRegionColour"
-        params = [region, colour]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_rt(self, r, t, reg_name):
-        method = "AddPoint_RT"
-        params = [r, t, reg_name]
-        return self.connection.send_and_receive(method, params)
 
     def add_arc_boundary_rt(
         self, direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code
     ):
+        """Add boundary condition arc using RT coordinates for centre."""
         method = "AddArc_Boundary_RT"
         params = [direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
@@ -1354,16 +1152,19 @@ class _RpcMethodsCore:
     def add_arc_boundary_xy(
         self, direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code
     ):
+        """Add boundary condition arc using XY coordinates for centre."""
         method = "AddArc_Boundary_XY"
         params = [direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
     def add_line_boundary_rt(self, rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using RT coordinates for start and end points."""
         method = "AddLine_Boundary_RT"
         params = [rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
     def add_line_boundary_xy(self, xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using XY coordinates for start and end points."""
         method = "AddLine_Boundary_XY"
         params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
@@ -1381,6 +1182,7 @@ class _RpcMethodsCore:
     def set_fea_path_point(
         self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
     ):
+        """Add/edit a point in the path editor."""
         method = "SetFEAPathPoint"
         params = [
             path_name,
@@ -1405,6 +1207,7 @@ class _RpcMethodsCore:
         calculation,
         expression,
     ):
+        """Add/edit an arc in the path editor."""
         method = "SetFEAPathArc"
         params = [
             path_name,
@@ -1432,6 +1235,7 @@ class _RpcMethodsCore:
         calculation,
         expression,
     ):
+        """Add/edit a line in the path editor."""
         method = "SetFEAPathLine"
         params = [
             path_name,
@@ -1448,31 +1252,48 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
+        """Save raw data for open FEA solution."""
         method = "SaveFEAData"
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
 
     def get_region_value(self, expression, region_name):
+        """Calculate the integral value for given expression of the region."""
         method = "GetRegionValue"
         params = [expression, region_name]
         return self.connection.send_and_receive(method, params)
 
     def get_region_loss(self, expression, region_name, radius1, radius2, angle1, angle2):
+        """Calculate the loss value for given expression of the region.
+
+        Region bounded by radii and angles specified.
+        Radii and angle values of 0 will give all region losses.
+        Losses calculated are for per unit length and are only for the FEA areas modelled
+        (for total losses require to multiply by symmetry factor).
+        Valid for magnetic solution only.
+        """
         method = "GetRegionLoss"
         params = [expression, region_name, radius1, radius2, angle1, angle2]
         return self.connection.send_and_receive(method, params)
 
     def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
+        """Edit the specified magnet region."""
         method = "EditMagnetRegion"
         params = [region_name, magnet_material, br_angle, br_multiplier]
         return self.connection.send_and_receive(method, params)
 
     def delete_regions(self, region_name):
+        """Delete a comma separated list of named regions or all regions if left empty.
+
+        If region to be deleted contains a space, the region name should be enclosed in
+        double quotation marks (e.g. "Rotor Pocket").
+        """
         method = "DeleteRegions"
         params = [region_name]
         return self.connection.send_and_receive(method, params)
 
     def reset_regions(self):
+        """Reset custom FEA regions to standard regions from Motor-CAD template geometry."""
         method = "ResetRegions"
         return self.connection.send_and_receive(method)
 
