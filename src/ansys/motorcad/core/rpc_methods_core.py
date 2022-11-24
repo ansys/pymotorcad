@@ -1803,60 +1803,72 @@ class _RpcMethodsCore:
     # ------------------------------------ Thermal ------------------------------------
 
     def set_resistance_value(self, name, node1, node2, value, description):
+        """Set or create a resistance."""
         method = "SetResistanceValue"
         params = [name, node1, node2, value, description]
         return self.connection.send_and_receive(method, params)
 
     def set_resistance_multiplier(self, name, node1, node2, value, description):
+        """Set or create a resistance muliplication factor."""
         method = "SetResistanceMultiplier"
         params = [name, node1, node2, value, description]
         return self.connection.send_and_receive(method, params)
 
     def clear_external_circuit(self):
+        """Clear the external circuit."""
         method = "ClearExternalCircuit"
         return self.connection.send_and_receive(method)
 
     def create_new_node(self, name, node1, row, column, colour, description):
+        """Create a new node."""
         method = "CreateNewNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
 
     def modify_node(self, name, node1, row, column, colour, description):
+        """Modify an existing node."""
         method = "ModifyNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
 
     def set_capacitance_value(self, name, node1, value, description):
+        """Set or create a capacitance."""
         method = "SetCapacitanceValue"
         params = [name, node1, value, description]
         return self.connection.send_and_receive(method, params)
 
     def set_power_source_value(self, name, node1, value, rpm_ref, rpm_coef, description):
+        """Set or create a power source."""
         method = "SetPowerSourceValue"
         params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.connection.send_and_receive(method, params)
 
     def load_external_circuit(self, circuit_file_name):
+        """Load an external circuit from a file."""
         method = "LoadExternalCircuit"
         params = [circuit_file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_external_circuit(self, circuit_file_name):
+        """Save the external circuit to a file."""
         method = "SaveExternalCircuit"
         params = [circuit_file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
+        """Save transient power results in a csv file."""
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
+        """Save transient temperature results in a csv file."""
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def remove_external_component(self, component_type, name, node1):
+        """Remove an external circuit component (e.g. Resistance, Power Source, Power Injection)."""
         method = "RemoveExternalComponent"
         params = [component_type, name, node1]
         return self.connection.send_and_receive(method, params)
@@ -1972,51 +1984,71 @@ class _RpcMethodsCore:
     # ------------------------------------ Materials ------------------------------------
 
     def set_fluid(self, cooling_type, fluid):
+        """Set fluid for specified cooling type.
+
+        Cooling types: InternalFluid, ExternalFluid, ShaftSGFluid, RotorWJFluid, SlotWJFluid,
+        HousingWJFluid, WetRotorFluid, SprayCoolingFluid, Spray_RadialHousing_Fluid, TVentFluid.
+        """
         method = "SetFluid"
         params = [cooling_type, fluid]
         return self.connection.send_and_receive(method, params)
 
     def set_component_material(self, component_name, material_name):
+        """Set the solid material properties of the named component from the materials database.
+
+        Component names are found under Input Data -> Materials (Component column).
+        """
         method = "SetComponentMaterial"
         params = [component_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def get_component_material(self, component_name):
+        """Get the current solid material name of the named component.
+
+        Component names are found under Input Data -> Materials (Component column).
+        """
         method = "GetComponentMaterial"
         params = [component_name]
         return self.connection.send_and_receive(method, params)
 
     def import_solid_material(self, file_name, material_name):
+        """Import the solid material from the materials database."""
         method = "ImportSolidMaterial"
         params = [file_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def export_solid_material(self, file_name, material_name):
+        """Export the solid material to the materials database."""
         method = "ExportSolidMaterial"
         params = [file_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def delete_solid_material(self, material_name):
+        """Delete the solid material from the materials database."""
         method = "DeleteSolidMaterial"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_iron_loss_coefficients(self, material_name):
+        """Calculate and return iron loss coefficients for the specified material."""
         method = "CalculateIronLossCoefficients"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def save_iron_loss_coefficients(self, material_name):
+        """Save the calculated iron loss coefficients to the solids database."""
         method = "SaveIronLossCoefficients"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_magnet_parameters(self, material_name):
+        """Calculate parameters for nonlinear demagnetisation model."""
         method = "CalculateMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def save_magnet_parameters(self, material_name):
+        """Save the calculated magnet parameters of the selected material to the solids database."""
         method = "SaveMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
