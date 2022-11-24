@@ -12,16 +12,46 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Variables ------------------------------------
     def get_array_variable_2d(self, array_name, array_index1, array_index2):
+        """Get value from 2D array at element [array_index1,array_index2].
+
+        Parameters
+        ----------
+        array_name : str
+            Name of array
+        array_index1 : int
+            First index of array
+        array_index2 : int
+            Second index of array
+
+        Returns
+        -------
+        int|float|str|bool
+            Value of MotorCAD variable
+        """
         method = "GetArrayVariable_2d"
         params = [array_name, array_index1, array_index2]
         return self.connection.send_and_receive(method, params)
 
     def set_array_variable_2d(self, array_name, array_index1, array_index2, new_value):
+        """Set value of 2D array at element [array_index1,array_index2].
+
+        Parameters
+        ----------
+        array_name : str
+            Name of array
+        array_index1 : int
+            First index of array
+        array_index2 : int
+            Second index of array
+        new_value : int|float|str|bool
+            Value of MotorCAD variable to be set
+        """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
+        """Restores the model compatibility settings to default values (to use latest methods)."""
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
@@ -94,10 +124,18 @@ class _RpcMethodsCore:
     # ------------------------------------ UI ------------------------------------
 
     def is_stop_requested(self):
+        """Intercept button clicks in python since it does not use a separate thread."""
         method = "IsStopRequested"
         return self.connection.send_and_receive(method)
 
     def disable_error_messages(self, active):
+        """Disable or enable message display.
+
+        Parameters
+        ----------
+        active : bool
+            If true, then disable messages
+        """
         method = "DisableErrorMessages"
         params = [active]
         return self.connection.send_and_receive(method, params)
@@ -150,6 +188,10 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_license(self):
+        """Check if there is a licence available for the current context and machine type.
+
+        The licence is checked out if available.
+        """
         method = "GetLicence"
         return self.connection.send_and_receive(method)
 
@@ -171,11 +213,20 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def avoid_immediate_update(self, avoid_update):
+        """Set to true to speed up the setting of inputs.
+
+        The steady state calc will only now be calculated when DoSteadyStateAnalysis is called.
+
+        Parameters
+        ----------
+        avoid_update: bool
+        """
         method = "AvoidImmediateUpdate"
         params = [{"variant": avoid_update}]
         return self.connection.send_and_receive(method, params)
 
     def clear_message_log(self):
+        """Clear the message log file for the current model."""
         method = "ClearMessageLog"
         return self.connection.send_and_receive(method)
 
@@ -240,65 +291,184 @@ class _RpcMethodsCore:
     # ------------------------------------ Files ------------------------------------
 
     def load_duty_cycle(self, file_name):
+        """Load a duty cycle from a *.dat file.
+
+        Parameters
+        ----------
+        file_name : str
+            The default is the directory of the .mot file. Alternatively, use a custom location
+            by specifying the absolute filepath of the duty cycle to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "LoadDutyCycle"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def save_duty_cycle(self, file_name):
+    def save_duty_cycle(self, file_path):
+        """Save the duty cycle to a file.
+
+        The file should be saved with a *.dat file extension to ensure it can be correctly loaded
+        into a *.mot file
+
+        Parameters
+        ----------
+        file_path : str
+            The default is the directory of the .mot file. Alternatively, use a custom location
+            by specifying the absolute filepath of the duty cycle to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveDutyCycle"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def export_matrices(self, file_name):
+    def export_matrices(self, directory_path):
+        """Save the resistance, power and capacitance matrices to files in the file path.
+
+        The files are given the name of the *.mot model, with different file extensions.
+
+        Parameters
+        ----------
+        directory_path : str
+            The default is the root directory. Alternatively, use a custom location
+            by specifying the absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportMatrices"
-        params = [file_name]
+        params = [directory_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_custom_drive_cycle(self, file_name):
+    def load_custom_drive_cycle(self, file_path):
+        """Load a custom current waveform from a file.
+
+        Parameters
+        ----------
+        file_path : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "LoadCustomDriveCycle"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_fea_result(self, file_name, solution_number):
+    def load_fea_result(self, file_path, solution_number):
+        """Load in an existing FEA solution to allow viewing of FEA results.
+
+        Parameters
+        ----------
+        file_path : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        solution_number : int
+        """
         method = "LoadFEAResult"
-        params = [file_name, solution_number]
+        params = [file_path, solution_number]
         return self.connection.send_and_receive(method, params)
 
-    def export_to_ansys_electronics_desktop(self, file_name):
+    def export_to_ansys_electronics_desktop(self, file_path):
+        """Export the model to a vbs script file to be run in Ansys Electronics Desktop.
+
+        The filepath must include the name of the file. The default
+        filepath is the Windows directory in the C: drive
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportToAnsysElectronicsDesktop"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def export_results(self, solution_type, file_name):
+    def export_results(self, solution_type, file_path):
+        """Export results from the selected solution to a csv file.
+
+        The filepath must include the name of the file, with the *.CSV extension.
+
+        Parameters
+        ----------
+        solution_type : str
+            solution_type can be 'SteadyState', 'Transient', 'EMagnetic' or 'Lab'
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportResults"
-        params = [solution_type, file_name]
+        params = [solution_type, file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_dxf_file(self, file_name):
+        """Load a *.dxf geometry file.
+
+        Parameters
+        ----------
+        file_name : str
+            DXF file. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadDXFFile"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def create_report(self, file_path, template_file_path):
+        """Create Word report of report tree structure.
+
+        Parameters
+        ----------
+        file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        template_file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "CreateReport"
         params = [file_path, template_file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_report_structure(self, file_path):
+        """Load tree structure of report from file.
+
+        Parameters
+        ----------
+        file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadReportStructure"
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_force_animation(self, animation, file_name):
+        """Export chosen force animation to file as a GIF.
+
+        Animation is exported from caption name e.g. "Radial OL" or "Radial OL (12th harmonic)"
+
+        Parameters
+        ----------
+        animation : str
+            animation name
+        file_name : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "ExportForceAnimation"
         params = [animation, file_name]
         return self.connection.send_and_receive(method, params)
 
     def load_report_tree(self):
+        """Create tree structure of selected modules and components."""
         method = "LoadReportTree"
         return self.connection.send_and_receive(method)
 
     def load_template(self, template_name):
+        """Load a motor template.
+
+        Parameters
+        ----------
+        template_name : str
+            The template name is given in the Template column from File
+            -> Open Template e.g. a1, e9
+        """
         method = "LoadTemplate"
         params = [template_name]
         return self.connection.send_and_receive(method, params)
@@ -317,6 +487,22 @@ class _RpcMethodsCore:
         drive_type,
         notes,
     ):
+        """Save to a *.mtt template file.
+
+        Parameters
+        ----------
+        template_file_name : str
+        name : str
+        sector : str
+        machine_type : str
+        application : str
+        winding_type : str
+        max_speed : str
+        power : str
+        cooling : str
+        drive_type : str
+        notes : str
+        """
         method = "SaveTemplate"
         params = [
             template_file_name,
@@ -333,31 +519,78 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
-    def load_winding_pattern(self, file_name):
+    def load_winding_pattern(self, file_path):
+        """Load the winding pattern from a text file.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be loaded. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "LoadWindingPattern"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def save_winding_pattern(self, file_name):
+    def save_winding_pattern(self, file_path):
+        """Save the winding pattern to a file.
+
+        The filepath must include the name of the file. If the file is to be re-loaded
+        into Motor-CAD, then the file extension must be specified as *.txt. The default
+        filepath is the Windows directory in the C: drive
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveWindingPattern"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_multi_force_data(self, file_name):
+        """Export multiforce data calculated to file.
+
+        Parameters
+        ----------
+        file_name : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "ExportMultiForceData"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def geometry_export(self):
+        """Export the geometry to file specified in DXFFileName parameter."""
         method = "GeometryExport"
         return self.connection.send_and_receive(method)
 
-    def export_to_ansys_discovery(self, file_name):
+    def export_to_ansys_discovery(self, file_path):
+        """Export the model to a python script file which can be run in Ansys Discovery.
+
+        The filepath must include the name of the file. The
+        extension does not need to be specified.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportToAnsysDiscovery"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_nvh_results_data(self, file_name):
+        """Export NVH results data to file.
+
+        Parameters
+        ----------
+        file_name : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "ExportNVHResultsData"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
@@ -390,9 +623,20 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Internal Scripting ------------------------------------
 
-    def save_script(self, file_name):
+    def save_script(self, file_path):
+        """Save the internal python script to a file.
+
+        The *.py extension should be included in the file name.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveScript"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_script(self, script_file):
@@ -416,16 +660,24 @@ class _RpcMethodsCore:
     # ------------------------------------ Calculations ------------------------------------
 
     def clear_duty_cycle(self):
+        """Clear the duty cycle in both the lab and thermal contexts."""
         method = "ClearDutyCycle"
         return self.connection.send_and_receive(method)
 
     def do_magnetic_thermal_calculation(self):
+        """Carry out coupled e-magnetic and thermal calculation."""
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
     def get_im_sat_factor(self, i_mag):
-        """NO SUCCESS VARIABLE.
+        """Get saturation factor.
 
+        The E-magnetic model must be solved prior to method call.
+
+        Parameters
+        ----------
+        i_mag : real
+            The magnetizing current
         Returns
         -------
         satFactor : real
@@ -436,61 +688,143 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params, success_var=False)
 
     def get_im_iron_loss(self, slip, back_emf):
+        """Get analytic iron loss using data from FEA solution.
+
+        The E-magnetic model must be solved prior to method call.
+
+        Parameters
+        ----------
+        slip : float
+            The induction motor slip.
+        back_emf : float
+
+        Returns
+        -------
+        EddyLoss : float
+            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron eddy
+            current losses
+        HysLoss : float
+            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron
+            hysteresis losses
+        """
         method = "GetIMIronLoss"
         params = [slip, back_emf]
         return self.connection.send_and_receive(method, params)
 
     def set_3d_component_visibility(self, group_name, component_name, visibility):
+        """Set the visibility of a component specified by group name, and component name.
+
+        Parameters
+        ----------
+        group_name : str
+            "Machine", "Stator", "Rotor", "Shaft Components". If in the thermal context then
+            "Mounting"
+            and "Outer Casing" are available too.
+        component_name : str
+            "All", "Lamination", "Wedge". The available component names depends on which model
+            is used.
+        visibility : int
+            0=Invisible to 100=Solid
+        """
         method = "Set3DComponentVisibility"
         params = [group_name, component_name, visibility]
         return self.connection.send_and_receive(method, params)
 
     def set_all_emag_calculations(self, state):
+        """Control whether all or none of the performance tests are enabled.
+
+        Parameters
+        ----------
+        state : bool
+            True enables all performance tests.
+        """
         method = "SetAllEmagCalculations"
         params = [state]
         return self.connection.send_and_receive(method, params)
 
     def calculate_saturation_map(self):
+        """Generate electromagnetic saturation and loss data.
+
+        Saturation (flux linkages and inductances) and loss data for use in other
+        analysis and modelling tools. The default file extension is *.mat and is saved in
+        the lab folder in the *.mot directory.
+        """
         method = "CalculateSaturationMap"
         return self.connection.send_and_receive(method)
 
     def calculate_torque_envelope(self):
+        """Calculate torque envelope for machine."""
         method = "CalculateTorqueEnvelope"
         return self.connection.send_and_receive(method)
 
     def save_results(self, solution_type):
+        """Save the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
         method = "SaveResults"
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
+        """Load the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
         method = "LoadResults"
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
     def calculate_im_saturation_model(self):
+        """Calculate saturation lookup tables for IM machines."""
         method = "CalculateIMSaturationModel"
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_spatial(self):
+        """Calculate 1D force harmonics in Space axis."""
         method = "CalculateForceHarmonics_Spatial"
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_temporal(self):
+        """Calculate 1D force harmonics in Time axis."""
         method = "CalculateForceHarmonics_Temporal"
         return self.connection.send_and_receive(method)
 
     def get_force_frequency_domain_amplitude(self, row, column, load_point):
+        """Export matrix value from Force Space Time Harmonics matrix from 2D FFT.
+
+        Parameters
+        ----------
+        row : int
+            row index of FFT matrix
+        column : int
+            column index of FFT matrix
+        load_point : int
+        """
         method = "GetForceFrequencyDomainAmplitude"
         params = [row, column, load_point]
         return self.connection.send_and_receive(method, params)
 
     def update_force_analysis_results(self, fft_data_type):
+        """Update force analysis results for selected multiforce operating point.
+
+        Parameters
+        ----------
+        fft_data_type : int
+            0 : 1D Temporal Harmonics, 1 : 1D Spatial Harmonics
+        """
         method = "UpdateForceAnalysisResults"
         params = [fft_data_type]
         return self.connection.send_and_receive(method, params)
 
     def do_multi_force_calculation(self):
+        """Calculate forces for multiple operating points."""
         method = "DoMultiForceCalculation"
         return self.connection.send_and_receive(method)
 
@@ -522,34 +856,78 @@ class _RpcMethodsCore:
     # ------------------------------------ Lab ------------------------------------
 
     def calculate_test_performance_lab(self):
+        """Calculate the test performance.
+
+        Results will be saved in the .mot file results folder as MotorLAB_caldata.mat
+        """
         method = "CalculateTestPerformance_Lab"
         return self.connection.send_and_receive(method)
 
     def export_duty_cycle_lab(self):
+        """Export the calculated duty cycle data to the thermal model."""
         method = "ExportDutyCycle_Lab"
         return self.connection.send_and_receive(method)
 
     def get_model_built_lab(self):
+        """Test if the Lab model needs to be built or rebuilt before running calculations.
+
+        Returns
+        -------
+        value : bool
+            Return true if the Lab model has been built and is valid for the current settings.
+        """
         method = "GetModelBuilt_Lab"
         return self.connection.send_and_receive(method)
 
     def show_results_viewer_lab(self, calculation_type):
+        """Load the results viewer for the specified Lab calculation type.
+
+        Parameters
+        ----------
+        calculation_type : str
+            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+        """
         method = "ShowResultsViewer_Lab"
         params = [calculation_type]
         return self.connection.send_and_receive(method, params)
 
     def export_figure_lab(self, calculation_type, variable, file_name):
+        """Export an image of the Lab results graph.
+
+        Parameters
+        ----------
+        calculation_type : str
+            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+        variable : str
+            The given variable will be plotted on the Y axis (2d graphs) or Z axis (3d graphs),
+            e.g. "Shaft Torque"
+        file_name : str
+        """
         method = "ExportFigure_Lab"
         params = [calculation_type, variable, file_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_generator_lab(self):
+        """Calculate generator performance.
+
+        Results will be saved in the .mot file results folder as LabResults_Generator.mat
+        """
         method = "CalculateGenerator_Lab"
         return self.connection.send_and_receive(method)
 
-    def load_external_model_lab(self, file_name):
+    def load_external_model_lab(self, file_path):
+        """Load the specified external model data file.
+
+        For when the Lab link type is set to Custom or ANSYS Maxwell.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadExternalModel_Lab"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def clear_model_build_lab(self):
@@ -592,6 +970,23 @@ class _RpcMethodsCore:
     def set_winding_coil(
         self, phase, path, coil, go_slot, go_position, return_slot, return_position, turns
     ):
+        """Set Go and Return slots, positions and turns for a winding coil.
+
+        Parameters
+        ----------
+        phase : int
+        path : int
+        coil : int
+        go_slot : int
+        go_position : str
+            Position parameters can be "a", "b", "c" etc. for Upper/Lower paths and "L"
+            or "R" for Left/Right paths
+        return_slot : int
+        return_position : str
+            Position parameters can be "a", "b", "c" etc. for Upper/Lower paths and "L"
+            or "R" for Left/Right paths
+        turns : int
+        """
         method = "SetWindingCoil"
         params = [
             phase,
@@ -606,6 +1001,24 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_winding_coil(self, phase, path, coil):
+        """Get Go and Return slots, positions and turns for a winding coil.
+
+        Phases, paths and coils indexed as on Winding -> Pattern tab.
+
+        Parameters
+        ----------
+        phase : int
+        path : int
+        coil : int
+
+        Returns
+        -------
+        GoSlot : int
+        GoPosition : str
+        ReturnSlot : int
+        ReturnPosition : str
+        Turns : int
+        """
         method = "GetWindingCoil"
         params = [phase, path, coil]
         return self.connection.send_and_receive(method, params)
@@ -624,12 +1037,28 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Graphs ------------------------------------
 
-    def load_magnetisation_curves(self, file_name):
+    def load_magnetisation_curves(self, file_path):
+        """Load the magnetisation curves from a text file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadMagnetisationCurves"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def save_magnetisation_curves(self, file_name):
+        """Save the magnetisation curves to a text file.
+
+        Parameters
+        ----------
+        file_name : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "SaveMagnetisationCurves"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
