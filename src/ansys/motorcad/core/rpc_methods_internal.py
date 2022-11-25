@@ -205,3 +205,13 @@ class _RpcMethodsInternal:
         method = "AddPoint_RT"
         params = [r, t, reg_name]
         return self.connection.send_and_receive(method, params)
+
+    def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
+        method = "AddPoint_Magnetic_RT"
+        params = [r, t, mag_name, br_angle, br_mult, polarity]
+        return self.connection.send_and_receive(method, params)
+
+    def add_point_magnetic_xy(self, x, y, mag_name, br_angle, br_mult, polarity):
+        method = "AddPoint_Magnetic_XY"
+        params = [x, y, mag_name, br_angle, br_mult, polarity]
+        return self.connection.send_and_receive(method, params)
