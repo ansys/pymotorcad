@@ -10,6 +10,12 @@
     user_guide/index
     methods/index
 
+
+PyMotorCAD API
+---------------------
+
+For the full list of API methods, see :ref:`ref_MotorCAD_API`.
+
 Internal Scripting
 ---------------------
 

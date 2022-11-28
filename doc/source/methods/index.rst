@@ -1,4 +1,4 @@
-Pymotorcad API
+PyMotorCAD API
 ===============
 
 For the full list of methods, see :ref:`ref_MotorCAD_API`.
