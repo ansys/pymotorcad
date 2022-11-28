@@ -1,7 +1,7 @@
 Pymotorcad API
 ===============
 
-some info here
+For the full list of methods, see :ref:`ref_MotorCAD_API`.
 
 .. currentmodule:: ansys.motorcad
 

@@ -22,4 +22,7 @@ To connect with Motor-CAD from your internal scripting:
     import ansys.motorcad.core as pymotorcad
     mcApp = pymotorcad.MotorCAD()
 
+Pymotorcad API
+===============
 
+For the full list of methods, see :ref:`ref_MotorCAD_API`.
