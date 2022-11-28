@@ -26,7 +26,7 @@ class _RpcMethodsCore:
         Returns
         -------
         int|float|str|bool
-            Value of MotorCAD variable
+            Value of Motor-CAD variable
         """
         method = "GetArrayVariable_2d"
         params = [array_name, array_index1, array_index2]
@@ -44,7 +44,7 @@ class _RpcMethodsCore:
         array_index2 : int
             Second index of array
         new_value : int|float|str|bool
-            Value of MotorCAD variable to be set
+            Value of Motor-CAD variable to be set
         """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
@@ -56,7 +56,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method)
 
     def get_variable(self, variable_name):
-        """Get a MotorCAD variable.
+        """Get a Motor-CAD variable.
 
         Parameters
         ----------
@@ -66,14 +66,14 @@ class _RpcMethodsCore:
         Returns
         -------
         int|float|str|bool
-            Value of MotorCAD variable
+            Value of Motor-CAD variable
         """
         method = "GetVariable"
         params = [variable_name]
         return self.connection.send_and_receive(method, params)
 
     def get_array_variable(self, array_name, array_index):
-        """Get a MotorCAD array variable.
+        """Get a Motor-CAD array variable.
 
         Parameters
         ----------
@@ -85,14 +85,14 @@ class _RpcMethodsCore:
         Returns
         -------
         int|float|str|bool
-            Value of MotorCAD variable
+            Value of Motor-CAD variable
         """
         method = "GetArrayVariable"
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
     def set_variable(self, variable_name, variable_value):
-        """Set a MotorCAD variable.
+        """Set a Motor-CAD variable.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def set_array_variable(self, array_name, array_index, variable_value):
-        """Set a MotorCAD array variable.
+        """Set a Motor-CAD array variable.
 
         Parameters
         ----------
@@ -209,7 +209,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method)
 
     def show_message(self, message):
-        """Display a message in the MotorCAD message window.
+        """Display a message in the Motor-CAD message window.
 
         Parameters
         ----------
@@ -248,7 +248,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def quit(self):
-        """Quit MotorCAD."""
+        """Quit Motor-CAD."""
         method = "Quit"
         return self.connection.send_and_receive(method)
 
@@ -574,7 +574,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def load_from_file(self, mot_file):
-        """Load a .mot file into the MotorCAD instance.
+        """Load a .mot file into the Motor-CAD instance.
 
         Parameters
         ----------
@@ -988,13 +988,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_magnetic_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD Magnetic graph.
+        """Get a specified point from a Motor-CAD Magnetic graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1010,13 +1010,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_temperature_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD Thermal graph.
+        """Get a specified point from a Motor-CAD Thermal graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1032,13 +1032,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_power_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1054,13 +1054,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_magnetic_3d_graph_point(self, graph_name, slice_number, point_number, time_step_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         slice_number
 
         point_number : int
@@ -1079,13 +1079,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_fea_graph_point(self, graph_id, slice_number, point_number, time_step_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_id : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         slice_number
 
         point_number : int
