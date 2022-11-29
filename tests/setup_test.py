@@ -19,6 +19,6 @@ def setup_test_env():
         mc = pymotorcad.MotorCAD()
 
     # Disable messages if opened with UI
-    mc.SetVariable("MessageDisplayState", 2)
+    mc.set_variable("MessageDisplayState", 2)
 
     return mc

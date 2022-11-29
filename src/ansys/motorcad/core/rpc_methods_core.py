@@ -12,16 +12,46 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Variables ------------------------------------
     def get_array_variable_2d(self, array_name, array_index1, array_index2):
+        """Get value from 2D array at element [array_index1,array_index2].
+
+        Parameters
+        ----------
+        array_name : str
+            Name of array
+        array_index1 : int
+            First index of array
+        array_index2 : int
+            Second index of array
+
+        Returns
+        -------
+        int|float|str|bool
+            Value of MotorCAD variable
+        """
         method = "GetArrayVariable_2d"
         params = [array_name, array_index1, array_index2]
         return self.connection.send_and_receive(method, params)
 
     def set_array_variable_2d(self, array_name, array_index1, array_index2, new_value):
+        """Set value of 2D array at element [array_index1,array_index2].
+
+        Parameters
+        ----------
+        array_name : str
+            Name of array
+        array_index1 : int
+            First index of array
+        array_index2 : int
+            Second index of array
+        new_value : int|float|str|bool
+            Value of MotorCAD variable to be set
+        """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
+        """Restores the model compatibility settings to default values (to use latest methods)."""
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
@@ -93,11 +123,14 @@ class _RpcMethodsCore:
 
     # ------------------------------------ UI ------------------------------------
 
-    def is_stop_requested(self):
-        method = "IsStopRequested"
-        return self.connection.send_and_receive(method)
-
     def disable_error_messages(self, active):
+        """Disable or enable message display.
+
+        Parameters
+        ----------
+        active : bool
+            If true, then disable messages
+        """
         method = "DisableErrorMessages"
         params = [active]
         return self.connection.send_and_receive(method, params)
@@ -119,10 +152,6 @@ class _RpcMethodsCore:
         method = "GetMessages"
         params = [num_messages]
         return self.connection.send_and_receive(method, params)
-
-    def update_interface(self):
-        method = "UpdateInterface"
-        return self.connection.send_and_receive(method)
 
     def initialise_tab_names(self):
         """Initialise the available tabs in the Motor-CAD UI.
@@ -150,6 +179,10 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_license(self):
+        """Check if there is a licence available for the current context and machine type.
+
+        The licence is checked out if available.
+        """
         method = "GetLicence"
         return self.connection.send_and_receive(method)
 
@@ -170,12 +203,8 @@ class _RpcMethodsCore:
         params = [visible]
         return self.connection.send_and_receive(method, params)
 
-    def avoid_immediate_update(self, avoid_update):
-        method = "AvoidImmediateUpdate"
-        params = [{"variant": avoid_update}]
-        return self.connection.send_and_receive(method, params)
-
     def clear_message_log(self):
+        """Clear the message log file for the current model."""
         method = "ClearMessageLog"
         return self.connection.send_and_receive(method)
 
@@ -240,65 +269,184 @@ class _RpcMethodsCore:
     # ------------------------------------ Files ------------------------------------
 
     def load_duty_cycle(self, file_name):
+        """Load a duty cycle from a *.dat file.
+
+        Parameters
+        ----------
+        file_name : str
+            The default is the directory of the .mot file. Alternatively, use a custom location
+            by specifying the absolute filepath of the duty cycle to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "LoadDutyCycle"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def save_duty_cycle(self, file_name):
+    def save_duty_cycle(self, file_path):
+        """Save the duty cycle to a file.
+
+        The file should be saved with a *.dat file extension to ensure it can be correctly loaded
+        into a *.mot file
+
+        Parameters
+        ----------
+        file_path : str
+            The default is the directory of the .mot file. Alternatively, use a custom location
+            by specifying the absolute filepath of the duty cycle to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveDutyCycle"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def export_matrices(self, file_name):
+    def export_matrices(self, directory_path):
+        """Save the resistance, power and capacitance matrices to files in the file path.
+
+        The files are given the name of the *.mot model, with different file extensions.
+
+        Parameters
+        ----------
+        directory_path : str
+            The default is the root directory. Alternatively, use a custom location
+            by specifying the absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportMatrices"
-        params = [file_name]
+        params = [directory_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_custom_drive_cycle(self, file_name):
+    def load_custom_drive_cycle(self, file_path):
+        """Load a custom current waveform from a file.
+
+        Parameters
+        ----------
+        file_path : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "LoadCustomDriveCycle"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_fea_result(self, file_name, solution_number):
+    def load_fea_result(self, file_path, solution_number):
+        """Load in an existing FEA solution to allow viewing of FEA results.
+
+        Parameters
+        ----------
+        file_path : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        solution_number : int
+        """
         method = "LoadFEAResult"
-        params = [file_name, solution_number]
+        params = [file_path, solution_number]
         return self.connection.send_and_receive(method, params)
 
-    def export_to_ansys_electronics_desktop(self, file_name):
+    def export_to_ansys_electronics_desktop(self, file_path):
+        """Export the model to a vbs script file to be run in Ansys Electronics Desktop.
+
+        The filepath must include the name of the file. The default
+        filepath is the Windows directory in the C: drive
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportToAnsysElectronicsDesktop"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def export_results(self, solution_type, file_name):
+    def export_results(self, solution_type, file_path):
+        """Export results from the selected solution to a csv file.
+
+        The filepath must include the name of the file, with the *.CSV extension.
+
+        Parameters
+        ----------
+        solution_type : str
+            solution_type can be 'SteadyState', 'Transient', 'EMagnetic' or 'Lab'
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportResults"
-        params = [solution_type, file_name]
+        params = [solution_type, file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_dxf_file(self, file_name):
+        """Load a *.dxf geometry file.
+
+        Parameters
+        ----------
+        file_name : str
+            DXF file. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadDXFFile"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def create_report(self, file_path, template_file_path):
+        """Create Word report of report tree structure.
+
+        Parameters
+        ----------
+        file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        template_file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "CreateReport"
         params = [file_path, template_file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_report_structure(self, file_path):
+        """Load tree structure of report from file.
+
+        Parameters
+        ----------
+        file_path : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadReportStructure"
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_force_animation(self, animation, file_name):
+        """Export chosen force animation to file as a GIF.
+
+        Animation is exported from caption name e.g. "Radial OL" or "Radial OL (12th harmonic)"
+
+        Parameters
+        ----------
+        animation : str
+            animation name
+        file_name : str
+            You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "ExportForceAnimation"
         params = [animation, file_name]
         return self.connection.send_and_receive(method, params)
 
     def load_report_tree(self):
+        """Create tree structure of selected modules and components."""
         method = "LoadReportTree"
         return self.connection.send_and_receive(method)
 
     def load_template(self, template_name):
+        """Load a motor template.
+
+        Parameters
+        ----------
+        template_name : str
+            The template name is given in the Template column from File
+            -> Open Template e.g. a1, e9
+        """
         method = "LoadTemplate"
         params = [template_name]
         return self.connection.send_and_receive(method, params)
@@ -317,6 +465,22 @@ class _RpcMethodsCore:
         drive_type,
         notes,
     ):
+        """Save to a *.mtt template file.
+
+        Parameters
+        ----------
+        template_file_name : str
+        name : str
+        sector : str
+        machine_type : str
+        application : str
+        winding_type : str
+        max_speed : str
+        power : str
+        cooling : str
+        drive_type : str
+        notes : str
+        """
         method = "SaveTemplate"
         params = [
             template_file_name,
@@ -333,31 +497,78 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
-    def load_winding_pattern(self, file_name):
+    def load_winding_pattern(self, file_path):
+        """Load the winding pattern from a text file.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be loaded. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "LoadWindingPattern"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def save_winding_pattern(self, file_name):
+    def save_winding_pattern(self, file_path):
+        """Save the winding pattern to a file.
+
+        The filepath must include the name of the file. If the file is to be re-loaded
+        into Motor-CAD, then the file extension must be specified as *.txt. The default
+        filepath is the Windows directory in the C: drive
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveWindingPattern"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_multi_force_data(self, file_name):
+        """Export multiforce data calculated to file.
+
+        Parameters
+        ----------
+        file_name : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "ExportMultiForceData"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def geometry_export(self):
+        """Export the geometry to file specified in DXFFileName parameter."""
         method = "GeometryExport"
         return self.connection.send_and_receive(method)
 
-    def export_to_ansys_discovery(self, file_name):
+    def export_to_ansys_discovery(self, file_path):
+        """Export the model to a python script file which can be run in Ansys Discovery.
+
+        The filepath must include the name of the file. The
+        extension does not need to be specified.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "ExportToAnsysDiscovery"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def export_nvh_results_data(self, file_name):
+        """Export NVH results data to file.
+
+        Parameters
+        ----------
+        file_name : str
+            Use r'filepath' syntax to force Python to ignore special characters.
+        """
         method = "ExportNVHResultsData"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
@@ -390,9 +601,20 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Internal Scripting ------------------------------------
 
-    def save_script(self, file_name):
+    def save_script(self, file_path):
+        """Save the internal python script to a file.
+
+        The *.py extension should be included in the file name.
+
+        Parameters
+        ----------
+        file_path : str
+            The absolute filepath of the data to be saved. The default
+            filepath is the Windows directory in the C: drive. Use r'filepath'
+            syntax to force Python to ignore special characters.
+        """
         method = "SaveScript"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def load_script(self, script_file):
@@ -416,81 +638,117 @@ class _RpcMethodsCore:
     # ------------------------------------ Calculations ------------------------------------
 
     def clear_duty_cycle(self):
+        """Clear the duty cycle in both the lab and thermal contexts."""
         method = "ClearDutyCycle"
         return self.connection.send_and_receive(method)
 
     def do_magnetic_thermal_calculation(self):
+        """Carry out coupled e-magnetic and thermal calculation."""
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
-    def get_im_sat_factor(self, i_mag):
-        """NO SUCCESS VARIABLE.
-
-        Returns
-        -------
-        satFactor : real
-            Saturation Factor
-        """
-        method = "GetIMSaturationFactor"
-        params = [i_mag]
-        return self.connection.send_and_receive(method, params, success_var=False)
-
-    def get_im_iron_loss(self, slip, back_emf):
-        method = "GetIMIronLoss"
-        params = [slip, back_emf]
-        return self.connection.send_and_receive(method, params)
-
     def set_3d_component_visibility(self, group_name, component_name, visibility):
+        """Set the visibility of a component specified by group name, and component name.
+
+        Parameters
+        ----------
+        group_name : str
+            "Machine", "Stator", "Rotor", "Shaft Components". If in the thermal context then
+            "Mounting"
+            and "Outer Casing" are available too.
+        component_name : str
+            "All", "Lamination", "Wedge". The available component names depends on which model
+            is used.
+        visibility : int
+            0=Invisible to 100=Solid
+        """
         method = "Set3DComponentVisibility"
         params = [group_name, component_name, visibility]
         return self.connection.send_and_receive(method, params)
 
-    def set_all_emag_calculations(self, state):
-        method = "SetAllEmagCalculations"
-        params = [state]
-        return self.connection.send_and_receive(method, params)
-
     def calculate_saturation_map(self):
+        """Generate electromagnetic saturation and loss data.
+
+        Saturation (flux linkages and inductances) and loss data for use in other
+        analysis and modelling tools. The default file extension is *.mat and is saved in
+        the lab folder in the *.mot directory.
+        """
         method = "CalculateSaturationMap"
         return self.connection.send_and_receive(method)
 
     def calculate_torque_envelope(self):
+        """Calculate torque envelope for machine."""
         method = "CalculateTorqueEnvelope"
         return self.connection.send_and_receive(method)
 
     def save_results(self, solution_type):
+        """Save the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
         method = "SaveResults"
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
+        """Load the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
         method = "LoadResults"
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
     def calculate_im_saturation_model(self):
+        """Calculate saturation lookup tables for IM machines."""
         method = "CalculateIMSaturationModel"
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_spatial(self):
+        """Calculate 1D force harmonics in Space axis."""
         method = "CalculateForceHarmonics_Spatial"
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_temporal(self):
+        """Calculate 1D force harmonics in Time axis."""
         method = "CalculateForceHarmonics_Temporal"
         return self.connection.send_and_receive(method)
 
     def get_force_frequency_domain_amplitude(self, row, column, load_point):
+        """Export matrix value from Force Space Time Harmonics matrix from 2D FFT.
+
+        Parameters
+        ----------
+        row : int
+            row index of FFT matrix
+        column : int
+            column index of FFT matrix
+        load_point : int
+        """
         method = "GetForceFrequencyDomainAmplitude"
         params = [row, column, load_point]
         return self.connection.send_and_receive(method, params)
 
     def update_force_analysis_results(self, fft_data_type):
+        """Update force analysis results for selected multiforce operating point.
+
+        Parameters
+        ----------
+        fft_data_type : int
+            0 : 1D Temporal Harmonics, 1 : 1D Spatial Harmonics
+        """
         method = "UpdateForceAnalysisResults"
         params = [fft_data_type]
         return self.connection.send_and_receive(method, params)
 
     def do_multi_force_calculation(self):
+        """Calculate forces for multiple operating points."""
         method = "DoMultiForceCalculation"
         return self.connection.send_and_receive(method)
 
@@ -522,34 +780,78 @@ class _RpcMethodsCore:
     # ------------------------------------ Lab ------------------------------------
 
     def calculate_test_performance_lab(self):
+        """Calculate the test performance.
+
+        Results will be saved in the .mot file results folder as MotorLAB_caldata.mat
+        """
         method = "CalculateTestPerformance_Lab"
         return self.connection.send_and_receive(method)
 
     def export_duty_cycle_lab(self):
+        """Export the calculated duty cycle data to the thermal model."""
         method = "ExportDutyCycle_Lab"
         return self.connection.send_and_receive(method)
 
     def get_model_built_lab(self):
+        """Test if the Lab model needs to be built or rebuilt before running calculations.
+
+        Returns
+        -------
+        value : bool
+            Return true if the Lab model has been built and is valid for the current settings.
+        """
         method = "GetModelBuilt_Lab"
         return self.connection.send_and_receive(method)
 
     def show_results_viewer_lab(self, calculation_type):
+        """Load the results viewer for the specified Lab calculation type.
+
+        Parameters
+        ----------
+        calculation_type : str
+            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+        """
         method = "ShowResultsViewer_Lab"
         params = [calculation_type]
         return self.connection.send_and_receive(method, params)
 
     def export_figure_lab(self, calculation_type, variable, file_name):
+        """Export an image of the Lab results graph.
+
+        Parameters
+        ----------
+        calculation_type : str
+            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+        variable : str
+            The given variable will be plotted on the Y axis (2d graphs) or Z axis (3d graphs),
+            e.g. "Shaft Torque"
+        file_name : str
+        """
         method = "ExportFigure_Lab"
         params = [calculation_type, variable, file_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_generator_lab(self):
+        """Calculate generator performance.
+
+        Results will be saved in the .mot file results folder as LabResults_Generator.mat
+        """
         method = "CalculateGenerator_Lab"
         return self.connection.send_and_receive(method)
 
-    def load_external_model_lab(self, file_name):
+    def load_external_model_lab(self, file_path):
+        """Load the specified external model data file.
+
+        For when the Lab link type is set to Custom or ANSYS Maxwell.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadExternalModel_Lab"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def clear_model_build_lab(self):
@@ -592,6 +894,23 @@ class _RpcMethodsCore:
     def set_winding_coil(
         self, phase, path, coil, go_slot, go_position, return_slot, return_position, turns
     ):
+        """Set Go and Return slots, positions and turns for a winding coil.
+
+        Parameters
+        ----------
+        phase : int
+        path : int
+        coil : int
+        go_slot : int
+        go_position : str
+            Position parameters can be "a", "b", "c" etc. for Upper/Lower paths and "L"
+            or "R" for Left/Right paths
+        return_slot : int
+        return_position : str
+            Position parameters can be "a", "b", "c" etc. for Upper/Lower paths and "L"
+            or "R" for Left/Right paths
+        turns : int
+        """
         method = "SetWindingCoil"
         params = [
             phase,
@@ -606,6 +925,24 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_winding_coil(self, phase, path, coil):
+        """Get Go and Return slots, positions and turns for a winding coil.
+
+        Phases, paths and coils indexed as on Winding -> Pattern tab.
+
+        Parameters
+        ----------
+        phase : int
+        path : int
+        coil : int
+
+        Returns
+        -------
+        GoSlot : int
+        GoPosition : str
+        ReturnSlot : int
+        ReturnPosition : str
+        Turns : int
+        """
         method = "GetWindingCoil"
         params = [phase, path, coil]
         return self.connection.send_and_receive(method, params)
@@ -624,12 +961,28 @@ class _RpcMethodsCore:
 
     # ------------------------------------ Graphs ------------------------------------
 
-    def load_magnetisation_curves(self, file_name):
+    def load_magnetisation_curves(self, file_path):
+        """Load the magnetisation curves from a text file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "LoadMagnetisationCurves"
-        params = [file_name]
+        params = [file_path]
         return self.connection.send_and_receive(method, params)
 
     def save_magnetisation_curves(self, file_name):
+        """Save the magnetisation curves to a text file.
+
+        Parameters
+        ----------
+        file_name : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
         method = "SaveMagnetisationCurves"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
@@ -753,191 +1106,45 @@ class _RpcMethodsCore:
     # ------------------------------------ FEA ------------------------------------
 
     def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
+        """Set or creates a power injection."""
         method = "SetPowerInjectionValue"
         params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.connection.send_and_receive(method, params)
 
     def set_fixed_temperature_value(self, name, node1, value, description):
+        """Set or creates a fixed temperature on a node."""
         method = "SetFixedTemperatureValue"
         params = [name, node1, value, description]
         return self.connection.send_and_receive(method, params)
 
     def clear_fixed_temperature_value(self, node1):
+        """Remove a fixed temperature from a node."""
         method = "ClearFixedTemperatureValue"
         params = [node1]
         return self.connection.send_and_receive(method, params)
 
     def do_slot_finite_element(self):
+        """Carry out slot finite element analysis."""
         method = "DoSlotFiniteElement"
         return self.connection.send_and_receive(method)
 
     def clear_all_data(self):
+        """Clear data and initialise FEA."""
         method = "ClearAllData"
         return self.connection.send_and_receive(method)
 
-    def add_line_xy(self, xs, ys, xe, ye):
-        method = "AddLine_XY"
-        params = [xs, ys, xe, ye]
-        return self.connection.send_and_receive(method, params)
-
-    def set_bnd_cnd(self, dir_code, c1, c2, c3):
-        method = "SetBndCond"
-        params = [dir_code, c1, c2, c3]
-        return self.connection.send_and_receive(method, params)
-
-    def store_problem_data(self, p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max):
-        method = "StoreProblemData"
-        params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
-        return self.connection.send_and_receive(method, params)
-
-    def add_region_thermal_a(
-        self,
-        reg_name,
-        thermal_conductivity,
-        tcc,
-        ref_temp,
-        j_val,
-        sigma,
-        density,
-        loss_density,
-    ):
-        method = "Add_Region_Thermal_A"
-        params = [
-            reg_name,
-            thermal_conductivity,
-            tcc,
-            ref_temp,
-            j_val,
-            sigma,
-            density,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_xy(self, x, y, reg_name):
-        method = "AddPoint_XY"
-        params = [x, y, reg_name]
-        return self.connection.send_and_receive(method, params)
-
     def create_optimised_mesh(self):
+        """Create FEA geometry and mesh.
+
+        Call at the end of creating custom scripting geometry.
+        """
         method = "CreateOptimisedMesh"
         return self.connection.send_and_receive(method)
-
-    def create_optimised_mesh_thermal(self, copper_region, ins_region, impreg_region):
-        method = "CreateOptimisedMesh_Thermal"
-        params = [copper_region, ins_region, impreg_region]
-        return self.connection.send_and_receive(method, params)
-
-    def set_mesh_generator_param(self, max_bnd_length, bnd_factor, max_angle):
-        method = "SetMeshGeneratorParam"
-        params = [max_bnd_length, bnd_factor, max_angle]
-        return self.connection.send_and_receive(method, params)
-
-    def solve_problem(self):
-        method = "SolveProblem"
-        return self.connection.send_and_receive(method)
-
-    def add_region_thermal(
-        self, reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density
-    ):
-        method = "Add_Region_Thermal"
-        params = [reg_name, thermal_conductivity, tcc, ref_temp, j_val, sigma, density]
-        return self.connection.send_and_receive(method, params)
-
-    def add_circular_conductor_a(
-        self,
-        xc,
-        yc,
-        copper_radius,
-        ins_radius,
-        ang_degree,
-        points_no,
-        mb,
-        line,
-        column,
-        region_name,
-        j_aux,
-        loss_density,
-    ):
-        method = "AddCircularConductor_A"
-        params = [
-            xc,
-            yc,
-            copper_radius,
-            ins_radius,
-            ang_degree,
-            points_no,
-            mb,
-            line,
-            column,
-            region_name,
-            j_aux,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_rectangular_conductor_a(
-        self,
-        xc,
-        yc,
-        width,
-        height,
-        ins_width,
-        ang_deg,
-        points_no,
-        mb,
-        line,
-        column,
-        reg_name,
-        j_aux,
-        loss_density,
-    ):
-        method = "AddRectangularConductor_A"
-        params = [
-            xc,
-            yc,
-            width,
-            height,
-            ins_width,
-            ang_deg,
-            points_no,
-            mb,
-            line,
-            column,
-            reg_name,
-            j_aux,
-            loss_density,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_xy(self, xc, yc, th1, th2, r):
-        method = "AddArc_XY"
-        params = [xc, yc, th1, th2, r]
-        return self.connection.send_and_receive(method, params)
-
-    def set_region_colour(self, region, colour):
-        method = "SetRegionColour"
-        params = [region, colour]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_rt(self, r, t, reg_name):
-        method = "AddPoint_RT"
-        params = [r, t, reg_name]
-        return self.connection.send_and_receive(method, params)
-
-    def add_line_rt(self, rs, ts, re, t_e):
-        method = "AddLine_RT"
-        params = [rs, ts, re, t_e]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_rt(self, rc, tc, th1, th2, r):
-        method = "AddArc_RT"
-        params = [rc, tc, th1, th2, r]
-        return self.connection.send_and_receive(method, params)
 
     def add_arc_boundary_rt(
         self, direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code
     ):
+        """Add boundary condition arc using RT coordinates for centre."""
         method = "AddArc_Boundary_RT"
         params = [direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
@@ -945,23 +1152,22 @@ class _RpcMethodsCore:
     def add_arc_boundary_xy(
         self, direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code
     ):
+        """Add boundary condition arc using XY coordinates for centre."""
         method = "AddArc_Boundary_XY"
         params = [direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
     def add_line_boundary_rt(self, rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using RT coordinates for start and end points."""
         method = "AddLine_Boundary_RT"
         params = [rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
     def add_line_boundary_xy(self, xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using XY coordinates for start and end points."""
         method = "AddLine_Boundary_XY"
         params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
-
-    def initiate_geometry_from_script(self):
-        method = "InitiateGeometryFromScript"
-        return self.connection.send_and_receive(method)
 
     def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
         method = "AddPoint_Magnetic_RT"
@@ -973,19 +1179,10 @@ class _RpcMethodsCore:
         params = [x, y, mag_name, br_angle, br_mult, polarity]
         return self.connection.send_and_receive(method, params)
 
-    def add_arc_centre_start_end_rt(self, rc, tc, rs, ts, re, t_e):
-        method = "AddArc_CentreStartEnd_RT"
-        params = [rc, tc, rs, ts, re, t_e]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_centre_start_end_xy(self, xc, yc, xs, ys, xe, ye):
-        method = "AddArc_CentreStartEnd_XY"
-        params = [xc, yc, xs, ys, xe, ye]
-        return self.connection.send_and_receive(method, params)
-
     def set_fea_path_point(
         self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
     ):
+        """Add/edit a point in the path editor."""
         method = "SetFEAPathPoint"
         params = [
             path_name,
@@ -1010,6 +1207,7 @@ class _RpcMethodsCore:
         calculation,
         expression,
     ):
+        """Add/edit an arc in the path editor."""
         method = "SetFEAPathArc"
         params = [
             path_name,
@@ -1037,6 +1235,7 @@ class _RpcMethodsCore:
         calculation,
         expression,
     ):
+        """Add/edit a line in the path editor."""
         method = "SetFEAPathLine"
         params = [
             path_name,
@@ -1053,70 +1252,50 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
+        """Save raw data for open FEA solution."""
         method = "SaveFEAData"
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
 
-    def add_point_custom_material_xy(self, x, y, reg_name, mat_name, colour):
-        method = "AddPoint_CustomMaterial_XY"
-        params = [x, y, reg_name, mat_name, colour]
-        return self.connection.send_and_receive(method, params)
-
     def get_region_value(self, expression, region_name):
+        """Calculate the integral value for given expression of the region."""
         method = "GetRegionValue"
         params = [expression, region_name]
         return self.connection.send_and_receive(method, params)
 
     def get_region_loss(self, expression, region_name, radius1, radius2, angle1, angle2):
+        """Calculate the loss value for given expression of the region.
+
+        Region bounded by radii and angles specified.
+        Radii and angle values of 0 will give all region losses.
+        Losses calculated are for per unit length and are only for the FEA areas modelled
+        (for total losses require to multiply by symmetry factor).
+        Valid for magnetic solution only.
+        """
         method = "GetRegionLoss"
         params = [expression, region_name, radius1, radius2, angle1, angle2]
         return self.connection.send_and_receive(method, params)
 
     def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
+        """Edit the specified magnet region."""
         method = "EditMagnetRegion"
         params = [region_name, magnet_material, br_angle, br_multiplier]
         return self.connection.send_and_receive(method, params)
 
-    def add_region_xy(self, x, y, region_name):
-        method = "AddRegion_XY"
-        params = [x, y, region_name]
-        return self.connection.send_and_receive(method, params)
-
-    def add_region_rt(self, r, t, region_name):
-        method = "AddRegion_RT"
-        params = [r, t, region_name]
-        return self.connection.send_and_receive(method, params)
-
     def delete_regions(self, region_name):
+        """Delete a comma separated list of named regions or all regions if left empty.
+
+        If region to be deleted contains a space, the region name should be enclosed in
+        double quotation marks (e.g. "Rotor Pocket").
+        """
         method = "DeleteRegions"
         params = [region_name]
         return self.connection.send_and_receive(method, params)
 
     def reset_regions(self):
+        """Reset custom FEA regions to standard regions from Motor-CAD template geometry."""
         method = "ResetRegions"
         return self.connection.send_and_receive(method)
-
-    def add_magnet_region_rt(
-        self, r, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
-    ):
-        method = "AddMagnetRegion_RT"
-        params = [
-            r,
-            theta,
-            region_name,
-            magnet_material,
-            br_angle,
-            br_multiplier,
-            polarity_code,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def add_magnet_region_xy(
-        self, x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code
-    ):
-        method = "AddMagnetRegion_XY"
-        params = [x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code]
-        return self.connection.send_and_receive(method, params)
 
     def get_point_value(self, parameter, x, y):
         """Get a specified point from Motor-CAD FEA.
@@ -1141,63 +1320,376 @@ class _RpcMethodsCore:
         params = [{"variant": parameter}, x, y]
         return self.connection.send_and_receive(method, params)
 
+    # ------------------------------------ Custom Geometry ------------------------------------
+    def initiate_geometry_from_script(self):
+        """Tells Motor-CAD to use geometry from scripting.
+
+        Also clears current scripting geometry.
+        """
+        method = "InitiateGeometryFromScript"
+        return self.connection.send_and_receive(method)
+
+    def add_line_xy(self, x_start, y_start, x_end, y_end):
+        """Add line to Motor-CAD axial geometry with x and y coordinate system.
+
+        Parameters
+        ----------
+        x_start : float
+            start position x coordinate
+        y_start : float
+            start position y coordinate
+        x_end : float
+            end position x coordinate
+        y_end : float
+            end position y coordinate
+        """
+        method = "AddLine_XY"
+        params = [x_start, y_start, x_end, y_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_line_rt(self, radius_start, theta_start, radius_end, theta_end):
+        """Add line to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_start : float
+            start position radial coordinate
+        theta_start : float
+            start position angular coordinate (degrees)
+        radius_end : float
+            end position radial coordinate
+        theta_end : float
+            end position angular coordinate (degrees)
+        """
+        method = "AddLine_RT"
+        params = [radius_start, theta_start, radius_end, theta_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_xy(self, x_centre, y_centre, theta_start, theta_end, radius):
+        """Add arc to Motor-CAD axial geometry with x and y coordinate system.
+
+        Uses centre point, radius and angles. Use degrees for angles.
+
+        Parameters
+        ----------
+        x_centre : float
+            centre position x coordinate
+        y_centre : float
+            centre position x coordinate
+        theta_start : float
+            angular coordinate of arc start point (degrees)
+        theta_end : float
+            angular coordinate of arc end point (degrees)
+        radius : float
+            radius of arc from centre point
+        """
+        method = "AddArc_XY"
+        params = [x_centre, y_centre, theta_start, theta_end, radius]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_rt(self, radius_center, theta_centre, theta_start, theta_end, radius):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses centre point, radius and angles. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_center : float
+            centre position radial coordinate
+        theta_centre : float
+            centre position angular coordinate
+        theta_start : float
+            angular coordinate of arc start point (degrees)
+        theta_end : float
+            angular coordinate of arc end point (degrees)
+        radius : float
+            radius of arc from centre point
+        """
+        method = "AddArc_RT"
+        params = [radius_center, theta_centre, theta_start, theta_end, radius]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_centre_start_end_xy(self, x_centre, y_centre, x_start, y_start, x_end, y_end):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses start, end, centre coordinates. Use degrees for angles.
+
+        Parameters
+        ----------
+        x_centre : float
+            centre position x coordinate
+        y_centre : float
+            centre position y coordinate
+        x_start : float
+            start position x coordinate
+        y_start : float
+            start position y coordinate
+        x_end : float
+            end position x coordinate
+        y_end : float
+            end position y coordinate
+        """
+        method = "AddArc_CentreStartEnd_XY"
+        params = [x_centre, y_centre, x_start, y_start, x_end, y_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_centre_start_end_rt(
+        self, radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end
+    ):
+        """Add arc to Motor-CAD axial geometry with rt (polar) coordinate system.
+
+        Uses start, end, centre coordinates. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius_centre : float
+            centre position radial coordinate
+        theta_centre : float
+            centre position angular coordinate (degrees)
+        radius_start : float
+            start position radial coordinate
+        theta_start : float
+            start position angular coordinate (degrees)
+        radius_end : float
+            end position radial coordinate
+        theta_end : float
+            end position angular coordinate (degrees)
+        """
+        method = "AddArc_CentreStartEnd_RT"
+        params = [radius_centre, theta_centre, radius_start, theta_start, radius_end, theta_end]
+        return self.connection.send_and_receive(method, params)
+
+    def add_region_xy(self, x, y, region_name):
+        """Add region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use x,y coordinate system.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        """
+        method = "AddRegion_XY"
+        params = [x, y, region_name]
+        return self.connection.send_and_receive(method, params)
+
+    def add_region_rt(self, radius, theta, region_name):
+        """Add region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use r,t coordinate system. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta : float
+            region position angular coordinate (degrees)
+        region_name : string
+            name of region
+        """
+        method = "AddRegion_RT"
+        params = [radius, theta, region_name]
+        return self.connection.send_and_receive(method, params)
+
+    def add_magnet_region_xy(
+        self, x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code
+    ):
+        """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use x,y coordinate system. Use degrees for angles.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        magnet_material : string
+            magnet material to use
+        br_angle : float
+            magnet angle  (degrees)
+        br_multiplier : float
+            magnet Br multiplier, default is 1
+        polarity_code : integer
+            magnet polarity. 0 is north, 1 is south
+        """
+        method = "AddMagnetRegion_XY"
+        params = [x, y, region_name, magnet_material, br_angle, br_multiplier, polarity_code]
+        return self.connection.send_and_receive(method, params)
+
+    def add_magnet_region_rt(
+        self, radius, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
+    ):
+        """Add magnet region to Motor-CAD geometry - overwrites existing region if already exists.
+
+        Use r,t coordinate system. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta : float
+            region position angular coordinate (degrees)
+        region_name : string
+            name of region
+        magnet_material : string
+            magnet material to use
+        br_angle : float
+            magnet angle (degrees)
+        br_multiplier : float
+            magnet Br multiplier, default is 1
+        polarity_code : integer
+            magnet polarity. 0 is north, 1 is south
+        """
+        method = "AddMagnetRegion_RT"
+        params = [
+            radius,
+            theta,
+            region_name,
+            magnet_material,
+            br_angle,
+            br_multiplier,
+            polarity_code,
+        ]
+        return self.connection.send_and_receive(method, params)
+
+    def _get_region_properties_xy(self, x, y, region_type):
+        """Get properties of region from name and coordinates.
+
+        Returns list of parameters. Currently only used for testing other geometry functions.
+        EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
+        """
+        method = "GetRegionProperties_XY"
+        params = [x, y, region_type]
+        return self.connection.send_and_receive(method, params)
+
+    def add_point_custom_material_xy(self, x, y, region_name, material_name, colour):
+        """Add region to geometry and specify material.
+
+        Not for adding magnets. Use add_magnet_region_xy for this.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        region_name : string
+            name of region
+        material_name : string
+            name of material. Motor-CAD material names can be found in Input Data -> materials.
+            Material type (laminated/solid/air) is set automatically.
+
+        colour : string
+            VCL colour as a string (see https://wiki.freepascal.org/Colors)
+            This can be a hexadecimal value e.g. "$008000" or a colour name e.g. "clGreen"
+        """
+        method = "AddPoint_CustomMaterial_XY"
+        params = [x, y, region_name, material_name, colour]
+        return self.connection.send_and_receive(method, params)
+
+    def add_point_custom_material_rt(self, radius, theta, region_name, material_name, colour):
+        """Add region to geometry and specify material.
+
+        Not for adding magnets. Use add_magnet_region_rt for this. Use degrees for angles.
+
+        Parameters
+        ----------
+        radius : float
+            region position radial coordinate
+        theta : float
+            region position angular coordinate (degrees)
+        region_name : string
+            name of region
+        material_name : string
+            name of material. Motor-CAD material names can be found in Input Data -> materials.
+            Material type (laminated/solid/air) is set automatically.
+
+        colour : string
+            VCL colour as a string (see https://wiki.freepascal.org/Colors)
+            This can be a hexadecimal value e.g. "$008000" or a colour name e.g. "clGreen"
+        """
+        method = "AddPoint_CustomMaterial_RT"
+        params = [radius, theta, region_name, material_name, colour]
+        return self.connection.send_and_receive(method, params)
+
     # ------------------------------------ Thermal ------------------------------------
 
     def set_resistance_value(self, name, node1, node2, value, description):
+        """Set or create a resistance."""
         method = "SetResistanceValue"
         params = [name, node1, node2, value, description]
         return self.connection.send_and_receive(method, params)
 
     def set_resistance_multiplier(self, name, node1, node2, value, description):
+        """Set or create a resistance muliplication factor."""
         method = "SetResistanceMultiplier"
         params = [name, node1, node2, value, description]
         return self.connection.send_and_receive(method, params)
 
     def clear_external_circuit(self):
+        """Clear the external circuit."""
         method = "ClearExternalCircuit"
         return self.connection.send_and_receive(method)
 
     def create_new_node(self, name, node1, row, column, colour, description):
+        """Create a new node."""
         method = "CreateNewNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
 
     def modify_node(self, name, node1, row, column, colour, description):
+        """Modify an existing node."""
         method = "ModifyNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
 
     def set_capacitance_value(self, name, node1, value, description):
+        """Set or create a capacitance."""
         method = "SetCapacitanceValue"
         params = [name, node1, value, description]
         return self.connection.send_and_receive(method, params)
 
     def set_power_source_value(self, name, node1, value, rpm_ref, rpm_coef, description):
+        """Set or create a power source."""
         method = "SetPowerSourceValue"
         params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.connection.send_and_receive(method, params)
 
     def load_external_circuit(self, circuit_file_name):
+        """Load an external circuit from a file."""
         method = "LoadExternalCircuit"
         params = [circuit_file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_external_circuit(self, circuit_file_name):
+        """Save the external circuit to a file."""
         method = "SaveExternalCircuit"
         params = [circuit_file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
+        """Save transient power results in a csv file."""
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
+        """Save transient temperature results in a csv file."""
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def remove_external_component(self, component_type, name, node1):
+        """Remove an external circuit component (e.g. Resistance, Power Source, Power Injection)."""
         method = "RemoveExternalComponent"
         params = [component_type, name, node1]
         return self.connection.send_and_receive(method, params)
@@ -1313,51 +1805,71 @@ class _RpcMethodsCore:
     # ------------------------------------ Materials ------------------------------------
 
     def set_fluid(self, cooling_type, fluid):
+        """Set fluid for specified cooling type.
+
+        Cooling types: InternalFluid, ExternalFluid, ShaftSGFluid, RotorWJFluid, SlotWJFluid,
+        HousingWJFluid, WetRotorFluid, SprayCoolingFluid, Spray_RadialHousing_Fluid, TVentFluid.
+        """
         method = "SetFluid"
         params = [cooling_type, fluid]
         return self.connection.send_and_receive(method, params)
 
     def set_component_material(self, component_name, material_name):
+        """Set the solid material properties of the named component from the materials database.
+
+        Component names are found under Input Data -> Materials (Component column).
+        """
         method = "SetComponentMaterial"
         params = [component_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def get_component_material(self, component_name):
+        """Get the current solid material name of the named component.
+
+        Component names are found under Input Data -> Materials (Component column).
+        """
         method = "GetComponentMaterial"
         params = [component_name]
         return self.connection.send_and_receive(method, params)
 
     def import_solid_material(self, file_name, material_name):
+        """Import the solid material from the materials database."""
         method = "ImportSolidMaterial"
         params = [file_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def export_solid_material(self, file_name, material_name):
+        """Export the solid material to the materials database."""
         method = "ExportSolidMaterial"
         params = [file_name, material_name]
         return self.connection.send_and_receive(method, params)
 
     def delete_solid_material(self, material_name):
+        """Delete the solid material from the materials database."""
         method = "DeleteSolidMaterial"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_iron_loss_coefficients(self, material_name):
+        """Calculate and return iron loss coefficients for the specified material."""
         method = "CalculateIronLossCoefficients"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def save_iron_loss_coefficients(self, material_name):
+        """Save the calculated iron loss coefficients to the solids database."""
         method = "SaveIronLossCoefficients"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def calculate_magnet_parameters(self, material_name):
+        """Calculate parameters for nonlinear demagnetisation model."""
         method = "CalculateMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
 
     def save_magnet_parameters(self, material_name):
+        """Save the calculated magnet parameters of the selected material to the solids database."""
         method = "SaveMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
