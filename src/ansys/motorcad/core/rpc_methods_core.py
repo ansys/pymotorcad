@@ -26,7 +26,7 @@ class _RpcMethodsCore:
         Returns
         -------
         int|float|str|bool
-            Value of MotorCAD variable
+            Value of Motor-CAD variable
         """
         method = "GetArrayVariable_2d"
         params = [array_name, array_index1, array_index2]
@@ -44,7 +44,7 @@ class _RpcMethodsCore:
         array_index2 : int
             Second index of array
         new_value : int|float|str|bool
-            Value of MotorCAD variable to be set
+            Value of Motor-CAD variable to be set
         """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
@@ -56,7 +56,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method)
 
     def get_variable(self, variable_name):
-        """Get a MotorCAD variable.
+        """Get a Motor-CAD variable.
 
         Parameters
         ----------
@@ -65,15 +65,15 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        result: int|float|str|bool
-            Value of MotorCAD variable
+        int|float|str|bool
+            Value of Motor-CAD variable
         """
         method = "GetVariable"
         params = [variable_name]
         return self.connection.send_and_receive(method, params)
 
     def get_array_variable(self, array_name, array_index):
-        """Get a MotorCAD array variable.
+        """Get a Motor-CAD array variable.
 
         Parameters
         ----------
@@ -84,15 +84,15 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        result: int|float|str|bool
-            Value of MotorCAD variable
+        int|float|str|bool
+            Value of Motor-CAD variable
         """
         method = "GetArrayVariable"
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
     def set_variable(self, variable_name, variable_value):
-        """Set a MotorCAD variable.
+        """Set a Motor-CAD variable.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def set_array_variable(self, array_name, array_index, variable_value):
-        """Set a MotorCAD array variable.
+        """Set a Motor-CAD array variable.
 
         Parameters
         ----------
@@ -146,7 +146,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        messages : str
+        str
             List of messages (most recent first, separated by ;)
         """
         method = "GetMessages"
@@ -209,7 +209,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method)
 
     def show_message(self, message):
-        """Display a message in the MotorCAD message window.
+        """Display a message in the Motor-CAD message window.
 
         Parameters
         ----------
@@ -248,7 +248,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def quit(self):
-        """Quit MotorCAD."""
+        """Quit Motor-CAD."""
         method = "Quit"
         return self.connection.send_and_receive(method)
 
@@ -269,7 +269,7 @@ class _RpcMethodsCore:
     # ------------------------------------ Files ------------------------------------
 
     def load_duty_cycle(self, file_name):
-        """Load a duty cycle from a *.dat file.
+        """Load a duty cycle from a .dat file.
 
         Parameters
         ----------
@@ -285,8 +285,8 @@ class _RpcMethodsCore:
     def save_duty_cycle(self, file_path):
         """Save the duty cycle to a file.
 
-        The file should be saved with a *.dat file extension to ensure it can be correctly loaded
-        into a *.mot file
+        The file should be saved with a .dat file extension to ensure it can be correctly loaded
+        into a .mot file
 
         Parameters
         ----------
@@ -302,7 +302,7 @@ class _RpcMethodsCore:
     def export_matrices(self, directory_path):
         """Save the resistance, power and capacitance matrices to files in the file path.
 
-        The files are given the name of the *.mot model, with different file extensions.
+        The files are given the name of the .mot model, with different file extensions.
 
         Parameters
         ----------
@@ -359,7 +359,7 @@ class _RpcMethodsCore:
     def export_results(self, solution_type, file_path):
         """Export results from the selected solution to a csv file.
 
-        The filepath must include the name of the file, with the *.CSV extension.
+        The filepath must include the name of the file, with the .CSV extension.
 
         Parameters
         ----------
@@ -375,7 +375,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def load_dxf_file(self, file_name):
-        """Load a *.dxf geometry file.
+        """Load a .dxf geometry file.
 
         Parameters
         ----------
@@ -465,7 +465,7 @@ class _RpcMethodsCore:
         drive_type,
         notes,
     ):
-        """Save to a *.mtt template file.
+        """Save to a .mtt template file.
 
         Parameters
         ----------
@@ -514,7 +514,7 @@ class _RpcMethodsCore:
         """Save the winding pattern to a file.
 
         The filepath must include the name of the file. If the file is to be re-loaded
-        into Motor-CAD, then the file extension must be specified as *.txt. The default
+        into Motor-CAD, then the file extension must be specified as .txt. The default
         filepath is the Windows directory in the C: drive
 
         Parameters
@@ -574,7 +574,7 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def load_from_file(self, mot_file):
-        """Load a .mot file into the MotorCAD instance.
+        """Load a .mot file into the Motor-CAD instance.
 
         Parameters
         ----------
@@ -604,7 +604,7 @@ class _RpcMethodsCore:
     def save_script(self, file_path):
         """Save the internal python script to a file.
 
-        The *.py extension should be included in the file name.
+        The .py extension should be included in the file name.
 
         Parameters
         ----------
@@ -670,8 +670,8 @@ class _RpcMethodsCore:
         """Generate electromagnetic saturation and loss data.
 
         Saturation (flux linkages and inductances) and loss data for use in other
-        analysis and modelling tools. The default file extension is *.mat and is saved in
-        the lab folder in the *.mot directory.
+        analysis and modelling tools. The default file extension is .mat and is saved in
+        the lab folder in the .mot directory.
         """
         method = "CalculateSaturationMap"
         return self.connection.send_and_receive(method)
@@ -797,7 +797,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        value : bool
+        bool
             Return true if the Lab model has been built and is valid for the current settings.
         """
         method = "GetModelBuilt_Lab"
@@ -952,7 +952,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        success : int
+        int
             1 indicates valid geometry
         """
         method = "CheckIfGeometryIsValid"
@@ -988,13 +988,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_magnetic_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD Magnetic graph.
+        """Get a specified point from a Motor-CAD Magnetic graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1010,13 +1010,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_temperature_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD Thermal graph.
+        """Get a specified point from a Motor-CAD Thermal graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1032,13 +1032,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_power_graph_point(self, graph_name, point_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         point_number : int
             Point number to retrieve x and y values from
 
@@ -1054,13 +1054,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_magnetic_3d_graph_point(self, graph_name, slice_number, point_number, time_step_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         slice_number
 
         point_number : int
@@ -1079,13 +1079,13 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def get_fea_graph_point(self, graph_id, slice_number, point_number, time_step_number):
-        """Get a specified point from a MotorCAD graph.
+        """Get a specified point from a Motor-CAD graph.
 
         Parameters
         ----------
         graph_id : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
-            MotorCAD (help -> graph viewer)
+            Motor-CAD (help -> graph viewer)
         slice_number
 
         point_number : int
@@ -1167,16 +1167,6 @@ class _RpcMethodsCore:
         """Add boundary condition line using XY coordinates for start and end points."""
         method = "AddLine_Boundary_XY"
         params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
-        method = "AddPoint_Magnetic_RT"
-        params = [r, t, mag_name, br_angle, br_mult, polarity]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_magnetic_xy(self, x, y, mag_name, br_angle, br_mult, polarity):
-        method = "AddPoint_Magnetic_XY"
-        params = [x, y, mag_name, br_angle, br_mult, polarity]
         return self.connection.send_and_receive(method, params)
 
     def set_fea_path_point(
@@ -1704,7 +1694,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        value : float
+        float
             Temperature of thermal node
         """
         method = "GetNodeTemperature"
@@ -1721,7 +1711,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        value : float
+        float
             Capacitance of thermal node
         """
         method = "GetNodeCapacitance"
@@ -1738,7 +1728,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        value : float
+        float
             Power of thermal node
         """
         method = "GetNodePower"
@@ -1756,7 +1746,7 @@ class _RpcMethodsCore:
             Thermal node number
         Returns
         -------
-        value : float
+        float
             Resistance value
         """
         method = "GetNodeToNodeResistance"
@@ -1773,7 +1763,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        nodeExists : boolean
+        boolean
             True if node exists
         """
         method = "GetNodeExists"
@@ -1795,7 +1785,7 @@ class _RpcMethodsCore:
 
         Returns
         -------
-        offsetNodeNumber : int
+        int
             offset node number
         """
         method = "GetOffsetNodeNumber"
