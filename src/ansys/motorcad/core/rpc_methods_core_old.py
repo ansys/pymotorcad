@@ -7,6 +7,7 @@ from sys import _getframe
 from warnings import warn
 
 from ansys.motorcad.core.rpc_methods_core import _RpcMethodsCore
+from ansys.motorcad.core.rpc_methods_internal import _RpcMethodsInternal
 
 
 def deprecation_warning(old_name, new_name):
@@ -21,6 +22,7 @@ def deprecation_warning(old_name, new_name):
 class _RpcMethodsCoreOld:
     def __init__(self, mc_connection):
         self.new_methods = _RpcMethodsCore(mc_connection)
+        self.internal_methods = _RpcMethodsInternal(mc_connection)
 
     # ------------------------------------ Variables ------------------------------------
     def GetArrayVariable_2d(self, *args):
@@ -61,7 +63,7 @@ class _RpcMethodsCoreOld:
     # ------------------------------------ UI ------------------------------------
 
     def IsStopRequested(self):
-        replacement_function = self.new_methods.is_stop_requested
+        replacement_function = self.internal_methods.is_stop_requested
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
@@ -76,7 +78,7 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def UpdateInterface(self):
-        replacement_function = self.new_methods.update_interface
+        replacement_function = self.internal_methods.update_interface
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
@@ -101,7 +103,7 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def AvoidImmediateUpdate(self, *args):
-        replacement_function = self.new_methods.avoid_immediate_update
+        replacement_function = self.internal_methods.avoid_immediate_update
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
@@ -291,13 +293,8 @@ class _RpcMethodsCoreOld:
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
-    def GetIMSaturationFactor(self, *args):
-        replacement_function = self.new_methods.get_im_sat_factor
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
-        return replacement_function(*args)
-
     def GetIMIronLoss(self, *args):
-        replacement_function = self.new_methods.get_im_iron_loss
+        replacement_function = self.internal_methods.get_im_iron_loss
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
@@ -307,7 +304,7 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def SetAllEmagCalculations(self, *args):
-        replacement_function = self.new_methods.set_all_emag_calculations
+        replacement_function = self.internal_methods.set_all_emag_calculations
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
@@ -545,22 +542,22 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def SetBndCond(self, *args):
-        replacement_function = self.new_methods.set_bnd_cond
+        replacement_function = self.internal_methods.set_bnd_cond
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def StoreProblemData(self, *args):
-        replacement_function = self.new_methods.store_problem_data
+        replacement_function = self.internal_methods.store_problem_data
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def Add_Region_Thermal_A(self, *args):
-        replacement_function = self.new_methods.add_region_thermal_a
+        replacement_function = self.internal_methods.add_region_thermal_a
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddPoint_XY(self, *args):
-        replacement_function = self.new_methods.add_point_xy
+        replacement_function = self.internal_methods.add_point_xy
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
@@ -570,32 +567,32 @@ class _RpcMethodsCoreOld:
         return replacement_function()
 
     def CreateOptimisedMesh_Thermal(self, *args):
-        replacement_function = self.new_methods.create_optimised_mesh_thermal
+        replacement_function = self.internal_methods.create_optimised_mesh_thermal
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def SetMeshGeneratorParam(self, *args):
-        replacement_function = self.new_methods.set_mesh_generator_param
+        replacement_function = self.internal_methods.set_mesh_generator_param
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def SolveProblem(self):
-        replacement_function = self.new_methods.solve_problem
+        replacement_function = self.internal_methods.solve_problem
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
     def Add_Region_Thermal(self, *args):
-        replacement_function = self.new_methods.add_region_thermal
+        replacement_function = self.internal_methods.add_region_thermal
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddCircularConductor_A(self, *args):
-        replacement_function = self.new_methods.add_circular_conductor_a
+        replacement_function = self.internal_methods.add_circular_conductor_a
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddRectangularConductor_A(self, *args):
-        replacement_function = self.new_methods.add_rectangular_conductor_a
+        replacement_function = self.internal_methods.add_rectangular_conductor_a
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
@@ -605,12 +602,12 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def SetRegionColour(self, *args):
-        replacement_function = self.new_methods.set_region_colour
+        replacement_function = self.internal_methods.set_region_colour
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddPoint_RT(self, *args):
-        replacement_function = self.new_methods.add_point_rt
+        replacement_function = self.internal_methods.add_point_rt
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
