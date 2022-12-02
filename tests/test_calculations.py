@@ -1,4 +1,4 @@
-from setup_test import setup_test_env
+from tests.setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
