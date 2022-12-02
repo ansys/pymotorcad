@@ -1,8 +1,8 @@
 from math import pi
 
+from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from tests.RPC_Test_Common import almost_equal
-from tests.setup_test import setup_test_env
+from setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
