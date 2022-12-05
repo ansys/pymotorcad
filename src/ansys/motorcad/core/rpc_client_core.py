@@ -48,14 +48,17 @@ class MotorCADError(Exception):
 
 
 def _get_port_from_motorcad_process(process):
-    connection_list = process.connections()
-    if len(connection_list) > 0:
-        for connect in connection_list:
-            if connect.family == socket.AddressFamily.AF_INET6:
-                port = connect.laddr.port
-                return port
-    # Failed to get port from process
-    return -1
+    try:
+        connection_list = process.connections()
+        if len(connection_list) > 0:
+            for connect in connection_list:
+                if connect.family == socket.AddressFamily.AF_INET6:
+                    port = connect.laddr.port
+                    return port
+        # Failed to get port from process
+        return -1
+    except:
+        raise MotorCADError(str(process))
 
 
 def _find_motor_cad_exe():
@@ -248,7 +251,7 @@ class _MotorCADConnection:
 
             motor_util = psutil.Process(pid)
         except:
-            raise (Exception, self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING")
+            raise MotorCADError(self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING")
 
         self._wait_for_server_to_start(motor_util)
 
