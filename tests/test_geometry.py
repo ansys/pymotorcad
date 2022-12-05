@@ -1,6 +1,5 @@
 from math import pi
 
-from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
 from setup_test import setup_test_env
 
@@ -8,6 +7,13 @@ from setup_test import setup_test_env
 mc = setup_test_env()
 
 DXF_IMPORT_REGION = "DXF Import"
+
+MATERIAL_INVALID_NAME = "invalid material name here"
+MATERIAL_EPOXY = "Epoxy"
+
+# Invalid coordinates - never expect motor to be this large
+X_INVALID = 10000000
+Y_INVALID = 10000000
 
 
 # Draw square with centre at 5,5
@@ -45,6 +51,7 @@ def test_initiate_geometry_from_script():
 
 def test_add_line_xy():
     # Draw a 10x10 square and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     draw_square()
@@ -58,6 +65,7 @@ def test_add_line_xy():
 
 def test_add_line_rt():
     # Draw a 10x10 square and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     # point coordinates
@@ -85,6 +93,7 @@ def test_add_line_rt():
 
 def test_add_arc_xy():
     # Draw a 10 radius circle and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     radius = 10
@@ -106,6 +115,7 @@ def test_add_arc_xy():
 
 def test_add_arc_rt():
     # Draw a 10 radius circle and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     radius = 10
@@ -130,6 +140,7 @@ def test_add_arc_rt():
 
 def test_add_arc_centre_start_end_xy():
     # Draw a 10 radius circle and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     radius = 10
@@ -155,6 +166,7 @@ def test_add_arc_centre_start_end_xy():
 
 def test_add_arc_centre_start_end_rt():
     # Draw a 10 radius circle and check its area
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     radius = 10
@@ -181,6 +193,7 @@ def test_add_arc_centre_start_end_rt():
 
 
 def test_add_region_xy():
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     x_c = 5
@@ -198,8 +211,16 @@ def test_add_region_xy():
 
     assert region["RegionName"] == region_name
 
+    # Invalid region coordinates
+    with pytest.raises(Exception) as e_info:
+        mc.add_region_xy(X_INVALID, Y_INVALID, region_name)
+
+    assert "Could not find region" in str(e_info.value)
+
 
 def test_add_region_rt():
+    # This function links to add_region_xy so just need basic test
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     x_c = 5
@@ -231,6 +252,9 @@ def draw_magnet(x_c, y_c):
 # Can be improved by adding to get_region_properties
 # Currently magnet properties aren't available
 def test_add_magnet_region_xy():
+    rt_magnet = 33
+
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     # Centre point coordinates
@@ -244,6 +268,8 @@ def test_add_magnet_region_xy():
     br_angle = 30
     br_multiplier = 1
     polarity = 0
+
+    # Valid region
     mc.add_magnet_region_xy(
         x_c, y_c, magnet_name, magnet_material, br_angle, br_multiplier, polarity
     )
@@ -252,10 +278,38 @@ def test_add_magnet_region_xy():
 
     region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
 
+    # Can't get magnet properties from this yet - try and improve in future
     assert region["RegionName"] == magnet_name
+    assert region["RegionType_Mapped"] == rt_magnet
+
+    # Invalid region coordinates
+    with pytest.raises(Exception) as e_info:
+        mc.add_magnet_region_xy(
+            X_INVALID, Y_INVALID, magnet_name, magnet_material, br_angle, br_multiplier, polarity
+        )
+
+    assert "Could not find region" in str(e_info.value)
+
+    # Invalid region material
+    with pytest.raises(Exception) as e_info:
+        mc.add_magnet_region_xy(
+            x_c, y_c, magnet_name, MATERIAL_INVALID_NAME, br_angle, br_multiplier, polarity
+        )
+
+    assert "Could not find magnet material" in str(e_info.value)
+
+    # Material not a magnet
+    with pytest.raises(Exception) as e_info:
+        mc.add_magnet_region_xy(
+            x_c, y_c, magnet_name, MATERIAL_EPOXY, br_angle, br_multiplier, polarity
+        )
+
+    assert "is not a magnet material" in str(e_info.value)
 
 
 def test_add_magnet_region_rt():
+    # This function links to add_magnet_region_xy so just need basic test
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     # Centre point coordinates
@@ -294,6 +348,7 @@ def test_get_region_properties_xy():
 
 
 def test_add_point_custom_material_xy():
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     x_c = 5
@@ -301,9 +356,11 @@ def test_add_point_custom_material_xy():
 
     draw_square()
 
+    # Valid region
     region_name = "test_region"
     material_name = "Epoxy"
-    colour = "0xff0000"
+    colour = "red"
+    colour_code = "0xff"
     mc.add_point_custom_material_xy(x_c, y_c, region_name, material_name, colour)
 
     mc.create_optimised_mesh()
@@ -312,10 +369,24 @@ def test_add_point_custom_material_xy():
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
-    assert hex(region["Colour"]) == colour
+    assert hex(region["Colour"]) == colour_code
+
+    # Invalid region coordinates
+    with pytest.raises(Exception) as e_info:
+        mc.add_point_custom_material_xy(X_INVALID, Y_INVALID, region_name, material_name, colour)
+
+    assert "Could not find region" in str(e_info.value)
+
+    # Invalid material
+    with pytest.raises(Exception) as e_info:
+        mc.add_point_custom_material_xy(x_c, y_c, region_name, MATERIAL_INVALID_NAME, colour)
+
+    assert "Material does not exist in database" in str(e_info.value)
 
 
 def test_add_point_custom_material_rt():
+    # This function links to add_point_custom_material_xy so just need basic test
+    mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
     x_c = 5
@@ -327,7 +398,8 @@ def test_add_point_custom_material_rt():
 
     region_name = "test_region"
     material_name = "M43"
-    colour = "0xff00"
+    colour = "red"
+    colour_code = "0xff"
     mc.add_point_custom_material_rt(r_c, t_c, region_name, material_name, colour)
 
     mc.create_optimised_mesh()
@@ -336,4 +408,4 @@ def test_add_point_custom_material_rt():
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
-    assert hex(region["Colour"]) == colour
+    assert hex(region["Colour"]) == colour_code
