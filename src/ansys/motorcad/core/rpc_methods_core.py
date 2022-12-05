@@ -252,6 +252,10 @@ class _RpcMethodsCore:
         method = "Quit"
         return self.connection.send_and_receive(method)
 
+    def set_free(self):
+        """Free Motor-CAD instance."""
+        return self.connection.set_free()
+
     def save_screen_to_file(self, screen_name, file_name):
         """Save a screen as an image.
 

@@ -16,9 +16,14 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         open_new_instance=True,
         enable_exceptions=True,
         enable_success_variable=False,
+        reuse_parallel_instances=False,
     ):
         self.connection = _MotorCADConnection(
-            port, open_new_instance, enable_exceptions, enable_success_variable
+            port,
+            open_new_instance,
+            enable_exceptions,
+            enable_success_variable,
+            reuse_parallel_instances,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -34,6 +39,7 @@ class MotorCAD(_MotorCADCore):
         open_new_instance=True,
         enable_exceptions=True,
         enable_success_variable=False,
+        reuse_parallel_instances=False,
     ):
         """Connect to existing Motor-CAD instance or open a new one.
 
@@ -58,6 +64,7 @@ class MotorCAD(_MotorCADCore):
             open_new_instance=open_new_instance,
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
+            reuse_parallel_instances=reuse_parallel_instances,
         )
 
 
@@ -80,6 +87,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
         open_new_instance=False,
         enable_exceptions=False,
         enable_success_variable=True,
+        reuse_parallel_instances=False,
     ):
         """Create MotorCADCompatibility object."""
         self.connection = _MotorCADConnection(
@@ -87,6 +95,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
             open_new_instance=open_new_instance,
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
+            reuse_parallel_instances=reuse_parallel_instances,
             compatibility_mode=True,
         )
 
