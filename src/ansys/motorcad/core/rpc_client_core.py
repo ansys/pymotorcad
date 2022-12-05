@@ -241,10 +241,14 @@ class _MotorCADConnection:
         motor_process = subprocess.Popen(
             [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
         )
+        try:
+            pid = motor_process.pid
 
-        pid = motor_process.pid
+            print(str(pid))
 
-        motor_util = psutil.Process(pid)
+            motor_util = psutil.Process(pid)
+        except:
+            raise (Exception, self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING")
 
         self._wait_for_server_to_start(motor_util)
 
