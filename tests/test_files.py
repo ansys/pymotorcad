@@ -1,7 +1,7 @@
 from os import path, remove
 
-from RPC_Test_Common import get_dir_path
-from setup_test import setup_test_env
+from tests.RPC_Test_Common import get_dir_path
+from tests.setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()

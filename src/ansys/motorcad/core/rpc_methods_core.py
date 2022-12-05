@@ -1319,6 +1319,7 @@ class _RpcMethodsCore:
         """Tells Motor-CAD to use geometry from scripting.
 
         Also clears current scripting geometry.
+        Need to call clear_all_data before doing this.
         """
         method = "InitiateGeometryFromScript"
         return self.connection.send_and_receive(method)
