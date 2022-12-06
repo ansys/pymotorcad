@@ -147,6 +147,11 @@ class _RpcMethodsCoreOld:
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
+    def set_free(self):
+        replacement_function = self.new_methods.set_free
+        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
+        return replacement_function()
+
     def SaveScreenToFile(self, *args):
         replacement_function = self.new_methods.save_screen_to_file
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
