@@ -140,7 +140,7 @@ class _MotorCADConnection:
         enable_exceptions : Boolean
             Show Motor-CAD communication errors as Python exceptions
         enable_success_variable: Boolean
-                Motor-CAD methods return a success variable (first object in tuple)
+            Motor-CAD methods return a success variable (first object in tuple)
         reuse_parallel_instances: Boolean, optional
             Reuse MotorCAD instances when running in parallel. Need to free instances after use.
         compatibility_mode: Boolean, optional
@@ -430,7 +430,7 @@ class _MotorCADConnection:
         method = "SetBusy"
         return self.send_and_receive(method, success_var=True)
 
-    def set_free(self):
+    def _set_free(self):
         method = "SetFree"
         return self.send_and_receive(method)
 
