@@ -1271,7 +1271,19 @@ class _RpcMethodsCore:
         return self.connection.send_and_receive(method, params)
 
     def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
-        """Edit the specified magnet region."""
+        """Edit the specified magnet region.
+
+        Parameters
+        ----------
+        region_name : str
+            Name of magnet region to edit
+        magnet_material : str
+            Sets magnet material
+        br_angle : float
+            Sets Br angle of magnet
+        br_multiplier : float
+            Sets Br multiplier for magnet
+        """
         method = "EditMagnetRegion"
         params = [region_name, magnet_material, br_angle, br_multiplier]
         return self.connection.send_and_receive(method, params)
@@ -1556,14 +1568,14 @@ class _RpcMethodsCore:
         ]
         return self.connection.send_and_receive(method, params)
 
-    def _get_region_properties_xy(self, x, y, region_type):
+    def _get_region_properties_xy(self, x, y):
         """Get properties of region from name and coordinates.
 
         Returns list of parameters. Currently only used for testing other geometry functions.
         EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
         """
         method = "GetRegionProperties_XY"
-        params = [x, y, region_type]
+        params = [x, y]
         return self.connection.send_and_receive(method, params)
 
     def add_point_custom_material_xy(self, x, y, region_name, material_name, colour):
