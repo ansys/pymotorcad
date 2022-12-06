@@ -2,14 +2,12 @@ from math import pi
 
 import pytest
 
+from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from tests.RPC_Test_Common import almost_equal
-from tests.setup_test import setup_test_env
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
-
-DXF_IMPORT_REGION = "DXF Import"
 
 MATERIAL_INVALID_NAME = "invalid material name here"
 MATERIAL_EPOXY = "Epoxy"
@@ -61,7 +59,7 @@ def test_add_line_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(5, 5, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(5, 5)
 
     assert almost_equal(region["Area"], 100)
 
@@ -89,7 +87,7 @@ def test_add_line_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(5, 5, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(5, 5)
 
     assert almost_equal(region["Area"], 100)
 
@@ -111,7 +109,7 @@ def test_add_arc_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(10, 10, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(10, 10)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -136,7 +134,7 @@ def test_add_arc_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -162,7 +160,7 @@ def test_add_arc_centre_start_end_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -190,7 +188,7 @@ def test_add_arc_centre_start_end_rt():
 
     x_c, y_c = rt_to_xy(r_c, t_c)
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
 
@@ -210,7 +208,7 @@ def test_add_region_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
 
@@ -238,7 +236,7 @@ def test_add_region_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
 
@@ -279,7 +277,7 @@ def test_add_magnet_region_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     # Can't get magnet properties from this yet - try and improve in future
     assert region["RegionName"] == magnet_name
@@ -334,7 +332,7 @@ def test_add_magnet_region_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == magnet_name
 
@@ -368,7 +366,7 @@ def test_add_point_custom_material_xy():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
@@ -407,8 +405,21 @@ def test_add_point_custom_material_rt():
 
     mc.create_optimised_mesh()
 
-    region = mc._get_region_properties_xy(x_c, y_c, DXF_IMPORT_REGION)
+    region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
     assert hex(region["Colour"]) == colour_code
+
+
+def test_edit_magnet_region():
+    reset_to_default_file(mc)
+
+    material_name = "Y34"
+
+    mc.edit_magnet_region("L1_1Magnet1", material_name, 63, 7)
+    region = mc._get_region_properties_xy(51, 10)
+
+    # Can't currently access magnet properties except for material name
+    # This needs improving in the future
+    assert region["MaterialName"] == material_name
