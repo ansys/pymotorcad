@@ -1,5 +1,5 @@
+from RPC_Test_Common import get_dir_path
 import ansys.motorcad.core as pymotorcad
-from tests.RPC_Test_Common import get_dir_path
 
 
 def reset_to_default_file(mc):
