@@ -1,7 +1,7 @@
 from os import path, remove
 
 from RPC_Test_Common import get_dir_path
-from setup_test import setup_test_env
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -25,6 +25,8 @@ def test_load_from_file():
     value = mc.get_variable("slot_number")
     assert value == 21
 
+    reset_to_default_file(mc)
+
 
 def test_save_to_file():
     file_path = get_dir_path() + r"\test_files\SaveLoadFiles.mot"
@@ -37,3 +39,5 @@ def test_save_to_file():
     mc.save_to_file(file_path)
 
     assert path.exists(file_path) is True
+
+    reset_to_default_file(mc)
