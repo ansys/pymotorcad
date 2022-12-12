@@ -4,7 +4,7 @@ from setuptools import find_namespace_packages, setup
 
 setup(
     name="ansys-motorcad-core",
-    version="0.1.dev0",
+    version="0.1.dev1",
     url="https://github.com/pyansys/pymotorcad",
     author="ANSYS, Inc.",
     author_email="pyansys.support@ansys.com",

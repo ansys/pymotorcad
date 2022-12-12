@@ -129,7 +129,7 @@ class _MotorCADConnection:
         open_new_instance,
         enable_exceptions,
         enable_success_variable,
-        reuse_parallel_instances=False,
+        reuse_parallel_instances,
         compatibility_mode=False,
     ):
         """Create MotorCAD object for communication.
@@ -143,7 +143,7 @@ class _MotorCADConnection:
         enable_exceptions : Boolean
             Show Motor-CAD communication errors as Python exceptions
         enable_success_variable: Boolean
-                Motor-CAD methods return a success variable (first object in tuple)
+            Motor-CAD methods return a success variable (first object in tuple)
         reuse_parallel_instances: Boolean, optional
             Reuse MotorCAD instances when running in parallel. Need to free instances after use.
         compatibility_mode: Boolean, optional
@@ -282,6 +282,8 @@ class _MotorCADConnection:
 
         if found_free_instance is False:
             if (self.reuse_parallel_instances is True) or (self._compatibility_mode is True):
+                # reset port to default otherwise it will try to use port set in the above for loop
+                self._port = -1
                 self._open_motor_cad_local()
             else:
                 raise MotorCADError(
@@ -433,10 +435,10 @@ class _MotorCADConnection:
 
     def _set_busy(self):
         method = "SetBusy"
-        return self.send_and_receive(method)
+        return self.send_and_receive(method, success_var=True)
 
-    def set_free(self):
-        method = "set_free"
+    def _set_free(self):
+        method = "SetFree"
         return self.send_and_receive(method)
 
     def get_last_error_message(self):
