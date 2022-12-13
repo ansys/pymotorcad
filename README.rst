@@ -18,8 +18,8 @@ Pymotorcad core
    :target: https://codecov.io/gh/pyansys/pymotorcad-core
    :alt: Codecov
 
-.. |GH-CI| image:: https://github.com/pyansys/pymotorcad-core/actions/workflows/ci_cd.yml/badge.svg
-   :target: https://github.com/pyansys/pymotorcad-core/actions/workflows/ci_cd.yml
+.. |GH-CI| image:: https://github.com/pyansys/pymotorcad/actions/workflows/ci_cd.yml/badge.svg
+   :target: https://github.com/pyansys/pymotorcad/actions/workflows/ci_cd.yml
    :alt: GH-CI
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg

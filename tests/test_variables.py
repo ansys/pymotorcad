@@ -1,7 +1,7 @@
 import pytest
 
 from ansys.motorcad.core import MotorCADError
-from tests.setup_test import reset_to_default_file, setup_test_env
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
