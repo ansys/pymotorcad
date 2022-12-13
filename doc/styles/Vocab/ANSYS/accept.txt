@@ -1,3 +1,7 @@
 ANSYS
 Ansys
 ansys
+Motor-CAD
+API
+PyMotorCAD
+snake_case

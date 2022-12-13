@@ -14,8 +14,8 @@ Pymotorcad core
    :target: https://pypi.org/project/pymotorcad-core
    :alt: PyPI
 
-.. |codecov| image:: https://codecov.io/gh/pyansys/pymotorcad-core/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/pyansys/pymotorcad-core
+.. |codecov| image:: https://codecov.io/gh/pyansys/pymotorcad/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/pyansys/pymotorcad
    :alt: Codecov
 
 .. |GH-CI| image:: https://github.com/pyansys/pymotorcad/actions/workflows/ci_cd.yml/badge.svg
@@ -42,7 +42,7 @@ At least two installation modes are provided: user and developer.
 For users
 ^^^^^^^^^
 
-In order to install Pymotorcad core, make sure you
+In order to install PyMotorCAD, make sure you
 have the latest version of `pip`_. To do so, run:
 
 .. code:: bash
@@ -58,10 +58,10 @@ Then, you can simply execute:
 For developers
 ^^^^^^^^^^^^^^
 
-Installing Pymotorcad core in developer mode allows
+Installing PyMotorCAD in developer mode allows
 you to modify the source and enhance it.
 
-Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You will 
+Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You
 need to follow these steps:
 
 #. Start by cloning this repository:
@@ -123,7 +123,7 @@ As Makefile has rules, `tox`_ has environments. In fact, the tool creates its
 own virtual environment so anything being tested is isolated from the project in
 order to guarantee project's integrity. The following environments commands are provided:
 
-- **tox -e style**: will check for coding style quality.
+- **tox -e style**: checks for coding style quality.
 - **tox -e py**: checks for unit tests.
 - **tox -e py-coverage**: checks for unit testing and code coverage.
 - **tox -e doc**: checs for documentation building process.

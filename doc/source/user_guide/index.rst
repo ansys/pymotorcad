@@ -1,6 +1,6 @@
 .. _ref_getting_started:
 
-Getting Started
+Getting started
 =======================
 .. toctree::
    :maxdepth: 1
@@ -11,7 +11,7 @@ Getting Started
 
 PyMotorCAD provides Python access to Motor-CAD.
 
-Using From Internal Motor-CAD Scripting
+Using from internal Motor-CAD scripting
 -----------------------------------------
 Motor-CAD is installed with an internal Python interpreter.
 This includes a stable version of PyMotorCAD.

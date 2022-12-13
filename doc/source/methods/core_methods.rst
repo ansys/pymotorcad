@@ -2,13 +2,19 @@
 
 Motor-CAD API
 =======================
-The available methods are contained within the Motor-CAD object below.
+
+The MotorCAD object is used by default for PyMotorCAD scripting.
 The descriptions of the methods, input parameters and return values are given.
 
-.. currentmodule:: ansys.motorcad.core
+The MotorCADCompatibility object is used for running old ActiveX scripts.
+The available methods are given and their replacement functions have been commented.
+
+.. currentmodule:: ansys.motorcad.core.MotorCAD_Methods
 
 .. autosummary::
    :toctree: _autosummary
 
-   MotorCAD_Methods.MotorCAD
+    MotorCAD
+    MotorCADCompatibility
+
 

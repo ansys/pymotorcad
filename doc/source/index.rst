@@ -16,13 +16,13 @@ PyMotorCAD API
 
 For the full list of API methods, see :ref:`ref_MotorCAD_API`.
 
-Internal Scripting
+Internal scripting
 ---------------------
 
 For internal scripting see :ref:`ref_getting_started`
 
 
-External Scripting
+External scripting
 --------------------
 
 For adding PyMotorCAD to your own Python see :ref:`ref_external_scripting`
