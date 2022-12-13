@@ -69,7 +69,7 @@ call had been successful:
    success, VariableValue = mcApp.GetVariable("Not_A_Real_Var")
 
 This meant that API calls could fail silently unless you checked the success variable every time.
-This success variable has been removed as PyMotorCAD will raise an exception if a failure occurs:
+This success variable has been removed as PyMotorCAD raises an exception if a failure occurs:
 
 .. code:: python
 
