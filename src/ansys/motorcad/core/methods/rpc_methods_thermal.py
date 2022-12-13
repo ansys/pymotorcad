@@ -12,7 +12,7 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def set_resistance_multiplier(self, name, node1, node2, value, description):
-        """Set or create a resistance muliplication factor."""
+        """Set or create a resistance multiplication factor."""
         method = "SetResistanceMultiplier"
         params = [name, node1, node2, value, description]
         return self.connection.send_and_receive(method, params)

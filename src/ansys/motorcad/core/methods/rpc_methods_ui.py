@@ -1,4 +1,5 @@
 """RPC methods for UI."""
+from packaging import version
 
 
 class _RpcMethodsUI:
@@ -44,7 +45,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method)
 
     def save_motorcad_screen_to_file(self, screen_name, file_name):
-        """Save the whole Motor-CAD screen of the specified tab as a image file, (bmp, jpg, png).
+        """Save the whole Motor-CAD screen of the specified tab as an image file, (bmp, jpg, png).
 
         InitialiseTabNames must be called before using this function. Motor-CAD UI must be visible.
 
