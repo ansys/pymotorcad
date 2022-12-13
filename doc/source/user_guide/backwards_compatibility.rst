@@ -1,9 +1,9 @@
-Backwards compatibility with Old Scripts
+Backwards compatibility with old scripts
 ========================================
 
 It's easy to convert old ActiveX scripts to use PyMotorCAD.
 
-Change Communication Method
+Change communication method
 ----------------------------
 
 Old scripts connect to Motor-CAD using ActiveX:
@@ -20,16 +20,16 @@ To connect to Motor-CAD using PyMotorCAD replace these 2 lines with:
     import ansys.motorcad.core as pymotorcad
     mcApp = pymotorcad.MotorCADCompatibility()
 
-The script will now run using PyMotorCAD.
+The script now runs using PyMotorCAD.
 This method allows old scripts to be converted with minimal changes,
-however some of the new features of PyMotorCAD are disabled to ensure compatibility with these scripts.
+however some of the new features of PyMotorCAD are turned off to ensure compatibility with these scripts.
 
 Full script conversion
 --------------------------
 
 To convert a script to use the new features you must do 2 steps:
 
-1. Change function name
+Change function name
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All API calls in the script must be renamed to use the new syntax. The API calls have been renamed to match
@@ -45,19 +45,20 @@ Must be changed to:
 
    mcApp.get_variable()
 
-If you are using a modern Python IDE then this will be straightforward as it will suggest functions from your input.
+If you are using a modern Python IDE then this is straightforward as the IDE suggests functions from your input.
 You can also search for the functions in the PyMotorCAD documentation:
 
 .. image:: /_static/backwards_compatibility_1.png
     :width: 600
 
-There is also documentation built into the Python package that will explain what
+There is also documentation built into the Python package that explains what
 functions do and what parameters they require:
 
 .. image:: /_static/backwards_compatibility_2.png
     :width: 600
 
-2. Update function syntax
+Update function syntax
+Update function syntax
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Previously functions returned a “success” variable that would need to be checked to ensure an API
@@ -79,7 +80,7 @@ This success variable has been removed as PyMotorCAD will raise an exception if 
 
 For cases where you might expect the API call to fail you should wrap it in a try/except.
 For example, the following script reads graph points until the end of the graph.
-Note that we use the MotorCADError exception type so we only catch errors raised by MotorCAD:
+Note that the MotorCADError exception type is used so that only errors raised by MotorCAD are caught:
 
 .. code:: python
 

@@ -61,7 +61,7 @@ For developers
 Installing PyMotorCAD in developer mode allows
 you to modify the source and enhance it.
 
-Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You will 
+Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You
 need to follow these steps:
 
 #. Start by cloning this repository:
@@ -123,7 +123,7 @@ As Makefile has rules, `tox`_ has environments. In fact, the tool creates its
 own virtual environment so anything being tested is isolated from the project in
 order to guarantee project's integrity. The following environments commands are provided:
 
-- **tox -e style**: will check for coding style quality.
+- **tox -e style**: checks for coding style quality.
 - **tox -e py**: checks for unit tests.
 - **tox -e py-coverage**: checks for unit testing and code coverage.
 - **tox -e doc**: checs for documentation building process.
