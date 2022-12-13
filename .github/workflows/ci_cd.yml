@@ -80,7 +80,7 @@ jobs:
         name: 'Upload coverage to Codecov'
         
       - name: Ensure Motor-CAD closed
-        run: taskkill /IM Motor-CAD_2023_1_1.exe /F
+        run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
       
 
   docs:
