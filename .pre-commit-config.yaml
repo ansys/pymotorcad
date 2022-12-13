@@ -27,7 +27,5 @@ repos:
   rev: 6.1.1
   hooks:
   - id: pydocstyle
-    # This ignore will be removed when MotorCAD_Methods update is finished.
-    args: ["--add-ignore=D102"]
     additional_dependencies: [toml]
     exclude: "tests/"
