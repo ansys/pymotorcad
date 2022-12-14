@@ -1,7 +1,7 @@
-"""RPC methods for files."""
+"""RPC methods (general)."""
 
 
-class _RpcMethodsFiles:
+class _RpcMethodsGeneral:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
@@ -335,3 +335,81 @@ class _RpcMethodsFiles:
         method = "SaveToFile"
         params = [mot_file]
         return self.connection.send_and_receive(method, params)
+
+    def save_results(self, solution_type):
+        """Save the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
+        method = "SaveResults"
+        params = [solution_type]
+        return self.connection.send_and_receive(method, params)
+
+    def load_magnetisation_curves(self, file_path):
+        """Load the magnetisation curves from a text file. For SRM machines only.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
+        method = "LoadMagnetisationCurves"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
+
+    def save_magnetisation_curves(self, file_name):
+        """Save the magnetisation curves to a text file. For SRM machines only.
+
+        Parameters
+        ----------
+        file_name : str
+            Full path to file including file name. You can use r'filepath' syntax to force
+            Python to ignore special characters.
+        """
+        method = "SaveMagnetisationCurves"
+        params = [file_name]
+        return self.connection.send_and_receive(method, params)
+
+    def get_messages(self, num_messages):
+        """Return a list of the last N messages from the message history.
+
+        Parameters
+        ----------
+        num_messages : int
+            The number of recent messages to be returned.
+            If numMessages=0 all messages in history will be returned.
+
+        Returns
+        -------
+        str
+            List of messages (most recent first, separated by ;)
+        """
+        method = "GetMessages"
+        params = [num_messages]
+        return self.connection.send_and_receive(method, params)
+
+    def get_license(self):
+        """Check if there is a licence available for the current context and machine type.
+
+        The licence is checked out if available.
+        """
+        method = "GetLicence"
+        return self.connection.send_and_receive(method)
+
+    def clear_message_log(self):
+        """Clear the message log file for the current model."""
+        method = "ClearMessageLog"
+        return self.connection.send_and_receive(method)
+
+    def quit(self):
+        """Quit Motor-CAD."""
+        method = "Quit"
+        return self.connection.send_and_receive(method)
+
+    def set_free(self):
+        """Free Motor-CAD instance."""
+        return self.connection._set_free()

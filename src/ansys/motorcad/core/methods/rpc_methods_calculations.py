@@ -15,25 +15,6 @@ class _RpcMethodsCalculations:
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
-    def set_3d_component_visibility(self, group_name, component_name, visibility):
-        """Set the visibility of a component specified by group name, and component name.
-
-        Parameters
-        ----------
-        group_name : str
-            "Machine", "Stator", "Rotor", "Shaft Components". If in the thermal context then
-            "Mounting"
-            and "Outer Casing" are available too.
-        component_name : str
-            "All", "Lamination", "Wedge". The available component names depends on which model
-            is used.
-        visibility : int
-            0=Invisible to 100=Solid
-        """
-        method = "Set3DComponentVisibility"
-        params = [group_name, component_name, visibility]
-        return self.connection.send_and_receive(method, params)
-
     def calculate_saturation_map(self):
         """Generate electromagnetic saturation and loss data.
 
@@ -48,18 +29,6 @@ class _RpcMethodsCalculations:
         """Calculate torque envelope for machine."""
         method = "CalculateTorqueEnvelope"
         return self.connection.send_and_receive(method)
-
-    def save_results(self, solution_type):
-        """Save the output results from the selected solution (EMagnetic).
-
-        Parameters
-        ----------
-        solution_type : str
-            Only 'EMagnetic' solution type currently available.
-        """
-        method = "SaveResults"
-        params = [solution_type]
-        return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
         """Load the output results from the selected solution (EMagnetic).
@@ -143,40 +112,4 @@ class _RpcMethodsCalculations:
     def do_mechanical_calculation(self):
         """Run the Motor-CAD mechanical calculation."""
         method = "DoMechanicalCalculation"
-        return self.connection.send_and_receive(method)
-
-    # ------------------------------------ Internal Scripting ------------------------------------
-
-    def save_script(self, file_path):
-        """Save the internal python script to a file.
-
-        The .py extension should be included in the file name.
-
-        Parameters
-        ----------
-        file_path : str
-            The absolute filepath of the data to be saved. The default
-            filepath is the Windows directory in the C: drive. Use r'filepath'
-            syntax to force Python to ignore special characters.
-        """
-        method = "SaveScript"
-        params = [file_path]
-        return self.connection.send_and_receive(method, params)
-
-    def load_script(self, script_file):
-        """Load a script file into Motor-CAD internal scripting.
-
-        Parameters
-        ----------
-        script_file : str
-            Full path to file including file name. You can use r'filepath' syntax to force
-            Python to ignore special characters.
-        """
-        method = "LoadScript"
-        params = [script_file]
-        return self.connection.send_and_receive(method, params)
-
-    def run_script(self):
-        """Run script file in Motor-CAD internal scripting."""
-        method = "RunScript"
         return self.connection.send_and_receive(method)

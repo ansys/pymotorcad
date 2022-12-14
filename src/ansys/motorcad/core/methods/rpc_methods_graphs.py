@@ -5,32 +5,6 @@ class _RpcMethodsGraphs:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
-    def load_magnetisation_curves(self, file_path):
-        """Load the magnetisation curves from a text file.
-
-        Parameters
-        ----------
-        file_path : str
-            Full path to file including file name. You can use r'filepath' syntax to force
-            Python to ignore special characters.
-        """
-        method = "LoadMagnetisationCurves"
-        params = [file_path]
-        return self.connection.send_and_receive(method, params)
-
-    def save_magnetisation_curves(self, file_name):
-        """Save the magnetisation curves to a text file.
-
-        Parameters
-        ----------
-        file_name : str
-            Full path to file including file name. You can use r'filepath' syntax to force
-            Python to ignore special characters.
-        """
-        method = "SaveMagnetisationCurves"
-        params = [file_name]
-        return self.connection.send_and_receive(method, params)
-
     def get_magnetic_graph_point(self, graph_name, point_number):
         """Get a specified point from a Motor-CAD Magnetic graph.
 
