@@ -16,7 +16,6 @@ MATERIAL_EPOXY = "Epoxy"
 X_INVALID = 10000000
 Y_INVALID = 10000000
 
-
 # Draw square with centre at 5,5
 def draw_square():
     # point coordinates
@@ -53,6 +52,9 @@ def test_initiate_geometry_from_script():
 
 
 def test_add_line_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10x10 square and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -67,6 +69,9 @@ def test_add_line_xy():
 
 
 def test_add_line_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10x10 square and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -97,6 +102,9 @@ def test_add_line_rt():
 
 
 def test_add_arc_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10 radius circle and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -121,6 +129,9 @@ def test_add_arc_xy():
 
 
 def test_add_arc_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10 radius circle and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -148,6 +159,9 @@ def test_add_arc_rt():
 
 
 def test_add_arc_centre_start_end_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10 radius circle and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -176,6 +190,9 @@ def test_add_arc_centre_start_end_xy():
 
 
 def test_add_arc_centre_start_end_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # Draw a 10 radius circle and check its area
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -206,6 +223,9 @@ def test_add_arc_centre_start_end_rt():
 
 
 def test_add_region_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
@@ -232,6 +252,9 @@ def test_add_region_xy():
 
 
 def test_add_region_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # This function links to add_region_xy so just need basic test
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -255,6 +278,8 @@ def test_add_region_rt():
 
 # Draw region that can be added as a magnet
 def draw_magnet(x_c, y_c):
+    # Ensure magnetic context active for FEA tests
+
     radius = 2
 
     # Make a circle
@@ -265,6 +290,9 @@ def draw_magnet(x_c, y_c):
 # Can be improved by adding to get_region_properties
 # Currently magnet properties aren't available
 def test_add_magnet_region_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     rt_magnet = 33
 
     mc.clear_all_data()
@@ -326,6 +354,9 @@ def test_add_magnet_region_xy():
 
 
 def test_add_magnet_region_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # This function links to add_magnet_region_xy so just need basic test
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -366,6 +397,9 @@ def test_get_region_properties_xy():
 
 
 def test_add_point_custom_material_xy():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
@@ -406,6 +440,9 @@ def test_add_point_custom_material_xy():
 
 
 def test_add_point_custom_material_rt():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     # This function links to add_point_custom_material_xy so just need basic test
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -433,6 +470,9 @@ def test_add_point_custom_material_rt():
 
 
 def test_edit_magnet_region():
+    # Ensure magnetic context active for FEA tests
+    mc.show_magnetic_context()
+
     reset_to_default_file(mc)
 
     material_name = "Y34"

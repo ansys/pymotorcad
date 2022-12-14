@@ -6,8 +6,8 @@ Not for direct use. Inherited by
 from sys import _getframe
 from warnings import warn
 
+from ansys.motorcad.core.methods.rpc_methods_internal import _RpcMethodsInternal
 from ansys.motorcad.core.rpc_methods_core import _RpcMethodsCore
-from ansys.motorcad.core.rpc_methods_internal import _RpcMethodsInternal
 
 
 def deprecation_warning(old_name, new_name):

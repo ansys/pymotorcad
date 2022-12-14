@@ -2,9 +2,9 @@
 
 from warnings import warn
 
+from ansys.motorcad.core.methods.rpc_methods_utility import _RpcMethodsUtility
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCore, _RpcMethodsCoreOld
-from ansys.motorcad.core.rpc_methods_utility import _RpcMethodsUtility
 
 
 class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
