@@ -279,7 +279,6 @@ def test_add_region_rt():
 # Draw region that can be added as a magnet
 def draw_magnet(x_c, y_c):
     # Ensure magnetic context active for FEA tests
-    mc.show_magnetic_context()
 
     radius = 2
 
