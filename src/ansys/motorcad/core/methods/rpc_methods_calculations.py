@@ -30,18 +30,6 @@ class _RpcMethodsCalculations:
         method = "CalculateTorqueEnvelope"
         return self.connection.send_and_receive(method)
 
-    def load_results(self, solution_type):
-        """Load the output results from the selected solution (EMagnetic).
-
-        Parameters
-        ----------
-        solution_type : str
-            Only 'EMagnetic' solution type currently available.
-        """
-        method = "LoadResults"
-        params = [solution_type]
-        return self.connection.send_and_receive(method, params)
-
     def calculate_im_saturation_model(self):
         """Calculate saturation lookup tables for IM machines."""
         method = "CalculateIMSaturationModel"

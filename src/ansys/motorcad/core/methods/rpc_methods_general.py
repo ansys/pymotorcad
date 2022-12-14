@@ -348,6 +348,18 @@ class _RpcMethodsGeneral:
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
+    def load_results(self, solution_type):
+        """Load the output results from the selected solution (EMagnetic).
+
+        Parameters
+        ----------
+        solution_type : str
+            Only 'EMagnetic' solution type currently available.
+        """
+        method = "LoadResults"
+        params = [solution_type]
+        return self.connection.send_and_receive(method, params)
+
     def load_magnetisation_curves(self, file_path):
         """Load the magnetisation curves from a text file. For SRM machines only.
 
