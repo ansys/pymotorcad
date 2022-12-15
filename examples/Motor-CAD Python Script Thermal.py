@@ -16,10 +16,9 @@ print("Start Initialisation")
 mcad = pymotorcad.MotorCAD()
 
 # Open relevant file
-workingFolder = "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
+working_folder = r"C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
 mcad_name = "e8_eMobility"
-filename = workingFolder + mcad_name + ".mot"
-mcad.load_from_file(filename)
+mcad.load_from_file(os.path.join(working_folder, mcad_name, ".mot"))
 
 # Disable all popup messages from Motor-CAD
 mcad.set_variable("MessageDisplayState", 2)
@@ -64,7 +63,7 @@ mcad.set_array_variable("HousingWJ_InputH_A", 0, h_A)
 mcad.set_variable("Input_Value_h[WJ]_Rear_Housing", h_R)
 
 # Save File
-mcad.save_to_file(workingFolder + "MotorCAD_Thermal_Python.mot")
+mcad.save_to_file(os.path.join(working_folder, "MotorCAD_Thermal_Python.mot"))
 
 # Steady state calculation
 try:
