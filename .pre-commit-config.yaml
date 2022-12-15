@@ -3,7 +3,7 @@ exclude: "rpc_methods_core_old"
 repos:
 
 - repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 22.10.0
   hooks:
   - id: black
 
@@ -13,12 +13,12 @@ repos:
   - id: isort
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 5.0.4
+  rev: 6.0.0
   hooks:
   - id: flake8
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.1.0
+  rev: v2.2.2
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
