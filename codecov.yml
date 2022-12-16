@@ -1,3 +1,6 @@
+ignore:
+  - "src/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
+  
 comment:
   layout: "diff"
   behavior: default
@@ -20,3 +23,4 @@ coverage:
         if_not_found: success
         if_ci_failed: error
         if_no_uploads: error
+
