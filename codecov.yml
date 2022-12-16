@@ -1,21 +1,10 @@
-ignore:
-  - "src/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
-  
 comment:
   layout: "diff"
   behavior: default
   
 coverage:
   status:
-    project:
-      default:
-        # basic
-        # target: 50%
-        threshold: 0%
-        # advanced
-        if_not_found: success
-        if_ci_failed: error
-        if_no_uploads: error
+    project: false
     patch:
       default:
         # basic
@@ -24,3 +13,5 @@ coverage:
         if_ci_failed: error
         if_no_uploads: error
 
+  ignore:
+    - "src/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
