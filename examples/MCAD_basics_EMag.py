@@ -17,11 +17,11 @@ if "QT_API" in os.environ:
 # Change this to a location on your PC where you would like to save the model/results files.
 # This folder must exist
 # Make sure the folder path ends in \\
-workingFolder = "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
+working_folder = "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
 
-if os.path.isdir(workingFolder) == False:
+if os.path.isdir(working_folder) == False:
     print("Working folder does not exist. Please choose a folder that exists and try again.")
-    print(workingFolder)
+    print(working_folder)
     exit()
 
 # Initialise ActiveX automation and launch Motor-CAD
@@ -91,7 +91,7 @@ mcad.set_variable("DCBusVoltage", 350)
 mcad.set_variable("PhaseAdvance", 45)
 
 # Save the file
-filename = workingFolder + "ActiveX_Scripting_EMagnetic.mot"
+filename = os.path.join(working_folder, "ActiveX_Scripting_EMagnetic.mot")
 mcad.save_to_file(filename)
 
 # Run the simulation and report success
@@ -99,7 +99,7 @@ mcad.do_magnetic_calculation()
 
 
 # Export data to csv file
-exportFile = workingFolder + "Export_EMag_Results.csv"
+exportFile = os.path.join(working_folder, "Export_EMag_Results.csv")
 try:
     mcad.export_results("EMagnetic", exportFile)
     mcad.show_message("Results successfully exported")
