@@ -13,4 +13,4 @@ coverage:
         if_ci_failed: error
         if_no_uploads: error
   ignore:
-    - "src/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
+    - "src/ansys/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
