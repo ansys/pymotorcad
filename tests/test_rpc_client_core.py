@@ -56,8 +56,6 @@ def test_internal_connection():
     # reset default instance flag
     pymotorcad.rpc_client_core.DEFAULT_INSTANCE = -1
 
-    mc2.quit()
-
 
 # Test opening Motor-CAD with port defined
 def test_open_new_with_port():
