@@ -14,9 +14,11 @@ def setup_test_env():
         mc
     except NameError:
         mc = pymotorcad.MotorCAD()
+        reset_to_default_file(mc)
 
     if mc.is_open() is False:
         mc = pymotorcad.MotorCAD()
+        reset_to_default_file(mc)
 
     # Disable messages if opened with UI
     mc.set_variable("MessageDisplayState", 2)
