@@ -1,6 +1,4 @@
-import pathlib
-
-from RPC_Test_Common import almost_equal
+from RPC_Test_Common import almost_equal, get_dir_path
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -43,7 +41,7 @@ def test_save_load_clear_external_circuit():
     res = mc.get_node_to_node_resistance(3, 4)
     assert res == 150
 
-    save_path = str(pathlib.Path(__file__).parent.resolve()) + "\\test_files\\external_circuit.ecf"
+    save_path = get_dir_path() + "\\test_files\\external_circuit.ecf"
 
     mc.save_external_circuit(save_path)
 
