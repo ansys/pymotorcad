@@ -132,7 +132,7 @@ def test_save_load_magnetisation_curves():
     mc.load_magnetisation_curves(file_path)
     assert mc.get_variable("MaxCurrent_Calculated_MagnetisationCurves") == 5
 
-    reset_to_default_file()
+    reset_to_default_file(mc)
 
 
 def test_save_load_results():
@@ -141,10 +141,12 @@ def test_save_load_results():
     assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
     assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
 
-    reset_to_default_file(mc)
+    mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
 
     mc.load_results("EMagnetic")
     assert mc.get_variable("MaxTorque") != 0
+
+    reset_to_default_file(mc)
 
 
 def test_get_message():
