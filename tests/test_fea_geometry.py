@@ -470,10 +470,10 @@ def test_add_point_custom_material_rt():
 
 
 def test_edit_magnet_region():
+    reset_to_default_file(mc)
+
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
-
-    reset_to_default_file(mc)
 
     material_name = "Y34"
 
