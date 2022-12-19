@@ -81,7 +81,9 @@ jobs:
         
       - name: Ensure Motor-CAD closed
         run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
-      
+
+      - name: Remove temporary test files
+        run: IF exists .\test_files\temp_test_files (rmdir /s /q .\test_files\temp_test_files)
 
   docs:
     name: Documentation

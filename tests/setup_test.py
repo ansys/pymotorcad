@@ -7,7 +7,10 @@ import ansys.motorcad.core as pymotorcad
 def reset_to_default_file(mc):
     mc.load_from_file(get_dir_path() + r"\test_files\base_test_file.mot")
     mc.save_to_file(
-        get_dir_path() + r"\test_files\base_test_file_" + str(threading.get_ident()) + ".mot"
+        get_dir_path()
+        + r"\test_files\temp_test_files\base_test_file_"
+        + str(threading.get_ident())
+        + ".mot"
     )
 
 

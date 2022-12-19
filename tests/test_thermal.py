@@ -30,6 +30,7 @@ def test_set_resistance_multiplier():
 
 
 def test_get_node_to_node_resistance():
+    mc.do_steady_state_analysis()
     res = mc.get_node_to_node_resistance(1, 9)
     assert almost_equal(res, 0.048, 3)
 
