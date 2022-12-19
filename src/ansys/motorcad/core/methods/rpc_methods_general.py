@@ -36,6 +36,11 @@ class _RpcMethodsGeneral:
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
+    def clear_duty_cycle(self):
+        """Clear the duty cycle in both the lab and thermal contexts."""
+        method = "ClearDutyCycle"
+        return self.connection.send_and_receive(method)
+
     def export_matrices(self, directory_path):
         """Save the resistance, power and capacitance matrices to files in the file path.
 
