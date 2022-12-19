@@ -1,6 +1,7 @@
 from time import sleep
 
 from psutil import pid_exists
+import pytest
 
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD
@@ -114,3 +115,10 @@ def test_deleting_object():
     sleep(1)
 
     assert pid_exists(proc_id) is False
+
+
+def test_rpc_communication_error():
+    # raise error by calling method with incorrect params
+    with pytest.raises(Exception) as e_info:
+        mc.connection.send_and_receive("GetVariable", ["var", "extra params", 1])
+        assert "One or more parameter types were invalid" in str(e_info.value)
