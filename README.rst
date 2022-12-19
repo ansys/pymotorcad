@@ -102,7 +102,7 @@ need to follow these steps:
     
         python -m pip install --editable ansys-motorcad-core
     
-    #. Finally, verify your development installation by running:
+#. Finally, verify your development installation by running:
 
     .. code:: bash
         
