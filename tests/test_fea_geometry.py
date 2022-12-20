@@ -477,8 +477,8 @@ def test_edit_magnet_region():
 
     material_name = "Y34"
 
-    mc.edit_magnet_region("L1_1Magnet1", material_name, 63, 7)
-    region = mc._get_region_properties_xy(51, 10)
+    mc.edit_magnet_region("L1_1Magnet2", material_name, 63, 7)
+    region = mc._get_region_properties_xy(62, 35)
 
     # Can't currently access magnet properties except for material name
     # This needs improving in the future

@@ -24,7 +24,7 @@ def test_calculate_test_performance_lab():
 def test_calculate_export_duty_cycle_lab():
     # Automotive cycle
     mc.set_variable("DutyCycleType_Lab", 1)
-    # JPN10 cycle
+    # EUDC cycle
     mc.set_variable("DrivCycle_MotorLab", 4)
 
     mc.calculate_duty_cycle_lab()
@@ -32,13 +32,13 @@ def test_calculate_export_duty_cycle_lab():
     mc.export_duty_cycle_lab()
 
     # Check losses transferred
-    assert almost_equal(mc.get_array_variable("Duty_Cycle_Windage_Loss", 32), 565)
+    assert almost_equal(mc.get_array_variable("Duty_Cycle_Armature_Copper_Loss_DC", 50), 85.28)
 
 
 def test_calculate_operating_point_lab():
     mc.calculate_operating_point_lab()
 
-    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 49.21, 2)
+    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 182.36)
 
 
 def test_calculate_magnetic_lab():

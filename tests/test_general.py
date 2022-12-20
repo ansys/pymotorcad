@@ -19,7 +19,9 @@ def test_save_load_clear_duty_cycle():
     # transient calc type - duty cycle
     mc.set_variable("TransientCalculationType", 1)
 
-    assert almost_equal(mc.get_array_variable("Duty_Cycle_Vehicle_Speed_Start", 20), kh_to_ms(27.5))
+    assert almost_equal(
+        mc.get_array_variable("Duty_Cycle_Vehicle_Speed_Start", 20), kh_to_ms(64.21)
+    )
 
     save_path = get_temp_files_dir_path() + r"\duty_cycle.dat"
     mc.save_duty_cycle(save_path)
@@ -28,7 +30,9 @@ def test_save_load_clear_duty_cycle():
     assert mc.get_variable("Duty_Cycle_Num_Periods") < 2
 
     mc.load_duty_cycle(save_path)
-    assert almost_equal(mc.get_array_variable("Duty_Cycle_Vehicle_Speed_Start", 20), kh_to_ms(27.5))
+    assert almost_equal(
+        mc.get_array_variable("Duty_Cycle_Vehicle_Speed_Start", 20), kh_to_ms(64.21)
+    )
 
     # reset model state
     reset_to_default_file(mc)
@@ -70,24 +74,26 @@ def test_load_dxf_file():
     # this test will work
     # see issue #41
     mc2 = MotorCAD()
-
+    x = 53
+    y = 19
     mc2.show_magnetic_context()
     reset_to_default_file(mc2)
+    mc2.set_variable("MessageDisplayState", 2)
 
     mc2.clear_all_data()
     mc2.initiate_geometry_from_script()
 
     mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-    mc2.add_region_xy(32, 13, "test_region")
+    mc2.add_region_xy(x, y, "test_region")
 
     mc2.create_optimised_mesh()
 
-    region = mc2._get_region_properties_xy(32, 13)
+    region = mc2._get_region_properties_xy(x, y)
 
     # Can't currently access magnet properties except for material name
     # This needs improving in the future
-    assert almost_equal(region["Area"], 113.097)
+    assert almost_equal(region["Area"], 129.3)
 
     mc2.quit()
 

@@ -112,7 +112,7 @@ def test_deleting_object():
     del mc3
 
     # give process some time to fully close
-    sleep(1)
+    sleep(5)
 
     assert pid_exists(proc_id) is False
 

@@ -30,7 +30,7 @@ def test_set_resistance_multiplier():
 def test_get_node_to_node_resistance():
     mc.do_steady_state_analysis()
     res = mc.get_node_to_node_resistance(1, 9)
-    assert almost_equal(res, 0.048, 3)
+    assert almost_equal(res, 0.0043, 3)
 
 
 def test_save_load_clear_external_circuit():
@@ -70,7 +70,7 @@ def test_get_node_power():
     mc.do_steady_state_analysis()
 
     power = mc.get_node_power(397)
-    assert almost_equal(power, 74.4)
+    assert almost_equal(power, 75.2)
 
 
 def test_get_node_temperature():
@@ -86,7 +86,7 @@ def test_get_node_exists():
     assert mc.get_node_exists(2) is True
 
     # doesn't exist for this model
-    assert mc.get_node_exists(1077) is False
+    assert mc.get_node_exists(211) is False
 
     # outside of range
     # assert mc.get_node_exists(5000) is False
