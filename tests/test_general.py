@@ -1,6 +1,7 @@
 import os
 
 from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path
+from ansys.motorcad.core import MotorCAD
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
@@ -65,22 +66,30 @@ def test_export_results():
 
 
 def test_load_dxf_file():
-    mc.show_magnetic_context()
+    # Must currently open new Motor-CAD to ensure
+    # this test will work
+    # see issue #41
+    mc2 = MotorCAD()
 
-    mc.clear_all_data()
-    mc.initiate_geometry_from_script()
+    mc2.show_magnetic_context()
+    reset_to_default_file(mc2)
 
-    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    mc2.clear_all_data()
+    mc2.initiate_geometry_from_script()
 
-    mc.create_optimised_mesh()
+    mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-    mc.add_region_xy(32, 13, "test_region")
+    mc2.add_region_xy(32, 13, "test_region")
 
-    region = mc._get_region_properties_xy(32, 13)
+    mc2.create_optimised_mesh()
+
+    region = mc2._get_region_properties_xy(32, 13)
 
     # Can't currently access magnet properties except for material name
     # This needs improving in the future
     assert almost_equal(region["Area"], 113.097)
+
+    mc2.quit()
 
 
 def test_export_force_animation():
