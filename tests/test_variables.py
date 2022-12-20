@@ -78,3 +78,29 @@ def test_set_array_variable():
     mc.set_array_variable("CustomOutputEnabled_Python", 2, True)
     var = mc.get_array_variable("CustomOutputEnabled_Python", 2)
     assert var is True
+
+
+def test_get_set_array_variable_2d():
+    test_value = 10
+
+    save_value = mc.get_array_variable_2d("ConductorCentre_L_x", 2, 2)
+
+    mc.set_array_variable_2d("ConductorCentre_L_x", 2, 2, test_value)
+
+    var = mc.get_array_variable_2d("ConductorCentre_L_x", 2, 2)
+
+    assert var == test_value
+
+    mc.set_array_variable_2d("ConductorCentre_L_x", 2, 2, save_value)
+
+
+def test_restore_compatibility_settings():
+    test_compatibility_setting = "EWdgAreaCalculation"
+    original_method = 0
+    improved_method = 1
+
+    mc.set_variable(test_compatibility_setting, original_method)
+    assert mc.get_variable(test_compatibility_setting) == original_method
+
+    mc.restore_compatibility_settings()
+    assert mc.get_variable(test_compatibility_setting) == improved_method
