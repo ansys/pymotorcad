@@ -76,8 +76,10 @@ def test_load_dxf_file():
     mc2 = MotorCAD()
     x = 53
     y = 19
-    mc2.show_magnetic_context()
+
     reset_to_default_file(mc2)
+    mc2.show_magnetic_context()
+
     mc2.set_variable("MessageDisplayState", 2)
 
     mc2.clear_all_data()
