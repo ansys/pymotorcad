@@ -87,6 +87,11 @@ class _RpcMethodsUI:
         method = "ShowThermalContext"
         return self.connection.send_and_receive(method)
 
+    def set_motorlab_context(self):
+        """Change Motor-CAD to Lab Context."""
+        method = "SetMotorLABContext"
+        return self.connection.send_and_receive(method)
+
     def display_screen(self, screen_name):
         """Show a screen within Motor-CAD.
 
