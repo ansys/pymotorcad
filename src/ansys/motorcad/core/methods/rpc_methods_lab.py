@@ -85,11 +85,6 @@ class _RpcMethodsLab:
         method = "ClearModelBuild_Lab"
         return self.connection.send_and_receive(method)
 
-    def set_motorlab_context(self):
-        """Change Motor-CAD to Lab Context."""
-        method = "SetMotorLABContext"
-        return self.connection.send_and_receive(method)
-
     def build_model_lab(self):
         """Build the Lab model."""
         method = "BuildModel_Lab"

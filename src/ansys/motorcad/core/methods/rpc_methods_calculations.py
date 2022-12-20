@@ -5,11 +5,6 @@ class _RpcMethodsCalculations:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
-    def clear_duty_cycle(self):
-        """Clear the duty cycle in both the lab and thermal contexts."""
-        method = "ClearDutyCycle"
-        return self.connection.send_and_receive(method)
-
     def do_magnetic_thermal_calculation(self):
         """Carry out coupled e-magnetic and thermal calculation."""
         method = "DoMagneticThermalCalculation"
