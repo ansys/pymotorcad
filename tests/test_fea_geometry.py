@@ -4,7 +4,7 @@ import pytest
 
 from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from setup_test import get_temp_files_dir_path, reset_to_default_file, setup_test_env
+from setup_test import get_temp_files_dir_path, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -15,6 +15,12 @@ MATERIAL_EPOXY = "Epoxy"
 # Invalid coordinates - never expect motor to be this large
 X_INVALID = 10000000
 Y_INVALID = 10000000
+
+
+def reset_model_geometry():
+    mc.reset_regions()
+    mc.set_variable("UseDXFImportForFEA_Magnetic", False)
+
 
 # Draw square with centre at 5,5
 def draw_square():
@@ -66,6 +72,7 @@ def test_add_line_xy():
     region = mc._get_region_properties_xy(5, 5)
 
     assert almost_equal(region["Area"], 100)
+    reset_model_geometry()
 
 
 def test_add_line_rt():
@@ -99,6 +106,7 @@ def test_add_line_rt():
     region = mc._get_region_properties_xy(5, 5)
 
     assert almost_equal(region["Area"], 100)
+    reset_model_geometry()
 
 
 def test_add_arc_xy():
@@ -126,6 +134,7 @@ def test_add_arc_xy():
     region = mc._get_region_properties_xy(10, 10)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
+    reset_model_geometry()
 
 
 def test_add_arc_rt():
@@ -156,6 +165,7 @@ def test_add_arc_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
+    reset_model_geometry()
 
 
 def test_add_arc_centre_start_end_xy():
@@ -187,6 +197,7 @@ def test_add_arc_centre_start_end_xy():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
+    reset_model_geometry()
 
 
 def test_add_arc_centre_start_end_rt():
@@ -220,6 +231,7 @@ def test_add_arc_centre_start_end_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert almost_equal(region["Area"], pi * pow(radius, 2))
+    reset_model_geometry()
 
 
 def test_add_region_xy():
@@ -249,6 +261,7 @@ def test_add_region_xy():
         mc.add_region_xy(X_INVALID, Y_INVALID, region_name)
 
     assert "Could not find region" in str(e_info.value)
+    reset_model_geometry()
 
 
 def test_add_region_rt():
@@ -274,6 +287,7 @@ def test_add_region_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
+    reset_model_geometry()
 
 
 # Draw region that can be added as a magnet
@@ -351,6 +365,7 @@ def test_add_magnet_region_xy():
         )
 
     assert "is not a magnet material" in str(e_info.value)
+    reset_model_geometry()
 
 
 def test_add_magnet_region_rt():
@@ -383,6 +398,7 @@ def test_add_magnet_region_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == magnet_name
+    reset_model_geometry()
 
 
 def test_get_region_properties_xy():
@@ -437,6 +453,7 @@ def test_add_point_custom_material_xy():
         mc.add_point_custom_material_xy(x_c, y_c, region_name, MATERIAL_INVALID_NAME, colour)
 
     assert "Material does not exist in database" in str(e_info.value)
+    reset_model_geometry()
 
 
 def test_add_point_custom_material_rt():
@@ -467,11 +484,10 @@ def test_add_point_custom_material_rt():
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
     assert hex(region["Colour"]) == colour_code
+    reset_model_geometry()
 
 
 def test_edit_magnet_region():
-    reset_to_default_file(mc)
-
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -483,6 +499,7 @@ def test_edit_magnet_region():
     # Can't currently access magnet properties except for material name
     # This needs improving in the future
     assert region["MaterialName"] == material_name
+    reset_model_geometry()
 
 
 def test_get_region_value():
@@ -499,3 +516,4 @@ def test_get_region_value():
 
     assert almost_equal(value, 0.00138, 4)
     assert almost_equal(area, 0.00181, 4)
+    reset_model_geometry()
