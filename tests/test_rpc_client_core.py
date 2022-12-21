@@ -48,7 +48,7 @@ def test_internal_connection():
 
     port = mc.connection._port
 
-    pymotorcad.rpc_client_core.DEFAULT_INSTANCE = port
+    pymotorcad.rpc_client_core.set_default_instance(port)
 
     mc2 = MotorCAD()
 

@@ -64,6 +64,12 @@ class _RpcMethodsGeometry:
     def check_if_geometry_is_valid(self, edit_geometry):
         """Check if Motor-CAD geometry is valid.
 
+        Parameters
+        ----------
+        edit_geometry : int
+            Allow Motor-CAD to try and reset geometry within constraints is geometry is not valid
+            1 - True
+            0 - False
         Returns
         -------
         int
