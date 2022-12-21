@@ -1,3 +1,5 @@
+import time
+
 from ansys.motorcad.core import MotorCADCompatibility
 from setup_test import setup_test_env
 
@@ -6,6 +8,9 @@ mc = setup_test_env()
 
 # Check MotorCADCompatibility object working as expected
 def test_motorcadcompatibility():
+    # Ensure Motor-CAD has opened successfully
+    time.sleep(5)
+
     mc2 = MotorCADCompatibility()
 
     # should have connected to open instance
