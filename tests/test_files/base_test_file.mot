@@ -5,7 +5,7 @@ Program_Version=2023.1.1.1
 Licence_Name_Line1=1055@localhost
 User=jdavies
 Licence_System=Ansys
-File_Date=20/12/2022 15:36:55
+File_Date=21/12/2022 10:53:34
 Title=e1
 Partial_file=False
 
@@ -1261,26 +1261,26 @@ Notes_-_Cooling_Options[1]=Type in user Cooling notes here
 Notes_-_Losses[1]=Type in user Losses notes here        
 
 [Calc_Data_Keys]
-[1]=5C5E5D540D44435155585F000E5E4E5257594B5A170C1A0454025B5957584556550A5A555550545A06035A5C465253545D170E010542075E4150
-[2]=5C5E5D540D44435155585F000E5E2A3C363900225F0C000C4506434053585C50560F5C
-[3]=5C5E5D540D44435155585F000E5E1A012D5E5151080D1A0341035B42555F5C
-[4]=5C5E5D540D44435155585F000E5E2F3A1F0F283A7E6E6C6C3E752221212D1C34324D282F1D363C2E070D515F47485C50580F0C070242
-[5]=5C5E5D540D44435155585F000E5E04033038270D6D69645E1B40000712041D1E330C5E4C5550405D06095E5A41515C
-[6]=5C5E5D540D44435155585F000E5E3E1414261D057E7F586C04500A2114262F210077001C2612201E596C011C2A223F07185C7D707E117C0F00245C5E5D540D44435155585F000E5E
-[7]=5C5E5D540D44435155585F000E5E16342B3E1131505650673546003229043D3C216E3B3E160409017E5D0E0914321906216B6A4459155B1D07361F5E505C095F5B52505E5D070A5F58
-[8]=5C5E5D540D44435155585F000E5E3833010D170F5C7C5C6D1B07594F575D445250085C41575258
-[9]=5C5E5D540D44435155585F000E5E24002B0104304C56505607652E05113827150140020107063433495A2A2A1B0402270A634A4D01400A5C43485E5F54530C594252
-[10]=5C5E5D540D44435155585F000E5E031817182901507151672E7F04062E0E2E0B0173192C3C2F1A135D7F1D0C465253545D170E010542075E4150
-[11]=5C5E5D540D44435155585F000E5E051C362308264F57427E3A07594F575D445250085C41575258
-[12]=5C5E5D540D44435155585F000E5E2C2205293C3D7E4A427A1B592C17003F2F333F4C3B22110A170F5478315A465F5B50460F0D040340005A40
-[13]=5C5E5D540D44435155585F000E5E3C08005E5151080D1A0341035B42555F5C
-[14]=5C5E5D540D44435155585F000E5E3620222E073949737F58115120322021332F09540F41505C5F5E1D0F5D5E445259525E
-[15]=5C5E5D540D44435155585F000E5E14211E29101A786F73730C7408010D380C27365E2F1B0C323F0574562A1B34525E5C590C16020044055945515E
-[16]=5C5E5D540D44435155585F000E5E21033E0D242E4C74797123770C4252515B514B0E5F4552515D5C05
-[17]=5C5E5D540D44435155585F000E5E163E253E28235840584C216B2C3B040B190737682F263C280213745C2E22113227151C0D0C0D04411D5B43565E5E57520E
-[18]=5C5E5D540D44435155585F000E5E2027030C071B5B7B565201551E4252515B514B0E5F4552515D5C05
-[19]=5C5E5D540D44435155585F000E5E07465253545D170E010542075E4150
-[20]=5C5E5D540D44435155585F000E5E2206051D361C607972731F632405141D211E157F250D331D2D3D4B6A181D1C10090E5C0D0105005A055846505C595353
+[1]=5C5E5D540E44415156565C030B5B4E5257594B5A170C1A0454025B5957584556550A5A555550545A06035A5C465253545E170C01064C045D4455
+[2]=5C5E5D540E44415156565C030B5B2A0430292E0C6D716179045A053A151D38172D7E2F1C37042005525E0616340A01515C0009021B40065E4E51585857
+[3]=5C5E5D540E44415156565C030B5B2033243913016C707B4317623E0F2F2F3B2A200C5E4C5553405F060A5059425459
+[4]=5C5E5D540E44415156565C030B5B0022203D3125497462712377282F2C3A070724593A203C2609247F5F0B24172A06080D69544501400A5C40485C5F575D0F5A4757
+[5]=5C5E5D540E44415156565C030B5B1601321B2905607766573550152434011D31376227055051575A05175C5B415E5D555A0A
+[6]=5C5E5D540E44415156565C030B5B3436132E2A110D0C0D04421D594355505D54570B
+[7]=5C5E5D540E44415156565C030B5B1B13241C241A404847710C641C39072D262C036D5E415D545845070C5B5645565856
+[8]=5C5E5D540E44415156565C030B5B3A07162E111E587D526F156B0821525C535553165E40575D595B010A
+[9]=5C5E5D540E44415156565C030B5B3C031302313D6F72656419561B171E3E240D307B1C020D29221E6160051F465253545E170C01064C045D4455
+[10]=5C5E5D540E44415156565C030B5B18033C09300976544C6D1F552E131F2C210006591B271E17213E67601C3F10321C272960415C4316520127042A065051015B434A515B580B0E585C41
+[11]=5C5E5D540E44415156565C030B5B2216070F1C2F6D5B5A603E743C3F2E001003034B2F0F1C0125287F433E3F38301F342954625A413F671F1D2F041032150C5E4C5553405F060A5059425459
+[12]=5C5E5D540E44415156565C030B5B063E1E1A1230534A6750225714332318252131513A2F08363A036743395A465F5B53460D0D070D43035F45
+[13]=5C5E5D540E44415156565C030B5B2518040300124141407F187559425F595C4A510D594D53555C58
+[14]=5C5E5D540E44415156565C030B5B1F3D1E261427497473711A722B39370B1C351F552900163D142A7848061B110F39515C0009021B40065E4E51585857
+[15]=5C5E5D540E44415156565C030B5B0A222520353E6D714E721F610E270C323D11030C5E4C5553405F060A5059425459
+[16]=5C5E5D540E44415156565C030B5B091A25190D3D5573666603562B22091B1B3E126E383E13111E254A5A0D1A313C2C023C405D534C2D6B344252515B524B0C5F465C525E5900
+[17]=5C5E5D540E44415156565C030B5B0D332D082F016A7500014D025B58525D595C52085846
+[18]=5C5E5D540E44415156565C030B5B1C152906211A4E5966633E723C3B2F0D260323793D322C222A2C497D243F1E0D24141F754060721C452C30043107070B595E415D545845070C5B5645565856
+[19]=5C5E5D540E44415156565C030B5B3919303F3D1161717001400A5C40485C5F575D0F5A4757
+[20]=5C5E5D540E44415156565C030B5B16360D252B3D49745C7211691E1C25061B140276243812102921767B0D17072B3F0E327F6A716C32402706172A213D310C5E4C5553405F060A5059425459
 
 [Transient_Notes]
 Notes_-_Transient_Data[1]=US06 Drive Cycle
@@ -4725,7 +4725,119 @@ Script[74]='  excel.cells(1,1).value = "temperature"
 Script[75]='End Function
 
 [Python_Scripting]
-ScriptLines_Python=0
+ScriptLines_Python=112
+Python_Script[0]="# ---------- DEMO SCRIPT ----------"
+Python_Script[1]=""
+Python_Script[2]="# Need to import pymotorcad to access Motor-CAD"
+Python_Script[3]="import ansys.motorcad.core as pymotorcad"
+Python_Script[4]=""
+Python_Script[5]="# Connect to Motor-CAD"
+Python_Script[6]="mcApp = pymotorcad.MotorCAD()"
+Python_Script[7]=""
+Python_Script[8]=""
+Python_Script[9]="# This function is called when ""Run"" is pressed"
+Python_Script[10]="def main():"
+Python_Script[11]="    # We can use main to test functions before running a calculation"
+Python_Script[12]="    # e.g. running thermal steady initial function"
+Python_Script[13]="    mcApp.set_variable(""tooth_width"", 6.5)"
+Python_Script[14]=""
+Python_Script[15]=""
+Python_Script[16]="# demo function which sets tooth_width and runs thermal calculations"
+Python_Script[17]="def demo_func():"
+Python_Script[18]="    array_tooth_widths = [1, 1.5, 2.0]"
+Python_Script[19]=""
+Python_Script[20]="    # set all messages to display in a separate window"
+Python_Script[21]="    # Warning: this will disable crucial popups e.g. prompts to save files, overwrite data etc"
+Python_Script[22]="    # Please ensure this is the behaviour you want"
+Python_Script[23]="    mcApp.set_variable(""MessageDisplayState"", 2)"
+Python_Script[24]=""
+Python_Script[25]="    for toothWidth in array_tooth_widths:"
+Python_Script[26]="        mcApp.show_message(""Tooth width = "" + str(toothWidth))"
+Python_Script[27]="        mcApp.set_variable(""Tooth_Width"", toothWidth)"
+Python_Script[28]="        mcApp.do_steady_state_analysis()"
+Python_Script[29]="        temperature = mcApp.get_variable(""T_[WINDING_AVERAGE]"", )"
+Python_Script[30]="        mcApp.show_message(""Winding temperature = "" + str(temperature))"
+Python_Script[31]=""
+Python_Script[32]="        # restore the message dialogs"
+Python_Script[33]="    mcApp.set_variable(""MessageDisplayState"", 0)"
+Python_Script[34]=""
+Python_Script[35]=""
+Python_Script[36]="# ---------- FUNCTIONS RUN DURING CALCULATIONS ----------"
+Python_Script[37]="# These will only run if using ""Run During Analysis"" selected"
+Python_Script[38]="# (Scripting -> Settings -> Run During Analysis)"
+Python_Script[39]=""
+Python_Script[40]="# If ""Run During Analysis"" is selected then this script will be imported."
+Python_Script[41]="# This means that anything other than setting up the MotorCAD object should"
+Python_Script[42]="# be moved to a function/class to avoid unexpected behaviour"
+Python_Script[43]=""
+Python_Script[44]="# This class contains functions for steady-state thermal calculations"
+Python_Script[45]="class thermal_steady():"
+Python_Script[46]="    def initial(self):"
+Python_Script[47]="        # Called before calculation"
+Python_Script[48]="        self.step = 0"
+Python_Script[49]="        print('Thermal Steady State - Initial')"
+Python_Script[50]=""
+Python_Script[51]="    def main(self):"
+Python_Script[52]="        # Called before each time step in calculation"
+Python_Script[53]="        self.step = self.step + 1"
+Python_Script[54]="        print('Step: ' + str(self.step) + '. Thermal Steady State - Main')"
+Python_Script[55]=""
+Python_Script[56]="    def final(self):"
+Python_Script[57]="        # Called after calculation"
+Python_Script[58]="        print('Thermal Steady State - Final')"
+Python_Script[59]=""
+Python_Script[60]="    # This class contains functions for trasient thermal calculations"
+Python_Script[61]=""
+Python_Script[62]=""
+Python_Script[63]="class thermal_transient():"
+Python_Script[64]="    def initial(self):"
+Python_Script[65]="        # Called before calculation"
+Python_Script[66]="        self.step = 0"
+Python_Script[67]="        print('Thermal Transient - Initial')"
+Python_Script[68]=""
+Python_Script[69]="    def main(self):"
+Python_Script[70]="        # Called before each time step in calculation"
+Python_Script[71]="        self.step = self.step + 1"
+Python_Script[72]="        print('Step: ' + str(self.step) + '. Thermal Transient State - Main')"
+Python_Script[73]=""
+Python_Script[74]="    def final(self):"
+Python_Script[75]="        # Called after calculation"
+Python_Script[76]="        print('Thermal Transient - Final')"
+Python_Script[77]=""
+Python_Script[78]="    # This class contains functions for E-Magnetic calculations"
+Python_Script[79]=""
+Python_Script[80]=""
+Python_Script[81]="class emagnetic():"
+Python_Script[82]="    def initial(self):"
+Python_Script[83]="        # Called before calculation"
+Python_Script[84]="        print('E-Magnetic - Initial')"
+Python_Script[85]=""
+Python_Script[86]="    def final(self):"
+Python_Script[87]="        # Called after calculation"
+Python_Script[88]="        print('E-Magnetic - Final')"
+Python_Script[89]=""
+Python_Script[90]=""
+Python_Script[91]="# This class contains functions for Mechanical Stress calculations"
+Python_Script[92]="class mechanical_stress():"
+Python_Script[93]="    def initial(self):"
+Python_Script[94]="        # Called before calculation"
+Python_Script[95]="        print('Mech Stress - Initial')"
+Python_Script[96]=""
+Python_Script[97]="    def final(self):"
+Python_Script[98]="        # Called after calculation"
+Python_Script[99]="        print('Mech Stress - Final')"
+Python_Script[100]=""
+Python_Script[101]=""
+Python_Script[102]="# This class contains functions for Mechanical Forces calculations"
+Python_Script[103]="class mechanical_forces():"
+Python_Script[104]="    def initial(self):"
+Python_Script[105]="        # Called before calculation"
+Python_Script[106]="        print('Mech Forces - Initial')"
+Python_Script[107]=""
+Python_Script[108]="    def final(self):"
+Python_Script[109]="        # Called after calculation"
+Python_Script[110]="        print('Mech Forces - Final')"
+Python_Script[111]=""
 
 [Loss_Current_Values]
 StatorCopperLossesbyCurrent=False

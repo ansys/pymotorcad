@@ -13,27 +13,23 @@ def test_show_message():
     assert test_message in message
 
 
+# Difficult to check these tests have actually worked
+# These might raise an exception if they fail
+
+
 def test_show_magnetic_context():
-    # Difficult to check this has actually worked
-    # These might raise an exception if they fail
     mc.show_magnetic_context()
 
 
 def test_show_mechanical_context():
-    # Difficult to check this has actually worked
-    # These might raise an exception if they fail
     mc.show_mechanical_context()
 
 
 def test_show_thermal_context():
-    # Difficult to check this has actually worked
-    # These might raise an exception if they fail
     mc.show_thermal_context()
 
 
 def test_set_motorlab_context():
-    # Difficult to check this has actually worked
-    # These might raise an exception if they fail
     mc.set_motorlab_context()
 
 
@@ -53,6 +49,9 @@ def test_display_screen():
 
 
 def test_set_3d_component_visibility():
-    # Difficult to check this has actually worked
-    # These might raise an exception if they fail
     mc.set_3d_component_visibility("stator", "winding", 0)
+
+
+def test_set_visible():
+    mc.set_visible(False)
+    mc.set_visible(True)
