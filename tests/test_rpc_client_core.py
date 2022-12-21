@@ -60,7 +60,7 @@ def test_internal_connection():
 
 # Test opening Motor-CAD with port defined
 def test_open_new_with_port():
-    test_port = 5555
+    test_port = 36020
 
     mc2 = MotorCAD(open_new_instance=True, port=test_port)
 
