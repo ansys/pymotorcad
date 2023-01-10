@@ -409,14 +409,6 @@ class _RpcMethodsGeneral:
         params = [num_messages]
         return self.connection.send_and_receive(method, params)
 
-    def get_license(self):
-        """Check if there is a licence available for the current context and machine type.
-
-        The licence is checked out if available.
-        """
-        method = "GetLicence"
-        return self.connection.send_and_receive(method)
-
     def clear_message_log(self):
         """Clear the message log file for the current model."""
         method = "ClearMessageLog"

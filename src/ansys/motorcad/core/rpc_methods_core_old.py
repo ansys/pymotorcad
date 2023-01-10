@@ -21,6 +21,7 @@ def deprecation_warning(old_name, new_name):
 
 class _RpcMethodsCoreOld:
     def __init__(self, mc_connection):
+        self.connection = mc_connection
         self.new_methods = _RpcMethodsCore(mc_connection)
         self.internal_methods = _RpcMethodsInternal(mc_connection)
 
@@ -106,8 +107,8 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def GetLicence(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.get_license`."""
-        replacement_function = self.new_methods.get_license
+        """Deprecated function."""
+        replacement_function = self.connection._get_license
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 

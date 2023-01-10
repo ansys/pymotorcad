@@ -190,8 +190,11 @@ class _MotorCADConnection:
         # Check for response
         if self._wait_for_response(2) is True:
             self._connected = True
-            # Store Motor-CAD version number for any required backwards compatibility
 
+            # Check that Motor-CAD has a license
+            self._get_license()
+
+            # Store Motor-CAD version number for any required backwards compatibility
             self.program_version = self._get_program_version()
 
         else:
@@ -447,4 +450,12 @@ class _MotorCADConnection:
     def quit(self):
         """Quit MotorCAD."""
         method = "Quit"
+        return self.send_and_receive(method)
+
+    def _get_license(self):
+        """Check if there is a licence available for the current context and machine type.
+
+        The licence is checked out if available.
+        """
+        method = "GetLicence"
         return self.send_and_receive(method)
