@@ -412,6 +412,13 @@ class _RpcMethodsGeneral:
     def get_license(self):
         """Check if there is a licence available for the current context and machine type.
 
+        Deprecated function. Replaced by :func:`MotorCAD.get_licence`.
+        """
+        return self.get_licence()
+
+    def get_licence(self):
+        """Check if there is a licence available for the current context and machine type.
+
         The licence is checked out if available.
         """
         method = "GetLicence"

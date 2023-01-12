@@ -106,8 +106,8 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def GetLicence(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.get_license`."""
-        replacement_function = self.new_methods.get_license
+        """Deprecated function. Replaced by :func:`MotorCAD.get_licence`."""
+        replacement_function = self.new_methods.get_licence
         deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
