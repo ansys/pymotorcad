@@ -174,3 +174,8 @@ def test_get_message():
     messages = mc.get_messages(3)
     assert "test1" in messages
     assert "test3" in messages
+
+
+def test_get_licence():
+    # Check this doesn't throw an error
+    mc.get_licence()
