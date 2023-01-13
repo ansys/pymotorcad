@@ -17,10 +17,9 @@ print("Start Initialisation")
 mcad = pymotorcad.MotorCAD()
 
 # Open relevant file
-workingFolder = "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
+working_folder = r"C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
 mcad_name = "e8_eMobility"
-filename = workingFolder + mcad_name + ".mot"
-mcad.load_from_file(filename)
+mcad.load_from_file(os.path.join(working_folder, mcad_name, ".mot"))
 
 # Disable all popup messages from Motor-CAD
 mcad.set_variable("MessageDisplayState", 2)
@@ -61,7 +60,7 @@ except MotorCADError:
 
 
 # Retrieve results
-data = scipy.io.loadmat(workingFolder + mcad_name + "/Lab/MotorLAB_elecdata.mat")
+data = scipy.io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
 Speed = data["Speed"]
 ShaftTorque = data["Shaft_Torque"]
 ShaftPower = data["Shaft_Power"]
@@ -77,7 +76,7 @@ plt.plot(Speed, ShaftPower)
 plt.xlabel("Speed")
 plt.ylabel("Shaft Power")
 plt.show(block=False)
-plt.savefig(workingFolder + "Maximum Torque VS Speed Curve.png")
+plt.savefig(os.apth.join(working_folder, "Maximum Torque VS Speed Curve.png"))
 
 # Set Operating Point Calculation Options
 mcad.set_variable("OpPointSpec_MotorLAB", 1)

@@ -27,6 +27,7 @@ class _RpcMethodsCore(
     _RpcMethodsThermal,
     _RpcMethodsInternalScripting,
     _RpcMethodsFEAGeometry,
+    _RpcMethodsMaterials,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection

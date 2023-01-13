@@ -8,8 +8,10 @@ mc = setup_test_env()
 def test_get_magnetic_graph_point():
     reset_to_default_file(mc)
 
+    mc.set_variable("TorqueCalculation", True)
+
     mc.do_magnetic_calculation()
 
     x, y = mc.get_magnetic_graph_point("TorqueVW", 3)
-    assert almost_equal(x, 180)
-    assert almost_equal(y, 78.436)
+    assert almost_equal(x, 360)
+    assert almost_equal(y, 180.14)
