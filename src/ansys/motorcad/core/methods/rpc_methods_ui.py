@@ -78,7 +78,10 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method)
 
     def show_mechanical_context(self):
-        """Show mechanical context in Motor-CAD."""
+        """Show mechanical context in Motor-CAD.
+
+        Additional documentation
+        """
         method = "ShowMechanicalContext"
         return self.connection.send_and_receive(method)
 
