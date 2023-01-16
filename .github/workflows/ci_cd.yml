@@ -85,6 +85,13 @@ jobs:
       - name: Generate the documentation with tox
         run: tox -e doc
 
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
+
   doc-deploy:
     name: "Deploy development documentation"
     runs-on: ubuntu-latest
