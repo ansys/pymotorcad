@@ -10,7 +10,8 @@ on:
 env:
   MAIN_PYTHON_VERSION: '3.7'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  
+  DOCUMENTATION_CNAME: 'geometry.docs.pyansys.com'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -93,7 +94,7 @@ jobs:
       - name: "Deploy development documentation"
         uses: pyansys/actions/doc-deploy-dev@v2
         with:
-          cname: ${{ env.CNAME }}
+          cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
 
