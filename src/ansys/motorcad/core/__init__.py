@@ -1,6 +1,6 @@
 """motorcad.core."""
 
-__version__ = "0.1.dev0"
+__version__ = "0.1.dev2"
 
 from ansys.motorcad.core.MotorCAD_Methods import MotorCAD, MotorCADCompatibility
 from ansys.motorcad.core.rpc_client_core import (
