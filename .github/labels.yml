@@ -25,3 +25,7 @@
 - name: release
   description: Anything related to an incoming release
   color: ffffff
+
+- name: Core API
+  description: Requires changes to Motor-CAD API. (Needs to be done by Motor-CAD development team)
+  color: 800080
