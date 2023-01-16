@@ -84,6 +84,18 @@ jobs:
       - name: Generate the documentation with tox
         run: tox -e doc
 
+  doc-deploy:
+    name: "Deploy development documentation"
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: doc-build
+    steps:
+      - name: "Deploy development documentation"
+        uses: pyansys/actions/doc-deploy-dev@v2
+        with:
+          cname: ${{ env.CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
 
   build:
     name: Build library
