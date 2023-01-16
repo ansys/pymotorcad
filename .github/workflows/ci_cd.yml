@@ -10,7 +10,7 @@ on:
 env:
   MAIN_PYTHON_VERSION: '3.7'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  DOCUMENTATION_CNAME: 'geometry.docs.pyansys.com'
+  DOCUMENTATION_CNAME: 'motorcad.docs.pyansys.com'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
