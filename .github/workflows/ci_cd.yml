@@ -10,7 +10,8 @@ on:
 env:
   MAIN_PYTHON_VERSION: '3.7'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  
+  DOCUMENTATION_CNAME: 'motorcad.docs.pyansys.com'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -83,6 +84,25 @@ jobs:
           python -m pip install --upgrade pip tox
       - name: Generate the documentation with tox
         run: tox -e doc
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
+
+  doc-deploy:
+    name: "Deploy development documentation"
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: doc-build
+    steps:
+      - name: "Deploy development documentation"
+        uses: pyansys/actions/doc-deploy-dev@v2
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 
   build:
