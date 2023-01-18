@@ -1,4 +1,7 @@
+import pytest
+
 from RPC_Test_Common import almost_equal, get_dir_path
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -89,4 +92,9 @@ def test_get_node_exists():
     assert mc.get_node_exists(211) is False
 
     # outside of range
-    # assert mc.get_node_exists(5000) is False
+    assert mc.get_node_exists(5000) is False
+
+    # non-integer value
+    with pytest.raises(MotorCADError) as e_info:
+        mc.get_node_exists(0.5)
+    assert "nodeNumber: Integer" in str(e_info.value)

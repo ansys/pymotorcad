@@ -1,4 +1,5 @@
 """RPC methods for Motor-CAD Thermal."""
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class _RpcMethodsThermal:
@@ -160,7 +161,15 @@ class _RpcMethodsThermal:
         """
         method = "GetNodeExists"
         params = [node_number]
-        node_exists = self.connection.send_and_receive(method, params, success_var=False)
+        # node_exists = self.connection.send_and_receive(method, params, success_var=False)
+        try:
+            node_exists = self.connection.send_and_receive(method, params, success_var=False)
+        except MotorCADError as e:
+            if "Range check error" in str(e):
+                node_exists = False
+            else:
+                raise
+
         return node_exists
 
     def get_offset_node_number(self, node_number, slice_number, cuboid_number):
