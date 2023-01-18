@@ -9,6 +9,14 @@ import time
 import psutil
 import requests
 
+try:
+    import ansys.platform.instancemanagement as pypim
+
+    _HAS_PIM = True
+except ModuleNotFoundError:
+    _HAS_PIM = False
+
+
 DETACHED_PROCESS = 0x00000008
 CREATE_NEW_PROCESS_GROUP = 0x00000200
 
@@ -172,27 +180,21 @@ class _MotorCADConnection:
         if self.reuse_parallel_instances is True:
             self._open_new_instance = False
 
-        if self._open_new_instance is True:
-            if port != -1:
-                self._port = int(port)
-
-            self._open_motor_cad_local()
-
-        else:  # (self._open_new_instance == False)
-            if port != -1:
-                self._port = int(port)
-
-            else:  # port is not defined
-                self._find_free_motor_cad()
-
-        self.pid = self.get_process_id()
+        if _HAS_PIM and pypim.is_configured():
+            # Start with PyPIM if the environment is configured for it
+            self._launch_motorcad_remote()
+        else:
+            # run/connect to motor-cad on local machine
+            self._launch_motorcad_local(port)
 
         # Check for response
         if self._wait_for_response(2) is True:
             self._connected = True
-            # Store Motor-CAD version number for any required backwards compatibility
 
+            # Store Motor-CAD version number for any required backwards compatibility
             self.program_version = self._get_program_version()
+
+            self.pid = self.get_process_id()
 
         else:
             raise MotorCADError(
@@ -217,6 +219,39 @@ class _MotorCADConnection:
                     # Don't raise exception at this point
                     # Motor-CAD might already have been closed by user
                     pass
+
+    def _launch_motorcad_local(self, port):
+        if self._open_new_instance is True:
+            if port != -1:
+                self._port = int(port)
+
+            self._open_motor_cad_local()
+
+        else:  # (self._open_new_instance == False)
+            if port != -1:
+                self._port = int(port)
+
+            else:  # port is not defined
+                self._find_free_motor_cad()
+
+    def _launch_motorcad_remote(self):
+        """Launch Motor-CAD in Ansys Lab."""
+        pim = pypim.connect()
+
+        instance = pim.create_instance(product_name="motorcad")
+        instance.wait_for_ready()
+
+        # get ip and port for motorcad
+        address = instance.services["http"].uri
+
+        ip = address.split(":")[0] + ":" + address.split(":")[1]
+        set_server_ip(ip)
+
+        self.port = address.split(":")[2]
+
+        # Wait for Motor-CAD RPC server to start on remote machine - this might take a few minutes
+        if self._wait_for_response(300) is False:
+            raise MotorCADError("Failed to connect to Motor-CAD instance on: " + address)
 
     def _raise_if_allowed(self, error_message):
         if self.enable_exceptions is True:
@@ -246,7 +281,7 @@ class _MotorCADConnection:
 
         motor_util = psutil.Process(pid)
 
-        self._wait_for_server_to_start(motor_util)
+        self._wait_for_server_to_start_local(motor_util)
 
     def _find_free_motor_cad(self):
         found_free_instance = False
@@ -284,7 +319,7 @@ class _MotorCADConnection:
                     + "\n Ensure that Motor-CAD RPC server is enabled"
                 )
 
-    def _wait_for_server_to_start(self, process):
+    def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
         timeout = 300  # in seconds
         # Don't poll this too much
