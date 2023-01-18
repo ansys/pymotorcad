@@ -208,7 +208,7 @@ class _MotorCADConnection:
         """Close Motor-CAD when MotorCAD object leaves memory."""
         if self._close_motorcad_on_exit():
             try:
-                self.quit()
+                self._quit()
             except Exception:
                 # Don't raise exception at this point
                 # Motor-CAD might already have been closed by user
@@ -251,7 +251,6 @@ class _MotorCADConnection:
 
         self.pim_instance = pim.create_instance(product_name="motorcad")
         self.pim_instance.wait_for_ready()
-
         # get ip and port for motorcad
         address = self.pim_instance.services["http"].uri
 
@@ -490,7 +489,7 @@ class _MotorCADConnection:
         """
         return self._last_error_message
 
-    def quit(self):
+    def _quit(self):
         """Quit MotorCAD."""
         if self.pim_instance is not None:
             self.pim_instance.delete()
