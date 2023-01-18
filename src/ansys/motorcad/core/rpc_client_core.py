@@ -172,6 +172,8 @@ class _MotorCADConnection:
 
         self._compatibility_mode = compatibility_mode
 
+        self.pim_instance = None
+
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
