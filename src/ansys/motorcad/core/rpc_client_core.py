@@ -206,21 +206,32 @@ class _MotorCADConnection:
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
-        if self._connected is True:
-            if (
-                (self.reuse_parallel_instances is False)
-                and (self._open_new_instance is True)
-                and (self._compatibility_mode is False)
-            ):
-                # Close Motor-CAD if not asked to keep open
-                try:
-                    self.quit()
-                except Exception:
-                    # Don't raise exception at this point
-                    # Motor-CAD might already have been closed by user
-                    pass
+        if self._close_motorcad_on_exit():
+            try:
+                self.quit()
+            except Exception:
+                # Don't raise exception at this point
+                # Motor-CAD might already have been closed by user
+                pass
 
+    def _close_motorcad_on_exit(self):
+        """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
+        if (
+            (self.reuse_parallel_instances is False)
+            and (self._open_new_instance is True)
+            and (self._compatibility_mode is False)
+        ):
+            # Local Motor-CAD has been launched by Python
+            return True
+        elif _HAS_PIM and pypim.is_configured():
+            # Always try to close Ansys Lab instance
+            return True
+        else:
+            return False
+
+    # Close Motor-CAD if not asked to keep open
     def _launch_motorcad_local(self, port):
+        """Launch local Motor-CAD instance."""
         if self._open_new_instance is True:
             if port != -1:
                 self._port = int(port)
@@ -238,16 +249,16 @@ class _MotorCADConnection:
         """Launch Motor-CAD in Ansys Lab."""
         pim = pypim.connect()
 
-        instance = pim.create_instance(product_name="motorcad")
-        instance.wait_for_ready()
+        self.pim_instance = pim.create_instance(product_name="motorcad")
+        self.pim_instance.wait_for_ready()
 
         # get ip and port for motorcad
-        address = instance.services["http"].uri
+        address = self.pim_instance.services["http"].uri
 
         ip = address.split(":")[0] + ":" + address.split(":")[1]
         set_server_ip(ip)
 
-        self.port = address.split(":")[2]
+        self._port = address.split(":")[2]
 
         # Wait for Motor-CAD RPC server to start on remote machine - this might take a few minutes
         if self._wait_for_response(300) is False:
@@ -481,5 +492,9 @@ class _MotorCADConnection:
 
     def quit(self):
         """Quit MotorCAD."""
-        method = "Quit"
-        return self.send_and_receive(method)
+        if self.pim_instance is not None:
+            self.pim_instance.delete()
+        else:
+            # local machine
+            method = "Quit"
+            return self.send_and_receive(method)
