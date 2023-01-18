@@ -161,7 +161,6 @@ class _RpcMethodsThermal:
         """
         method = "GetNodeExists"
         params = [node_number]
-        # node_exists = self.connection.send_and_receive(method, params, success_var=False)
         try:
             node_exists = self.connection.send_and_receive(method, params, success_var=False)
         except MotorCADError as e:
