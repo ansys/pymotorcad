@@ -11,10 +11,12 @@ The available methods are given and their replacement functions have been commen
 
 .. currentmodule:: ansys.motorcad.core.MotorCAD_Methods
 
-.. autosummary::
-   :toctree: _autosummary
 
-    MotorCAD
-    MotorCADCompatibility
+.. autoclass:: MotorCAD
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
+   _autogen_general
+   _autogen_materials
