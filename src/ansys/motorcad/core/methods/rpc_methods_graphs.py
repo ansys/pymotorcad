@@ -36,7 +36,7 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str
+        graph_name : str|int
             Name/id of graph to select. Graph name is preferred and can be found in
             Motor-CAD (help -> graph viewer)
   
