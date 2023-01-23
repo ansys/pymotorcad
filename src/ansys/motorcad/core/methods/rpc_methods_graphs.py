@@ -1,9 +1,13 @@
 """RPC methods for graphs."""
-
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 class _RpcMethodsGraphs:
     def __init__(self, mc_connection):
         self.connection = mc_connection
+
+
+
+
 
     def get_magnetic_graph_point(self, graph_name, point_number):
         """Get a specified point from a Motor-CAD Magnetic graph.
@@ -26,6 +30,46 @@ class _RpcMethodsGraphs:
         method = "GetMagneticGraphPoint"
         params = [{"variant": graph_name}, point_number]
         return self.connection.send_and_receive(method, params)
+
+    def get_magnetic_graph(self, graph_name):
+         """Get a graph name from a Motor-CAD Magnetic graph.
+
+        Parameters
+        ----------
+        graph_name : str
+            Name/id of graph to select. Graph name is preferred and can be found in
+            Motor-CAD (help -> graph viewer)
+  
+
+        Returns
+        -------
+        X : array
+            value of x coordinates from graph
+        Y : array
+            value of y coordinates from graph
+        """
+
+         loop = 0
+         X = []
+         Y = []
+
+         while True:
+            try:
+                x, y = self.get_magnetic_graph_point(graph_name, loop)
+
+                Y.append(y)
+                X.append(x)
+                loop = loop + 1
+
+
+
+            except MotorCADError as e:
+                if "Point requested is greater than number of points available" in str(e):
+                    break
+                else:
+                    raise
+
+         return X, Y
 
     def get_temperature_graph_point(self, graph_name, point_number):
         """Get a specified point from a Motor-CAD Thermal graph.
