@@ -33,5 +33,6 @@ def test_get_magnetic_graph():
 
     with pytest.raises(MotorCADError):
         x, y = mc.get_magnetic_graph("ediujhweioufbewkijbf")
+
 # Get Motor-CAD exe
 
