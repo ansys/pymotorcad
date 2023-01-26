@@ -28,7 +28,7 @@ def test_get_magnetic_graph():
     x, y = mc.get_magnetic_graph_point("TorqueVW", 3)
     x1,y1 = mc.get_magnetic_graph("TorqueVW")
 
-    assert almost_equal(x, x1[3])
+    assert almost_equal(x, x1[3]) # comparing the already tested get_magnetic graph point to new get_magnetic_graph method
     assert almost_equal(y, y1[3])
 
     with pytest.raises(MotorCADError):
