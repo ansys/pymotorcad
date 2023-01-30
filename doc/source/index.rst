@@ -14,7 +14,7 @@
 PyMotorCAD API
 ---------------------
 
-For the full list of API methods, see :ref:`ref_MotorCAD_API`.
+For the full list of API methods, see :ref:`ref_MotorCAD_object`.
 
 Internal scripting
 ---------------------

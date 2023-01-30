@@ -3,8 +3,39 @@ import pathlib
 import re
 import shutil
 
-function_categories = ["general", "materials"]
-file_names = ["rpc_methods_general.py", "rpc_methods_materials.py"]
+# Add files to document and names for the units here
+# New categories also need adding in MotorCAD_object.rst
+
+function_categories = [
+    "Calculations",
+    "FEA Geometry",
+    "General",
+    "Geometry",
+    "Graphs",
+    "Internal Scripting",
+    "Lab",
+    "Materials",
+    "Thermal",
+    "UI",
+    "Utility",
+    "Variables",
+]
+
+file_names = [
+    "rpc_methods_calculations.py",
+    "rpc_methods_fea_geometry.py",
+    "rpc_methods_general.py",
+    "rpc_methods_geometry.py",
+    "rpc_methods_graphs.py",
+    "rpc_methods_internal_scripting.py",
+    "rpc_methods_lab.py",
+    "rpc_methods_materials.py",
+    "rpc_methods_thermal.py",
+    "rpc_methods_ui.py",
+    "rpc_methods_utility.py",
+    "rpc_methods_variables.py",
+]
+
 
 for i in range(len(function_categories)):
     category = function_categories[i]
