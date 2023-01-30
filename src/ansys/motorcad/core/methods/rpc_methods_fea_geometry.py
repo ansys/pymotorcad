@@ -8,24 +8,6 @@ class _RpcMethodsFEAGeometry:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
-    def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
-        """Set or creates a power injection."""
-        method = "SetPowerInjectionValue"
-        params = [name, node1, value, rpm_ref, rpm_coef, description]
-        return self.connection.send_and_receive(method, params)
-
-    def set_fixed_temperature_value(self, name, node1, value, description):
-        """Set or creates a fixed temperature on a node."""
-        method = "SetFixedTemperatureValue"
-        params = [name, node1, value, description]
-        return self.connection.send_and_receive(method, params)
-
-    def clear_fixed_temperature_value(self, node1):
-        """Remove a fixed temperature from a node."""
-        method = "ClearFixedTemperatureValue"
-        params = [node1]
-        return self.connection.send_and_receive(method, params)
-
     def do_slot_finite_element(self):
         """Carry out slot finite element analysis."""
         method = "DoSlotFiniteElement"
@@ -44,114 +26,39 @@ class _RpcMethodsFEAGeometry:
         method = "CreateOptimisedMesh"
         return self.connection.send_and_receive(method)
 
-    def add_arc_boundary_rt(
-        self, direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code
-    ):
-        """Add boundary condition arc using RT coordinates for centre."""
-        method = "AddArc_Boundary_RT"
-        params = [direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
-        return self.connection.send_and_receive(method, params)
-
-    def add_arc_boundary_xy(
-        self, direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code
-    ):
-        """Add boundary condition arc using XY coordinates for centre."""
-        method = "AddArc_Boundary_XY"
-        params = [direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
-        return self.connection.send_and_receive(method, params)
-
-    def add_line_boundary_rt(self, rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code):
-        """Add boundary condition line using RT coordinates for start and end points."""
-        method = "AddLine_Boundary_RT"
-        params = [rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code]
-        return self.connection.send_and_receive(method, params)
-
-    def add_line_boundary_xy(self, xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code):
-        """Add boundary condition line using XY coordinates for start and end points."""
-        method = "AddLine_Boundary_XY"
-        params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
-        return self.connection.send_and_receive(method, params)
-
-    def set_fea_path_point(
-        self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
-    ):
-        """Add/edit a point in the path editor."""
-        method = "SetFEAPathPoint"
-        params = [
-            path_name,
-            path_location,
-            coord_system,
-            ror_x,
-            tor_y,
-            calculation,
-            expression,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def set_fea_path_arc(
-        self,
-        path_name,
-        path_location,
-        r,
-        theta_start,
-        theta_end,
-        points,
-        fea_method,
-        calculation,
-        expression,
-    ):
-        """Add/edit an arc in the path editor."""
-        method = "SetFEAPathArc"
-        params = [
-            path_name,
-            path_location,
-            r,
-            theta_start,
-            theta_end,
-            points,
-            fea_method,
-            calculation,
-            expression,
-        ]
-        return self.connection.send_and_receive(method, params)
-
-    def set_fea_path_line(
-        self,
-        path_name,
-        path_location,
-        coord_system,
-        ror_x_start,
-        tor_y_start,
-        ror_x_end,
-        tor_y_end,
-        points,
-        calculation,
-        expression,
-    ):
-        """Add/edit a line in the path editor."""
-        method = "SetFEAPathLine"
-        params = [
-            path_name,
-            path_location,
-            coord_system,
-            ror_x_start,
-            tor_y_start,
-            ror_x_end,
-            tor_y_end,
-            points,
-            calculation,
-            expression,
-        ]
-        return self.connection.send_and_receive(method, params)
-
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
-        """Save raw data for open FEA solution."""
+        """Save raw data for open FEA solution.
+
+        Parameters
+        ----------
+        file : string
+            File path to store fea data.
+            Use r'filepath' syntax to force Python to ignore special characters.
+        first_step : integer
+            first step desired from transient calculation
+        final_step : integer
+            final step desired from transient calculation
+        outputs : string
+            comma delimited string of desired outputs
+        regions : string
+            comma delimited string of desired regions
+        separator : string
+            separator used in output file
+        """
         method = "SaveFEAData"
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
 
     def get_region_value(self, expression, region_name):
-        """Calculate the integral value for given expression of the region."""
+        """Calculate the integral value for given expression of the region.
+
+        Parameters
+        ----------
+        expression : string
+            selected parameter
+        region_name : string
+            region to calculate integral value
+        """
         method = "GetRegionValue"
         params = [expression, region_name]
         return self.connection.send_and_receive(method, params)
@@ -164,6 +71,21 @@ class _RpcMethodsFEAGeometry:
         Losses calculated are for per unit length and are only for the FEA areas modelled
         (for total losses require to multiply by symmetry factor).
         Valid for magnetic solution only.
+
+        Parameters
+        ----------
+        expression : string
+            selected parameter
+        region_name : string
+            region to calculate integral value
+        radius1 : float
+            boundary radius start
+        radius2 : float
+            boundary radius finish
+        angle1 : float
+            boundary angle start
+        angle2 : float
+            boundary angle finish
         """
         method = "GetRegionLoss"
         params = [expression, region_name, radius1, radius2, angle1, angle2]
@@ -192,6 +114,11 @@ class _RpcMethodsFEAGeometry:
 
         If region to be deleted contains a space, the region name should be enclosed in
         double quotation marks (e.g. "Rotor Pocket").
+
+        Parameters
+        ----------
+        region_name : str
+            Name of region to delete
         """
         method = "DeleteRegions"
         params = [region_name]
@@ -465,16 +392,6 @@ class _RpcMethodsFEAGeometry:
             br_multiplier,
             polarity_code,
         ]
-        return self.connection.send_and_receive(method, params)
-
-    def _get_region_properties_xy(self, x, y):
-        """Get properties of region from name and coordinates.
-
-        Returns list of parameters. Currently only used for testing other geometry functions.
-        EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
-        """
-        method = "GetRegionProperties_XY"
-        params = [x, y]
         return self.connection.send_and_receive(method, params)
 
     def add_point_custom_material_xy(self, x, y, region_name, material_name, colour):

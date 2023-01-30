@@ -215,3 +215,120 @@ class _RpcMethodsInternal:
         method = "AddPoint_Magnetic_XY"
         params = [x, y, mag_name, br_angle, br_mult, polarity]
         return self.connection.send_and_receive(method, params)
+
+    def add_arc_boundary_rt(
+        self, direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code
+    ):
+        """Add boundary condition arc using RT coordinates for centre."""
+        method = "AddArc_Boundary_RT"
+        params = [direction, rc, tc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
+        return self.connection.send_and_receive(method, params)
+
+    def add_arc_boundary_xy(
+        self, direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code
+    ):
+        """Add boundary condition arc using XY coordinates for centre."""
+        method = "AddArc_Boundary_XY"
+        params = [direction, xc, yc, th1, th2, r, dir_code, sym_code, virt_code, init_code]
+        return self.connection.send_and_receive(method, params)
+
+    def add_line_boundary_rt(self, rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using RT coordinates for start and end points."""
+        method = "AddLine_Boundary_RT"
+        params = [rs, ts, re, t_e, dir_code, sym_code, virt_code, init_code]
+        return self.connection.send_and_receive(method, params)
+
+    def add_line_boundary_xy(self, xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code):
+        """Add boundary condition line using XY coordinates for start and end points."""
+        method = "AddLine_Boundary_XY"
+        params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
+        return self.connection.send_and_receive(method, params)
+
+    def set_fea_path_point(
+        self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
+    ):
+        """Add/edit a point in the path editor."""
+        method = "SetFEAPathPoint"
+        params = [
+            path_name,
+            path_location,
+            coord_system,
+            ror_x,
+            tor_y,
+            calculation,
+            expression,
+        ]
+        return self.connection.send_and_receive(method, params)
+
+    def set_fea_path_arc(
+        self,
+        path_name,
+        path_location,
+        r,
+        theta_start,
+        theta_end,
+        points,
+        fea_method,
+        calculation,
+        expression,
+    ):
+        """Add/edit an arc in the path editor."""
+        method = "SetFEAPathArc"
+        params = [
+            path_name,
+            path_location,
+            r,
+            theta_start,
+            theta_end,
+            points,
+            fea_method,
+            calculation,
+            expression,
+        ]
+        return self.connection.send_and_receive(method, params)
+
+    def set_fea_path_line(
+        self,
+        path_name,
+        path_location,
+        coord_system,
+        ror_x_start,
+        tor_y_start,
+        ror_x_end,
+        tor_y_end,
+        points,
+        calculation,
+        expression,
+    ):
+        """Add/edit a line in the path editor."""
+        method = "SetFEAPathLine"
+        params = [
+            path_name,
+            path_location,
+            coord_system,
+            ror_x_start,
+            tor_y_start,
+            ror_x_end,
+            tor_y_end,
+            points,
+            calculation,
+            expression,
+        ]
+        return self.connection.send_and_receive(method, params)
+
+    def _get_region_properties_xy(self, x, y):
+        """Get properties of region from name and coordinates.
+
+        Returns list of parameters. Currently only used for testing other geometry functions.
+        EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        """
+        method = "GetRegionProperties_XY"
+        params = [x, y]
+        return self.connection.send_and_receive(method, params)

@@ -191,3 +191,55 @@ class _RpcMethodsThermal:
         method = "GetOffsetNodeNumber"
         params = [node_number, slice_number, cuboid_number]
         return self.connection.send_and_receive(method, params)
+
+    def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
+        """Set or creates a power injection.
+
+        Parameters
+        ----------
+        name : string
+            name of external circuit component
+        node1 : integer
+            thermal node
+        value : float
+            loss at node
+        rpm_ref : float
+            reference rpm for loss
+        rpm_coef : float
+            loss rpm coefficient
+        description : string
+            external component description
+        """
+        method = "SetPowerInjectionValue"
+        params = [name, node1, value, rpm_ref, rpm_coef, description]
+        return self.connection.send_and_receive(method, params)
+
+    def set_fixed_temperature_value(self, name, node1, value, description):
+        """Set or create a fixed temperature on a node.
+
+        Parameters
+        ----------
+        name : string
+            name of external circuit component
+        node1 : integer
+            thermal node
+        value : float
+            fixed temperature of node
+        description
+            external component description
+        """
+        method = "SetFixedTemperatureValue"
+        params = [name, node1, value, description]
+        return self.connection.send_and_receive(method, params)
+
+    def clear_fixed_temperature_value(self, node1):
+        """Remove a fixed temperature from a node.
+
+        Parameters
+        ----------
+        node1 : integer
+            thermal node to remove fixed temperature from
+        """
+        method = "ClearFixedTemperatureValue"
+        params = [node1]
+        return self.connection.send_and_receive(method, params)
