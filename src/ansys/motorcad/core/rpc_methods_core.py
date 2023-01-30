@@ -8,6 +8,7 @@ from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAG
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
 from ansys.motorcad.core.methods.rpc_methods_geometry import _RpcMethodsGeometry
 from ansys.motorcad.core.methods.rpc_methods_graphs import _RpcMethodsGraphs
+from ansys.motorcad.core.methods.rpc_methods_internal import _RpcMethodsInternal
 from ansys.motorcad.core.methods.rpc_methods_internal_scripting import _RpcMethodsInternalScripting
 from ansys.motorcad.core.methods.rpc_methods_lab import _RpcMethodsLab
 from ansys.motorcad.core.methods.rpc_methods_materials import _RpcMethodsMaterials
@@ -28,6 +29,7 @@ class _RpcMethodsCore(
     _RpcMethodsInternalScripting,
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
+    _RpcMethodsInternal,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -43,3 +45,4 @@ class _RpcMethodsCore(
         _RpcMethodsInternalScripting.__init__(self, self.connection)
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
+        _RpcMethodsInternal.__init__(self, self.connection)
