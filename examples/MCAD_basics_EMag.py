@@ -45,21 +45,24 @@ mcad.set_variable("Slot_Number", 24)
 mcad.set_variable("Tooth_Width", 6)
 mcad.set_variable("Magnet_Thickness", 4.5)
 
-# Custom Winding Example
-# This gives an example of the commands needed to create a custom winding pattern
-# This will not create a full winding pattern - need to specify parameters for all coils
-# Set the winding type to custom
-# mcad.set_variable('MagWindingType', 1)
-# Set the Path type to Upper and Lower
-# mcad.set_variable('MagPathType', 1)
-# Set the number of phases, parallel paths and winding layers:
-# mcad.set_variable('MagPhases', 3)
-# mcad.set_variable('ParallelPaths', 1)
-# mcad.set_variable('WindingLayers', 2)
-# Define a coil's parameters
-# SetWindingCoil(Phase, Path, Coil, Goslot, GoPosition, ReturnSlot, ReturnPoisition, Turns)
-# mcad.set_winding_coil(2, 1, 3, 4, 'b', 18, 'a', 60)
+"""Custom Winding Example
+This gives an example of the commands needed to create a custom winding pattern
+This will not create a full winding pattern - need to specify parameters for all coils
 
+Set the winding type to custom
+>>> mcad.set_variable('MagWindingType', 1)
+Set the Path type to Upper and Lower
+>>> mcad.set_variable('MagPathType', 1)
+
+Set the number of phases, parallel paths and winding layers:
+>>> mcad.set_variable('MagPhases', 3)
+>>> mcad.set_variable('ParallelPaths', 1)
+>>> mcad.set_variable('WindingLayers', 2)
+
+Define a coil's parameters
+SetWindingCoil(Phase, Path, Coil, Goslot, GoPosition, ReturnSlot, ReturnPoisition, Turns)
+>>> mcad.set_winding_coil(2, 1, 3, 4, 'b', 18, 'a', 60)
+"""
 
 # Set the stator/rotor lamination materials
 mcad.set_component_material("Stator Lam (Back Iron)", "M250-35A")
