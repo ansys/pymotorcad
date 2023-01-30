@@ -31,7 +31,7 @@ def read_parameters(json_file):
     return param_dict
 
 
-json_file = "/examples/ECE_config.json"
+json_file = "/examples/ece_config.json"
 in_data = read_parameters(json_file)
 mot_file = in_data["mot_file"]
 shaft_speed = in_data["shaft_speed"]
