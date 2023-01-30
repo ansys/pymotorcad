@@ -32,7 +32,7 @@ def read_parameters(json_file):
 
 working_folder = os.path.dirname(os.path.realpath(__file__))
 
-json_file = os.path.join(working_folder, "ECE_config.json")
+json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
 mot_file = in_data["mot_file"]
 shaft_speed = in_data["shaft_speed"]
