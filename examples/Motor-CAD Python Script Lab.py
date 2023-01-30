@@ -4,10 +4,9 @@
 import os
 
 import matplotlib.pyplot as plt
-import scipy.io
+import scipy
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCADError
 
 if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
@@ -16,13 +15,14 @@ if "QT_API" in os.environ:
 print("Start Initialisation")
 mcad = pymotorcad.MotorCAD()
 
-# Open relevant file
-working_folder = r"C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
-mcad_name = "e8_eMobility"
-mcad.load_from_file(os.path.join(working_folder, mcad_name, ".mot"))
-
 # Disable all popup messages from Motor-CAD
 mcad.set_variable("MessageDisplayState", 2)
+# Open relevant file
+working_folder = os.path.dirname(os.path.realpath(__file__))
+mcad.load_template("e8")
+mcad_name = "e8_mobility"
+mcad.save_to_file(os.path.join(working_folder, mcad_name, ".mot"))
+
 print("Initialisation Complete")
 print("Running Simulation")
 
@@ -55,28 +55,28 @@ mcad.set_variable("Imax_MotorLAB", 480)
 try:
     mcad.calculate_magnetic_lab()
     mcad.show_message("Magnetic calculation successfully completed")
-except MotorCADError:
+except pymotorcad.MotorCADError:
     mcad.show_message("Magnetic calculation failed")
 
 
 # Retrieve results
 data = scipy.io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
-Speed = data["Speed"]
-ShaftTorque = data["Shaft_Torque"]
-ShaftPower = data["Shaft_Power"]
+speed = data["Speed"]
+shaft_torque = data["Shaft_Torque"]
+shaft_power = data["Shaft_Power"]
 
 # Plot Graphs
 plt.figure(1)
 plt.subplot(211)
-plt.plot(Speed, ShaftTorque)
+plt.plot(speed, shaft_torque)
 plt.xlabel("Speed")
 plt.ylabel("Shaft Torque")
 plt.subplot(212)
-plt.plot(Speed, ShaftPower)
+plt.plot(speed, shaft_power)
 plt.xlabel("Speed")
 plt.ylabel("Shaft Power")
 plt.show(block=False)
-plt.savefig(os.apth.join(working_folder, "Maximum Torque VS Speed Curve.png"))
+plt.savefig(os.path.join(working_folder, "Maximum Torque VS Speed Curve.png"))
 
 # Set Operating Point Calculation Options
 mcad.set_variable("OpPointSpec_MotorLAB", 1)
@@ -89,10 +89,10 @@ mcad.set_variable("LabMagneticCoupling", 0)
 mcad.calculate_operating_point_lab()
 
 # Retrieve results
-OpPointShaftTorque = mcad.get_variable("LabOpPoint_ShaftTorque")
-OpPointEfficiency = mcad.get_variable("LabOpPoint_Efficiency")
-print("Operating Point Shaft Torque = ", OpPointShaftTorque)
-print("Operating Point Efficiency = ", OpPointEfficiency)
+op_point_shaft_torque = mcad.get_variable("LabOpPoint_ShaftTorque")
+op_point_efficiency = mcad.get_variable("LabOpPoint_Efficiency")
+print("Operating Point Shaft Torque = ", op_point_shaft_torque)
+print("Operating Point Efficiency = ", op_point_efficiency)
 
 # Finalisation
 mcad.quit()
