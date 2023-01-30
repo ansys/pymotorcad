@@ -9,23 +9,7 @@ class _RpcMethodsFEAGeometry:
         self.connection = mc_connection
 
     def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
-        """Set or creates a power injection.
-
-        Parameters
-        ----------
-        name : string
-            Name of external circuit component
-        node1 : integer
-            Thermal node
-        value : float
-            Loss at node
-        rpm_ref : float
-            reference rpm for loss
-        rpm_coef : float
-            loss rpm coefficient
-        description : string
-            external component description
-        """
+        """Set or creates a power injection."""
         method = "SetPowerInjectionValue"
         params = [name, node1, value, rpm_ref, rpm_coef, description]
         return self.connection.send_and_receive(method, params)
