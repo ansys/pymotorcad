@@ -4,7 +4,7 @@ import re
 import shutil
 
 # Add files to document and names for the units here
-# New categories also need adding in core_methods.rst
+# New categories also need adding in MotorCAD_object.rst
 
 function_categories = [
     "Calculations",
