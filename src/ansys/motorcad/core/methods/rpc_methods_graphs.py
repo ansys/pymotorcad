@@ -40,9 +40,9 @@ class _RpcMethodsGraphs:
 
         Returns
         -------
-        X : array
+        x_array : array
             value of x coordinates from graph
-        Y : array
+        y_array : array
             value of y coordinates from graph
         """
 
