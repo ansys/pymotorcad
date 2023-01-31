@@ -1,7 +1,8 @@
-from RPC_Test_Common import almost_equal
-from setup_test import reset_to_default_file, setup_test_env
 import pytest
+
+from RPC_Test_Common import almost_equal
 from ansys.motorcad.core import MotorCADError
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -26,13 +27,15 @@ def test_get_magnetic_graph():
     mc.do_magnetic_calculation()
 
     x, y = mc.get_magnetic_graph_point("TorqueVW", 3)
-    x1,y1 = mc.get_magnetic_graph("TorqueVW")
+    x1, y1 = mc.get_magnetic_graph("TorqueVW")
 
-    assert almost_equal(x, x1[3]) # comparing the already tested get_magnetic graph point to new get_magnetic_graph method
+    assert almost_equal(
+        x, x1[3]
+    )  # comparing the already tested get_magnetic graph point to new get_magnetic_graph method
     assert almost_equal(y, y1[3])
 
     with pytest.raises(MotorCADError):
         x, y = mc.get_magnetic_graph("ediujhweioufbewkijbf")
 
-# Get Motor-CAD exe
 
+# Get Motor-CAD exe
