@@ -71,7 +71,7 @@ for i in range(len(function_categories)):
     file_contents = doc_file.read()
 
     # replace some names/paths
-    file_contents = file_contents.replace("Category", category + " functions")
+    file_contents = file_contents.replace("Category", category)
     file_contents = file_contents.replace("_autosummary_path", "_autosummary_" + category)
     doc_file.close()
 
