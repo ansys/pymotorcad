@@ -53,7 +53,7 @@ Features
 Features of PyMotorCAD include:
 
 - The ability to launch Motor-CAD instances and connect to already-running instances of Motor-CAD.
-- The ability to control Motor-CAD by automation using PyMotorCAD API methods to carry out Motor-CAD actions, set and retrieve Motor-CAD parameters. For the full list of API methods, see :ref:`ref_MotorCAD_API`.
+- The ability to control Motor-CAD by automation using PyMotorCAD API methods to carry out Motor-CAD actions, set and retrieve Motor-CAD parameters. For the full list of API methods, see :ref:`ref_MotorCAD_object`.
 - The ability to script using all PyMotorCAD API methods to
 - The ability to automate processes within an instance of Motor-CAD via the internal Scripting tab. For details on internal scripting in Motor-CAD see :ref:`ref_getting_started`.
 - Automation control of Motor-CAD via external scripts. Processes can be carried out with either a visible Motor-CAD GUI or via BlackBox mode. For adding PyMotorCAD to your own Python see :ref:`ref_external_scripting`

@@ -32,4 +32,4 @@ PyMotorCAD methods can then be used to send commands to the current Motor-CAD in
 PyMotorCAD API
 ===============
 
-For the full list of methods, which can be used to create a script for Motor-CAD control/automation, see :ref:`ref_MotorCAD_API`.
+For the full list of methods, which can be used to create a script for Motor-CAD control/automation, see :ref:`ref_MotorCAD_object`.
