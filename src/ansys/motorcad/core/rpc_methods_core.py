@@ -5,6 +5,7 @@ Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 
 from ansys.motorcad.core.methods.rpc_methods_calculations import _RpcMethodsCalculations
 from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAGeometry
+from ansys.motorcad.core.methods.rpc_methods_fea_results import _RpcMethodsFEAResults
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
 from ansys.motorcad.core.methods.rpc_methods_geometry import _RpcMethodsGeometry
 from ansys.motorcad.core.methods.rpc_methods_graphs import _RpcMethodsGraphs
@@ -30,6 +31,7 @@ class _RpcMethodsCore(
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
     _RpcMethodsInternal,
+    _RpcMethodsFEAResults,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -46,3 +48,4 @@ class _RpcMethodsCore(
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
         _RpcMethodsInternal.__init__(self, self.connection)
+        _RpcMethodsFEAResults.__init__(self, self.connection)

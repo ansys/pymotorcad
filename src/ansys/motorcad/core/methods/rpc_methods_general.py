@@ -69,19 +69,6 @@ class _RpcMethodsGeneral:
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_fea_result(self, file_path, solution_number):
-        """Load in an existing FEA solution to allow viewing of FEA results.
-
-        Parameters
-        ----------
-        file_path : str
-            Use r'filepath' syntax to force Python to ignore special characters.
-        solution_number : int
-        """
-        method = "LoadFEAResult"
-        params = [file_path, solution_number]
-        return self.connection.send_and_receive(method, params)
-
     def export_to_ansys_electronics_desktop(self, file_path):
         """Export the model to a vbs script file to be run in Ansys Electronics Desktop.
 
