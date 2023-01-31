@@ -37,7 +37,6 @@ class _RpcMethodsGraphs:
             Name/id of graph to select. Graph name is preferred and can be found in
             Motor-CAD (help -> graph viewer)
 
-
         Returns
         -------
         x_array : array
@@ -45,7 +44,6 @@ class _RpcMethodsGraphs:
         y_array : array
             value of y coordinates from graph
         """
-
         loop = 0
         x_array = []
         y_array = []
