@@ -3,8 +3,8 @@ import pathlib
 import re
 import shutil
 
-function_categories = ["general", "materials"]
-file_names = ["rpc_methods_general.py", "rpc_methods_materials.py"]
+function_categories = ["Calculation", "FEA_Geometry", "General", "Geometry", "Graph", "Internal_Scripting", "Lab", "Materials", "Thermal", "UI", "Utility", "Variables"]
+file_names = ["rpc_methods_calculations.py", "rpc_methods_fea_geometry.py", "rpc_methods_general.py", "rpc_methods_geometry.py", "rpc_methods_graphs.py", "rpc_methods_internal_scripting.py", "rpc_methods_lab.py", "rpc_methods_materials.py", "rpc_methods_thermal.py", "rpc_methods_ui.py", "rpc_methods_utility.py", "rpc_methods_variables.py"]
 
 for i in range(len(function_categories)):
     category = function_categories[i]
@@ -40,7 +40,8 @@ for i in range(len(function_categories)):
     file_contents = doc_file.read()
 
     # replace some names/paths
-    file_contents = file_contents.replace("Category", category + " functions")
+    category_edited = category.replace('_', ' ')
+    file_contents = file_contents.replace("Category", category_edited + " functions")
     file_contents = file_contents.replace("_autosummary_path", "_autosummary_" + category)
     doc_file.close()
 

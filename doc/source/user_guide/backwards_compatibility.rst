@@ -1,3 +1,5 @@
+.. _ref_backwards_compatibility:
+
 Backwards compatibility with old scripts
 ========================================
 
