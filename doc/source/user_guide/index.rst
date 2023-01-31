@@ -25,4 +25,4 @@ To connect with Motor-CAD from your internal scripting:
 PyMotorCAD API
 ===============
 
-For the full list of methods, see :ref:`ref_MotorCAD_API`.
+For the full list of methods, see :ref:`ref_MotorCAD_object`.
