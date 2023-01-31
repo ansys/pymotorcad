@@ -9,7 +9,7 @@ The descriptions of the methods, input parameters and return values are given.
 The MotorCADCompatibility object is used for running old ActiveX scripts.
 The available methods are given and their replacement functions have been commented.
 
-.. currentmodule:: ansys.motorcad.core.MotorCAD_Methods
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
 
 .. autosummary::
    :toctree: _autosummary

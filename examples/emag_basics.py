@@ -8,25 +8,21 @@ import os
 
 import matplotlib.pyplot as plt
 
-from ansys.motorcad.core import MotorCADError
+import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
 
-## User setup
-# Change this to a location on your PC where you would like to save the model/results files.
-# This folder must exist
-# Make sure the folder path ends in \\
-working_folder = "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/"
+# User setup
+working_folder = os.path.dirname(os.path.realpath(__file__))
 
-if os.path.isdir(working_folder) == False:
+if os.path.isdir(working_folder) is False:
     print("Working folder does not exist. Please choose a folder that exists and try again.")
     print(working_folder)
     exit()
 
 # Initialise ActiveX automation and launch Motor-CAD
 print("Start Initialisation")
-import ansys.motorcad.core as pymotorcad
 
 mcad = pymotorcad.MotorCAD()
 # Disable all popup messages from Motor-CAD
@@ -45,31 +41,34 @@ mcad.set_variable("Slot_Number", 24)
 mcad.set_variable("Tooth_Width", 6)
 mcad.set_variable("Magnet_Thickness", 4.5)
 
-# Custom Winding Example
-# This gives an example of the commands needed to create a custom winding pattern
-# This will not create a full winding pattern - need to specify parameters for all coils
-# Set the winding type to custom
-# mcad.set_variable('MagWindingType', 1)
-# Set the Path type to Upper and Lower
-# mcad.set_variable('MagPathType', 1)
-# Set the number of phases, parallel paths and winding layers:
-# mcad.set_variable('MagPhases', 3)
-# mcad.set_variable('ParallelPaths', 1)
-# mcad.set_variable('WindingLayers', 2)
-# Define a coil's parameters
-# SetWindingCoil(Phase, Path, Coil, Goslot, GoPosition, ReturnSlot, ReturnPoisition, Turns)
-# mcad.set_winding_coil(2, 1, 3, 4, 'b', 18, 'a', 60)
+"""Custom Winding Example
+This gives an example of the commands needed to create a custom winding pattern
+This will not create a full winding pattern - need to specify parameters for all coils
 
+Set the winding type to custom
+>>> mcad.set_variable('MagWindingType', 1)
+Set the Path type to Upper and Lower
+>>> mcad.set_variable('MagPathType', 1)
+
+Set the number of phases, parallel paths and winding layers:
+>>> mcad.set_variable('MagPhases', 3)
+>>> mcad.set_variable('ParallelPaths', 1)
+>>> mcad.set_variable('WindingLayers', 2)
+
+Define a coil's parameters
+SetWindingCoil(Phase, Path, Coil, Goslot, GoPosition, ReturnSlot, ReturnPoisition, Turns)
+>>> mcad.set_winding_coil(2, 1, 3, 4, 'b', 18, 'a', 60)
+"""
 
 # Set the stator/rotor lamination materials
 mcad.set_component_material("Stator Lam (Back Iron)", "M250-35A")
 mcad.set_component_material("Rotor Lam (Back Iron)", "M250-35A")
 
 # Set the torque calculation options
-PointsPerCycle = 30
-NumberCycles = 1
-mcad.set_variable("TorquePointsPerCycle", PointsPerCycle)
-mcad.set_variable("TorqueNumberCycles", NumberCycles)
+points_per_cycle = 30
+number_cycles = 1
+mcad.set_variable("TorquePointsPerCycle", points_per_cycle)
+mcad.set_variable("TorqueNumberCycles", number_cycles)
 
 # Disable all performance tests except for transient torque
 mcad.set_variable("BackEMFCalculation", False)
@@ -97,41 +96,42 @@ mcad.save_to_file(filename)
 # Run the simulation and report success
 mcad.do_magnetic_calculation()
 
-
 # Export data to csv file
 exportFile = os.path.join(working_folder, "Export_EMag_Results.csv")
 try:
     mcad.export_results("EMagnetic", exportFile)
     mcad.show_message("Results successfully exported")
-except MotorCADError:
-    mcad.show("Results failed to export")
+except pymotorcad.MotorCADError:
+    mcad.show_message("Results failed to export")
 
 # Get results
-ShaftTorque = mcad.get_variable("ShaftTorque")
-LineVoltage = mcad.get_variable("PeakLineLineVoltage")
+shaft_torque = mcad.get_variable("ShaftTorque")
+line_voltage = mcad.get_variable("PeakLineLineVoltage")
 
 # Torque graph data
-NumTorquePoints = (PointsPerCycle * NumberCycles) + 1
-RotorPosition = []
-TorqueVW = []
-for n in range(NumTorquePoints):
+num_torque_points = (points_per_cycle * number_cycles) + 1
+rotor_position = []
+torque_vw = []
+
+for n in range(num_torque_points):
     (x, y) = mcad.get_magnetic_graph_point("TorqueVW", n)
-    RotorPosition.append(x)
-    TorqueVW.append(y)
+    rotor_position.append(x)
+    torque_vw.append(y)
 
 # Airgap flux density graph data
 loop = 0
 success = 0
-MechAngle = []
-AirgapFluxDensity = []
+mech_angle = []
+airgap_flux_density = []
+
 # Keep looking until we cannot find the point
 while success == 0:
     try:
         (x, y) = mcad.get_fea_graph_point("B Gap (on load)", 1, loop, 0)
-        MechAngle.append(x)
-        AirgapFluxDensity.append(y)
+        mech_angle.append(x)
+        airgap_flux_density.append(y)
         loop = loop + 1
-    except MotorCADError:
+    except pymotorcad.MotorCADError:
         success = 1
 
 
@@ -139,31 +139,31 @@ while success == 0:
 mcad.initialise_tab_names()
 mcad.display_screen("Graphs;Harmonics;Torque")
 
-NumHarmonicPoints = (PointsPerCycle * NumberCycles) + 1
-DataPoint = []
-Torque = []
-for n in range(NumHarmonicPoints):
+num_harmonic_points = (points_per_cycle * number_cycles) + 1
+data_point = []
+torque = []
+for n in range(num_harmonic_points):
     try:
         (x, y) = mcad.get_magnetic_graph_point("HarmonicDataCycle", n)
-        DataPoint.append(x)
-        Torque.append(y)
-    except MotorCADError:
-        mcad.show("Results failed to export")
+        data_point.append(x)
+        torque.append(y)
+    except pymotorcad.MotorCADError:
+        mcad.show_message("Results failed to export")
 
 
 print("Simulation Complete")
 
 # Create Graph
 plt.subplot(211)
-plt.plot(MechAngle, AirgapFluxDensity)
+plt.plot(mech_angle, airgap_flux_density)
 plt.xlabel("Mech Angle")
 plt.ylabel("Airgap Flux Density")
 plt.subplot(212)
-plt.plot(RotorPosition, TorqueVW)
+plt.plot(rotor_position, torque_vw)
 plt.xlabel("Rotor Position")
 plt.ylabel("TorqueVW")
 plt.figure(2)
-plt.plot(DataPoint, Torque)
+plt.plot(data_point, torque)
 plt.xlabel("DataPoint")
 plt.ylabel("Torque (Nm)")
 plt.show()
