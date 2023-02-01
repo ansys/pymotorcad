@@ -5,6 +5,9 @@ Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 
 from ansys.motorcad.core.methods.rpc_methods_calculations import _RpcMethodsCalculations
 from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAGeometry
+from ansys.motorcad.core.methods.rpc_methods_fea_geometry_advanced import (
+    _RpcMethodsFEAGeometryAdvanced,
+)
 from ansys.motorcad.core.methods.rpc_methods_fea_results import _RpcMethodsFEAResults
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
 from ansys.motorcad.core.methods.rpc_methods_geometry import _RpcMethodsGeometry
@@ -28,6 +31,7 @@ class _RpcMethodsCore(
     _RpcMethodsThermal,
     _RpcMethodsInternalScripting,
     _RpcMethodsFEAGeometry,
+    _RpcMethodsFEAGeometryAdvanced,
     _RpcMethodsMaterials,
     _RpcMethodsFEAResults,
 ):
@@ -44,5 +48,6 @@ class _RpcMethodsCore(
         _RpcMethodsThermal.__init__(self, self.connection)
         _RpcMethodsInternalScripting.__init__(self, self.connection)
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
+        _RpcMethodsFEAGeometryAdvanced.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
         _RpcMethodsFEAResults.__init__(self, self.connection)
