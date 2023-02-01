@@ -29,7 +29,7 @@ class _RpcMethodsGraphs:
         return self.connection.send_and_receive(method, params)
 
     def get_magnetic_graph(self, graph_name):
-        """Get a graph name from a Motor-CAD Magnetic graph.
+        """Get array  from a Motor-CAD Magnetic graph.
 
         Parameters
         ----------
