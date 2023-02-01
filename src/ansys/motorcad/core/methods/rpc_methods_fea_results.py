@@ -177,3 +177,20 @@ class _RpcMethodsFEAResults:
             expression,
         ]
         return self.connection.send_and_receive(method, params)
+
+    def _get_region_properties_xy(self, x, y):
+        """Get properties of region from name and coordinates.
+
+        Returns list of parameters. Currently only used for testing other geometry functions.
+        EXPERIMENTAL FUNCTION - LIKELY TO CHANGE.
+
+        Parameters
+        ----------
+        x : float
+            region position x coordinate
+        y : float
+            region position y coordinate
+        """
+        method = "GetRegionProperties_XY"
+        params = [x, y]
+        return self.connection.send_and_receive(method, params)

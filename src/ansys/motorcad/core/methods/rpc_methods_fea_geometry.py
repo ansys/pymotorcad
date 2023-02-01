@@ -470,6 +470,7 @@ class _RpcMethodsFEAGeometry:
         density,
         loss_density,
     ):
+        """Add thermal region."""
         method = "Add_Region_Thermal_A"
         params = [
             reg_name,
