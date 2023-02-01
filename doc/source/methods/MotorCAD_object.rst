@@ -15,16 +15,17 @@ MotorCAD API
    :maxdepth: 1
    :hidden:
 
+   _autogen_Variables
    _autogen_Calculations
-   _autogen_FEA Geometry
    _autogen_General
-   _autogen_Geometry
-   _autogen_Graphs
-   _autogen_Internal Scripting
    _autogen_Lab
-   _autogen_Materials
    _autogen_Thermal
    _autogen_UI
+   _autogen_Materials
+   _autogen_Graphs
+   _autogen_Internal Scripting
    _autogen_Utility
-   _autogen_Variables
+   _autogen_Geometry
+   _autogen_FEA Geometry
+   _autogen_FEA Results
 

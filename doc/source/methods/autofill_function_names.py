@@ -9,6 +9,7 @@ import shutil
 function_categories = [
     "Calculations",
     "FEA Geometry",
+    "FEA Results",
     "General",
     "Geometry",
     "Graphs",
@@ -24,6 +25,7 @@ function_categories = [
 file_names = [
     "rpc_methods_calculations.py",
     "rpc_methods_fea_geometry.py",
+    "rpc_methods_fea_results.py",
     "rpc_methods_general.py",
     "rpc_methods_geometry.py",
     "rpc_methods_graphs.py",
