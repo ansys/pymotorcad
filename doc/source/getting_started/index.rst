@@ -1,6 +1,6 @@
-.. _ref_getting_started_two:
+.. _ref_getting_started:
 
-Getting started two
+Getting started
 =======================
 .. toctree::
    :maxdepth: 1
@@ -8,4 +8,6 @@ Getting started two
 
 
 
-This is a test
+PyMotorCAD is installed with Motor-CAD v2023R1 and later for internal Motor-CAD
+Scripting tab use. To install PyMotorCAD for use outside of Motor-CAD, it may be
+downloaded from GitHub. PyMotorCAD will be available for install via pip in the near future.

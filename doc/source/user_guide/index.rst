@@ -1,7 +1,7 @@
-.. _ref_getting_started:
+.. _ref_user_guide:
 
-Getting started
-=======================
+User guide
+============
 .. toctree::
    :maxdepth: 1
    :hidden:
