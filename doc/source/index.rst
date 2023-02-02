@@ -42,7 +42,7 @@ PyMotorCAD uses a Python remote procedure call (RPC-JSON) interface for
 Motor-CAD, to launch or connect with a Motor-CAD instance, locally or from a
 remote machine via HTTP.
 
-PyMotorCAD allows allows the user to programmatically create, interact with
+PyMotorCAD allows the user to programmatically create, interact with
 and control a Motor-CAD model, with or without using the Motor-CAD GUI.
 Motor-CAD automation can be achieved by scripts, either internally via the
 Motor-CAD Scripting tab or ran externally.
@@ -56,7 +56,7 @@ Features of PyMotorCAD include:
 - The ability to control Motor-CAD by automation using PyMotorCAD API methods to carry out Motor-CAD actions, set and retrieve Motor-CAD parameters. For the full list of API methods, see :ref:`ref_MotorCAD_object`.
 - The ability to automate processes within an instance of Motor-CAD via the internal Scripting tab. For details on internal scripting in Motor-CAD see the :ref:`ref_user_guide`.
 - Automation control of Motor-CAD via external scripts. Processes can be carried out with either a visible Motor-CAD GUI or via BlackBox mode. For adding PyMotorCAD to your own Python see :ref:`ref_external_scripting`.
-- The running of multiple parallel Motor-CAD instances via an external script. Ansys optiSLang can be employed to carry out detailed optimisations by controlling multiple Motor-CAD instances in parallel.
+- The running of multiple parallel Motor-CAD instances via an external script. Ansys OptiSLang can be employed to carry out detailed optimisations by controlling multiple Motor-CAD instances in parallel.
 - Example scripts for tutorials on Motor-CAD features and abilities.
 - Customisable example scripts for common or advanced workflows, both within Motor-CAD and involving the coupling of Motor-CAD to other software.
 
@@ -77,7 +77,7 @@ License
 PyMotorCAD is licensed under the MIT license.
 
 PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
-extends the functionality of Ansys Motor-CAD by adding a Python interface
+extends the capability of Ansys Motor-CAD by adding a Python interface
 to Motor-CAD without changing the core behaviour or license of the original
 software. The use of the interactive control of Motor-CAD control of PyMotorCAD
 requires a legally licensed copy of Motor-CAD.

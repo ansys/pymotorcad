@@ -18,7 +18,7 @@ Using internal PyMotorCAD scripts
 Motor-CAD is installed with an internal Python interpreter.
 This includes a stable version of PyMotorCAD. The PyMotorCAD Python package is based around the ``MotorCAD()`` Python object. Each individual ``MotorCAD()`` object represents an instance of Motor-CAD.
 
-Within the Motor-CAD GUI, there is a Scripting tab (available in the E-Magnetic, Thermal and Mechanical contexts). This tab facilitates the creating, editing, loading and saving of internal scripts in Motor-CAD.
+Within the Motor-CAD GUI, there is a Scripting tab (available in the E-Magnetic, Thermal and Mechanical contexts). This tab facilitates the creating, editing, loading, and saving of internal scripts in Motor-CAD.
 
 To connect with Motor-CAD from an internal script on the Scripting tab, access the ``MotorCAD()`` object as follows:
 
@@ -27,7 +27,7 @@ To connect with Motor-CAD from an internal script on the Scripting tab, access t
     import ansys.motorcad.core as pymotorcad
     mcApp = pymotorcad.MotorCAD()
 
-PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``. This can be used to set and get values before, during and after calculations, and to create a script for Motor-CAD automation.
+PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``. This can be used to set and get values before, during, and after calculations, and to create a script for Motor-CAD automation.
 
 PyMotorCAD API
 ===============
