@@ -83,9 +83,8 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }} 
       - name: "Run download examples"
-        working-directory: doc
         run: |
-          python source/methods/autofill_function_names.py
+          python doc/source/methods/autofill_function_names.py
       - name: "Run Ansys documentation building action"
         uses: pyansys/actions/doc-build@v3
 
