@@ -73,7 +73,7 @@ jobs:
 
   doc-build:
     name: "Building library documentation"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, pymotorcad]
     needs: doc-style
     steps:
       - name: "Install Git and checkout the project"
@@ -86,6 +86,8 @@ jobs:
       - name: "Run download examples"
         run: |
           python doc/source/methods/autofill_function_names.py
+      - name: Ensure Motor-CAD not open
+        run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
       - name: "Run Ansys documentation building action"
         uses: pyansys/actions/doc-build@v3
         with:
