@@ -41,9 +41,12 @@ for i in range(len(function_categories)):
     category = function_categories[i]
     file_name = file_names[i]
 
-    current_folder = str(pathlib.Path(__file__).parent.resolve())
+    current_folder = pathlib.Path(__file__).parent.resolve()
+    parent_path = current_folder.parents[2].absolute()
 
-    file_path = current_folder + r"\..\..\..\src\ansys\motorcad\core\methods\\" + file_name
+    file_path = str(
+        (parent_path / "src" / "ansys" / "motorcad" / "core" / "methods" / file_name).absolute()
+    )
     methods_file = open(file_path)
 
     func_names = []
@@ -62,9 +65,9 @@ for i in range(len(function_categories)):
 
     methods_file.close()
 
-    new_file_name = current_folder + r"\_autogen_" + category + ".rst"
+    new_file_name = str((current_folder / ("_autogen_" + category + ".rst")).absolute())
     # Copy template file
-    shutil.copyfile(current_folder + r"\template.rst_template", new_file_name)
+    shutil.copyfile(str(current_folder / "template.rst_template"), new_file_name)
 
     # read file
     doc_file = open(new_file_name, "r")
