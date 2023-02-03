@@ -158,3 +158,5 @@ _autosummary/
 
 #vscode
 .vscode
+
+doc/source/examples/gallery_examples/*
