@@ -64,7 +64,7 @@ jobs:
           
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        run: tox
+        run: tox -e py310-coverage  
         
       - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.10'
