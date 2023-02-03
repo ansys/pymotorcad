@@ -30,7 +30,7 @@ def read_parameters(json_file):
     return param_dict
 
 
-working_folder = os.path.dirname(os.path.realpath(__file__))
+working_folder = os.getcwd()
 
 json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
