@@ -158,3 +158,16 @@ _autosummary/
 
 #vscode
 .vscode
+
+_autogen_Calculations.rst
+_autogen_FEA Geometry.rst
+_autogen_General.rst
+_autogen_Geometry.rst
+_autogen_Graphs.rst
+_autogen_Internal Scripting.rst
+_autogen_Lab.rst
+_autogen_Materials.rst
+_autogen_Thermal.rst
+_autogen_UI.rst
+_autogen_Utility.rst
+_autogen_Variables.rst

@@ -39,6 +39,7 @@ jobs:
 
   tests:
     name: Tests and coverage
+    needs: style
     runs-on: [self-hosted, pymotorcad]
     strategy:
       matrix:
@@ -105,6 +106,7 @@ jobs:
   build:
     name: Build library
     runs-on: ubuntu-latest
+    needs: tests
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python

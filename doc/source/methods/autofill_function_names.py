@@ -42,9 +42,9 @@ for i in range(len(function_categories)):
     file_name = file_names[i]
 
     current_folder = pathlib.Path(__file__).parent.resolve()
-    parent_path = str(current_folder.parents[2])
+    parent_path = current_folder.parents[2].absolute()
 
-    file_path = parent_path + r"\src\ansys\motorcad\core\methods\\" + file_name
+    file_path = str((parent_path / "src" /"ansys"/"motorcad"/"core"/"methods"/ file_name).absolute())
     methods_file = open(file_path)
 
     func_names = []
