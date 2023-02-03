@@ -1,0 +1,6 @@
+﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.update\_force\_analysis\_results
+===============================================================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.update_force_analysis_results

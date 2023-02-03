@@ -1,0 +1,6 @@
+﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.calculate\_operating\_point\_lab
+===============================================================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.calculate_operating_point_lab

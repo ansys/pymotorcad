@@ -1,0 +1,6 @@
+﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.edit\_magnet\_region
+===================================================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.edit_magnet_region
