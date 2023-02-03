@@ -91,9 +91,7 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }} 
           sphinxopts: '-j auto'
-
-
-
+          checkout: false
 
   doc-deploy:
     name: "Deploy development documentation"
