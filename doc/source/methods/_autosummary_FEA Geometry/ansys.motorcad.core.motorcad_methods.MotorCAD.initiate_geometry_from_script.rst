@@ -1,6 +1,0 @@
-﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.initiate\_geometry\_from\_script
-===============================================================================
-
-.. currentmodule:: ansys.motorcad.core.motorcad_methods
-
-.. automethod:: MotorCAD.initiate_geometry_from_script

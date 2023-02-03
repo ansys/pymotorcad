@@ -1,6 +1,0 @@
-﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.save\_iron\_loss\_coefficients
-=============================================================================
-
-.. currentmodule:: ansys.motorcad.core.motorcad_methods
-
-.. automethod:: MotorCAD.save_iron_loss_coefficients

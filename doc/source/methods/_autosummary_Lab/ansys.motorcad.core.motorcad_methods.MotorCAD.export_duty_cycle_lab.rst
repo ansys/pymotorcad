@@ -1,6 +1,0 @@
-﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.export\_duty\_cycle\_lab
-=======================================================================
-
-.. currentmodule:: ansys.motorcad.core.motorcad_methods
-
-.. automethod:: MotorCAD.export_duty_cycle_lab

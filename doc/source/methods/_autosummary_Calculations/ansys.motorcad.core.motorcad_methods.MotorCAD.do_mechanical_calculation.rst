@@ -1,6 +1,0 @@
-﻿ansys.motorcad.core.motorcad\_methods.MotorCAD.do\_mechanical\_calculation
-==========================================================================
-
-.. currentmodule:: ansys.motorcad.core.motorcad_methods
-
-.. automethod:: MotorCAD.do_mechanical_calculation

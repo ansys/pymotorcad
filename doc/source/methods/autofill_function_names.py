@@ -76,7 +76,6 @@ for i in range(len(function_categories)):
     # replace some names/paths
     file_contents = file_contents.replace("Category", category)
     file_contents = file_contents.replace("_autosummary_path", "_autosummary_" + category)
-    print("Docs write in ", new_file_name)
     doc_file.close()
 
     # write title to file
