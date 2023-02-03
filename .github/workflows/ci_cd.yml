@@ -76,25 +76,28 @@ jobs:
     runs-on: [self-hosted, pymotorcad]
     needs: doc-style
     steps:
-      - name: "Install Git and checkout the project"
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: "Install Python ${{ env.MAIN_PYTHON_VERSION }}"
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }} 
-      - name: "Run download examples"
-        run: |
-          python doc/source/methods/autofill_function_names.py
       - name: Ensure Motor-CAD not open
         run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
-      - name: "Run Ansys documentation building action"
-        uses: pyansys/actions/doc-build@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }} 
-          sphinxopts: '-j auto'
-          checkout: false
-          use-python-cache: false
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip tox tox-gh-actions
+      - name: Generate the documentation with tox
+        run: tox -e doc
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
 
   doc-deploy:
     name: "Deploy development documentation"
