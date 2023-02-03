@@ -8,7 +8,7 @@ The descriptions of the methods, input parameters and return values are given.
 
 :ref:`ref_MotorCAD_object`
 
-Motor-CAD Compatibility API
+Motor-CAD compatibility API
 =============================
 
 The MotorCADCompatibility object is used for running old ActiveX scripts. For more information on backwards

@@ -2,6 +2,11 @@ ANSYS
 Ansys
 ansys
 Motor-CAD
+MotorCAD
+MotorCADCompatibility
 API
 PyMotorCAD
 snake_case
+multiphysics
+OptiSLang
+Customisable
