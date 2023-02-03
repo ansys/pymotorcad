@@ -39,7 +39,7 @@ jobs:
 
   tests:
     name: Tests and coverage
-    needs: style
+    needs: doc-build
     runs-on: [self-hosted, pymotorcad]
     strategy:
       matrix:
@@ -94,6 +94,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }} 
           sphinxopts: '-j auto'
           checkout: false
+          use-python-cache: false
 
   doc-deploy:
     name: "Deploy development documentation"
