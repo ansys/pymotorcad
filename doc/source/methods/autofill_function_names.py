@@ -65,9 +65,9 @@ for i in range(len(function_categories)):
 
     methods_file.close()
 
-    new_file_name = str(current_folder) + r"\_autogen_" + category + ".rst"
+    new_file_name = str((current_folder / ("_autogen_" + category + ".rst")).absolute())
     # Copy template file
-    shutil.copyfile(str(current_folder) + r"\template.rst_template", new_file_name)
+    shutil.copyfile(str(current_folder / "template.rst_template"), new_file_name)
 
     # read file
     doc_file = open(new_file_name, "r")
