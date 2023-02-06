@@ -4,7 +4,7 @@
 import os
 
 import matplotlib.pyplot as plt
-import scipy
+from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
@@ -18,10 +18,10 @@ mcad = pymotorcad.MotorCAD()
 # Disable all popup messages from Motor-CAD
 mcad.set_variable("MessageDisplayState", 2)
 # Open relevant file
-working_folder = os.path.dirname(os.path.realpath(__file__))
+working_folder = os.getcwd()
 mcad.load_template("e8")
 mcad_name = "e8_mobility"
-mcad.save_to_file(os.path.join(working_folder, mcad_name, ".mot"))
+mcad.save_to_file(os.path.join(working_folder, mcad_name + ".mot"))
 
 print("Initialisation Complete")
 print("Running Simulation")
@@ -60,7 +60,7 @@ except pymotorcad.MotorCADError:
 
 
 # Retrieve results
-data = scipy.io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
+data = io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
 speed = data["Speed"]
 shaft_torque = data["Shaft_Torque"]
 shaft_power = data["Shaft_Power"]

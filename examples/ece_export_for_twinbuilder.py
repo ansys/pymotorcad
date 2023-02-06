@@ -8,7 +8,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
+from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
@@ -30,7 +30,7 @@ def read_parameters(json_file):
     return param_dict
 
 
-working_folder = os.path.dirname(os.path.realpath(__file__))
+working_folder = os.getcwd()
 
 json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
@@ -134,7 +134,7 @@ except pymotorcad.MotorCADError:
 
 # Load Saturation Map
 
-mat_file_data = scipy.io.loadmat(map_name)
+mat_file_data = io.loadmat(map_name)
 
 id_peak = mat_file_data["Id_Peak"]
 iq_peak = mat_file_data["Iq_Peak"]

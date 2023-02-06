@@ -14,7 +14,7 @@ if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
 
 # User setup
-working_folder = os.path.dirname(os.path.realpath(__file__))
+working_folder = os.getcwd()
 
 if os.path.isdir(working_folder) is False:
     print("Working folder does not exist. Please choose a folder that exists and try again.")
