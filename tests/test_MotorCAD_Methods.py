@@ -6,6 +6,7 @@ from setup_test import setup_test_env
 # Get Motor-CAD exe
 mc = setup_test_env()
 
+
 # Check MotorCADCompatibility object working as expected
 def test_motorcadcompatibility():
     # Ensure Motor-CAD has opened successfully

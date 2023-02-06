@@ -50,6 +50,7 @@ doc = [
 
 [project.urls]
 Source = "https://github.com/pyansys/pymotorcad"
+Documentation = "https://motorcad.docs.pyansys.com/"
 
 [tool.flit.module]
 name = "ansys.motorcad.core"

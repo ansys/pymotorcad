@@ -31,38 +31,41 @@ Pymotorcad core
    :alt: Black
 
 
-A Python RPC-JSON interface for Motor-CAD
+A Python RPC-JSON interface for Motor-CAD.
 
+Install the package
+-------------------
 
-How to install
---------------
+PyMotorCAD has two installation modes: user and developer.
 
-At least two installation modes are provided: user and developer.
+Install in user mode
+^^^^^^^^^^^^^^^^^^^^
 
-For users
-^^^^^^^^^
-
-In order to install PyMotorCAD, make sure you
-have the latest version of `pip`_. To do so, run:
+Before installing PyMotorCAD in user mode, make sure you
+have the latest version of `pip`_ with:
 
 .. code:: bash
 
     python -m pip install -U pip
 
-Then, you can simply execute:
+Then, install PyMotorCAD with:
 
 .. code:: bash
 
     python -m pip install ansys-motorcad-core
 
-For developers
-^^^^^^^^^^^^^^
+Install in developer mode
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Installing PyMotorCAD in developer mode allows
 you to modify the source and enhance it.
 
-Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You
-need to follow these steps:
+.. note::
+
+    Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You
+    need to follow these steps:
+
+To install PyMotorCAD in developer mode, perform these steps:
 
 #. Start by cloning this repository:
 
@@ -90,11 +93,7 @@ need to follow these steps:
 
     .. code:: bash
 
-        python -m pip install -U pip setuptools tox
-        python -m pip install -r requirements/requirements_build.txt
-        python -m pip install -r requirements/requirements_doc.txt
-        python -m pip install -r requirements/requirements_tests.txt
-
+        python -m pip install -U pip tox
 
 #. Install the project in editable mode:
 
@@ -108,7 +107,6 @@ need to follow these steps:
         
         tox
 
-
 How to testing
 --------------
 
@@ -119,15 +117,16 @@ development.
 Using tox
 ^^^^^^^^^
 
-As Makefile has rules, `tox`_ has environments. In fact, the tool creates its
-own virtual environment so anything being tested is isolated from the project in
-order to guarantee project's integrity. The following environments commands are provided:
+While Makefile has rules, `tox`_ has environments. In fact, ``tox`` creates its
+own virtual environment so that anything being tested is isolated from the project
+to guarantee the project's integrity.
+
+The following environments commands are provided:
 
 - **tox -e style**: checks for coding style quality.
 - **tox -e py**: checks for unit tests.
 - **tox -e py-coverage**: checks for unit testing and code coverage.
 - **tox -e doc**: checs for documentation building process.
-
 
 Raw testing
 ^^^^^^^^^^^
@@ -152,19 +151,22 @@ encouraged to install this tool via:
 Documentation
 -------------
 
-For building documentation, you can either run the usual rules provided in the
-`Sphinx`_ Makefile, such us:
+For building documentation, you can run the usual rules provided in the
+`Sphinx`_ Makefile, such as:
 
 .. code:: bash
 
     make -C doc/ html && your_browser_name doc/html/index.html
 
-However, the recommended way of checking documentation integrity is using:
+However, the recommended way of checking documentation integrity is to use
+``tox``:
 
 .. code:: bash
 
     tox -e doc && your_browser_name .tox/doc_out/index.html
 
+
+For more information, see the `Documentation <https://motorcad.docs.pyansys.com/>`_ page.
 
 Distributing
 ------------
@@ -174,10 +176,9 @@ the building requirements and then executing the build module:
 
 .. code:: bash
 
-    python -m pip install -r requirements/requirements_build.txt
+    python -m pip install -U pip
     python -m build
     python -m twine check dist/*
-
 
 .. LINKS AND REFERENCES
 .. _black: https://github.com/psf/black
