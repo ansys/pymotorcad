@@ -101,15 +101,11 @@ jobs:
   doc-deploy:
     name: "Deploy development documentation"
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # if: ${{ github.ref == 'refs/heads/main' }}
     needs: doc-build
     steps:
-      - uses: actions/download-artifact@v1
-        with:
-          name: documentation-html
-
       - name: "Deploy development documentation"
-        uses: pyansys/actions/doc-deploy-dev@v2
+        uses: pyansys/actions/doc-deploy-dev@v3
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
