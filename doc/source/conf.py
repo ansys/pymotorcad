@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
-from sphinx_gallery.sorting import FileNameSortKey
+# from sphinx_gallery.sorting import FileNameSortKey
 
 # Project information
 project = "ansys.motorcad.core"
