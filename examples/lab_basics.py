@@ -4,7 +4,7 @@
 import os
 
 import matplotlib.pyplot as plt
-import scipy
+from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
@@ -60,7 +60,7 @@ except pymotorcad.MotorCADError:
 
 
 # Retrieve results
-data = scipy.io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
+data = io.loadmat(os.path.join(working_folder, mcad_name, "Lab", "MotorLAB_elecdata.mat"))
 speed = data["Speed"]
 shaft_torque = data["Shaft_Torque"]
 shaft_power = data["Shaft_Power"]

@@ -8,7 +8,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
+from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
@@ -134,7 +134,7 @@ except pymotorcad.MotorCADError:
 
 # Load Saturation Map
 
-mat_file_data = scipy.io.loadmat(map_name)
+mat_file_data = io.loadmat(map_name)
 
 id_peak = mat_file_data["Id_Peak"]
 iq_peak = mat_file_data["Iq_Peak"]
