@@ -4,13 +4,6 @@ from datetime import datetime
 from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
 from sphinx_gallery.sorting import FileNameSortKey
 
-import sys
-
-sys.path.insert(0, "./methods")
-from autofill_function_names import generate_method_docs
-
-generate_method_docs()
-
 # Project information
 project = "ansys.motorcad.core"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
