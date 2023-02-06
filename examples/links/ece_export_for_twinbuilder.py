@@ -1,6 +1,7 @@
 """
-Motor-CAD Twin Builder export
-=============================
+Motor-CAD Twin Builder export.
+==============================
+
 This script allows to export an ECE model for PMSMs from Motor-CAD to ANSYS Twin Builder.
 """
 
@@ -11,9 +12,11 @@ This script allows to export an ECE model for PMSMs from Motor-CAD to ANSYS Twin
 import json
 import math
 import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import io
+
 import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:
@@ -23,9 +26,7 @@ mcad = pymotorcad.MotorCAD()
 
 # %%
 # Ensure Motor-CAD does not create any dialogs requesting user response
-mcad.set_variable(
-    "MessageDisplayState", 2
-)
+mcad.set_variable("MessageDisplayState", 2)
 
 # %%
 # read_parameters function allows to import the initial settings from a json file

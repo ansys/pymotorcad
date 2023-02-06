@@ -1,6 +1,6 @@
 """
-Motor-CAD thermal example script
-================================
+Motor-CAD thermal example script.
+=================================
 """
 
 # %%
@@ -8,7 +8,9 @@ Motor-CAD thermal example script
 # -----
 # Install the relevant packages
 import os
+
 import matplotlib.pyplot as plt
+
 import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:

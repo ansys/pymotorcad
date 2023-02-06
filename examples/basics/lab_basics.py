@@ -1,6 +1,6 @@
 """
-Motor-CAD Lab example script
-==============================
+Motor-CAD Lab example script.
+=============================
 """
 
 # %%

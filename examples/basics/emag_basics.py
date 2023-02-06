@@ -1,6 +1,6 @@
 """
-Motor-CAD E-Mag example script
-==============================
+Motor-CAD E-Mag example script.
+===============================
 """
 
 # %%
@@ -11,7 +11,9 @@ Motor-CAD E-Mag example script
 # See the Motor-CAD ActiveX tutorial section 7 for more information
 
 import os
+
 import matplotlib.pyplot as plt
+
 import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:
@@ -75,7 +77,8 @@ mcad.set_variable("Magnet_Thickness", 4.5)
 # :code:`mcad.set_variable('WindingLayers', 2)`
 #
 # Define a coil's parameters with
-# :code:`set_winding_coil(phase, path, coil, go_slot, go_position, return_slot, return_position, turns)`
+# :code:`set_winding_coil(phase,
+# path, coil, go_slot, go_position, return_slot, return_position, turns)`
 
 # %%
 # Set the stator/rotor lamination materials
@@ -139,7 +142,7 @@ line_voltage = mcad.get_variable("PeakLineLineVoltage")
 
 # %%
 # Torque graph data
-num_torque_points = (points_per_cycle * number_cycles) + 1
+num_torque_points = (points_per_cycle * number_cycles) - 1
 rotor_position = []
 torque_vw = []
 
