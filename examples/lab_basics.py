@@ -21,7 +21,7 @@ mcad.set_variable("MessageDisplayState", 2)
 working_folder = os.getcwd()
 mcad.load_template("e8")
 mcad_name = "e8_mobility"
-mcad.save_to_file(os.path.join(working_folder, mcad_name, ".mot"))
+mcad.save_to_file(os.path.join(working_folder, mcad_name + ".mot"))
 
 print("Initialisation Complete")
 print("Running Simulation")
