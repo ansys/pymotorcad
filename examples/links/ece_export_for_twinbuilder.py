@@ -1,15 +1,19 @@
-"""This script allows to export an ECE model for PMSMs from Motor-CAD to ANSYS Twin Builder."""
+"""
+Motor-CAD Twin Builder export
+=============================
+This script allows to export an ECE model for PMSMs from Motor-CAD to ANSYS Twin Builder.
+"""
+
+# %%
+# Setup
+# -----
 
 import json
 import math
-
-# Retain pyqt4 compatibility
 import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import io
-
 import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:
@@ -17,11 +21,13 @@ if "QT_API" in os.environ:
 
 mcad = pymotorcad.MotorCAD()
 
+# %%
+# Ensure Motor-CAD does not create any dialogs requesting user response
 mcad.set_variable(
     "MessageDisplayState", 2
-)  # Ensure Motor-CAD does not create any dialogs requesting user response
+)
 
-
+# %%
 # read_parameters function allows to import the initial settings from a json file
 def read_parameters(json_file):
     """Read input parameters."""
@@ -44,12 +50,14 @@ map_name = in_data["map_name"]
 txt_file = in_data["txt_file"]
 sml_file = in_data["sml_file"]
 
-# I. Input Settings
+# %%
+# Input Settings
 mcad.load_template("e8")
 mcad_name = "e8_mobility"
 mcad.save_to_file(os.path.join(working_folder, mcad_name))
 
-# II. Alignment Angle Detection
+# %%
+# Alignment Angle Detection
 
 points_per_cycle = 30
 mcad.set_variable("DCBusVoltage", dc_bus_voltage)
@@ -68,9 +76,10 @@ mcad.set_variable("TorqueSpeedCalculation", False)
 try:
     mcad.do_magnetic_calculation()
 except pymotorcad.MotorCADError:
-    mcad.show_message("Calculation Failed")
+    print("Calculation Failed")
 
-# II.a A-Phase FluxLinkage plot
+# %%
+# A-Phase FluxLinkage plot
 
 e_deg = []
 flux_a = []
@@ -80,8 +89,8 @@ for n in range(indexf + 1):
     e_deg.append(xa)
     flux_a.append(ya)
 
-# II.b Calculation of TorquePointsPerCycle
-
+# %%
+# Calculation of TorquePointsPerCycle
 p = mcad.get_variable("Pole_Number")
 drive = mcad.get_variable("DriveOffsetAngleLoad")
 phase_res = mcad.get_variable("ArmatureWindingResistancePh")
@@ -89,6 +98,8 @@ phase_l = mcad.get_variable("EndWdgInductance_Used")
 drive_offset = 90 + drive
 p = p / 2
 max_elec_degree = 120
+
+# %%
 # Factor function
 fac = []
 d = 2
@@ -110,9 +121,8 @@ m_period = max_elec_degree / p
 mec_deg = float(float(elec_deg) / float(p))
 points_per_cycle = 360 / elec_deg
 
-# III. Saturation Map Calculation
-
-
+# %%
+# Saturation Map Calculation
 mcad.set_variable("TorquePointsPerCycle", points_per_cycle)
 mcad.set_variable("SaturationMap_ExportFile", map_name)
 mcad.set_variable("SaturationMap_InputDefinition", 1)
@@ -130,8 +140,9 @@ mcad.set_variable("SaturationMap_Current_Q_Min", -Id_max)
 try:
     mcad.calculate_saturation_map()
 except pymotorcad.MotorCADError:
-    mcad.show_message("Map calculation failed")
+    print("Map calculation failed")
 
+# %%
 # Load Saturation Map
 
 mat_file_data = io.loadmat(map_name)
@@ -164,7 +175,8 @@ rotor_pos_9 = []
 final_table = []
 skip = math.ceil(drive_offset / elec_deg)
 
-# IV.b Implementation of FinalTable
+# %%
+# Implementation of FinalTable
 
 for i in range(d_values):
     for j in range(q_values):
@@ -196,8 +208,9 @@ final_table = np.array(
     [index_1, flux_d_2, flux_q_3, flux_0_4, torque_5, id_6, iq_7, phase_ad_8, rotor_pos_9]
 )
 
-# V. Flux linkages and Torque plot
-# V.a FluxD-Q plot
+# %%
+# Flux linkages and Torque plot
+# FluxD-Q plot
 
 plt.figure(1)
 plt.plot(e_deg, flux_a)
@@ -214,7 +227,8 @@ plt.legend(["Psid", "Psiq"], loc="lower right")
 plt.title("D-Q Flux")
 plt.show()
 
-# V.b Torque plot
+# %%
+# Torque plot
 
 plt.figure(3)
 plt.plot(index_1, torque_5, "r", linewidth=2.0)
@@ -223,7 +237,8 @@ plt.xlabel("Points")
 plt.title("Torque")
 plt.show()
 
-# V.c Flux Linkages vs q-axis current
+# %%
+# Flux Linkages vs q-axis current
 
 plt.figure(3)
 for i in range(d_values):
@@ -247,9 +262,9 @@ plt.xlabel("Iq [A]")
 plt.title("Q-Flux vs Iq")
 plt.show()
 
-# VI. .sml and .txt files creation
-# VI.a Writing the .txt text
-
+# %%
+# .sml and .txt files creation
+# Writing the .txt text
 rows = len(index_1)
 
 file_id = open(txt_file, "w")
@@ -293,8 +308,8 @@ file_id.write("%s\n" % "E_OutputMatrix")
 
 file_id.close()
 
-# VI.b Writing the .sml file
-
+# %%
+# Writing the .sml file
 file_id = open(sml_file, "w")
 file_id.write("%6s\r\n" % "MODELDEF ECER_Model1")
 file_id.write("%s\r\n" % "{")
