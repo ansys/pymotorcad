@@ -134,20 +134,21 @@ class _MotorCADConnection:
         Parameters
         ----------
         port : int
-            Port to use for communication
+            Port to use for communication.
         open_new_instance: Boolean
-            Open a new instance or try to connect to existing instance
+            Open a new instance or try to connect to existing instance.
         enable_exceptions : Boolean
-            Show Motor-CAD communication errors as Python exceptions
+            Show Motor-CAD communication errors as Python exceptions.
         enable_success_variable: Boolean
-            Motor-CAD methods return a success variable (first object in tuple)
+            Motor-CAD methods return a success variable (first object in tuple).
         reuse_parallel_instances: Boolean, optional
             Reuse MotorCAD instances when running in parallel. Need to free instances after use.
         compatibility_mode: Boolean, optional
-            Try to run an old script written for ActiveX
+            Try to run an old script written for ActiveX.
+
         Returns
         -------
-        MotorCAD object
+        MotorCAD object.
         """
         self._port = -1
         self._connected = False
@@ -440,7 +441,7 @@ class _MotorCADConnection:
         Returns
         -------
         ErrorMessage : str
-            Most recent error message
+            Most recent error message.
         """
         return self._last_error_message
 

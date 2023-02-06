@@ -1,4 +1,4 @@
-"""Module containing MotorCAD class for connecting to Motor-CAD exe."""
+"""Module containing ``MotorCAD`` class for connecting to Motor-CAD exe."""
 
 from warnings import warn
 
@@ -36,19 +36,19 @@ class MotorCAD(_MotorCADCore):
     Parameters
     ----------
     port : int, optional
-        Port to use for communication
+        Port to use for communication.
     open_new_instance : Boolean, optional
-        Open a new instance or try to connect to existing instance
+        Open a new instance or try to connect to existing instance.
     enable_exceptions : Boolean, optional
-        Show Motor-CAD communication errors as Python exceptions
+        Show Motor-CAD communication errors as Python exceptions.
     enable_success_variable : Boolean, optional
-        Motor-CAD methods return a success variable (first object in tuple)
+        Motor-CAD methods return a success variable (first object in tuple).
     reuse_parallel_instances : Boolean, optional
         Reuse MotorCAD instances when running in parallel. Need to free instances after use.
 
     Returns
     -------
-    MotorCAD object
+    MotorCAD object.
     """
 
     def __init__(
@@ -74,7 +74,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
     """Create a MotorCAD object that behaves the same as old ActiveX methods.
 
     Contains old CamelCase function names.
-    Can be used for old scripts that were written for ActiveX
+    Can be used for old scripts that were written for ActiveX.
     """
 
     warn(
