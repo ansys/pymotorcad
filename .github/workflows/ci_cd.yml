@@ -104,6 +104,10 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: doc-build
     steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: documentation-html
+
       - name: "Deploy development documentation"
         uses: pyansys/actions/doc-deploy-dev@v2
         with:
