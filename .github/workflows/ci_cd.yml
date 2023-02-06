@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: documentation-html
-          path: doc/_build/html
+          path: .tox/doc_out/
           retention-days: 7
 
   doc-deploy:
