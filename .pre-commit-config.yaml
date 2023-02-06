@@ -28,4 +28,4 @@ repos:
   hooks:
   - id: pydocstyle
     additional_dependencies: [toml]
-    exclude: "tests/"
+    exclude: tests/|examples/
