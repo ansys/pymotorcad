@@ -31,6 +31,7 @@ def test_get_temperature_graph_point():
     assert almost_equal(x, 16)
     assert almost_equal(y, 47.66)
 
+
 def test_get_temperature_graph():
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
@@ -43,6 +44,7 @@ def test_get_temperature_graph():
     assert almost_equal(x, x1[4])
     assert almost_equal(y, y1[4])
 
+
 def test_get_power_graph_point():
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
@@ -53,6 +55,7 @@ def test_get_power_graph_point():
 
     assert almost_equal(x, 16)
     assert almost_equal(y, 341.3)
+
 
 def test_get_power_graph():
     reset_to_default_file(mc)
@@ -66,6 +69,7 @@ def test_get_power_graph():
 
     assert almost_equal(x, x1[4])
     assert almost_equal(y, y1[4])
+
 
 def test_get_magnetic_graph():
     reset_to_default_file(mc)
