@@ -35,15 +35,15 @@ class MotorCAD(_MotorCADCore):
 
     Parameters
     ----------
-    port : int, optional
+    port : int, default: -1
         Port to use for communication.
-    open_new_instance : Boolean, optional
+    open_new_instance : Boolean, default: True
         Open a new instance or try to connect to existing instance.
-    enable_exceptions : Boolean, optional
+    enable_exceptions : Boolean, default: True
         Show Motor-CAD communication errors as Python exceptions.
-    enable_success_variable : Boolean, optional
+    enable_success_variable : Boolean, default: False
         Motor-CAD methods return a success variable (first object in tuple).
-    reuse_parallel_instances : Boolean, optional
+    reuse_parallel_instances : Boolean, default: False
         Reuse MotorCAD instances when running in parallel. Need to free instances after use.
 
     Returns

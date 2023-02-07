@@ -141,9 +141,9 @@ class _MotorCADConnection:
             Show Motor-CAD communication errors as Python exceptions.
         enable_success_variable: Boolean
             Motor-CAD methods return a success variable (first object in tuple).
-        reuse_parallel_instances: Boolean, optional
+        reuse_parallel_instances: Boolean
             Reuse MotorCAD instances when running in parallel. Need to free instances after use.
-        compatibility_mode: Boolean, optional
+        compatibility_mode: Boolean, default: False
             Try to run an old script written for ActiveX.
 
         Returns
