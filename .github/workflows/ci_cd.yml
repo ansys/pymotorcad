@@ -60,7 +60,7 @@ jobs:
 
   tests:
     name: Tests and coverage
-    needs: smoke-tests
+    needs: style
     runs-on: [self-hosted, pymotorcad]
 
     steps:
