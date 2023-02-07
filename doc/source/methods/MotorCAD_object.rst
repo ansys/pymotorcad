@@ -1,7 +1,7 @@
 .. _ref_MotorCAD_object:
 
 MotorCAD API
-==============================
+============
 
 .. currentmodule:: ansys.motorcad.core.motorcad_methods
 
