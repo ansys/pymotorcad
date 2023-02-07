@@ -83,5 +83,5 @@ This way, it's not possible for you to push code that fails the style checks. Fo
 .. _dev_guide_pyansys: https://dev.docs.pyansys.com/
 .. _dev_guide_contributing: https://dev.docs.pyansys.com/dev/how-to/contributing.html
 .. _dev_guide_coding_style: https://dev.docs.pyansys.com/dev/coding-style/index.html
-.. _PyMotorCAD_issues: https://github.com/pyansys/pymotocad/issues/
+.. _PyMotorCAD_issues: https://github.com/pyansys/pymotorcad/issues/
 .. _PyMotorCAD_docs: https://motorcad.docs.pyansys.com/
