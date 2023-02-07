@@ -7,12 +7,13 @@ PyMotorCAD documentation |version|
 ===================================
 
 .. toctree::
-    :maxdepth: 2
-    :hidden:
+   :maxdepth: 2
+   :hidden:
 
-    getting_started/index
-    user_guide/index
-    methods/index
+   getting_started/index
+   user_guide/index
+   methods/index
+   examples/index
 
 Introduction
 -------------
