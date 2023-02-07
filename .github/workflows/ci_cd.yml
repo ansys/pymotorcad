@@ -39,9 +39,28 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  smoke-tests:
+    name: Build and Smoke tests
+    runs-on: ${{ matrix.os }}
+    needs: style
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+
+    steps:
+      - name: Build wheelhouse and perform smoke test
+        uses: pyansys/actions/build-wheelhouse@v3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          library-namespace: ${{ env.PACKAGE_NAMESPACE }}
+          operating-system: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
+
   tests:
     name: Tests and coverage
-    needs: doc-build
+    needs: smoke-tests
     runs-on: [self-hosted, pymotorcad]
 
     steps:
@@ -109,7 +128,7 @@ jobs:
   package:
     name: Package library
     runs-on: ubuntu-latest
-    needs: tests
+    needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
         uses: pyansys/actions/build-library@v3
@@ -120,7 +139,7 @@ jobs:
   release:
     name: Release project
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [doc-build, package, tests]
+    needs: package
     runs-on: ubuntu-latest
     steps:
       - name: Release to PyPI repository
