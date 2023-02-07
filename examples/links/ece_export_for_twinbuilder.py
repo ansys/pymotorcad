@@ -28,6 +28,7 @@ mcad = pymotorcad.MotorCAD()
 # Ensure Motor-CAD does not create any dialogs requesting user response
 mcad.set_variable("MessageDisplayState", 2)
 
+
 # %%
 # read_parameters function allows to import the initial settings from a json file
 def read_parameters(json_file):
