@@ -440,7 +440,7 @@ class _MotorCADConnection:
 
         Returns
         -------
-        ErrorMessage : str
+        error_message : str
             Most recent error message.
         """
         return self._last_error_message

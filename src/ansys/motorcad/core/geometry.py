@@ -16,9 +16,9 @@ def xy_to_rt(x, y):
     Returns
     -------
     radius : float
-        radial coordinate value.
+        Radial coordinate value.
     theta : float
-        angular coordinate value.
+        Angular coordinate value.
     """
     rect_coordinates = complex(x, y)
 
@@ -33,9 +33,9 @@ def rt_to_xy(radius, theta):
     Parameters
     ----------
     radius : float
-        radial coordinate.
+        Radial coordinate.
     theta : float
-        angular coordinate.
+        Angular coordinate.
 
     Returns
     -------
