@@ -14,6 +14,7 @@ PyMotorCAD documentation |version|
    user_guide/index
    methods/index
    examples/index
+   contributing
 
 Introduction
 -------------
