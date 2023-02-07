@@ -3,8 +3,10 @@
 Getting started
 =======================
 .. toctree::
-   :maxdepth: 1
    :hidden:
+   :maxdepth: 2
+
+   running_motorcad
 
 
 PyMotorCAD provides pythonic access to Ansys Motor-CAD.
@@ -50,3 +52,22 @@ For a local *development* version, install with:
 
 This allows you to install the ``ansys-motorcad-core`` module, modify it locally and have the changes reflected in your
 setup after restarting the Python kernel.
+
+Ansys software requirements
+----------------------------
+For the latest features, you must have a copy of Ansys Motor-CAD v2023R1
+installed locally.
+
+For more information, see :ref:`install_MotorCAD`.
+
+Verify your installation
+----------------------------
+Check that Motor-CAD can be started from Python by running:
+
+.. code:: pycon
+
+    >>> import ansys.motorcad.core as pymotorcad
+    >>> mcApp = pymotorcad.MotorCAD()
+
+If successful, a Motor-CAD instance will be launched, appearing on the taskbar. You are now ready to start using
+Motor-CAD with PyMotorCAD. For more information on the PyMotorCAD interface, see the :ref:`ref_user_guide`.

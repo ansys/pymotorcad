@@ -9,7 +9,7 @@ User guide
    backwards_compatibility
    external_scripting
 
-PyMotorCAD provides Python access to Motor-CAD. The PyMotorCAD RPC API allows Motor-CAD to be controlled on a local machine or over HTTP from a remote machine.
+PyMotorCAD provides Python access  to Motor-CAD. The PyMotorCAD RPC API allows Motor-CAD to be controlled on a local machine or over HTTP from a remote machine.
 
 Through automation, Motor-CAD can be fully controlled by scripts, without using the GUI. Motor-CAD scripts can be utilised via the internal scripting tab within Ansys Motor-CAD or externally.
 
