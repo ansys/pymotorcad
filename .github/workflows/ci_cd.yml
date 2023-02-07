@@ -43,11 +43,6 @@ jobs:
     name: Tests and coverage
     needs: doc-build
     runs-on: [self-hosted, pymotorcad]
-    strategy:
-      matrix:
-        os: [windows-latest]
-        python-version: ${{ env.MAIN_PYTHON_VERSION }}
-      fail-fast: false
 
     steps:
       - uses: actions/checkout@v3
@@ -55,10 +50,10 @@ jobs:
       - name: Ensure Motor-CAD not open
         run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
           
       - name: Install dependencies
         run: |
