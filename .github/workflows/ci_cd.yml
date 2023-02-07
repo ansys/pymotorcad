@@ -39,24 +39,23 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # smoke-tests:
-  #   name: Build and Smoke tests
-  #   runs-on: ${{ matrix.os }}
-  #   needs: style
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [windows-latest]
-  #       python-version: ['3.7', '3.8', '3.9', '3.10']
-# 
-  #   steps:
-  #     - name: Build wheelhouse and perform smoke test
-  #       uses: pyansys/actions/build-wheelhouse@v3
-  #       with:
-  #         library-name: ${{ env.PACKAGE_NAME }}
-  #         library-namespace: ${{ env.PACKAGE_NAMESPACE }}
-  #         operating-system: ${{ matrix.os }}
-  #         python-version: ${{ matrix.python-version }}
+  smoke-tests:
+    name: Build and Smoke tests
+    runs-on: ${{ matrix.os }}
+    needs: style
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        python-version: ['3.7', '3.8', '3.9', '3.10'] 
+    steps:
+      - name: Build wheelhouse and perform smoke test
+        uses: pyansys/actions/build-wheelhouse@v3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          library-namespace: ${{ env.PACKAGE_NAMESPACE }}
+          operating-system: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
 
   tests:
     name: Tests and coverage
@@ -65,6 +64,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: test
 
       - name: Ensure Motor-CAD not open
         run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
@@ -92,6 +93,8 @@ jobs:
     needs: doc-style
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: doc
 
       - name: Ensure Motor-CAD not open
         run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
