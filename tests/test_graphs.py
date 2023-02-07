@@ -20,6 +20,53 @@ def test_get_magnetic_graph_point():
     assert almost_equal(y, 180.14)
 
 
+def test_get_temperature_graph_point():
+    # Simple transient
+    mc.set_variable("TransientCalculationType", 0)
+
+    mc.do_transient_analysis()
+
+    x, y = mc.get_temperature_graph_point("Housing [Active]", 4)
+
+    assert almost_equal(x, 16)
+    assert almost_equal(y, 47.66)
+
+def test_get_temperature_graph():
+    # Simple transient
+    mc.set_variable("TransientCalculationType", 0)
+
+    mc.do_transient_analysis()
+
+    x, y = mc.get_temperature_graph_point("Housing [Active]", 4)
+    x1, y1 = mc.get_temperature_graph("Housing [Active]")
+
+    assert almost_equal(x, x1[4])
+    assert almost_equal(y, y1[4])
+
+def test_get_power_graph_point():
+    # Simple transient
+    mc.set_variable("TransientCalculationType", 0)
+
+    mc.do_transient_analysis()
+
+    x, y = mc.get_power_graph_point("Stator Back Iron", 4)
+
+    assert almost_equal(x, 16)
+    assert almost_equal(y, 341.3)
+
+def test_get_power_graph():
+    reset_to_default_file(mc)
+    # Simple transient
+    mc.set_variable("TransientCalculationType", 0)
+
+    mc.do_transient_analysis()
+
+    x, y = mc.get_power_graph_point("Stator Back Iron", 4)
+    x1, y1 = mc.get_power_graph("Stator Back Iron")
+
+    assert almost_equal(x, x1[4])
+    assert almost_equal(y, y1[4])
+
 def test_get_magnetic_graph():
     reset_to_default_file(mc)
     mc.set_variable("TorqueCalculation", True)
