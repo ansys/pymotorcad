@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.7'
+  MAIN_PYTHON_VERSION: '3.10'
   PACKAGE_NAME: ansys-motorcad-core
   PACKAGE_NAMESPACE: ansys.motorcad.core
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ${{ env.MAIN_PYTHON_VERSION }}
       fail-fast: false
 
     steps:
@@ -69,7 +69,6 @@ jobs:
         run: tox -e py310-coverage  
         
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.10'
         name: 'Upload coverage to Codecov'
 
 
