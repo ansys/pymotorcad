@@ -142,7 +142,7 @@ line_voltage = mcad.get_variable("PeakLineLineVoltage")
 
 # %%
 # Torque graph data
-num_torque_points = (points_per_cycle * number_cycles)
+num_torque_points = points_per_cycle * number_cycles
 rotor_position = []
 torque_vw = []
 

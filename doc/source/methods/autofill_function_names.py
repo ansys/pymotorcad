@@ -92,5 +92,6 @@ def generate_method_docs():
         for func_name in func_names:
             doc_file.write("   " + func_name + "\n")
 
+
 if __name__ == "__main__":
     generate_method_docs()
