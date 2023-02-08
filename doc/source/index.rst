@@ -14,6 +14,7 @@ PyMotorCAD documentation |version|
    user_guide/index
    methods/index
    examples/index
+   contributing
 
 Introduction
 -------------
@@ -66,7 +67,7 @@ Documentation and issues
 -------------------------
 
 The PyMotorCAD documentation provides installation and usage information
-
+For more information, see the `Documentation <https://motorcad.docs.pyansys.com/>`_ page.
 
 On the `PyMotorCAD Issues <https://github.com/pyansys/pymotorcad/issues>`_
 page, issues can be created to submit questions, report bugs, and request
