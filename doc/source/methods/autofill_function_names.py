@@ -55,7 +55,8 @@ def generate_method_docs():
 
         for line in methods_file:
             # get function names from file
-            if ("    def" in line) and (not "__init__" in line):
+            if ("    def" in line) and (not "def _" in line):
+                # Don't include internal functions
                 test = re.search("    def.*\(", line)
                 get_name = test.group()
 
@@ -90,3 +91,6 @@ def generate_method_docs():
 
         for func_name in func_names:
             doc_file.write("   " + func_name + "\n")
+
+if __name__ == "__main__":
+    generate_method_docs()

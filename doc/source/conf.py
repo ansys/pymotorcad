@@ -1,9 +1,16 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
 import os
+import sys
 
 from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
 from sphinx_gallery.sorting import FileNameSortKey
+
+# Generate MotorCAD API methods docs
+sys.path.insert(0, "./methods")
+from autofill_function_names import generate_method_docs
+
+generate_method_docs()
 
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 
