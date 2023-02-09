@@ -1,5 +1,7 @@
 """
-Motor-CAD thermal example script.
+.. _ref_thermal_basics:
+
+Motor-CAD thermal example script
 =================================
 """
 
