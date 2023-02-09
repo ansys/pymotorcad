@@ -156,6 +156,11 @@ _autosummary/
 # Pycharm
 /.idea
 
+#vscode
+.vscode
+
+doc/source/examples/gallery_examples/*
+
 # examples generated mot files
 /examples/*
 !/examples/*.py

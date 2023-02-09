@@ -1,4 +1,4 @@
-"""Function for Motor-CAD geometry not attached to Motor-CAD instance."""
+"""Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from math import degrees, radians
 
@@ -9,15 +9,16 @@ def xy_to_rt(x, y):
     Parameters
     ----------
     x : float
-        x coordinate
+        X coordinate value.
     y : float
-        y coordinate
+        Y coordinate value.
+
     Returns
     -------
     radius : float
-        radial coordinate
+        Radial coordinate value.
     theta : float
-        angular coordinate
+        Angular coordinate value.
     """
     rect_coordinates = complex(x, y)
 
@@ -32,15 +33,16 @@ def rt_to_xy(radius, theta):
     Parameters
     ----------
     radius : float
-        radial coordinate
+        Radial coordinate.
     theta : float
-        angular coordinate
+        Angular coordinate.
+
     Returns
     -------
     x : float
-        x coordinate
+        X coordinate.
     y : float
-        y coordinate
+        Y coordinate.
     """
     coordinates_complex = rect(radius, radians(theta))
 
