@@ -45,7 +45,6 @@ def test_set_motorcad_exe():
 
 # Test the method used to connect to Motor-CAD from internal scripting
 def test_internal_connection():
-
     port = mc.connection._port
 
     pymotorcad.rpc_client_core.set_default_instance(port)

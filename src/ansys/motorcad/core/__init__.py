@@ -1,4 +1,4 @@
-"""motorcad.core."""
+"""PyMotorCAD is a Python RPC-JSON interface for Motor-CAD."""
 
 __version__ = "0.1.dev2"
 

@@ -27,9 +27,6 @@ This includes a stable version of PyMotorCAD.
 The PyMotorCAD Python package is based around the ``MotorCAD()`` Python object.
 Each individual ``MotorCAD()`` object represents an instance of Motor-CAD.
 
-Within the Motor-CAD GUI, there is a Scripting tab (available in the E-Magnetic, Thermal and Mechanical contexts).
-This tab facilitates the creating, editing, loading, and saving of internal scripts in Motor-CAD.
-
 For more information on using PyMotorCAD via the internal Scripting tab in Motor-CAD, see :ref:`ref_internal_scripting`.
 
 Using PyMotorCAD scripts externally

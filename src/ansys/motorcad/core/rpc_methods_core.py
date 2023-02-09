@@ -1,4 +1,4 @@
-"""Contains all the JSON-RPC API calls for Motor-CAD.
+"""Contains all the ``JSON-RPC`` API calls for Motor-CAD.
 
 Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 """
