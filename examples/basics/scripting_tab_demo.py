@@ -7,8 +7,9 @@ Motor-CAD Scripting Tab demo script
 
 # %%
 # This demo script is the Default Script for the internal Scripting Tab within Motor-CAD.
-# It may be used as a starting point for users to begin scripting internally for Motor-CAD automation,
-# providing examples of how PyMotorCAD methods and Motor-CAD automation parameters should be used.
+# It may be used as a starting point for users to begin scripting internally for Motor-CAD
+# automation, providing examples of how PyMotorCAD methods and Motor-CAD automation parameters
+# should be used.
 #
 # See the Motor-CAD Automation tutorial (section 2.iii),
 # provided with a Motor-CAD installation, for more information.
@@ -30,8 +31,11 @@ mcApp = pymotorcad.MotorCAD()
 # Main Function
 # --------------
 # The function :code:`main` is called when "Run" is pressed in the Motor-CAD GUI.
-# :code:`main` can be used to test functions before running a calculation e.g. running thermal steady initial function.
-# Alternatively, it can be used to run calculations within another defined function, such as :code:`demo_func`.
+# :code:`main` can be used to test functions before running a calculation
+# e.g. running thermal steady initial function.
+# Alternatively, it can be used to run calculations within another defined function,
+# such as :code:`demo_func`.
+
 
 def main():
     user_func = thermal_steady()
@@ -59,6 +63,7 @@ def main():
 # The results will be shown in the Message Display window.
 # The last line of the function restores the message dialogs again.
 
+
 def demo_func():
     array_tooth_widths = [1, 1.5, 2.0]
 
@@ -68,7 +73,9 @@ def demo_func():
         mcApp.show_message("Tooth width = " + str(toothWidth))
         mcApp.set_variable("Tooth_Width", toothWidth)
         mcApp.do_steady_state_analysis()
-        temperature = mcApp.get_variable("T_[WINDING_AVERAGE]", )
+        temperature = mcApp.get_variable(
+            "T_[WINDING_AVERAGE]",
+        )
         mcApp.show_message("Winding temperature = " + str(temperature))
 
     mcApp.set_variable("MessageDisplayState", 0)
@@ -86,12 +93,13 @@ def demo_func():
 #       Scripting -> Settings tab in Ansys Motor-CAD v2023R1
 #
 # If "Run During Analysis" is selected then this script will be imported.
-# This means that anything other than setting up the MotorCAD object should be moved to a function/class to avoid
-# unexpected behaviour.
+# This means that anything other than setting up the MotorCAD object should be moved to a
+# function/class to avoid unexpected behaviour.
 #
-# Five classes are defined: :code:`thermal_steady`, :code:`thermal_transient`, :code:`emagnetic`,
-# :code:`mechanical_stress` and :code:`mechanical_forces`.
-# Each contains multiple functions: :code:`initial`, :code:`final` and, for the thermal classes, :code:`main`.
+# Five classes are defined: :code:`thermal_steady`, :code:`thermal_transient`,
+# :code:`emagnetic`, :code:`mechanical_stress` and :code:`mechanical_forces`.
+# Each contains multiple functions: :code:`initial`, :code:`final` and, for the
+# thermal classes, :code:`main`.
 #
 # :code:`initial` is called before the calculation
 #
@@ -101,63 +109,73 @@ def demo_func():
 #
 # The class :code:`thermal_steady` contains functions for steady-state thermal calculations:
 
-class thermal_steady():
+
+class thermal_steady:
     def initial(self):
         self.step = 0
-        print('Thermal Steady State - Initial')
+        print("Thermal Steady State - Initial")
 
     def main(self):
         self.step = self.step + 1
-        print('Step: ' + str(self.step) + '. Thermal Steady State - Main')
+        print("Step: " + str(self.step) + ". Thermal Steady State - Main")
 
     def final(self):
-        print('Thermal Steady State - Final')
+        print("Thermal Steady State - Final")
+
 
 # %%
 # The class :code:`thermal_transient` contains functions for transient thermal calculations:
 
-class thermal_transient():
+
+class thermal_transient:
     def initial(self):
         self.step = 0
-        print('Thermal Transient - Initial')
+        print("Thermal Transient - Initial")
 
     def main(self):
         self.step = self.step + 1
-        print('Step: ' + str(self.step) + '. Thermal Transient State - Main')
+        print("Step: " + str(self.step) + ". Thermal Transient State - Main")
 
     def final(self):
-        print('Thermal Transient - Final')
+        print("Thermal Transient - Final")
+
 
 # %%
 # The class :code:`emagnetic` contains functions for E-Magnetic calculations:
 
-class emagnetic():
+
+class emagnetic:
     def initial(self):
-        print('E-Magnetic - Initial')
+        print("E-Magnetic - Initial")
 
     def final(self):
-        print('E-Magnetic - Final')
+        print("E-Magnetic - Final")
+
 
 # %%
 # The class :code:`mechanical_stress` contains functions for Mechanical Stress calculations:
 
-class mechanical_stress():
+
+class mechanical_stress:
     def initial(self):
-        print('Mech Stress - Initial')
+        print("Mech Stress - Initial")
 
     def final(self):
-        print('Mech Stress - Final')
+        print("Mech Stress - Final")
+
 
 # %%
 # The class :code:`mechanical_forces` contains functions for Mechanical Forces calculations:
 
-class mechanical_forces():
+
+class mechanical_forces:
     def initial(self):
-        print('Mech Forces - Initial')
+        print("Mech Forces - Initial")
 
     def final(self):
-        print('Mech Forces - Final')
+        print("Mech Forces - Final")
+
 
 # %%
-# Add scripts that are to be run before, during or after a particular Motor-CAD calculation to the relevant
-# functions above.
+# Add scripts that are to be run before, during or after a particular Motor-CAD
+# calculation to the relevant functions above.
