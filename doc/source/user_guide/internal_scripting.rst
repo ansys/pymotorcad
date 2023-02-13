@@ -1,5 +1,3 @@
-.. _ref_internal_scripting:
-
 Motor-CAD Internal Scripting Tab
 ==================================
 
@@ -31,3 +29,4 @@ internally in Motor-CAD.
 The :ref:`ref_scripting_tab_demo` can be found under :ref:`ref_examples` along with more information and details.
 
 Alternatively, any Python script may be added here and run from this tab.
+
