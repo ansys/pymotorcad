@@ -10,8 +10,9 @@ env:
   PACKAGE_NAMESPACE: ansys.motorcad.core
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-permissions:
-  packages: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
