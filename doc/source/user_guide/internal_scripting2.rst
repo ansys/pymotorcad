@@ -1,6 +1,6 @@
 .. _ref_internal_scripting:
 
-Motor-CAD Internal Scripting Tab
+Motor-CAD internal Scripting tab
 ==================================
 
 The internal scripting tab facilitates the creating, editing, loading, and saving of internal Python scripts in Motor-CAD.

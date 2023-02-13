@@ -9,7 +9,7 @@ Getting started
    running_motorcad
 
 
-PyMotorCAD provides pythonic access to Ansys Motor-CAD.
+PyMotorCAD provides access to Ansys Motor-CAD via Python.
 
 To run PyMotorCAD, there must be a licensed copy of Motor-CAD v2023R1 or later installed locally.
 
