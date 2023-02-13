@@ -2,7 +2,6 @@ name: Nightly MotorCAD check
 
 on:
   workflow_dispatch:
-  push:
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
 
