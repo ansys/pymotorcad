@@ -61,7 +61,7 @@ Features of PyMotorCAD include:
 - The ability to control communication and couple/link Motor-CAD with other software (for example Ansys optiSLang)
 - The ability to run automated sensitivity analysis studies and/or select tolerance build up to produce robust designs
 - Allowing users to introduce their own formulations into Motor-CAD
-- The running of multiple parallel Motor-CAD instances via an external script. Ansys OptiSLang can be employed to carry out detailed optimisations by controlling multiple Motor-CAD instances in parallel.
+- The running of multiple parallel Motor-CAD instances via an external script. Ansys optiSLang can be employed to carry out detailed optimisations by controlling multiple Motor-CAD instances in parallel.
 - Example scripts for tutorials on Motor-CAD features and abilities.
 - Customisable example scripts for common or advanced workflows, both within Motor-CAD and involving the coupling of Motor-CAD to other software.
 
