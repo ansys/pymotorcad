@@ -1,6 +1,12 @@
-"""Example Motor-CAD scripting."""
+"""
+Motor-CAD thermal example script.
+=================================
+"""
+
+# %%
+# Setup
+# -----
 # Install the relevant packages
-# Retain pyqt4 compatibility
 import os
 
 import matplotlib.pyplot as plt
@@ -10,42 +16,53 @@ import ansys.motorcad.core as pymotorcad
 if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
 
+# %%
 # Initialise ActiveX automation and launch Motor-CAD
 print("Start Initialisation")
 mcad = pymotorcad.MotorCAD()
 
+# %%
 # Disable all popup messages from Motor-CAD
 mcad.set_variable("MessageDisplayState", 2)
 
+# %%
 # Open relevant file
-working_folder = os.path.dirname(os.path.realpath(__file__))
+working_folder = os.getcwd()
 mcad.load_template("e8")
 mcad_name = "e8_mobility"
 mcad.save_to_file(os.path.join(working_folder, mcad_name))
 
-mcad.load_from_file(os.path.join(working_folder, mcad_name, ".mot"))
+mcad.load_from_file(os.path.join(working_folder, mcad_name + ".mot"))
 
 print("Initialisation Complete")
-print("Running Simulation")
 
+# %%
+# Thermal setup
+# -------------
 # Show thermal context
 mcad.show_thermal_context()
 
+# %%
 # Display scripting tab
 mcad.display_screen("Scripting")
 
+# %%
 # Change housing diameter
 mcad.set_variable("Housing_Dia", 250)
 
+# %%
 # Set the WJ Fluid Volume Flow Rate
 mcad.set_variable("WJ_Fluid_Volume_Flow_Rate", 0.002)
 
+# %%
 # Set the WJ Fluid Inlet Temperature
 mcad.set_variable("WJ_Fluid_Inlet_Temperature", 25)
 
+# %%
 # Change the cooling fluid
 mcad.set_fluid("HousingWJFluid", "Dynalene HF-LO")
 
+# %%
 # Heat Transfer Correlation
 mcad.set_variable("Calc/Input_h[WJ]_Rear_Housing", 1)
 mcad.set_array_variable("HousingWJ_CalcInputH_A", 0, 1)
@@ -65,21 +82,25 @@ print("h_R = ", h_R)
 mcad.set_array_variable("HousingWJ_InputH_A", 0, h_A)
 mcad.set_variable("Input_Value_h[WJ]_Rear_Housing", h_R)
 
+# %%
 # Save File
-mcad.save_to_file(os.path.join(working_folder, "MotorCAD_Thermal_Python.mot"))
+mcad.save_to_file(os.path.join(working_folder, "../MotorCAD_Thermal_Python.mot"))
 
+# %%
 # Steady state calculation
+# ------------------------
 try:
     mcad.do_steady_state_analysis()
-    mcad.show_message("Thermal calculation successfully completed")
+    print("Thermal calculation successfully completed")
 except pymotorcad.MotorCADError:
-    mcad.show_message("Thermal calculation failed")
+    print("Thermal calculation failed")
 
-
+# %%
 # Retrieve magnet temperature
 node_temperature = mcad.get_node_temperature(13)
 print("Node Temp = ", node_temperature)
 
+# %%
 # Retrieve min/max/average values
 winding_temperature_min = mcad.get_variable("T_[Winding_Min]")
 winding_temperature_max = mcad.get_variable("T_[Winding_Max]")
@@ -88,15 +109,18 @@ print("Min = ", winding_temperature_min)
 print("Max = ", winding_temperature_max)
 print("Average = ", winding_temperature_average)
 
+# %%
 # Transient Simulation
+# ------------------------
 mcad.set_variable("Transient_Calculation_Type", 0)
 mcad.set_variable("Transient_Time_Period", 60)
 
 try:
     mcad.do_transient_analysis()
 except pymotorcad.MotorCADError:
-    mcad.show_message("Thermal calculation failed")
+    print("Thermal calculation failed")
 
+# %%
 # Transient Results
 num_time_steps = 51
 winding_temp_average_transient = []
@@ -108,9 +132,11 @@ for timeStep in range(num_time_steps):
         time.append(x)
         winding_temp_average_transient.append(y)
     except pymotorcad.MotorCADError:
-        mcad.show_message("Export failed")
+        print("Export failed")
 
-# Graph
+# %%
+# Plot results
+# ------------
 plt.figure(1)
 plt.plot(time, winding_temp_average_transient)
 plt.xlabel("Time")

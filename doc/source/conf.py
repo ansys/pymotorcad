@@ -1,13 +1,24 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
+import os
+import sys
 
-from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from sphinx_gallery.sorting import FileNameSortKey
+
+# Generate MotorCAD API methods docs
+sys.path.insert(0, "./methods")
+from autofill_function_names import generate_method_docs
+
+generate_method_docs()
+
+cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 
 # Project information
 project = "ansys.motorcad.core"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "ANSYS, Inc."
-release = version = "0.1.dev1"
+release = version = "0.1.dev0"
 
 # Select desired logo, theme, and declare the html title
 html_logo = pyansys_logo_black
@@ -29,6 +40,11 @@ html_theme_options = {
             "icon": "fa fa-comment fa-fw",
         },
     ],
+    "switcher": {
+        "json_url": f"https://{cname}/release/versions.json",
+        "version_match": get_version_match(version),
+    },
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
 }
 
 # Sphinx extensions
@@ -38,7 +54,29 @@ extensions = [
     "numpydoc",
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
 ]
+
+sphinx_gallery_conf = {
+    # convert rst to md for ipynb
+    "pypandoc": True,
+    # path to your examples scripts
+    "examples_dirs": ["../../examples/"],
+    # path where to save gallery generated examples
+    "gallery_dirs": ["examples"],
+    # Pattern to search for example files
+    "filename_pattern": r"\.py",
+    # Remove the "Download all examples" button from the top level gallery
+    "download_all_examples": False,
+    # Sort gallery example by file name instead of number of lines (default)
+    "within_subsection_order": FileNameSortKey,
+    # directory where function granular galleries are stored
+    "backreferences_dir": None,
+    # Modules for which function level galleries are created.  In
+    "doc_module": "ansys-motorcad-core",
+    "image_scrapers": "matplotlib",
+    "ignore_pattern": "flycheck*",
+}
 
 # Intersphinx mapping
 intersphinx_mapping = {
@@ -77,10 +115,6 @@ numpydoc_validation_checks = {
 
 # static path
 html_static_path = ["_static"]
-
-html_css_files = [
-    "custom.css",
-]
 
 html_favicon = ansys_favicon
 

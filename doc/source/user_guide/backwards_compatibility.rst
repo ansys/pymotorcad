@@ -1,3 +1,5 @@
+.. _ref_backwards_compatibility:
+
 Backwards compatibility with old scripts
 ========================================
 
@@ -11,6 +13,7 @@ Old scripts connect to Motor-CAD using ActiveX:
 .. code:: python
 
     import win32com.client
+
     mcApp = win32com.client.Dispatch("MotorCAD.AppAutomation")
 
 To connect to Motor-CAD using PyMotorCAD replace these 2 lines with:
@@ -18,6 +21,7 @@ To connect to Motor-CAD using PyMotorCAD replace these 2 lines with:
 .. code:: python
 
     import ansys.motorcad.core as pymotorcad
+
     mcApp = pymotorcad.MotorCADCompatibility()
 
 The script now runs using PyMotorCAD.
