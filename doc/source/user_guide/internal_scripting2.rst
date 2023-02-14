@@ -21,7 +21,7 @@ To connect with Motor-CAD from an internal script on the Scripting tab, access t
 PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``.
 This can be used to set and get values before, during, and after calculations, and to create a script for Motor-CAD automation.
 
-A Default Script is shown on the Scripting Tab, which can be used as a starting point for users that wish to script
+A Default Script is shown on the Scripting tab, which can be used as a starting point for users that wish to script
 internally in Motor-CAD.
 
 .. figure:: ../images/scriptingtab_UG_2.png
@@ -31,10 +31,10 @@ internally in Motor-CAD.
 
 Alternatively, any Python script may be added here and run from this tab.
 
-Motor-CAD Scripting Tab demo script
+Motor-CAD Scripting tab demo script
 ************************************
 
-This demo script is the Default Script for the internal Scripting Tab within Motor-CAD,
+This demo script is the Default Script for the internal Scripting tab within Motor-CAD,
 providing examples of how PyMotorCAD methods and Motor-CAD automation parameters
 should be used.
 
@@ -56,11 +56,11 @@ Connect to Motor-CAD
     mcApp = pymotorcad.MotorCAD()
 
 
-Main Function
+Main function
 --------------
 The function :code:`main` is called when "Run" is pressed in the Motor-CAD GUI.
 :code:`main` can be used to test functions before running a calculation
-e.g. running thermal steady initial function.
+for example running thermal steady initial function.
 Alternatively, it can be used to run calculations within another defined function,
 such as :code:`demo_func`.
 
@@ -74,7 +74,7 @@ such as :code:`demo_func`.
         demo_func()
 
 
-Demo Function
+Demo function
 --------------
 A demo function is defined, which sets the :code:`tooth_width` and runs thermal calculations.
 
@@ -82,13 +82,13 @@ All messages are set to display in a separate window using the PyMotorCAD method
 :code:`mcApp.set_variable("MessageDisplayState", 2)`
 
  .. note::
-    This will disable crucial popups e.g. prompts to save files, overwrite data etc.
+    This disables crucial popups (for example prompts to save files, overwrite data etc.).
     Ensure that this is the desired behaviour.
 
 The demo function will define a range of values for the :code:`tooth_width`,
 run a Steady State Thermal calculation and get the average winding temperature for each.
 The results will be shown in the Message Display window.
-The last line of the function restores the message dialogs again.
+The last line of the function restores the message dialog again.
 
 
 .. code:: python
@@ -211,4 +211,4 @@ The class :code:`mechanical_forces` contains functions for Mechanical Forces cal
 
 
 Add scripts that are to be run before, during or after a particular Motor-CAD
-calculation to the relevant functions above.
+calculation to the relevant functions.

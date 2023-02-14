@@ -8,5 +8,5 @@ API
 PyMotorCAD
 snake_case
 multiphysics
-OptiSLang
+optiSLang
 Customisable

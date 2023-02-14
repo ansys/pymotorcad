@@ -25,7 +25,7 @@ Installation
 
 Python module
 --------------
-The ``ansys.motorcad.core`` package currently supports Python Python 3.7 through Python 3.10 on Windows.
+The ``ansys.motorcad.core`` package currently supports Python 3.7 through Python 3.10 on Windows.
 
 Install the latest release from
 `PyPi <pymotorcad_pypi_>`_ with:
@@ -69,5 +69,5 @@ Check that Motor-CAD can be started from Python by running:
     >>> import ansys.motorcad.core as pymotorcad
     >>> mcApp = pymotorcad.MotorCAD()
 
-If successful, a Motor-CAD instance will be launched, appearing on the taskbar. You are now ready to start using
+If successful, a Motor-CAD instance is launched, appearing on the taskbar. You are now ready to start using
 Motor-CAD with PyMotorCAD. For more information on the PyMotorCAD interface, see the :ref:`ref_user_guide`.
