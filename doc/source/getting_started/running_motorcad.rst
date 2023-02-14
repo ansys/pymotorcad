@@ -19,7 +19,7 @@ The Motor-CAD installer can be downloaded from the Ansys Customer Portal.
 A valid Motor-CAD licence is required to run the software.
 Once the Windows setup file is downloaded, run this as administrator.
 It may take up to around 5 minutes to prepare the installation wizard.
-Then follow the steps, reading and accepting the license agreement, to proceed with installing Motor-CAD.
+Then follow the steps to proceed with installing Motor-CAD: read and accept the license agreement etc.
 The installation may take several minutes to complete.
 
 Launch Motor-CAD

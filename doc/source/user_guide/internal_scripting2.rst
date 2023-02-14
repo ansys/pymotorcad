@@ -85,9 +85,9 @@ All messages are set to display in a separate window using the PyMotorCAD method
     This disables crucial popups (for example prompts to save files, overwrite data etc.).
     Ensure that this is the desired behaviour.
 
-The demo function will define a range of values for the :code:`tooth_width`,
+The demo function defines a range of values for the :code:`tooth_width`,
 run a Steady State Thermal calculation and get the average winding temperature for each.
-The results will be shown in the Message Display window.
+Results are shown in the Message Display window.
 The last line of the function restores the message dialog again.
 
 
@@ -112,7 +112,7 @@ The last line of the function restores the message dialog again.
 
 Functions Run during Calculations
 ----------------------------------
-These functions will only run when the option "Run During Analysis" is selected from the
+These functions only run when the option "Run During Analysis" is selected from the
 Scripting -> Settings tab in Motor-CAD (found under Script Control).
 
 .. figure:: ../images/scriptingtab_UG.png
@@ -120,7 +120,7 @@ Scripting -> Settings tab in Motor-CAD (found under Script Control).
 
     Scripting -> Settings tab in Ansys Motor-CAD v2023R1
 
-If "Run During Analysis" is selected then this script will be imported.
+If "Run During Analysis" is selected then this script is imported.
 This means that anything other than setting up the MotorCAD object should be moved to a
 function/class to avoid unexpected behaviour.
 
@@ -210,5 +210,5 @@ The class :code:`mechanical_forces` contains functions for Mechanical Forces cal
             print("Mech Forces - Final")
 
 
-Add scripts that are to be run before, during or after a particular Motor-CAD
+Add scripts that are to be run before, during, or after a particular Motor-CAD
 calculation to the relevant functions.

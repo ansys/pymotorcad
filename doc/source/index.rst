@@ -59,7 +59,7 @@ Features of PyMotorCAD include:
 - The ability to automate workflows/methodologies within an instance of Motor-CAD via the internal Scripting tab. For details on internal scripting in Motor-CAD see the :ref:`ref_user_guide`.
 - Automation control of Motor-CAD via external scripts. Workflows/methodologies can be carried out with either a visible Motor-CAD GUI or via BlackBox mode. For adding PyMotorCAD to your own Python see :ref:`ref_external_scripting`.
 - The ability to control communication and couple/link Motor-CAD with other software (for example Ansys optiSLang)
-- The ability to run automated sensitivity analysis studies and/or check tolerance build up to produce robust designs
+- The ability to run automated sensitivity analysis studies and/or select tolerance build up to produce robust designs
 - Allowing users to introduce their own formulations into Motor-CAD
 - The running of multiple parallel Motor-CAD instances via an external script. Ansys OptiSLang can be employed to carry out detailed optimisations by controlling multiple Motor-CAD instances in parallel.
 - Example scripts for tutorials on Motor-CAD features and abilities.
