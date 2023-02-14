@@ -15,6 +15,7 @@ To connect with Motor-CAD from an internal script on the Scripting tab, access t
 .. code:: python
 
     import ansys.motorcad.core as pymotorcad
+
     mcApp = pymotorcad.MotorCAD()
 
 PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``.
@@ -101,7 +102,9 @@ The last line of the function restores the message dialogs again.
             mcApp.show_message("Tooth width = " + str(toothWidth))
             mcApp.set_variable("Tooth_Width", toothWidth)
             mcApp.do_steady_state_analysis()
-            temperature = mcApp.get_variable("T_[WINDING_AVERAGE]",)
+            temperature = mcApp.get_variable(
+                "T_[WINDING_AVERAGE]",
+            )
             mcApp.show_message("Winding temperature = " + str(temperature))
 
         mcApp.set_variable("MessageDisplayState", 0)

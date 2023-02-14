@@ -17,7 +17,7 @@ For more information on Motor-CAD, see the `Ansys Motor-CAD page <https://www.an
 on the Ansys website.
 
 PyMotorCAD is installed with Motor-CAD v2023R1 and later for internal Motor-CAD Scripting tab use. To install PyMotorCAD
-for use outside of Motor-CAD, it may be downloaded from GitHub. PyMotorCAD will be available for install via pip in the
+for use outside of Motor-CAD, it may be downloaded from GitHub. PyMotorCAD is available for install via pip in the
 near future.
 
 Installation

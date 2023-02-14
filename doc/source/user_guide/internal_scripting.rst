@@ -13,6 +13,7 @@ To connect with Motor-CAD from an internal script on the Scripting tab, access t
 .. code:: python
 
     import ansys.motorcad.core as pymotorcad
+
     mcApp = pymotorcad.MotorCAD()
 
 PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``.
