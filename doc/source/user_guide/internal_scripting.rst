@@ -210,5 +210,5 @@ The class :code:`mechanical_forces` contains functions for Mechanical Forces cal
             print("Mech Forces - Final")
 
 
-Add scripts that are to be run before, during, or after a particular Motor-CAD
-calculation to the relevant functions.
+For any scripts that are to be run before, during, or after a particular Motor-CAD
+calculation, these can be added to the relevant functions.
