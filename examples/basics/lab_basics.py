@@ -1,5 +1,7 @@
 """
-Motor-CAD Lab example script.
+.. _ref_lab_basics:
+
+Motor-CAD Lab example script
 =============================
 """
 

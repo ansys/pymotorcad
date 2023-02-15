@@ -1,5 +1,7 @@
 """
-Motor-CAD E-Mag example script.
+.. _ref_emag_basics:
+
+Motor-CAD E-Mag example script
 ===============================
 """
 
