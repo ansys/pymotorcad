@@ -28,13 +28,16 @@ class _RpcMethodsGraphs:
         params = [{"variant": graph_name}, point_number]
         return self.connection.send_and_receive(method, params)
 
-    def get_graph(self, graphing_func, *args):
-        """Get array  from a Motor-CAD graph specific to  input graph function name.
+    def _get_graph(self, graphing_func, *args):
+        """Get array from a Motor-CAD graph specific to  input graph function name.
 
         Parameters
         ----------
         graphing_func : str
             Name of graph function for eg. get_magnetic_graph_point
+        *args : str|int
+            Name/id of graph to select. Graph name is preferred and can be found in
+            Motor-CAD (help -> graph viewer) for eg. TorqueVW
 
         Returns
         -------
@@ -63,7 +66,7 @@ class _RpcMethodsGraphs:
         return x_array, y_array
 
     def get_magnetic_graph(self, graph_name):
-        """Get array  from a Motor-CAD Magnetic graph.
+        """Get array from a Motor-CAD Magnetic graph.
 
         Parameters
         ----------
@@ -80,10 +83,10 @@ class _RpcMethodsGraphs:
         loop = 0
         x_array = []
         y_array = []
-        return self.get_graph(self.get_magnetic_graph_point, graph_name)
+        return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
     def get_temperature_graph(self, graph_name):
-        """Get array  from a Motor-CAD transient temperature  graph from thermal module of Motor-CAD.
+        """Get array from a Motor-CAD transient temperature  graph from thermal module of Motor-CAD.
 
         Parameters
         ----------
@@ -100,10 +103,10 @@ class _RpcMethodsGraphs:
         loop = 0
         x_array = []
         y_array = []
-        return self.get_graph(self.get_temperature_graph_point, graph_name)
+        return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
-        """Get array  from a Motor-CAD transient power loss graph from thermal module of Motor-CAD.
+        """Get array from a Motor-CAD transient power loss graph from thermal module of Motor-CAD.
 
         Parameters
         ----------
@@ -117,7 +120,7 @@ class _RpcMethodsGraphs:
         y_array : array
             value of y coordinates from graph
         """
-        return self.get_graph(self.get_power_graph_point, graph_name)
+        return self._get_graph(self.get_power_graph_point, graph_name)
 
     def get_temperature_graph_point(self, graph_name, point_number):
         """Get a specified point from a Motor-CAD Thermal graph.
