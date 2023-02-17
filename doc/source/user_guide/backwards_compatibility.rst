@@ -3,12 +3,13 @@
 Backwards compatibility with old scripts
 ========================================
 
-It's easy to convert old ActiveX scripts to use PyMotorCAD.
+You can convert old ActiveX scripts to use PyMotorCAD
+as indicated in the subsequent sections.
 
 Change communication method
 ----------------------------
 
-Old scripts connect to Motor-CAD using ActiveX:
+Old ActiveX scripts use this code to connect to Motor-CAD:
 
 .. code:: python
 
@@ -16,7 +17,8 @@ Old scripts connect to Motor-CAD using ActiveX:
 
     mcApp = win32com.client.Dispatch("MotorCAD.AppAutomation")
 
-To connect to Motor-CAD using PyMotorCAD replace these 2 lines with:
+To use PyMotorCAD to connect to Motor-CAD, you replace the preceding code
+with this code:
 
 .. code:: python
 
@@ -24,56 +26,60 @@ To connect to Motor-CAD using PyMotorCAD replace these 2 lines with:
 
     mcApp = pymotorcad.MotorCADCompatibility()
 
-The script now runs using PyMotorCAD.
-This method allows old scripts to be converted with minimal changes,
-however some of the new features of PyMotorCAD are turned off to ensure compatibility with these scripts.
+While changing the communication method allows old ActiveX scripts to be
+converted with minimal changes, some of the new features of PyMotorCAD
+are turned off to ensure compatibility of these older scripts.
 
-Full script conversion
---------------------------
+Convert script fully
+--------------------
 
-To convert a script to use the new features you must do 2 steps:
+To convert an old script so that it can use new PyMotorCAD features, you must change
+change function names in the script to use Python syntax and update the function sytax.
 
-Change function name
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Change function names
+^^^^^^^^^^^^^^^^^^^^^
 
-All API calls in the script must be renamed to use the new syntax. The API calls have been renamed to match
-Python code convention. The functions are now lower case with underscores (snake_case) e.g.
+Python code conventions specify the use of snake case for function names. Thus, all
+functions in the :ref:`ref_MotorCAD_object` use lower case with underscores (snake_case).
+
+For example, the function call for getting a variable in an old ActiveX script looks
+like this:
 
 .. code:: python
 
    McApp.GetVariable()
 
-Must be changed to:
+The function name must be changed to use the Python functoin name:
 
 .. code:: python
 
    mcApp.get_variable()
 
-If you are using a modern Python IDE then this is straightforward as the IDE suggests functions from your input.
-You can also search for the functions in the PyMotorCAD documentation:
+If you are using a modern Python IDE, changing function names is straightforward
+because the IDE suggests functions based on your input:
 
 .. image:: /_static/backwards_compatibility_1.png
     :width: 600
 
-There is also documentation built into the Python package that explains what
+Built into the Python package is documentation that explains what
 functions do and what parameters they require:
 
 .. image:: /_static/backwards_compatibility_2.png
     :width: 600
 
-Update function syntax
-Update function syntax
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Additionally, you can search for functions in the :ref:`ref_MotorCAD_object`.
 
-Previously functions returned a “success” variable that would need to be checked to ensure an API
-call had been successful:
+Update function syntax
+^^^^^^^^^^^^^^^^^^^^^^
+In old ActiveX scripts, functions returned a *success* variable that would need
+to be checked to ensure an API call had been successful:
 
 .. code:: python
 
    success, VariableValue = mcApp.GetVariable("Not_A_Real_Var")
 
 This meant that API calls could fail silently unless you checked the success variable every time.
-This success variable has been removed as PyMotorCAD raises an exception if a failure occurs:
+This success variable has been removed because PyMotorCAD raises an exception if a failure occurs:
 
 .. code:: python
 
@@ -82,9 +88,9 @@ This success variable has been removed as PyMotorCAD raises an exception if a fa
 .. image:: /_static/backwards_compatibility_3.png
     :width: 600
 
-For cases where you might expect the API call to fail you should wrap it in a try/except.
+For cases where you might expect the API call to fail, you should wrap it in a try/except.
 For example, the following script reads graph points until the end of the graph.
-Note that the MotorCADError exception type is used so that only errors raised by MotorCAD are caught:
+The ``MotorCADError`` exception type is used so that only errors raised by MotorCAD are caught:
 
 .. code:: python
 

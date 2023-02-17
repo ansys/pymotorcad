@@ -1,16 +1,18 @@
 .. _ref_internal_scripting:
 
-Motor-CAD internal Scripting tab
-==================================
+Motor-CAD internal **Scripting** tab
+====================================
 
-The internal scripting tab facilitates the creating, editing, loading, and saving of internal Python scripts in Motor-CAD.
+The **Scripting** tab in Motor-CAD facilitates creating, editing, loading, and
+saving internal Python scripts within Motor-CAD.
 
 .. figure:: ../images/scriptingtab_UG.png
     :width: 500pt
 
-    Scripting -> Settings tab in Ansys Motor-CAD v2023R1
+    Scripting -> Settings tab in Ansys Motor-CAD 2023 R1
 
-To connect with Motor-CAD from an internal script on the Scripting tab, access the ``MotorCAD()`` object as follows:
+From the **Scripting** tab in Motor-CAD, you can connect from an internal script by
+accessing the ``MotorCAD()`` object with this code:
 
 .. code:: python
 
@@ -18,38 +20,39 @@ To connect with Motor-CAD from an internal script on the Scripting tab, access t
 
     mcApp = pymotorcad.MotorCAD()
 
-PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``.
-This can be used to set and get values before, during, and after calculations, and to create a script for Motor-CAD automation.
+With the :ref:`ref_MotorCAD_object`, you can use PyMotorCAD methods to send commands
+to the current Motor-CAD instance. For example, you can set and get values before,
+during, and after calculations. You can also create a script for Motor-CAD automation.
 
-A Default Script is shown on the Scripting tab, which can be used as a starting point for users that wish to script
-internally in Motor-CAD.
+In the following image, the **Scripting** tab shows the demo script. You can use this
+default script as a starting point for scripting internally in Motor-CAD. However, you
+can also add and run any Python script from this tab.
 
 .. figure:: ../images/scriptingtab_UG_2.png
     :width: 500pt
 
-    Scripting -> Python Scripting tab in Ansys Motor-CAD v2023R1
+    Scripting -> Python Scripting tab in Ansys Motor-CAD 2023 R1
 
-Alternatively, any Python script may be added here and run from this tab.
 
-Motor-CAD Scripting tab demo script
-************************************
+Demo script example
+*******************
 
-This demo script is the Default Script for the internal Scripting tab within Motor-CAD,
-providing examples of how PyMotorCAD methods and Motor-CAD automation parameters
-should be used.
+The demo script is shown by defualt on the **Scripting** tab in Moto-CAD to
+provideg examples of how you use PyMotorCAD methods and Motor-CAD automation
+parameters.
 
-See the Motor-CAD Automation tutorial (section 2.iii),
-provided with a Motor-CAD installation, for more information.
+For more information, see the Motor-CAD Automation tutorial (section 2.iii),
+provided with the Motor-CAD installation.
 
 Setup
 -----
-Import :code:`pymotorcad` to access Motor-CAD
+Import :code:`pymotorcad` to access Motor-CAD.
 
 .. code:: python
 
     import ansys.motorcad.core as pymotorcad
 
-Connect to Motor-CAD
+Connect to Motor-CAD.
 
 .. code:: python
 
@@ -58,12 +61,11 @@ Connect to Motor-CAD
 
 Main function
 --------------
-The function :code:`main` is called when "Run" is pressed in the Motor-CAD GUI.
-:code:`main` can be used to test functions before running a calculation
-for example running thermal steady initial function.
-Alternatively, it can be used to run calculations within another defined function,
-such as :code:`demo_func`.
-
+The :code:`main` function is called when **Run** is pressed in the Motor-CAD GUI.
+You can use the :code:`main` function to test other functions before running a
+calculation. For example, you can use it to run the ``thermal_steady()`` and
+``initial()`` functions. You can also use it to run calculations within another
+defined function, such as the :code:`demo_func` function.
 
 .. code:: python
 
@@ -76,20 +78,21 @@ such as :code:`demo_func`.
 
 Demo function
 --------------
-A demo function is defined, which sets the :code:`tooth_width` and runs thermal calculations.
+The defined :code:`demo_func` function sets the :code:`tooth_width` function and
+runs thermal calculations.
 
-All messages are set to display in a separate window using the PyMotorCAD method:
+All messages are set to display in a separate window using this PyMotorCAD method:
+
 :code:`mcApp.set_variable("MessageDisplayState", 2)`
 
  .. note::
-    This disables crucial popups (for example prompts to save files, overwrite data etc.).
-    Ensure that this is the desired behaviour.
+    This PyModerCAD method disables crucial popups, including prompts to save files
+     and overwrite data. Ensure that this is the desired behavior.
 
-The demo function defines a range of values for the :code:`tooth_width`,
-run a Steady State Thermal calculation and get the average winding temperature for each.
-Results are shown in the Message Display window.
-The last line of the function restores the message dialog again.
-
+The :code:`demo_func` function defines a range of values for the :code:`tooth_width`
+function, runs a steady state thermal calculation, and gets the average winding
+temperature for each. Results are shown in the message window.
+The last line of the function resets the message window.
 
 .. code:: python
 
@@ -110,33 +113,32 @@ The last line of the function restores the message dialog again.
         mcApp.set_variable("MessageDisplayState", 0)
 
 
-Functions Run during Calculations
+Functions run during Calculations
 ----------------------------------
-These functions only run when the option "Run During Analysis" is selected from the
-Scripting -> Settings tab in Motor-CAD (found under Script Control).
+The previously described functions run only when the **Run During Analysis** option
+is selected from the **Scripting -> Settings** tab in Motor-CAD. (This option appears
+under the **Script Control** heading.)
 
 .. figure:: ../images/scriptingtab_UG.png
     :width: 500pt
 
-    Scripting -> Settings tab in Ansys Motor-CAD v2023R1
+    Scripting -> Settings tab in Ansys Motor-CAD 2023 R1
 
-If "Run During Analysis" is selected then this script is imported.
-This means that anything other than setting up the MotorCAD object should be moved to a
-function/class to avoid unexpected behaviour.
+If the **Run During Analysis** option is selected, the script is imported.
+This means that anything other than setting up the ``MotorCAD`` object should
+be moved to a function or class to avoid unexpected behavior.
 
 Five classes are defined: :code:`thermal_steady`, :code:`thermal_transient`,
 :code:`emagnetic`, :code:`mechanical_stress` and :code:`mechanical_forces`.
-Each contains multiple functions: :code:`initial`, :code:`final` and, for the
-thermal classes, :code:`main`.
+Each of these classes contains the :code:`initial` and :code:`final` functions.
+The thermal classes also contain the :code:`main` function.
 
-:code:`initial` is called before the calculation
+- :code:`initial` is called before the calculation.
+- :code:`final` is called after the calculation.
+- :code:`main` is called before each time step in a calculation.
 
-:code:`final` is called after the calculation
-
-:code:`main` is called before each time step in a calculation
-
-The class :code:`thermal_steady` contains functions for steady-state thermal calculations:
-
+The :code:`thermal_steady` class contains functions for steady-state
+thermal calculations:
 
 .. code:: python
 
@@ -153,8 +155,8 @@ The class :code:`thermal_steady` contains functions for steady-state thermal cal
             print("Thermal Steady State - Final")
 
 
-The class :code:`thermal_transient` contains functions for transient thermal calculations:
-
+The :code:`thermal_transient` class contains functions for transient
+thermal calculations:
 
 .. code:: python
 
@@ -171,7 +173,7 @@ The class :code:`thermal_transient` contains functions for transient thermal cal
             print("Thermal Transient - Final")
 
 
-The class :code:`emagnetic` contains functions for E-Magnetic calculations:
+The :code:`emagnetic` class contains functions for electromangetic calculations:
 
 
 .. code:: python
@@ -184,7 +186,7 @@ The class :code:`emagnetic` contains functions for E-Magnetic calculations:
             print("E-Magnetic - Final")
 
 
-The class :code:`mechanical_stress` contains functions for Mechanical Stress calculations:
+The :code:`mechanical_stress` class contains functions for mechanical stress calculations:
 
 
 .. code:: python
@@ -197,7 +199,7 @@ The class :code:`mechanical_stress` contains functions for Mechanical Stress cal
             print("Mech Stress - Final")
 
 
-The class :code:`mechanical_forces` contains functions for Mechanical Forces calculations:
+The :code:`mechanical_forces` class contains functions for mechanical force calculations:
 
 
 .. code:: python
@@ -211,4 +213,4 @@ The class :code:`mechanical_forces` contains functions for Mechanical Forces cal
 
 
 For any scripts that are to be run before, during, or after a particular Motor-CAD
-calculation, these can be added to the relevant functions.
+calculation, these functions can be added to the relevant functions.

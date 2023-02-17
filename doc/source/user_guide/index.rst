@@ -10,21 +10,18 @@ User guide
    internal_scripting
    external_scripting
 
-PyMotorCAD provides Python access to Motor-CAD.
-The PyMotorCAD RPC API allows Motor-CAD to be controlled on a local machine or over HTTP from a remote machine.
-
-For the full list of PyMotorCAD API methods, which can be used to create a script for Motor-CAD control/automation,
-see :ref:`ref_MotorCAD_object`.
-
-Through automation, Motor-CAD can be fully controlled by scripts, without using the GUI. Motor-CAD scripts can be
-utilised via the internal scripting tab within Ansys Motor-CAD or externally.
+PyMotorCAD provides Python access to Motor-CAD. The RPC-based :ref:`ref_MotorCAD_object`
+allows you to create a Motor-CAD instance on a local machine or connect to an existing
+instance on a remote machine over HTTP. Using the many methods available in this API's
+single class, you can create scripts for fully controlling and and automating Motor-CAD
+without using the GUI. Additionally, you can use Motor-CAD scripts via the internal
+**Scripting** tab within Ansys Motor-CAD or externally.
 
 
-Using internal PyMotorCAD scripts
-----------------------------------
-Motor-CAD is installed with an internal Python interpreter.
-This includes a stable version of PyMotorCAD.
-The PyMotorCAD Python package is based around the ``MotorCAD()`` Python object.
+Using PyMotorCAD scripts internally 
+-----------------------------------
+Motor-CAD is installed with an internal Python interpreter that includes a stable version
+of PyMotorCAD. This Python package is based around the ``MotorCAD()`` Python object.
 Each individual ``MotorCAD()`` object represents an instance of Motor-CAD.
 
 For more information on using PyMotorCAD via the internal Scripting tab in Motor-CAD, see :ref:`ref_internal_scripting`.
@@ -32,5 +29,5 @@ For more information on using PyMotorCAD via the internal Scripting tab in Motor
 Using PyMotorCAD scripts externally
 ------------------------------------
 
-PyMotorCAD can be added to any Python installation and used to control Motor-CAD from the command line or via scripts
-via the users' Python IDE of choice.
+PyMotorCAD can be added to any Python installation and used to control Motor-CAD from
+the command line or via scripts from a Python IDE of your choice.
