@@ -37,8 +37,8 @@ can also add and run any Python script from this tab.
 Demo script example
 *******************
 
-The demo script is shown by defualt on the **Scripting** tab in Moto-CAD to
-provideg examples of how you use PyMotorCAD methods and Motor-CAD automation
+The demo script is shown by default on the **Scripting** tab in Moto-CAD to
+providing examples of how you use PyMotorCAD methods and Motor-CAD automation
 parameters.
 
 For more information, see the Motor-CAD Automation tutorial (section 2.iii),
@@ -173,7 +173,7 @@ thermal calculations:
             print("Thermal Transient - Final")
 
 
-The :code:`emagnetic` class contains functions for electromangetic calculations:
+The :code:`emagnetic` class contains functions for electromagnetic calculations:
 
 
 .. code:: python

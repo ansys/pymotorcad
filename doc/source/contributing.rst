@@ -45,7 +45,7 @@ View PyMotorCAD documentation
 Documentation for the latest stable release of PyMotorCAD is hosted at
 `PyMotorCAD Documentation <PyMotorCAD_docs_>`_.
 
-Adher to code style
+Adhere to code style
 ===================
 
 PyMotorCAD is compliant with the `PyAnsys code style

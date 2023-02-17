@@ -13,7 +13,7 @@ User guide
 PyMotorCAD provides Python access to Motor-CAD. The RPC-based :ref:`ref_MotorCAD_object`
 allows you to create a Motor-CAD instance on a local machine or connect to an existing
 instance on a remote machine over HTTP. Using the many methods available in this API's
-single class, you can create scripts for fully controlling and and automating Motor-CAD
+single class, you can create scripts for fully controlling and automating Motor-CAD
 without using the GUI. Additionally, you can use Motor-CAD scripts via the internal
 **Scripting** tab within Ansys Motor-CAD or externally.
 

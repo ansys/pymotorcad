@@ -34,7 +34,7 @@ Convert script fully
 --------------------
 
 To convert an old script so that it can use new PyMotorCAD features, you must change
-change function names in the script to use Python syntax and update the function sytax.
+change function names in the script to use Python syntax and update the function syntax.
 
 Change function names
 ^^^^^^^^^^^^^^^^^^^^^
@@ -49,7 +49,7 @@ like this:
 
    McApp.GetVariable()
 
-The function name must be changed to use the Python functoin name:
+The function name must be changed to use the Python function name:
 
 .. code:: python
 
