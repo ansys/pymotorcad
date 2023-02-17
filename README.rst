@@ -133,7 +133,7 @@ Here are commands for running various checks in the  ``tox`` environment:
 Raw testing
 ^^^^^^^^^^^
 
-If required, you can call style commands, incuding `black`_, `isort`_,
+If required, you can call style commands, including `black`_, `isort`_,
 and `flake8`_ or unit testing commands like`pytest`_ from the command line.
 However, using these commands does not guarantee that your project is being
 tested in an isolated environment, which is why tools like `tox`_ exist.
