@@ -9,4 +9,5 @@ multiphysics
 PyMotorCAD
 optiSLang
 Scripting
+scripting
 snake_case

@@ -113,7 +113,7 @@ The last line of the function resets the message window.
         mcApp.set_variable("MessageDisplayState", 0)
 
 
-Functions run during Calculations
+Functions run during calculations
 ----------------------------------
 The previously described functions run only when the **Run During Analysis** option
 is selected from the **Scripting -> Settings** tab in Motor-CAD. (This option appears
