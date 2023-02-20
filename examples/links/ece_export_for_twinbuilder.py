@@ -59,7 +59,7 @@ def read_parameters(json_file):
 # Specify the working directory.
 working_folder = os.getcwd()
 
-# Open the JSON file and import the intial settings.
+# Open the JSON file and import the initial settings.
 json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
 mot_file = in_data["mot_file"]

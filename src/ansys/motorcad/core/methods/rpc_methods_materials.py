@@ -95,7 +95,7 @@ class _RpcMethodsMaterials:
         return self.connection.send_and_receive(method, params)
 
     def save_iron_loss_coefficients(self, material_name):
-        """Save the calculated iron loss coefficients to the matrials database.
+        """Save the calculated iron loss coefficients to the materials database.
         
         Parameters
         ----------

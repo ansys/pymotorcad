@@ -374,7 +374,7 @@ class _RpcMethodsFEAGeometry:
         radius_start : float
             Start position for the radial coordinate.
         theta_start : float
-            Start position for othe angular coordinate in degrees.
+            Start position for other angular coordinate in degrees.
         radius_end : float
             end position radial coordinate
         theta_end : float

@@ -85,7 +85,7 @@ mcad.set_variable("Magnet_Thickness", 4.5)
 # Set the winding type to custom:
 # :code:`mcad.set_variable('MagWindingType', 1)`
 #
-# Set the path type to uppper and lower:
+# Set the path type to upper and lower:
 # :code:`mcad.set_variable('MagPathType', 1)`
 #
 # Set the number of phases:
