@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/workflows/reset_runner
+      - uses: ./.github/workflows/reset_runner.yml
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/workflows/reset_runner
+      - uses: ./.github/workflows/reset_runner.yml
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
