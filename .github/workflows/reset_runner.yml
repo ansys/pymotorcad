@@ -1,0 +1,13 @@
+name: Reset runner
+
+on:
+  workflow_call:
+
+jobs:
+  reset:
+    name: Reset Motor-CAD exe
+    steps:
+      - name: Ensure Motor-CAD not open
+        run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
+
+
