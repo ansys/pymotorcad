@@ -1,13 +1,22 @@
 """
-Motor-CAD Twin Builder export.
-==============================
+Twin Builder export
+===================
 
-This script allows to export an ECE model for PMSMs from Motor-CAD to ANSYS Twin Builder.
+This example exports an equivalent circuit extraction (ECE)
+model for permanent magnet synchronous motors (PMSMs) from
+Motor-CAD to Ansys Twin Builder.
 """
 
 # %%
-# Setup
-# -----
+# Set up example
+# --------------
+# Setting up this example consists of performing imports, launching
+# Motor-CAD, disabling all popup messages from Motor-CAD, and
+# importing initial settings.
+
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Import the required packages.
 
 import json
 import math
@@ -22,15 +31,24 @@ import ansys.motorcad.core as pymotorcad
 if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
 
+# Launch Motor-CAD
+# ~~~~~~~~~~~~~~~~
+# Initialize ActiveX automation and launch Motor-CAD.
+print("Starting initialization.")
 mcad = pymotorcad.MotorCAD()
 
 # %%
-# Ensure Motor-CAD does not create any dialogs requesting user response
+# Disable popup messages
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Disable all popup messages from Motor-CAD.
 mcad.set_variable("MessageDisplayState", 2)
 
 
 # %%
-# read_parameters function allows to import the initial settings from a json file
+# Import initial settings
+# -----------------------
+# You use the ``read_parameters`` method to import initial settings
+# from a JSON file:
 def read_parameters(json_file):
     """Read input parameters."""
     with open(json_file, "r") as f:
@@ -38,8 +56,10 @@ def read_parameters(json_file):
     return param_dict
 
 
+# Specify the working directory.
 working_folder = os.getcwd()
 
+# Open the JSON file and import the intial settings.
 json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
 mot_file = in_data["mot_file"]
@@ -53,13 +73,13 @@ txt_file = in_data["txt_file"]
 sml_file = in_data["sml_file"]
 
 # %%
-# Input Settings
+# Save input settings to a MCAD file.
 mcad.load_template("e8")
 mcad_name = "e8_mobility"
 mcad.save_to_file(os.path.join(working_folder, mcad_name))
 
 # %%
-# Alignment Angle Detection
+# Detect alignment angles and run the simulation.
 
 points_per_cycle = 30
 mcad.set_variable("DCBusVoltage", dc_bus_voltage)
@@ -78,11 +98,10 @@ mcad.set_variable("TorqueSpeedCalculation", False)
 try:
     mcad.do_magnetic_calculation()
 except pymotorcad.MotorCADError:
-    print("Calculation Failed")
+    print("Calculation failed.")
 
 # %%
-# A-Phase FluxLinkage plot
-
+# Plot the flux linkage for the A phase.
 e_deg = []
 flux_a = []
 indexf = points_per_cycle
@@ -92,7 +111,7 @@ for n in range(indexf + 1):
     flux_a.append(ya)
 
 # %%
-# Calculation of TorquePointsPerCycle
+# Calculate the torque points per cycle.
 p = mcad.get_variable("Pole_Number")
 drive = mcad.get_variable("DriveOffsetAngleLoad")
 phase_res = mcad.get_variable("ArmatureWindingResistancePh")
@@ -102,7 +121,7 @@ p = p / 2
 max_elec_degree = 120
 
 # %%
-# Factor function
+# Define the factor function.
 fac = []
 d = 2
 n = drive_offset
@@ -124,7 +143,7 @@ mec_deg = float(float(elec_deg) / float(p))
 points_per_cycle = 360 / elec_deg
 
 # %%
-# Saturation Map Calculation
+# Calculate the saturation map.
 mcad.set_variable("TorquePointsPerCycle", points_per_cycle)
 mcad.set_variable("SaturationMap_ExportFile", map_name)
 mcad.set_variable("SaturationMap_InputDefinition", 1)
@@ -142,10 +161,10 @@ mcad.set_variable("SaturationMap_Current_Q_Min", -Id_max)
 try:
     mcad.calculate_saturation_map()
 except pymotorcad.MotorCADError:
-    print("Map calculation failed")
+    print("Map calculation failed.")
 
 # %%
-# Load Saturation Map
+# Load the saturation map.
 
 mat_file_data = io.loadmat(map_name)
 
@@ -178,7 +197,7 @@ final_table = []
 skip = math.ceil(drive_offset / elec_deg)
 
 # %%
-# Implementation of FinalTable
+# Implement the final table.
 
 for i in range(d_values):
     for j in range(q_values):
@@ -211,9 +230,9 @@ final_table = np.array(
 )
 
 # %%
-# Flux linkages and Torque plot
-# FluxD-Q plot
-
+# Plot results
+# ------------
+# Plot flux linkage in the A phase.
 plt.figure(1)
 plt.plot(e_deg, flux_a)
 plt.xlabel("Position [EDeg]")
@@ -221,6 +240,7 @@ plt.ylabel("FluxLinkageA")
 plt.title("A_Phase Flux Linkage")
 plt.show()
 
+# Plot the D-Q flux.
 plt.figure(2)
 plt.plot(index_1, flux_d_2, "r", index_1, flux_q_3, "b", linewidth=1.0)
 plt.xlabel("Points")
@@ -230,8 +250,7 @@ plt.title("D-Q Flux")
 plt.show()
 
 # %%
-# Torque plot
-
+# Plot torque.
 plt.figure(3)
 plt.plot(index_1, torque_5, "r", linewidth=2.0)
 plt.ylabel("Torque [Nm]")
@@ -240,8 +259,7 @@ plt.title("Torque")
 plt.show()
 
 # %%
-# Flux Linkages vs q-axis current
-
+# Plot D-flux linkages versus the q-axis current.
 plt.figure(3)
 for i in range(d_values):
     plt.plot(
@@ -253,6 +271,7 @@ plt.legend(fontsize=8, loc="lower right")
 plt.title("D-Flux vs Iq")
 plt.show()
 
+# Plot Q-flux linkages versus the q-axis current.
 plt.figure(4)
 for i in range(d_values):
     plt.plot(
@@ -265,8 +284,9 @@ plt.title("Q-Flux vs Iq")
 plt.show()
 
 # %%
-# .sml and .txt files creation
-# Writing the .txt text
+# Write TXT and SML files
+# -----------------------
+# Write the TXT text.
 rows = len(index_1)
 
 file_id = open(txt_file, "w")
@@ -311,7 +331,7 @@ file_id.write("%s\n" % "E_OutputMatrix")
 file_id.close()
 
 # %%
-# Writing the .sml file
+# Write the SML file.
 file_id = open(sml_file, "w")
 file_id.write("%6s\r\n" % "MODELDEF ECER_Model1")
 file_id.write("%s\r\n" % "{")
@@ -558,4 +578,8 @@ for r in range(d_values):
         index = index + map_points
 
 file_id.close()
+
+# Exit Motor-CAD
+# --------------
+# Exit Motor-CAD.
 mcad.quit()

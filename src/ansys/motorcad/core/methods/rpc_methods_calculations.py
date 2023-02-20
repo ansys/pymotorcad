@@ -6,22 +6,22 @@ class _RpcMethodsCalculations:
         self.connection = mc_connection
 
     def do_magnetic_thermal_calculation(self):
-        """Carry out coupled e-magnetic and thermal calculation."""
+        """Carry out coupled e-magnetic and thermal calculations."""
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
     def calculate_saturation_map(self):
         """Generate electromagnetic saturation and loss data.
 
-        Saturation (flux linkages and inductances) and loss data for use in other
-        analysis and modelling tools. The default file extension is .mat and is saved in
-        the lab folder in the .mot directory.
+        Saturation (flux linkages and inductances) and loss data can be used
+        in other analysis and modeling tools. The default MAT file is saved in
+        the lab folder in the ``.mot`` directory.
         """
         method = "CalculateSaturationMap"
         return self.connection.send_and_receive(method)
 
     def calculate_torque_envelope(self):
-        """Calculate torque envelope for machine."""
+        """Calculate the torque envelope for the machine."""
         method = "CalculateTorqueEnvelope"
         return self.connection.send_and_receive(method)
 
@@ -31,24 +31,24 @@ class _RpcMethodsCalculations:
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_spatial(self):
-        """Calculate 1D force harmonics in Space axis."""
+        """Calculate 1D force harmonics on the space axis."""
         method = "CalculateForceHarmonics_Spatial"
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_temporal(self):
-        """Calculate 1D force harmonics in Time axis."""
+        """Calculate the 1D force harmonics on the time axis."""
         method = "CalculateForceHarmonics_Temporal"
         return self.connection.send_and_receive(method)
 
     def get_force_frequency_domain_amplitude(self, row, column, load_point):
-        """Export matrix value from Force Space Time Harmonics matrix from 2D FFT.
+        """Export the matrix value from a force space time harmonics matrix for a 2D FFT.
 
         Parameters
         ----------
         row : int
-            row index of FFT matrix
+            Row index of the FFT matrix.
         column : int
-            column index of FFT matrix
+            Column index of the FFT matrix.
         load_point : int
         """
         method = "GetForceFrequencyDomainAmplitude"
@@ -56,29 +56,33 @@ class _RpcMethodsCalculations:
         return self.connection.send_and_receive(method, params)
 
     def update_force_analysis_results(self, fft_data_type):
-        """Update force analysis results for selected multiforce operating point.
+        """Update force analysis results for the multiforce operating point.
 
         Parameters
         ----------
         fft_data_type : int
-            0 : 1D Temporal Harmonics, 1 : 1D Spatial Harmonics
+            FFT data type. Options are:
+            
+            - 0: 1D Temporal Harmonics
+            - 1: 1D Spatial Harmonics
+
         """
         method = "UpdateForceAnalysisResults"
         params = [fft_data_type]
         return self.connection.send_and_receive(method, params)
 
     def do_multi_force_calculation(self):
-        """Calculate forces for multiple operating points."""
+        """Calculate multiforce operating point."""
         method = "DoMultiForceCalculation"
         return self.connection.send_and_receive(method)
 
     def do_steady_state_analysis(self):
-        """Do thermal steady state analysis."""
+        """Run the thermal steady state analysis."""
         method = "DoSteadyStateAnalysis"
         return self.connection.send_and_receive(method)
 
     def do_transient_analysis(self):
-        """Do thermal transient analysis."""
+        """Run the thermal transient analysis."""
         method = "DoTransientAnalysis"
         return self.connection.send_and_receive(method)
 

@@ -1,7 +1,7 @@
-"""Contains JSON-RPC API methods which are just for internal use.
+"""Contains JSON-RPC API methods that are only for internal use.
 
 DO NOT USE IN SCRIPTS.
-These can be for internal testing or might be unfinished/undocumented/deprecated functions.
+These methods can be for internal testing or might be unfinished/undocumented/deprecated methods.
 """
 
 
@@ -10,7 +10,7 @@ class _RpcMethodsInternal:
         self.connection = mc_connection
 
     def is_stop_requested(self):
-        """Intercept button clicks in python since it does not use a separate thread."""
+        """Intercept button clicks in Python because it does not use a separate thread."""
         method = "IsStopRequested"
         return self.connection.send_and_receive(method)
 
@@ -19,37 +19,40 @@ class _RpcMethodsInternal:
         return self.connection.send_and_receive(method)
 
     def avoid_immediate_update(self, avoid_update):
-        """Set to true to speed up the setting of inputs.
+        """Avoid immediate updates.
 
-        The steady state calc will only now be calculated when DoSteadyStateAnalysis is called.
+        The steady state calculation is only calculated when the ``DoSteadyStateAnalysis``
+        method is called.
 
         Parameters
         ----------
         avoid_update: bool
+            Whether to avoid immediate updates. Set this parameter to ``True`` to speed
+            up the setting of inputs.
         """
         method = "AvoidImmediateUpdate"
         params = [{"variant": avoid_update}]
         return self.connection.send_and_receive(method, params)
 
     def get_im_iron_loss(self, slip, back_emf):
-        """Get analytic iron loss using data from FEA solution.
+        """Get analytic iron loss using data from the FEA solution.
 
-        The E-magnetic model must be solved prior to method call.
+        The e-magnetic model must be solved prior to calling this method.
 
         Parameters
         ----------
         slip : float
-            The induction motor slip.
+            Induction motor slip.
         back_emf : float
 
         Returns
         -------
         EddyLoss : float
-            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron eddy
-            current losses
+            Summation of stator tooth, stator back iron, rotor tooth, and rotor back iron eddy
+            current losses.
         HysLoss : float
-            Summation of stator tooth, stator back iron, rotor tooth and rotor back iron
-            hysteresis losses
+            Summation of stator tooth, stator back iron, rotor tooth, and rotor back iron
+            hysteresis losses.
         """
         method = "GetIMIronLoss"
         params = [slip, back_emf]
@@ -61,7 +64,7 @@ class _RpcMethodsInternal:
         Parameters
         ----------
         state : bool
-            True enables all performance tests.
+            Whether to enable all performance tests.
         """
         method = "SetAllEmagCalculations"
         params = [state]
