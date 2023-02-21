@@ -50,7 +50,7 @@ class _RpcMethodsMaterials:
 
     def import_solid_material(self, file_name, material_name):
         """Import the solid material from the materials database.
-        
+
         Parameters
         ----------
         file_name: str
@@ -64,7 +64,7 @@ class _RpcMethodsMaterials:
 
     def export_solid_material(self, file_name, material_name):
         """Export the solid material to the materials database.
-        
+
         Parameters
         ----------
         file_name: str
@@ -84,7 +84,7 @@ class _RpcMethodsMaterials:
 
     def calculate_iron_loss_coefficients(self, material_name):
         """Calculate and return the iron loss coefficients for the solid material.
-        
+
         Parameters
         ----------
         material_name: str
@@ -96,7 +96,7 @@ class _RpcMethodsMaterials:
 
     def save_iron_loss_coefficients(self, material_name):
         """Save the calculated iron loss coefficients to the materials database.
-        
+
         Parameters
         ----------
         material_name: str
@@ -108,7 +108,7 @@ class _RpcMethodsMaterials:
 
     def calculate_magnet_parameters(self, material_name):
         """Calculate parameters for the nonlinear demagnetisation model.
-        
+
         Parameters
         ----------
         material_name: str
@@ -120,7 +120,7 @@ class _RpcMethodsMaterials:
 
     def save_magnet_parameters(self, material_name):
         """Save the calculated magnet parameters of the solid material to the materials database.
-        
+
         Parameters
         ----------
         material_name: str

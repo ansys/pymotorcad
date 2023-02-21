@@ -108,7 +108,7 @@ class _RpcMethodsGeneral:
 
     def export_results(self, solution_type, file_path):
         """Export results from a solution to a CSV file.
-     
+
         Parameters
         ----------
         solution_type : str
@@ -382,7 +382,7 @@ class _RpcMethodsGeneral:
 
     def load_magnetisation_curves(self, file_path):
         """Load the magnetisation curves from a text file.
-        
+
         This method is for switched reluctance machines (SRMs) only.
 
         Parameters
@@ -397,7 +397,7 @@ class _RpcMethodsGeneral:
 
     def save_magnetisation_curves(self, file_name):
         """Save the magnetisation curves to a text file.
-        
+
         This method is for switched reluctance machines (SRMs) only.
 
         Parameters

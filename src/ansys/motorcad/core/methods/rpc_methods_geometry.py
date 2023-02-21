@@ -76,7 +76,7 @@ class _RpcMethodsGeometry:
             within constraints if the geometry is invalid. Options are:
             - 1: Yes. Try and reset the geometry
             - 0: No. Do not try to reset the geometry.
-        
+
         Returns
         -------
         int

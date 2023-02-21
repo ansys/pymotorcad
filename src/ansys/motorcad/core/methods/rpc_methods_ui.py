@@ -37,8 +37,9 @@ class _RpcMethodsUI:
         Parameters
         ----------
         screen_name : str
-            Path of the screen to save. The path must be in this format: ``"tabName;tabName;tabName"``.
-            For example: ``"Geometry;Axial"``.
+            Path of the screen to save. The path must be in this format:
+            ``"tabName;tabName;tabName"``. For example,
+            ``"Geometry;Axial"``.
         file_name : str
             Full path for the image file, including the file name and file extension. The
             extensions supported are BMP, JPG, and PNG.
@@ -134,8 +135,9 @@ class _RpcMethodsUI:
             and ``"Shaft Components"``. If the component is in the thermal context,
             ``"Mounting"`` and ``"Outer Casing"`` are also options.
         component_name : str
-            Name of the component. The component names that are available depend on which model
-            is used. Options include ``"All"``, ``"Lamination"``, and ``"Wedge"``. 
+            Name of the component. The component names that are available depend
+            on which model is used. Options include ``"All"``, ``"Lamination"``,
+            and ``"Wedge"``.
         visibility : int
             Visibility level. Values range from ``0`` (invisible) to ``100`` (solid).
         """

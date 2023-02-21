@@ -10,7 +10,7 @@ class _RpcMethodsFEAGeometry:
 
     def set_power_injection_value(self, name, node1, value, rpm_ref, rpm_coef, description):
         """Set or create a power injection.
-        
+
         Parameters
         ----------
         name: str
@@ -207,7 +207,7 @@ class _RpcMethodsFEAGeometry:
         region_name: list
            List of names for the regions to delete. If the list is empty,
            all regions are deleted. If the name of a region to delete contains
-           a space, enclose the name in double quotation marks. For example, 
+           a space, enclose the name in double quotation marks. For example,
            ``"Rotor Pocket"``.
         """
         method = "DeleteRegions"
@@ -404,9 +404,9 @@ class _RpcMethodsFEAGeometry:
 
     def add_region_rt(self, radius, theta, region_name):
         """Add a region to the Motor-CAD geometry with an r, t (polar) coordinate system.
-        
+
         If a region already exists, this method overwrites the existing region.
-        
+
         Use degrees for angles.
 
         Parameters
@@ -428,7 +428,7 @@ class _RpcMethodsFEAGeometry:
         """Add a magnet region to the Motor-CAD geometry with an x, y coordinate system.
 
         If a region already exists, this method overwrites the existing region.
-        
+
         Use degrees for angles.
 
         Parameters
@@ -456,9 +456,9 @@ class _RpcMethodsFEAGeometry:
         self, radius, theta, region_name, magnet_material, br_angle, br_multiplier, polarity_code
     ):
         """Add a magnet region to the Motor-CAD geometry with an r, t (polar) coordinate system.
-        
+
         If a region already exists, this method overwrites the existing region.
-        
+
         Use degrees for angles.
 
         Parameters
@@ -519,7 +519,7 @@ class _RpcMethodsFEAGeometry:
             **Input Data -> materials**. The material type (``laminated``, ``solid``,
             or ``air``) is set automatically.
         colour : string
-            VCL color. For more information, see https://wiki.freepascal.org/Colors. 
+            VCL color. For more information, see https://wiki.freepascal.org/Colors.
             The color can be designaed as a hexadecimal value, such as ``"$008000"``
             or a color name such as ``"clGreen"``.
         """
@@ -532,7 +532,7 @@ class _RpcMethodsFEAGeometry:
 
         .. note::
            Do not use this method to add a magnet. Use the ``add_magnet_region_rt`` method instead.
-        
+
         Use degrees for angles.
 
         Parameters
@@ -548,7 +548,7 @@ class _RpcMethodsFEAGeometry:
             **Input Data -> materials**. The material type (``laminated``, ``solid``,
             or ``air``) is set automatically.
         colour : string
-            VCL color. For more information, see https://wiki.freepascal.org/Colors. 
+            VCL color. For more information, see https://wiki.freepascal.org/Colors.
             The color can be designaed as a hexadecimal value, such as ``"$008000"``
             or a color name such as ``"clGreen"``.
         """

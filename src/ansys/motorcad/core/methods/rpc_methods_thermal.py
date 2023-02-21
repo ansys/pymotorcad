@@ -73,7 +73,7 @@ class _RpcMethodsThermal:
 
     def remove_external_component(self, component_type, name, node1):
         """Remove an external circuit component.
-        
+
         Parameters
         ----------
         component_type: str

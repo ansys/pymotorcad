@@ -62,7 +62,7 @@ class _RpcMethodsCalculations:
         ----------
         fft_data_type : int
             FFT data type. Options are:
-            
+
             - 0: 1D Temporal Harmonics
             - 1: 1D Spatial Harmonics
 

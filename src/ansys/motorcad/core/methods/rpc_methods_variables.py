@@ -45,7 +45,7 @@ class _RpcMethodsVariables:
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
-        """Restore the model compatibility settings to the default values (to use the latest methods)."""
+        """Restore model compatibility settings to default values (to use the latest methods)."""
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
