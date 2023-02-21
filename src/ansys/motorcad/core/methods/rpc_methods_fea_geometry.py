@@ -173,10 +173,10 @@ class _RpcMethodsFEAGeometry:
 
         This method is valid for a magnetic solution only.
         The region is bounded by the radii and angles that are specified in parameters.
-        
+
         Radii and angle values of 0 give all region losses.
         Losses calculated are per unit length and are only for the FEA areas modeled.
-        
+
         For total losses, you must multiply by the symmetry factor.
         """
         method = "GetRegionLoss"
@@ -246,7 +246,7 @@ class _RpcMethodsFEAGeometry:
 
     # ------------------------------------ Custom Geometry ------------------------------------
     def initiate_geometry_from_script(self):
-        """Initiate the gemoetry form scripting so Motor-CAD knows how to use it.
+        """Initiate the geometry from scripting so Motor-CAD knows how to use it.
 
         This method clears the current scripting geometry.
         The ``clear_all_data`` method must be called before this method is called.

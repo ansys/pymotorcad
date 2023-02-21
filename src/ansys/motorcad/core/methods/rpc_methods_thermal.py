@@ -148,7 +148,7 @@ class _RpcMethodsThermal:
             Number of the first thermal node.
         node2 : int
             Number of the second thermal node.
-        
+
         Returns
         -------
         float

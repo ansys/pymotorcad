@@ -30,7 +30,7 @@ def set_server_ip(ip):
 
 
 def set_default_instance(port):
-    """Sets the Motor-CAD instance to use as the default when running scripts from MotorCAD."""
+    """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD."""
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
@@ -143,7 +143,8 @@ class _MotorCADConnection:
         enable_success_variable: Boolean
             Whether Motor-CAD methods are to return a success variable (first object in tuple).
         reuse_parallel_instances: Boolean
-            Whether to reuse MotorCAD instances when running in parallel. You must free instances after use.
+            Whether to reuse MotorCAD instances when running in parallel. You must free
+            instances after use.
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
 

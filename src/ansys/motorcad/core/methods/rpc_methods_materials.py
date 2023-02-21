@@ -80,7 +80,7 @@ class _RpcMethodsMaterials:
 
     def delete_solid_material(self, material_name):
         """Delete the solid material from the materials database.
-        
+
         Parameters
         ----------
         material_name : str

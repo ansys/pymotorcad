@@ -45,6 +45,7 @@ mcad = pymotorcad.MotorCAD()
 # Disable all popup messages from Motor-CAD.
 mcad.set_variable("MessageDisplayState", 2)
 
+
 # %%
 # Import and save initial settings
 # --------------------------------
@@ -55,6 +56,7 @@ def read_parameters(json_file):
     with open(json_file, "r") as f:
         param_dict = json.load(f)
     return param_dict
+
 
 # %%
 # Specify the working directory.
