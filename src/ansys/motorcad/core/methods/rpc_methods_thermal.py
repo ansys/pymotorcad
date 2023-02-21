@@ -24,7 +24,7 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method)
 
     def create_new_node(self, name, node1, row, column, colour, description):
-        """Create a new node."""
+        """Create a node."""
         method = "CreateNewNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
@@ -60,13 +60,13 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
-        """Save transient power results in a CSV file."""
+        """Save transient power results to a CSV file."""
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
-        """Save transient temperature results in a CSV file."""
+        """Save transient temperature results to a CSV file."""
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
@@ -148,6 +148,7 @@ class _RpcMethodsThermal:
             Number of the first thermal node.
         node2 : int
             Number of the second thermal node.
+        
         Returns
         -------
         float
@@ -158,7 +159,7 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def get_node_exists(self, node_number):
-        """Check if node exists.
+        """Check if a node exists.
 
         Parameters
         ----------
@@ -187,7 +188,7 @@ class _RpcMethodsThermal:
 
         Parameters
         ----------
-        node_number  : int
+        node_number : int
             Number of the node.
         slice_number : int
             Number of the slice.

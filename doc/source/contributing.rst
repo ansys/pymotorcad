@@ -1,8 +1,8 @@
 .. _ref_contributing:
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 
 Overall guidance on contributing to a PyAnsys library appears in the
 `Contributing <dev_guide_contributing_>`_ topic
@@ -10,7 +10,6 @@ in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide before attempting to contribute to PyMotorCAD.
  
 The following contribution information is specific to PyMotorCAD.
-
 
 Clone the repository
 ====================
@@ -56,7 +55,7 @@ You can install and activate this tool with this code::
     pip install pre-commit
     pre-commit run --all-files
 
-You can also install this as a pre-commit hook by running this command::
+You can also install this tool as a pre-commit hook by running this command::
 
     pre-commit install
 

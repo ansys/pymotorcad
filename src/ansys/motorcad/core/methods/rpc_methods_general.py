@@ -186,7 +186,7 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def load_report_tree(self):
-        """Load the tree structure of the modules and components."""
+        """Load the report with the tree structure of the modules and components."""
         method = "LoadReportTree"
         return self.connection.send_and_receive(method)
 
@@ -340,7 +340,7 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def save_to_file(self, mot_file):
-        """Save the current MOT file.
+        """Save the MOT file.
 
         Parameters
         ----------
@@ -353,9 +353,9 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def save_results(self, solution_type):
-        """Save the output results from the selected ``"EMagnetic"`` solution.
+        """Save the output results from an ``"EMagnetic"`` solution.
 
-        This method supports only the ``"EMagnetic"`` solution.
+        This method supports only ``"EMagnetic"`` solutions.
 
         Parameters
         ----------
@@ -367,9 +367,9 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
-        """Load the output results from the ``"EMagnetic"`` solution.
+        """Load the output results from an ``"EMagnetic"`` solution.
 
-        This method supports only the ``"EMagnetic"`` solution.
+        This method supports only ``"EMagnetic"`` solution.
 
         Parameters
         ----------
@@ -381,7 +381,7 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def load_magnetisation_curves(self, file_path):
-        """Load the magnetisation curves from a text file.
+        """Load the magnetization curves from a text file.
 
         This method is for switched reluctance machines (SRMs) only.
 
@@ -423,14 +423,14 @@ class _RpcMethodsGeneral:
         -------
         list
             List of messages. The most recent message is first. A
-            semicolon (:) separates the messages in the list.
+            semicolon (;) separates the messages in the list.
         """
         method = "GetMessages"
         params = [num_messages]
         return self.connection.send_and_receive(method, params)
 
     def get_licence(self):
-        """Check if a licence is available for the current context and machine type.
+        """Check if a license is available for the current context and machine type.
 
         If such a license is available, it is checked out.
         """
@@ -438,7 +438,7 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method)
 
     def get_license(self):
-        """Check if a licence is available for the current context and machine type.
+        """Check if a license is available for the current context and machine type.
 
         .. note::
            This method is deprecated. Use the :func:`MotorCAD.get_licence` method.
@@ -447,7 +447,7 @@ class _RpcMethodsGeneral:
         return self.get_licence()
 
     def clear_message_log(self):
-        """Clear the message log file for the current model."""
+        """Clear the message log file for the model."""
         method = "ClearMessageLog"
         return self.connection.send_and_receive(method)
 

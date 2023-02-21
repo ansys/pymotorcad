@@ -8,7 +8,7 @@ class _RpcMethodsGeometry:
     def set_winding_coil(
         self, phase, path, coil, go_slot, go_position, return_slot, return_position, turns
     ):
-        """Set go and return slots, positions, and turns for a winding coil.
+        """Set go and return slots, positions, and turns for the winding coil.
 
         Parameters
         ----------
@@ -74,8 +74,9 @@ class _RpcMethodsGeometry:
         edit_geometry : int
             Indicates if Motor-CAD can try to reset the geometry
             within constraints if the geometry is invalid. Options are:
-            - 1: Yes. Try and reset the geometry
-            - 0: No. Do not try to reset the geometry.
+
+            - ``1``: Yes. Try and reset the geometry
+            - ``0``: No. Do not try to reset the geometry.
 
         Returns
         -------

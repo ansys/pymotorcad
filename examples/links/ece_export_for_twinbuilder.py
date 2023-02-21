@@ -12,8 +12,9 @@ Motor-CAD to Ansys Twin Builder.
 # --------------
 # Setting up this example consists of performing imports, launching
 # Motor-CAD, disabling all popup messages from Motor-CAD, and
-# importing initial settings.
+# importing the initial settings.
 
+# %%
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the required packages.
@@ -31,6 +32,7 @@ import ansys.motorcad.core as pymotorcad
 if "QT_API" in os.environ:
     os.environ["QT_API"] = "pyqt"
 
+# %%
 # Launch Motor-CAD
 # ~~~~~~~~~~~~~~~~
 # Initialize ActiveX automation and launch Motor-CAD.
@@ -43,10 +45,9 @@ mcad = pymotorcad.MotorCAD()
 # Disable all popup messages from Motor-CAD.
 mcad.set_variable("MessageDisplayState", 2)
 
-
 # %%
-# Import initial settings
-# -----------------------
+# Import and save initial settings
+# --------------------------------
 # You use the ``read_parameters`` method to import initial settings
 # from a JSON file:
 def read_parameters(json_file):
@@ -55,10 +56,11 @@ def read_parameters(json_file):
         param_dict = json.load(f)
     return param_dict
 
-
+# %%
 # Specify the working directory.
 working_folder = os.getcwd()
 
+# %%
 # Open the JSON file and import the initial settings.
 json_file = os.path.join(working_folder, "ece_config.json")
 in_data = read_parameters(json_file)
@@ -79,6 +81,8 @@ mcad_name = "e8_mobility"
 mcad.save_to_file(os.path.join(working_folder, mcad_name))
 
 # %%
+# Run simulation
+# --------------
 # Detect alignment angles and run the simulation.
 
 points_per_cycle = 30
@@ -579,6 +583,7 @@ for r in range(d_values):
 
 file_id.close()
 
+# %%
 # Exit Motor-CAD
 # --------------
 # Exit Motor-CAD.

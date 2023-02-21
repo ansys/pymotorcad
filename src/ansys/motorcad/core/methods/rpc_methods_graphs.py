@@ -20,9 +20,9 @@ class _RpcMethodsGraphs:
         Returns
         -------
         xValue : float
-            Value of x coordinate from the graph.
+             Value of the x coordinate from the graph.
         yValue : float
-            Value of y coordinate from the graph.
+            Value of the y coordinate from the graph.
         """
         method = "GetMagneticGraphPoint"
         params = [{"variant": graph_name}, point_number]

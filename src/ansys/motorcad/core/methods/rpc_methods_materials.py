@@ -10,11 +10,13 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        cooling_type: str
-        Type of the cooling. Options are ``"InternalFluid"``, ``"ExternalFluid"``,
-        ``"ShaftSGFluid"``, ``"RotorWJFluid"``, ``"SlotWJFluid"``, ``"HousingWJFluid"``,
-        ``"WetRotorFluid"``, ``"SprayCoolingFluid"``, ``"Spray_RadialHousing_Fluid"``,
-        and ``"TVentFluid"``.
+        cooling_type : str
+            Type of the cooling. Options are ``"InternalFluid"``,
+            ``"ExternalFluid"``, ``"ShaftSGFluid"``, ``"RotorWJFluid"``,
+            ``"SlotWJFluid"``, ``"HousingWJFluid"``, ``"WetRotorFluid"``,
+            ``"SprayCoolingFluid"``, ``"Spray_RadialHousing_Fluid"``,
+            and ``"TVentFluid"``.
+        fluid :
         """
         method = "SetFluid"
         params = [cooling_type, fluid]
@@ -25,10 +27,10 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        component_name: str
+        component_name : str
             Component name. In Motor-CAD, you can select **Input Data -> Materials**
             and view the **Component** column to see component names.
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "SetComponentMaterial"
@@ -40,7 +42,7 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        component_name: str
+        component_name : str
             Component name. In Motor-CAD, you can select **Input Data -> Materials**
             and view the **Component** column to see component names.
         """
@@ -53,9 +55,9 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        file_name: str
+        file_name : str
             Name of the materials database.
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "ImportSolidMaterial"
@@ -67,9 +69,9 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        file_name: str
+        file_name : str
             Name of the materials database.
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "ExportSolidMaterial"
@@ -77,7 +79,13 @@ class _RpcMethodsMaterials:
         return self.connection.send_and_receive(method, params)
 
     def delete_solid_material(self, material_name):
-        """Delete the solid material from the materials database."""
+        """Delete the solid material from the materials database.
+        
+        Parameters
+        ----------
+        material_name : str
+            Name of the solid material.
+        """
         method = "DeleteSolidMaterial"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
@@ -87,7 +95,7 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "CalculateIronLossCoefficients"
@@ -99,7 +107,7 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "SaveIronLossCoefficients"
@@ -107,11 +115,11 @@ class _RpcMethodsMaterials:
         return self.connection.send_and_receive(method, params)
 
     def calculate_magnet_parameters(self, material_name):
-        """Calculate parameters for the nonlinear demagnetisation model.
+        """Calculate parameters for the nonlinear demagnetization model.
 
         Parameters
         ----------
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "CalculateMagnetParameters"
@@ -123,7 +131,7 @@ class _RpcMethodsMaterials:
 
         Parameters
         ----------
-        material_name: str
+        material_name : str
             Name of the solid material.
         """
         method = "SaveMagnetParameters"

@@ -5,8 +5,8 @@ Custom winding pattern
 ======================
 This example creates a partial custom winding pattern using an ActiveX
 interface inside Ansys optiSLang to change parameter values, run the
-analysis, and plot results. To create a full winding
-pattern, you must specify parameters for all coils. For more information,
+analysis, and plot results. To create a full winding pattern, you
+would have to specify parameters for all coils. For more information,
 see the "MotorCAD" topic in the *optiSLang User's Guide*.
 """
 
@@ -16,7 +16,8 @@ see the "MotorCAD" topic in the *optiSLang User's Guide*.
 # Setting up this example consists of performing imports, specifying the
 # working directory, launching Motor-CAD, and disabling all popup
 # messages from Motor-CAD.
-
+#
+# %%
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the required packages.
@@ -61,7 +62,7 @@ print("Running simulation.")
 # Create analysis
 # ---------------
 # Creating the analysis consists of showing the magnetic context, displaying
-# the **Scripting** tab, setting the geometry, setting parameters, and saving
+# the **Scripting** tab, setting the geometry and parameters, and saving
 # the file.
 #
 # Show the magnetic context.
@@ -79,8 +80,8 @@ mcad.set_variable("Magnet_Thickness", 4.5)
 
 # %%
 # Set parameters for creating the custom winding pattern.
-# The following code does not create a full winding pattern. To create
-# a full winding pattern, you must specify parameters for all coils.
+#
+# The following code creates only a partial winding pattern.
 #
 # Set the winding type to custom:
 # :code:`mcad.set_variable('MagWindingType', 1)`
@@ -166,7 +167,7 @@ shaft_torque = mcad.get_variable("ShaftTorque")
 line_voltage = mcad.get_variable("PeakLineLineVoltage")
 
 # %%
-# Graph torque data.
+# Graph the torque data.
 num_torque_points = points_per_cycle * number_cycles
 rotor_position = []
 torque_vw = []
@@ -177,7 +178,7 @@ for n in range(num_torque_points):
     torque_vw.append(y)
 
 # %%
-# Graph airgap flux density data.
+# Graph the airgap flux density data.
 loop = 0
 success = 0
 mech_angle = []
@@ -195,7 +196,7 @@ while success == 0:
         success = 1
 
 # %%
-# Graph harmonic data.
+# Graph the harmonic data.
 mcad.initialise_tab_names()
 mcad.display_screen("Graphs;Harmonics;Torque")
 
@@ -216,8 +217,8 @@ print("Simulation completed.")
 
 # %%
 # Plot results
-# ============
-# Create results from the simulation.
+# ------------
+# Plot results from the simulation.
 plt.subplot(211)
 plt.plot(mech_angle, airgap_flux_density)
 plt.xlabel("Mech Angle")
@@ -240,5 +241,5 @@ mcad.quit()
 
 # %%
 # If you want to continue working with this instance of Motor-CAD, rather
-# than using the preceding command, use the command:
+# than using the preceding command, use this command:
 # :code:`mcad.set_variable('MessageDisplayState', 0)`

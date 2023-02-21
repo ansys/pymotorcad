@@ -6,7 +6,7 @@ class _RpcMethodsCalculations:
         self.connection = mc_connection
 
     def do_magnetic_thermal_calculation(self):
-        """Carry out coupled e-magnetic and thermal calculations."""
+        """Run coupled e-magnetic and thermal calculations."""
         method = "DoMagneticThermalCalculation"
         return self.connection.send_and_receive(method)
 
@@ -36,7 +36,7 @@ class _RpcMethodsCalculations:
         return self.connection.send_and_receive(method)
 
     def calculate_force_harmonics_temporal(self):
-        """Calculate the 1D force harmonics on the time axis."""
+        """Calculate 1D force harmonics on the time axis."""
         method = "CalculateForceHarmonics_Temporal"
         return self.connection.send_and_receive(method)
 
@@ -72,7 +72,7 @@ class _RpcMethodsCalculations:
         return self.connection.send_and_receive(method, params)
 
     def do_multi_force_calculation(self):
-        """Calculate multiforce operating point."""
+        """Run the multiforce operating point calculation."""
         method = "DoMultiForceCalculation"
         return self.connection.send_and_receive(method)
 

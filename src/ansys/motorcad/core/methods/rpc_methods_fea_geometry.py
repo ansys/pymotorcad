@@ -13,13 +13,13 @@ class _RpcMethodsFEAGeometry:
 
         Parameters
         ----------
-        name: str
+        name : str
             Name of the power injection.
-        node1:
-        value:
-        rpm_ref:
-        rpm_coef
-        description: str
+        node1 :
+        value :
+        rpm_ref :
+        rpm_coef :
+        description : str
 
         """
         method = "SetPowerInjectionValue"
@@ -49,7 +49,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method)
 
     def create_optimised_mesh(self):
-        """Create FEA geometry and mesh.
+        """Create the FEA geometry and an optimized mesh.
 
         Call this method at the end of creating a custom scripting geometry.
         """
@@ -172,9 +172,11 @@ class _RpcMethodsFEAGeometry:
         """Calculate the loss value for an expression of a region.
 
         This method is valid for a magnetic solution only.
-        The region is bounded by the radii and angles that are specified.
+        The region is bounded by the radii and angles that are specified in parameters.
+        
         Radii and angle values of 0 give all region losses.
         Losses calculated are per unit length and are only for the FEA areas modeled.
+        
         For total losses, you must multiply by the symmetry factor.
         """
         method = "GetRegionLoss"
@@ -220,7 +222,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method)
 
     def get_point_value(self, parameter, x, y):
-        """Get a point from the Motor-CAD FEA.
+        """Get a point value from the Motor-CAD FEA.
 
         Parameters
         ----------
@@ -236,7 +238,7 @@ class _RpcMethodsFEAGeometry:
         value : float
             Value from the FEA.
         units : string
-            Units for ``paramater"", which is the Motor-CAD shading function.
+            Units for ``paramater``, which is the Motor-CAD shading function.
         """
         method = "GetPointValue"
         params = [{"variant": parameter}, x, y]
@@ -244,7 +246,7 @@ class _RpcMethodsFEAGeometry:
 
     # ------------------------------------ Custom Geometry ------------------------------------
     def initiate_geometry_from_script(self):
-        """Tells Motor-CAD to use the geometry from scripting.
+        """Initiate the gemoetry form scripting so Motor-CAD knows how to use it.
 
         This method clears the current scripting geometry.
         The ``clear_all_data`` method must be called before this method is called.
@@ -470,7 +472,7 @@ class _RpcMethodsFEAGeometry:
         region_name : string
             Name of the region.
         magnet_material : string
-            Mgnet material.
+            Magnet material.
         br_angle : float
             Magnet angle in degrees.
         br_multiplier : float, optional
@@ -504,7 +506,7 @@ class _RpcMethodsFEAGeometry:
         """Add a region to the geometry and specify the material.
 
         .. note::
-           Do not use this method to add a magnet. Use the ``add_magnet_region_xy`` method instead.
+           Do not use this method to add a magnet. Use the ``add_magnet_region_xy`` method.
 
         Parameters
         ----------
@@ -531,7 +533,7 @@ class _RpcMethodsFEAGeometry:
         """Add a region to the geometry and specify the material.
 
         .. note::
-           Do not use this method to add a magnet. Use the ``add_magnet_region_rt`` method instead.
+           Do not use this method to add a magnet. Use the ``add_magnet_region_rt`` method.
 
         Use degrees for angles.
 

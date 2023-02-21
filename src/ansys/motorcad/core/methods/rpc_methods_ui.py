@@ -7,13 +7,14 @@ class _RpcMethodsUI:
         self.connection = mc_connection
 
     def disable_error_messages(self, active):
-        """Disable or enable the display of error messages.
+        """Disable the display of error messages.
 
         Parameters
         ----------
         active : bool
             Whether to disable the display of error message. If ``True``,
-            error message display is disabled.
+            error messages are hidden. If ``False``, error messages are
+            shown.
         """
         method = "DisableErrorMessages"
         params = [active]
@@ -29,7 +30,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method)
 
     def save_motorcad_screen_to_file(self, screen_name, file_name):
-        """Save the entire Motor-CAD screen of the specified tab as an image file.
+        """Save the entire Motor-CAD screen of a tab to an image file.
 
         Call the ``InitialiseTabNames`` method before called this method.l The
         Motor-CAD UI must be visible.
@@ -49,7 +50,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method, params)
 
     def set_visible(self, visible):
-        """Set the visibility of the Motor-CAD user interface (UI).
+        """Set the visibility of the Motor-CAD UI.
 
         Parameters
         ----------
@@ -94,7 +95,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method)
 
     def set_motorlab_context(self):
-        """Change Motor-CAD to the Lab context."""
+        """Change Motor-CAD to the lab context."""
         method = "SetMotorLABContext"
         return self.connection.send_and_receive(method)
 
@@ -111,7 +112,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method, params)
 
     def save_screen_to_file(self, screen_name, file_name):
-        """Save a screen as an image file.
+        """Save a screen to an image file.
 
         Parameters
         ----------

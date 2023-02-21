@@ -13,15 +13,15 @@ class _RpcMethodsUtility:
         self.connection = mc_connection
 
     def is_open(self):
-        """Check if the `Motor-CAD executable file is running.
+        """Check if the Motor-CAD executable file is running.
 
         Returns
         -------
         bool
-            ``True`` if the Motor-CAD executable file is running,
+            ``True`` if the Motor-CAD executable file is still running,
             ``Fasle`` if this file is not running.
         """
         if self.connection.pid != -1:
             return psutil.pid_exists(self.connection.pid)
         else:
-            raise MotorCADError("Motor-CAD process not created")
+            raise MotorCADError("Motor-CAD process is not created.")

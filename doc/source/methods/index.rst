@@ -16,7 +16,7 @@ MotorCAD compatibility API
 The ``MotorCADCompatibility`` object is used for running old ActiveX
 scripts. For information on backwards compatibility, see
 :ref:`ref_backwards_compatibility`. For descriptions of this
-object, it's single class, and it's many methods, see
+object, its single class, and its many methods, see
 :ref:`ref_MotorCADCompatibility_object`.
 
 .. note::

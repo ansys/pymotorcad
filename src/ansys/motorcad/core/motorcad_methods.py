@@ -79,7 +79,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
     """
 
     warn(
-        "This class uses old Motor-CAD function names, which are in ``CamelCase``. "
+        "This class uses old Motor-CAD function names, which are in ``camelCase``. "
         "For new scripts, use MotorCAD object.",
         DeprecationWarning,
     )

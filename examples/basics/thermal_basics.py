@@ -10,7 +10,7 @@ Motor-CAD thermal analysis
 # --------------
 # Setting up this example consists of performing imports, launching
 # Motor-CAD, disabling all popup messages from Motor-CAD, and
-# opening the relevant file.
+# opening the file for the thermal analysis.
 
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,8 +56,9 @@ print("Initialization completed.")
 # ---------------
 # Creating the analysis consists of showing the thermal context, displaying
 # the **Scripting** tab, setting parameters, and saving the file.
-# -----------------------
+
 # Show thermal context
+# -----------------------
 mcad.show_thermal_context()
 
 # %%
@@ -69,7 +70,7 @@ mcad.display_screen("Scripting")
 mcad.set_variable("Housing_Dia", 250)
 
 # %%
-# Set the flow rate of the WJ fluid v.
+# Set the flow rate of the WJ fluid volume.
 mcad.set_variable("WJ_Fluid_Volume_Flow_Rate", 0.002)
 
 # %%
@@ -107,6 +108,7 @@ mcad.save_to_file(os.path.join(working_folder, "../MotorCAD_Thermal_Python.mot")
 # %%
 # Calculate steady state
 # ----------------------
+# Calculate the steady state.
 try:
     mcad.do_steady_state_analysis()
     print("Thermal calculation successfully completed.")
@@ -128,8 +130,8 @@ print("Max = ", winding_temperature_max)
 print("Average = ", winding_temperature_average)
 
 # %%
-# Run transient simulation
-# ------------------------
+# Run simulation
+# --------------
 # Run the transient simulation.
 mcad.set_variable("Transient_Calculation_Type", 0)
 mcad.set_variable("Transient_Time_Period", 60)
@@ -163,6 +165,7 @@ plt.xlabel("Time")
 plt.ylabel("WindingTemp_Average_Transient")
 plt.show()
 
+# %%
 # Exit Motor-CAD
 # --------------
 # Exit Motor-CAD.

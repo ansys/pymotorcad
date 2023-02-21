@@ -38,14 +38,14 @@ class _RpcMethodsVariables:
         array_index2 : int
             Second index of the array.
         new_value : int|float|str|bool
-            Value of the Motor-CAD variable to set.
+            Value to set the Motor-CAD variable to.
         """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
-        """Restore model compatibility settings to default values (to use the latest methods)."""
+        """Restore model compatibility settings to default values to use the latest methods."""
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
@@ -74,12 +74,12 @@ class _RpcMethodsVariables:
         array_name : str
             Name of the array.
         array_index : int
-            Position variable in array
+            Position variable in the array.
 
         Returns
         -------
         int|float|str|bool
-            Value of Motor-CAD variable
+            Value of the Motor-CAD variable
         """
         method = "GetArrayVariable"
         params = [array_name, array_index]
@@ -91,9 +91,9 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         variable_name : str
-            Name of variable
+            Name of the variable.
         variable_value : int|float|str|bool
-            Sets the variable to this value
+            Value to set the variable to.
         """
         method = "SetVariable"
         params = [variable_name, {"variant": variable_value}]
@@ -105,7 +105,7 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         array_name : str
-            Name of array
+            Name of the array.
         array_index : int
             Index in the array.
         variable_value : int|float|str|bool

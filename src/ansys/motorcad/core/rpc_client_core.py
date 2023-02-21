@@ -24,25 +24,25 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 
 def set_server_ip(ip):
-    """IP of machine that MotorCAD is running on."""
+    """IP address of the machine that Motor-CAD is running on."""
     global SERVER_IP
     SERVER_IP = ip
 
 
 def set_default_instance(port):
-    """Use when running script from MotorCAD."""
+    """Sets the Motor-CAD instance to use as the default when running scripts from MotorCAD."""
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
 
 def set_motorcad_exe(exe_location):
-    """Set location of Motor-CAD.exe to launch."""
+    """Set the directory with the Motor-CAD executable file to launch."""
     global MOTORCAD_EXE_GLOBAL
     MOTORCAD_EXE_GLOBAL = exe_location
 
 
 class MotorCADError(Exception):
-    """Error raised when an issue is raised by Motor-CAD exe."""
+    """Provides the errors to display when issues are raised by the Motor-CAD executable file."""
 
     pass
 
@@ -64,8 +64,9 @@ def _find_motor_cad_exe():
         return motor_exe
 
     str_alt_method = (
-        "Try setting Motor-CAD exe manually before creating MotorCAD() "
-        "object with MotorCAD_Methods.set_motorcad_exe(location)"
+        "Try setting the Motor-CAD executable file manually before creating "
+        "the MotorCAD() object with the MotorCAD_Methods.set_motorcad_exe(location) "
+        "method. "
     )
 
     # Find Motor-CAD exe
@@ -99,7 +100,7 @@ def _find_motor_cad_exe():
                 else:
                     # Not a valid path
                     raise MotorCADError(
-                        "File  does not exist: "
+                        "File does not exist: "
                         + motor_exe
                         + "\nTry updating batch file location in "
                         + "Defaults->Automation->Update to Current Version."
@@ -118,7 +119,7 @@ def _find_motor_cad_exe():
 
 
 class _MotorCADConnection:
-    """Each MotorCAD object has a Motor-CAD.exe instance attached to it."""
+    """Provides the Motor-CAD instance attached to each MotorCAD object."""
 
     def __init__(
         self,
@@ -129,22 +130,22 @@ class _MotorCADConnection:
         reuse_parallel_instances,
         compatibility_mode=False,
     ):
-        """Create MotorCAD object for communication.
+        """Create a MotorCAD object for communication.
 
         Parameters
         ----------
         port : int
             Port to use for communication.
         open_new_instance: Boolean
-            Open a new instance or try to connect to existing instance.
+            Open a new Motor-CAD instance or try to connect to an existing instance.
         enable_exceptions : Boolean
-            Show Motor-CAD communication errors as Python exceptions.
+            Whether to show Motor-CAD communication errors as Python exceptions.
         enable_success_variable: Boolean
-            Motor-CAD methods return a success variable (first object in tuple).
+            Whether Motor-CAD methods are to return a success variable (first object in tuple).
         reuse_parallel_instances: Boolean
-            Reuse MotorCAD instances when running in parallel. Need to free instances after use.
+            Whether to reuse MotorCAD instances when running in parallel. You must free instances after use.
         compatibility_mode: Boolean, default: False
-            Try to run an old script written for ActiveX.
+            Whether to try to run an old script written for ActiveX.
 
         Returns
         -------
@@ -233,7 +234,7 @@ class _MotorCADConnection:
 
         if self.__MotorExe == "":
             self._raise_if_allowed(
-                "Failed to find instance of Motor-CAD to open"
+                "Failed to find instance of Motor-CAD to open."
                 + str(self._port)
                 + ", Url="
                 + str(self._get_url())
@@ -282,7 +283,7 @@ class _MotorCADConnection:
             else:
                 raise MotorCADError(
                     "Could not find a Motor-CAD instance to connect to."
-                    + "\n Ensure that Motor-CAD RPC server is enabled"
+                    + "\n Ensure that Motor-CAD RPC server is enabled."
                 )
 
     def _wait_for_server_to_start(self, process):
@@ -304,7 +305,7 @@ class _MotorCADConnection:
             time.sleep(pause_time)
             number_of_tries = number_of_tries + 1
         else:
-            raise MotorCADError("Failed to find Motor-CAD port")
+            raise MotorCADError("Failed to find Motor-CAD port.")
 
         self._wait_for_response(20)
 
@@ -376,7 +377,7 @@ class _MotorCADConnection:
                     error_message = response["result"]["errorMessage"]
                 else:
                     error_message = (
-                        "An error occurred in Motor-CAD"  # put some generic error message
+                        "An error occurred in Motor-CAD."  # put some generic error message
                     )
 
                 self._last_error_message = error_message
@@ -436,7 +437,7 @@ class _MotorCADConnection:
         return self.send_and_receive(method)
 
     def get_last_error_message(self):
-        """Return the most recent error message.
+        """Get the most recent error message.
 
         Returns
         -------

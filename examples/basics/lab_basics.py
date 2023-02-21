@@ -10,7 +10,7 @@ Lab model
 # --------------
 # Setting up this example consists of performing imports, launching
 # Motor-CAD, disabling all popup messages from Motor-CAD, and opening
-# the relevant file.
+# the file for the lab model.
 
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +62,7 @@ mcad.set_variable("MaxModelCurrent_MotorLAB", 480)
 mcad.set_variable("BuildSatModel_MotorLAB", True)
 
 # %%
-# Show lab context.
+# Show the lab context.
 mcad.set_motorlab_context()
 
 # %%
@@ -100,6 +100,8 @@ shaft_torque = data["Shaft_Torque"]
 shaft_power = data["Shaft_Power"]
 
 # %%
+# Plot results
+# ------------
 # Plot torque/speed curve results.
 plt.figure(1)
 plt.subplot(211)
@@ -123,15 +125,21 @@ mcad.set_variable("SpeedDemand_MotorLAB", 4000)
 mcad.set_variable("LabThermalCoupling", 0)
 mcad.set_variable("LabMagneticCoupling", 0)
 
-# Calculate operating point.
+# %%
+# # Calculate operating point.
 mcad.calculate_operating_point_lab()
 
+# %%
 # Retrieve results.
 op_point_shaft_torque = mcad.get_variable("LabOpPoint_ShaftTorque")
 op_point_efficiency = mcad.get_variable("LabOpPoint_Efficiency")
 print("Operating Point Shaft Torque = ", op_point_shaft_torque)
 print("Operating Point Efficiency = ", op_point_efficiency)
 
-# Finalize.
+
+# %%
+# Exit Motor-CAD
+# --------------
+# Exit Motor-CAD.
 mcad.quit()
 print("Simulation completed.")

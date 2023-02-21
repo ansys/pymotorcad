@@ -6,13 +6,13 @@ class _RpcMethodsInternalScripting:
         self.connection = mc_connection
 
     def save_script(self, file_path):
-        """Save the internal Python script to a PY file.
+        """Save the internal Python script to a Python file.
 
         Parameters
         ----------
         file_path : str
-            Absolute filepath for the PY file, including the file
-            name and PY extension. The default filepath is the
+            Absolute filepath for the Python file, including the file
+            name and a PY extension. The default filepath is the
             Windows directory on the C: drive. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
