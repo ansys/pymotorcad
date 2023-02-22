@@ -3,7 +3,7 @@
 
 Motor-CAD Lab model example script
 ==================================
-This example provides a Motor-CAD Lab model script. 
+This example provides a Motor-CAD Lab model script.
 """
 
 # %%

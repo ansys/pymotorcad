@@ -3,7 +3,7 @@
 
 Motor-CAD thermal example script
 ================================
-This example provides a Motor-CAD thermal script. 
+This example provides a Motor-CAD thermal script.
 """
 
 # %%
