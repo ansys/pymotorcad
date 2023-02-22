@@ -57,10 +57,7 @@ class _RpcMethodsGraphs:
                 loop = loop + 1
 
             except MotorCADError as e:
-                if (
-                    "Number of points requested is greater than the number of points available."
-                    in str(e)
-                ):
+                if "Point requested is greater than number of points available" in str(e):
                     break
                 else:
                     raise
