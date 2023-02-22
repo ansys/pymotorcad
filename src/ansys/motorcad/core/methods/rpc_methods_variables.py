@@ -6,46 +6,46 @@ class _RpcMethodsVariables:
         self.connection = mc_connection
 
     def get_array_variable_2d(self, array_name, array_index1, array_index2):
-        """Get value from 2D array at element [array_index1,array_index2].
+        """Get a value from a 2D array at element ``[array_index1,array_index2]``.
 
         Parameters
         ----------
         array_name : str
-            Name of array
+            Name of the array.
         array_index1 : int
-            First index of array
+            First index of the array.
         array_index2 : int
-            Second index of array
+            Second index of the array.
 
         Returns
         -------
         int|float|str|bool
-            Value of Motor-CAD variable
+            Value of the Motor-CAD variable.
         """
         method = "GetArrayVariable_2d"
         params = [array_name, array_index1, array_index2]
         return self.connection.send_and_receive(method, params)
 
     def set_array_variable_2d(self, array_name, array_index1, array_index2, new_value):
-        """Set value of 2D array at element [array_index1,array_index2].
+        """Set the value of a 2D array at element ``[array_index1,array_index2]``.
 
         Parameters
         ----------
         array_name : str
-            Name of array
+            Name of the array.
         array_index1 : int
-            First index of array
+            First index of the array.
         array_index2 : int
-            Second index of array
+            Second index of the array.
         new_value : int|float|str|bool
-            Value of Motor-CAD variable to be set
+            Value to set the Motor-CAD variable to.
         """
         method = "SetArrayVariable_2d"
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
-        """Restores the model compatibility settings to default values (to use latest methods)."""
+        """Restore model compatibility settings to default values to use the latest methods."""
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
@@ -55,12 +55,12 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         variable_name : str
-            Name of variable
+            Name of the variable.
 
         Returns
         -------
         int|float|str|bool
-            Value of Motor-CAD variable
+            Value of the Motor-CAD variable.
         """
         method = "GetVariable"
         params = [variable_name]
@@ -72,14 +72,14 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         array_name : str
-            Name of array
+            Name of the array.
         array_index : int
-            Position variable in array
+            Position variable in the array.
 
         Returns
         -------
         int|float|str|bool
-            Value of Motor-CAD variable
+            Value of the Motor-CAD variable
         """
         method = "GetArrayVariable"
         params = [array_name, array_index]
@@ -91,9 +91,9 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         variable_name : str
-            Name of variable
+            Name of the variable.
         variable_value : int|float|str|bool
-            Sets the variable to this value
+            Value to set the variable to.
         """
         method = "SetVariable"
         params = [variable_name, {"variant": variable_value}]
@@ -105,11 +105,11 @@ class _RpcMethodsVariables:
         Parameters
         ----------
         array_name : str
-            Name of array
+            Name of the array.
         array_index : int
-            Position in array
+            Index in the array.
         variable_value : int|float|str|bool
-            Sets the variable to this value
+            Value to set the variable to.
         """
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]

@@ -1,20 +1,18 @@
 .. _ref_contributing:
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 
 Overall guidance on contributing to a PyAnsys library appears in the
 `Contributing <dev_guide_contributing_>`_ topic
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
-with it and all `Coding style <dev_guide_coding_style_>`_ before attempting to
-contribute to PyMotorCAD.
+with this guide before attempting to contribute to PyMotorCAD.
  
 The following contribution information is specific to PyMotorCAD.
 
-
-Cloning the PyMotorCAD repository
-==========================================
+Clone the repository
+====================
 
 Run this code to clone and install the latest version of PyMotorCAD in development mode:
 
@@ -25,8 +23,8 @@ Run this code to clone and install the latest version of PyMotorCAD in developme
     pip install --editable ansys-motorcad-core
 
 
-Posting issues
-==============
+Post issues
+===========
 
 Use the `PyMotorCAD Issues <PyMotorCAD_issues_>`_
 page to submit questions, report bugs, and request new features. When possible,
@@ -40,25 +38,24 @@ If your issue does not fit into one of these categories, create your own issue.
 
 To reach the project support team, email `pyansys.support@ansys.com <pyansys_support_>`_.
 
-Viewing PyMotorCAD documentation
-==========================================
+View PyMotorCAD documentation
+=============================
 
 Documentation for the latest stable release of PyMotorCAD is hosted at
 `PyMotorCAD Documentation <PyMotorCAD_docs_>`_.
 
-Code style
-==========
+Adhere to code style
+===================
 
-PyMotorCAD follows PEP8 standard as outlined in the `PyAnsys Development Guide
-<dev_guide_pyansys_>`_ and implements style checking using
-`pre-commit <pre-commit_>`_.
-
-To ensure your code meets minimum code styling standards, run::
+PyMotorCAD is compliant with the `PyAnsys code style
+<https://dev.docs.pyansys.com/coding-style/index.html>`_. it
+uses the tool `pre-commit <pre-commit_>`_ to check the code style.
+You can install and activate this tool with this code::
 
     pip install pre-commit
     pre-commit run --all-files
 
-You can also install this as a pre-commit hook by running::
+You can also install this tool as a pre-commit hook by running this command::
 
     pre-commit install
 

@@ -1,22 +1,27 @@
 .. currentmodule:: ansys.motorcad
 
+API reference
+=============
+
 Motor-CAD API
-=======================
+------------
 
-The MotorCAD object is used by default for PyMotorCAD scripting.
-The descriptions of the methods, input parameters and return values are given.
-
-:ref:`ref_MotorCAD_object`
+The ``MotorCAD`` object is used by default for PyMotorCAD scripting.
+For descriptions of this object's single class and its many methods,
+see :ref:`ref_MotorCAD_object`.
 
 Motor-CAD compatibility API
-=============================
+--------------------------
 
-The MotorCADCompatibility object is used for running old ActiveX scripts. For more information on backwards
-compatibility, see :ref:`ref_backwards_compatibility`.
+The ``MotorCADCompatibility`` object is used for running old ActiveX
+scripts. For information on backwards compatibility, see
+:ref:`ref_backwards_compatibility`. For descriptions of this
+object, its single class, and its many methods, see
+:ref:`ref_MotorCADCompatibility_object`.
 
-The available methods are given and their replacement functions have been commented.
-
-:ref:`ref_MotorCADCompatibility_object`
+.. note::
+   In addition to giving the available methods, their replacement functions
+   have been commented.
 
 .. toctree::
    :maxdepth: 1
