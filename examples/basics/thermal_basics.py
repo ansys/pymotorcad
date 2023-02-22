@@ -1,8 +1,9 @@
 """
 .. _ref_thermal_basics:
 
-Motor-CAD thermal analysis
-==========================
+Motor-CAD thermal example script
+================================
+This example provides a Motor-CAD thermal script. 
 """
 
 # %%

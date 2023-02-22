@@ -1,12 +1,13 @@
 """
 .. _ref_emag_basics:
 
-Custom winding pattern
-======================
-This example creates a partial custom winding pattern using ActiveX
-to change parameter values, run the
-analysis, and plot results. To create a full winding pattern, you
-would have to specify parameters for all coils.
+Motor-CAD E-magnetic example script
+===================================
+This example provides a Motor-CAD E-magnetic script. This script
+creates a partial custom winding pattern using ActiveX to change
+parameter values, run the analysis, and plot results. To create
+a full winding pattern, you would have to specify parameters
+for all coils.
 """
 
 # %%

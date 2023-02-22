@@ -1,8 +1,9 @@
 """
 .. _ref_lab_basics:
 
-Lab model
-=========
+Motor-CAD Lab model example script
+==================================
+This example provides a Motor-CAD Lab model script. 
 """
 
 # %%

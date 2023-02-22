@@ -1,10 +1,10 @@
 """
-Twin Builder export
-===================
-
-This example exports an equivalent circuit extraction (ECE)
-model for permanent magnet synchronous motors (PMSMs) from
-Motor-CAD to Ansys Twin Builder.
+Motor-CAD Twin Builder export
+=============================
+This example provides a Motor-CAD script for exporting
+an equivalent circuit extraction (ECE) model for permanent
+magnet synchronous motors (PMSMs) from Motor-CAD to Ansys
+Twin Builder.
 """
 
 # %%
