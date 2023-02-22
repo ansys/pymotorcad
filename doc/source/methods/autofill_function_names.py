@@ -89,6 +89,8 @@ def generate_method_docs():
         # append to end of file
         doc_file = open(new_file_name, "a")
 
+        func_names = sorted(func_names)
+
         for func_name in func_names:
             doc_file.write("   " + func_name + "\n")
 
