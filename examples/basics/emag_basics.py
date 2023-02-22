@@ -3,11 +3,10 @@
 
 Custom winding pattern
 ======================
-This example creates a partial custom winding pattern using an ActiveX
-interface inside Ansys optiSLang to change parameter values, run the
+This example creates a partial custom winding pattern using ActiveX
+to change parameter values, run the
 analysis, and plot results. To create a full winding pattern, you
-would have to specify parameters for all coils. For more information,
-see the "MotorCAD" topic in the *optiSLang User's Guide*.
+would have to specify parameters for all coils.
 """
 
 # %%

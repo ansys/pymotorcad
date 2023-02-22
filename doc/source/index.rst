@@ -23,8 +23,8 @@ Ansys Motor-CAD is a dedicated design and analysis tool for electric motors.
 It enables rapid and accurate multiphysics design and analysis of electric
 machines across the full operating spectrum.
 
-Today's electric motor design requires multiphysics analysis across a wide
-torque and speed-operating range to accommodate rapid development cycles and
+Today's electric motor design requires multiphysics analysis across wide
+torque and speed operating ranges to accommodate rapid development cycles and
 system integration. Motor-CAD facilitates this cutting-edge design approach
 by providing:
 
@@ -41,7 +41,7 @@ PyMotorCAD is part of the `PyAnsys <https://docs.pyansys.com/>`_ ecosystem
 that facilitates the use of Motor-CAD within a Python environment in
 conjunction with other PyAnsys libraries and external Python libraries.
 
-PyMotorCAD uses a Python remote procedure call (RPC)-JSON interface for
+PyMotorCAD uses a Python JSON-RPC (remote procedure call) interface for
 Motor-CAD to launch or connect with a Motor-CAD instance, either locally or
 from a remote machine via HTTP.
 
@@ -68,7 +68,7 @@ Features of PyMotorCAD include:
   or via BlackBox mode. For adding PyMotorCAD to your own Python, see
   :ref:`ref_external_scripting`.
 - The ability to control communication and couple or link Motor-CAD
-  with other software such asAnsys optiSLang.
+  with other software such as Ansys optiSLang.
 - The ability to run automated sensitivity analysis studies and/or select
   tolerance buildup to produce robust designs.
 - Allowing users to introduce their own formulations into Motor-CAD.

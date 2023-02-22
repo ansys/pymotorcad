@@ -37,7 +37,7 @@ class _RpcMethodsInternal:
     def get_im_iron_loss(self, slip, back_emf):
         """Get analytic iron loss using data from the FEA solution.
 
-        The e-magnetic model must be solved prior to calling this method.
+        The E-magnetic model must be solved prior to calling this method.
 
         Parameters
         ----------

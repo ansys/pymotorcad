@@ -86,7 +86,7 @@ All messages are set to display in a separate window using this PyMotorCAD metho
 :code:`mcApp.set_variable("MessageDisplayState", 2)`
 
  .. note::
-    This PyModerCAD method disables crucial popups, including prompts to save files
+    This PyMotorCAD method disables crucial popups, including prompts to save files
      and overwrite data. Ensure that this is the desired behavior.
 
 The :code:`demo_func` function defines a range of values for the :code:`tooth_width`
@@ -173,7 +173,7 @@ thermal calculations:
             print("Thermal Transient - Final")
 
 
-The :code:`emagnetic` class contains functions for electromagnetic calculations:
+The :code:`emagnetic` class contains functions for E-Magnetic calculations:
 
 
 .. code:: python
@@ -186,7 +186,7 @@ The :code:`emagnetic` class contains functions for electromagnetic calculations:
             print("E-Magnetic - Final")
 
 
-The :code:`mechanical_stress` class contains functions for mechanical stress calculations:
+The :code:`mechanical_stress` class contains functions for Mechanical stress calculations:
 
 
 .. code:: python
@@ -199,7 +199,7 @@ The :code:`mechanical_stress` class contains functions for mechanical stress cal
             print("Mech Stress - Final")
 
 
-The :code:`mechanical_forces` class contains functions for mechanical force calculations:
+The :code:`mechanical_forces` class contains functions for Mechanical force calculations:
 
 
 .. code:: python

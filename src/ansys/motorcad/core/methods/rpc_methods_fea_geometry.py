@@ -39,7 +39,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def do_slot_finite_element(self):
-        """Run slot finite element analysis."""
+        """Run slot FEA."""
         method = "DoSlotFiniteElement"
         return self.connection.send_and_receive(method)
 
@@ -202,7 +202,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def delete_regions(self, region_name):
-        """Delete specified regions or all regions.
+        """Delete a comma-separated list of named regions or all regions.
 
         Parameters
         ----------

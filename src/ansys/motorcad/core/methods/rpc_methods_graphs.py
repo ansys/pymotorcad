@@ -100,7 +100,7 @@ class _RpcMethodsGraphs:
         Returns
         -------
         xValue : float
-            Vlue of the x coordinate from the graph.
+            Value of the x coordinate from the graph.
         yValue : float
             Value of the y coordinate from the graph.
         """
