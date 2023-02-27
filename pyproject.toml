@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name="ansys-motorcad-core"
 dynamic = ["version"]
-description = "Pythonic interface to Ansys Motor-CAD"
+description = "Pythonic interface to Ansys Motor-CAD."
 readme = "README.rst"
 requires-python = ">=3.7"
 license = {file = "LICENSE"}
@@ -51,6 +51,7 @@ doc = [
 [project.urls]
 Source = "https://github.com/pyansys/pymotorcad"
 Documentation = "https://motorcad.docs.pyansys.com/"
+Tracker = "https://github.com/pyansys/pymotorcad/issues"
 
 [tool.flit.module]
 name = "ansys.motorcad.core"
