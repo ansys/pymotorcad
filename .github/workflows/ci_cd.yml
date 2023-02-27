@@ -167,6 +167,6 @@ jobs:
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
       - name: Release to GitHub
-        uses: pyansys/actions/release-github@v1
+        uses: pyansys/actions/release-github@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
