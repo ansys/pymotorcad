@@ -34,7 +34,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==7.1.2",
+    "pytest==7.2.1",
     "pytest-cov==4.0.0",
 ]
 doc = [
