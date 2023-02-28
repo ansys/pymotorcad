@@ -7,6 +7,8 @@ updates:
     labels:
       - "maintenance"
       - "dependencies"
+    assignees: 
+      - "pyansys-ci-bot"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -14,3 +16,5 @@ updates:
       interval: "daily"
     labels:
       - "maintenance"
+    assignees: 
+      - "pyansys-ci-bot"
