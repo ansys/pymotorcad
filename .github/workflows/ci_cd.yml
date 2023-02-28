@@ -166,16 +166,16 @@ jobs:
           twine-username: __token__
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      #- uses: actions/checkout@v3
-      #- uses: actions/download-artifact@v3
-#
-      #- name: Display structure of downloaded files
-      #  run: ls -R
-#
-      #- name: "Release to GitHub"
-      #  uses: softprops/action-gh-release@v1
-      #  with:
-      #    files: |
-      #      ./**/*.whl
-      #      ./**/*.tar.gz
-      #      documentation-html 
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: "Release to GitHub"
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./**/*.whl
+            ./**/*.tar.gz
+            documentation-html 
