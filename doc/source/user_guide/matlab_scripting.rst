@@ -25,7 +25,7 @@ To check which version of Python MATLAB is using, call the :code:`pyenv` functio
     pe = pyenv;
     pe.Version
 
-For example, if version Python version 3.10 is installed, and added to path, MATLAB will output
+For example, if version Python version 3.10 is installed and added to path, MATLAB will output:
 
 .. code:: text
 
