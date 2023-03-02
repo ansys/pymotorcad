@@ -18,14 +18,14 @@ and `accessing Python Modules from MATLAB <https://uk.mathworks.com/help/matlab/
 
 By default, MATLAB selects the version of Python based on the system path.
 To view the system path in MATLAB, use the :code:`getenv('path')` command.
-To check which version of Python MATLAB is using, call the :code:`pyenv` function in MATLAB.
+To see which version of Python MATLAB is using, call the :code:`pyenv` function in MATLAB.
 
 .. code:: matlab
 
     pe = pyenv;
     pe.Version
 
-For example, if version Python version 3.10 is installed and added to path, MATLAB will output:
+For example, if version Python version 3.10 is installed and added to path, MATLAB outputs:
 
 .. code:: text
 
@@ -36,7 +36,7 @@ For example, if version Python version 3.10 is installed and added to path, MATL
 Using PyMotorCAD in MATLAB
 ***************************
 
-If the Python version that MATLAB is using has the :code:`ansys.motorcad.core` package installed, PyMotorCAD will be available to use in MATLAB.
+If the Python version that MATLAB is using has the :code:`ansys.motorcad.core` package installed, PyMotorCAD is available to use in MATLAB.
 See :ref:`ref_getting_started` for details on installing :code:`ansys.motorcad.core`.
 
 To import the :code:`ansys.motorcad.core` module as :code:`pymotorcad` for use in scripts, use:
@@ -45,7 +45,7 @@ To import the :code:`ansys.motorcad.core` module as :code:`pymotorcad` for use i
 
     pymotorcad = py.importlib.import_module('ansys.motorcad.core');
 
-Then pymotorcad API commands can be used in MATLAB in the same way as in Python.
+Then :ref:`ref_MotorCAD_object` commands can be used in MATLAB in the same way as in Python.
 To start and connect to a Motor-CAD instance, access the :code:`MotorCAD()` object:
 
 .. code:: matlab
