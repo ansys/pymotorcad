@@ -1,6 +1,8 @@
 ANSYS
 Ansys
 ansys
+Mathworks
+MATLAB
 Motor-CAD
 MotorCAD
 MotorCADCompatibility
