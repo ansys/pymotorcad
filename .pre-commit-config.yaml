@@ -27,7 +27,8 @@ repos:
   rev: v2.2.2
   hooks:
   - id: codespell
-    args: ["--ignore-words=ignore_words.txt"]
+    args: ["--ignore-words=ignore_words.txt",
+           "--exclude-file=exclude_lines.txt"]
 
 - repo: https://github.com/pycqa/pydocstyle
   rev: 6.1.1
