@@ -22,6 +22,35 @@ MOTORCAD_EXE_GLOBAL = ""
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
+IS_REMOTE_MACHINE = False
+REMOTE_MACHINE_LIST = []
+
+
+class RemoteMachine:
+    def __init__(
+            self,
+            max_connections=4,
+            server_ip="localhost",
+            server_port=34000,
+    ):
+        self.max_connections = max_connections
+
+        # if server_ip == "localhost":
+        #     # Don't want to resolve localhost for every command
+        #     hostname = socket.gethostname()
+        #     self._server_ip = socket.gethostbyname(hostname)
+        # else:
+
+        self._server_ip = server_ip
+
+        self.serverPort = server_port
+
+        self.server_url = "http://" + str(self._server_ip) + ":" + str(server_port)
+
+
+def add_remote_machine(remote_machine):
+    REMOTE_MACHINE_LIST.append(remote_machine)
+
 
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
@@ -117,10 +146,17 @@ def _find_motor_cad_exe():
     except Exception:
         raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
 
+def how_many_open():
+    num_instances = 0
+    for i in psutil.process_iter():
+        if (i.name()) in MOTORCAD_PROC_NAMES:
+            num_instances = num_instances + 1
+
+    return num_instances
+
 
 class _MotorCADConnection:
     """Provides the Motor-CAD instance attached to each MotorCAD object."""
-
     def __init__(
         self,
         port,
@@ -128,7 +164,8 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
-        compatibility_mode=False,
+        use_remote_machine,
+        compatibility_mode=False
     ):
         """Create a MotorCAD object for communication.
 
@@ -157,14 +194,13 @@ class _MotorCADConnection:
         self._last_error_message = ""
         self.program_version = ""
         self.pid = -1
-
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
 
         self._open_new_instance = open_new_instance
 
         self.enable_success_variable = enable_success_variable
-
+        self.use_remote_machine = use_remote_machine
         self._compatibility_mode = compatibility_mode
 
         if DEFAULT_INSTANCE != -1:
@@ -175,7 +211,15 @@ class _MotorCADConnection:
         if self.reuse_parallel_instances is True:
             self._open_new_instance = False
 
-        if self._open_new_instance is True:
+        if (IS_REMOTE_MACHINE is True) and (open_new_instance is True):
+            self._open_motor_cad_local()
+            return  # call finish_connection separately
+
+        if self.use_remote_machine is True:
+            self.__open_motor_cad_remote()
+            waitTime = 30
+
+        elif self._open_new_instance is True:
             if port != -1:
                 self._port = int(port)
 
@@ -188,6 +232,9 @@ class _MotorCADConnection:
             else:  # port is not defined
                 self._find_free_motor_cad()
 
+        self.finish_connection()
+
+    def finish_connection(self):
         self.pid = self.get_process_id()
 
         # Check for response
@@ -208,7 +255,13 @@ class _MotorCADConnection:
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
         if self._connected is True:
-            if (
+            if self.use_remote_machine is True:
+                try:
+                    self._send_command_remote_machine("CloseMotorCAD", aParams=[self._port])
+                except Exception:
+                    # Don't worry about this - might already be closed
+                    pass
+            elif (
                 (self.reuse_parallel_instances is False)
                 and (self._open_new_instance is True)
                 and (self._compatibility_mode is False)
@@ -245,12 +298,49 @@ class _MotorCADConnection:
             [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
         )
 
-        pid = motor_process.pid
+        self.pid = motor_process.pid
 
-        motor_util = psutil.Process(pid)
+        motor_util = psutil.Process(self.pid)
 
-        self._wait_for_server_to_start(motor_util)
+        if IS_REMOTE_MACHINE is False:
+            self._wait_for_server_to_start(motor_util)
 
+    def __open_motor_cad_remote(self):
+        global SERVER_IP
+        for remoteMachine in REMOTE_MACHINE_LIST:
+            self._port = self._send_command_remote_machine(
+                "OpenMotorCAD", remoteMachineUrl=remoteMachine.server_url
+            )
+            if self._port != -1:  # Returns -1 if failed to start
+                SERVER_IP = "http://" + remoteMachine._server_ip
+                self._RemoteMachineUrl = remoteMachine.server_url
+                self._url = self._get_url()
+                break
+        else:
+            raise MotorCADError("Failed to find machine to launch MotorCAD")
+        
+    def _send_command_remote_machine(self, aCommand, aParams=[], remoteMachineUrl=""):
+        try:
+            if not remoteMachineUrl:
+                remoteMachineUrl = self._RemoteMachineUrl
+
+            JSON_command = {
+                "jsonrpc": "2.0",
+                "method": aCommand,
+                "params": aParams,
+                "id": 1,  # Can be any number not just linked to port
+            }
+            response = requests.post(remoteMachineUrl, json=JSON_command).json()
+
+            if "error" in response:
+                raise MotorCADError(response["error"])
+            elif "result" in response:
+                return response["result"]
+
+        except Exception as e:
+            strE = str(e)
+            
+            
     def _find_free_motor_cad(self):
         found_free_instance = False
         for proc in psutil.process_iter():

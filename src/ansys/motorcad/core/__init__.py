@@ -9,4 +9,8 @@ from ansys.motorcad.core.rpc_client_core import (
     set_default_instance,
     set_motorcad_exe,
     set_server_ip,
+    how_many_open,
+    IS_REMOTE_MACHINE,
+    RemoteMachine,
+    add_remote_machine
 )

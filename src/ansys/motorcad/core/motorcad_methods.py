@@ -17,6 +17,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        use_remote_machine=False
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -24,6 +25,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            use_remote_machine
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -59,6 +61,7 @@ class MotorCAD(_MotorCADCore):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        use_remote_machine=False
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -68,6 +71,7 @@ class MotorCAD(_MotorCADCore):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            use_remote_machine=use_remote_machine
         )
 
 
