@@ -37,7 +37,7 @@ def RemoveMCfromList(aPort):
 def SendCommandRemote(aPort, aMethod, aParams):
     MC = GetMCfromPort(aPort)
     if MC is not None:
-        result = MC.conne(aMethod, aParams)
+        result = MC.connection._send_and_receive(aMethod, aParams)
         return Success(result)
     else:
         return Error(1)

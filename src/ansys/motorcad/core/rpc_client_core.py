@@ -413,7 +413,11 @@ class _MotorCADConnection:
 
         try:
             # Special case as there won't be a response
-            if method == "Quit":
+            if self.use_remote_machine is True:
+                params2 = [self._port, method, params]
+                response = self._send_command_remote_machine("SendCommmandRemote", params2)
+
+            elif method == "Quit":
                 requests.post(self._get_url(), json=payload).json()
                 return
             else:
