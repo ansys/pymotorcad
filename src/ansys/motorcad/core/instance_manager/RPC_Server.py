@@ -50,7 +50,7 @@ def CloseMotorCAD(aPort):
 
     try:
         MC = GetMCfromPort(aPort)
-        MC.connection._quit()
+        MC.quit()
 
         print(str(aPort) + ": closed successfully ")
         result = Success()
