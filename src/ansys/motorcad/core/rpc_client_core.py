@@ -309,8 +309,8 @@ class _MotorCADConnection:
         global SERVER_IP
         for remoteMachine in REMOTE_MACHINE_LIST:
             self._port = self._send_command_remote_machine(
-                "OpenMotorCAD", remoteMachineUrl=remoteMachine.server_url
-            )
+                "OpenMotorCAD", remoteMachineUrl=remoteMachine.server_url)
+
             if self._port != -1:  # Returns -1 if failed to start
                 SERVER_IP = "http://" + remoteMachine._server_ip
                 self._RemoteMachineUrl = remoteMachine.server_url
@@ -332,10 +332,7 @@ class _MotorCADConnection:
             }
             response = requests.post(remoteMachineUrl, json=JSON_command).json()
 
-            if "error" in response:
-                raise MotorCADError(response["error"])
-            elif "result" in response:
-                return response["result"]
+            return response["result"]
 
         except Exception as e:
             strE = str(e)
@@ -434,74 +431,80 @@ class _MotorCADConnection:
             self._raise_if_allowed("RPC Communication failed: " + str(e))
 
         else:  # No exceptions in RPC communication
-            if "error" in response:
-                error_string = "RPC Communication Error: " + response["error"]["message"]
-
-                if "Invalid params" in error_string:
-                    try:
-                        # common error - give a better error message
-                        new_error_string = error_string.split("hint")
-                        # Get last part
-                        new_error_string = new_error_string[-1]
-
-                        new_error_string = (
-                            method
-                            + ": One or more parameter types were invalid. HINT ["
-                            + new_error_string
-                        )
-                        error_string = new_error_string
-                    except Exception:
-                        # use old error string if that failed
-                        pass
-
-                success = -99
-                self._last_error_message = error_string
-
-                self._raise_if_allowed(error_string)
-                return
-
+            if IS_REMOTE_MACHINE:
+                return response
             else:
-                success = response["result"]["success"]
+                return self._handle_response(response, method, success_var)
 
-            if method == "CheckIfGeometryIsValid":
-                # This doesn't have the normal success var
-                success_value = 1
-            else:
-                success_value = _METHOD_SUCCESS
+    def _handle_response(self, response, method, success_var):
+        if "error" in response:
+            error_string = "RPC Communication Error: " + response["error"]["message"]
 
-            if success != success_value:
-                # This is an error caused by bad user code
-                # Exception is enabled by default
-                # Can get error message (get_last_error_message) instead
-                if response["result"]["errorMessage"] != "":
-                    error_message = response["result"]["errorMessage"]
-                else:
-                    error_message = (
-                        "An error occurred in Motor-CAD."  # put some generic error message
+            if "Invalid params" in error_string:
+                try:
+                    # common error - give a better error message
+                    new_error_string = error_string.split("hint")
+                    # Get last part
+                    new_error_string = new_error_string[-1]
+
+                    new_error_string = (
+                        method
+                        + ": One or more parameter types were invalid. HINT ["
+                        + new_error_string
                     )
+                    error_string = new_error_string
+                except Exception:
+                    # use old error string if that failed
+                    pass
 
-                self._last_error_message = error_message
+            success = -99
+            self._last_error_message = error_string
 
-                self._raise_if_allowed(error_message)
+            self._raise_if_allowed(error_string)
+            return
 
-            result_list = []
+        else:
+            success = response["result"]["success"]
 
-            if success_var is None:
-                success_var = self.enable_success_variable
+        if method == "CheckIfGeometryIsValid":
+            # This doesn't have the normal success var
+            success_value = 1
+        else:
+            success_value = _METHOD_SUCCESS
 
-            if success_var is True:
-                result_list.append(success)
+        if success != success_value:
+            # This is an error caused by bad user code
+            # Exception is enabled by default
+            # Can get error message (get_last_error_message) instead
+            if response["result"]["errorMessage"] != "":
+                error_message = response["result"]["errorMessage"]
+            else:
+                error_message = (
+                    "An error occurred in Motor-CAD."  # put some generic error message
+                )
 
-            if len(response["result"]["output"]) > 0:
-                if len(response["result"]["output"]) == 1:
-                    result_list.append(response["result"]["output"][0])
-                else:
-                    result_list.extend(list(response["result"]["output"]))
+            self._last_error_message = error_message
 
-            if len(result_list) > 1:
-                return tuple(result_list)
-            elif len(result_list) == 1:
-                return result_list[0]
+            self._raise_if_allowed(error_message)
+
+        result_list = []
+
+        if success_var is None:
+            success_var = self.enable_success_variable
+
+        if success_var is True:
+            result_list.append(success)
+
+        if len(response["result"]["output"]) > 0:
+            if len(response["result"]["output"]) == 1:
+                result_list.append(response["result"]["output"][0])
+            else:
+                result_list.extend(list(response["result"]["output"]))
+
+        if len(result_list) > 1:
+            return tuple(result_list)
+        elif len(result_list) == 1:
+            return result_list[0]
 
     def _wait_for_response(self, max_retries):
         method = "Handshake"
