@@ -22,13 +22,13 @@ motorInstantLock = threading.Lock()
 
 def GetMCfromPort(aPort):
     for MC in motorInstances:
-        if MC._port == aPort:
+        if MC.connection._port == aPort:
             return MC
 
 
 def RemoveMCfromList(aPort):
     for MC in motorInstances:
-        if MC._port == aPort:
+        if MC.connection._port == aPort:
             motorInstances.remove(MC)
             return
 
@@ -37,7 +37,7 @@ def RemoveMCfromList(aPort):
 def SendCommandRemote(aPort, aMethod, aParams):
     MC = GetMCfromPort(aPort)
     if MC is not None:
-        result = MC.connection._send_and_receive(aMethod, aParams))
+        result = MC._send_and_receive(aMethod, aParams)
         return Success(result)
     else:
         return Error(1)
@@ -50,7 +50,7 @@ def CloseMotorCAD(aPort):
 
     try:
         MC = GetMCfromPort(aPort)
-        MC.Quit()
+        MC.connection._quit()
 
         print(str(aPort) + ": closed successfully ")
         result = Success()

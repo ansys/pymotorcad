@@ -414,13 +414,19 @@ class _MotorCADConnection:
         try:
             # Special case as there won't be a response
             if self.use_remote_machine is True:
-                response = self._send_command_remote_machine()
-
-            if method == "Quit":
-                requests.post(self._get_url(), json=payload).json()
-                return
+                params2 = [self._port, method, params]
+                if method == "Quit":
+                    self._send_command_remote_machine("SendCommandRemote", params2)
+                    return
+                else:
+                    response = self._send_command_remote_machine("SendCommandRemote", params2)
             else:
-                response = requests.post(self._get_url(), json=payload).json()
+
+                if method == "Quit":
+                    requests.post(self._get_url(), json=payload).json()
+                    return
+                else:
+                    response = requests.post(self._get_url(), json=payload).json()
 
         except Exception as e:
             # This can occur when an assert fails in Motor-CAD debug
