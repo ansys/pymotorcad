@@ -6,31 +6,42 @@ User guide
    :maxdepth: 1
    :hidden:
 
-   backwards_compatibility
+   internal_scripting
    external_scripting
+   matlab_scripting
+   backwards_compatibility
 
-PyMotorCAD provides Python access to Motor-CAD. The PyMotorCAD RPC API allows Motor-CAD to be controlled on a local machine or over HTTP from a remote machine.
 
-Through automation, Motor-CAD can be fully controlled by scripts, without using the GUI. Motor-CAD scripts can be utilised via the internal scripting tab within Ansys Motor-CAD or externally.
+PyMotorCAD provides Python access to Motor-CAD. The RPC-based :ref:`ref_MotorCAD_object`
+allows you to create a Motor-CAD instance on a local machine or connect to an existing
+instance on a remote machine over HTTP. Using the many methods available in this API's
+single class, you can create scripts for fully controlling and automating Motor-CAD
+without using the GUI.
 
-Using internal PyMotorCAD scripts
-----------------------------------
-Motor-CAD is installed with an internal Python interpreter.
-This includes a stable version of PyMotorCAD. The PyMotorCAD Python package is based around the ``MotorCAD()`` Python object. Each individual ``MotorCAD()`` object represents an instance of Motor-CAD.
+Additionally, Motor-CAD scripts can be used via the internal
+**Scripting** tab within Ansys Motor-CAD or externally.
 
-Within the Motor-CAD GUI, there is a Scripting tab (available in the E-Magnetic, Thermal and Mechanical contexts). This tab facilitates the creating, editing, loading, and saving of internal scripts in Motor-CAD.
 
-To connect with Motor-CAD from an internal script on the Scripting tab, access the ``MotorCAD()`` object as follows:
+Using PyMotorCAD scripts internally 
+-----------------------------------
+Motor-CAD is installed with an internal Python interpreter that includes a stable version
+of PyMotorCAD. This Python package is based around the ``MotorCAD()`` Python object.
+Each individual ``MotorCAD()`` object represents an instance of Motor-CAD.
 
-.. code:: python
+For more information on using PyMotorCAD via the internal Scripting tab in Motor-CAD, see :ref:`ref_internal_scripting`.
 
-    import ansys.motorcad.core as pymotorcad
+Using PyMotorCAD scripts externally
+------------------------------------
 
-    mcApp = pymotorcad.MotorCAD()
+PyMotorCAD can be added to any Python installation and used to control Motor-CAD from
+the command line or via scripts from a Python IDE of your choice.
+For more information on using PyMotorCAD with an external Python installation, see :ref:`ref_external_scripting`.
 
-PyMotorCAD methods can then be used to send commands to the current Motor-CAD instance with the object ``mcApp``. This can be used to set and get values before, during, and after calculations, and to create a script for Motor-CAD automation.
+PyMotorCAD can also be used in MATLAB, for information on this, see :ref:`ref_matlab_scripting`.
 
-PyMotorCAD API
-===============
+Backwards compatibility with old scripts
+-----------------------------------------
 
-For the full list of methods, which can be used to create a script for Motor-CAD control/automation, see :ref:`ref_MotorCAD_object`.
+Altering old scripts for use with PyMotorCAD is straightforward and allows the user to take advantage of the improvements
+offered by PyMotorCAD over the previous Motor-CAD communication method (ActiveX).
+For information on converting ActiveX scripts to use PyMotorCAD, see :ref:`ref_backwards_compatibility`.

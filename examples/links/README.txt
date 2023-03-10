@@ -1,3 +1,3 @@
-Links to other Ansys tools examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These examples show how PyMotorCAD can be used to link to other Ansys tools.
+Linking examples
+~~~~~~~~~~~~~~~~
+These examples show how you can link PyMotorCAD to other Ansys products.

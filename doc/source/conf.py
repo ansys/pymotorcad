@@ -6,6 +6,8 @@ import sys
 from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
 from sphinx_gallery.sorting import FileNameSortKey
 
+from ansys.motorcad.core import __version__
+
 # Generate MotorCAD API methods docs
 sys.path.insert(0, "./methods")
 from autofill_function_names import generate_method_docs
@@ -18,7 +20,7 @@ cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 project = "ansys.motorcad.core"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "ANSYS, Inc."
-release = version = "0.1.dev0"
+release = version = __version__
 
 # Select desired logo, theme, and declare the html title
 html_logo = pyansys_logo_black
@@ -41,10 +43,9 @@ html_theme_options = {
         },
     ],
     "switcher": {
-        "json_url": f"https://{cname}/release/versions.json",
+        "json_url": f"https://{cname}/versions.json",
         "version_match": get_version_match(version),
     },
-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
 }
 
 # Sphinx extensions

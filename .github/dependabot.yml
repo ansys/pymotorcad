@@ -1,7 +1,20 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"directory: "/requirements"schedule:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
       interval: "daily"
     labels:
       - "maintenance"
       - "dependencies"
+    assignees: 
+      - "pyansys-ci-bot"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "maintenance"
+    assignees: 
+      - "pyansys-ci-bot"

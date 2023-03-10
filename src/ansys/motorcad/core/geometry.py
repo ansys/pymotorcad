@@ -4,7 +4,7 @@ from math import degrees, radians
 
 
 def xy_to_rt(x, y):
-    """Convert Motor-CAD cartesian coordinates to polar coordinates in degrees.
+    """Convert Motor-CAD Cartesian coordinates to polar coordinates in degrees.
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ def xy_to_rt(x, y):
 
 
 def rt_to_xy(radius, theta):
-    """Convert Motor-CAD polar coordinates to cartesian coordinates in degrees.
+    """Convert Motor-CAD polar coordinates to Cartesian coordinates in degrees.
 
     Parameters
     ----------
@@ -40,9 +40,9 @@ def rt_to_xy(radius, theta):
     Returns
     -------
     x : float
-        X coordinate.
+        X coordinate value.
     y : float
-        Y coordinate.
+        Y coordinate value.
     """
     coordinates_complex = rect(radius, radians(theta))
 

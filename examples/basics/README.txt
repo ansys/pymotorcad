@@ -1,3 +1,3 @@
 Basic examples
 ~~~~~~~~~~~~~~
-These examples demonstrate the basic functionality of PyMotorCAD.
+These examples show you how to use the basic functionality of PyMotorCAD.
