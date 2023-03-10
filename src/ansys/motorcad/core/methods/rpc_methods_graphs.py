@@ -58,10 +58,12 @@ class _RpcMethodsGraphs:
                 loop = loop + 1
 
             except MotorCADError as e:
-                if "Point requested is greater than number of points available" in str(e):
-                    break
-                else:
-                    raise
+                break
+                # Can't be used currently: Bug in Motorcad RPC server
+                # if "Point requested is greater than number of points available" in str(e):
+                #     break
+                # else:
+                #     raise
 
         return x_array, y_array
 
