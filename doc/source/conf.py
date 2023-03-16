@@ -8,13 +8,7 @@ from sphinx_gallery.sorting import FileNameSortKey
 
 from ansys.motorcad.core import __version__
 
-# Generate MotorCAD API methods docs
-sys.path.insert(0, "./methods")
-from autofill_function_names import generate_method_docs
-
-generate_method_docs()
-
-cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
+cname = os.getenv("DOCUMENTATION_CNAME", "motorcad.docs.pyansys.com")
 
 # Project information
 project = "ansys.motorcad.core"
@@ -44,7 +38,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": f"https://{cname}/versions.json",
-        "version_match": get_version_match(version),
+        "version_match": get_version_match(__version__),
     },
 }
 
@@ -127,3 +121,10 @@ source_suffix = ".rst"
 
 # The master toctree document.
 master_doc = "index"
+
+
+# Generate MotorCAD API methods docs
+sys.path.insert(0, "./methods")
+from autofill_function_names import generate_method_docs
+
+generate_method_docs()
