@@ -5,7 +5,7 @@ from warnings import warn
 from ansys.motorcad.core.methods.rpc_methods_utility import _RpcMethodsUtility
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCore, _RpcMethodsCoreOld
-
+from ansys.motorcad.core.container import _MotorCADContainerLocal
 
 class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
     """Provides the RPC client and core API methods."""
@@ -17,6 +17,8 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        connection_timeout=2,
+        container=None
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -24,11 +26,39 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            connection_timeout,
+            container
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
         _RpcMethodsUtility.__init__(self, mc_connection=self.connection)
 
+
+class MotorCADContainer(_MotorCADCore):
+    """test docstring"""
+    def __init__(
+        self,
+        port=34000,
+        launch_local_container=True
+    ):
+
+        if launch_local_container is True:
+            container = _MotorCADContainerLocal(port)
+        else:
+            container = None
+
+        """Initiate MotorCAD object."""
+        _MotorCADCore.__init__(
+            self,
+            open_new_instance=False,
+            port=port,
+            connection_timeout=600,
+            container=container
+        )
+
+        self.connection.container_type = "local"
+
+        self.set_variable("MessageDisplayState", 2)
 
 class MotorCAD(_MotorCADCore):
     """Connect to an existing Motor-CAD instance or open a new instance.

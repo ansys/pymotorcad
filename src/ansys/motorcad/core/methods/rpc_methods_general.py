@@ -337,6 +337,10 @@ class _RpcMethodsGeneral:
         """
         method = "LoadFromFile"
         params = [mot_file]
+
+        if self.connection.container_type == "local":
+            self.connection.container.copy_files_to(mot_file)
+
         return self.connection.send_and_receive(method, params)
 
     def save_to_file(self, mot_file):
@@ -348,9 +352,17 @@ class _RpcMethodsGeneral:
             Full path to file, including file name. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
+        if self.connection.container_type == "local":
+            self.connection.container.mkdir(mot_file)
+
         method = "SaveToFile"
         params = [mot_file]
-        return self.connection.send_and_receive(method, params)
+        result = self.connection.send_and_receive(method, params)
+
+        if self.connection.container_type == "local":
+            self.connection.container.get_files_from(mot_file)
+
+        return result
 
     def save_results(self, solution_type):
         """Save the output results from an ``"EMagnetic"`` solution.
