@@ -10,8 +10,8 @@ PyMotorCAD
    :target: https://pypi.org/project/ansys-motorcad-core/
    :alt: Python
 
-.. |pypi| image:: https://img.shields.io/pypi/v/pymotorcad-core.svg?logo=python&logoColor=white
-   :target: https://pypi.org/project/pymotorcad-core
+.. |pypi| image:: https://img.shields.io/pypi/v/ansys-motorcad-core.svg?logo=python&logoColor=white
+   :target: https://pypi.org/project/ansys-motorcad-core/
    :alt: PyPI
 
 .. |codecov| image:: https://codecov.io/gh/pyansys/pymotorcad/branch/main/graph/badge.svg
