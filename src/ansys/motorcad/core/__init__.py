@@ -1,6 +1,6 @@
 """PyMotorCAD is a Python RPC-JSON interface for Motor-CAD."""
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 import ansys.motorcad.core.geometry
 from ansys.motorcad.core.motorcad_methods import MotorCAD, MotorCADCompatibility
