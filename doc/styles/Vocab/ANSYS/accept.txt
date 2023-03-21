@@ -1,7 +1,15 @@
 ANSYS
 Ansys
 ansys
+Mathworks
+MATLAB
 Motor-CAD
+MotorCAD
+MotorCADCompatibility
 API
+multiphysics
 PyMotorCAD
+optiSLang
+Scripting
+scripting
 snake_case

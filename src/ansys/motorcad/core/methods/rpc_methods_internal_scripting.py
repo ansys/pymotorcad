@@ -6,15 +6,14 @@ class _RpcMethodsInternalScripting:
         self.connection = mc_connection
 
     def save_script(self, file_path):
-        """Save the internal python script to a file.
-
-        The .py extension should be included in the file name.
+        """Save the internal Python script to a Python file.
 
         Parameters
         ----------
         file_path : str
-            The absolute filepath of the data to be saved. The default
-            filepath is the Windows directory in the C: drive. Use r'filepath'
+            Absolute filepath for the Python file, including the file
+            name and a PY extension. The default filepath is the
+            Windows directory on the C: drive. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
         method = "SaveScript"
@@ -22,19 +21,20 @@ class _RpcMethodsInternalScripting:
         return self.connection.send_and_receive(method, params)
 
     def load_script(self, script_file):
-        """Load a script file into Motor-CAD internal scripting.
+        """Load a script file into Motor-CAD's internal scripting.
 
         Parameters
         ----------
         script_file : str
-            Full path to file including file name. You can use r'filepath' syntax to force
-            Python to ignore special characters.
+            Full path to the script file, including the file name.
+            Use the ``r'filepath'`` syntax to force Python to ignore
+            special characters.
         """
         method = "LoadScript"
         params = [script_file]
         return self.connection.send_and_receive(method, params)
 
     def run_script(self):
-        """Run script file in Motor-CAD internal scripting."""
+        """Run the script file in Motor-CAD's internal scripting."""
         method = "RunScript"
         return self.connection.send_and_receive(method)

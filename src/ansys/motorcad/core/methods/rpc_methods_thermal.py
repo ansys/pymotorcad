@@ -1,4 +1,5 @@
 """RPC methods for Motor-CAD Thermal."""
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class _RpcMethodsThermal:
@@ -23,7 +24,7 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method)
 
     def create_new_node(self, name, node1, row, column, colour, description):
-        """Create a new node."""
+        """Create a node."""
         method = "CreateNewNode"
         params = [name, node1, row, column, colour, description]
         return self.connection.send_and_receive(method, params)
@@ -59,19 +60,30 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
-        """Save transient power results in a csv file."""
+        """Save transient power results to a CSV file."""
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
-        """Save transient temperature results in a csv file."""
+        """Save transient temperature results to a CSV file."""
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def remove_external_component(self, component_type, name, node1):
-        """Remove an external circuit component (e.g. Resistance, Power Source, Power Injection)."""
+        """Remove an external circuit component.
+
+        Parameters
+        ----------
+        component_type: str
+            Type of the external circuit components. Options are ``"Resistance"``,
+            ``"Power Source"``, and ``"Power Injection"``).
+        name: str
+
+        node1: int
+            Number of the thermal node.
+        """
         method = "RemoveExternalComponent"
         params = [component_type, name, node1]
         return self.connection.send_and_receive(method, params)
@@ -82,12 +94,12 @@ class _RpcMethodsThermal:
         Parameters
         ----------
         node_number : int
-            Thermal node number
+            Number of the thermal node.
 
         Returns
         -------
         float
-            Temperature of thermal node
+            Temperature of the thermal node.
         """
         method = "GetNodeTemperature"
         params = [node_number]
@@ -99,12 +111,12 @@ class _RpcMethodsThermal:
         Parameters
         ----------
         node_number : int
-            Thermal node number
+            Number of the thermal node.
 
         Returns
         -------
         float
-            Capacitance of thermal node
+            Capacitance of the thermal node.
         """
         method = "GetNodeCapacitance"
         params = [node_number]
@@ -116,37 +128,38 @@ class _RpcMethodsThermal:
         Parameters
         ----------
         node_number : int
-            Thermal node number
+            Number of the thermal node.
 
         Returns
         -------
         float
-            Power of thermal node
+            Power of the thermal node.
         """
         method = "GetNodePower"
         params = [node_number]
         return self.connection.send_and_receive(method, params)
 
     def get_node_to_node_resistance(self, node1, node2):
-        """Get node to node resistance.
+        """Get the node-to-node resistance.
 
         Parameters
         ----------
         node1 : int
-            Thermal node number
+            Number of the first thermal node.
         node2 : int
-            Thermal node number
+            Number of the second thermal node.
+
         Returns
         -------
         float
-            Resistance value
+            Resistance value.
         """
         method = "GetNodeToNodeResistance"
         params = [node1, node2]
         return self.connection.send_and_receive(method, params)
 
     def get_node_exists(self, node_number):
-        """Check if node exists.
+        """Check if a node exists.
 
         Parameters
         ----------
@@ -155,30 +168,37 @@ class _RpcMethodsThermal:
 
         Returns
         -------
-        boolean
-            True if node exists
+        bool
+            ``True`` if node exists, ``False`` otherwise.
         """
         method = "GetNodeExists"
         params = [node_number]
-        node_exists = self.connection.send_and_receive(method, params, success_var=False)
+        try:
+            node_exists = self.connection.send_and_receive(method, params, success_var=False)
+        except MotorCADError as e:
+            if "Range check error" in str(e):
+                node_exists = False
+            else:
+                raise
+
         return node_exists
 
     def get_offset_node_number(self, node_number, slice_number, cuboid_number):
-        """Get offset node number.
+        """Get the offset node number.
 
         Parameters
         ----------
-        node_number  : int
-            node number
+        node_number : int
+            Number of the node.
         slice_number : int
-            slice number
+            Number of the slice.
         cuboid_number : int
-            cuboid number
+            Number of the cuboid.
 
         Returns
         -------
         int
-            offset node number
+            Offset node number.
         """
         method = "GetOffsetNodeNumber"
         params = [node_number, slice_number, cuboid_number]

@@ -8,7 +8,7 @@ class _RpcMethodsLab:
     def calculate_test_performance_lab(self):
         """Calculate the test performance.
 
-        Results will be saved in the .mot file results folder as MotorLAB_caldata.mat
+        Results are saved in the MOT file results folder as ``MotorLAB_caldata.mat``.
         """
         method = "CalculateTestPerformance_Lab"
         return self.connection.send_and_receive(method)
@@ -19,12 +19,13 @@ class _RpcMethodsLab:
         return self.connection.send_and_receive(method)
 
     def get_model_built_lab(self):
-        """Test if the Lab model needs to be built or rebuilt before running calculations.
+        """Test if the Lab model must be built or rebuilt before running calculations.
 
         Returns
         -------
         bool
-            Return true if the Lab model has been built and is valid for the current settings.
+            ``True`` if the Lab model has been built and is valid for the current settings,
+            ``False`` otherwise.
         """
         method = "GetModelBuilt_Lab"
         return self.connection.send_and_receive(method)
@@ -35,7 +36,8 @@ class _RpcMethodsLab:
         Parameters
         ----------
         calculation_type : str
-            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+            Type of calculation. Options are ``"Electromagnetic"``, ``"Thermal"``,
+            ``"Generator"``, ``"Duty Cycle"``, and ``"Calibration"``.
         """
         method = "ShowResultsViewer_Lab"
         params = [calculation_type]
@@ -47,11 +49,13 @@ class _RpcMethodsLab:
         Parameters
         ----------
         calculation_type : str
-            Choose from "Electromagnetic", "Thermal","Generator", "Duty Cycle" or "Calibration"
+            Type of calculation. Options are ``"Electromagnetic"``, ``"Thermal"``,
+            ``"Generator"``, ``"Duty Cycle"``, and ``"Calibration"``.
         variable : str
-            The given variable will be plotted on the Y axis (2d graphs) or Z axis (3d graphs),
-            e.g. "Shaft Torque"
+           Variable to plot on the Y axis (2D graphs) or Z axis (3D graphs). For
+           example, ``"Shaft Torque"``.
         file_name : str
+            Name of the image file.
         """
         method = "ExportFigure_Lab"
         params = [calculation_type, variable, file_name]
@@ -60,21 +64,21 @@ class _RpcMethodsLab:
     def calculate_generator_lab(self):
         """Calculate generator performance.
 
-        Results will be saved in the .mot file results folder as LabResults_Generator.mat
+        Results are saved in the MOT file results folder as ``LabResults_Generator.mat``.
         """
         method = "CalculateGenerator_Lab"
         return self.connection.send_and_receive(method)
 
     def load_external_model_lab(self, file_path):
-        """Load the specified external model data file.
+        """Load an external model data file.
 
-        For when the Lab link type is set to Custom or ANSYS Maxwell.
+        This parameter is used when the Lab link type is set to ``Custom`` or ``Ansys Maxwell``.
 
         Parameters
         ----------
         file_path : str
-            Full path to file including file name. You can use r'filepath' syntax to force
-            Python to ignore special characters.
+            Full path to the data file, including the file name. Use the ``r'filepath'``
+            syntax to force Python to ignore special characters.
         """
         method = "LoadExternalModel_Lab"
         params = [file_path]
@@ -91,21 +95,21 @@ class _RpcMethodsLab:
         return self.connection.send_and_receive(method)
 
     def calculate_operating_point_lab(self):
-        """Calculate Lab operating point."""
+        """Run the Lab operating point calculation."""
         method = "CalculateOperatingPoint_Lab"
         return self.connection.send_and_receive(method)
 
     def calculate_magnetic_lab(self):
-        """Do Lab magnetic calculation."""
+        """Run the Lab magnetic calculation."""
         method = "CalculateMagnetic_Lab"
         return self.connection.send_and_receive(method)
 
     def calculate_thermal_lab(self):
-        """Do Lab thermal calculation."""
+        """Run the Lab thermal calculation."""
         method = "CalculateThermal_Lab"
         return self.connection.send_and_receive(method)
 
     def calculate_duty_cycle_lab(self):
-        """Calculate Lab duty cycle."""
+        """Run the Lab duty cycle."""
         method = "CalculateDutyCycle_Lab"
         return self.connection.send_and_receive(method)

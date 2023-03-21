@@ -9,7 +9,9 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.7'
+  MAIN_PYTHON_VERSION: '3.10'
+  PACKAGE_NAME: ansys-motorcad-core
+  PACKAGE_NAMESPACE: ansys.motorcad.core
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   DOCUMENTATION_CNAME: 'motorcad.docs.pyansys.com'
 
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PyAnsys code style checks
-        uses: pyansys/actions/code-style@v3
+        uses: pyansys/actions/code-style@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -33,29 +35,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PyAnsys documentation style checks
-        uses: pyansys/actions/doc-style@v3
+        uses: pyansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  tests:
-    name: Tests and coverage
-    runs-on: [self-hosted, pymotorcad]
+  smoke-tests:
+    name: Build and Smoke tests
+    runs-on: ${{ matrix.os }}
+    needs: style
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
-      fail-fast: false
+        python-version: ['3.7', '3.8', '3.9', '3.10'] 
+    steps:
+      - name: Build wheelhouse and perform smoke test
+        uses: pyansys/actions/build-wheelhouse@v4
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          library-namespace: ${{ env.PACKAGE_NAMESPACE }}
+          operating-system: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
 
+  tests:
+    name: Tests and coverage
+    needs: smoke-tests
+    runs-on: [self-hosted, pymotorcad]
     steps:
       - uses: actions/checkout@v3
 
       - name: Ensure Motor-CAD not open
-        run: taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
+        run: |
+          taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
+          taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
           
       - name: Install dependencies
         run: |
@@ -63,46 +80,102 @@ jobs:
           
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        run: tox
+        run: tox -e py310-coverage  
         
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.10'
         name: 'Upload coverage to Codecov'
 
 
   doc-build:
     name: "Building library documentation"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, pymotorcad]
     needs: doc-style
     steps:
-      - name: "Run Ansys documentation building action"
-        uses: pyansys/actions/doc-build@v3
-
-
-  doc-deploy:
-    name: "Deploy development documentation"
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
-    needs: doc-build
-    steps:
-      - name: "Deploy development documentation"
-        uses: pyansys/actions/doc-deploy-dev@v2
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-
-  build:
-    name: Build library
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
+
+      - name: Ensure Motor-CAD not open
+        run: |
+          taskkill /IM Motor-CAD_2023_1_1.exe /F /FI "STATUS eq RUNNING"
+          taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
+
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-      - name: Install dependencies and build the library
+
+      - name: Install dependencies
         run: |
-          python -m pip install build twine
-          python -m build
-          python -m twine check dist/*
+          python -m pip install --upgrade pip tox tox-gh-actions
+
+      - name: Generate the documentation with tox
+        run: tox -e doc
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: .tox/doc_out/
+          retention-days: 7
+
+  doc-deploy-development:
+    name: "Deploy development documentation"
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: package
+    steps:
+      - name: "Deploy development documentation"
+        uses: pyansys/actions/doc-deploy-dev@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+  
+  doc-deploy-stable:
+    name: Doc stable version deploy
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: "Deploy stable documentation"
+        uses: pyansys/actions/doc-deploy-stable@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+  package:
+    name: Package library
+    runs-on: ubuntu-latest
+    needs: [doc-build, tests]
+    steps:
+      - name: Build library source and wheel artifacts
+        uses: pyansys/actions/build-library@v4
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+  release:
+    name: Release project
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release to PyPI repository
+        uses: pyansys/actions/release-pypi-public@v3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          twine-username: __token__
+          twine-token: ${{ secrets.PYPI_TOKEN }}
+
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: "Release to GitHub"
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./**/*.whl
+            ./**/*.tar.gz
+            documentation-html 
