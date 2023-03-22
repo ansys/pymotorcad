@@ -257,7 +257,7 @@ class _MotorCADConnection:
         if self._connected is True:
             if self.use_remote_machine is True:
                 try:
-                    self._send_command_remote_machine("CloseMotorCAD", aParams=[self._port])
+                    self._send_command_remote_machine("close_motor_cad", aParams=[self._port])
                 except Exception:
                     # Don't worry about this - might already be closed
                     pass
@@ -309,7 +309,7 @@ class _MotorCADConnection:
         global SERVER_IP
         for remoteMachine in REMOTE_MACHINE_LIST:
             self._port = self._send_command_remote_machine(
-                "OpenMotorCAD", remoteMachineUrl=remoteMachine.server_url)
+                "open_motor_cad", remoteMachineUrl=remoteMachine.server_url)
 
             if self._port != -1:  # Returns -1 if failed to start
                 SERVER_IP = "http://" + remoteMachine._server_ip
@@ -413,10 +413,10 @@ class _MotorCADConnection:
             if self.use_remote_machine is True:
                 params2 = [self._port, method, params]
                 if method == "Quit":
-                    self._send_command_remote_machine("SendCommandRemote", params2)
+                    self._send_command_remote_machine("send_command_remote", params2)
                     return
                 else:
-                    response = self._send_command_remote_machine("SendCommandRemote", params2)
+                    response = self._send_command_remote_machine("send_command_remote", params2)
             else:
 
                 if method == "Quit":

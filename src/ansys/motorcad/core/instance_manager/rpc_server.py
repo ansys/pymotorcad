@@ -12,45 +12,45 @@ MAX_INSTANCES = 4
 PORT = 34000
 
 
-numInstances = 0
-MotorLaunchLock = threading.Lock()
+num_instances = 0
+motor_launch_lock = threading.Lock()
 
-motorInstances = []
+motor_instances = []
 
-motorInstantLock = threading.Lock()
-
-
-def GetMCfromPort(aPort):
-    for MC in motorInstances:
-        if MC.connection._port == aPort:
-            return MC
+motor_instant_lock = threading.Lock()
 
 
-def RemoveMCfromList(aPort):
-    for MC in motorInstances:
-        if MC.connection._port == aPort:
-            motorInstances.remove(MC)
+def get_mc_from_port(a_port):
+    for mc in motor_instances:
+        if mc.connection._port == a_port:
+            return mc
+
+
+def remove_mc_from_list(a_port):
+    for mc in motor_instances:
+        if mc.connection._port == a_port:
+            motor_instances.remove(mc)
             return
 
 
 @method
-def SendCommandRemote(aPort, aMethod, aParams):
-    MC = GetMCfromPort(aPort)
-    if MC is not None:
-        result = MC.connection.send_and_receive(aMethod, aParams)
+def send_command_remote(a_port, a_method, a_params):
+    mc = get_mc_from_port(a_port)
+    if mc is not None:
+        result = mc.connection.send_and_receive(a_method, a_params)
         return Success(result)
     else:
         return Error(1)
 
 
 @method
-def CloseMotorCAD(aPort):
+def close_motor_cad(aPort):
 
     print(str(aPort) + ": attempting to close")
 
     try:
-        MC = GetMCfromPort(aPort)
-        MC.quit()
+        mc = get_mc_from_port(aPort)
+        mc.quit()
 
         print(str(aPort) + ": closed successfully ")
         result = Success()
@@ -58,14 +58,14 @@ def CloseMotorCAD(aPort):
         print(str(aPort) + ": failed to close")
         result = Error(1, "failed to close")
     finally:
-        RemoveMCfromList(aPort)
+        remove_mc_from_list(aPort)
         return result
 
 
 @method
-def OpenMotorCAD():
+def open_motor_cad():
 
-    MotorLaunchLock.acquire()
+    motor_launch_lock.acquire()
 
     try:
         if pymotorcad.how_many_open() < MAX_INSTANCES:
@@ -77,18 +77,18 @@ def OpenMotorCAD():
             return Success(-1)
 
     finally:
-        MotorLaunchLock.release()
+        motor_launch_lock.release()
 
     mc_object.connection._wait_for_server_to_start(psutil.Process(mc_object.connection.pid))
     mc_object.connection._wait_for_response(30)
 
     port = mc_object.connection._port
 
-    motorInstantLock.acquire()
+    motor_instant_lock.acquire()
     try:
-        motorInstances.append(mc_object)
+        motor_instances.append(mc_object)
     finally:
-        motorInstantLock.release()
+        motor_instant_lock.release()
 
     return Success(port)
 
