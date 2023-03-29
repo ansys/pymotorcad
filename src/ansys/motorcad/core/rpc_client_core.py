@@ -307,13 +307,13 @@ class _MotorCADConnection:
 
     def __open_motor_cad_remote(self):
         global SERVER_IP
-        for remoteMachine in REMOTE_MACHINE_LIST:
+        for remote_machine in REMOTE_MACHINE_LIST:
             self._port = self._send_command_remote_machine(
-                "open_motor_cad", remoteMachineUrl=remoteMachine.server_url)
+                "open_motor_cad", remoteMachineUrl=remote_machine.server_url)
 
             if self._port != -1:  # Returns -1 if failed to start
-                SERVER_IP = "http://" + remoteMachine._server_ip
-                self._RemoteMachineUrl = remoteMachine.server_url
+                SERVER_IP = "http://" + remote_machine._server_ip
+                self._RemoteMachineUrl = remote_machine.server_url
                 self._url = self._get_url()
                 break
         else:
@@ -411,12 +411,12 @@ class _MotorCADConnection:
         try:
             # Special case as there won't be a response
             if self.use_remote_machine is True:
-                params2 = [self._port, method, params]
+                remote_params = [self._port, method, params]
                 if method == "Quit":
-                    self._send_command_remote_machine("send_command_remote", params2)
+                    self._send_command_remote_machine("send_command_remote", remote_params)
                     return
                 else:
-                    response = self._send_command_remote_machine("send_command_remote", params2)
+                    response = self._send_command_remote_machine("send_command_remote", remote_params)
             else:
 
                 if method == "Quit":
