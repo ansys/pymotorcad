@@ -22,7 +22,7 @@ def _create_container_path_from_windows_path(windows_path):
 
     new_path = os.path.splitdrive(windows_path)[1].strip("\\")
 
-    new_path = os.path.join("root", ".wine", "drive_c", new_path)
+    new_path = os.path.join("home", "motorcaduser", ".wine", "drive_c", new_path)
     return PurePosixPath(PureWindowsPath(new_path))
 
 class _MotorCADContainerLocal:
