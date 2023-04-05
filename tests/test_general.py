@@ -184,7 +184,7 @@ def file_contents_equal(file_1, file_2):
 
 def test_get_mot_file():
     get_mot_file_path = get_temp_files_dir_path() + r"\get_mot_file"
-    mc.get_mot_file(get_mot_file_path)
+    mc.download_mot_file(get_mot_file_path)
 
     assert file_contents_equal(get_base_test_file_path(), get_mot_file_path)
 
