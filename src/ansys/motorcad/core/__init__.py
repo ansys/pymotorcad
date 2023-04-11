@@ -3,7 +3,7 @@
 __version__ = "0.2.dev0"
 
 import ansys.motorcad.core.geometry
-from ansys.motorcad.core.motorcad_methods import MotorCAD, MotorCADCompatibility
+from ansys.motorcad.core.motorcad_methods import MotorCAD, MotorCADCompatibility, MotorCADContainer
 from ansys.motorcad.core.rpc_client_core import (
     MotorCADError,
     set_default_instance,

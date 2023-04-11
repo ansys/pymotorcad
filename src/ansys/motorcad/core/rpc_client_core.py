@@ -129,6 +129,7 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
+        connection_timeout,
         compatibility_mode=False,
     ):
         """Create a MotorCAD object for communication.
@@ -189,14 +190,14 @@ class _MotorCADConnection:
             else:  # port is not defined
                 self._find_free_motor_cad()
 
-        self.pid = self.get_process_id()
-
         # Check for response
-        if self._wait_for_response(2) is True:
+        if self._wait_for_response(connection_timeout) is True:
             self._connected = True
             # Store Motor-CAD version number for any required backwards compatibility
 
             self.program_version = self._get_program_version()
+
+            self.pid = self.get_process_id()
 
         else:
             raise MotorCADError(

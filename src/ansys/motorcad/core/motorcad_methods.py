@@ -17,6 +17,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        connection_timeout=2
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -24,11 +25,28 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            connection_timeout
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
         _RpcMethodsUtility.__init__(self, mc_connection=self.connection)
 
+
+class MotorCADContainer(_MotorCADCore):
+    """test docstring"""
+    def __init__(
+        self,
+        port=34000
+    ):
+        """Initiate MotorCAD object."""
+        _MotorCADCore.__init__(
+            self,
+            open_new_instance=False,
+            port=port,
+            connection_timeout=600,
+        )
+
+        self.set_variable("MessageDisplayState", 2)
 
 class MotorCAD(_MotorCADCore):
     """Connect to an existing Motor-CAD instance or open a new instance.
