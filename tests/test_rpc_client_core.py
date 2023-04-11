@@ -18,18 +18,18 @@ def test__find_free_motor_cad():
 
 
 def test_set_server_ip():
-    def_address = pymotorcad.rpc_client_core.SERVER_IP
+    def_address = pymotorcad.rpc_client_core.DEFAULT_SERVER_IP
 
     # Use loopback address
     test_ip = "http://127.0.0.1"
 
     pymotorcad.set_server_ip(test_ip)
 
-    assert pymotorcad.rpc_client_core.SERVER_IP == test_ip
+    assert pymotorcad.rpc_client_core.DEFAULT_SERVER_IP == test_ip
 
     # Reset address to default
     pymotorcad.set_server_ip(def_address)
-    assert pymotorcad.rpc_client_core.SERVER_IP == def_address
+    assert pymotorcad.rpc_client_core.DEFAULT_SERVER_IP == def_address
 
 
 def test_set_motorcad_exe():

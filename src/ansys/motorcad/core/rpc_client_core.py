@@ -1,5 +1,5 @@
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-
+import warnings
 from os import environ, path
 import re
 import socket
@@ -15,7 +15,7 @@ CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 DEFAULT_INSTANCE = -1
 
-SERVER_IP = "http://localhost"
+DEFAULT_SERVER_IP = "http://localhost"
 
 _METHOD_SUCCESS = 0
 
@@ -26,8 +26,11 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
-    global SERVER_IP
-    SERVER_IP = ip
+    warnings.warn("set_server_ip() is a deprecated function. "
+                  """Set server_ip when launching Motor-CAD object instead e.g. MotorCAD(server_ip="127.0.0.1")""",
+                  DeprecationWarning)
+    global DEFAULT_SERVER_IP
+    DEFAULT_SERVER_IP = ip
 
 
 def set_default_instance(port):
@@ -44,7 +47,6 @@ def set_motorcad_exe(exe_location):
 
 class MotorCADError(Exception):
     """Provides the errors to display when issues are raised by the Motor-CAD executable file."""
-
     pass
 
 
@@ -125,6 +127,7 @@ class _MotorCADConnection:
     def __init__(
         self,
         port,
+        server_ip,
         open_new_instance,
         enable_exceptions,
         enable_success_variable,
@@ -138,15 +141,19 @@ class _MotorCADConnection:
         ----------
         port : int
             Port to use for communication.
-        open_new_instance: Boolean
+        server_ip : str
+            IP of machine that Motor-CAD is running on.
+        open_new_instance : Boolean
             Open a new Motor-CAD instance or try to connect to an existing instance.
         enable_exceptions : Boolean
             Whether to show Motor-CAD communication errors as Python exceptions.
-        enable_success_variable: Boolean
+        enable_success_variable : Boolean
             Whether Motor-CAD methods are to return a success variable (first object in tuple).
-        reuse_parallel_instances: Boolean
+        reuse_parallel_instances : Boolean
             Whether to reuse MotorCAD instances when running in parallel. You must free
             instances after use.
+        connection_timeout : int
+            Timeout for initial Motor-CAD connection (seconds).
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
 
@@ -168,6 +175,11 @@ class _MotorCADConnection:
         self.enable_success_variable = enable_success_variable
 
         self._compatibility_mode = compatibility_mode
+
+        if server_ip is None:
+            self.server_ip = DEFAULT_SERVER_IP
+        else:
+            self.server_ip = server_ip
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
@@ -229,7 +241,7 @@ class _MotorCADConnection:
 
     def _get_url(self):
         """Get url for RPC communication."""
-        url = SERVER_IP + ":" + str(self._port) + "/jsonrpc"
+        url = self.server_ip + ":" + str(self._port) + "/jsonrpc"
         return url
 
     def _open_motor_cad_local(self):
