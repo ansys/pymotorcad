@@ -1,7 +1,12 @@
 import os
 
+from RPC_Test_Common import (
+    almost_equal,
+    get_dir_path,
+    get_temp_files_dir_path,
+    get_test_files_dir_path,
+)
 import ansys.motorcad.core
-from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path, get_test_files_dir_path
 from ansys.motorcad.core import MotorCAD
 from setup_test import get_base_test_file_path, reset_to_default_file, setup_test_env
 
@@ -9,6 +14,8 @@ from setup_test import get_base_test_file_path, reset_to_default_file, setup_tes
 mc = setup_test_env()
 
 ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
+
+
 def kh_to_ms(kh):
     return kh * 0.2777778
 
@@ -198,6 +205,7 @@ def file_line_differences(file_1, file_2):
 
     return number_differences
 
+
 def test_download_mot_file():
     # Load and save base file so that contents are updated for this version of Motor-CAD
     mc.load_from_file(get_base_test_file_path())
@@ -223,5 +231,6 @@ def test_upload_mot_file():
     upload_mot_file_path = get_temp_files_dir_path() + r"\upload_test_file.mot"
     mc.save_to_file(upload_mot_file_path)
 
-    # File might have slight differences (paths etc.) since we are uploading and saving as a new file
+    # File might have slight differences (paths etc.) since we are uploading and
+    # saving as a new file
     assert file_line_differences(upload_mot_file_path, save_file_path) < 30

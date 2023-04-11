@@ -25,6 +25,8 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
+
+
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
     warnings.warn(
