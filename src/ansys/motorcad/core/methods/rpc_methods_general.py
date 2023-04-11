@@ -469,7 +469,7 @@ class _RpcMethodsGeneral:
             Full path to the mot file, including the file name and .mot extension.
             Use the ``r'filepath'`` syntax to force Python to ignore special characters.
         """
-        # self.connection.ensure_version_at_least("2023.2.0")
+        self.connection.ensure_version_at_least("2023.2")
         method = "DownloadMotFile"
         file_contents = self.connection.send_and_receive(method)
 
@@ -486,7 +486,7 @@ class _RpcMethodsGeneral:
             Full path to the mot file, including the file name and .mot extension.
             Use the ``r'filepath'`` syntax to force Python to ignore special characters.
         """
-        # self.connection.ensure_version_at_least("2023.2.0")
+        self.connection.ensure_version_at_least("2023.2")
         file_contents = []
         with open(file_path, "r") as mot_file:
             for line in mot_file:

@@ -1,13 +1,14 @@
 import os
 
-from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path
+import ansys.motorcad.core
+from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path, get_test_files_dir_path
 from ansys.motorcad.core import MotorCAD
 from setup_test import get_base_test_file_path, reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
 
-
+ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 def kh_to_ms(kh):
     return kh * 0.2777778
 
@@ -179,15 +180,48 @@ def test_get_message():
 def file_contents_equal(file_1, file_2):
     with open(file_1) as f1:
         with open(file_2) as f2:
-            result = f1.read() == f2.read()
+            return f1.read() == f2.read()
 
 
-def test_get_mot_file():
-    get_mot_file_path = get_temp_files_dir_path() + r"\get_mot_file"
-    mc.download_mot_file(get_mot_file_path)
+def file_line_differences(file_1, file_2):
+    number_differences = 0
+    with open(file_1) as f1:
+        with open(file_2) as f2:
+            f1_contents = f1.readlines()
+            f2_contents = f2.readlines()
 
-    assert file_contents_equal(get_base_test_file_path(), get_mot_file_path)
+            max_line = min(len(f1_contents), len(f2_contents))
+
+            for line_number in range(max_line):
+                if f1_contents[line_number] != f2_contents[line_number]:
+                    number_differences += 1
+
+    return number_differences
+
+def test_download_mot_file():
+    # Load and save base file so that contents are updated for this version of Motor-CAD
+    mc.load_from_file(get_base_test_file_path())
+    save_file_path = get_temp_files_dir_path() + r"\base_test_file_copy.mot"
+    mc.save_to_file(save_file_path)
+
+    download_mot_file_path = get_temp_files_dir_path() + r"\download_test_file.mot"
+    mc.download_mot_file(download_mot_file_path)
+
+    # File contents should be identical since downloading file without modifying
+    assert file_contents_equal(save_file_path, download_mot_file_path)
 
 
-def test_set_mot_file():
-    assert False
+def test_upload_mot_file():
+    # Load and save base file so that contents are updated for this version of Motor-CAD
+    mc.load_from_file(get_test_files_dir_path() + r"\IM_test_file.mot")
+    save_file_path = get_temp_files_dir_path() + r"\IM_test_file_copy.mot"
+    mc.save_to_file(save_file_path)
+
+    IM_test_file_path = get_test_files_dir_path() + r"\IM_test_file.mot"
+    mc.upload_mot_file(IM_test_file_path)
+
+    upload_mot_file_path = get_temp_files_dir_path() + r"\upload_test_file.mot"
+    mc.save_to_file(upload_mot_file_path)
+
+    # File might have slight differences (paths etc.) since we are uploading and saving as a new file
+    assert file_line_differences(upload_mot_file_path, save_file_path) < 30

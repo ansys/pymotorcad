@@ -23,7 +23,8 @@ MOTORCAD_EXE_GLOBAL = ""
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
-
+# Useful for debugging new functions when using debug Motor-CAD
+DONT_CHECK_MOTORCAD_VERSION = False
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
     warnings.warn(
@@ -309,10 +310,11 @@ class _MotorCADConnection:
 
     def ensure_version_at_least(self, required_version):
         """Check that the Motor-CAD version is later or equal to required version."""
-        if version.parse(self.program_version) < version.parse(required_version):
-            raise MotorCADError(
-                "This function requires Motor-CAD version: " + required_version + " or later"
-            )
+        if DONT_CHECK_MOTORCAD_VERSION is False:
+            if version.parse(self.program_version) < version.parse(required_version):
+                raise MotorCADError(
+                    "This function requires Motor-CAD version: " + required_version + " or later"
+                )
 
     def _wait_for_server_to_start(self, process):
         number_of_tries = 0
