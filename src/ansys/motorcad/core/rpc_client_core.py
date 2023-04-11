@@ -183,7 +183,9 @@ class _MotorCADConnection:
         if server_ip is None:
             self.server_ip = DEFAULT_SERVER_IP
         else:
-            self.server_ip = server_ip
+            # DEFAULT_SERVER_IP includes http://
+            # User added ip doesn't need this so add here for backwards compatibility
+            self.server_ip = "http://" + server_ip
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known

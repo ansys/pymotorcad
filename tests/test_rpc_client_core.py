@@ -143,3 +143,14 @@ def test_ensure_version_later_than():
     with pytest.raises(MotorCADError):
         mock_motorcad_connection.program_version = "2023.1.2"
         mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+
+
+def test_new_server_ip_method():
+    localhost_ip = "127.0.0.1"
+
+    mc2 = MotorCAD(server_ip=localhost_ip)
+    assert mc2.connection.server_ip == localhost_ip
+
+    current_port = mc.connection._port
+    mc3 = MotorCAD(server_ip=localhost_ip, open_new_instance=False, port=current_port)
+    assert mc3.connection._port == mc.connection._port
