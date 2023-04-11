@@ -35,7 +35,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
 
 
 class MotorCADContainer(_MotorCADCore):
-    """ Use for connecting to Motor-CAD containers.
+    """Use for connecting to Motor-CAD containers.
 
     Also requires
 
@@ -105,7 +105,7 @@ class MotorCAD(_MotorCADCore):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
-            connection_timeout=connection_timeout
+            connection_timeout=connection_timeout,
         )
 
 
@@ -139,7 +139,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
             compatibility_mode=True,
-            connection_timeout=2
+            connection_timeout=2,
         )
 
         _RpcMethodsCoreOld.__init__(self, self.connection)

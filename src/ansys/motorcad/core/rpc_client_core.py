@@ -1,10 +1,10 @@
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-import warnings
 from os import environ, path
 import re
 import socket
 import subprocess
 import time
+import warnings
 
 from packaging import version
 import psutil
@@ -26,9 +26,12 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
-    warnings.warn("set_server_ip() is a deprecated function. "
-                  """Set server_ip when launching Motor-CAD object instead e.g. MotorCAD(server_ip="127.0.0.1")""",
-                  DeprecationWarning)
+    warnings.warn(
+        "set_server_ip() is a deprecated function. "
+        "Set server_ip when launching Motor-CAD object instead "
+        """e.g. MotorCAD(server_ip="127.0.0.1")""",
+        DeprecationWarning,
+    )
     global DEFAULT_SERVER_IP
     DEFAULT_SERVER_IP = ip
 
@@ -47,6 +50,7 @@ def set_motorcad_exe(exe_location):
 
 class MotorCADError(Exception):
     """Provides the errors to display when issues are raised by the Motor-CAD executable file."""
+
     pass
 
 
