@@ -36,7 +36,7 @@ use these issue templates:
 
 If your issue does not fit into one of these categories, create your own issue.
 
-To reach the project support team, email `pyansys.support@ansys.com <pyansys_support_>`_.
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 View PyMotorCAD documentation
 =============================
@@ -81,7 +81,7 @@ This way, it's not possible for you to push code that fails the style checks. Fo
 
 .. LINKS AND REFERENCES
 .. _pre-commit: https://pre-commit.com/
-.. _pyansys_support: pyansys.support@ansys.com
+.. _pyansys_support: pyansys.core@ansys.com
 .. _dev_guide_pyansys: https://dev.docs.pyansys.com/
 .. _dev_guide_contributing: https://dev.docs.pyansys.com/dev/how-to/contributing.html
 .. _dev_guide_coding_style: https://dev.docs.pyansys.com/dev/coding-style/index.html
