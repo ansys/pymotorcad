@@ -44,6 +44,11 @@ View PyMotorCAD documentation
 Documentation for the latest stable release of PyMotorCAD is hosted at
 `PyMotorCAD Documentation <PyMotorCAD_docs_>`_.
 
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
+
 Adhere to code style
 ===================
 
