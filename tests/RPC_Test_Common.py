@@ -9,6 +9,10 @@ def get_temp_files_dir_path():
     return get_dir_path() + r"\test_files\temp_files"
 
 
+def get_test_files_dir_path():
+    return get_dir_path() + r"\test_files"
+
+
 def almost_equal(a, b, decimal_places=1):
     # Rough check
     return round(a - b, decimal_places) == 0

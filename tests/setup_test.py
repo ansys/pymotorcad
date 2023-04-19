@@ -6,8 +6,12 @@ from RPC_Test_Common import get_dir_path, get_temp_files_dir_path
 import ansys.motorcad.core as pymotorcad
 
 
+def get_base_test_file_path():
+    return get_dir_path() + r"\test_files\base_test_file.mot"
+
+
 def reset_to_default_file(mc):
-    mc.load_from_file(get_dir_path() + r"\test_files\base_test_file.mot")
+    mc.load_from_file(get_base_test_file_path())
 
     # save to temp location to avoid editing base file
     mc.save_to_file(get_temp_files_dir_path() + r"\temp_test_file.mot")

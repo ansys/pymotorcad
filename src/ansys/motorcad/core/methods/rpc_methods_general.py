@@ -459,3 +459,39 @@ class _RpcMethodsGeneral:
     def set_free(self):
         """Free the Motor-CAD instance."""
         return self.connection._set_free()
+
+    def download_mot_file(self, file_path):
+        """Download the current mot file from Motor-CAD and write it to specified path.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the mot file, including the file name and .mot extension.
+            Use the ``r'filepath'`` syntax to force Python to ignore special characters.
+        """
+        self.connection.ensure_version_at_least("2023.2")
+        method = "SaveToFile_JSON"
+        file_contents = self.connection.send_and_receive(method)
+
+        with open(file_path, "w") as mot_file:
+            for line in file_contents:
+                mot_file.write(line + "\n")
+
+    def upload_mot_file(self, file_path):
+        """Upload a .mot file to Motor-CAD.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the mot file, including the file name and .mot extension.
+            Use the ``r'filepath'`` syntax to force Python to ignore special characters.
+        """
+        self.connection.ensure_version_at_least("2023.2")
+        file_contents = []
+        with open(file_path, "r") as mot_file:
+            for line in mot_file:
+                file_contents += [line.replace("\n", "")]
+
+        method = "LoadFromFile_JSON"
+        params = [file_contents]
+        self.connection.send_and_receive(method, params)

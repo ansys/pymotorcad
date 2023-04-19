@@ -4,7 +4,8 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -121,3 +122,24 @@ def test_rpc_communication_error():
     with pytest.raises(Exception) as e_info:
         mc.connection.send_and_receive("GetVariable", ["var", "extra params", 1])
         assert "One or more parameter types were invalid" in str(e_info.value)
+
+
+def test_ensure_version_later_than():
+    mock_motorcad_connection = _MotorCADConnection.__new__(_MotorCADConnection)
+    mock_motorcad_connection._connected = True
+
+    mock_motorcad_connection.program_version = "2023.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    mock_motorcad_connection.program_version = "2023.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2022.1.2")
+
+    mock_motorcad_connection.program_version = "2023.1.2"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    mock_motorcad_connection.program_version = "2023.1.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    with pytest.raises(MotorCADError):
+        mock_motorcad_connection.program_version = "2023.1.2"
+        mock_motorcad_connection.ensure_version_at_least("2023.2.0")
