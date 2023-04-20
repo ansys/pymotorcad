@@ -14,7 +14,9 @@ CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 DEFAULT_INSTANCE = -1
 
-SERVER_IP = "http://localhost"
+LOCALHOST_ADDRESS = "http://localhost"
+TRY_RESOLVE_LOCALHOST = True
+SERVER_IP = LOCALHOST_ADDRESS
 
 _METHOD_SUCCESS = 0
 
@@ -152,6 +154,9 @@ class _MotorCADConnection:
         -------
         MotorCAD object.
         """
+        global SERVER_IP
+        global TRY_RESOLVE_LOCALHOST
+
         self._port = -1
         self._connected = False
         self._last_error_message = ""
@@ -188,14 +193,18 @@ class _MotorCADConnection:
             else:  # port is not defined
                 self._find_free_motor_cad()
 
-        self.pid = self.get_process_id()
-
         # Check for response
         if self._wait_for_response(2) is True:
             self._connected = True
-            # Store Motor-CAD version number for any required backwards compatibility
 
+            # Store Motor-CAD version number for any required backwards compatibility
             self.program_version = self._get_program_version()
+
+            self.pid = self.get_process_id()
+
+            if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
+                # Try to resolve localhost to speed up function calls
+                self._resolve_localhost()
 
         else:
             raise MotorCADError(
@@ -204,6 +213,31 @@ class _MotorCADConnection:
                 + ", Url="
                 + str(self._get_url())
             )
+
+    def _resolve_localhost(self):
+        global SERVER_IP
+
+        ipv6_localhost = "http://[::1]"
+        ipv4_localhost = "http://127.0.0.1"
+
+        if self._check_address_for_response(ipv6_localhost):
+            SERVER_IP = ipv6_localhost
+        elif self._check_address_for_response(ipv4_localhost):
+            SERVER_IP = ipv4_localhost
+        else:
+            SERVER_IP = LOCALHOST_ADDRESS
+
+    def _check_address_for_response(self, address):
+        global SERVER_IP
+
+        save_SERVER_IP = SERVER_IP
+        SERVER_IP = address
+
+        address_responds = self._wait_for_response(1)
+
+        SERVER_IP = save_SERVER_IP
+
+        return address_responds
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
