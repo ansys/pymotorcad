@@ -6,9 +6,9 @@ import socket
 import subprocess
 import time
 
+from packaging import version
 import psutil
 import requests
-from packaging import version
 
 DETACHED_PROCESS = 0x00000008
 CREATE_NEW_PROCESS_GROUP = 0x00000200
