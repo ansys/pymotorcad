@@ -231,11 +231,12 @@ class _MotorCADConnection:
         global SERVER_IP
 
         save_SERVER_IP = SERVER_IP
-        SERVER_IP = address
 
-        address_responds = self._wait_for_response(1)
-
-        SERVER_IP = save_SERVER_IP
+        try:
+            SERVER_IP = address
+            address_responds = self._wait_for_response(1)
+        finally:
+            SERVER_IP = save_SERVER_IP
 
         return address_responds
 
