@@ -470,7 +470,7 @@ class _RpcMethodsGeneral:
             Use the ``r'filepath'`` syntax to force Python to ignore special characters.
         """
         self.connection.ensure_version_at_least("2023.2")
-        method = "SaveToFile_JSON"
+        method = "GetCurrentFileJSON"
         file_contents = self.connection.send_and_receive(method)
 
         with open(file_path, "w") as mot_file:
@@ -492,6 +492,6 @@ class _RpcMethodsGeneral:
             for line in mot_file:
                 file_contents += [line.replace("\n", "")]
 
-        method = "LoadFromFile_JSON"
+        method = "SetCurrentFileJSON"
         params = [file_contents]
         self.connection.send_and_receive(method, params)
