@@ -35,18 +35,18 @@ Install the latest release from
    pip install ansys-motorcad-core
 
 Alternatively, install the latest from
-`PyMotorCAD GitHub <https://github.com/pyansys/pymotorcad>`_ via:
+`PyMotorCAD GitHub <https://github.com/ansys/pymotorcad>`_ via:
 
 .. code:: console
 
-   pip install git+https://github.com/pyansys/pymotorcad.git
+   pip install git+https://github.com/ansys/pymotorcad.git
 
 
 For a local *development* version, install with:
 
 .. code:: console
 
-   git clone https://github.com/pyansys/pymotorcad.git
+   git clone https://github.com/ansys/pymotorcad.git
    cd pymotorcad
    pip install -e .
 

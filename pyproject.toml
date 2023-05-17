@@ -49,9 +49,9 @@ doc = [
 ]
 
 [project.urls]
-Source = "https://github.com/pyansys/pymotorcad"
+Source = "https://github.com/ansys/pymotorcad"
 Documentation = "https://motorcad.docs.pyansys.com/"
-Tracker = "https://github.com/pyansys/pymotorcad/issues"
+Tracker = "https://github.com/ansys/pymotorcad/issues"
 
 [tool.flit.module]
 name = "ansys.motorcad.core"
