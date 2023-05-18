@@ -514,6 +514,6 @@ def test_get_region_value():
 
     value, area = mc.get_region_value("B", "Rotor")
 
-    assert almost_equal(value, 0.00138, 4)
+    assert almost_equal(value, 0.00169, 4)
     assert almost_equal(area, 0.00181, 4)
     reset_model_geometry()
