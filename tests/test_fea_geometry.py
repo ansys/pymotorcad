@@ -307,7 +307,7 @@ def test_add_magnet_region_xy():
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
-    rt_magnet = 33
+    rt_magnet = 36
 
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
