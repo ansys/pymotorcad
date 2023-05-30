@@ -1,6 +1,4 @@
-import pytest
-
-from RPC_Test_Common import almost_equal
+# from RPC_Test_Common import almost_equal
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
