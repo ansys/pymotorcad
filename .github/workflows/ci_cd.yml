@@ -62,12 +62,12 @@ jobs:
     needs: smoke-tests
     runs-on: [self-hosted, pymotorcad]
     steps:
-      - uses: actions/checkout@v3
-
       - name: Ensure Motor-CAD not open
         run: |
           taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
           taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
+
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -91,12 +91,12 @@ jobs:
     runs-on: [self-hosted, pymotorcad]
     needs: doc-style
     steps:
-      - uses: actions/checkout@v3
-
       - name: Ensure Motor-CAD not open
         run: |
           taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
           taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
+
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
