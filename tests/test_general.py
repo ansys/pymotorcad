@@ -74,13 +74,14 @@ def test_load_dxf_file():
     # this test will work
     # see issue #41
     mc2 = MotorCAD()
+
+    mc2.set_variable("MessageDisplayState", 2)
+
     x = 53
     y = 19
 
     reset_to_default_file(mc2)
     mc2.show_magnetic_context()
-
-    mc2.set_variable("MessageDisplayState", 2)
 
     mc2.clear_all_data()
     mc2.initiate_geometry_from_script()
