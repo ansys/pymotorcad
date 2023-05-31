@@ -1,6 +1,6 @@
 import pytest
 
-from RPC_Test_Common import almost_equal  # , get_dir_path
+from RPC_Test_Common import almost_equal, get_dir_path
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 from setup_test import setup_test_env
 
@@ -36,29 +36,29 @@ def test_get_node_to_node_resistance():
     assert almost_equal(res, 0.0043, 3)
 
 
-# def test_save_load_clear_external_circuit():
-#     mc.set_resistance_value("test res", 3, 4, 150, "test resistance")
-#
-#     mc.do_steady_state_analysis()
-#
-#     res = mc.get_node_to_node_resistance(3, 4)
-#     assert res == 150
-#
-#     save_path = get_dir_path() + "\\test_files\\external_circuit.ecf"
-#
-#     mc.save_external_circuit(save_path)
-#
-#     mc.clear_external_circuit()
-#     mc.do_steady_state_analysis()
-#
-#     res = mc.get_node_to_node_resistance(3, 4)
-#     assert res != 150
-#
-#     mc.load_external_circuit(save_path)
-#     mc.do_steady_state_analysis()
-#
-#     res = mc.get_node_to_node_resistance(3, 4)
-#     assert res == 150
+def test_save_load_clear_external_circuit():
+    mc.set_resistance_value("test res", 3, 4, 150, "test resistance")
+
+    mc.do_steady_state_analysis()
+
+    res = mc.get_node_to_node_resistance(3, 4)
+    assert res == 150
+
+    save_path = get_dir_path() + "\\test_files\\external_circuit.ecf"
+
+    mc.save_external_circuit(save_path)
+
+    mc.clear_external_circuit()
+    mc.do_steady_state_analysis()
+
+    res = mc.get_node_to_node_resistance(3, 4)
+    assert res != 150
+
+    mc.load_external_circuit(save_path)
+    mc.do_steady_state_analysis()
+
+    res = mc.get_node_to_node_resistance(3, 4)
+    assert res == 150
 
 
 def test_set_get_node_capacitance():
