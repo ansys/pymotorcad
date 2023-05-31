@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PyAnsys code style checks
-        uses: pyansys/actions/code-style@v4
+        uses: ansys/actions/code-style@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PyAnsys documentation style checks
-        uses: pyansys/actions/doc-style@v4
+        uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10'] 
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: pyansys/actions/build-wheelhouse@v4
+        uses: ansys/actions/build-wheelhouse@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           library-namespace: ${{ env.PACKAGE_NAMESPACE }}
@@ -124,7 +124,7 @@ jobs:
     needs: package
     steps:
       - name: "Deploy development documentation"
-        uses: pyansys/actions/doc-deploy-dev@v4
+        uses: ansys/actions/doc-deploy-dev@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
     needs: release
     steps:
       - name: "Deploy stable documentation"
-        uses: pyansys/actions/doc-deploy-stable@v4
+        uses: ansys/actions/doc-deploy-stable@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -148,7 +148,7 @@ jobs:
     needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
-        uses: pyansys/actions/build-library@v4
+        uses: ansys/actions/build-library@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -160,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to PyPI repository
-        uses: pyansys/actions/release-pypi-public@v4
+        uses: ansys/actions/release-pypi-public@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           twine-username: __token__
