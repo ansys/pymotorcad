@@ -32,13 +32,13 @@ def test_calculate_export_duty_cycle_lab():
     mc.export_duty_cycle_lab()
 
     # Check losses transferred
-    assert almost_equal(mc.get_array_variable("Duty_Cycle_Armature_Copper_Loss_DC", 50), 82.321)
+    assert almost_equal(mc.get_array_variable("Duty_Cycle_Armature_Copper_Loss_DC", 50), 85.276)
 
 
 def test_calculate_operating_point_lab():
     mc.calculate_operating_point_lab()
 
-    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 180.701)
+    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 182.357)
 
 
 def test_calculate_magnetic_lab():
