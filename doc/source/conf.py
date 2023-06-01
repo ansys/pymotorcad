@@ -23,7 +23,7 @@ html_short_title = html_title = "pymotorcad-core"
 
 # specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pymotorcad",
+    "github_url": "https://github.com/ansys/pymotorcad",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "additional_breadcrumbs": [
@@ -32,7 +32,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "Support",
-            "url": "https://github.com/pyansys/pymotorcad/discussions",
+            "url": "https://github.com/ansys/pymotorcad/discussions",
             "icon": "fa fa-comment fa-fw",
         },
     ],

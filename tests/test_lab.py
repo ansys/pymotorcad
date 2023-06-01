@@ -1,11 +1,13 @@
 from RPC_Test_Common import almost_equal
-from setup_test import setup_test_env
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
 
 
 def test_model_build_lab():
+    reset_to_default_file(mc)
+
     # base test file includes built model
     assert mc.get_model_built_lab() is True
 
@@ -32,13 +34,13 @@ def test_calculate_export_duty_cycle_lab():
     mc.export_duty_cycle_lab()
 
     # Check losses transferred
-    assert almost_equal(mc.get_array_variable("Duty_Cycle_Armature_Copper_Loss_DC", 50), 85.28)
+    assert almost_equal(mc.get_array_variable("Duty_Cycle_Armature_Copper_Loss_DC", 50), 82.922)
 
 
 def test_calculate_operating_point_lab():
     mc.calculate_operating_point_lab()
 
-    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 182.36)
+    assert almost_equal(mc.get_variable("LabOpPoint_ShaftTorque"), 180.701)
 
 
 def test_calculate_magnetic_lab():

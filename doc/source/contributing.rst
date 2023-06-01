@@ -18,7 +18,7 @@ Run this code to clone and install the latest version of PyMotorCAD in developme
 
 .. code:: console
 
-    git clone https://github.com/pyansys/pymotorcad
+    git clone https://github.com/ansys/pymotorcad
     cd pymotorcad
     pip install --editable ansys-motorcad-core
 
@@ -36,13 +36,18 @@ use these issue templates:
 
 If your issue does not fit into one of these categories, create your own issue.
 
-To reach the project support team, email `pyansys.support@ansys.com <pyansys_support_>`_.
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 View PyMotorCAD documentation
 =============================
 
 Documentation for the latest stable release of PyMotorCAD is hosted at
 `PyMotorCAD Documentation <PyMotorCAD_docs_>`_.
+
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
 
 Adhere to code style
 ===================
@@ -76,9 +81,9 @@ This way, it's not possible for you to push code that fails the style checks. Fo
 
 .. LINKS AND REFERENCES
 .. _pre-commit: https://pre-commit.com/
-.. _pyansys_support: pyansys.support@ansys.com
+.. _pyansys_support: pyansys.core@ansys.com
 .. _dev_guide_pyansys: https://dev.docs.pyansys.com/
 .. _dev_guide_contributing: https://dev.docs.pyansys.com/dev/how-to/contributing.html
 .. _dev_guide_coding_style: https://dev.docs.pyansys.com/dev/coding-style/index.html
-.. _PyMotorCAD_issues: https://github.com/pyansys/pymotorcad/issues/
+.. _PyMotorCAD_issues: https://github.com/ansys/pymotorcad/issues/
 .. _PyMotorCAD_docs: https://motorcad.docs.pyansys.com/

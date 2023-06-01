@@ -82,12 +82,14 @@ Features of PyMotorCAD include:
 Documentation and issues
 -------------------------
 
-The PyMotorCAD documentation provides installation and usage information.
+The `PyMotorCAD documentation <https://motorcad.docs.pyansys.com/version/stable/>`_
+provides installation and usage information.
 
-On the `PyMotorCAD Issues <https://github.com/pyansys/pymotorcad/issues>`_
-page, issues can be created to submit questions, report bugs, and request
-new features. To reach the PyAnsys support team, email
-`pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
+On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_
+page, you can create issues to submit questions, report bugs, and request
+new features.
+
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 
 License

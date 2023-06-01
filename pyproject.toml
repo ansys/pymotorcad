@@ -10,10 +10,10 @@ readme = "README.rst"
 requires-python = ">=3.7"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Ansys, Inc.", email = "pyansys.support@ansys.com"},
+    {name = "Ansys, Inc.", email = "pyansys.core@ansys.com"},
 ]
 maintainers = [
-    {name = "PyAnsys developers", email = "pyansys.support@ansys.com"},
+    {name = "PyAnsys developers", email = "pyansys.core@ansys.com"},
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -34,25 +34,25 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==7.2.2",
-    "pytest-cov==4.0.0",
+    "pytest==7.3.1",
+    "pytest-cov==4.1.0",
     "ansys.platform.instancemanagement>=1.0.2"
 ]
 doc = [
-    "Sphinx==5.3.0",
+    "Sphinx==7.0.1",
     "numpydoc==1.5.0",
-    "ansys-sphinx-theme==0.9.5",
-    "sphinx-copybutton==0.5.1",
-    "sphinx-gallery==0.12.1",
+    "ansys-sphinx-theme==0.9.9",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-gallery==0.13.0",
     "matplotlib",
     "scipy",
     "pypandoc==1.11"
 ]
 
 [project.urls]
-Source = "https://github.com/pyansys/pymotorcad"
+Source = "https://github.com/ansys/pymotorcad"
 Documentation = "https://motorcad.docs.pyansys.com/"
-Tracker = "https://github.com/pyansys/pymotorcad/issues"
+Tracker = "https://github.com/ansys/pymotorcad/issues"
 
 [tool.flit.module]
 name = "ansys.motorcad.core"
