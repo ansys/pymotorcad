@@ -1,5 +1,8 @@
 from time import sleep
+from unittest.mock import create_autospec
 
+import ansys.platform.instancemanagement as pypim
+import grpc
 from psutil import pid_exists
 import pytest
 
@@ -121,3 +124,41 @@ def test_rpc_communication_error():
     with pytest.raises(Exception) as e_info:
         mc.connection.send_and_receive("GetVariable", ["var", "extra params", 1])
         assert "One or more parameter types were invalid" in str(e_info.value)
+
+
+def test_ansys_labs_connection(monkeypatch):
+    # Use existing Motor-CAD (mc.connection._port)
+    mock_instance = pypim.Instance(
+        definition_name="definitions/fake-motorcad",
+        name="instances/fake-motorcad",
+        ready=True,
+        status_message=None,
+        services={
+            "http": pypim.Service(uri="http://localhost:" + str(mc.connection._port), headers={})
+        },
+    )
+
+    mock_instance.wait_for_ready = create_autospec(mock_instance.wait_for_ready)
+
+    mock_instance.delete = create_autospec(mock_instance.delete)
+
+    mock_client = pypim.Client(channel=grpc.insecure_channel("localhost:12345"))
+
+    mock_client.create_instance = create_autospec(
+        mock_client.create_instance, return_value=mock_instance
+    )
+
+    mock_connect = create_autospec(pypim.connect, return_value=mock_client)
+
+    mock_is_configured = create_autospec(pypim.is_configured, return_value=True)
+    monkeypatch.setattr(pypim, "connect", mock_connect)
+    monkeypatch.setattr(pypim, "is_configured", mock_is_configured)
+
+    # Try to connect to Motor-CAD
+    mc2 = MotorCAD()
+
+    # Check that PIM workflow was followed when creating mc2
+    assert mc2.connection.pim_instance is not None
+    assert mock_is_configured.called
+    assert mock_connect.called
+    assert mock_instance.wait_for_ready.called
