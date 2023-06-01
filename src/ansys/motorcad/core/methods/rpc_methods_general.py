@@ -453,8 +453,7 @@ class _RpcMethodsGeneral:
 
     def quit(self):
         """Quit Motor-CAD."""
-        method = "Quit"
-        return self.connection.send_and_receive(method)
+        self.connection._quit()
 
     def set_free(self):
         """Free the Motor-CAD instance."""
