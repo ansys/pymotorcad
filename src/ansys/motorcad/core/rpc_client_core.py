@@ -346,7 +346,7 @@ class _MotorCADConnection:
                     "This function requires Motor-CAD version: " + required_version + " or later"
                 )
 
-    def _wait_for_server_to_start(self, process):
+    def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
         timeout = 300  # in seconds
         # Don't poll this too much
