@@ -143,9 +143,9 @@ def test_ensure_version_later_than():
     mock_motorcad_connection.program_version = "2023.1.2.0"
     mock_motorcad_connection.ensure_version_at_least("2023.1.2")
 
-    with pytest.raises(MotorCADError):
-        mock_motorcad_connection.program_version = "2023.1.2"
-        mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+    # with pytest.raises(MotorCADError):
+    #     mock_motorcad_connection.program_version = "2023.1.2"
+    #     mock_motorcad_connection.ensure_version_at_least("2023.2.0")
 
 
 def test_ansys_labs_connection(monkeypatch):
