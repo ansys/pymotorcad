@@ -7,7 +7,7 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core import MotorCAD  # , MotorCADError
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from setup_test import setup_test_env
 
