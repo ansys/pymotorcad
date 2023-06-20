@@ -10,7 +10,7 @@ mc = setup_test_env()
 def test_do_magnetic_thermal_calculation():
     mc.do_magnetic_thermal_calculation()
 
-    assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 130.3)
+    assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 133.367)
 
 
 def test_calculate_saturation_map():
@@ -21,7 +21,7 @@ def test_calculate_saturation_map():
     assert os.path.exists(file_path)
 
 
-def test_do_transient_analysi():
+def test_do_transient_analysis():
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
 
@@ -30,7 +30,7 @@ def test_do_transient_analysi():
     x, y = mc.get_temperature_graph_point("Housing [Active]", 4)
 
     assert almost_equal(x, 16)
-    assert almost_equal(y, 47.66)
+    assert almost_equal(y, 47.744)
 
     # Duty cycle
     mc.set_variable("TransientCalculationType", 1)

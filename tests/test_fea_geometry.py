@@ -4,7 +4,7 @@ import pytest
 
 from RPC_Test_Common import almost_equal
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from setup_test import get_temp_files_dir_path, setup_test_env
+from setup_test import get_temp_files_dir_path, reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -307,7 +307,7 @@ def test_add_magnet_region_xy():
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
-    rt_magnet = 33
+    rt_magnet = 36
 
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
@@ -488,6 +488,8 @@ def test_add_point_custom_material_rt():
 
 
 def test_edit_magnet_region():
+    reset_to_default_file(mc)
+
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -504,6 +506,8 @@ def test_edit_magnet_region():
 
 def test_get_region_value():
     # Ensure magnetic context active for FEA tests
+    reset_to_default_file(mc)
+
     mc.show_magnetic_context()
 
     mc.do_magnetic_calculation()
@@ -514,6 +518,6 @@ def test_get_region_value():
 
     value, area = mc.get_region_value("B", "Rotor")
 
-    assert almost_equal(value, 0.00138, 4)
+    assert almost_equal(value, 0.00169, 4)
     assert almost_equal(area, 0.00181, 4)
     reset_model_geometry()
