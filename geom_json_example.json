@@ -1,0 +1,13 @@
+{
+  "name" : "wedge",
+  "material" : "steel",
+  "colour" : "red",
+  "area" : 10,
+  "centroid" : [1,2],
+  "region_coordinates" : [1,2],
+  "symmetry" : 16,
+  "entities" : [
+    {"type" : "line", "start" : [1,2], "end" : [1,2]},
+    {"type" : "arc", "start" :  [1,2], "end" : [1,2], "centre" : [1,2], "radius" : 5}
+    ]
+}
