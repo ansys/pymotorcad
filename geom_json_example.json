@@ -3,11 +3,11 @@
   "material" : "steel",
   "colour" : "red",
   "area" : 10,
-  "centroid" : [1,2],
-  "region_coordinates" : [1,2],
+  "centroid" : {"x": 1, "y": 2},
+  "region_coordinates" : {"x": 1, "y": 2},
   "symmetry" : 16,
   "entities" : [
-    {"type" : "line", "start" : [1,2], "end" : [1,2]},
-    {"type" : "arc", "start" :  [1,2], "end" : [1,2], "centre" : [1,2], "radius" : 5}
+    {"type" : "line", "start" : {"x": 1, "y": 2}, "end" : {"x": 1, "y": 2}},
+    {"type" : "arc", "start" :  {"x": 1, "y": 2}, "end" : {"x": 1, "y": 2}, "centre" : {"x": 1, "y": 2}, "radius" : 5}
     ]
 }
