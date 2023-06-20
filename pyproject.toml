@@ -36,7 +36,8 @@ dependencies = [
 tests = [
     "pytest==7.3.1",
     "pytest-cov==4.1.0",
-    "ansys.platform.instancemanagement>=1.0.2"
+    "ansys.platform.instancemanagement>=1.0.2",
+    "pdl-client>=0.4.4"
 ]
 doc = [
     "Sphinx==7.0.1",

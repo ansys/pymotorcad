@@ -140,6 +140,8 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
+        url="",
+        timeout=2,
         compatibility_mode=False,
     ):
         """Create a MotorCAD object for communication.
@@ -181,6 +183,10 @@ class _MotorCADConnection:
 
         self.pim_instance = None
 
+        self._url = url
+        self._timeout = timeout
+
+
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
@@ -189,7 +195,11 @@ class _MotorCADConnection:
         if self.reuse_parallel_instances is True:
             self._open_new_instance = False
 
-        if _HAS_PIM and pypim.is_configured():
+        if self._url != "":
+            # Don't want to start a Motor-CAD instance
+            # Already have full url in _get_url()
+            pass
+        elif _HAS_PIM and pypim.is_configured():
             # Start with PyPIM if the environment is configured for it
             self._launch_motorcad_remote()
         else:
@@ -197,7 +207,7 @@ class _MotorCADConnection:
             self._launch_motorcad_local(port)
 
         # Check for response
-        if self._wait_for_response(2) is True:
+        if self._wait_for_response(self._timeout) is True:
             self._connected = True
 
             # Store Motor-CAD version number for any required backwards compatibility
@@ -278,8 +288,12 @@ class _MotorCADConnection:
 
     def _get_url(self):
         """Get url for RPC communication."""
-        url = SERVER_IP + ":" + str(self._port) + "/jsonrpc"
-        return url
+        if self._url != "":
+            # Already have full url from launch params
+            return self._url + "/jsonrpc"
+        else:
+            # Create url from server ip and port
+            return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _open_motor_cad_local(self):
         self.__MotorExe = _find_motor_cad_exe()
