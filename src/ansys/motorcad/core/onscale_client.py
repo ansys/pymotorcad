@@ -6,7 +6,7 @@ try:
     from pdl_client import AuthenticatedClient
     from pdl_client.helpers import default_cluster_preference as c_pref
     from pdl_client.api.cluster_preference import post_cluster_preference_set
-    from pdl_client.models import ValueSetBatchRequest, ValueSetRequest
+    from pdl_client.models import ValueSetRequest, ValueSetRequestItemValues, ValueSetRequestItem
     from pdl_client.api.value import post_value_set_batch
 
     PDL_CLIENT_AVAILABLE = True
@@ -38,79 +38,51 @@ class MotorCADaaS(_MotorCADCore):
             if not PDL_CLIENT_AVAILABLE:
                 raise Exception("Could not import pdl-client. Please install with pip")
 
-            client = AuthenticatedClient(
-                base_url="https://pdl.test.portal.onscale.com", token=access_token, verify_ssl=False
-            )
+            client = AuthenticatedClient(base_url="https://pdl.test.portal.onscale.com",
+                                         token=access_token,
+                                         verify_ssl=False)
 
             # Generate notebook instance id (UUID)
-            notebookInstanceId = str(uuid.uuid4())
+            simulationId = str(uuid.uuid4())
 
             # Set PDL cluster preference to specify the Notebook's K8s cluster for deployment
-            print("set cpref for groupId:" + notebookInstanceId)
-            cluster_pref = c_pref.create_cluster_preference_for_dev_hpc(notebookInstanceId)
+            print("set cpref for groupId:" + simulationId)
+            cluster_pref = c_pref.create_cluster_preference_for_dev_hpc(simulationId)
             post_cluster_preference_set.sync_detailed(client=client, json_body=cluster_pref)
 
-            # Send values to PDL to trigger Motor-CAD deployment on to Notebook's K8s cluster.
-            value1 = ValueSetRequest(
-                name="notebookInstanceId",
-                value=notebookInstanceId,
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
-            )
+            # Send values to PDL to trigger mapdl deployment on to Notebook's K8s cluster.
+            values = ValueSetRequestItemValues()
 
-            value2 = ValueSetRequest(
-                name="motorcadImageTag",
-                value="569061078778.dkr.ecr.us-east-1.amazonaws.com/team1:motor-cad",
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
-            )
+            values["simulationId"] = simulationId
+            values["motorcadImageTag"] = "569061078778.dkr.ecr.us-east-1.amazonaws.com/team1:motor-cad"
+            values["stage"] = "test"
+            values["notebookSolverName"] = "motor-cad"
+            values["notebookNamespace"] = "motor-cad"
+            values["hpcIngressDomainName"] = "nginx.dev-hpc-us-east-1-v1-21.hpcs.dev.portal.onscale.com"
 
-            value3 = ValueSetRequest(
-                name="stage",
-                value="test",
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
+            value_set_request_item = ValueSetRequestItem(
+                group_id=simulationId,
+                group_key="simulationId",
+                values=values
             )
-
-            value4 = ValueSetRequest(
-                name="notebookSolverName",
-                value="motor-cad",
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
-            )
-
-            value5 = ValueSetRequest(
-                name="notebookNamespace",
-                value="motor-cad",
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
-            )
-
-            value6 = ValueSetRequest(
-                name="hpcIngressDomainName",
-                value="nginx.dev-hpc-us-east-1-v1-21.hpcs.dev.portal.onscale.com",
-                group_key="notebookInstanceId",
-                group_id=notebookInstanceId,
-            )
-
-            values_batch = ValueSetBatchRequest(
-                items=[value1, value2, value3, value4, value5, value6]
+            value_set_request = ValueSetRequest(
+                cluster_preference_id=simulationId,
+                items=[value_set_request_item],
+                dry_run=False
             )
 
             response = post_value_set_batch.sync_detailed(
                 client=client,
-                json_body=values_batch,
-                group_id=notebookInstanceId,
-                group_key="notebookInstanceId",
+                json_body=value_set_request,
             )
 
             print(response)
 
-            print(notebookInstanceId)
+            print(simulationId)
 
             url = (
                 "https://nginx.dev-hpc-us-east-1-v1-21.hpcs.dev.portal.onscale.com/motor-cad-"
-                + notebookInstanceId
+                + simulationId
                 + "/"
             )
 
@@ -123,5 +95,5 @@ class MotorCADaaS(_MotorCADCore):
             enable_success_variable=False,
             reuse_parallel_instances=False,
             url=url,
-            timeout=300,
+            timeout=300
         )
