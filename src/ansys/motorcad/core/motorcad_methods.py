@@ -17,6 +17,8 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        url="",
+        timeout=2,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -24,6 +26,8 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            url=url,
+            timeout=timeout,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
