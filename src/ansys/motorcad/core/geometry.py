@@ -3,7 +3,7 @@ from cmath import polar, rect
 from math import atan2, cos, degrees, pow, radians, sin, sqrt
 
 
-class GeometryRegion:
+class Region:
     def __init__(self):
         """Create geometry region and set parameters to defaults"""
         self.entities = []
