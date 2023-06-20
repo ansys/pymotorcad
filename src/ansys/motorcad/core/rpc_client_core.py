@@ -186,7 +186,6 @@ class _MotorCADConnection:
         self._url = url
         self._timeout = timeout
 
-
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
