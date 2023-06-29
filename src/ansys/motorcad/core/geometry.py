@@ -6,10 +6,14 @@ from math import atan2, cos, degrees, pow, radians, sin, sqrt
 class Region:
     def __init__(self):
         """Create geometry region and set parameters to defaults"""
-        self.entities = []
-        self.number_duplications = 1
-        self.colour = "(0,0,0)"
+        self.name = ""
         self.material = "air"
+        self.colour = (0, 0, 0)
+        self.area = 0.0
+        self.centroid = (0, 0)
+        self.region_coordinate = (0, 0)
+        self.duplications = 1
+        self.entities = []
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -50,10 +54,34 @@ class Region:
 
         :param json:
         """
-        self.Entities = json.Entities
-        self.number_duplications = json.number_duplications
-        self.colour = json.colour
-        self.material = json.material
+        # self.Entities = json.Entities
+        self.name = json["name"]
+        self.material = json["material"]
+
+        self.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        self.area = json["area"]
+
+        self.centroid = (json["centroid"]["x"], json["centroid"]["y"])
+        self.region_coordinate = (json["region_coordinate"]["x"], json["region_coordinate"]["y"])
+        self.duplications = json["duplications"]
+
+        for entity in json["entities"]:
+            if entity["type"] == "line":
+                self.entities.append(
+                    Line(
+                        (entity["start"]["x"], entity["start"]["y"]),
+                        (entity["end"]["x"], entity["end"]["y"]),
+                    )
+                )
+            elif entity["type"] == "arc":
+                self.entities.append(
+                    Arc(
+                        (entity["start"]["x"], entity["start"]["y"]),
+                        (entity["end"]["x"], entity["end"]["y"]),
+                        (entity["centre"]["x"], entity["centre"]["y"]),
+                        entity["radius"],
+                    )
+                )
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -61,7 +89,40 @@ class Region:
 
         :return:
         """
-        return [self.entities]
+        entities = []
+
+        for entity in self.entities:
+            if type(entity) == Line:
+                entities.append(
+                    {
+                        "type": "line",
+                        "start": {"x": entity.start[0], "y": entity.start[1]},
+                        "end": {"x": entity.end[0], "y": entity.end[1]},
+                    }
+                )
+            elif type(entity) == Arc:
+                entities.append(
+                    {
+                        "type": "line",
+                        "start": {"x": entity.start[0], "y": entity.start[1]},
+                        "end": {"x": entity.end[0], "y": entity.end[1]},
+                        "centre": {"x": entity.centre[0], "y": entity.centre[1]},
+                        "radius": entity.radius,
+                    }
+                )
+
+        region_dict = {
+            "name": self.name,
+            "material": self.material,
+            "colour": {"r": self.colour[0], "g": self.colour[1], "b": self.colour[2]},
+            "area": self.area,
+            "centroid": {"x": self.centroid[0], "y": self.centroid[1]},
+            "region_coordinate": {"x": self.region_coordinate[0], "y": self.region_coordinate[1]},
+            "duplications": self.duplications,
+            "entities": entities,
+        }
+
+        return region_dict
 
     # def check_geometry():
     #     # call Motor-CAD API
