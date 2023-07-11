@@ -1,7 +1,7 @@
 import os
 
-from RPC_Test_Common import almost_equal
-from setup_test import get_dir_path, get_temp_files_dir_path, reset_to_default_file, setup_test_env
+from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()

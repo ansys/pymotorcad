@@ -1,7 +1,8 @@
 import os
 
-from setup_test import get_temp_files_dir_path, setup_test_env
+from setup_test import setup_test_env
 
+from RPC_Test_Common import get_temp_files_dir_path
 # Get Motor-CAD exe
 mc = setup_test_env()
 
