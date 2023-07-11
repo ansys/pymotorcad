@@ -118,14 +118,14 @@ class _RpcMethodsAdaptiveGeometry:
         pass
 
     def save_adaptive_script(self, filepath):
-        """
+        """Save adaptive templates script file to Motor-CAD
 
         Parameters
         ----------
-        filepath
-
-        Returns
-        -------
-
+        filepath : string
+            full file path of script
         """
-        pass
+
+        method = "SaveAdaptiveScript"
+        params = [filepath]
+        return self.connection.send_and_receive(method, params)

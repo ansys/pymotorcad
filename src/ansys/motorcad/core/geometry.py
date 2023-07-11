@@ -103,7 +103,7 @@ class Region:
             elif type(entity) == Arc:
                 entities.append(
                     {
-                        "type": "line",
+                        "type": "arc",
                         "start": {"x": entity.start[0], "y": entity.start[1]},
                         "end": {"x": entity.end[0], "y": entity.end[1]},
                         "centre": {"x": entity.centre[0], "y": entity.centre[1]},
@@ -143,7 +143,7 @@ class Line:
         self.start = start
         self.end = end
 
-    def get_coordinate_form_percentage_distance(self, x, y, percentage):
+    def get_coordinate_from_percentage_distance(self, x, y, percentage):
         """Get the coordinate at the percentage distance along the line from the reference coord.
 
         Parameters
@@ -171,11 +171,11 @@ class Line:
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        length = sqrt(pow(self.start[1] - self.end[1], 2) + pow(self.start[2] - self.end[2], 2))
+        length = sqrt(pow(self.start[0] - self.end[0], 2) + pow(self.start[1] - self.end[1], 2))
 
         t = (length * percentage) / length
-        x = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
-        y = ((1 - t) * coordinate_1[2]) + (t * coordinate_2[2])
+        x = ((1 - t) * coordinate_1[0]) + (t * coordinate_2[0])
+        y = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
 
         return x, y
 
@@ -208,11 +208,11 @@ class Line:
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        length = sqrt(pow(self.start[1] - self.end[1], 2) + pow(self.start[2] - self.end[2], 2))
+        length = sqrt(pow(self.start[0] - self.end[0], 2) + pow(self.start[1] - self.end[1], 2))
 
         t = distance / length
-        x = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
-        y = ((1 - t) * coordinate_1[2]) + (t * coordinate_2[2])
+        x = ((1 - t) * coordinate_1[0]) + (t * coordinate_2[0])
+        y = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
 
         return x, y
 
