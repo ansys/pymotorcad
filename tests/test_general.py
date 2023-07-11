@@ -2,10 +2,10 @@ import os
 
 from RPC_Test_Common import (
     almost_equal,
+    get_base_test_file_path,
     get_dir_path,
     get_temp_files_dir_path,
     get_test_files_dir_path,
-    get_base_test_file_path
 )
 import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD
