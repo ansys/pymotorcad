@@ -225,6 +225,10 @@ class _MotorCADConnection:
             )
 
     def _resolve_localhost(self):
+        """Try to resolve localhost so that we don't have to do this for every api method.
+
+        On some configurations this was increasing each api method time to 1/2 seconds.
+        """
         global SERVER_IP
 
         ipv6_localhost = "http://[::1]"
@@ -238,6 +242,11 @@ class _MotorCADConnection:
             SERVER_IP = LOCALHOST_ADDRESS
 
     def _check_address_for_response(self, address):
+        """Try resolving localhost to a specified url.
+
+        We can use a handshake method with Motor-CAD instance to check if connection is successful.
+        """
+        # Need to use SERVER_IP global var to preserve backwards compatibility
         global SERVER_IP
 
         save_SERVER_IP = SERVER_IP
@@ -246,6 +255,8 @@ class _MotorCADConnection:
             SERVER_IP = address
             address_responds = self._wait_for_response(1)
         finally:
+            # Reset global SERVER_IP to original
+            # Calling function can set SERVER_IP depending on address_responds return value
             SERVER_IP = save_SERVER_IP
 
         return address_responds
