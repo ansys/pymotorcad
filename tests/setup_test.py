@@ -2,7 +2,7 @@ import os
 import os.path
 import shutil
 
-from RPC_Test_Common import get_base_test_file_path, get_dir_path, get_temp_files_dir_path
+from RPC_Test_Common import get_base_test_file_path, get_temp_files_dir_path
 import ansys.motorcad.core as pymotorcad
 
 
