@@ -52,8 +52,8 @@ class MotorCADaaS(_MotorCADCore):
 
             # Send values to PDL to trigger mapdl deployment on to Notebook's K8s cluster.
             values = ValueSetRequestItemValues()
-
-            values["simulationId"] = simulationId
+            values["notebookInstanceId"] = simulationId
+            #values["simulationId"] = simulationId
             values["motorcadImageTag"] = "569061078778.dkr.ecr.us-east-1.amazonaws.com/team1:motor-cad"
             values["stage"] = "test"
             values["notebookSolverName"] = "motor-cad"
