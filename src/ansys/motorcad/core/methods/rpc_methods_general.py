@@ -460,7 +460,7 @@ class _RpcMethodsGeneral:
         return self.connection._set_free()
 
     def download_mot_file(self, file_path):
-        """Download the current mot file from Motor-CAD and write it to a local directory.
+        """Download the current model as a .mot file from Motor-CAD and write it to a local directory.
 
         This allows users to download .mot files to a local directory from a Motor-CAD instance
         on a remote machine.
