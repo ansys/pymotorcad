@@ -1,6 +1,10 @@
 from os import path
 
 
+def get_base_test_file_path():
+    return get_dir_path() + r"\test_files\base_test_file.mot"
+
+
 def get_dir_path():
     return path.dirname(path.realpath(__file__))
 

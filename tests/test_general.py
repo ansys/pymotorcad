@@ -13,6 +13,8 @@ from setup_test import get_base_test_file_path, reset_to_default_file, setup_tes
 # Get Motor-CAD exe
 mc = setup_test_env()
 
+# Allows us to add a new api method to testing before the next Motor-CAD release is available
+# Dev release will have a lower version number than actual release so don't want to check this
 ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
 
