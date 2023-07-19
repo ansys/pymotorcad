@@ -159,6 +159,8 @@ class _MotorCADConnection:
             instances after use.
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
+        url: string, default = ""
+            Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
 
         Returns
         -------
@@ -227,6 +229,7 @@ class _MotorCADConnection:
     def _resolve_localhost(self):
         """Try to resolve localhost so that we don't have to do this for every api method.
 
+        Replace the address http://localhost with the corresponding IP address.
         On some configurations this was increasing each api method time to 1/2 seconds.
         """
         global SERVER_IP
@@ -242,11 +245,14 @@ class _MotorCADConnection:
             SERVER_IP = LOCALHOST_ADDRESS
 
     def _check_address_for_response(self, address):
-        """Try resolving localhost to a specified url.
+        """Try to communicate with Motor-CAD with specific url, returns True if response received.
 
-        We can use a handshake method with Motor-CAD instance to check if connection is successful.
+        Uses handshake method. Used to resolve localhost.
         """
-        # Need to use SERVER_IP global var to preserve backwards compatibility
+        # This function is only called from _resolve_localhost so SERVER_IP will be localhost
+        # address
+        # If connecting to remote machine then SERVER_IP is deprecated - should use url class
+        # parameter instead
         global SERVER_IP
 
         save_SERVER_IP = SERVER_IP
