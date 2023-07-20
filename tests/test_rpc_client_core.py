@@ -174,19 +174,21 @@ def test_using_url_to_connect():
 
 
 def test__resolve_localhost():
+    mc2 = MotorCAD()
+
     # Reset SERVER_IP since this will have been resolved on initial Motor-CAD connection
     pymotorcad.set_server_ip(pymotorcad.rpc_client_core.LOCALHOST_ADDRESS)
 
     full_url = (
-        pymotorcad.rpc_client_core.LOCALHOST_ADDRESS + ":" + str(mc.connection._port) + "/jsonrpc"
+        pymotorcad.rpc_client_core.LOCALHOST_ADDRESS + ":" + str(mc2.connection._port) + "/jsonrpc"
     )
 
-    assert mc.connection._get_url() == full_url
+    assert mc2.connection._get_url() == full_url
 
-    ipv6_localhost = "http://[::1]" + ":" + str(mc.connection._port) + "/jsonrpc"
-    ipv4_localhost = "http://127.0.0.1" + ":" + str(mc.connection._port) + "/jsonrpc"
+    ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
+    ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
 
-    mc.connection._resolve_localhost()
+    mc2.connection._resolve_localhost()
 
-    current_url = mc.connection._get_url()
+    current_url = mc2.connection._get_url()
     assert current_url in [ipv4_localhost, ipv6_localhost]
