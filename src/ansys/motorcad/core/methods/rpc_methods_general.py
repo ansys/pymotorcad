@@ -463,7 +463,7 @@ class _RpcMethodsGeneral:
         """Download the current .mot file from Motor-CAD and write it to a local directory.
 
         This allows users to download .mot files to a local directory from a Motor-CAD instance
-        on a remote machine.
+        on a remote machine. Equivalent of :func:`save_file` for remote machines.
 
         Parameters
         ----------
@@ -483,7 +483,7 @@ class _RpcMethodsGeneral:
         """Upload a .mot file to Motor-CAD instance from local directory.
 
         This allows users to send .mot files from a local directory to a Motor-CAD instance
-        on a remote machine.
+        on a remote machine. Equivalent of :func:`load_file` for remote machines.
 
         Parameters
         ----------

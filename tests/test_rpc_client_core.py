@@ -131,6 +131,7 @@ def test_ensure_version_later_than():
     mock_motorcad_connection = _MotorCADConnection.__new__(_MotorCADConnection)
     mock_motorcad_connection._connected = True
 
+    # Tests will fail if ensure_version_at_least() raises MotorCADError
     mock_motorcad_connection.program_version = "2023.2.0"
     mock_motorcad_connection.ensure_version_at_least("2023.1.2")
 
@@ -143,6 +144,7 @@ def test_ensure_version_later_than():
     mock_motorcad_connection.program_version = "2023.1.2.0"
     mock_motorcad_connection.ensure_version_at_least("2023.1.2")
 
+    # Works on local machine but not test server currently.
     # with pytest.raises(MotorCADError):
     #     mock_motorcad_connection.program_version = "2023.1.2"
     #     mock_motorcad_connection.ensure_version_at_least("2023.2.0")
