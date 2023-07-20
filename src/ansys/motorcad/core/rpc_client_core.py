@@ -197,7 +197,8 @@ class _MotorCADConnection:
         if self._url != "":
             # Don't want to start a Motor-CAD instance
             # Already have full url in _get_url()
-            pass
+            # Also don't want to exit Motor-CAD upon script ending
+            self._open_new_instance = False
         elif _HAS_PIM and pypim.is_configured():
             # Start with PyPIM if the environment is configured for it
             self._launch_motorcad_remote()
