@@ -23,8 +23,8 @@ class _RpcMethodsUI:
     def initialise_tab_names(self):
         """Initialize the available tabs in the Motor-CAD UI.
 
-        Call this method prior to using the ``SaveMotorCADScreenToFile`` or
-        ``DisplayScreen`` method. The Motor-CAD UI must be visible.
+        Call this method prior to using the ``save_motorcad_screen_to_file`` or
+        ``display_screen`` method. The Motor-CAD UI must be visible.
         """
         method = "InitialiseTabNames"
         return self.connection.send_and_receive(method)
@@ -32,7 +32,7 @@ class _RpcMethodsUI:
     def save_motorcad_screen_to_file(self, screen_name, file_name):
         """Save the entire Motor-CAD screen of a tab to an image file.
 
-        Call the ``InitialiseTabNames`` method before called this method.l The
+        Call the ``initialise_tab_names`` method before called this method.l The
         Motor-CAD UI must be visible.
 
         Parameters
