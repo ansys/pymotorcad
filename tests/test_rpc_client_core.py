@@ -186,3 +186,33 @@ def test_ansys_labs_connection(monkeypatch):
     assert mock_is_configured.called
     assert mock_connect.called
     assert mock_instance.wait_for_ready.called
+
+
+def test_using_url_to_connect():
+    port = mc.connection._port
+    url = "http://localhost:" + str(port)
+    full_url = url + "/jsonrpc"
+    mc2 = MotorCAD(url=url)
+
+    assert mc2.connection._get_url() == full_url
+
+
+def test__resolve_localhost():
+    mc2 = MotorCAD()
+
+    # Reset SERVER_IP since this will have been resolved on initial Motor-CAD connection
+    pymotorcad.set_server_ip(pymotorcad.rpc_client_core.LOCALHOST_ADDRESS)
+
+    full_url = (
+        pymotorcad.rpc_client_core.LOCALHOST_ADDRESS + ":" + str(mc2.connection._port) + "/jsonrpc"
+    )
+
+    assert mc2.connection._get_url() == full_url
+
+    ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
+    ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
+
+    mc2.connection._resolve_localhost()
+
+    current_url = mc2.connection._get_url()
+    assert current_url in [ipv4_localhost, ipv6_localhost]

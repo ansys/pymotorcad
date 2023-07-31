@@ -23,7 +23,9 @@ CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 DEFAULT_INSTANCE = -1
 
-SERVER_IP = "http://localhost"
+LOCALHOST_ADDRESS = "http://localhost"
+TRY_RESOLVE_LOCALHOST = True
+SERVER_IP = LOCALHOST_ADDRESS
 
 _METHOD_SUCCESS = 0
 
@@ -140,6 +142,8 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
+        url="",
+        timeout=2,
         compatibility_mode=False,
     ):
         """Create a MotorCAD object for communication.
@@ -159,6 +163,8 @@ class _MotorCADConnection:
             instances after use.
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
+        url: string, default = ""
+            Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
 
         Returns
         -------
@@ -181,6 +187,9 @@ class _MotorCADConnection:
 
         self.pim_instance = None
 
+        self._url = url
+        self._timeout = timeout
+
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
@@ -189,7 +198,12 @@ class _MotorCADConnection:
         if self.reuse_parallel_instances is True:
             self._open_new_instance = False
 
-        if _HAS_PIM and pypim.is_configured():
+        if self._url != "":
+            # Don't want to start a Motor-CAD instance
+            # Already have full url in _get_url()
+            # Also don't want to exit Motor-CAD upon script ending
+            self._open_new_instance = False
+        elif _HAS_PIM and pypim.is_configured():
             # Start with PyPIM if the environment is configured for it
             self._launch_motorcad_remote()
         else:
@@ -197,13 +211,17 @@ class _MotorCADConnection:
             self._launch_motorcad_local(port)
 
         # Check for response
-        if self._wait_for_response(2) is True:
+        if self._wait_for_response(self._timeout) is True:
             self._connected = True
 
             # Store Motor-CAD version number for any required backwards compatibility
             self.program_version = self._get_program_version()
 
             self.pid = self.get_process_id()
+
+            if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
+                # Try to resolve localhost to speed up function calls
+                self._resolve_localhost()
 
         else:
             raise MotorCADError(
@@ -212,6 +230,47 @@ class _MotorCADConnection:
                 + ", Url="
                 + str(self._get_url())
             )
+
+    def _resolve_localhost(self):
+        """Try to resolve localhost so that we don't have to do this for every api method.
+
+        Replace the address http://localhost with the corresponding IP address.
+        On some configurations this was increasing each api method time to 1/2 seconds.
+        """
+        global SERVER_IP
+
+        ipv6_localhost = "http://[::1]"
+        ipv4_localhost = "http://127.0.0.1"
+
+        if self._check_address_for_response(ipv6_localhost):
+            SERVER_IP = ipv6_localhost
+        elif self._check_address_for_response(ipv4_localhost):
+            SERVER_IP = ipv4_localhost
+        else:
+            SERVER_IP = LOCALHOST_ADDRESS
+
+    def _check_address_for_response(self, address):
+        """Try to communicate with Motor-CAD with specific url, returns True if response received.
+
+        Uses handshake method. Used to resolve localhost.
+        """
+        # This function is only called from _resolve_localhost so SERVER_IP will be localhost
+        # address
+        # If connecting to remote machine then SERVER_IP is deprecated - should use url class
+        # parameter instead
+        global SERVER_IP
+
+        save_SERVER_IP = SERVER_IP
+
+        try:
+            SERVER_IP = address
+            address_responds = self._wait_for_response(1)
+        finally:
+            # Reset global SERVER_IP to original
+            # Calling function can set SERVER_IP depending on address_responds return value
+            SERVER_IP = save_SERVER_IP
+
+        return address_responds
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
@@ -278,8 +337,12 @@ class _MotorCADConnection:
 
     def _get_url(self):
         """Get url for RPC communication."""
-        url = SERVER_IP + ":" + str(self._port) + "/jsonrpc"
-        return url
+        if self._url != "":
+            # Already have full url from launch params
+            return self._url + "/jsonrpc"
+        else:
+            # Create url from server ip and port
+            return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _open_motor_cad_local(self):
         self.__MotorExe = _find_motor_cad_exe()

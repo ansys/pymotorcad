@@ -17,6 +17,8 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        url="",
+        timeout=2,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -24,6 +26,8 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            url=url,
+            timeout=timeout,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -46,7 +50,8 @@ class MotorCAD(_MotorCADCore):
     reuse_parallel_instances : Boolean, default: False
         Whether to reuse MotorCAD instances when running in parallel. You must
         free instances after use.
-
+    url: string, default = ""
+        Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
     Returns
     -------
     MotorCAD object.
@@ -59,6 +64,7 @@ class MotorCAD(_MotorCADCore):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        url="",
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -68,6 +74,7 @@ class MotorCAD(_MotorCADCore):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            url=url,
         )
 
 
