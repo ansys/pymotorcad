@@ -6,6 +6,7 @@ import socket
 import subprocess
 import time
 
+from packaging import version
 import psutil
 import requests
 
@@ -29,6 +30,9 @@ _METHOD_SUCCESS = 0
 MOTORCAD_EXE_GLOBAL = ""
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
+
+# Useful for debugging new functions when using debug Motor-CAD
+DONT_CHECK_MOTORCAD_VERSION = False
 
 
 def set_server_ip(ip):
@@ -332,6 +336,14 @@ class _MotorCADConnection:
                 raise MotorCADError(
                     "Could not find a Motor-CAD instance to connect to."
                     + "\n Ensure that Motor-CAD RPC server is enabled."
+                )
+
+    def ensure_version_at_least(self, required_version):
+        """Check that the Motor-CAD version is later or equal to required version."""
+        if DONT_CHECK_MOTORCAD_VERSION is False:
+            if version.parse(self.program_version) < version.parse(required_version):
+                raise MotorCADError(
+                    "This function requires Motor-CAD version: " + required_version + " or later"
                 )
 
     def _wait_for_server_to_start_local(self, process):
