@@ -10,7 +10,8 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.10'
-  PACKAGE_NAME: ansys-motorcad-core
+  LIBRARY_NAME: ansys-motorcad-core
+  LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   DOCUMENTATION_CNAME: 'motorcad.docs.pyansys.com'
 
@@ -51,9 +52,11 @@ jobs:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          library-name: ${{ env.LIBRARY_NAME }}
+          library-namespace: ${{ env.LIBRARY_NAMESPACE }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+
           check-licenses: false
 
   tests:
@@ -149,7 +152,7 @@ jobs:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@v4
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          library-name: ${{ env.LIBRARY_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
   release:
@@ -161,7 +164,7 @@ jobs:
       - name: Release to PyPI repository
         uses: ansys/actions/release-pypi-public@v4
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          library-name: ${{ env.LIBRARY_NAME }}
           twine-username: __token__
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
