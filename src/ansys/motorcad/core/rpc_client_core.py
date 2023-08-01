@@ -5,12 +5,11 @@ import re
 import socket
 import subprocess
 import time
+import warnings
 
 from packaging import version
 import psutil
 import requests
-
-import warnings
 
 try:
     import ansys.platform.instancemanagement as pypim
@@ -62,10 +61,12 @@ class MotorCADError(Exception):
 
     pass
 
+
 class MotorCADWarning(Warning):
     """Provides the warnings to display when issues are raised by the Motor-CAD executable file."""
 
     pass
+
 
 def _get_port_from_motorcad_process(process):
     connection_list = process.connections()
@@ -516,7 +517,7 @@ class _MotorCADConnection:
             # Warning message only exists in response from Motor-CAD version >= 24R1
             if "warningMessage" in response["result"]:
                 warning_message = response["result"]["warningMessage"]
-                if warning_message != '':
+                if warning_message != "":
                     # Code in Motor-CAD wants to raise a warning in Python
                     warnings.warn(response["result"]["warningMessage"], MotorCADWarning)
 
