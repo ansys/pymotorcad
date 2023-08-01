@@ -25,7 +25,7 @@ jobs:
     name: Code style
     runs-on: ubuntu-latest
     steps:
-      - name: PyAnsys code style checks
+      - name: Ansys code style checks
         uses: ansys/actions/code-style@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -34,7 +34,7 @@ jobs:
     name: Documentation Style Check
     runs-on: ubuntu-latest
     steps:
-      - name: PyAnsys documentation style checks
+      - name: Ansys documentation style checks
         uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
