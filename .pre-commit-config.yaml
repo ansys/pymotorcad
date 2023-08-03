@@ -22,29 +22,29 @@ repos:
   rev: 6.0.0
   hooks:
   - id: flake8
-#
-#- repo: https://github.com/codespell-project/codespell
-#  rev: v2.2.2
-#  hooks:
-#  - id: codespell
-#    args: ["--ignore-words=ignore_words.txt",
-#           "--exclude-file=exclude_lines.txt"]
-#
-#- repo: https://github.com/pycqa/pydocstyle
-#  rev: 6.1.1
-#  hooks:
-#  - id: pydocstyle
-#    additional_dependencies: [toml]
-#    exclude: tests/|examples/
-#
-#- repo: https://github.com/pre-commit/pre-commit-hooks
-#  rev: v4.4.0
-#  hooks:
-#  - id: check-merge-conflict
-#  - id: debug-statements
-#
-## this validates our github workflow files
-#- repo: https://github.com/python-jsonschema/check-jsonschema
-#  rev: 0.21.0
-#  hooks:
-#    - id: check-github-workflows
+
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.2
+  hooks:
+  - id: codespell
+    args: ["--ignore-words=ignore_words.txt",
+           "--exclude-file=exclude_lines.txt"]
+
+- repo: https://github.com/pycqa/pydocstyle
+  rev: 6.1.1
+  hooks:
+  - id: pydocstyle
+    additional_dependencies: [toml]
+    exclude: tests/|examples/
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-merge-conflict
+  - id: debug-statements
+
+# this validates our github workflow files
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.21.0
+  hooks:
+    - id: check-github-workflows
