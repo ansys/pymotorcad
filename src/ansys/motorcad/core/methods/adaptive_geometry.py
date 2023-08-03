@@ -1,24 +1,14 @@
 """Methods for adaptive geometry."""
-from ansys.motorcad.core.geometry import Region, _convert_entities_to_json, _set_json_entities
+from ansys.motorcad.core.geometry import (
+    Region,
+    _convert_entities_from_json,
+    _convert_entities_to_json,
+)
 
 
 class _RpcMethodsAdaptiveGeometry:
     def __init__(self, mc_connection):
         self.connection = mc_connection
-
-    # def add_adaptive_parameter(self, name):
-    #     """Adds new adaptive parameter.
-    #
-    #             If parameter does not exist then create it.
-    #
-    #             Parameters
-    #             ----------
-    #             name : string
-    #                 name of parameter.
-    #             """
-    #     method = "AddAdaptiveParameter"
-    #     params = [name]
-    #    return self.connection.send_and_receive(method, params)
 
     def set_adaptive_parameter_value(self, name, value):
         """Set adaptive parameter, if parameter does not exist then add it.
@@ -99,9 +89,9 @@ class _RpcMethodsAdaptiveGeometry:
             Polyline using lines/arcs
 
         Returns
-            List of Line/Arc objects
         -------
-
+        :Object List
+            List of Line/Arc objects
         """
         raw_region = region._to_json()
         raw_entities = _convert_entities_to_json(polyline)
@@ -111,7 +101,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         raw_output_entities, start_index = self.connection.send_and_receive(method, params)
 
-        return _set_json_entities(raw_output_entities), start_index
+        return _convert_entities_from_json(raw_output_entities), start_index
 
     def check_closed_region(self, region):
         """Check region is closed using region detection.
