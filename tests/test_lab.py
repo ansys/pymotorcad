@@ -1,4 +1,3 @@
-from RPC_Test_Common import almost_equal
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
