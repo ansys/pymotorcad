@@ -316,7 +316,7 @@ class Arc:
         elif ((self.radius > 0) and (angle_1 > angle_2)) or (
             (self.radius < 0) and angle_2 < angle_1
         ):
-            arc_angle = 360 - angle_2 + angle_1
+            arc_angle = angle_2 - (angle_1 - 360)
         else:
             arc_angle = angle_2 - angle_1
 

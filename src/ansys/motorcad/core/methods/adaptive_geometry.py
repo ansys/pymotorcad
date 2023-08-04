@@ -20,6 +20,7 @@ class _RpcMethodsAdaptiveGeometry:
         value : float
             value of parameter.
         """
+        self.connection.ensure_version_at_least("2024.0")
         method = "SetAdaptiveParameterValue"
         params = [name, value]
         return self.connection.send_and_receive(method, params)
@@ -37,6 +38,7 @@ class _RpcMethodsAdaptiveGeometry:
         float
             value of parameter.
         """
+        self.connection.ensure_version_at_least("2024.0")
         method = "GetAdaptiveParameterValue"
         params = [name]
         return self.connection.send_and_receive(method, params)
@@ -55,6 +57,7 @@ class _RpcMethodsAdaptiveGeometry:
             Motor-CAD region object.
 
         """
+        self.connection.ensure_version_at_least("2024.0")
         method = "GetRegion"
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
@@ -72,6 +75,7 @@ class _RpcMethodsAdaptiveGeometry:
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
         """
+        self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()
 
         method = "SetRegion"
@@ -93,6 +97,7 @@ class _RpcMethodsAdaptiveGeometry:
         :Object List
             List of Line/Arc objects
         """
+        self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()
         raw_entities = _convert_entities_to_json(polyline)
 
@@ -114,6 +119,7 @@ class _RpcMethodsAdaptiveGeometry:
         -------
 
         """
+        self.connection.ensure_version_at_least("2024.0")
         pass
 
     def check_collisions(self, region):
@@ -127,6 +133,7 @@ class _RpcMethodsAdaptiveGeometry:
         -------
 
         """
+        self.connection.ensure_version_at_least("2024.0")
         pass
 
     def save_adaptive_script(self, filepath):
@@ -137,6 +144,7 @@ class _RpcMethodsAdaptiveGeometry:
         filepath : string
             full file path of script
         """
+        self.connection.ensure_version_at_least("2024.0")
         method = "SaveAdaptiveScript"
         params = [filepath]
         return self.connection.send_and_receive(method, params)
