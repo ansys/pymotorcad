@@ -58,22 +58,19 @@ def test_check_if_geometry_is_valid():
 
 
 def test_set_adaptive_parameter_value():
-    with pytest.raises(MotorCADError):
-        mc.geometry.set_adaptive_parameter_value("test_parameter", 100)
+        mc.set_adaptive_parameter_value("test_parameter", 100)
 
 
 def test_get_adaptive_parameter_value():
-    mc.geometry.set_adaptive_parameter_value("test_parameter_1", 100)
+    mc.set_adaptive_parameter_value("test_parameter_1", 100)
 
-    with pytest.raises(MotorCADError):
-        value = mc.geometry.get_adaptive_parameter_value("test_parameter_1")
+    value = mc.get_adaptive_parameter_value("test_parameter_1")
 
     assert value == 100
 
 
 def test_get_region():
-    with pytest.raises(MotorCADError):
-        region = mc.geometry.get_region("Stator")
+    region = mc.get_region("Stator")
 
     assert region.name == "Stator"
 
@@ -84,25 +81,23 @@ def test_set_region():
     region.colour = (0, 0, 255)
     region.material = "Air"
 
-    with pytest.raises(MotorCADError):
-        mc.geometry.set_region(region)
+    mc.set_region(region)
 
 
 def test_get_entities_between_poly_start_end():
-    region = mc.geometry.get_region("Stator")
+    region = mc.get_region("Stator")
     poly = [geometry.Line(region.entities[4].end, region.entities[7].end)]
 
-    entities_to_remove, start_index = mc.geometry.get_entities_between_poly_start_end(region, poly)
+    entities_to_remove, start_index = mc.get_entities_between_poly_start_end(region, poly)
 
     assert entities_to_remove == region.entities[4:7:1]
     assert start_index == 4
 
 
 def test_save_adaptive_script():
-    with pytest.raises(MotorCADError):
-        mc.geometry.save_adaptive_script(
-            get_dir_path() + r"\test_files\adaptive_templates_script.py"
-        )
+    mc.save_adaptive_script(
+        get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    )
 
 
 def test_region_add_entity():
