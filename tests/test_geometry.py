@@ -58,7 +58,7 @@ def test_check_if_geometry_is_valid():
 
 
 def test_set_adaptive_parameter_value():
-        mc.set_adaptive_parameter_value("test_parameter", 100)
+    mc.set_adaptive_parameter_value("test_parameter", 100)
 
 
 def test_get_adaptive_parameter_value():
@@ -95,9 +95,7 @@ def test_get_entities_between_poly_start_end():
 
 
 def test_save_adaptive_script():
-    mc.save_adaptive_script(
-        get_dir_path() + r"\test_files\adaptive_templates_script.py"
-    )
+    mc.save_adaptive_script(get_dir_path() + r"\test_files\adaptive_templates_script.py")
 
 
 def test_region_add_entity():
