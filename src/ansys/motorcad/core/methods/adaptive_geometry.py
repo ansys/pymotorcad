@@ -145,11 +145,14 @@ class _RpcMethodsAdaptiveGeometry:
 
         raw_collision_regions = self.connection.send_and_receive(method, params)
 
-        collision_region = Region()
-        return [
+        collision_regions = []
+
+        for raw_collision_region in raw_collision_regions:
+            collision_region = Region()
             collision_region._from_json(raw_collision_region)
-            for raw_collision_region in raw_collision_regions
-        ]
+            collision_regions.append(collision_region)
+
+        return collision_regions
 
     def save_adaptive_script(self, filepath):
         """Save adaptive templates script file to Motor-CAD.
