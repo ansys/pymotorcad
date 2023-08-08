@@ -19,6 +19,7 @@ MotorCAD API
    _autogen_FEA Geometry
    _autogen_General
    _autogen_Geometry
+   _autogen_Adaptive Geometry
    _autogen_Graphs
    _autogen_Internal Scripting
    _autogen_Lab

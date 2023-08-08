@@ -29,10 +29,10 @@ class _RpcMethodsCore(
     _RpcMethodsInternalScripting,
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
+    _RpcMethodsAdaptiveGeometry,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
-        self.geometry = _RpcMethodsAdaptiveGeometry(mc_connection)
 
         _RpcMethodsVariables.__init__(self, self.connection)
         _RpcMethodsUI.__init__(self, self.connection)
@@ -45,3 +45,4 @@ class _RpcMethodsCore(
         _RpcMethodsInternalScripting.__init__(self, self.connection)
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
+        _RpcMethodsAdaptiveGeometry.__init__(self, self.connection)
