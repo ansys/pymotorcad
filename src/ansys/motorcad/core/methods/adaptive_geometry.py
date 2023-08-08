@@ -122,7 +122,7 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2024.0")
         pass
 
-    def check_collisions(self, region):
+    def check_collisions(self, region, regions_to_check):
         """Check region does not collide with other geometry regions.
 
         Parameters
@@ -130,11 +130,26 @@ class _RpcMethodsAdaptiveGeometry:
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
 
+        regions_to_check : List of ansys.motorcad.core.geometry.Region
+            List of Motor-CAD region object
+
         -------
 
         """
         self.connection.ensure_version_at_least("2024.0")
-        pass
+        raw_region = region._to_json()
+        raw_regions = [region_to_Check._to_json() for region_to_Check in regions_to_check]
+
+        method = "Check_Collisions"
+        params = [raw_region, raw_regions]
+
+        raw_collision_regions = self.connection.send_and_receive(method, params)
+
+        collision_region = Region()
+        return [
+            collision_region._from_json(raw_collision_region)
+            for raw_collision_region in raw_collision_regions
+        ]
 
     def save_adaptive_script(self, filepath):
         """Save adaptive templates script file to Motor-CAD.
