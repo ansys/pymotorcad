@@ -5,6 +5,7 @@ import re
 import socket
 import subprocess
 import time
+import warnings
 
 from packaging import version
 import psutil
@@ -57,6 +58,12 @@ def set_motorcad_exe(exe_location):
 
 class MotorCADError(Exception):
     """Provides the errors to display when issues are raised by the Motor-CAD executable file."""
+
+    pass
+
+
+class MotorCADWarning(Warning):
+    """Provides the warnings to display when issues are raised by the Motor-CAD executable file."""
 
     pass
 
@@ -506,6 +513,13 @@ class _MotorCADConnection:
                 self._last_error_message = error_message
 
                 self._raise_if_allowed(error_message)
+
+            # Warning message only exists in response from Motor-CAD version >= 24R1
+            if "warningMessage" in response["result"]:
+                warning_message = response["result"]["warningMessage"]
+                if warning_message != "":
+                    # Code in Motor-CAD wants to raise a warning in Python
+                    warnings.warn(response["result"]["warningMessage"], MotorCADWarning)
 
             result_list = []
 
