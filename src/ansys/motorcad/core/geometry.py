@@ -19,12 +19,28 @@ class Region:
 
         # expect other properties to be implemented here including number duplications, material etc
 
+    def __eq__(self, other):
+        """Override the default equals implementation for Region."""
+        if (
+            isinstance(other, Region)
+            and self.name == other.name
+            and self.colour == other.colour
+            and self.area == other.area
+            and self.centroid == other.centroid
+            and self.region_coordinate == other.region_coordinate
+            and self.duplications == other.duplications
+            and self.entities == other.entities
+        ):
+            return True
+        else:
+            return False
+
     def add_entity(self, entity):
         """Add entity to list of region entities.
 
         Parameters
         ----------
-        entity : Line/Arc class
+        entity : Line or Arc
             Line/arc entity class instance
         """
         self.entities.append(entity)
@@ -36,7 +52,7 @@ class Region:
         ----------
         index : Integer
             Index of which to insert at
-        entity : Line/Arc class
+        entity : Line or Arc
             Line/arc entity class instance
         """
         self.entities.insert(index, entity)
@@ -48,7 +64,7 @@ class Region:
         ----------
         index : Integer
             Index of which to insert at
-        polyline : List of line/Arc class
+        polyline : List of Line or Arc
             List of line/arc entity class instances
         """
         for count, entity in enumerate(polyline):
@@ -59,7 +75,7 @@ class Region:
 
         Parameters
         ----------
-        entity_remove : Line/Arc class
+        entity_remove : Line or Arc
             Line/arc entity class instance
         """
         for entity in self.entities:
@@ -115,6 +131,29 @@ class Region:
 
         return region_dict
 
+    def is_closed(self):
+        """Check whether region entities create a closed region.
+
+        Returns
+        ----------
+            Boolean
+                Whether region is closed
+        """
+        if len(self.entities) > 0:
+            entity_first = self.entities[0]
+            entity_last = self.entities[-1]
+
+            is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
+
+            for i in range(len(self.entities) - 1):
+                is_closed = get_entities_have_common_coordinate(
+                    self.entities[i], self.entities[i + 1]
+                )
+
+            return is_closed
+        else:
+            return False
+
 
 class Line:
     """Python representation of Motor-CAD line entity."""
@@ -132,6 +171,13 @@ class Line:
         """
         self.start = start
         self.end = end
+
+    def __eq__(self, other):
+        """Override the default equals implementation for Line."""
+        if isinstance(other, Line) and self.start == other.start and self.end == other.end:
+            return True
+        else:
+            return False
 
     def get_coordinate_from_percentage_distance(self, x, y, percentage):
         """Get the coordinate at the percentage distance along the line from the reference coord.
@@ -208,13 +254,13 @@ class Line:
 
         Returns
         -------
-        :Float
+        float
             Length of line
         """
         return sqrt(pow(self.start[0] - self.end[0], 2) + pow(self.start[1] - self.end[1], 2))
 
 
-class Arc:
+class Arc(Line):
     """Python representation of Motor-CAD arc entity."""
 
     def __init__(self, start, end, centre, radius):
@@ -234,10 +280,22 @@ class Arc:
         radius : float
             Arc radius
         """
-        self.start = start
-        self.end = end
+        super().__init__(start, end)
         self.radius = radius
         self.centre = centre
+
+    def __eq__(self, other):
+        """Override the default equals implementation for Arc."""
+        if (
+            isinstance(other, Arc)
+            and self.start == other.start
+            and self.end == other.end
+            and self.centre == other.centre
+            and self.radius == other.radius
+        ):
+            return True
+        else:
+            return False
 
     def get_coordinate_from_percentage_distance(self, x, y, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
@@ -305,7 +363,7 @@ class Arc:
 
         Returns
         -------
-        :Float
+        float
             Length of arc
         """
         radius, angle_1 = xy_to_rt(self.start[0], self.start[1])
@@ -371,8 +429,8 @@ def _convert_entities_from_json(json_array):
 
     Returns
     -------
-    :Object List
-        List of Line/Arc objects
+    :Object List of Line or Arc
+        List of Line or Arc objects
     """
     entities = []
 
@@ -395,6 +453,33 @@ def _convert_entities_from_json(json_array):
             )
 
     return entities
+
+
+def get_entities_have_common_coordinate(entity_1, entity_2):
+    """Check whether region entities create a closed region.
+
+    Parameters
+    ----------
+    entity_1 : Line or Arc
+        Line or Arc object to check for common coordinate
+
+    entity_2 : Line or Arc
+        Line or Arc object to check for common coordinate
+
+    Returns
+    ----------
+        Boolean
+    """
+    if (
+        (entity_1.end == entity_2.start)
+        or (entity_1.end == entity_2.end)
+        or (entity_1.start == entity_2.start)
+        or (entity_1.start == entity_2.end)
+    ):
+        # found common coordinate between first and last entities
+        return True
+    else:
+        return False
 
 
 def xy_to_rt(x, y):

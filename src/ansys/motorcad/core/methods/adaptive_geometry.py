@@ -1,9 +1,5 @@
 """Methods for adaptive geometry."""
-from ansys.motorcad.core.geometry import (
-    Region,
-    _convert_entities_from_json,
-    _convert_entities_to_json,
-)
+from ansys.motorcad.core.geometry import Region
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -82,32 +78,6 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
 
-    def get_entities_between_poly_start_end(self, region, polyline):
-        """Return entities from region which are between start/end of polyline.
-
-        Parameters
-        ----------
-        region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object.
-        polyline : List of Line/Arc objects
-            Polyline using lines/arcs
-
-        Returns
-        -------
-        :Object List
-            List of Line/Arc objects
-        """
-        self.connection.ensure_version_at_least("2024.0")
-        raw_region = region._to_json()
-        raw_entities = _convert_entities_to_json(polyline)
-
-        method = "GetEntities_Between_PolyStartEnd"
-        params = [raw_region, raw_entities]
-
-        raw_output_entities, start_index = self.connection.send_and_receive(method, params)
-
-        return _convert_entities_from_json(raw_output_entities), start_index
-
     def check_closed_region(self, region):
         """Check region is closed using region detection.
 
@@ -115,9 +85,6 @@ class _RpcMethodsAdaptiveGeometry:
         ----------
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
-
-        -------
-
         """
         self.connection.ensure_version_at_least("2024.0")
         pass
@@ -132,9 +99,6 @@ class _RpcMethodsAdaptiveGeometry:
 
         regions_to_check : List of ansys.motorcad.core.geometry.Region
             List of Motor-CAD region object
-
-        -------
-
         """
         self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()

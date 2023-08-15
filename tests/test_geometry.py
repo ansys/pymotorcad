@@ -11,6 +11,19 @@ from setup_test import setup_test_env
 mc = setup_test_env()
 
 
+def generate_constant_region():
+    region = geometry.Region()
+    region.name = "testing_region"
+    region.colour = (0, 0, 255)
+    region.material = "Air"
+
+    region.entities.append(geometry.Line((-1, 0), (1, 0)))
+    region.entities.append(geometry.Arc((1, 0), (1, 1), (0, 0), 1))
+    region.entities.append(geometry.Line((1, 1), (-1, 0)))
+
+    return region
+
+
 def test_set_get_winding_coil():
     phase = 1
     path = 1
@@ -58,90 +71,112 @@ def test_check_if_geometry_is_valid():
 
 
 def test_set_adaptive_parameter_value():
-    mc.set_adaptive_parameter_value("test_parameter", 100)
+    parameter_name = "test_parameter"
+    parameter_value = 100
+
+    mc.set_adaptive_parameter_value(parameter_name, parameter_value)
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
+
+    parameter_value = 70
+    # update existing parameter
+    mc.set_adaptive_parameter_value(parameter_name, parameter_value)
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
 
 def test_get_adaptive_parameter_value():
     mc.set_adaptive_parameter_value("test_parameter_1", 100)
 
     value = mc.get_adaptive_parameter_value("test_parameter_1")
-
     assert value == 100
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_adaptive_parameter_value("testing_parameter")
+
+    assert "No adaptive parameter found with name" in str(e_info.value)
 
 
 def test_get_region():
     region = mc.get_region("Stator")
-
     assert region.name == "Stator"
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region("Rotor_Magnet")
+
+    assert "No region found with name" in str(e_info.value)
 
 
 def test_set_region():
-    region = geometry.Region()
-    region.name = "testing_region"
-    region.colour = (0, 0, 255)
-    region.material = "Air"
-
+    region = generate_constant_region()
     mc.set_region(region)
-
-
-def test_get_entities_between_poly_start_end():
-    region = mc.get_region("Stator")
-    poly = [geometry.Line(region.entities[4].end, region.entities[7].end)]
-
-    entities_to_remove, start_index = mc.get_entities_between_poly_start_end(region, poly)
-
-    assert entities_to_remove == region.entities[4:7:1]
-    assert start_index == 4
+    returned_region = mc.get_region("testing_region")
+    assert returned_region == region
 
 
 def test_save_adaptive_script():
-    mc.save_adaptive_script(get_dir_path() + r"\test_files\adaptive_templates_script.py")
+    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    mc.save_adaptive_script(filepath)
+
+    num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+
+    with open(filepath, "rbU") as f:
+        num_lines_file = sum(1 for _ in f)
+
+    assert num_lines == num_lines_file
 
 
 def test_region_add_entity():
-    region = geometry.Region()
-    region.add_entity(geometry.Line((0, 0), (1, 1)))
+    # generate entity to add to region
+    entity = geometry.Line((0, 0), (1, 1))
 
-    assert len(region.entities) == 1
+    expected_region = generate_constant_region()
+    expected_region.entities.append(entity)
+
+    region = generate_constant_region()
+    region.add_entity(entity)
+
+    assert region == expected_region
 
 
 def test_region_insert_entity():
-    region = geometry.Region()
-    region.add_entity(geometry.Line((0, 0), (1, 1)))
-
     entity = geometry.Line((-2, 2), (2, 3))
-    region.insert_entity(0, entity)
 
-    assert (len(region.entities) == 2) & (region.entities[0] == entity)
+    expected_region = generate_constant_region()
+    expected_region.entities.insert(1, entity)
+
+    region = generate_constant_region()
+    region.insert_entity(1, entity)
+
+    assert region == expected_region
 
 
 def test_region_insert_polyline():
-    region = geometry.Region()
-    region.insert_polyline(
-        0,
-        [
-            geometry.Line((0, 0), (1, 1)),
-            geometry.Line((1, 1), (1, 0)),
-            geometry.Line((1, 0), (0, 0)),
-        ],
-    )
+    polyline = [
+        geometry.Line((0, 0), (1, 1)),
+        geometry.Arc((1, 1), (1, 0), (0, 0), 1),
+        geometry.Line((1, 0), (0, 0)),
+    ]
 
-    assert len(region.entities) == 3
+    expected_region = generate_constant_region()
+    expected_region.entities = polyline + expected_region.entities
+
+    region = generate_constant_region()
+    region.insert_polyline(0, polyline)
+
+    assert region == expected_region
 
 
 def test_region_remove_entity():
-    region = geometry.Region()
-    region.insert_polyline(
-        0,
-        [
-            geometry.Line((0, 0), (1, 1)),
-            geometry.Line((1, 1), (1, 0)),
-            geometry.Line((1, 0), (0, 0)),
-        ],
-    )
-    region.remove_entity(region.entities[1])
+    expected_region = generate_constant_region()
 
-    assert len(region.entities) == 2
+    entity = expected_region.entities[1]
+    expected_region.entities.remove(entity)
+
+    region = generate_constant_region()
+    region.remove_entity(entity)
+
+    assert region == expected_region
 
 
 def test_region_from_json():
@@ -169,14 +204,7 @@ def test_region_from_json():
     region = geometry.Region()
     region._from_json(raw_region)
 
-    assert region.name == test_region.name
-    assert region.material == test_region.material
-    assert region.colour == test_region.colour
-    assert region.area == test_region.area
-    assert region.centroid == test_region.centroid
-    assert region.region_coordinate == test_region.region_coordinate
-    assert region.duplications == test_region.duplications
-    assert region.entities == test_region.entities
+    assert region == test_region
 
 
 def test_region_to_json():
@@ -204,17 +232,23 @@ def test_region_to_json():
     assert test_region._to_json() == raw_region
 
 
+def test_region_is_closed():
+    region = generate_constant_region()
+
+    assert region.is_closed()
+
+
 def test_line_get_coordinate_from_percentage_distance():
-    line = geometry.Line((0, 0), (1, 1))
+    line = geometry.Line((0, 0), (2, 0))
 
     x, y = line.get_coordinate_from_percentage_distance(0, 0, 0.5)
-    assert (x, y) == (0.5, 0.5)
+    assert (x, y) == (1, 0)
 
 
 def test_line_get_coordinate_from_distance():
-    line = geometry.Line((0, 0), (1, 1))
+    line = geometry.Line((0, 0), (2, 0))
 
-    assert line.get_coordinate_from_distance(0, 0, sqrt(2) / 2) == (0.5, 0.5)
+    assert line.get_coordinate_from_distance(0, 0, 1) == (1, 0)
 
 
 def test_line_get_length():
@@ -284,11 +318,14 @@ def test_convert_entities_from_json():
 
     converted_entities = geometry._convert_entities_from_json(raw_entities)
     assert isinstance(converted_entities[0], type(test_entities[0]))
-    assert converted_entities[0].start == test_entities[0].start
-    assert converted_entities[0].end == test_entities[0].end
+    assert converted_entities[0] == test_entities[0]
 
     assert isinstance(converted_entities[1], type(test_entities[1]))
-    assert converted_entities[1].start == test_entities[1].start
-    assert converted_entities[1].end == test_entities[1].end
-    assert converted_entities[1].centre == test_entities[1].centre
-    assert converted_entities[1].radius == test_entities[1].radius
+    assert converted_entities[1] == test_entities[1]
+
+
+def test_get_entities_have_common_coordinate():
+    entity_1 = geometry.Line((0, 0), (1, 1))
+    entity_2 = geometry.Line((1, 1), (2, 2))
+
+    assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
