@@ -75,14 +75,19 @@ def test_set_adaptive_parameter_value():
     parameter_value = 100
 
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
-    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
+    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
+    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
 
     parameter_value = 70
     # update existing parameter
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
-    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
+    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
+    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
+
+
+def test_set_adaptive_parameter_value_incorrect_type():
+    with pytest.raises(MotorCADError):
+        mc.set_adaptive_parameter_value("incorrect_type", "test_string")
 
 
 def test_get_adaptive_parameter_value():
@@ -91,6 +96,8 @@ def test_get_adaptive_parameter_value():
     value = mc.get_adaptive_parameter_value("test_parameter_1")
     assert value == 100
 
+
+def test_get_adaptive_parameter_value_does_not_exist():
     with pytest.raises(Exception) as e_info:
         mc.get_adaptive_parameter_value("testing_parameter")
 
@@ -98,8 +105,11 @@ def test_get_adaptive_parameter_value():
 
 
 def test_get_region():
-    region = mc.get_region("Stator")
-    assert region.name == "Stator"
+    expected_region = generate_constant_region()
+    mc.set_region(expected_region)
+
+    region = mc.get_region(expected_region.name)
+    assert region == expected_region
 
     with pytest.raises(Exception) as e_info:
         mc.get_region("Rotor_Magnet")
@@ -126,9 +136,22 @@ def test_save_adaptive_script():
     assert num_lines == num_lines_file
 
 
-def test_region_add_entity():
+def test_region_add_entity_line():
     # generate entity to add to region
     entity = geometry.Line((0, 0), (1, 1))
+
+    expected_region = generate_constant_region()
+    expected_region.entities.append(entity)
+
+    region = generate_constant_region()
+    region.add_entity(entity)
+
+    assert region == expected_region
+
+
+def test_region_add_entity_arc():
+    # generate entity to add to region
+    entity = geometry.Arc((-1, 0), (1, 0), (0, 0), 1)
 
     expected_region = generate_constant_region()
     expected_region.entities.append(entity)
