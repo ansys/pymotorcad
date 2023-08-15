@@ -32,7 +32,7 @@ class _RpcMethodsUI:
     def save_motorcad_screen_to_file(self, screen_name, file_name):
         """Save the entire Motor-CAD screen of a tab to an image file.
 
-        Call the ``initialise_tab_names`` method before called this method.l The
+        Call the ``initialise_tab_names`` method before calling this method. The
         Motor-CAD UI must be visible.
 
         Parameters
@@ -102,22 +102,29 @@ class _RpcMethodsUI:
     def display_screen(self, screen_name):
         """Display a screen within Motor-CAD.
 
+        Call the ``initialise_tab_names`` method before calling this method. The
+        Motor-CAD UI must be visible.
+
         Parameters
         ----------
         screen_name : str
-            Name of the screen.
+            Path of the screen to save. The path must be in this format:
+            ``"tabName;tabName;tabName"``. For example,
+            ``"Geometry;Axial"``.
         """
         method = "DisplayScreen"
         params = [screen_name]
         return self.connection.send_and_receive(method, params)
 
     def save_screen_to_file(self, screen_name, file_name):
-        """Save a screen to an image file.
+        """Save the image on a selected screen to an image file.
 
         Parameters
         ----------
         screen_name : str
-            Name of the screen.
+            Name of the screen. For example, ``"Radial"``, ``"Axial"``, ``"3D"``, ``"FE"``,
+            ``"StatorWinding"``, ``"RadialTemps"``, ``"AxialTemps"``, ``"StatorWindingPattern"``,
+            ``"StatorWindingPattern_Linear"``. The Motor-CAD UI must be visible.
         file_name : str
             Full path for the image file, including the file name and file extension. The
             extensions supported are BMP, JPG, and PNG.
