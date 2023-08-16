@@ -75,14 +75,14 @@ def test_set_adaptive_parameter_value():
     parameter_value = 100
 
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
-    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
     parameter_value = 70
     # update existing parameter
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
-    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
 
 def test_set_adaptive_parameter_value_incorrect_type():
