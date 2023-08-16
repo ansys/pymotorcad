@@ -241,7 +241,7 @@ def test_add_region_xy():
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    x_c = 5
+    x_c = 6
     y_c = 5
 
     draw_square()
@@ -272,7 +272,7 @@ def test_add_region_rt():
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    x_c = 5
+    x_c = 6
     y_c = 5
     r_c, t_c = xy_to_rt(x_c, y_c)
 
@@ -419,7 +419,7 @@ def test_add_point_custom_material_xy():
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    x_c = 5
+    x_c = 6
     y_c = 5
 
     draw_square()
@@ -464,7 +464,7 @@ def test_add_point_custom_material_rt():
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    x_c = 5
+    x_c = 6
     y_c = 5
 
     r_c, t_c = xy_to_rt(x_c, y_c)
