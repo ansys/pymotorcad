@@ -97,8 +97,8 @@ class _RpcMethodsAdaptiveGeometry:
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
 
-        regions_to_check : List of ansys.motorcad.core.geometry.Region
-            List of Motor-CAD region object
+        regions_to_check : list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
         """
         self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()

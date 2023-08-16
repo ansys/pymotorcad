@@ -64,8 +64,8 @@ class Region:
         ----------
         index : int
             Index of which to insert at
-        polyline : List of Line or Arc
-            List of line/arc entity class instances
+        polyline : list of Line or list of Arc
+            list of Line or list of Arc
         """
         for count, entity in enumerate(polyline):
             self.insert_entity(index + count, entity)
@@ -158,19 +158,19 @@ class Region:
 
 
 class Coordinate:
-    """Python representation of coordinate in two-dimensional space."""
+    """Python representation of coordinate in two-dimensional space.
+
+    Parameters
+    ----------
+    x : float
+        X value.
+
+    y : float
+        Y value.
+    """
 
     def __init__(self, x, y):
-        """Create line entity based upon start and end coordinates.
-
-        Parameters
-        ----------
-        x : float
-            X value.
-
-        y : float
-            Y value.
-        """
+        """Initialise Coordinate."""
         self.x = x
         self.y = y
 
@@ -183,19 +183,19 @@ class Coordinate:
 
 
 class Entity:
-    """Generic parent class for geometric entities based upon a start and end coordinate."""
+    """Generic parent class for geometric entities based upon a start and end coordinate.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+    """
 
     def __init__(self, start, end):
-        """Entity initialisation function.
-
-        Parameters
-        ----------
-        start : Coordinate
-            Start coordinate.
-
-        end : Coordinate
-            End coordinate.
-        """
+        """Initialise Entity."""
         self.start = start
         self.end = end
 
@@ -208,19 +208,19 @@ class Entity:
 
 
 class Line(Entity):
-    """Python representation of Motor-CAD line entity based upon start and end coordinates."""
+    """Python representation of Motor-CAD line entity based upon start and end coordinates.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+    """
 
     def __init__(self, start, end):
-        """Line initialisation function.
-
-        Parameters
-        ----------
-        start : Coordinate
-            Start coordinate.
-
-        end : Coordinate
-            End coordinate.
-        """
+        """Initialise Line."""
         super().__init__(start, end)
 
     def __eq__(self, other):
@@ -302,25 +302,25 @@ class Line(Entity):
 
 
 class Arc(Entity):
-    """Python representation of Motor-CAD arc entity based upon start, end, centre and radius."""
+    """Python representation of Motor-CAD arc entity based upon start, end, centre and radius.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+
+    centre :Coordinate
+       Centre coordinate.
+
+    radius : float
+        Arc radius
+    """
 
     def __init__(self, start, end, centre, radius):
-        """Arc initialisation function.
-
-        Parameters
-        ----------
-        start : Coordinate
-            Start coordinate.
-
-        end : Coordinate
-            End coordinate.
-
-        centre :Coordinate
-           Centre coordinate.
-
-        radius : float
-            Arc radius
-        """
+        """Initialise Arc."""
         super().__init__(start, end)
         self.radius = radius
         self.centre = centre
@@ -419,13 +419,13 @@ def _convert_entities_to_json(entities):
 
     Parameters
     ----------
-    entities : List of Line/Arc objects
+    entities : list of Line or list of Arc
         List of Line/Arc class objects representing entities.
 
     Returns
     -------
-    :Json object
-        List of json entities
+    dict
+        entities in json format
     """
     json_entities = []
 
@@ -462,8 +462,8 @@ def _convert_entities_from_json(json_array):
 
     Returns
     -------
-    :Object List of Line or Arc
-        List of Line or Arc objects
+    list of Line or list of Arc
+        list of Line and Arc objects
     """
     entities = []
 
