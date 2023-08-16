@@ -40,9 +40,9 @@ tests = [
     "ansys.platform.instancemanagement>=1.0.2"
 ]
 doc = [
-    "Sphinx==7.0.1",
+    "Sphinx==7.1.2",
     "numpydoc==1.5.0",
-    "ansys-sphinx-theme==0.9.9",
+    "ansys-sphinx-theme==0.10.3",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.13.0",
     "matplotlib",

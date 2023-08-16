@@ -7,7 +7,7 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCAD  # , MotorCADError
+from ansys.motorcad.core import MotorCAD, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from setup_test import setup_test_env
 
@@ -186,6 +186,27 @@ def test_ansys_labs_connection(monkeypatch):
     assert mock_is_configured.called
     assert mock_connect.called
     assert mock_instance.wait_for_ready.called
+
+
+# Fake requests post class for testing functionality without involving Motor-CAD instance
+class FakeRequestsPostWithWarning:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def json(self):
+        result = {"success": 0, "output": [], "errorMessage": "", "warningMessage": "test_warning"}
+        response = {"jsonrpc": "2.0", "id": 347289, "result": result}
+        return response
+
+
+def test_warnings(monkeypatch):
+    # Create fake request result so we can test this before Motor-CAD 24R1
+    # TODO - replace with actual call with warnings e.g. set_region
+    monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
+
+    with pytest.warns(MotorCADWarning):
+        # Call something which triggers send_and_receive
+        mc.get_variable("n/a")
 
 
 def test_using_url_to_connect():
