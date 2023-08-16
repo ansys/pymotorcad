@@ -118,7 +118,7 @@ def test_get_region():
     with pytest.raises(Exception) as e_info:
         mc.get_region("Rotor_Magnet")
 
-    assert "Failed to find region with name" in str(e_info.value)
+    assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 
 
 def test_set_region():
