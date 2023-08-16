@@ -17,9 +17,13 @@ def generate_constant_region():
     region.colour = (0, 0, 255)
     region.material = "Air"
 
-    region.entities.append(geometry.Line((-1, 0), (1, 0)))
-    region.entities.append(geometry.Arc((1, 0), (1, 1), (0, 0), 1))
-    region.entities.append(geometry.Line((1, 1), (-1, 0)))
+    region.entities.append(geometry.Line(geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0)))
+    region.entities.append(
+        geometry.Arc(
+            geometry.Coordinate(1, 0), geometry.Coordinate(1, 1), geometry.Coordinate(0, 0), 1
+        )
+    )
+    region.entities.append(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(-1, 0)))
 
     return region
 
@@ -75,14 +79,14 @@ def test_set_adaptive_parameter_value():
     parameter_value = 100
 
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
-    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
     parameter_value = 70
     # update existing parameter
     mc.set_adaptive_parameter_value(parameter_name, parameter_value)
-    assert mc.get_array_variable("adaptive_parameter_name", 0) == parameter_name
-    assert mc.get_array_variable("adaptive_parameter_value", 0) == parameter_value
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Name", 0) == parameter_name
+    assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
 
 def test_set_adaptive_parameter_value_incorrect_type():
@@ -114,7 +118,7 @@ def test_get_region():
     with pytest.raises(Exception) as e_info:
         mc.get_region("Rotor_Magnet")
 
-    assert "No region found with name" in str(e_info.value)
+    assert "Failed to find region with name" in str(e_info.value)
 
 
 def test_set_region():
@@ -138,7 +142,7 @@ def test_save_adaptive_script():
 
 def test_region_add_entity_line():
     # generate entity to add to region
-    entity = geometry.Line((0, 0), (1, 1))
+    entity = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
 
     expected_region = generate_constant_region()
     expected_region.entities.append(entity)
@@ -151,7 +155,9 @@ def test_region_add_entity_line():
 
 def test_region_add_entity_arc():
     # generate entity to add to region
-    entity = geometry.Arc((-1, 0), (1, 0), (0, 0), 1)
+    entity = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+    )
 
     expected_region = generate_constant_region()
     expected_region.entities.append(entity)
@@ -163,7 +169,7 @@ def test_region_add_entity_arc():
 
 
 def test_region_insert_entity():
-    entity = geometry.Line((-2, 2), (2, 3))
+    entity = geometry.Line(geometry.Coordinate(-2, 2), geometry.Coordinate(2, 3))
 
     expected_region = generate_constant_region()
     expected_region.entities.insert(1, entity)
@@ -176,9 +182,11 @@ def test_region_insert_entity():
 
 def test_region_insert_polyline():
     polyline = [
-        geometry.Line((0, 0), (1, 1)),
-        geometry.Arc((1, 1), (1, 0), (0, 0), 1),
-        geometry.Line((1, 0), (0, 0)),
+        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1)),
+        geometry.Arc(
+            geometry.Coordinate(1, 1), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+        ),
+        geometry.Line(geometry.Coordinate(1, 0), geometry.Coordinate(0, 0)),
     ]
 
     expected_region = generate_constant_region()
@@ -219,8 +227,8 @@ def test_region_from_json():
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region.area = 5.1
-    test_region.centroid = (0.0, 1.0)
-    test_region.region_coordinate = (0.0, 1.1)
+    test_region.centroid = geometry.Coordinate(0.0, 1.0)
+    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
 
@@ -247,8 +255,8 @@ def test_region_to_json():
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region.area = 5.1
-    test_region.centroid = (0.0, 1.0)
-    test_region.region_coordinate = (0.0, 1.1)
+    test_region.centroid = geometry.Coordinate(0.0, 1.0)
+    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
 
@@ -262,42 +270,50 @@ def test_region_is_closed():
 
 
 def test_line_get_coordinate_from_percentage_distance():
-    line = geometry.Line((0, 0), (2, 0))
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
-    x, y = line.get_coordinate_from_percentage_distance(0, 0, 0.5)
-    assert (x, y) == (1, 0)
+    coord = line.get_coordinate_from_percentage_distance(geometry.Coordinate(0, 0), 0.5)
+    assert coord == geometry.Coordinate(1, 0)
 
 
 def test_line_get_coordinate_from_distance():
-    line = geometry.Line((0, 0), (2, 0))
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
-    assert line.get_coordinate_from_distance(0, 0, 1) == (1, 0)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(
+        1, 0
+    )
 
 
 def test_line_get_length():
-    line = geometry.Line((0, 0), (1, 1))
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
 
     assert line.get_length() == sqrt(2)
 
 
 def test_arc_get_coordinate_from_percentage_distance():
-    arc = geometry.Arc((-1, 0), (1, 0), (0, 0), 1)
+    arc = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+    )
 
-    x, y = arc.get_coordinate_from_percentage_distance(-1, 0, 0.5)
-    assert isclose(x, 0, abs_tol=1e-12)
-    assert isclose(y, -1, abs_tol=1e-12)
+    coord = arc.get_coordinate_from_percentage_distance(geometry.Coordinate(-1, 0), 0.5)
+    assert isclose(coord.x, 0, abs_tol=1e-12)
+    assert isclose(coord.y, -1, abs_tol=1e-12)
 
 
 def test_arc_get_coordinate_from_distance():
-    arc = geometry.Arc((-1, 0), (1, 0), (0, 0), 1)
+    arc = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+    )
 
-    x, y = arc.get_coordinate_from_distance(-1, 0, math.pi / 2)
-    assert math.isclose(x, 0, abs_tol=1e-12)
-    assert math.isclose(y, -1, abs_tol=1e-12)
+    coord = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
+    assert math.isclose(coord.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
 
 def test_arc_get_length():
-    arc = geometry.Arc((-1, 0), (1, 0), (0, 0), 1)
+    arc = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+    )
 
     assert arc.get_length() == math.pi
 
@@ -315,8 +331,13 @@ def test_convert_entities_to_json():
     ]
 
     test_entities = [
-        geometry.Line((0.0, 0.0), (-1.0, 0)),
-        geometry.Arc((-1.0, 0.0), (1.0, 0.0), (0.0, 0.0), 1.0),
+        geometry.Line(geometry.Coordinate(0.0, 0.0), geometry.Coordinate(-1.0, 0)),
+        geometry.Arc(
+            geometry.Coordinate(-1.0, 0.0),
+            geometry.Coordinate(1.0, 0.0),
+            geometry.Coordinate(0.0, 0.0),
+            1.0,
+        ),
     ]
 
     assert geometry._convert_entities_to_json(test_entities) == raw_entities
@@ -335,8 +356,13 @@ def test_convert_entities_from_json():
     ]
 
     test_entities = [
-        geometry.Line((0.0, 0.0), (-1.0, 0)),
-        geometry.Arc((-1.0, 0.0), (1.0, 0.0), (0.0, 0.0), 1.0),
+        geometry.Line(geometry.Coordinate(0.0, 0.0), geometry.Coordinate(-1.0, 0)),
+        geometry.Arc(
+            geometry.Coordinate(-1.0, 0.0),
+            geometry.Coordinate(1.0, 0.0),
+            geometry.Coordinate(0.0, 0.0),
+            1.0,
+        ),
     ]
 
     converted_entities = geometry._convert_entities_from_json(raw_entities)
@@ -348,7 +374,7 @@ def test_convert_entities_from_json():
 
 
 def test_get_entities_have_common_coordinate():
-    entity_1 = geometry.Line((0, 0), (1, 1))
-    entity_2 = geometry.Line((1, 1), (2, 2))
+    entity_1 = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
+    entity_2 = geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(2, 2))
 
     assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
