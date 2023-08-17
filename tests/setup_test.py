@@ -30,6 +30,8 @@ def setup_test_env():
 
     launch_new_motorcad = False
 
+    pymotorcad.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
+
     try:
         mc
     except NameError:

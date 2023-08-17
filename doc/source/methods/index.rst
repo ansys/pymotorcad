@@ -4,14 +4,14 @@ API reference
 =============
 
 Motor-CAD API
-------------
+-------------
 
 The ``MotorCAD`` object is used by default for PyMotorCAD scripting.
 For descriptions of this object's single class and its many methods,
 see :ref:`ref_MotorCAD_object`.
 
 Motor-CAD compatibility API
---------------------------
+---------------------------
 
 The ``MotorCADCompatibility`` object is used for running old ActiveX
 scripts. For information on backwards compatibility, see
@@ -29,3 +29,4 @@ object, its single class, and its many methods, see
 
    MotorCAD_object
    MotorCADCompatibility_object
+   geometry_functions
