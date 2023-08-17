@@ -3,6 +3,7 @@
 Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 """
 
+from ansys.motorcad.core.methods.adaptive_geometry import _RpcMethodsAdaptiveGeometry
 from ansys.motorcad.core.methods.rpc_methods_calculations import _RpcMethodsCalculations
 from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAGeometry
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
@@ -28,6 +29,7 @@ class _RpcMethodsCore(
     _RpcMethodsInternalScripting,
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
+    _RpcMethodsAdaptiveGeometry,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -43,3 +45,4 @@ class _RpcMethodsCore(
         _RpcMethodsInternalScripting.__init__(self, self.connection)
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
+        _RpcMethodsAdaptiveGeometry.__init__(self, self.connection)

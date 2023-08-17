@@ -35,4 +35,5 @@ Motor-CAD directory and the IP address. For descriptions of these functions, see
 
    MotorCAD_object
    MotorCADCompatibility_object
+   geometry_functions
    Utility_Functions
