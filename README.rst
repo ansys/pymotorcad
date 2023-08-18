@@ -31,7 +31,18 @@ PyMotorCAD
    :alt: Black
 
 
-This Python package provides the core Python RPC-JSON interface for Motor-CAD.
+Overview
+--------
+
+Ansys Motor-CAD is a dedicated design and analysis tool for electric motors. It enables rapid
+and accurate multiphysics design and analysis of electric machines across the full-operating
+spectrum.
+
+PyMotorCAD uses a Python JSON-RPC (remote procedure call) interface for
+Motor-CAD to launch or connect with a Motor-CAD instance, either locally or
+from a remote machine via HTTP. With PyMotorCAD, you can programmatically
+create, interact with, and control a Motor-CAD model, with or without using
+the Motor-CAD GUI.
 
 Documentation and issues
 ------------------------
@@ -43,19 +54,18 @@ viewing the documentation for the latest stable release to viewing the documenta
 development version or previously released versions.
 
 You can also `view <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.png>`_ or
-`download <https://cheatsheets.docs.pyansys.com/pyfluent_cheat_sheet.pdf>`_ the
+`download <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.pdf>`_ the
 PyMotorCAD cheat sheet. This one-page reference provides syntax rules and commands
 for using PyMotorCAD. 
 
-On the `PyFluent Issues <https://github.com/ansys/pyfluent/issues>`_ page, you can create
-issues to report bugs and request new features. On the `PyFluent Discussions
-<https://github.com/ansys/pyfluent/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
+On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_ page, you can create
+issues to report bugs and request new features. On the `Discussions <https://discuss.ansys.com/>`_
 page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback. 
 
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
-Install the package
--------------------
+Installation
+------------
 
 PyMotorCAD has two installation modes: user and developer.
 
@@ -200,7 +210,20 @@ commands to install the building requirements and execute the build module:
     python -m twine check dist/*
 
 
+License and acknowledgements
+----------------------------
 
+PyMotorCAD is licensed under the MIT license. For more information, see the
+[LICENSE](https://github.com/ansys/pymotorcad/raw/master/LICENSE) file.
+
+PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
+extends the capability of Ansys Motor-CAD by adding a Python interface
+to Motor-CAD without changing the core behaviour or license of the original
+software. Using PyMotorCAD for interactive control of Motor-CAD requires
+a legally licensed copy of Motor-CAD.
+
+For more information on Motor-CAD, see the `Ansys Motor-CAD <https://www.ansys.com/products/electronics/ansys-motor-cad>`_
+page on the Ansys website.
 
 .. LINKS AND REFERENCES
 .. _black: https://github.com/psf/black

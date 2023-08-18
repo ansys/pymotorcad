@@ -79,31 +79,26 @@ Features of PyMotorCAD include:
 - Customizable example scripts for common or advanced workflows, both within
   Motor-CAD and involving the coupling of Motor-CAD to other software.
 
+
 Documentation and issues
--------------------------
+------------------------
+Documentation for the latest stable release of PyMotorCAD is hosted at
+`PyMotorCAD documentation <https://motorcad.docs.pyansys.com/version/stable/>`_.
 
-The `PyMotorCAD documentation <https://motorcad.docs.pyansys.com/version/stable/>`_
-provides installation and usage information.
+In the upper right corner of the documentation's title bar, there is an option for switching from
+viewing the documentation for the latest stable release to viewing the documentation for the
+development version or previously released versions.
 
-On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_
-page, you can create issues to submit questions, report bugs, and request
-new features.
+You can also `view <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.png>`_ or
+`download <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.pdf>`_ the
+PyMotorCAD cheat sheet. This one-page reference provides syntax rules and commands
+for using PyMotorCAD. 
+
+On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_ page, you can create
+issues to report bugs and request new features. On the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback. 
 
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
-
-
-License
--------
-PyMotorCAD is licensed under the MIT license.
-
-PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
-extends the capability of Ansys Motor-CAD by adding a Python interface
-to Motor-CAD without changing the core behaviour or license of the original
-software. Using PyMotorCAD for interactive control of Motor-CAD requires
-a legally licensed copy of Motor-CAD.
-
-For more information on Motor-CAD, see the `Ansys Motor-CAD <https://www.ansys.com/products/electronics/ansys-motor-cad>`_
-page on the Ansys website.
 
 Project index
 --------------
