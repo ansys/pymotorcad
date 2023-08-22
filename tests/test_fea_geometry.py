@@ -40,8 +40,6 @@ def draw_square():
     mc.add_line_xy(x3, y3, x4, y4)
     mc.add_line_xy(x4, y4, x1, y1)
 
-    mc.add_region_xy(5, 5, "test_region")
-
 
 def test_initiate_geometry_from_script():
     # Placeholder function so that we know this has been tested in other functions.
