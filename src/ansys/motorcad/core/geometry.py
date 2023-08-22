@@ -12,8 +12,8 @@ class Region:
         self.material = "air"
         self.colour = (0, 0, 0)
         self.area = 0.0
-        self.centroid = (0, 0)
-        self.region_coordinate = (0, 0)
+        self.centroid = Coordinate(0, 0)
+        self.region_coordinate = Coordinate(0, 0)
         self.duplications = 1
         self.entities = []
 
@@ -50,7 +50,7 @@ class Region:
 
         Parameters
         ----------
-        index : Integer
+        index : int
             Index of which to insert at
         entity : Line or Arc
             Line/arc entity class instance
@@ -62,10 +62,10 @@ class Region:
 
         Parameters
         ----------
-        index : Integer
+        index : int
             Index of which to insert at
-        polyline : List of Line or Arc
-            List of line/arc entity class instances
+        polyline : list of Line or list of Arc
+            list of Line or list of Arc
         """
         for count, entity in enumerate(polyline):
             self.insert_entity(index + count, entity)
@@ -94,7 +94,7 @@ class Region:
 
         Parameters
         ----------
-        json: Json object
+        json: dict
             Represents geometry region
         """
         # self.Entities = json.Entities
@@ -104,8 +104,10 @@ class Region:
         self.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
         self.area = json["area"]
 
-        self.centroid = (json["centroid"]["x"], json["centroid"]["y"])
-        self.region_coordinate = (json["region_coordinate"]["x"], json["region_coordinate"]["y"])
+        self.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        self.region_coordinate = Coordinate(
+            json["region_coordinate"]["x"], json["region_coordinate"]["y"]
+        )
         self.duplications = json["duplications"]
         self.entities = _convert_entities_from_json(json["entities"])
 
@@ -115,16 +117,16 @@ class Region:
 
         Returns
         ----------
-            Json object
-                Geometry region json representation
+        dict
+            Geometry region json representation
         """
         region_dict = {
             "name": self.name,
             "material": self.material,
             "colour": {"r": self.colour[0], "g": self.colour[1], "b": self.colour[2]},
             "area": self.area,
-            "centroid": {"x": self.centroid[0], "y": self.centroid[1]},
-            "region_coordinate": {"x": self.region_coordinate[0], "y": self.region_coordinate[1]},
+            "centroid": {"x": self.centroid.x, "y": self.centroid.y},
+            "region_coordinate": {"x": self.region_coordinate.x, "y": self.region_coordinate.y},
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
         }
@@ -136,8 +138,8 @@ class Region:
 
         Returns
         ----------
-            Boolean
-                Whether region is closed
+        Boolean
+            Whether region is closed
         """
         if len(self.entities) > 0:
             entity_first = self.entities[0]
@@ -155,22 +157,71 @@ class Region:
             return False
 
 
-class Line:
-    """Python representation of Motor-CAD line entity."""
+class Coordinate:
+    """Python representation of coordinate in two-dimensional space.
+
+    Parameters
+    ----------
+    x : float
+        X value.
+
+    y : float
+        Y value.
+    """
+
+    def __init__(self, x, y):
+        """Initialise Coordinate."""
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        """Override the default equals implementation for Coordinate."""
+        if isinstance(other, Coordinate) and self.x == other.x and self.y == other.y:
+            return True
+        else:
+            return False
+
+
+class Entity:
+    """Generic parent class for geometric entities based upon a start and end coordinate.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+    """
 
     def __init__(self, start, end):
-        """Create line entity based upon start and end coordinates.
-
-        Parameters
-        ----------
-        start : (float, float)
-            (x,y) values for start coordinate.
-
-        end : (float, float)
-            (x,y) values for end coordinate.
-        """
+        """Initialise Entity."""
         self.start = start
         self.end = end
+
+    def __eq__(self, other):
+        """Override the default equals implementation for Entity."""
+        if isinstance(other, Entity) and self.start == other.start and self.end == other.end:
+            return True
+        else:
+            return False
+
+
+class Line(Entity):
+    """Python representation of Motor-CAD line entity based upon start and end coordinates.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+    """
+
+    def __init__(self, start, end):
+        """Initialise Line."""
+        super().__init__(start, end)
 
     def __eq__(self, other):
         """Override the default equals implementation for Line."""
@@ -179,28 +230,23 @@ class Line:
         else:
             return False
 
-    def get_coordinate_from_percentage_distance(self, x, y, percentage):
-        """Get the coordinate at the percentage distance along the line from the reference coord.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
+        """Get the coordinate at the percentage distance along the line from the reference.
 
         Parameters
         ----------
-        x : float
-            X coordinate value for entity reference.
+        ref_coordinate : Coordinate
+            Entity reference coordinate.
 
-        y : float
-            y coordinate value for entity reference.
-            .
         percentage : float
-            Y coordinate value.
+            Percentage distance along Line.
 
         Returns
         -------
-        x : float
-            X coordinate value.
-        y : float
-            Y coordinate value.
+        Coordinate
+            Coordinate at percentage distance along Line.
         """
-        if (x, y) == self.end:
+        if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
         else:
@@ -210,33 +256,28 @@ class Line:
         length = self.get_length()
 
         t = (length * percentage) / length
-        x = ((1 - t) * coordinate_1[0]) + (t * coordinate_2[0])
-        y = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
+        x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
+        y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
-        return x, y
+        return Coordinate(x, y)
 
-    def get_coordinate_from_distance(self, x, y, distance):
-        """Get the coordinate at the specified distance along the line from the reference coord.
+    def get_coordinate_from_distance(self, ref_coordinate, distance):
+        """Get the coordinate at the specified distance along the line from the reference.
 
         Parameters
         ----------
-        x : float
-            X coordinate value for entity reference.
+        ref_coordinate : Coordinate
+            Entity reference coordinate.
 
-        y : float
-            y coordinate value for entity reference.
-            .
         distance : float
-            Y coordinate value.
+            Distance along Line.
 
         Returns
         -------
-        x : float
-            X coordinate value.
-        y : float
-            Y coordinate value.
+        Coordinate
+            Coordinate at distance along Line.
         """
-        if (x, y) == self.end:
+        if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
         else:
@@ -244,10 +285,10 @@ class Line:
             coordinate_2 = self.end
 
         t = distance / self.get_length()
-        x = ((1 - t) * coordinate_1[0]) + (t * coordinate_2[0])
-        y = ((1 - t) * coordinate_1[1]) + (t * coordinate_2[1])
+        x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
+        y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
-        return x, y
+        return Coordinate(x, y)
 
     def get_length(self):
         """Get length of line.
@@ -257,29 +298,29 @@ class Line:
         float
             Length of line
         """
-        return sqrt(pow(self.start[0] - self.end[0], 2) + pow(self.start[1] - self.end[1], 2))
+        return sqrt(pow(self.start.x - self.end.x, 2) + pow(self.start.y - self.end.y, 2))
 
 
-class Arc(Line):
-    """Python representation of Motor-CAD arc entity."""
+class Arc(Entity):
+    """Python representation of Motor-CAD arc entity based upon start, end, centre and radius.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+
+    centre :Coordinate
+       Centre coordinate.
+
+    radius : float
+        Arc radius
+    """
 
     def __init__(self, start, end, centre, radius):
-        """Create arc entity based upon start, end, centre and radius.
-
-        Parameters
-        ----------
-        start : (float, float)
-            (x,y) values for start coordinate.
-
-        end : (float, float)
-            (x,y) values for end coordinate.
-
-        centre : (float, float)
-            (x,y) values for centre coordinate.
-
-        radius : float
-            Arc radius
-        """
+        """Initialise Arc."""
         super().__init__(start, end)
         self.radius = radius
         self.centre = centre
@@ -297,66 +338,58 @@ class Arc(Line):
         else:
             return False
 
-    def get_coordinate_from_percentage_distance(self, x, y, percentage):
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
 
         Parameters
         ----------
-        x : float
-            X coordinate value for entity reference.
+        ref_coordinate : Coordinate
+            Entity reference coordinate.
 
-        y : float
-            y coordinate value for entity reference.
-            .
         percentage : float
-            Y coordinate value.
+            Percentage distance along Arc.
 
         Returns
         -------
-        x : float
-            X coordinate value.
-        y : float
-            Y coordinate value.
+        Coordinate
+            Coordinate at percentage distance along Arc.
         """
         length = self.get_length() * percentage
 
-        return self.get_coordinate_from_distance(x, y, length)
+        return self.get_coordinate_from_distance(ref_coordinate, length)
 
-    def get_coordinate_from_distance(self, x, y, distance):
+    def get_coordinate_from_distance(self, ref_coordinate, distance):
         """Get the coordinate at the specified distance along the arc from the reference coordinate.
 
         Parameters
         ----------
-        x : float
-            X coordinate value for entity reference.
+        ref_coordinate : Coordinate
+           Entity reference coordinate.
 
-        y : float
-            y coordinate value for entity reference.
-            .
         distance : float
-            Y coordinate value.
+            Distance along arc.
 
         Returns
         -------
-        x : float
-            X coordinate value.
-        y : float
-            Y coordinate value.
+        Coordinate
+            Coordinate at distance along Arc.
         """
-        if (x, y) == self.end:
+        if ref_coordinate == self.end:
             if self.radius >= 0:
                 # anticlockwise
-                angle = atan2(y, x) - (distance / self.radius)
+                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
             else:
-                angle = atan2(y, x) + (distance / self.radius)
+                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
         else:
             if self.radius >= 0:
                 # anticlockwise
-                angle = atan2(y, x) + (distance / self.radius)
+                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
             else:
-                angle = atan2(y, x) - (distance / self.radius)
+                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
-        return self.centre[0] + self.radius * cos(angle), self.centre[1] + self.radius * sin(angle)
+        return Coordinate(
+            self.centre.x + self.radius * cos(angle), self.centre.y + self.radius * sin(angle)
+        )
 
     def get_length(self):
         """Get length of arc from start to end along circumference.
@@ -366,8 +399,8 @@ class Arc(Line):
         float
             Length of arc
         """
-        radius, angle_1 = xy_to_rt(self.start[0], self.start[1])
-        radius, angle_2 = xy_to_rt(self.end[0], self.end[1])
+        radius, angle_1 = xy_to_rt(self.start.x, self.start.y)
+        radius, angle_2 = xy_to_rt(self.end.x, self.end.y)
 
         if self.radius == 0:
             arc_angle = 0
@@ -386,32 +419,32 @@ def _convert_entities_to_json(entities):
 
     Parameters
     ----------
-    entities : List of Line/Arc objects
+    entities : list of Line or list of Arc
         List of Line/Arc class objects representing entities.
 
     Returns
     -------
-    :Json object
-        List of json entities
+    dict
+        entities in json format
     """
     json_entities = []
 
     for entity in entities:
-        if type(entity) == Line:
+        if isinstance(entity, Line):
             json_entities.append(
                 {
                     "type": "line",
-                    "start": {"x": entity.start[0], "y": entity.start[1]},
-                    "end": {"x": entity.end[0], "y": entity.end[1]},
+                    "start": {"x": entity.start.x, "y": entity.start.y},
+                    "end": {"x": entity.end.x, "y": entity.end.y},
                 }
             )
-        elif type(entity) == Arc:
+        elif isinstance(entity, Arc):
             json_entities.append(
                 {
                     "type": "arc",
-                    "start": {"x": entity.start[0], "y": entity.start[1]},
-                    "end": {"x": entity.end[0], "y": entity.end[1]},
-                    "centre": {"x": entity.centre[0], "y": entity.centre[1]},
+                    "start": {"x": entity.start.x, "y": entity.start.y},
+                    "end": {"x": entity.end.x, "y": entity.end.y},
+                    "centre": {"x": entity.centre.x, "y": entity.centre.y},
                     "radius": entity.radius,
                 }
             )
@@ -429,8 +462,8 @@ def _convert_entities_from_json(json_array):
 
     Returns
     -------
-    :Object List of Line or Arc
-        List of Line or Arc objects
+    list of Line or list of Arc
+        list of Line and Arc objects
     """
     entities = []
 
@@ -438,16 +471,16 @@ def _convert_entities_from_json(json_array):
         if entity["type"] == "line":
             entities.append(
                 Line(
-                    (entity["start"]["x"], entity["start"]["y"]),
-                    (entity["end"]["x"], entity["end"]["y"]),
+                    Coordinate(entity["start"]["x"], entity["start"]["y"]),
+                    Coordinate(entity["end"]["x"], entity["end"]["y"]),
                 )
             )
         elif entity["type"] == "arc":
             entities.append(
                 Arc(
-                    (entity["start"]["x"], entity["start"]["y"]),
-                    (entity["end"]["x"], entity["end"]["y"]),
-                    (entity["centre"]["x"], entity["centre"]["y"]),
+                    Coordinate(entity["start"]["x"], entity["start"]["y"]),
+                    Coordinate(entity["end"]["x"], entity["end"]["y"]),
+                    Coordinate(entity["centre"]["x"], entity["centre"]["y"]),
                     entity["radius"],
                 )
             )
