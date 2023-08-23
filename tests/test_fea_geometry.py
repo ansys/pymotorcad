@@ -65,6 +65,8 @@ def test_add_line_xy():
 
     draw_square()
 
+    mc.add_region_xy(5, 5, "test_region")
+
     mc.create_optimised_mesh()
 
     region = mc._get_region_properties_xy(5, 5)
