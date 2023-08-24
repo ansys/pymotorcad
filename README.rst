@@ -62,7 +62,7 @@ On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_ page, y
 issues to report bugs and request new features. On the `Discussions <https://discuss.ansys.com/>`_
 page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback. 
 
-To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+To reach the project support team, email `pyansys.core@ansys.com <mailto:pyansys.core@ansys.com>`_.
 
 Installation
 ------------
@@ -214,7 +214,7 @@ License and acknowledgements
 ----------------------------
 
 PyMotorCAD is licensed under the MIT license. For more information, see the
-[LICENSE](https://github.com/ansys/pymotorcad/raw/main/LICENSE) file.
+`LICENSE <https://github.com/ansys/pymotorcad/raw/main/LICENSE>`_: file.
 
 PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
 extends the capability of Ansys Motor-CAD by adding a Python interface
