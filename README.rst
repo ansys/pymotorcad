@@ -214,7 +214,7 @@ License and acknowledgements
 ----------------------------
 
 PyMotorCAD is licensed under the MIT license. For more information, see the
-`LICENSE <https://github.com/ansys/pymotorcad/raw/main/LICENSE>`_: file.
+`LICENSE <https://github.com/ansys/pymotorcad/raw/main/LICENSE>`_ file.
 
 PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
 extends the capability of Ansys Motor-CAD by adding a Python interface
