@@ -20,10 +20,10 @@ def generate_constant_region():
     region.entities.append(geometry.Line(geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0)))
     region.entities.append(
         geometry.Arc(
-            geometry.Coordinate(1, 0), geometry.Coordinate(1, 1), geometry.Coordinate(0, 0), 1
+            geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1
         )
     )
-    region.entities.append(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(-1, 0)))
+    region.entities.append(geometry.Line(geometry.Coordinate(0, 1), geometry.Coordinate(-1, 0)))
 
     return region
 
@@ -378,3 +378,63 @@ def test_get_entities_have_common_coordinate():
     entity_2 = geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(2, 2))
 
     assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
+
+
+def test_check_collisions():
+    """Collision Type : Collision detected.
+    No vertices from the other region within the other region."""
+    region_a = generate_constant_region()
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, -2), geometry.Coordinate(1, 2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(1, 2), geometry.Coordinate(5, -3)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, -3), geometry.Coordinate(0, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 1
+    assert collisions[0] == region_b
+
+
+def test_check_collisions_1():
+    """Collision Type : Collision Detected.
+    Two vertices from the other region within the other region."""
+    region_a = generate_constant_region()
+    region_a.area = 1
+
+    region_b = geometry.Region()
+    region_b.area = 1
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
+    )
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2))
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0.2), geometry.Coordinate(0.2, -2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 1
+    assert collisions[0] == region_b
+
+
+def test_check_collisions_2():
+    """Collision Type : No collision.
+    Regions touching on single entity"""
+    region_a = generate_constant_region()
+    region_a.area = 1
+
+    region_b = geometry.Region()
+    region_b.area = 1
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0), geometry.Coordinate(0.2, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0), geometry.Coordinate(0.2, -2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 0
