@@ -383,6 +383,17 @@ def test_get_entities_have_common_coordinate():
 def test_check_collisions():
     """Collision Type : Collision detected.
     No vertices from the other region within the other region."""
+    #      Before                          After
+    #
+    #      |---|
+    #      |   |
+    #   |--|---|--|
+    #   |  |   |  |     ->      Collision detected between regions
+    #   |  |   |  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
     region_a = generate_constant_region()
 
     region_b = geometry.Region()
@@ -400,6 +411,15 @@ def test_check_collisions():
 def test_check_collisions_1():
     """Collision Type : Collision Detected.
     Two vertices from the other region within the other region."""
+    #      Before                          After
+    #
+    #   |---------|
+    #   |         |     ->      Collision detected between regions
+    #   |  |---|  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
     region_a = generate_constant_region()
     region_a.area = 1
 
@@ -424,6 +444,15 @@ def test_check_collisions_1():
 def test_check_collisions_2():
     """Collision Type : No collision.
     Regions touching on single entity"""
+    #      Before                          After
+    #
+    #   |---------|
+    #   |         |     ->      No collision detected between regions
+    #   |         |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
     region_a = generate_constant_region()
     region_a.area = 1
 
