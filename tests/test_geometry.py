@@ -378,3 +378,86 @@ def test_get_entities_have_common_coordinate():
     entity_2 = geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(2, 2))
 
     assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
+
+
+def test_unite_regions():
+    """Test unite two regions into a single region."""
+    #   Before         After
+    # |--------|    |--------|
+    # |  |--|  |    |        |
+    # |  |  |  | -> |        |
+    # |--|--|--|    |--|  |--|
+    #    |  |          |  |
+    #    |--|          |--|
+    region_a = geometry.Region()
+    region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(-1, -1)))
+
+    region_b = geometry.Region()
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.5, -2), geometry.Coordinate(-0.5, -0.5))
+    )
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.5, -0.5), geometry.Coordinate(0.5, -0.5))
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.5, -0.5), geometry.Coordinate(0.5, -2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.5, -2), geometry.Coordinate(-0.5, -2)))
+
+    expected_region = geometry.Region()
+    expected_region.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(0.5, -1))
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0.5, -1), geometry.Coordinate(0.5, -2))
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0.5, -2), geometry.Coordinate(-0.5, -2))
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(-0.5, -2), geometry.Coordinate(-0.5, -1))
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(-0.5, -1), geometry.Coordinate(-1, -1))
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1))
+    )
+    expected_region.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
+
+    expected_region.centroid = geometry.Coordinate(0, -0.3)
+    expected_region.region_coordinate = geometry.Coordinate(0, -0.3)
+    expected_region.duplications = 1
+
+    united_region = mc.unite_regions(region_a, [region_b])
+
+    assert united_region == expected_region
+
+
+def test_unite_regions_1():
+    """Testing two regions not touching cannot be united."""
+    #          Before                         After
+    # |--------|
+    # |        |    |---|
+    # |        |    |   |     ->    RPC error: Unable to unite regions.
+    # |        |    |---|           Regions have no mutual interceptions
+    # |--------|
+
+    region_a = geometry.Region()
+    region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(-1, -1)))
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    with pytest.raises(Exception) as e_info:
+        mc.unite_regions(region_a, [region_b])
+
+    assert "Unable to unite regions" in str(e_info.value)
