@@ -467,3 +467,59 @@ def test_check_collisions_2():
     num_collisions = len(collisions)
 
     assert num_collisions == 0
+
+
+def test_check_collisions_3():
+    """Collision Type : Collision detected.
+    No vertices from the other region within the other region.
+    Square region drawn clockwise."""
+    #      Before                          After
+    #
+    #      |---|
+    #      |   |
+    #   |--|---|--|
+    #   |  |   |  |     ->      Collision detected between regions
+    #   |  |   |  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
+    s_p = []
+    s_l = []
+
+    s_p.append(geometry.Coordinate(0, 0))
+    s_p.append(geometry.Coordinate(0, 2))
+    s_p.append(geometry.Coordinate(2, 2))
+    s_p.append(geometry.Coordinate(2, 0))
+
+    s_l.append(geometry.Line(s_p[0], s_p[1]))
+    s_l.append(geometry.Line(s_p[1], s_p[2]))
+    s_l.append(geometry.Line(s_p[2], s_p[3]))
+    s_l.append(geometry.Line(s_p[3], s_p[0]))
+
+    square = geometry.Region()
+    for entity in s_l:
+        square.add_entity(entity)
+
+    t_p = []
+    t_l = []
+
+    t_p.append(geometry.Coordinate(1, 2.2))
+    t_p.append(geometry.Coordinate(2.2, 1))
+    t_p.append(geometry.Coordinate(4, 4))
+
+    t_l.append(geometry.Line(t_p[0], t_p[1]))
+    t_l.append(geometry.Line(t_p[1], t_p[2]))
+    t_l.append(geometry.Line(t_p[2], t_p[0]))
+
+    triangle = geometry.Region()
+    for entity in t_l:
+        triangle.add_entity(entity)
+
+    collisions = mc.check_collisions(triangle, [square])
+    assert len(collisions) == 1
+    assert collisions[0] == square
+
+    collisions = mc.check_collisions(square, [triangle])
+    assert len(collisions) == 1
+    assert collisions[0] == triangle
