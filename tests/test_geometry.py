@@ -28,6 +28,39 @@ def generate_constant_region():
     return region
 
 
+def create_square():
+    points = [
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(2, 2),
+        geometry.Coordinate(2, 0),
+    ]
+
+    square = geometry.Region()
+
+    for count, point in enumerate(points):
+        if count == len(points) - 1:
+            square.add_entity(geometry.Line(point, points[0]))
+        else:
+            square.add_entity(geometry.Line(point, points[count + 1]))
+
+    return square
+
+
+def create_triangle():
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+
+    triangle = geometry.Region()
+
+    for count, point in enumerate(points):
+        if count == len(points) - 1:
+            triangle.add_entity(geometry.Line(point, points[0]))
+        else:
+            triangle.add_entity(geometry.Line(point, points[count + 1]))
+
+    return triangle
+
+
 def test_set_get_winding_coil():
     phase = 1
     path = 1
@@ -390,42 +423,43 @@ def test_unite_regions():
     #    |  |          |  |
     #    |--|          |--|
     region_a = geometry.Region()
+    region_b = geometry.Region()
+    expected_region = geometry.Region()
+
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(-1, -1)))
 
-    region_b = geometry.Region()
-    region_b.add_entity(
-        geometry.Line(geometry.Coordinate(-0.5, -2), geometry.Coordinate(-0.5, -0.5))
-    )
-    region_b.add_entity(
-        geometry.Line(geometry.Coordinate(-0.5, -0.5), geometry.Coordinate(0.5, -0.5))
-    )
-    region_b.add_entity(geometry.Line(geometry.Coordinate(0.5, -0.5), geometry.Coordinate(0.5, -2)))
-    region_b.add_entity(geometry.Line(geometry.Coordinate(0.5, -2), geometry.Coordinate(-0.5, -2)))
+    points_b = [
+        geometry.Coordinate(-0.5, -2),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -2),
+    ]
 
-    expected_region = geometry.Region()
-    expected_region.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(0.5, -1))
-    )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(0.5, -1), geometry.Coordinate(0.5, -2))
-    )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(0.5, -2), geometry.Coordinate(-0.5, -2))
-    )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(-0.5, -2), geometry.Coordinate(-0.5, -1))
-    )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(-0.5, -1), geometry.Coordinate(-1, -1))
-    )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1))
-    )
-    expected_region.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
+    for count, point in enumerate(points_b):
+        if count == len(points_b) - 1:
+            region_b.add_entity(geometry.Line(point, points_b[0]))
+        else:
+            region_b.add_entity(geometry.Line(point, points_b[count + 1]))
+
+    points_expected = [
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+        geometry.Coordinate(0.5, -1),
+        geometry.Coordinate(0.5, -2),
+        geometry.Coordinate(-0.5, -2),
+        geometry.Coordinate(-0.5, -1),
+        geometry.Coordinate(-1, -1),
+    ]
+
+    for count, point in enumerate(points_expected):
+        if count == len(points_expected) - 1:
+            expected_region.add_entity(geometry.Line(point, points_expected[0]))
+        else:
+            expected_region.add_entity(geometry.Line(point, points_expected[count + 1]))
 
     expected_region.centroid = geometry.Coordinate(0, -0.3)
     expected_region.region_coordinate = geometry.Coordinate(0, -0.3)
@@ -461,3 +495,49 @@ def test_unite_regions_1():
         mc.unite_regions(region_a, [region_b])
 
     assert "Unable to unite regions" in str(e_info.value)
+
+
+def test_unite_regions_2():
+    """Test unite two regions into a single region. No vertices from either region are within
+    the other region."""
+    #     Before                    After
+    #
+    #      \------|                \------|
+    # |-----\-|   |           |-----\     |
+    # |      \|   |           |           |
+    # |       \   |    ->     |           |
+    # |-------|\  |           |--------\  |
+    #           \ |                     \ |
+    #            \|                      \|
+    #
+    square = create_square()
+    triangle = create_triangle()
+
+    points = [
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(1.2, 2),
+        geometry.Coordinate(1, 2.2),
+        geometry.Coordinate(4, 4),
+        geometry.Coordinate(2.2, 1),
+        geometry.Coordinate(2, 1.2),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(0, 0),
+    ]
+
+    entities = []
+    for count, point in enumerate(points):
+        if count == len(points) - 1:
+            entities.append(geometry.Line(point, points[0]))
+        else:
+            entities.append(geometry.Line(point, points[count + 1]))
+
+    expected_region = geometry.Region()
+    expected_region.centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+    expected_region.region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+
+    for entity in entities:
+        expected_region.add_entity(entity)
+
+    union = mc.unite_regions(square, [triangle])
+
+    assert expected_region == union

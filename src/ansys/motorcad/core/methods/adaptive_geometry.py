@@ -148,11 +148,11 @@ class _RpcMethodsAdaptiveGeometry:
             United Motor-CAD region object.
         """
         self.connection.ensure_version_at_least("2024.0")
-        method = "UniteRegions"
 
         raw_region = region._to_json()
         raw_regions = [region_internal._to_json() for region_internal in regions]
 
+        method = "UniteRegions"
         params = [raw_region, raw_regions]
         united_raw = self.connection.send_and_receive(method, params)
 
