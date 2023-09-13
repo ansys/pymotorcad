@@ -25,7 +25,8 @@ class Region:
             isinstance(other, Region)
             and self.name == other.name
             and self.colour == other.colour
-            and self.area == other.area
+            # and self.area == other.area ->
+            # Already check entities - can't expect user to calculate area
             and self.centroid == other.centroid
             and self.region_coordinate == other.region_coordinate
             and self.duplications == other.duplications
