@@ -217,19 +217,19 @@ class _MotorCADConnection:
             # run/connect to motor-cad on local machine
             self._launch_motorcad_local(port)
 
-        # Check for response
-        if self._wait_for_response(self._timeout) is True:
-            self._connected = True
+        if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
+            # Try to resolve localhost at same time as checking for connection
+            # to decrease connection times
+            self._connected = self._try_resolve_wait_for_response(self._timeout)
+        else:
+            # Check for response
+            self._connected = self._wait_for_response(self._timeout)
 
+        if self._connected:
             # Store Motor-CAD version number for any required backwards compatibility
             self.program_version = self._get_program_version()
 
             self.pid = self.get_process_id()
-
-            if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
-                # Try to resolve localhost to speed up function calls
-                self._resolve_localhost()
-
         else:
             raise MotorCADError(
                 "Failed to connect to Motor-CAD instance: port="
@@ -251,10 +251,12 @@ class _MotorCADConnection:
 
         if self._check_address_for_response(ipv6_localhost):
             SERVER_IP = ipv6_localhost
+            return True
         elif self._check_address_for_response(ipv4_localhost):
             SERVER_IP = ipv4_localhost
+            return True
         else:
-            SERVER_IP = LOCALHOST_ADDRESS
+            return self._check_address_for_response(LOCALHOST_ADDRESS)
 
     def _check_address_for_response(self, address):
         """Try to communicate with Motor-CAD with specific url, returns True if response received.
@@ -549,6 +551,19 @@ class _MotorCADConnection:
             try:
                 response = self.send_and_receive(method, success_var=True)
                 if response != "":
+                    return True
+            except Exception:
+                time.sleep(delay)
+
+        return False
+
+    def _try_resolve_wait_for_response(self, max_retries):
+        delay = 1
+
+        for _ in range(max_retries):
+            try:
+                response = self._resolve_localhost()
+                if response:
                     return True
             except Exception:
                 time.sleep(delay)
