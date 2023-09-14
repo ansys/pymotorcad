@@ -130,3 +130,33 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SaveAdaptiveScript"
         params = [filepath]
         return self.connection.send_and_receive(method, params)
+
+    def unite_regions(self, region, regions):
+        """Unite region with two or more other regions.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        regions : list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region objects to united with region
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region
+            United Motor-CAD region object.
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+        raw_regions = [region_internal._to_json() for region_internal in regions]
+
+        method = "UniteRegions"
+        params = [raw_region, raw_regions]
+        united_raw = self.connection.send_and_receive(method, params)
+
+        region = Region()
+        region._from_json(united_raw)
+
+        return region
