@@ -69,7 +69,7 @@ jobs:
           taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
           taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -98,7 +98,7 @@ jobs:
           taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
           taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -168,7 +168,7 @@ jobs:
           twine-username: __token__
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
