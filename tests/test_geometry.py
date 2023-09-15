@@ -269,6 +269,73 @@ def test_region_is_closed():
     assert region.is_closed()
 
 
+def test_region_contains_same_entities():
+    region = generate_constant_region()
+
+    expected_region = region
+    expected_region.entities = geometry.reverse_entities(region.entities)
+
+    assert region == expected_region
+
+
+def test_reverse_entity():
+    entity = geometry.Entity(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
+    expected_entity = geometry.Entity(geometry.Coordinate(1, 1), geometry.Coordinate(0, 0))
+
+    assert entity.reverse() == expected_entity
+
+
+def test_reverse_line():
+    region = generate_constant_region()
+    line = region.entities[0]
+    expected_line = geometry.Line(line.end, line.start)
+
+    assert line.reverse() == expected_line
+
+
+def test_reverse_arc():
+    region = generate_constant_region()
+    arc = region.entities[1]
+    expected_line = geometry.Arc(arc.end, arc.start, arc.centre, -arc.radius)
+
+    assert arc.reverse() == expected_line
+
+
+def test_entities_same():
+    region = generate_constant_region()
+    region_expected = generate_constant_region()
+
+    assert geometry.entities_same(region.entities, region_expected.entities)
+
+
+def test_entities_same_1():
+    region = generate_constant_region()
+
+    entities = [region.entities[i] for i in range(1, len(region.entities))] + [
+        region.entities[i] for i in range(0, 1)
+    ]
+
+    assert geometry.entities_same(region.entities, entities)
+
+
+def test_reverse_entities():
+    region = generate_constant_region()
+
+    expected_entities = []
+
+    for entity in region.entities:
+        if isinstance(entity, geometry.Line):
+            expected_entities.append(geometry.Line(entity.end, entity.start))
+        elif isinstance(entity, geometry.Arc):
+            expected_entities.append(
+                geometry.Arc(entity.end, entity.start, entity.centre, -entity.radius)
+            )
+
+    expected_entities.reverse()
+
+    assert geometry.reverse_entities(region.entities) == expected_entities
+
+
 def test_line_get_coordinate_from_percentage_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
@@ -421,10 +488,8 @@ def test_check_collisions_1():
     #      |---|
     #
     region_a = generate_constant_region()
-    region_a.area = 1
 
     region_b = geometry.Region()
-    region_b.area = 1
     region_b.add_entity(
         geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
     )
@@ -454,10 +519,8 @@ def test_check_collisions_2():
     #      |---|
     #
     region_a = generate_constant_region()
-    region_a.area = 1
 
     region_b = geometry.Region()
-    region_b.area = 1
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0), geometry.Coordinate(0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0), geometry.Coordinate(0.2, -2)))
