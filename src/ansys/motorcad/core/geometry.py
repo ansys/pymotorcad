@@ -32,7 +32,10 @@ class Region:
             # and self.region_coordinate == other.region_coordinate ->
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self.duplications == other.duplications
-            and self.contains_same_entities(other)
+            and (
+                entities_same(self.entities, other.entities, check_reverse=False)
+                or entities_same(self.entities, other.entities, check_reverse=True)
+            )
         ):
             return True
         else:
@@ -156,21 +159,6 @@ class Region:
                 )
 
             return is_closed
-        else:
-            return False
-
-    def contains_same_entities(self, other):
-        """Check whether entities in region are the same as entities a different region.
-
-        Parameters
-        ----------
-        other : ansys.motorcad.core.geometry.Region
-            Motor-CAD geometry region.
-        """
-        if entities_same(self.entities, other.entities) or entities_same(
-            self.entities, reverse_entities(other.entities)
-        ):
-            return True
         else:
             return False
 
@@ -545,7 +533,7 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         return False
 
 
-def entities_same(entities_a, entities_b):
+def entities_same(entities_a, entities_b, check_reverse=False):
     """Check whether entities in region are the same as entities a different region.
 
     Parameters
@@ -556,10 +544,16 @@ def entities_same(entities_a, entities_b):
     entities_b : list of Line or list of Arc
         list of Line and Arc objects.
 
+    check_reverse : Boolean
+        Whether to reverse entities when checking entity equivalency.
+
     Returns
     ----------
     boolean
     """
+    if check_reverse:
+        entities_b = reverse_entities(entities_b)
+
     start_index = 0
 
     for count, entity in enumerate(entities_b):
