@@ -1,10 +1,10 @@
 .. currentmodule:: ansys.motorcad.core.geometry
-Adaptive Geometry
+Adaptive geometry
 =================
 Add some info here about adaptive geometry
 
 
-Geometry Objects
+Geometry objects
 ----------------
 .. autosummary::
    :toctree: _autosummary_geometry_methods
@@ -15,7 +15,7 @@ Geometry Objects
    Line
    Arc
 
-Geometry Functions
+Geometry functions
 ------------------
 .. autosummary::
    :toctree: _autosummary_geometry_functions
