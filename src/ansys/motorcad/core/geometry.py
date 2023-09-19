@@ -22,7 +22,7 @@ class Region(object):
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
-        if (
+        return (
             isinstance(other, Region)
             and self.name == other.name
             and self.colour == other.colour
@@ -33,14 +33,8 @@ class Region(object):
             # and self.region_coordinate == other.region_coordinate ->
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self.duplications == other.duplications
-            and (
-                entities_same(self.entities, other.entities, check_reverse=False)
-                or entities_same(self.entities, other.entities, check_reverse=True)
-            )
-        ):
-            return True
-        else:
-            return False
+            and self.entities == other.entities
+        )
 
     def add_entity(self, entity):
         """Add entity to list of region entities.
@@ -183,10 +177,7 @@ class Coordinate(object):
 
     def __eq__(self, other):
         """Override the default equals implementation for Coordinate."""
-        if isinstance(other, Coordinate) and self.x == other.x and self.y == other.y:
-            return True
-        else:
-            return False
+        return isinstance(other, Coordinate) and self.x == other.x and self.y == other.y
 
 
 class Entity(object):
@@ -216,10 +207,6 @@ class Entity(object):
         end = self.end
         self.start = end
         self.end = start
-
-    def reverse(self):
-        """Reverse Entity class."""
-        return Entity(self.end, self.start)
 
 
 class Line(Entity):
@@ -311,10 +298,6 @@ class Line(Entity):
             Length of line
         """
         return sqrt(pow(self.start.x - self.end.x, 2) + pow(self.start.y - self.end.y, 2))
-
-    def reverse(self):
-        """Reverse Line entity."""
-        return Line(self.end, self.start)
 
 
 class Arc(Entity):
