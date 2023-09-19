@@ -20,10 +20,10 @@ def generate_constant_region():
     region.entities.append(geometry.Line(geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0)))
     region.entities.append(
         geometry.Arc(
-            geometry.Coordinate(1, 0), geometry.Coordinate(1, 1), geometry.Coordinate(0, 0), 1
+            geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1
         )
     )
-    region.entities.append(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(-1, 0)))
+    region.entities.append(geometry.Line(geometry.Coordinate(0, 1), geometry.Coordinate(-1, 0)))
 
     return region
 
@@ -302,6 +302,73 @@ def test_region_is_closed():
     assert region.is_closed()
 
 
+def test_region_contains_same_entities():
+    region = generate_constant_region()
+
+    expected_region = region
+    expected_region.entities = geometry.reverse_entities(region.entities)
+
+    assert region == expected_region
+
+
+def test_reverse_entity():
+    entity = geometry.Entity(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
+    expected_entity = geometry.Entity(geometry.Coordinate(1, 1), geometry.Coordinate(0, 0))
+
+    assert entity.reverse() == expected_entity
+
+
+def test_reverse_line():
+    region = generate_constant_region()
+    line = region.entities[0]
+    expected_line = geometry.Line(line.end, line.start)
+
+    assert line.reverse() == expected_line
+
+
+def test_reverse_arc():
+    region = generate_constant_region()
+    arc = region.entities[1]
+    expected_line = geometry.Arc(arc.end, arc.start, arc.centre, -arc.radius)
+
+    assert arc.reverse() == expected_line
+
+
+def test_entities_same():
+    region = generate_constant_region()
+    region_expected = generate_constant_region()
+
+    assert geometry.entities_same(region.entities, region_expected.entities)
+
+
+def test_entities_same_1():
+    region = generate_constant_region()
+
+    entities = [region.entities[i] for i in range(1, len(region.entities))] + [
+        region.entities[i] for i in range(0, 1)
+    ]
+
+    assert geometry.entities_same(region.entities, entities)
+
+
+def test_reverse_entities():
+    region = generate_constant_region()
+
+    expected_entities = []
+
+    for entity in region.entities:
+        if isinstance(entity, geometry.Line):
+            expected_entities.append(geometry.Line(entity.end, entity.start))
+        elif isinstance(entity, geometry.Arc):
+            expected_entities.append(
+                geometry.Arc(entity.end, entity.start, entity.centre, -entity.radius)
+            )
+
+    expected_entities.reverse()
+
+    assert geometry.reverse_entities(region.entities) == expected_entities
+
+
 def test_line_get_coordinate_from_percentage_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
@@ -541,3 +608,144 @@ def test_unite_regions_2():
     union = mc.unite_regions(square, [triangle])
 
     assert expected_region == union
+
+
+def test_check_collisions():
+    """Collision Type : Collision detected.
+    No vertices from the other region within the other region."""
+    #      Before                          After
+    #
+    #      |---|
+    #      |   |
+    #   |--|---|--|
+    #   |  |   |  |     ->      Collision detected between regions
+    #   |  |   |  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
+    region_a = generate_constant_region()
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, -2), geometry.Coordinate(1, 2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(1, 2), geometry.Coordinate(5, -3)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, -3), geometry.Coordinate(0, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 1
+    assert collisions[0] == region_b
+
+
+def test_check_collisions_1():
+    """Collision Type : Collision Detected.
+    Two vertices from the other region within the other region."""
+    #      Before                          After
+    #
+    #   |---------|
+    #   |         |     ->      Collision detected between regions
+    #   |  |---|  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
+    region_a = generate_constant_region()
+
+    region_b = geometry.Region()
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
+    )
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2))
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0.2), geometry.Coordinate(0.2, -2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 1
+    assert collisions[0] == region_b
+
+
+def test_check_collisions_2():
+    """Collision Type : No collision.
+    Regions touching on single entity"""
+    #      Before                          After
+    #
+    #   |---------|
+    #   |         |     ->      No collision detected between regions
+    #   |         |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
+    region_a = generate_constant_region()
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0), geometry.Coordinate(0.2, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0), geometry.Coordinate(0.2, -2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
+
+    collisions = mc.check_collisions(region_a, [region_b, mc.get_region("Stator")])
+    num_collisions = len(collisions)
+
+    assert num_collisions == 0
+
+
+def test_check_collisions_3():
+    """Collision Type : Collision detected.
+    No vertices from the other region within the other region.
+    Square region drawn clockwise."""
+    #      Before                          After
+    #
+    #      |---|
+    #      |   |
+    #   |--|---|--|
+    #   |  |   |  |     ->      Collision detected between regions
+    #   |  |   |  |
+    #   |--|---|--|
+    #      |   |
+    #      |---|
+    #
+    s_p = []
+    s_l = []
+
+    s_p.append(geometry.Coordinate(0, 0))
+    s_p.append(geometry.Coordinate(0, 2))
+    s_p.append(geometry.Coordinate(2, 2))
+    s_p.append(geometry.Coordinate(2, 0))
+
+    s_l.append(geometry.Line(s_p[0], s_p[1]))
+    s_l.append(geometry.Line(s_p[1], s_p[2]))
+    s_l.append(geometry.Line(s_p[2], s_p[3]))
+    s_l.append(geometry.Line(s_p[3], s_p[0]))
+
+    square = geometry.Region()
+    for entity in s_l:
+        square.add_entity(entity)
+
+    t_p = []
+    t_l = []
+
+    t_p.append(geometry.Coordinate(1, 2.2))
+    t_p.append(geometry.Coordinate(2.2, 1))
+    t_p.append(geometry.Coordinate(4, 4))
+
+    t_l.append(geometry.Line(t_p[0], t_p[1]))
+    t_l.append(geometry.Line(t_p[1], t_p[2]))
+    t_l.append(geometry.Line(t_p[2], t_p[0]))
+
+    triangle = geometry.Region()
+    for entity in t_l:
+        triangle.add_entity(entity)
+
+    collisions = mc.check_collisions(triangle, [square])
+    assert len(collisions) == 1
+    assert collisions[0] == square
+
+    collisions = mc.check_collisions(square, [triangle])
+    assert len(collisions) == 1
+    assert collisions[0] == triangle
