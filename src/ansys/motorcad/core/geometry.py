@@ -581,63 +581,6 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         return False
 
 
-def entities_same(entities_a, entities_b, check_reverse=False):
-    """Check whether entities in region are the same as entities a different region.
-
-    Parameters
-    ----------
-    entities_a : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    entities_b : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    check_reverse : Boolean
-        Whether to reverse entities when checking entity equivalency.
-
-    Returns
-    ----------
-    boolean
-    """
-    if check_reverse:
-        entities_b = reverse_entities(entities_b)
-
-    start_index = 0
-
-    for count, entity in enumerate(entities_b):
-        if entity == entities_a[0]:
-            # start entity found
-            start_index = count
-            break
-
-    # regenerate entities_b from start index found from entities_a
-    entities = [entities_b[i] for i in range(start_index, len(entities_a))] + [
-        entities_b[i] for i in range(0, start_index)
-    ]
-
-    if entities == entities_a:
-        return True
-    else:
-        return False
-
-
-def reverse_entities(entities):
-    """Reverse list of line/arc entities, including entity start end coordinates.
-
-    Parameters
-    ----------
-    entities : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    Returns
-    ----------
-    list of Line or list of Arc
-        list of Line and Arc objects.
-    """
-    entities.reverse()
-    return [entity.reverse() for entity in entities]
-
-
 def xy_to_rt(x, y):
     """Convert Motor-CAD Cartesian coordinates to polar coordinates in degrees.
 
