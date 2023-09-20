@@ -7,7 +7,7 @@ class Region:
     def __init__(self):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
-        self.material = "air"
+        self.material = "air1"
         self.colour = (0, 0, 0)
         self.area = 0.0
         self.centroid = Coordinate(0, 0)
