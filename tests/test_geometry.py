@@ -754,7 +754,7 @@ def test_check_collisions_3():
 def test_delete_region():
     stator = mc.get_region("Stator")
 
-    mc.delete_region(stator.name)
+    mc.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
         mc.get_region("Stator")
