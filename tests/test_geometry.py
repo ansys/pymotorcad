@@ -1,3 +1,4 @@
+from copy import deepcopy
 import math
 from math import isclose, sqrt
 
@@ -305,8 +306,8 @@ def test_region_is_closed():
 def test_region_contains_same_entities():
     region = generate_constant_region()
 
-    expected_region = region
-    expected_region.entities = geometry.reverse_entities(region.entities)
+    expected_region = deepcopy(region)
+    expected_region.entities.reverse()
 
     assert region == expected_region
 
@@ -315,48 +316,72 @@ def test_reverse_entity():
     entity = geometry.Entity(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
     expected_entity = geometry.Entity(geometry.Coordinate(1, 1), geometry.Coordinate(0, 0))
 
-    assert entity.reverse() == expected_entity
+    entity.reverse()
+
+    assert entity == expected_entity
 
 
 def test_reverse_line():
     region = generate_constant_region()
     line = region.entities[0]
     expected_line = geometry.Line(line.end, line.start)
+    line.reverse()
 
-    assert line.reverse() == expected_line
+    assert line == expected_line
 
 
 def test_reverse_arc():
     region = generate_constant_region()
     arc = region.entities[1]
     expected_line = geometry.Arc(arc.end, arc.start, arc.centre, -arc.radius)
+    arc.reverse()
 
-    assert arc.reverse() == expected_line
+    assert arc == expected_line
 
 
 def test_entities_same():
     region = generate_constant_region()
     region_expected = generate_constant_region()
 
-    assert geometry.entities_same(region.entities, region_expected.entities)
+    assert region.entities == region_expected.entities
 
 
 def test_entities_same_1():
-    region = generate_constant_region()
+    region_1 = generate_constant_region()
 
-    entities = [region.entities[i] for i in range(1, len(region.entities))] + [
-        region.entities[i] for i in range(0, 1)
+    entities_list_duplicate = deepcopy(region_1.entities)
+
+    entities = [entities_list_duplicate[i] for i in range(1, len(entities_list_duplicate))] + [
+        entities_list_duplicate[i] for i in range(0, 1)
     ]
+    region_2 = geometry.Region()
+    region_2.entities = entities
 
-    assert geometry.entities_same(region.entities, entities)
+    assert region_1.entities == region_2.entities
+
+
+def test_entities_same_reverse():
+    region_1 = generate_constant_region()
+
+    region_2 = geometry.Region()
+    region_2.entities = deepcopy(region_1.entities)
+    region_2.entities.reverse()
+
+    assert region_1.entities == region_2.entities
 
 
 def test_reverse_entities():
     region = generate_constant_region()
 
-    expected_entities = []
+    duplicate_entities = deepcopy(region.entities)
+    duplicate_entities = list(duplicate_entities)
 
-    for entity in region.entities:
+    # Use list reverse function
+    duplicate_entities.reverse()
+
+    expected_entities = geometry.EntityList()
+
+    for entity in duplicate_entities:
         if isinstance(entity, geometry.Line):
             expected_entities.append(geometry.Line(entity.end, entity.start))
         elif isinstance(entity, geometry.Arc):
@@ -364,9 +389,21 @@ def test_reverse_entities():
                 geometry.Arc(entity.end, entity.start, entity.centre, -entity.radius)
             )
 
-    expected_entities.reverse()
+    assert region.entities._entities_same(expected_entities) is False
+    assert region.entities._entities_same(expected_entities, check_reverse=True) is True
 
-    assert geometry.reverse_entities(region.entities) == expected_entities
+
+def test_reverse_entities_2():
+    region_1 = generate_constant_region()
+    region_2 = geometry.Region()
+
+    region_2.entities = deepcopy(region_1.entities)
+    region_2.entities.reverse()
+    assert region_1.entities._entities_same(region_2.entities, check_reverse=False) is False
+    assert region_1.entities._entities_same(region_2.entities, check_reverse=True) is True
+
+    region_2.entities.reverse()
+    assert region_1.entities._entities_same(region_2.entities, check_reverse=False) is True
 
 
 def test_line_get_coordinate_from_percentage_distance():

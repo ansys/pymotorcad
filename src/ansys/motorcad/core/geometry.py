@@ -1,9 +1,10 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
+from copy import deepcopy
 from math import atan2, cos, degrees, pow, radians, sin, sqrt
 
 
-class Region:
+class Region(object):
     """Python representation of Motor-CAD geometry region."""
 
     def __init__(self):
@@ -15,13 +16,13 @@ class Region:
         self.centroid = Coordinate(0, 0)
         self.region_coordinate = Coordinate(0, 0)
         self.duplications = 1
-        self.entities = []
+        self.entities = EntityList()
 
         # expect other properties to be implemented here including number duplications, material etc
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
-        if (
+        return (
             isinstance(other, Region)
             and self.name == other.name
             and self.colour == other.colour
@@ -32,14 +33,8 @@ class Region:
             # and self.region_coordinate == other.region_coordinate ->
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self.duplications == other.duplications
-            and (
-                entities_same(self.entities, other.entities, check_reverse=False)
-                or entities_same(self.entities, other.entities, check_reverse=True)
-            )
-        ):
-            return True
-        else:
-            return False
+            and self.entities == other.entities
+        )
 
     def add_entity(self, entity):
         """Add entity to list of region entities.
@@ -70,7 +65,7 @@ class Region:
         ----------
         index : int
             Index of which to insert at
-        polyline : list of Line or list of Arc
+        polyline : EntityList
             list of Line or list of Arc
         """
         for count, entity in enumerate(polyline):
@@ -163,7 +158,7 @@ class Region:
             return False
 
 
-class Coordinate:
+class Coordinate(object):
     """Python representation of coordinate in two-dimensional space.
 
     Parameters
@@ -182,13 +177,10 @@ class Coordinate:
 
     def __eq__(self, other):
         """Override the default equals implementation for Coordinate."""
-        if isinstance(other, Coordinate) and self.x == other.x and self.y == other.y:
-            return True
-        else:
-            return False
+        return isinstance(other, Coordinate) and self.x == other.x and self.y == other.y
 
 
-class Entity:
+class Entity(object):
     """Generic parent class for geometric entities based upon a start and end coordinate.
 
     Parameters
@@ -207,14 +199,14 @@ class Entity:
 
     def __eq__(self, other):
         """Override the default equals implementation for Entity."""
-        if isinstance(other, Entity) and self.start == other.start and self.end == other.end:
-            return True
-        else:
-            return False
+        return isinstance(other, Entity) and self.start == other.start and self.end == other.end
 
     def reverse(self):
         """Reverse Entity class."""
-        return Entity(self.end, self.start)
+        start = self.start
+        end = self.end
+        self.start = end
+        self.end = start
 
 
 class Line(Entity):
@@ -235,10 +227,7 @@ class Line(Entity):
 
     def __eq__(self, other):
         """Override the default equals implementation for Line."""
-        if isinstance(other, Line) and self.start == other.start and self.end == other.end:
-            return True
-        else:
-            return False
+        return isinstance(other, Line) and self.start == other.start and self.end == other.end
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -310,10 +299,6 @@ class Line(Entity):
         """
         return sqrt(pow(self.start.x - self.end.x, 2) + pow(self.start.y - self.end.y, 2))
 
-    def reverse(self):
-        """Reverse Line entity."""
-        return Line(self.end, self.start)
-
 
 class Arc(Entity):
     """Python representation of Motor-CAD arc entity based upon start, end, centre and radius.
@@ -341,16 +326,13 @@ class Arc(Entity):
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
-        if (
+        return (
             isinstance(other, Arc)
             and self.start == other.start
             and self.end == other.end
             and self.centre == other.centre
             and self.radius == other.radius
-        ):
-            return True
-        else:
-            return False
+        )
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
@@ -429,7 +411,73 @@ class Arc(Entity):
 
     def reverse(self):
         """Reverse Arc entity."""
-        return Arc(self.end, self.start, self.centre, -self.radius)
+        super().reverse()
+
+        self.radius *= -1
+
+
+class EntityList(list):
+    """Generic class for list of Entities."""
+
+    def __eq__(self, other):
+        """Compare equality of 2 EntityList objects."""
+        return self._entities_same(other, check_reverse=True)
+
+    def reverse(self):
+        """Reverse EntityList, including entity start end coordinates."""
+        super().reverse()
+
+        # Also reverse entity start/end points so the EntityList is continuous
+        for entity in self:
+            entity.reverse()
+
+    def _entities_same(self, entities_to_compare, check_reverse=False):
+        """Check whether entities in region are the same as entities a different region.
+
+        Parameters
+        ----------
+        entities_to_compare : EntityList
+            entities to test against
+
+        check_reverse : Boolean
+            Whether to reverse entities when checking entity equivalency.
+
+        Returns
+        ----------
+        boolean
+        """
+
+        def _entities_same_with_direction(entities_1, entities_2):
+            start_index = 0
+
+            for count, entity in enumerate(entities_2):
+                if entity == entities_1[0]:
+                    # start entity found
+                    start_index = count
+                    break
+
+            # regenerate entities_b from start index found from entities_a
+            entities_same_order = [entities_2[i] for i in range(start_index, len(entities_1))] + [
+                entities_2[i] for i in range(0, start_index)
+            ]
+
+            if list(entities_1) == list(entities_same_order):
+                return True
+            else:
+                return False
+
+        if check_reverse:
+            if _entities_same_with_direction(self, entities_to_compare):
+                return True
+            else:
+                # Copy list of entities
+                entities_copy = deepcopy(entities_to_compare)
+                entities_copy.reverse()
+
+                return _entities_same_with_direction(self, entities_copy)
+
+        else:
+            return _entities_same_with_direction(self, entities_to_compare)
 
 
 def _convert_entities_to_json(entities):
@@ -437,7 +485,7 @@ def _convert_entities_to_json(entities):
 
     Parameters
     ----------
-    entities : list of Line or list of Arc
+    entities : EntityList
         List of Line/Arc class objects representing entities.
 
     Returns
@@ -480,10 +528,10 @@ def _convert_entities_from_json(json_array):
 
     Returns
     -------
-    list of Line or list of Arc
+    EntityList
         list of Line and Arc objects
     """
-    entities = []
+    entities = EntityList()
 
     for entity in json_array:
         if entity["type"] == "line":
@@ -531,63 +579,6 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         return True
     else:
         return False
-
-
-def entities_same(entities_a, entities_b, check_reverse=False):
-    """Check whether entities in region are the same as entities a different region.
-
-    Parameters
-    ----------
-    entities_a : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    entities_b : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    check_reverse : Boolean
-        Whether to reverse entities when checking entity equivalency.
-
-    Returns
-    ----------
-    boolean
-    """
-    if check_reverse:
-        entities_b = reverse_entities(entities_b)
-
-    start_index = 0
-
-    for count, entity in enumerate(entities_b):
-        if entity == entities_a[0]:
-            # start entity found
-            start_index = count
-            break
-
-    # regenerate entities_b from start index found from entities_a
-    entities = [entities_b[i] for i in range(start_index, len(entities_a))] + [
-        entities_b[i] for i in range(0, start_index)
-    ]
-
-    if entities == entities_a:
-        return True
-    else:
-        return False
-
-
-def reverse_entities(entities):
-    """Reverse list of line/arc entities, including entity start end coordinates.
-
-    Parameters
-    ----------
-    entities : list of Line or list of Arc
-        list of Line and Arc objects.
-
-    Returns
-    ----------
-    list of Line or list of Arc
-        list of Line and Arc objects.
-    """
-    entities.reverse()
-    return [entity.reverse() for entity in entities]
 
 
 def xy_to_rt(x, y):
