@@ -30,7 +30,7 @@ def test_do_transient_analysis():
     x, y = mc.get_temperature_graph_point("Housing [Active]", 4)
 
     assert almost_equal(x, 16)
-    assert almost_equal(y, 47.744)
+    assert almost_equal(y, 47.7438)
 
     # Duty cycle
     mc.set_variable("TransientCalculationType", 1)
