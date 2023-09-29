@@ -6,6 +6,7 @@ import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -786,3 +787,71 @@ def test_check_collisions_3():
     collisions = mc.check_collisions(square, [triangle])
     assert len(collisions) == 1
     assert collisions[0] == triangle
+
+
+def test_coordinate_operators():
+    c1 = Coordinate(5, 5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(4, 4)
+    assert (c1 - c2) == c_res_exp
+
+    c1 = Coordinate(-5, -5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(-6, -6)
+    assert (c1 - c2) == c_res_exp
+
+    c1 = Coordinate(5, 5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(6, 6)
+    assert (c1 + c2) == c_res_exp
+
+    c1 = Coordinate(5, 4)
+    assert abs(c1) == sqrt(41)
+
+
+def test_line_coordinate_exists():
+    p0 = Coordinate(0, 0)
+    p1 = Coordinate(10, 0)
+    l0 = Line(p0, p1)
+
+    p_2 = Coordinate(5, 0)
+    p_3 = Coordinate(11, 0)
+    p_4 = Coordinate(5, 0.1)
+    assert l0.coordinate_exists(p_2) is True
+    assert l0.coordinate_exists(p_4) is False
+    assert l0.coordinate_exists(p_3) is False
+
+
+def test_arc_start_end_angle():
+    p_centre = Coordinate(2, 2)
+    p_end = Coordinate(4, 2)
+    p_start = Coordinate(2, 0)
+    radius = -2
+
+    a0 = Arc(p_start, p_end, p_centre, radius)
+    assert a0.start_angle() == -90
+    assert a0.end_angle() == 0
+
+
+def test_arc_coordinate_exists():
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(0, -4)
+    p1 = Coordinate(0, 4)
+    radius = abs(p0 - pc)
+
+    a1 = Arc(p0, p1, pc, radius)
+
+    p2 = Coordinate(4, 0)
+    p3 = p2 / 2
+    p4 = Coordinate(-4, 0)
+
+    assert a1.coordinate_exists(p2)
+    assert a1.coordinate_exists(p3) is False
+    assert a1.coordinate_exists(p4) is False
+
+    radius = -1 * abs(p0 - pc)
+    a1 = Arc(p0, p1, pc, radius)
+
+    assert a1.coordinate_exists(p2) is False
+    assert a1.coordinate_exists(p3) is False
+    assert a1.coordinate_exists(p4) is True
