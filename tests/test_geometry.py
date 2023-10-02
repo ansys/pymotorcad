@@ -2,12 +2,13 @@ from copy import deepcopy
 import math
 from math import cos, isclose, radians, sin, sqrt
 
+from matplotlib import pyplot as plt
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
-from ansys.motorcad.core.geometry_drawing import show_entities
+from ansys.motorcad.core.geometry_drawing import draw_regions
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -889,17 +890,16 @@ def test_total_angle():
     p0 = Coordinate(-7, -1)
     p1 = Coordinate(-3, -5)
     a1 = Arc(p0, p1, pc, abs(p0 - pc))
-
-    l1 = Line(p1, pc)
-    l2 = Line(pc, p0)
-
-    r1 = geometry.Region()
-    r1.add_entity(a1)
-    r1.add_entity(l1)
-    r1.add_entity(l2)
-
-    show_entities(r1)
-
     assert a1.total_angle() == 90
 
-    pass
+
+def test_draw_regions(monkeypatch):
+    # Just check it runs for now
+    # Stop plt.show() blocking tests
+    monkeypatch.setattr(plt, "show", lambda: None)
+
+    region = mc.get_region("Stator")
+    region2 = mc.get_region("StatorWedge")
+    region3 = mc.get_region("ArmatureSlotL1")
+    draw_regions(region)
+    draw_regions([region, region2, region3])

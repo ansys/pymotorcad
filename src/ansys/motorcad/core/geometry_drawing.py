@@ -108,7 +108,7 @@ class _RegionDrawing:
         self._plot_text_no_overlap(region.centroid, region.name, colour)
 
 
-def show_entities(regions):
+def draw_regions(regions):
     """Draw regions on plot.
 
     Parameters

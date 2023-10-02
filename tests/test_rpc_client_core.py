@@ -1,7 +1,6 @@
 from time import sleep
 from unittest.mock import create_autospec
 
-import ansys.platform.instancemanagement as pypim
 import grpc
 from psutil import pid_exists
 import pytest
@@ -9,6 +8,7 @@ import pytest
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
+import ansys.platform.instancemanagement as pypim
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
