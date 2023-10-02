@@ -1,12 +1,13 @@
 from copy import deepcopy
 import math
-from math import isclose, sqrt
+from math import cos, isclose, radians, sin, sqrt
 
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
+from ansys.motorcad.core.geometry_drawing import show_entities
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -855,3 +856,50 @@ def test_arc_coordinate_exists():
     assert a1.coordinate_exists(p2) is False
     assert a1.coordinate_exists(p3) is False
     assert a1.coordinate_exists(p4) is True
+
+
+def test_midpoints():
+    p0 = Coordinate(-2, 4)
+    p1 = Coordinate(10, -8)
+    p01 = p1 - p0
+    l0 = Line(p0, p1)
+    assert l0.midpoint() == (p0 + p01 / 2)
+
+    pc = Coordinate(-2, -6)
+    p0 = Coordinate(1, -3)
+    p1 = Coordinate(1, -9)
+    a0 = Arc(p0, p1, pc, abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(-2, abs(p1 - pc) - 6)
+
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(0, 3)
+    p1 = Coordinate(3, 0)
+    a0 = Arc(p0, p1, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(3 * sin(radians(45)), 3 * cos(radians(45)))
+
+
+def test_total_angle():
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(0, 5)
+    p1 = Coordinate(-5, 0)
+    a1 = Arc(p0, p1, pc, abs(p0 - pc))
+    assert a1.total_angle() == 90
+
+    pc = Coordinate(-3, -1)
+    p0 = Coordinate(-7, -1)
+    p1 = Coordinate(-3, -5)
+    a1 = Arc(p0, p1, pc, abs(p0 - pc))
+
+    l1 = Line(p1, pc)
+    l2 = Line(pc, p0)
+
+    r1 = geometry.Region()
+    r1.add_entity(a1)
+    r1.add_entity(l1)
+    r1.add_entity(l2)
+
+    show_entities(r1)
+
+    assert a1.total_angle() == 90
+
+    pass

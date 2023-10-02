@@ -1,7 +1,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, cos, degrees, radians, sin, sqrt
+from math import acos, atan2, cos, degrees, isclose, radians, sin, sqrt
 
 
 class Region(object):
@@ -225,7 +225,11 @@ class Coordinate(object):
 
     def __eq__(self, other):
         """Override the default equals implementation for Coordinate."""
-        return isinstance(other, Coordinate) and self.x == other.x and self.y == other.y
+        return (
+            isinstance(other, Coordinate)
+            and isclose(self.x, other.x, abs_tol=1e-6)
+            and isclose(self.y, other.y, abs_tol=1e-6)
+        )
 
     def __sub__(self, other):
         """Override the default subtract implementation for Coordinate."""
@@ -304,6 +308,15 @@ class Line(Entity):
     def __eq__(self, other):
         """Override the default equals implementation for Line."""
         return isinstance(other, Line) and self.start == other.start and self.end == other.end
+
+    def midpoint(self):
+        """Get midpoint of Line.
+
+        Returns
+        -------
+            Coordinate
+        """
+        return (self.start + self.end) / 2
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -426,6 +439,18 @@ class Arc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
+
+    def midpoint(self):
+        """Get midpoint of arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        angle_to_rotate = (self.total_angle() / 2) * (self.radius / abs(self.radius))
+        angle = self.start_angle() + angle_to_rotate
+        x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
+        return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
@@ -551,6 +576,19 @@ class Arc(Entity):
         """
         _, ang = (self.end - self.centre).get_polar_coords_deg()
         return ang
+
+    def total_angle(self):
+        """Get total angle that arc travels through. Assumes angle less than or equal to 180deg.
+
+        Returns
+        -------
+        real
+        """
+        v_s_c = self.start - self.centre
+        v_s_e = self.end - self.centre
+
+        dp = (v_s_c.x * v_s_e.x) + (v_s_c.y * v_s_e.y)
+        return degrees(acos(dp / (abs(v_s_c) * abs(v_s_e))))
 
 
 class EntityList(list):

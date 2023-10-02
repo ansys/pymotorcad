@@ -17,11 +17,18 @@ class _RegionDrawing:
         self.ax = ax
         self.stored_coords = stored_coords
 
+    def _get_plot_range(self):
+        # plot should be square so get_xlim() == get_ylim()
+        x_min, x_max = self.ax.get_xlim()
+        return x_max - x_min
+
     def _find_coord_no_overlap(self, entity_coord):
-        overlap_tol = 1
+        # adjust depending on text size
+        # 0.04 good compromise
+        overlap_tol = 0.04
         result = deepcopy(entity_coord)
         for stored_coord in self.stored_coords:
-            difference = entity_coord - stored_coord
+            difference = (entity_coord - stored_coord) / self._get_plot_range()
 
             if abs(difference) == 0:
                 # Handle case where coordinates are exactly the same
@@ -31,7 +38,7 @@ class _RegionDrawing:
             unit_vector = difference / abs(difference)
 
             if abs(difference) < overlap_tol:
-                result += unit_vector * overlap_tol * 1.1
+                result += unit_vector * overlap_tol * self._get_plot_range() * 1.1
                 result = self._find_coord_no_overlap(result)
                 break
         return result
@@ -42,7 +49,10 @@ class _RegionDrawing:
         self.ax.annotate(
             text,
             xy=(point.x, point.y),
-            xytext=(new_coord.x + 1, new_coord.y + 1),
+            xytext=(
+                new_coord.x + 0.04 * self._get_plot_range(),
+                new_coord.y + 0.04 * self._get_plot_range(),
+            ),
             ha="right",
             arrowprops=dict(arrowstyle="->", shrinkA=0, color=colour, alpha=0.5),
             color=colour,
@@ -68,20 +78,27 @@ class _RegionDrawing:
                 width = abs(entity.radius * 2)
                 height = abs(entity.radius * 2)
                 centre = entity.centre.x, entity.centre.y
-                rad1, angle1 = entity.start.get_polar_coords_deg()
-                rad2, angle2 = entity.end.get_polar_coords_deg()
+                rad1, angle1 = (entity.start - entity.centre).get_polar_coords_deg()
+                rad2, angle2 = (entity.end - entity.centre).get_polar_coords_deg()
 
-                min_ang = min(angle1, angle2)
-                max_ang = max(angle1, angle2)
+                if entity.radius > 0:
+                    start_angle = angle1
+                    end_angle = angle2
+                else:
+                    start_angle = angle2
+                    end_angle = angle1
+
                 arc = mpatches.Arc(
-                    centre, width, height, theta1=min_ang, theta2=max_ang, color=colour
+                    centre, width, height, theta1=start_angle, theta2=end_angle, color=colour
                 )
                 self.ax.plot(marker="-o")
                 self.ax.add_patch(arc)
 
-        for entity_num, entity_coord in enumerate(entity_coords):
+        self.ax.set_aspect("equal", adjustable="box")
+
+        for entity_num, entity in enumerate(region.entities):
             text = "e{}".format(entity_num)
-            self._plot_text_no_overlap(entity_coord, text, colour)
+            self._plot_text_no_overlap(entity.midpoint(), text, colour)
 
         points = region.entities.get_points()
         for point_num, point in enumerate(points):
@@ -89,8 +106,6 @@ class _RegionDrawing:
             self._plot_text_no_overlap(point, text, colour)
 
         self._plot_text_no_overlap(region.centroid, region.name, colour)
-
-        self.ax.set_aspect("equal", adjustable="box")
 
 
 def show_entities(regions):
