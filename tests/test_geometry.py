@@ -62,6 +62,14 @@ def create_triangle():
     return triangle
 
 
+def add_line_entities_from_points(region, points):
+    for count, point in enumerate(points):
+        if count == len(points) - 1:
+            region.add_entity(geometry.Line(point, points[0]))
+        else:
+            region.add_entity(geometry.Line(point, points[count + 1]))
+
+
 def test_set_get_winding_coil():
     phase = 1
     path = 1
@@ -254,6 +262,8 @@ def test_region_from_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
+        "parent_name": "Insulation",
+        "child_names": ["Duct", "Duct_1"],
     }
 
     test_region = geometry.Region()
@@ -265,6 +275,8 @@ def test_region_from_json():
     test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
+    test_region.parent_name = "Insulation"
+    test_region._child_names = ["Duct", "Duct_1"]
 
     region = geometry.Region()
     region._from_json(raw_region)
@@ -282,6 +294,7 @@ def test_region_to_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
+        "parent_name": "Insulation",
     }
 
     test_region = geometry.Region()
@@ -293,6 +306,7 @@ def test_region_to_json():
     test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
+    test_region.parent_name = "Insulation"
 
     assert test_region._to_json() == raw_region
 
@@ -310,6 +324,20 @@ def test_region_contains_same_entities():
     expected_region.entities.reverse()
 
     assert region == expected_region
+
+
+def test_region_get_parent():
+    pocket = mc.get_region("rotor pocket")
+    expected_region = mc.get_region("rotor")
+
+    assert pocket.get_parent(mc) == expected_region
+
+
+def test_region_get_children():
+    rotor = mc.get_region("rotor")
+    children = rotor.get_children(mc)
+
+    assert len(children) == 16
 
 
 def test_reverse_entity():
@@ -542,12 +570,6 @@ def test_unite_regions():
         geometry.Coordinate(0.5, -2),
     ]
 
-    for count, point in enumerate(points_b):
-        if count == len(points_b) - 1:
-            region_b.add_entity(geometry.Line(point, points_b[0]))
-        else:
-            region_b.add_entity(geometry.Line(point, points_b[count + 1]))
-
     points_expected = [
         geometry.Coordinate(-1, 1),
         geometry.Coordinate(1, 1),
@@ -559,11 +581,9 @@ def test_unite_regions():
         geometry.Coordinate(-1, -1),
     ]
 
-    for count, point in enumerate(points_expected):
-        if count == len(points_expected) - 1:
-            expected_region.add_entity(geometry.Line(point, points_expected[0]))
-        else:
-            expected_region.add_entity(geometry.Line(point, points_expected[count + 1]))
+    # create and add line entities to regions from their respective points
+    add_line_entities_from_points(region_b, points_b)
+    add_line_entities_from_points(expected_region, points_expected)
 
     expected_region.centroid = geometry.Coordinate(0, -0.3)
     expected_region.region_coordinate = geometry.Coordinate(0, -0.3)
@@ -628,19 +648,12 @@ def test_unite_regions_2():
         geometry.Coordinate(0, 0),
     ]
 
-    entities = []
-    for count, point in enumerate(points):
-        if count == len(points) - 1:
-            entities.append(geometry.Line(point, points[0]))
-        else:
-            entities.append(geometry.Line(point, points[count + 1]))
-
     expected_region = geometry.Region()
     expected_region.centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
     expected_region.region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
 
-    for entity in entities:
-        expected_region.add_entity(entity)
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region, points)
 
     union = mc.unite_regions(square, [triangle])
 
@@ -747,37 +760,27 @@ def test_check_collisions_3():
     #      |   |
     #      |---|
     #
-    s_p = []
-    s_l = []
 
-    s_p.append(geometry.Coordinate(0, 0))
-    s_p.append(geometry.Coordinate(0, 2))
-    s_p.append(geometry.Coordinate(2, 2))
-    s_p.append(geometry.Coordinate(2, 0))
-
-    s_l.append(geometry.Line(s_p[0], s_p[1]))
-    s_l.append(geometry.Line(s_p[1], s_p[2]))
-    s_l.append(geometry.Line(s_p[2], s_p[3]))
-    s_l.append(geometry.Line(s_p[3], s_p[0]))
+    points_square = [
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(2, 2),
+        geometry.Coordinate(2, 0),
+    ]
 
     square = geometry.Region()
-    for entity in s_l:
-        square.add_entity(entity)
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(square, points_square)
 
-    t_p = []
-    t_l = []
-
-    t_p.append(geometry.Coordinate(1, 2.2))
-    t_p.append(geometry.Coordinate(2.2, 1))
-    t_p.append(geometry.Coordinate(4, 4))
-
-    t_l.append(geometry.Line(t_p[0], t_p[1]))
-    t_l.append(geometry.Line(t_p[1], t_p[2]))
-    t_l.append(geometry.Line(t_p[2], t_p[0]))
+    points_triangle = [
+        geometry.Coordinate(1, 2.2),
+        geometry.Coordinate(2.2, 1),
+        geometry.Coordinate(4, 4),
+    ]
 
     triangle = geometry.Region()
-    for entity in t_l:
-        triangle.add_entity(entity)
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(triangle, points_triangle)
 
     collisions = mc.check_collisions(triangle, [square])
     assert len(collisions) == 1
@@ -786,3 +789,206 @@ def test_check_collisions_3():
     collisions = mc.check_collisions(square, [triangle])
     assert len(collisions) == 1
     assert collisions[0] == triangle
+
+
+def test_subtract_regions():
+    """Test subtract rectangle from square to create cut out in square as shown below"""
+    #   Before         After
+    # |--------|    |--------|
+    # |  |--|  |    |  |--|  |
+    # |  |  |  | -> |  |  |  |
+    # |--|--|--|    |--|  |--|
+    #    |  |
+    #    |--|
+    region_a = geometry.Region()
+    region_b = geometry.Region()
+    expected_region = geometry.Region()
+
+    points_a = [
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(region_a, points_a)
+
+    points_b = [
+        geometry.Coordinate(-0.5, -2),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -2),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(region_b, points_b)
+
+    points_expected = [
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-0.5, -1),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -1),
+        geometry.Coordinate(1, -1),
+        geometry.Coordinate(1, 1),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region, points_expected)
+
+    subtracted_regions = mc.subtract_region(region_a, region_b)
+
+    assert len(subtracted_regions) == 1
+    assert subtracted_regions[0] == expected_region
+
+
+def test_subtract_region_1():
+    """Test subtracting long rectangle from square to generate two rectangles as shown below."""
+    #      Before           After
+    #      |---|
+    #      |   |
+    #   |--|---|--|      |--|   |--|
+    #   |  |   |  |  ->  |  |   |  |
+    #   |  |   |  |      |  |   |  |
+    #   |--|---|--|      |--|   |--|
+    #      |   |
+    #      |---|
+    #
+    square = create_square()
+    rectangle = geometry.Region()
+    expected_region_1 = geometry.Region()
+    expected_region_2 = geometry.Region()
+
+    points_rectangle = [
+        geometry.Coordinate(0.5, -1),
+        geometry.Coordinate(1.5, -1),
+        geometry.Coordinate(1.5, 3),
+        geometry.Coordinate(0.5, 3),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(rectangle, points_rectangle)
+
+    points_expected_1 = [
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(0.5, 2),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region_1, points_expected_1)
+
+    points_expected_2 = [
+        geometry.Coordinate(1.5, 2),
+        geometry.Coordinate(1.5, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 2),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region_2, points_expected_2)
+
+    subtracted_regions = mc.subtract_region(square, rectangle)
+
+    assert len(subtracted_regions) == 2
+    assert subtracted_regions[0] == expected_region_1
+    assert subtracted_regions[1] == expected_region_2
+
+
+def test_subtract_region_2():
+    """Test subtracting triangle from square. No vertices from either region are within
+    the other region."""
+    #     Before             After
+    #      \------|
+    # |-----\-|   |         |-----\
+    # |      \|   |         |      \
+    # |       \   |  ->     |       \
+    # |-------|\  |         |--------|
+    #           \ |
+    #            \|
+    #
+    square = create_square()
+    triangle = create_triangle()
+    expected_region = geometry.Region()
+
+    points = [
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.2),
+        geometry.Coordinate(1.2, 2),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region, points)
+
+    subtracted_regions = mc.subtract_region(square, triangle)
+
+    assert len(subtracted_regions) == 1
+    assert subtracted_regions[0] == expected_region
+
+
+def test_subtract_region_3():
+    """Test subtract rectangle from square to create cut out in square as shown below"""
+    #   Before         After
+    # |--------|    |--------|
+    # |   |----|    |   |----|
+    # |   |    | -> |   |
+    # |---|----|    |---|
+    #
+    square = create_square()
+    inner_square = geometry.Region()
+    expected_region = geometry.Region()
+
+    points = [
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(inner_square, points)
+
+    expected_points = [
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(2, 1.5),
+        geometry.Coordinate(2, 2),
+        geometry.Coordinate(0, 2),
+        geometry.Coordinate(0, 0),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(expected_region, expected_points)
+
+    subtracted_regions = mc.subtract_region(square, inner_square)
+
+    assert len(subtracted_regions) == 1
+    assert subtracted_regions[0] == expected_region
+
+
+def test_subtract_region_4():
+    """Test subtract rectangle from rectangle, where one rectangle is a sub region of the other."""
+    #   Before         After
+    # |--------|    |--------|
+    # | |----| |    | |----| |
+    # | |    | | -> | |    | |
+    # | |----| |    | |----| |
+    # |--------|    |--------|
+    #
+    square = create_square()
+    inner_square = geometry.Region()
+    inner_square.name = "Subtraction Region"
+    expected_region = deepcopy(square)
+
+    points = [
+        geometry.Coordinate(0.5, 0.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(1.5, 1.5),
+        geometry.Coordinate(0.5, 1.5),
+    ]
+    # create and add line entities to region from their respective points
+    add_line_entities_from_points(inner_square, points)
+
+    subtracted_regions = mc.subtract_region(square, inner_square)
+
+    assert len(subtracted_regions) == 1
+    assert subtracted_regions[0] == expected_region
+
+    assert len(subtracted_regions[0].child_names) == 1
+    assert subtracted_regions[0].child_names[0] == inner_square.name

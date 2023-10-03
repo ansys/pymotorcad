@@ -17,6 +17,8 @@ class Region(object):
         self.region_coordinate = Coordinate(0, 0)
         self.duplications = 1
         self.entities = EntityList()
+        self.parent_name = ""
+        self._child_names = []
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -111,6 +113,8 @@ class Region(object):
         )
         self.duplications = json["duplications"]
         self.entities = _convert_entities_from_json(json["entities"])
+        self.parent_name = json["parent_name"]
+        self._child_names = json["child_names"]
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -130,6 +134,7 @@ class Region(object):
             "region_coordinate": {"x": self.region_coordinate.x, "y": self.region_coordinate.y},
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
+            "parent_name": self.parent_name,
         }
 
         return region_dict
@@ -156,6 +161,47 @@ class Region(object):
             return is_closed
         else:
             return False
+
+    @property
+    def child_names(self):
+        """Property for child names list.
+
+        Returns
+        ----------
+        list of string
+            list of child region names
+        """
+        return self._child_names
+
+    def get_children(self, mc):
+        """Return list of child regions from Motor-CAD.
+
+        Parameters
+        ----------
+        mc : Motor-CAD connection
+            Current Motor-CAD connection
+
+        Returns
+        ----------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        return [mc.get_region(name) for name in self.child_names]
+
+    def get_parent(self, mc):
+        """Return parent region from Motor-CAD.
+
+        Parameters
+        ----------
+        mc : Motor-CAD connection
+            Current Motor-CAD connection
+
+        Returns
+        ----------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        return mc.get_region(self.parent_name)
 
 
 class Coordinate(object):
