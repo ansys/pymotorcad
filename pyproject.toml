@@ -37,7 +37,8 @@ dependencies = [
 tests = [
     "pytest==7.4.2",
     "pytest-cov==4.1.0",
-    "ansys.platform.instancemanagement>=1.0.2"
+    "ansys.platform.instancemanagement>=1.0.2",
+    "matplotlib>=3.6.3"
 ]
 doc = [
     "Sphinx==7.2.6",
