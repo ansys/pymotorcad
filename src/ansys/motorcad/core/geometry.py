@@ -7,7 +7,7 @@ from math import atan2, cos, degrees, pow, radians, sin, sqrt
 class Region(object):
     """Python representation of Motor-CAD geometry region."""
 
-    def __init__(self):
+    def __init__(self, mc=None):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
         self.material = "air"
@@ -19,6 +19,7 @@ class Region(object):
         self.entities = EntityList()
         self.parent_name = ""
         self._child_names = []
+        self.mc = mc
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -202,6 +203,87 @@ class Region(object):
             list of Motor-CAD region object
         """
         return mc.get_region(self.parent_name)
+
+    def subtract(self, region):
+        """Subtract region from self, returning any additional regions.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        Returns
+        ----------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        self._check_connection()
+        regions = self.mc.subtract_region(self, region)
+
+        if len(regions) > 0:
+            self.update(regions[0])
+            return regions[1 : len(regions)]
+
+    def unite(self, regions):
+        """Subtract region from self, returning any additional regions.
+
+        Parameters
+        ----------
+        regions : ansys.motorcad.core.geometry.Region or list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region object/list of objects
+        """
+        if type(regions) is not list:
+            regions = [regions]
+
+        self._check_connection()
+        united_region = self.mc.unite_regions(self, regions)
+        self.update(united_region)
+
+    def collides(self, regions):
+        """Subtract region from self, returning any additional regions.
+
+        Parameters
+        ----------
+        regions : ansys.motorcad.core.geometry.Region or list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region object/list of objects
+        """
+        if type(regions) is not list:
+            regions = [regions]
+
+        self._check_connection()
+        collisions = self.mc.check_collisions(self, regions)
+
+        return len(collisions) > 0
+
+    def update(self, region):
+        """Update class fields from another region.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+        """
+        self.name = region.name
+        self.material = region.material
+        self.colour = region.colour
+        self.area = region.area
+        self.centroid = deepcopy(region.centroid)
+        self.region_coordinate = deepcopy(region.region_coordinate)
+        self.duplications = region.duplications
+        self.entities = deepcopy(region.entities)
+        self.parent_name = region.parent_name
+        self._child_names = region.child_names
+
+    def _check_connection(self):
+        """Check mc connection for region."""
+        if self.mc is None:
+            raise Exception(
+                "self.mc has not been set for "
+                + self.name
+                + ", you need to set mc parameter manually"
+            )
+        if self.mc.connection._wait_for_response(1) is False:
+            raise Exception("Failed mc connection")
 
 
 class Coordinate(object):
@@ -430,7 +512,8 @@ class Arc(Entity):
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
         return Coordinate(
-            self.centre.x + self.radius * cos(angle), self.centre.y + self.radius * sin(angle)
+            self.centre.x + abs(self.radius) * cos(angle),
+            self.centre.y + abs(self.radius) * sin(angle),
         )
 
     def get_length(self):

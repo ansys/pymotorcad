@@ -885,11 +885,11 @@ def test_subtract_region_1():
     # create and add line entities to region from their respective points
     add_line_entities_from_points(expected_region_2, points_expected_2)
 
-    subtracted_regions = mc.subtract_region(square, rectangle)
+    regions = square.subtract(rectangle, mc)
 
-    assert len(subtracted_regions) == 2
-    assert subtracted_regions[0] == expected_region_1
-    assert subtracted_regions[1] == expected_region_2
+    assert square == expected_region_1
+    assert len(regions) == 1
+    assert regions[0] == expected_region_2
 
 
 def test_subtract_region_2():
@@ -918,10 +918,9 @@ def test_subtract_region_2():
     # create and add line entities to region from their respective points
     add_line_entities_from_points(expected_region, points)
 
-    subtracted_regions = mc.subtract_region(square, triangle)
+    square.subtract(triangle, mc)
 
-    assert len(subtracted_regions) == 1
-    assert subtracted_regions[0] == expected_region
+    assert square == expected_region
 
 
 def test_subtract_region_3():
