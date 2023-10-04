@@ -119,7 +119,7 @@ class _RpcMethodsAdaptiveGeometry:
         return collision_regions
 
     def save_adaptive_script(self, filepath):
-        """Save adaptive templates script file to Motor-CAD.
+        """Save adaptive templates script from Motor-CAD to file.
 
         Parameters
         ----------
@@ -128,6 +128,19 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
         method = "SaveAdaptiveScript"
+        params = [filepath]
+        return self.connection.send_and_receive(method, params)
+
+    def load_adaptive_script(self, filepath):
+        """Load adaptive templates script file to Motor-CAD.
+
+        Parameters
+        ----------
+        filepath : string
+            full file path of script
+        """
+        self.connection.ensure_version_at_least("2024.0")
+        method = "LoadAdaptiveScript"
         params = [filepath]
         return self.connection.send_and_receive(method, params)
 

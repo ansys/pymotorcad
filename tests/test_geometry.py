@@ -162,11 +162,25 @@ def test_set_region():
     assert returned_region == region
 
 
-def test_save_adaptive_script():
+def test_load_adaptive_script():
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
     mc.save_adaptive_script(filepath)
 
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+
+    with open(filepath, "rbU") as f:
+        num_lines_file = sum(1 for _ in f)
+
+    assert num_lines == num_lines_file
+
+
+def test_save_adaptive_script():
+    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    mc.load_adaptive_script(filepath)
+    num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+
+    filepath = get_dir_path() + r"\test_files\adaptive_templates_script_1.py"
+    mc.save_adaptive_script(filepath)
 
     with open(filepath, "rbU") as f:
         num_lines_file = sum(1 for _ in f)
