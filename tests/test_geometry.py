@@ -947,7 +947,7 @@ def test_edit_point():
     ref_region = generate_constant_region()
     region = generate_constant_region()
     points = region.get_points()
-    draw_regions(region)
+
     translate = Coordinate(0.2, 0.2)
     region.edit_point(points[2], points[2] + translate)
     region.edit_point(points[1], points[1] + translate)
