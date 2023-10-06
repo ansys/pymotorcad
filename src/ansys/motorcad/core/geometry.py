@@ -226,13 +226,27 @@ class Region(object):
                 edited = True
 
             if edited and isinstance(entity, Arc):
-                b = abs(entity.end - entity.start)
-                ang = acos((b / 2) / entity.radius)
-                r = entity.radius
-                c = Coordinate(entity.start.x - r * sin(ang), entity.start.y - r * cos(ang))
-                entity.centre = c
-                print(entity.end)
-                print(c)
+                # Draw line between arc start/end
+                # get centre point of that line
+                p_centre = (entity.end + entity.start) / 2
+                # Get vector of that line
+                v_1 = entity.end - entity.start
+                # Get length div 2
+                d1 = abs(v_1) / 2
+
+                # Draw perpendicular line from centre point
+                radius, angle = v_1.get_polar_coords_deg()
+                perpendicular_angle = angle + 90 * (entity.radius / abs(entity.radius))
+
+                if entity.radius < d1:
+                    raise Exception("It is not possible to draw an arc with this geometry")
+
+                # Get vector from p_centre to centre point of arc
+                d_adjacent = sqrt(entity.radius**2 - d1**2)
+                l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+                # Apply vector to centre point of arc
+                entity.centre = p_centre + Coordinate(l_x, l_y)
 
 
 class Coordinate(object):

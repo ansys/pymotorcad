@@ -903,3 +903,56 @@ def test_draw_regions(monkeypatch):
     region3 = mc.get_region("ArmatureSlotL1")
     draw_regions(region)
     draw_regions([region, region2, region3])
+
+
+def test_add_point():
+    region = generate_constant_region()
+    points = region.get_points()
+    new_point = region.entities[0].midpoint()
+    region.add_point(new_point)
+
+    # Expected result
+    points.insert(1, new_point)
+    assert points == region.get_points()
+
+    region = generate_constant_region()
+    with pytest.raises(Exception):
+        region.add_point(Coordinate(100, 100))
+
+    points = region.get_points()
+    new_point = region.entities[1].midpoint()
+    region.add_point(new_point)
+
+    # Expected result
+    points.insert(2, new_point)
+    assert points == region.get_points()
+
+
+def test_edit_point():
+    region = generate_constant_region()
+    points = region.get_points()
+    new_coord = Coordinate(0, 0)
+    region.edit_point(points[0], new_coord)
+    assert region.entities[0].start == new_coord
+    assert region.entities[2].end == new_coord
+
+    region = generate_constant_region()
+    points = region.get_points()
+
+    # Move arc point too far
+    translate = Coordinate(2, 2)
+    with pytest.raises(Exception):
+        region.edit_point(points[2], points[2] + translate)
+
+    ref_region = generate_constant_region()
+    region = generate_constant_region()
+    points = region.get_points()
+    draw_regions(region)
+    translate = Coordinate(0.2, 0.2)
+    region.edit_point(points[2], points[2] + translate)
+    region.edit_point(points[1], points[1] + translate)
+
+    assert region.entities[0].end == ref_region.entities[0].end + translate
+    assert region.entities[1].start == ref_region.entities[1].start + translate
+    assert region.entities[1].end == ref_region.entities[1].end + translate  #
+    assert region.entities[2].start == ref_region.entities[2].start + translate
