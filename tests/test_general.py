@@ -167,6 +167,7 @@ def test_save_load_magnetisation_curves():
 
 
 def test_save_load_results():
+    reset_to_default_file(mc)
     mc.do_magnetic_calculation()
     mc.save_results("EMagnetic")
     assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
