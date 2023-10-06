@@ -71,7 +71,7 @@ def test_add_line_xy():
 
     region = mc._get_region_properties_xy(5, 5)
 
-    assert almost_equal(region["Area"], 100)
+    assert almost_equal(region["RegionArea"], 100)
     reset_model_geometry()
 
 
@@ -105,7 +105,7 @@ def test_add_line_rt():
 
     region = mc._get_region_properties_xy(5, 5)
 
-    assert almost_equal(region["Area"], 100)
+    assert almost_equal(region["RegionArea"], 100)
     reset_model_geometry()
 
 
@@ -133,7 +133,7 @@ def test_add_arc_xy():
 
     region = mc._get_region_properties_xy(10, 10)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -164,7 +164,7 @@ def test_add_arc_rt():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -196,7 +196,7 @@ def test_add_arc_centre_start_end_xy():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -230,7 +230,7 @@ def test_add_arc_centre_start_end_rt():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
