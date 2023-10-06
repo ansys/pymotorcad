@@ -205,6 +205,35 @@ class Region(object):
         if point_exists is False:
             raise Exception("Failed to find point on entity in region")
 
+    def edit_point(self, old_coordinates, new_coordinates):
+        """Edit a point in the region and update entities.
+
+        Parameters
+        ----------
+        old_coordinates : Coordinate
+            Position of point to edit
+        new_coordinates : Coordinate
+            Position to move the point to
+        """
+        for entity in self.entities:
+            edited = False
+
+            if entity.start == old_coordinates:
+                entity.start = deepcopy(new_coordinates)
+                edited = True
+            if entity.end == old_coordinates:
+                entity.end = deepcopy(new_coordinates)
+                edited = True
+
+            if edited and isinstance(entity, Arc):
+                b = abs(entity.end - entity.start)
+                ang = acos((b / 2) / entity.radius)
+                r = entity.radius
+                c = Coordinate(entity.start.x - r * sin(ang), entity.start.y - r * cos(ang))
+                entity.centre = c
+                print(entity.end)
+                print(c)
+
 
 class Coordinate(object):
     """Python representation of coordinate in two-dimensional space.
