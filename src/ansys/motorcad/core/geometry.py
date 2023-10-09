@@ -174,35 +174,27 @@ class Region(object):
         """
         return self._child_names
 
-    def get_children(self, mc):
+    def get_children(self):
         """Return list of child regions from Motor-CAD.
 
-        Parameters
-        ----------
-        mc : Motor-CAD connection
-            Current Motor-CAD connection
-
         Returns
         ----------
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
-        return [mc.get_region(name) for name in self.child_names]
+        self._check_connection()
+        return [self.mc.get_region(name) for name in self.child_names]
 
-    def get_parent(self, mc):
+    def get_parent(self):
         """Return parent region from Motor-CAD.
 
-        Parameters
-        ----------
-        mc : Motor-CAD connection
-            Current Motor-CAD connection
-
         Returns
         ----------
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
-        return mc.get_region(self.parent_name)
+        self._check_connection()
+        return self.mc.get_region(self.parent_name)
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
