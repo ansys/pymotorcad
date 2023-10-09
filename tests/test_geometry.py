@@ -330,12 +330,12 @@ def test_region_get_parent():
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
-    assert pocket.get_parent(mc) == expected_region
+    assert pocket.get_parent() == expected_region
 
 
 def test_region_get_children():
     rotor = mc.get_region("rotor")
-    children = rotor.get_children(mc)
+    children = rotor.get_children()
 
     assert len(children) == 16
 
