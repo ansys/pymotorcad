@@ -138,7 +138,7 @@ class Region(object):
         """Check whether region entities create a closed region.
 
         Returns
-        ----------
+        -------
         Boolean
             Whether region is closed
         """
@@ -181,7 +181,7 @@ class Region(object):
 
         for pos, entity in enumerate(self.entities):
             if isinstance(entity, Line):
-                if entity.coordinate_exists(point):
+                if entity.coordinate_on_entity(point):
                     point_exists = True
                     new_line_1 = Line(entity.start, point)
                     new_line_2 = Line(point, entity.end)
@@ -191,7 +191,7 @@ class Region(object):
                     self.entities.insert(pos + 1, new_line_2)
                     break
             elif isinstance(entity, Arc):
-                if entity.coordinate_exists(point):
+                if entity.coordinate_on_entity(point):
                     point_exists = True
 
                     new_arc_1 = Arc(entity.start, point, entity.centre, entity.radius)
@@ -431,7 +431,7 @@ class Line(Entity):
         """
         return abs(self.end - self.start)
 
-    def coordinate_exists(self, coordinate):
+    def coordinate_on_entity(self, coordinate):
         """Get if a coordinate exists on this line.
 
         Parameters
@@ -576,7 +576,7 @@ class Arc(Entity):
 
         self.radius *= -1
 
-    def coordinate_exists(self, coordinate):
+    def coordinate_on_entity(self, coordinate):
         """Get if a coordinate exists on this Arc.
 
         Parameters
@@ -796,7 +796,7 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         Line or Arc object to check for common coordinate
 
     Returns
-    ----------
+    -------
         Boolean
     """
     if (

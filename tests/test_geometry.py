@@ -1,3 +1,4 @@
+import builtins
 from copy import deepcopy
 import math
 from math import cos, isclose, radians, sin, sqrt
@@ -819,9 +820,9 @@ def test_line_coordinate_exists():
     p_2 = Coordinate(5, 0)
     p_3 = Coordinate(11, 0)
     p_4 = Coordinate(5, 0.1)
-    assert l0.coordinate_exists(p_2) is True
-    assert l0.coordinate_exists(p_4) is False
-    assert l0.coordinate_exists(p_3) is False
+    assert l0.coordinate_on_entity(p_2) is True
+    assert l0.coordinate_on_entity(p_4) is False
+    assert l0.coordinate_on_entity(p_3) is False
 
 
 def test_arc_start_end_angle():
@@ -847,16 +848,16 @@ def test_arc_coordinate_exists():
     p3 = p2 / 2
     p4 = Coordinate(-4, 0)
 
-    assert a1.coordinate_exists(p2)
-    assert a1.coordinate_exists(p3) is False
-    assert a1.coordinate_exists(p4) is False
+    assert a1.coordinate_on_entity(p2)
+    assert a1.coordinate_on_entity(p3) is False
+    assert a1.coordinate_on_entity(p4) is False
 
     radius = -1 * abs(p0 - pc)
     a1 = Arc(p0, p1, pc, radius)
 
-    assert a1.coordinate_exists(p2) is False
-    assert a1.coordinate_exists(p3) is False
-    assert a1.coordinate_exists(p4) is True
+    assert a1.coordinate_on_entity(p2) is False
+    assert a1.coordinate_on_entity(p3) is False
+    assert a1.coordinate_on_entity(p4) is True
 
 
 def test_midpoints():
@@ -901,8 +902,38 @@ def test_draw_regions(monkeypatch):
     region = mc.get_region("Stator")
     region2 = mc.get_region("StatorWedge")
     region3 = mc.get_region("ArmatureSlotL1")
+
     draw_regions(region)
     draw_regions([region, region2, region3])
+
+    # Test overflow of colours
+    region4 = mc.get_region("ArmatureSlotL2")
+    region5 = mc.get_region("ArmatureSlotR1")
+    draw_regions([region, region2, region3, region4, region5])
+
+
+def test_is_matplotlib_installed(monkeypatch):
+    original_import = builtins.__import__
+
+    def fail_import(name, *args, **kwargs):
+        if name == "matplotlib":
+            raise ImportError
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fail_import)
+
+    region = generate_constant_region()
+    import ansys.motorcad.core.geometry_drawing as geom_import
+
+    with pytest.raises(ImportError):
+        geom_import.draw_regions(region)
+
+
+def test_strings(capsys):
+    c = Coordinate(7, -10)
+    print(c)
+    output = capsys.readouterr()
+    assert output.out.strip() == "[7, -10]"
 
 
 def test_add_point():
