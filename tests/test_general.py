@@ -226,6 +226,7 @@ def test_download_mot_file():
 
     # File contents should be identical since downloading file without modifying
     assert file_contents_equal(save_file_path, download_mot_file_path)
+    reset_to_default_file(mc)
 
 
 def test_upload_mot_file():
@@ -243,3 +244,4 @@ def test_upload_mot_file():
     # File might have slight differences (paths etc.) since we are uploading and
     # saving as a new file
     assert file_line_differences(upload_mot_file_path, save_file_path) < 30
+    reset_to_default_file(mc)
