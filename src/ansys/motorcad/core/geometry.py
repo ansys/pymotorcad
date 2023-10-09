@@ -270,9 +270,8 @@ class Region(object):
         """Check mc connection for region."""
         if self.mc is None:
             raise Exception(
-                "self.mc has not been set for "
-                + self.name
-                + ", you need to set mc parameter manually"
+                "A Motor-CAD connection is required for this function"
+                + ", Please set self.mc to a valid Motor-CAD instance"
             )
         if self.mc.connection._wait_for_response(1) is False:
             raise Exception("Failed mc connection")
