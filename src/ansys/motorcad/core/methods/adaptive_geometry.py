@@ -162,7 +162,7 @@ class _RpcMethodsAdaptiveGeometry:
         return region
 
     def delete_region(self, region, remove_children=False):
-        """Delete region from Motor-CAd geometry engine.
+        """Delete region from Motor-CAD geometry engine.
 
         Parameters
         ----------
