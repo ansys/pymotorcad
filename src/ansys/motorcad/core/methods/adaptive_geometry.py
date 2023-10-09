@@ -119,7 +119,7 @@ class _RpcMethodsAdaptiveGeometry:
         return collision_regions
 
     def save_adaptive_script(self, filepath):
-        """Save adaptive templates script file to Motor-CAD.
+        """Save adaptive templates script from Motor-CAD to file.
 
         Parameters
         ----------
@@ -128,6 +128,19 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
         method = "SaveAdaptiveScript"
+        params = [filepath]
+        return self.connection.send_and_receive(method, params)
+
+    def load_adaptive_script(self, filepath):
+        """Load adaptive templates script file to Motor-CAD.
+
+        Parameters
+        ----------
+        filepath : string
+            full file path of script
+        """
+        self.connection.ensure_version_at_least("2024.0")
+        method = "LoadAdaptiveScript"
         params = [filepath]
         return self.connection.send_and_receive(method, params)
 
@@ -160,3 +173,22 @@ class _RpcMethodsAdaptiveGeometry:
         region._from_json(united_raw)
 
         return region
+
+    def delete_region(self, region, remove_children=False):
+        """Delete region from Motor-CAD geometry engine.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        remove_children : boolean
+            Whether to remove regions children
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+
+        method = "DeleteRegion"
+        params = [raw_region, remove_children]
+        self.connection.send_and_receive(method, params)

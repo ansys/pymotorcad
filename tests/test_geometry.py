@@ -1,7 +1,7 @@
 import builtins
 from copy import deepcopy
 import math
-from math import cos, isclose, radians, sin, sqrt
+from math import isclose, sqrt
 
 from matplotlib import pyplot as plt
 import pytest
@@ -166,12 +166,29 @@ def test_set_region():
     assert returned_region == region
 
 
-def test_save_adaptive_script():
+def test_load_adaptive_script():
+    """Test loading adaptive template script into Motor-CAD from file."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
-    mc.save_adaptive_script(filepath)
+    # load file into Motor-CAD
+    mc.load_adaptive_script(filepath)
 
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+    # open file and sum number of lines and check against number of lines from Motor-CAD
+    with open(filepath, "rbU") as f:
+        num_lines_file = sum(1 for _ in f)
 
+    assert num_lines == num_lines_file
+
+
+def test_save_adaptive_script():
+    """Test save adaptive template script from Motor-CAD to specified file path."""
+    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    mc.load_adaptive_script(filepath)
+    num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+
+    filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
+    mc.save_adaptive_script(filepath)
+    # sum number of lines in saved file and check against number of lines from Motor-CAD
     with open(filepath, "rbU") as f:
         num_lines_file = sum(1 for _ in f)
 
@@ -790,6 +807,17 @@ def test_check_collisions_3():
     collisions = mc.check_collisions(square, [triangle])
     assert len(collisions) == 1
     assert collisions[0] == triangle
+
+
+def test_delete_region():
+    stator = mc.get_region("Stator")
+
+    mc.delete_region(stator)
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region("Stator")
+
+    assert "Failed to find region with name" in str(e_info.value)
 
 
 def test_coordinate_operators():
