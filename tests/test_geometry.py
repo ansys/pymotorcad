@@ -907,8 +907,8 @@ def test_draw_regions(monkeypatch):
     draw_regions([region, region2, region3])
 
     # Test overflow of colours
-    region4 = mc.get_region("ArmatureSlotL2")
-    region5 = mc.get_region("ArmatureSlotR1")
+    region4 = mc.get_region("StatorAir")
+    region5 = mc.get_region("Shaft")
     draw_regions([region, region2, region3, region4, region5])
 
 
