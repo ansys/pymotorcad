@@ -804,3 +804,14 @@ def test_check_collisions_3():
     collisions = mc.check_collisions(square, [triangle])
     assert len(collisions) == 1
     assert collisions[0] == triangle
+
+
+def test_delete_region():
+    stator = mc.get_region("Stator")
+
+    mc.delete_region(stator)
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region("Stator")
+
+    assert "Failed to find region with name" in str(e_info.value)

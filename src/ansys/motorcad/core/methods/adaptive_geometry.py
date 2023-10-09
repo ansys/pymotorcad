@@ -173,3 +173,22 @@ class _RpcMethodsAdaptiveGeometry:
         region._from_json(united_raw)
 
         return region
+
+    def delete_region(self, region, remove_children=False):
+        """Delete region from Motor-CAD geometry engine.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        remove_children : boolean
+            Whether to remove regions children
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+
+        method = "DeleteRegion"
+        params = [raw_region, remove_children]
+        self.connection.send_and_receive(method, params)
