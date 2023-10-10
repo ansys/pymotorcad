@@ -1,7 +1,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, cos, degrees, pow, radians, sin, sqrt
+from math import atan2, cos, degrees, isclose, radians, sin, sqrt
 
 
 class Region(object):
@@ -138,7 +138,7 @@ class Region(object):
         """Check whether region entities create a closed region.
 
         Returns
-        ----------
+        -------
         Boolean
             Whether region is closed
         """
@@ -156,6 +156,88 @@ class Region(object):
             return is_closed
         else:
             return False
+
+    def get_points(self):
+        """Get points that exist in region.
+
+        Returns
+        -------
+        List of Coordinate
+        """
+        return self.entities.get_points()
+
+    def add_point(self, point):
+        """Add a new point into region on an existing Line/Arc.
+
+        The point must already exist on a Line/Arc belonging to the region. The entity will be split
+        and 2 new entities created.
+
+        Parameters
+        ----------
+        point : Coordinate
+            Coordinate at which to add new point
+        """
+        for pos, entity in enumerate(self.entities):
+            if entity.coordinate_on_entity(point):
+                if isinstance(entity, Line):
+                    new_entity_1 = Line(entity.start, point)
+                    new_entity_2 = Line(point, entity.end)
+                elif isinstance(entity, Arc):
+                    new_entity_1 = Arc(entity.start, point, entity.centre, entity.radius)
+                    new_entity_2 = Arc(point, entity.end, entity.centre, entity.radius)
+                else:
+                    raise Exception("Entity type is not Arc or Line")
+
+                self.entities.pop(pos)
+                self.entities.insert(pos, new_entity_1)
+                self.entities.insert(pos + 1, new_entity_2)
+                break
+
+        else:
+            raise Exception("Failed to find point on entity in region")
+
+    def edit_point(self, old_coordinates, new_coordinates):
+        """Edit a point in the region and update entities.
+
+        Parameters
+        ----------
+        old_coordinates : Coordinate
+            Position of point to edit
+        new_coordinates : Coordinate
+            Position to move the point to
+        """
+        for entity in self.entities:
+            edited = False
+
+            if entity.start == old_coordinates:
+                entity.start = deepcopy(new_coordinates)
+                edited = True
+            if entity.end == old_coordinates:
+                entity.end = deepcopy(new_coordinates)
+                edited = True
+
+            if edited and isinstance(entity, Arc):
+                # Draw line between arc start/end
+                # get centre point of that line
+                p_centre = (entity.end + entity.start) / 2
+                # Get vector of that line
+                v_1 = entity.end - entity.start
+                # Get length div 2
+                d1 = abs(v_1) / 2
+
+                # Draw perpendicular line from centre point
+                radius, angle = v_1.get_polar_coords_deg()
+                perpendicular_angle = angle + 90 * (entity.radius / abs(entity.radius))
+
+                if entity.radius < d1:
+                    raise Exception("It is not possible to draw an arc with this geometry")
+
+                # Get vector from p_centre to centre point of arc
+                d_adjacent = sqrt(entity.radius**2 - d1**2)
+                l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+                # Apply vector to centre point of arc
+                entity.centre = p_centre + Coordinate(l_x, l_y)
 
 
 class Coordinate(object):
@@ -177,7 +259,39 @@ class Coordinate(object):
 
     def __eq__(self, other):
         """Override the default equals implementation for Coordinate."""
-        return isinstance(other, Coordinate) and self.x == other.x and self.y == other.y
+        return (
+            isinstance(other, Coordinate)
+            and isclose(self.x, other.x, abs_tol=1e-6)
+            and isclose(self.y, other.y, abs_tol=1e-6)
+        )
+
+    def __sub__(self, other):
+        """Override the default subtract implementation for Coordinate."""
+        return Coordinate(self.x - other.x, self.y - other.y)
+
+    def __add__(self, other):
+        """Override the default add implementation for Coordinate."""
+        return Coordinate(self.x + other.x, self.y + other.y)
+
+    def __abs__(self):
+        """Override the default abs() implementation for Coordinate."""
+        return sqrt(self.x**2 + self.y**2)
+
+    def __mul__(self, other):
+        """Override the default multiplication implementation for Coordinate."""
+        return Coordinate(self.x * other, self.y * other)
+
+    def __truediv__(self, other):
+        """Override the default divide implementation for Coordinate."""
+        return Coordinate(self.x / other, self.y / other)
+
+    def __str__(self):
+        """Override the default str() implementation for Coordinate."""
+        return str([self.x, self.y])
+
+    def get_polar_coords_deg(self):
+        """Get coordinates as polar coordinates in degrees."""
+        return xy_to_rt(self.x, self.y)
 
 
 class Entity(object):
@@ -228,6 +342,15 @@ class Line(Entity):
     def __eq__(self, other):
         """Override the default equals implementation for Line."""
         return isinstance(other, Line) and self.start == other.start and self.end == other.end
+
+    def midpoint(self):
+        """Get midpoint of Line.
+
+        Returns
+        -------
+            Coordinate
+        """
+        return (self.start + self.end) / 2
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -297,7 +420,23 @@ class Line(Entity):
         float
             Length of line
         """
-        return sqrt(pow(self.start.x - self.end.x, 2) + pow(self.start.y - self.end.y, 2))
+        return abs(self.end - self.start)
+
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this line.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the line
+        Returns
+        -------
+        bool
+        """
+        v1 = self.end - coordinate
+        v2 = coordinate - self.start
+
+        return abs(v1) + abs(v2) == self.get_length()
 
 
 class Arc(Entity):
@@ -333,6 +472,18 @@ class Arc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
+
+    def midpoint(self):
+        """Get midpoint of arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        angle_to_rotate = (self.total_angle() / 2) * (self.radius / abs(self.radius))
+        angle = self.start_angle() + angle_to_rotate
+        x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
+        return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
@@ -415,6 +566,61 @@ class Arc(Entity):
 
         self.radius *= -1
 
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this Arc.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the Arc
+        Returns
+        -------
+        bool
+        """
+        v_from_centre = coordinate - self.centre
+        radius, angle_to_check = v_from_centre.get_polar_coords_deg()
+
+        if self.radius > 0:
+            theta1 = (angle_to_check - self.start_angle()) % 360
+        else:
+            theta1 = (angle_to_check - self.end_angle()) % 360
+
+        within_angle = theta1 <= self.total_angle()
+
+        return within_angle and (abs(radius) == abs(self.radius))
+
+    def start_angle(self):
+        """Get angle of start point from centre point coordinates.
+
+        Returns
+        -------
+        real
+        """
+        _, ang = (self.start - self.centre).get_polar_coords_deg()
+        return ang
+
+    def end_angle(self):
+        """Get angle of end point from centre point coordinates.
+
+        Returns
+        -------
+        real
+        """
+        _, ang = (self.end - self.centre).get_polar_coords_deg()
+        return ang
+
+    def total_angle(self):
+        """Get arc sweep angle.
+
+        Returns
+        -------
+        real
+        """
+        if self.radius > 0:
+            return (self.end_angle() - self.start_angle()) % 360
+        else:
+            return (self.start_angle() - self.end_angle()) % 360
+
 
 class EntityList(list):
     """Generic class for list of Entities."""
@@ -430,6 +636,18 @@ class EntityList(list):
         # Also reverse entity start/end points so the EntityList is continuous
         for entity in self:
             entity.reverse()
+
+    def get_points(self):
+        """Get points of shape/region from Entity list.
+
+        Returns
+        -------
+        List of Coordinate
+        """
+        points = []
+        for entity in self:
+            points += [deepcopy(entity.start)]
+        return points
 
     def _entities_same(self, entities_to_compare, check_reverse=False):
         """Check whether entities in region are the same as entities a different region.
@@ -566,7 +784,7 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         Line or Arc object to check for common coordinate
 
     Returns
-    ----------
+    -------
         Boolean
     """
     if (
