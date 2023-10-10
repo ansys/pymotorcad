@@ -610,7 +610,7 @@ class Arc(Entity):
         return ang
 
     def total_angle(self):
-        """Get total angle that arc travels through. Assumes angle less than or equal to 180deg.
+        """Get arc sweep angle.
 
         Returns
         -------
@@ -642,7 +642,7 @@ class EntityList(list):
 
         Returns
         -------
-            List of Coordinate
+        List of Coordinate
         """
         points = []
         for entity in self:
