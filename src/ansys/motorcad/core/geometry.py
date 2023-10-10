@@ -984,7 +984,7 @@ def rt_to_xy(radius, theta):
 
     Returns
     -------
-    (x, y) : float
+    x : float
         X coordinate value.
     y : float
         Y coordinate value.
