@@ -1,13 +1,13 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, cos, degrees, pow, radians, sin, sqrt
+from math import atan2, degrees, pow, radians, sqrt
 
 
 class Region(object):
     """Python representation of Motor-CAD geometry region."""
 
-    def __init__(self, mc=None):
+    def __init__(self, motorcad_instance=None):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
         self.material = "air"
@@ -17,9 +17,9 @@ class Region(object):
         self.region_coordinate = Coordinate(0, 0)
         self.duplications = 1
         self.entities = EntityList()
-        self.parent_name = ""
+        self._parent_name = ""
         self._child_names = []
-        self.mc = mc
+        self._motorcad_instance = motorcad_instance
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -164,6 +164,21 @@ class Region(object):
             return False
 
     @property
+    def parent_name(self):
+        """Get region parent name.
+
+        Returns
+        ----------
+        string
+        """
+        return self._parent_name
+
+    @parent_name.setter
+    def parent_name(self, name):
+        """Set region parent name."""
+        self._parent_name = name
+
+    @property
     def child_names(self):
         """Property for child names list.
 
@@ -174,6 +189,19 @@ class Region(object):
         """
         return self._child_names
 
+    @property
+    def motorcad_instance(self):
+        """Get linked Motor-CAD instance."""
+        return self._motorcad_instance
+
+    @motorcad_instance.setter
+    def motorcad_instance(self, mc):
+        """Set linked Motor-CAD instance."""
+        # if isinstance(mc, _MotorCADConnection):
+        #     raise Exception("Unable to set self.motorcad_instance,
+        #                      mc is not a Motor-CAD connection")
+        self._motorcad_instance = mc
+
     def get_children(self):
         """Return list of child regions from Motor-CAD.
 
@@ -183,7 +211,7 @@ class Region(object):
             list of Motor-CAD region object
         """
         self._check_connection()
-        return [self.mc.get_region(name) for name in self.child_names]
+        return [self.motorcad_instance.get_region(name) for name in self.child_names]
 
     def get_parent(self):
         """Return parent region from Motor-CAD.
@@ -194,7 +222,7 @@ class Region(object):
             list of Motor-CAD region object
         """
         self._check_connection()
-        return self.mc.get_region(self.parent_name)
+        return self.motorcad_instance.get_region(self.parent_name)
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
@@ -210,7 +238,7 @@ class Region(object):
             list of Motor-CAD region object
         """
         self._check_connection()
-        regions = self.mc.subtract_region(self, region)
+        regions = self.motorcad_instance.subtract_region(self, region)
 
         if len(regions) > 0:
             self.update(regions[0])
@@ -228,11 +256,11 @@ class Region(object):
             regions = [regions]
 
         self._check_connection()
-        united_region = self.mc.unite_regions(self, regions)
+        united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
     def collides(self, regions):
-        """Subtract region from self, returning any additional regions.
+        """Check whether any of the specified regions collide with self.
 
         Parameters
         ----------
@@ -243,7 +271,7 @@ class Region(object):
             regions = [regions]
 
         self._check_connection()
-        collisions = self.mc.check_collisions(self, regions)
+        collisions = self.motorcad_instance.check_collisions(self, regions)
 
         return len(collisions) > 0
 
@@ -265,17 +293,22 @@ class Region(object):
         self.entities = deepcopy(region.entities)
         self.parent_name = region.parent_name
         self._child_names = region.child_names
+        self._motorcad_instance = region._motorcad_instance
 
     def _check_connection(self):
         """Check mc connection for region."""
-        if self.mc is None:
+        if self.motorcad_instance is None:
             raise Exception(
                 "self.mc has not been set for "
                 + self.name
                 + ", you need to set mc parameter manually"
             )
-        if self.mc.connection._wait_for_response(1) is False:
-            raise Exception("Failed mc connection")
+        if self.motorcad_instance.connection._wait_for_response(1) is False:
+            raise Exception(
+                "self.mc has not been set for "
+                + self.name
+                + ", you need to set mc parameter manually"
+            )
 
 
 class Coordinate(object):
@@ -503,10 +536,8 @@ class Arc(Entity):
             else:
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
-        return Coordinate(
-            self.centre.x + abs(self.radius) * cos(angle),
-            self.centre.y + abs(self.radius) * sin(angle),
-        )
+        # return Coordinate(self.centre + Coordinate(*rt_to_xy(self.radius, angle)))
+        pass
 
     def get_length(self):
         """Get length of arc from start to end along circumference.

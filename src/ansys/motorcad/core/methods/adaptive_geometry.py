@@ -58,7 +58,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
-        region = Region(mc=self)
+        region = Region(motorcad_instance=self)
         region._from_json(raw_region)
 
         return region
@@ -162,7 +162,7 @@ class _RpcMethodsAdaptiveGeometry:
         return region
 
     def subtract_region(self, region, region_subtract):
-        """Subtract a single region from another region.
+        """Subtract Motor-CAD region (region_subtract) from another Motor-CAD region (region).
 
         Parameters
         ----------
