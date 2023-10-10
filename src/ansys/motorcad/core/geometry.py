@@ -687,8 +687,7 @@ class Arc(Entity):
             else:
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
-        # return Coordinate(self.centre + Coordinate(*rt_to_xy(self.radius, angle)))
-        pass
+        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
 
     def get_length(self):
         """Get length of arc from start to end along circumference.
@@ -987,7 +986,7 @@ def rt_to_xy(radius, theta):
 
     Returns
     -------
-    x : float
+    (x, y) : float
         X coordinate value.
     y : float
         Y coordinate value.
