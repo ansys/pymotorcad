@@ -117,7 +117,10 @@ def draw_regions(regions):
         entities to draw
     """
     if not MATPLOTLIB_AVAILABLE:
-        raise ImportError("Failed to draw geometry. Please ensure MatPlotLib is installed.")
+        raise ImportError(
+            "Failed to draw geometry. Please ensure MatPlotLib and a suitable backend "
+            "e.g. PyQt5 are installed"
+        )
 
     if not isinstance(regions, list):
         # Given a single region not a list - reformat

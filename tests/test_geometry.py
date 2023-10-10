@@ -1,16 +1,17 @@
 import builtins
 from copy import deepcopy
 import math
-from math import isclose, sqrt
+from math import cos, degrees, isclose, radians, sin, sqrt
+import tempfile
 
 from matplotlib import pyplot as plt
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy
 from ansys.motorcad.core.geometry_drawing import draw_regions
-from setup_test import setup_test_env
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -818,6 +819,7 @@ def test_delete_region():
         mc.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
+    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -840,7 +842,7 @@ def test_coordinate_operators():
     assert abs(c1) == sqrt(41)
 
 
-def test_line_coordinate_exists():
+def test_line_coordinate_on_entity():
     p0 = Coordinate(0, 0)
     p1 = Coordinate(10, 0)
     l0 = Line(p0, p1)
@@ -864,7 +866,7 @@ def test_arc_start_end_angle():
     assert a0.end_angle() == 0
 
 
-def test_arc_coordinate_exists():
+def test_arc_coordinate_on_entity():
     pc = Coordinate(0, 0)
     p0 = Coordinate(0, -4)
     p1 = Coordinate(0, 4)
@@ -880,12 +882,27 @@ def test_arc_coordinate_exists():
     assert a1.coordinate_on_entity(p3) is False
     assert a1.coordinate_on_entity(p4) is False
 
-    radius = -1 * abs(p0 - pc)
-    a1 = Arc(p0, p1, pc, radius)
+    a1 = Arc(p0, p1, pc, -radius)
 
     assert a1.coordinate_on_entity(p2) is False
     assert a1.coordinate_on_entity(p3) is False
     assert a1.coordinate_on_entity(p4) is True
+
+    p_c = Coordinate(0, 0)
+
+    p0 = Coordinate(1, 1)
+    p1 = Coordinate(1, -1)
+    radius = abs(cos(degrees(45)))
+
+    a1 = Arc(p0, p1, p_c, -radius)
+    p_test1 = Coordinate(radius, 0)
+    p_test2 = Coordinate(-radius, 0)
+    assert a1.coordinate_on_entity(p_test1) is True
+    assert a1.coordinate_on_entity(p_test2) is False
+
+    a1 = Arc(p0, p1, p_c, radius)
+    assert a1.coordinate_on_entity(p_test2) is True
+    assert a1.coordinate_on_entity(p_test1) is False
 
 
 def test_midpoints():
@@ -895,17 +912,28 @@ def test_midpoints():
     l0 = Line(p0, p1)
     assert l0.midpoint() == (p0 + p01 / 2)
 
-    pc = Coordinate(-2, -6)
-    p0 = Coordinate(1, -3)
-    p1 = Coordinate(1, -9)
-    a0 = Arc(p0, p1, pc, abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(-2, abs(p1 - pc) - 6)
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(3, 3)
+    p1 = Coordinate(3, -3)
+    a0 = Arc(p0, p1, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(abs(p1 - pc), 0)
 
     pc = Coordinate(0, 0)
-    p0 = Coordinate(0, 3)
-    p1 = Coordinate(3, 0)
+    p0 = Coordinate(3, 0)
+    p1 = Coordinate(0, 3)
+
+    radius = 3 * sin(radians(45))
     a0 = Arc(p0, p1, pc, -abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(3 * sin(radians(45)), 3 * cos(radians(45)))
+    assert a0.midpoint() == Coordinate(-radius, -radius)
+
+    a0 = Arc(p0, p1, pc, abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(radius, radius)
+
+    a0 = Arc(p1, p0, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(radius, radius)
+
+    a0 = Arc(p1, p0, pc, abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(-radius, -radius)
 
 
 def test_total_angle():
@@ -920,6 +948,18 @@ def test_total_angle():
     p1 = Coordinate(-3, -5)
     a1 = Arc(p0, p1, pc, abs(p0 - pc))
     assert a1.total_angle() == 90
+
+    p0 = Coordinate(*rt_to_xy(1, 60))
+    p1 = Coordinate(*rt_to_xy(1, 120))
+    pc = Coordinate(0, 0)
+    a1 = Arc(p0, p1, pc, 1)
+    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
+    a1 = Arc(p0, p1, pc, -1)
+    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    a1 = Arc(p1, p0, pc, 1)
+    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    a1 = Arc(p1, p0, pc, -1)
+    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
 
 
 def test_draw_regions(monkeypatch):
@@ -966,6 +1006,7 @@ def test_strings(capsys):
 
 def test_add_point():
     region = generate_constant_region()
+
     points = region.get_points()
     new_point = region.entities[0].midpoint()
     region.add_point(new_point)

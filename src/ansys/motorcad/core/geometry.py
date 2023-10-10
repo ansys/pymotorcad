@@ -1,7 +1,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import acos, atan2, cos, degrees, isclose, radians, sin, sqrt
+from math import atan2, cos, degrees, isclose, radians, sin, sqrt
 
 
 class Region(object):
@@ -177,32 +177,23 @@ class Region(object):
         point : Coordinate
             Coordinate at which to add new point
         """
-        point_exists = False
-
         for pos, entity in enumerate(self.entities):
-            if isinstance(entity, Line):
-                if entity.coordinate_on_entity(point):
-                    point_exists = True
-                    new_line_1 = Line(entity.start, point)
-                    new_line_2 = Line(point, entity.end)
+            if entity.coordinate_on_entity(point):
+                if isinstance(entity, Line):
+                    new_entity_1 = Line(entity.start, point)
+                    new_entity_2 = Line(point, entity.end)
+                elif isinstance(entity, Arc):
+                    new_entity_1 = Arc(entity.start, point, entity.centre, entity.radius)
+                    new_entity_2 = Arc(point, entity.end, entity.centre, entity.radius)
+                else:
+                    raise Exception("Entity type is not Arc or Line")
 
-                    self.entities.pop(pos)
-                    self.entities.insert(pos, new_line_1)
-                    self.entities.insert(pos + 1, new_line_2)
-                    break
-            elif isinstance(entity, Arc):
-                if entity.coordinate_on_entity(point):
-                    point_exists = True
+                self.entities.pop(pos)
+                self.entities.insert(pos, new_entity_1)
+                self.entities.insert(pos + 1, new_entity_2)
+                break
 
-                    new_arc_1 = Arc(entity.start, point, entity.centre, entity.radius)
-                    new_arc_2 = Arc(point, entity.end, entity.centre, entity.radius)
-
-                    self.entities.pop(pos)
-                    self.entities.insert(pos, new_arc_1)
-                    self.entities.insert(pos + 1, new_arc_2)
-                    break
-
-        if point_exists is False:
+        else:
             raise Exception("Failed to find point on entity in region")
 
     def edit_point(self, old_coordinates, new_coordinates):
@@ -442,7 +433,6 @@ class Line(Entity):
         -------
         bool
         """
-        v_self = self.end - self.start
         v1 = self.end - coordinate
         v2 = coordinate - self.start
 
@@ -590,13 +580,12 @@ class Arc(Entity):
         v_from_centre = coordinate - self.centre
         radius, angle_to_check = v_from_centre.get_polar_coords_deg()
 
-        theta1 = angle_to_check - self.start_angle()
-        theta2 = self.end_angle() - self.start_angle()
-
         if self.radius > 0:
-            within_angle = theta1 <= theta2
+            theta1 = (angle_to_check - self.start_angle()) % 360
         else:
-            within_angle = theta2 <= theta1
+            theta1 = (angle_to_check - self.end_angle()) % 360
+
+        within_angle = theta1 <= self.total_angle()
 
         return within_angle and (abs(radius) == abs(self.radius))
 
@@ -627,11 +616,10 @@ class Arc(Entity):
         -------
         real
         """
-        v_s_c = self.start - self.centre
-        v_s_e = self.end - self.centre
-
-        dp = (v_s_c.x * v_s_e.x) + (v_s_c.y * v_s_e.y)
-        return degrees(acos(dp / (abs(v_s_c) * abs(v_s_e))))
+        if self.radius > 0:
+            return (self.end_angle() - self.start_angle()) % 360
+        else:
+            return (self.start_angle() - self.end_angle()) % 360
 
 
 class EntityList(list):
