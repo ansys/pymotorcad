@@ -300,13 +300,12 @@ class Region(object):
         if self.motorcad_instance is None:
             raise Exception(
                 "A Motor-CAD connection is required for this function"
-                + ", Please set self.mc to a valid Motor-CAD instance"
+                + ", please set self.motorcad_instance to a valid Motor-CAD instance"
             )
         if self.motorcad_instance.connection._wait_for_response(1) is False:
             raise Exception(
-                "self.mc has not been set for "
-                + self.name
-                + ", you need to set mc parameter manually"
+                "Unable to connect to Motor-CAD using self.motorcad_instance,"
+                + ", please set self.motorcad_instance to a valid Motor-CAD instance"
             )
 
     def get_points(self):
