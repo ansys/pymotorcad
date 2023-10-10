@@ -1,12 +1,17 @@
+import builtins
 from copy import deepcopy
 import math
-from math import isclose, sqrt
+from math import cos, degrees, isclose, radians, sin, sqrt
+import tempfile
 
+from matplotlib import pyplot as plt
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
-from setup_test import setup_test_env
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy
+from ansys.motorcad.core.geometry_drawing import draw_regions
+from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
@@ -174,12 +179,29 @@ def test_set_region():
     assert returned_region == region
 
 
-def test_save_adaptive_script():
+def test_load_adaptive_script():
+    """Test loading adaptive template script into Motor-CAD from file."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
-    mc.save_adaptive_script(filepath)
+    # load file into Motor-CAD
+    mc.load_adaptive_script(filepath)
 
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+    # open file and sum number of lines and check against number of lines from Motor-CAD
+    with open(filepath, "rbU") as f:
+        num_lines_file = sum(1 for _ in f)
 
+    assert num_lines == num_lines_file
+
+
+def test_save_adaptive_script():
+    """Test save adaptive template script from Motor-CAD to specified file path."""
+    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    mc.load_adaptive_script(filepath)
+    num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
+
+    filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
+    mc.save_adaptive_script(filepath)
+    # sum number of lines in saved file and check against number of lines from Motor-CAD
     with open(filepath, "rbU") as f:
         num_lines_file = sum(1 for _ in f)
 
@@ -793,6 +815,254 @@ def test_check_collisions_3():
     collisions = mc.check_collisions(square, [triangle])
     assert len(collisions) == 1
     assert collisions[0] == triangle
+
+
+def test_delete_region():
+    stator = mc.get_region("Stator")
+
+    mc.delete_region(stator)
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region("Stator")
+
+    assert "Failed to find region with name" in str(e_info.value)
+    reset_to_default_file(mc)
+
+
+def test_coordinate_operators():
+    c1 = Coordinate(5, 5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(4, 4)
+    assert (c1 - c2) == c_res_exp
+
+    c1 = Coordinate(-5, -5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(-6, -6)
+    assert (c1 - c2) == c_res_exp
+
+    c1 = Coordinate(5, 5)
+    c2 = Coordinate(1, 1)
+    c_res_exp = Coordinate(6, 6)
+    assert (c1 + c2) == c_res_exp
+
+    c1 = Coordinate(5, 4)
+    assert abs(c1) == sqrt(41)
+
+
+def test_line_coordinate_on_entity():
+    p0 = Coordinate(0, 0)
+    p1 = Coordinate(10, 0)
+    l0 = Line(p0, p1)
+
+    p_2 = Coordinate(5, 0)
+    p_3 = Coordinate(11, 0)
+    p_4 = Coordinate(5, 0.1)
+    assert l0.coordinate_on_entity(p_2) is True
+    assert l0.coordinate_on_entity(p_4) is False
+    assert l0.coordinate_on_entity(p_3) is False
+
+
+def test_arc_start_end_angle():
+    p_centre = Coordinate(2, 2)
+    p_end = Coordinate(4, 2)
+    p_start = Coordinate(2, 0)
+    radius = -2
+
+    a0 = Arc(p_start, p_end, p_centre, radius)
+    assert a0.start_angle() == -90
+    assert a0.end_angle() == 0
+
+
+def test_arc_coordinate_on_entity():
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(0, -4)
+    p1 = Coordinate(0, 4)
+    radius = abs(p0 - pc)
+
+    a1 = Arc(p0, p1, pc, radius)
+
+    p2 = Coordinate(4, 0)
+    p3 = p2 / 2
+    p4 = Coordinate(-4, 0)
+
+    assert a1.coordinate_on_entity(p2)
+    assert a1.coordinate_on_entity(p3) is False
+    assert a1.coordinate_on_entity(p4) is False
+
+    a1 = Arc(p0, p1, pc, -radius)
+
+    assert a1.coordinate_on_entity(p2) is False
+    assert a1.coordinate_on_entity(p3) is False
+    assert a1.coordinate_on_entity(p4) is True
+
+    p_c = Coordinate(0, 0)
+
+    p0 = Coordinate(1, 1)
+    p1 = Coordinate(1, -1)
+    radius = abs(cos(degrees(45)))
+
+    a1 = Arc(p0, p1, p_c, -radius)
+    p_test1 = Coordinate(radius, 0)
+    p_test2 = Coordinate(-radius, 0)
+    assert a1.coordinate_on_entity(p_test1) is True
+    assert a1.coordinate_on_entity(p_test2) is False
+
+    a1 = Arc(p0, p1, p_c, radius)
+    assert a1.coordinate_on_entity(p_test2) is True
+    assert a1.coordinate_on_entity(p_test1) is False
+
+
+def test_midpoints():
+    p0 = Coordinate(-2, 4)
+    p1 = Coordinate(10, -8)
+    p01 = p1 - p0
+    l0 = Line(p0, p1)
+    assert l0.midpoint() == (p0 + p01 / 2)
+
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(3, 3)
+    p1 = Coordinate(3, -3)
+    a0 = Arc(p0, p1, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(abs(p1 - pc), 0)
+
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(3, 0)
+    p1 = Coordinate(0, 3)
+
+    radius = 3 * sin(radians(45))
+    a0 = Arc(p0, p1, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(-radius, -radius)
+
+    a0 = Arc(p0, p1, pc, abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(radius, radius)
+
+    a0 = Arc(p1, p0, pc, -abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(radius, radius)
+
+    a0 = Arc(p1, p0, pc, abs(p1 - pc))
+    assert a0.midpoint() == Coordinate(-radius, -radius)
+
+
+def test_total_angle():
+    pc = Coordinate(0, 0)
+    p0 = Coordinate(0, 5)
+    p1 = Coordinate(-5, 0)
+    a1 = Arc(p0, p1, pc, abs(p0 - pc))
+    assert a1.total_angle() == 90
+
+    pc = Coordinate(-3, -1)
+    p0 = Coordinate(-7, -1)
+    p1 = Coordinate(-3, -5)
+    a1 = Arc(p0, p1, pc, abs(p0 - pc))
+    assert a1.total_angle() == 90
+
+    p0 = Coordinate(*rt_to_xy(1, 60))
+    p1 = Coordinate(*rt_to_xy(1, 120))
+    pc = Coordinate(0, 0)
+    a1 = Arc(p0, p1, pc, 1)
+    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
+    a1 = Arc(p0, p1, pc, -1)
+    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    a1 = Arc(p1, p0, pc, 1)
+    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    a1 = Arc(p1, p0, pc, -1)
+    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
+
+
+def test_draw_regions(monkeypatch):
+    # Just check it runs for now
+    # Stop plt.show() blocking tests
+    monkeypatch.setattr(plt, "show", lambda: None)
+
+    region = mc.get_region("Stator")
+    region2 = mc.get_region("StatorWedge")
+    region3 = mc.get_region("ArmatureSlotL1")
+
+    draw_regions(region)
+    draw_regions([region, region2, region3])
+
+    # Test overflow of colours
+    region4 = mc.get_region("StatorAir")
+    region5 = mc.get_region("Shaft")
+    draw_regions([region, region2, region3, region4, region5])
+
+
+def test_is_matplotlib_installed(monkeypatch):
+    original_import = builtins.__import__
+
+    def fail_import(name, *args, **kwargs):
+        if name == "matplotlib":
+            raise ImportError
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fail_import)
+
+    region = generate_constant_region()
+    import ansys.motorcad.core.geometry_drawing as geom_import
+
+    with pytest.raises(ImportError):
+        geom_import.draw_regions(region)
+
+
+def test_strings(capsys):
+    c = Coordinate(7, -10)
+    print(c)
+    output = capsys.readouterr()
+    assert output.out.strip() == "[7, -10]"
+
+
+def test_add_point():
+    region = generate_constant_region()
+
+    points = region.get_points()
+    new_point = region.entities[0].midpoint()
+    region.add_point(new_point)
+
+    # Expected result
+    points.insert(1, new_point)
+    assert points == region.get_points()
+
+    region = generate_constant_region()
+    with pytest.raises(Exception):
+        region.add_point(Coordinate(100, 100))
+
+    points = region.get_points()
+    new_point = region.entities[1].midpoint()
+    region.add_point(new_point)
+
+    # Expected result
+    points.insert(2, new_point)
+    assert points == region.get_points()
+
+
+def test_edit_point():
+    region = generate_constant_region()
+    points = region.get_points()
+    new_coord = Coordinate(0, 0)
+    region.edit_point(points[0], new_coord)
+    assert region.entities[0].start == new_coord
+    assert region.entities[2].end == new_coord
+
+    region = generate_constant_region()
+    points = region.get_points()
+
+    # Move arc point too far
+    translate = Coordinate(2, 2)
+    with pytest.raises(Exception):
+        region.edit_point(points[2], points[2] + translate)
+
+    ref_region = generate_constant_region()
+    region = generate_constant_region()
+    points = region.get_points()
+
+    translate = Coordinate(0.2, 0.2)
+    region.edit_point(points[2], points[2] + translate)
+    region.edit_point(points[1], points[1] + translate)
+
+    assert region.entities[0].end == ref_region.entities[0].end + translate
+    assert region.entities[1].start == ref_region.entities[1].start + translate
+    assert region.entities[1].end == ref_region.entities[1].end + translate  #
+    assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
 def test_subtract_regions():
