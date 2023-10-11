@@ -352,14 +352,14 @@ def test_region_contains_same_entities():
     assert region == expected_region
 
 
-def test_region_get_parent():
+def test_region_parent():
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
     assert pocket.parent() == expected_region
 
 
-def test_region_get_children():
+def test_region_children():
     rotor = mc.get_region("rotor")
     children = rotor.children()
 
