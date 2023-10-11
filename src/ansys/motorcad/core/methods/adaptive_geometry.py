@@ -58,7 +58,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
-        region = Region()
+        region = Region(motorcad_instance=self)
         region._from_json(raw_region)
 
         return region
@@ -192,3 +192,36 @@ class _RpcMethodsAdaptiveGeometry:
         method = "DeleteRegion"
         params = [raw_region, remove_children]
         self.connection.send_and_receive(method, params)
+
+    def subtract_region(self, region, region_subtract):
+        """Subtract Motor-CAD region (region_subtract) from another Motor-CAD region (region).
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        region_subtract : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region objects
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+        raw_region_subtract = region_subtract._to_json()
+
+        method = "SubtractRegion"
+        params = [raw_region, raw_region_subtract]
+        subtracted_raw_regions = self.connection.send_and_receive(method, params)
+
+        regions = []
+        for subtracted_raw in subtracted_raw_regions:
+            returned_region = Region()
+            returned_region._from_json(subtracted_raw)
+            regions.append(returned_region)
+
+        return regions
