@@ -443,10 +443,10 @@ def test_line_get_coordinate_from_distance():
     )
 
 
-def test_line_get_length():
+def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
 
-    assert line.get_length() == sqrt(2)
+    assert line.length == sqrt(2)
 
 
 def test_arc_get_coordinate_from_percentage_distance():
@@ -469,12 +469,12 @@ def test_arc_get_coordinate_from_distance():
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
 
-def test_arc_get_length():
+def test_arc_length():
     arc = geometry.Arc(
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
     )
 
-    assert arc.get_length() == math.pi
+    assert arc.length == math.pi
 
 
 def test_convert_entities_to_json():

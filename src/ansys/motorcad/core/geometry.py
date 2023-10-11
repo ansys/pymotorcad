@@ -375,9 +375,7 @@ class Line(Entity):
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        length = self.get_length()
-
-        t = (length * percentage) / length
+        t = (self.length * percentage) / self.length
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
@@ -406,13 +404,14 @@ class Line(Entity):
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        t = distance / self.get_length()
+        t = distance / self.length
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
         return Coordinate(x, y)
 
-    def get_length(self):
+    @property
+    def length(self):
         """Get length of line.
 
         Returns
@@ -436,7 +435,7 @@ class Line(Entity):
         v1 = self.end - coordinate
         v2 = coordinate - self.start
 
-        return abs(v1) + abs(v2) == self.get_length()
+        return abs(v1) + abs(v2) == self.length
 
 
 class Arc(Entity):
@@ -501,7 +500,7 @@ class Arc(Entity):
         Coordinate
             Coordinate at percentage distance along Arc.
         """
-        length = self.get_length() * percentage
+        length = self.length * percentage
 
         return self.get_coordinate_from_distance(ref_coordinate, length)
 
@@ -538,7 +537,8 @@ class Arc(Entity):
             self.centre.x + self.radius * cos(angle), self.centre.y + self.radius * sin(angle)
         )
 
-    def get_length(self):
+    @property
+    def length(self):
         """Get length of arc from start to end along circumference.
 
         Returns
