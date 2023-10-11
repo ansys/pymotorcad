@@ -202,7 +202,8 @@ class Region(object):
         #                      mc is not a Motor-CAD connection")
         self._motorcad_instance = mc
 
-    def get_children(self):
+    @property
+    def children(self):
         """Return list of child regions from Motor-CAD.
 
         Returns
@@ -213,7 +214,8 @@ class Region(object):
         self._check_connection()
         return [self.motorcad_instance.get_region(name) for name in self.child_names]
 
-    def get_parent(self):
+    @property
+    def parent(self):
         """Return parent region from Motor-CAD.
 
         Returns
