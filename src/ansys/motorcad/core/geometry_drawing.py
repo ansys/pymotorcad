@@ -98,9 +98,9 @@ class _RegionDrawing:
 
         for entity_num, entity in enumerate(region.entities):
             text = "e{}".format(entity_num)
-            self._plot_text_no_overlap(entity.midpoint(), text, colour)
+            self._plot_text_no_overlap(entity.midpoint, text, colour)
 
-        points = region.entities.get_points()
+        points = region.entities.points
         for point_num, point in enumerate(points):
             text = "p{}".format(point_num)
             self._plot_text_no_overlap(point, text, colour)

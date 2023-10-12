@@ -310,14 +310,15 @@ class Region(object):
                 + ", please set self.motorcad_instance to a valid Motor-CAD instance"
             )
 
-    def get_points(self):
+    @property
+    def points(self):
         """Get points that exist in region.
 
         Returns
         -------
         List of Coordinate
         """
-        return self.entities.get_points()
+        return self.entities.points
 
     def add_point(self, point):
         """Add a new point into region on an existing Line/Arc.
@@ -496,6 +497,7 @@ class Line(Entity):
         """Override the default equals implementation for Line."""
         return isinstance(other, Line) and self.start == other.start and self.end == other.end
 
+    @property
     def midpoint(self):
         """Get midpoint of Line.
 
@@ -625,6 +627,7 @@ class Arc(Entity):
             and self.radius == other.radius
         )
 
+    @property
     def midpoint(self):
         """Get midpoint of arc.
 
@@ -632,8 +635,8 @@ class Arc(Entity):
         -------
             Coordinate
         """
-        angle_to_rotate = (self.total_angle() / 2) * (self.radius / abs(self.radius))
-        angle = self.start_angle() + angle_to_rotate
+        angle_to_rotate = (self.total_angle / 2) * (self.radius / abs(self.radius))
+        angle = self.start_angle + angle_to_rotate
         x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
         return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
@@ -732,14 +735,15 @@ class Arc(Entity):
         radius, angle_to_check = v_from_centre.get_polar_coords_deg()
 
         if self.radius > 0:
-            theta1 = (angle_to_check - self.start_angle()) % 360
+            theta1 = (angle_to_check - self.start_angle) % 360
         else:
-            theta1 = (angle_to_check - self.end_angle()) % 360
+            theta1 = (angle_to_check - self.end_angle) % 360
 
-        within_angle = theta1 <= self.total_angle()
+        within_angle = theta1 <= self.total_angle
 
         return within_angle and (abs(radius) == abs(self.radius))
 
+    @property
     def start_angle(self):
         """Get angle of start point from centre point coordinates.
 
@@ -750,6 +754,7 @@ class Arc(Entity):
         _, ang = (self.start - self.centre).get_polar_coords_deg()
         return ang
 
+    @property
     def end_angle(self):
         """Get angle of end point from centre point coordinates.
 
@@ -760,6 +765,7 @@ class Arc(Entity):
         _, ang = (self.end - self.centre).get_polar_coords_deg()
         return ang
 
+    @property
     def total_angle(self):
         """Get arc sweep angle.
 
@@ -768,9 +774,9 @@ class Arc(Entity):
         real
         """
         if self.radius > 0:
-            return (self.end_angle() - self.start_angle()) % 360
+            return (self.end_angle - self.start_angle) % 360
         else:
-            return (self.start_angle() - self.end_angle()) % 360
+            return (self.start_angle - self.end_angle) % 360
 
 
 class EntityList(list):
@@ -788,7 +794,8 @@ class EntityList(list):
         for entity in self:
             entity.reverse()
 
-    def get_points(self):
+    @property
+    def points(self):
         """Get points of shape/region from Entity list.
 
         Returns
