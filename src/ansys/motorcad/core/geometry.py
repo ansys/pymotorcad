@@ -226,6 +226,11 @@ class Region(object):
         self._check_connection()
         return self.motorcad_instance.get_region(self.parent_name)
 
+    @parent.setter
+    def parent(self, region):
+        """Set parent region."""
+        self._parent_name = region.name
+
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
 
