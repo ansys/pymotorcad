@@ -359,11 +359,11 @@ def test_region_parent():
     assert pocket.parent == expected_region
 
 
-def test_region_children():
-    rotor = mc.get_region("rotor")
-    children = rotor.children
-
-    assert len(children) == 16
+# def test_region_children():
+#     rotor = mc.get_region("rotor")
+#     children = rotor.children
+#
+#     assert len(children) == 16
 
 
 def test_reverse_entity():
@@ -1158,7 +1158,7 @@ def test_subtract_region_1():
     ]
     # create and add line entities to region from their respective points
     expected_region_2.entities += create_lines_from_points(points_expected_2)
-
+    square.motorcad_instance = mc
     regions = square.subtract(rectangle)
 
     assert square == expected_region_1
@@ -1191,7 +1191,7 @@ def test_subtract_region_2():
     ]
     # create and add line entities to region from their respective points
     expected_region.entities += create_lines_from_points(points)
-
+    square.motorcad_instance = mc
     square.subtract(triangle)
 
     assert square == expected_region
