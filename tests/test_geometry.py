@@ -356,12 +356,12 @@ def test_region_parent():
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
-    assert pocket.parent() == expected_region
+    assert pocket.parent == expected_region
 
 
 def test_region_children():
     rotor = mc.get_region("rotor")
-    children = rotor.children()
+    children = rotor.children
 
     assert len(children) == 16
 
@@ -869,8 +869,8 @@ def test_arc_start_end_angle():
     radius = -2
 
     a0 = Arc(p_start, p_end, p_centre, radius)
-    assert a0.start_angle() == -90
-    assert a0.end_angle() == 0
+    assert a0.start_angle == -90
+    assert a0.end_angle == 0
 
 
 def test_arc_coordinate_on_entity():
@@ -917,13 +917,13 @@ def test_midpoints():
     p1 = Coordinate(10, -8)
     p01 = p1 - p0
     l0 = Line(p0, p1)
-    assert l0.midpoint() == (p0 + p01 / 2)
+    assert l0.midpoint == (p0 + p01 / 2)
 
     pc = Coordinate(0, 0)
     p0 = Coordinate(3, 3)
     p1 = Coordinate(3, -3)
     a0 = Arc(p0, p1, pc, -abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(abs(p1 - pc), 0)
+    assert a0.midpoint == Coordinate(abs(p1 - pc), 0)
 
     pc = Coordinate(0, 0)
     p0 = Coordinate(3, 0)
@@ -931,16 +931,16 @@ def test_midpoints():
 
     radius = 3 * sin(radians(45))
     a0 = Arc(p0, p1, pc, -abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(-radius, -radius)
+    assert a0.midpoint == Coordinate(-radius, -radius)
 
     a0 = Arc(p0, p1, pc, abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(radius, radius)
+    assert a0.midpoint == Coordinate(radius, radius)
 
     a0 = Arc(p1, p0, pc, -abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(radius, radius)
+    assert a0.midpoint == Coordinate(radius, radius)
 
     a0 = Arc(p1, p0, pc, abs(p1 - pc))
-    assert a0.midpoint() == Coordinate(-radius, -radius)
+    assert a0.midpoint == Coordinate(-radius, -radius)
 
 
 def test_total_angle():
@@ -948,25 +948,25 @@ def test_total_angle():
     p0 = Coordinate(0, 5)
     p1 = Coordinate(-5, 0)
     a1 = Arc(p0, p1, pc, abs(p0 - pc))
-    assert a1.total_angle() == 90
+    assert a1.total_angle == 90
 
     pc = Coordinate(-3, -1)
     p0 = Coordinate(-7, -1)
     p1 = Coordinate(-3, -5)
     a1 = Arc(p0, p1, pc, abs(p0 - pc))
-    assert a1.total_angle() == 90
+    assert a1.total_angle == 90
 
     p0 = Coordinate(*rt_to_xy(1, 60))
     p1 = Coordinate(*rt_to_xy(1, 120))
     pc = Coordinate(0, 0)
     a1 = Arc(p0, p1, pc, 1)
-    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
+    assert isclose(a1.total_angle, 60, abs_tol=1e-6)
     a1 = Arc(p0, p1, pc, -1)
-    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    assert isclose(a1.total_angle, 300, abs_tol=1e-6)
     a1 = Arc(p1, p0, pc, 1)
-    assert isclose(a1.total_angle(), 300, abs_tol=1e-6)
+    assert isclose(a1.total_angle, 300, abs_tol=1e-6)
     a1 = Arc(p1, p0, pc, -1)
-    assert isclose(a1.total_angle(), 60, abs_tol=1e-6)
+    assert isclose(a1.total_angle, 60, abs_tol=1e-6)
 
 
 def test_draw_regions(monkeypatch):
@@ -1014,37 +1014,37 @@ def test_strings(capsys):
 def test_add_point():
     region = generate_constant_region()
 
-    points = region.get_points()
-    new_point = region.entities[0].midpoint()
+    points = region.points
+    new_point = region.entities[0].midpoint
     region.add_point(new_point)
 
     # Expected result
     points.insert(1, new_point)
-    assert points == region.get_points()
+    assert points == region.points
 
     region = generate_constant_region()
     with pytest.raises(Exception):
         region.add_point(Coordinate(100, 100))
 
-    points = region.get_points()
-    new_point = region.entities[1].midpoint()
+    points = region.points
+    new_point = region.entities[1].midpoint
     region.add_point(new_point)
 
     # Expected result
     points.insert(2, new_point)
-    assert points == region.get_points()
+    assert points == region.points
 
 
 def test_edit_point():
     region = generate_constant_region()
-    points = region.get_points()
+    points = region.points
     new_coord = Coordinate(0, 0)
     region.edit_point(points[0], new_coord)
     assert region.entities[0].start == new_coord
     assert region.entities[2].end == new_coord
 
     region = generate_constant_region()
-    points = region.get_points()
+    points = region.points
 
     # Move arc point too far
     translate = Coordinate(2, 2)
@@ -1053,7 +1053,7 @@ def test_edit_point():
 
     ref_region = generate_constant_region()
     region = generate_constant_region()
-    points = region.get_points()
+    points = region.points
 
     translate = Coordinate(0.2, 0.2)
     region.edit_point(points[2], points[2] + translate)
