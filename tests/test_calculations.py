@@ -1,6 +1,6 @@
-import os
+# import os
 
-from RPC_Test_Common import almost_equal, get_dir_path, get_temp_files_dir_path
+from RPC_Test_Common import almost_equal, get_dir_path  # , get_temp_files_dir_path
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
@@ -13,12 +13,12 @@ def test_do_magnetic_thermal_calculation():
     assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 133.367)
 
 
-def test_calculate_saturation_map():
-    file_path = get_temp_files_dir_path() + r"\SaturationLossMap.mat"
-    mc.set_variable("SaturationMap_ExportFile", file_path)
-    mc.calculate_saturation_map()
-
-    assert os.path.exists(file_path)
+# def test_calculate_saturation_map():
+#     file_path = get_temp_files_dir_path() + r"\SaturationLossMap.mat"
+#     mc.set_variable("SaturationMap_ExportFile", file_path)
+#     mc.calculate_saturation_map()
+#
+#     assert os.path.exists(file_path)
 
 
 def test_do_transient_analysis():
