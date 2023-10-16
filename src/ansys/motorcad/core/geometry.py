@@ -1,7 +1,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, degrees, isclose, radians, sqrt
+from math import atan2, degrees, inf, isclose, radians, sqrt
 
 
 class Region(object):
@@ -282,6 +282,35 @@ class Region(object):
 
         return len(collisions) > 0
 
+    def mirror(self, mirror_line, unique_name=True):
+        """Mirror region along entity.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror region about
+
+        unique_name : boolean
+            Whether to apply a unique name to returned region
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Region
+        """
+        region = deepcopy(self)
+        region.entities.clear()
+        region.centroid = self.centroid.mirror(mirror_line)
+        region.region_coordinate = self.region_coordinate.mirror(mirror_line)
+        region._child_names = []
+
+        if unique_name:
+            region.name = region.name + "_Mirrored"
+
+        for entity in self.entities:
+            region.add_entity(entity.mirror(mirror_line))
+
+        return region
+
     def update(self, region):
         """Update class fields from another region.
 
@@ -452,6 +481,33 @@ class Coordinate(object):
         """Get coordinates as polar coordinates in degrees."""
         return xy_to_rt(self.x, self.y)
 
+    def mirror(self, mirror_line):
+        """Mirror Coordinate about a line entity.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror coordinate about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Coordinate
+        """
+        if isinstance(mirror_line, Line):
+            if mirror_line.is_vertical:
+                d = self.x - mirror_line.start.x
+                return Coordinate(mirror_line.start.x - d, self.y)
+            else:
+                d = (self.x + (self.y - mirror_line.y_intercept) * mirror_line.gradient) / (
+                    1 + mirror_line.gradient**2
+                )
+                return Coordinate(
+                    2 * d - self.x,
+                    2 * d * mirror_line.gradient - self.y + 2 * mirror_line.y_intercept,
+                )
+        else:
+            Exception("Coordinate can only be mirrored about Line()")
+
 
 class Entity(object):
     """Generic parent class for geometric entities based upon a start and end coordinate.
@@ -480,6 +536,23 @@ class Entity(object):
         end = self.end
         self.start = end
         self.end = start
+
+    def mirror(self, mirror_line):
+        """Mirror entity about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror entity about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Entity
+        """
+        if isinstance(mirror_line, Line):
+            return Entity(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
+        else:
+            Exception("Entity can only be mirrored about Line()")
 
 
 class Line(Entity):
@@ -511,6 +584,61 @@ class Line(Entity):
             Coordinate
         """
         return (self.start + self.end) / 2
+
+    @property
+    def gradient(self):
+        """Get gradient of line.
+
+        Returns
+        -------
+            float
+        """
+        if self.is_vertical:
+            return float(inf)
+        else:
+            return (self.end.y - self.start.y) / (self.end.x - self.start.x)
+
+    @property
+    def y_intercept(self):
+        """Get y intercept of line.
+
+        Returns
+        -------
+            float
+        """
+        if self.is_vertical:
+            Exception("Vertical line, no y interception")
+        else:
+            return ((self.end.x * self.start.y) - (self.start.x * self.end.y)) / (
+                self.end.x - self.start.x
+            )
+
+    @property
+    def is_vertical(self):
+        """Check whether line is vertical.
+
+        Returns
+        -------
+            boolean
+        """
+        return self.end.x - self.start.x == 0
+
+    def mirror(self, mirror_line):
+        """Mirror line about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror Line about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Line
+        """
+        if isinstance(mirror_line, Line):
+            return Line(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
+        else:
+            Exception("Line can only be mirrored about Line()")
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -695,6 +823,28 @@ class Arc(Entity):
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
         return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+
+    def mirror(self, mirror_line):
+        """Mirror arc about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror Line about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Arc
+        """
+        if isinstance(mirror_line, Line):
+            return Arc(
+                self.start.mirror(mirror_line),
+                self.end.mirror(mirror_line),
+                self.centre.mirror(mirror_line),
+                -1 * self.radius,
+            )
+        else:
+            Exception("Arc can only be mirrored about Line()")
 
     @property
     def length(self):

@@ -1,7 +1,7 @@
 import builtins
 from copy import deepcopy
 import math
-from math import cos, degrees, isclose, radians, sin, sqrt
+from math import cos, degrees, inf, isclose, radians, sin, sqrt
 import tempfile
 
 from matplotlib import pyplot as plt
@@ -1265,3 +1265,111 @@ def test_subtract_region_4():
 
     assert len(subtracted_regions[0].child_names) == 1
     assert subtracted_regions[0].child_names[0] == inner_square.name
+
+
+def test_region_mirror():
+    square = create_square()
+    mirror_line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(5, 0))
+
+    expected_region = deepcopy(square)
+    expected_region.entities.clear()
+
+    points = [
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, -2),
+        geometry.Coordinate(0, -2),
+    ]
+    expected_region.entities += create_lines_from_points(points)
+    assert square.mirror(mirror_line, unique_name=False) == expected_region
+
+
+def test_entity_mirror():
+    #
+    #   ---------- entity
+    #  ------------------------------------------ mirror line
+    #   ---------- mirrored
+    #
+    entity = geometry.Entity(geometry.Coordinate(0, 1), geometry.Coordinate(5, 1))
+    mirror_line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 10))
+    expected_entity = geometry.Entity(geometry.Coordinate(0, -1), geometry.Coordinate(5, -1))
+
+    assert entity.mirror(mirror_line) == expected_entity
+
+
+def test_line_mirror():
+    #
+    #        mirror line
+    #           \
+    #      |     \     --------- line
+    #      |      \
+    #      |       \
+    #      |        \
+    #   mirrored
+    #
+    line = geometry.Line(geometry.Coordinate(0, 5), geometry.Coordinate(5, 5))
+    mirror_line = geometry.Line(geometry.Coordinate(-10, 10), geometry.Coordinate(10, -10))
+    expected_line = geometry.Line(geometry.Coordinate(-5, 0), geometry.Coordinate(-5, -5))
+
+    assert line.mirror(mirror_line) == expected_line
+
+
+def test_line_is_vertical():
+    line = geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10))
+    assert line.is_vertical == True
+
+    line = geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5.1, 10))
+    assert line.is_vertical == False
+
+
+def test_line_gradient():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(10, 10))
+    assert line.gradient == 1
+
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(10, -10))
+    assert line.gradient == -1
+
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(20, 10))
+    assert line.gradient == 0.5
+
+
+def test_line_y_intercept():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(10, 10))
+    assert line.y_intercept == 0
+
+    line = geometry.Line(geometry.Coordinate(-5, 0), geometry.Coordinate(10, -10))
+    assert line.gradient == -2 / 3
+
+    line = geometry.Line(geometry.Coordinate(20, 0), geometry.Coordinate(20, 10))
+    assert line.gradient == float(inf)
+
+
+def test_arc_mirror():
+    #
+    #   ---------- arc
+    #  ------------------------------------------ mirror line
+    #   ---------- mirrored
+    #
+    arc = geometry.Arc(
+        geometry.Coordinate(0, 0), geometry.Coordinate(5, 0), geometry.Coordinate(2.5, 0), -2.5
+    )
+    mirror_line = geometry.Line(geometry.Coordinate(0, -1), geometry.Coordinate(10, -1))
+    expected_arc = geometry.Arc(
+        geometry.Coordinate(0, -2), geometry.Coordinate(5, -2), geometry.Coordinate(2.5, -2), 2.5
+    )
+
+    assert arc.mirror(mirror_line) == expected_arc
+
+
+def test_coordinate_mirror():
+    #
+    #       mirrored coordinate       mirror line         coordinate
+    #                                      |
+    #              .                       |                   .
+    #                                      |
+    #
+    coord = geometry.Coordinate(5, 5)
+    mirror_line = geometry.Line(geometry.Coordinate(-2, -2), geometry.Coordinate(-2, 10))
+    expected_coord = geometry.Coordinate(-9, 5)
+
+    assert coord.mirror(mirror_line) == expected_coord
