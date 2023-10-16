@@ -352,11 +352,22 @@ def test_region_contains_same_entities():
     assert region == expected_region
 
 
-def test_region_parent():
+def test_region_get_parent():
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
     assert pocket.parent == expected_region
+
+
+def test_region_set_parent():
+    shaft = mc.get_region("Shaft")
+    square = create_square()
+    square.name = "square"
+    square.parent = shaft
+    mc.set_region(square)
+
+    shaft_expected = mc.get_region("Shaft")
+    assert square.name in shaft_expected._child_names
 
 
 def test_region_children():
