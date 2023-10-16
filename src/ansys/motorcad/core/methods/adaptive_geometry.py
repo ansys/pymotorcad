@@ -112,7 +112,7 @@ class _RpcMethodsAdaptiveGeometry:
         collision_regions = []
 
         for raw_collision_region in raw_collision_regions:
-            collision_region = Region()
+            collision_region = Region(motorcad_instance=self)
             collision_region._from_json(raw_collision_region)
             collision_regions.append(collision_region)
 
@@ -169,7 +169,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region, raw_regions]
         united_raw = self.connection.send_and_receive(method, params)
 
-        region = Region()
+        region = Region(motorcad_instance=self)
         region._from_json(united_raw)
 
         return region
@@ -220,7 +220,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         regions = []
         for subtracted_raw in subtracted_raw_regions:
-            returned_region = Region()
+            returned_region = Region(motorcad_instance=self)
             returned_region._from_json(subtracted_raw)
             regions.append(returned_region)
 
