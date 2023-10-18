@@ -122,7 +122,7 @@ class Region(object):
         """Convert from Python class to Json object.
 
         Returns
-        ----------
+        -------
         dict
             Geometry region json representation
         """
@@ -168,7 +168,7 @@ class Region(object):
         """Get region parent name.
 
         Returns
-        ----------
+        -------
         string
         """
         return self._parent_name
@@ -183,7 +183,7 @@ class Region(object):
         """Property for child names list.
 
         Returns
-        ----------
+        -------
         list of string
             list of child region names
         """
@@ -207,7 +207,7 @@ class Region(object):
         """Return list of child regions from Motor-CAD.
 
         Returns
-        ----------
+        -------
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
@@ -219,7 +219,7 @@ class Region(object):
         """Return parent region from Motor-CAD.
 
         Returns
-        ----------
+        -------
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
@@ -240,7 +240,7 @@ class Region(object):
             Motor-CAD region object
 
         Returns
-        ----------
+        -------
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
@@ -824,7 +824,7 @@ class EntityList(list):
             Whether to reverse entities when checking entity equivalency.
 
         Returns
-        ----------
+        -------
         boolean
         """
 
