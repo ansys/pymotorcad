@@ -1292,7 +1292,7 @@ def test_entity_mirror():
     #
     entity = geometry.Entity(geometry.Coordinate(0, 1), geometry.Coordinate(5, 1))
     mirror_line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 10))
-    expected_entity = geometry.Entity(geometry.Coordinate(0, -1), geometry.Coordinate(5, -1))
+    expected_entity = geometry.Entity(geometry.Coordinate(0, 1), geometry.Coordinate(-5, 1))
 
     assert entity.mirror(mirror_line) == expected_entity
 
