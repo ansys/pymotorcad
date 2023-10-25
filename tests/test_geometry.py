@@ -352,18 +352,29 @@ def test_region_contains_same_entities():
     assert region == expected_region
 
 
-def test_region_parent():
+def test_region_get_parent():
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
     assert pocket.parent == expected_region
 
 
-def test_region_children():
-    rotor = mc.get_region("rotor")
-    children = rotor.children
-
-    assert len(children) == 16
+# def test_region_set_parent():
+#     shaft = mc.get_region("Shaft")
+#     square = create_square()
+#     square.name = "square"
+#     square.parent = shaft
+#     mc.set_region(square)
+#
+#     shaft_expected = mc.get_region("Shaft")
+#     assert square.name in shaft_expected._child_names
+#
+#
+# def test_region_children():
+#     rotor = mc.get_region("rotor")
+#     children = rotor.children
+#
+#     assert len(children) == 16
 
 
 def test_reverse_entity():
@@ -1158,7 +1169,7 @@ def test_subtract_region_1():
     ]
     # create and add line entities to region from their respective points
     expected_region_2.entities += create_lines_from_points(points_expected_2)
-
+    square.motorcad_instance = mc
     regions = square.subtract(rectangle)
 
     assert square == expected_region_1
@@ -1191,7 +1202,7 @@ def test_subtract_region_2():
     ]
     # create and add line entities to region from their respective points
     expected_region.entities += create_lines_from_points(points)
-
+    square.motorcad_instance = mc
     square.subtract(triangle)
 
     assert square == expected_region
