@@ -297,19 +297,22 @@ class Region(object):
         ----------
         ansys.motorcad.core.geometry.Region
         """
-        region = deepcopy(self)
-        region.entities.clear()
-        region.centroid = self.centroid.mirror(mirror_line)
-        region.region_coordinate = self.region_coordinate.mirror(mirror_line)
-        region._child_names = []
+        if isinstance(mirror_line, Line):
+            region = deepcopy(self)
+            region.entities.clear()
+            region.centroid = self.centroid.mirror(mirror_line)
+            region.region_coordinate = self.region_coordinate.mirror(mirror_line)
+            region._child_names = []
 
-        if unique_name:
-            region.name = region.name + "_Mirrored"
+            if unique_name:
+                region.name = region.name + "_mirrored"
 
-        for entity in self.entities:
-            region.add_entity(entity.mirror(mirror_line))
+            for entity in self.entities:
+                region.add_entity(entity.mirror(mirror_line))
 
-        return region
+            return region
+        else:
+            raise Exception("Region can only be mirrored about Line()")
 
     def update(self, region):
         """Update class fields from another region.
@@ -506,7 +509,7 @@ class Coordinate(object):
                     2 * d * mirror_line.gradient - self.y + 2 * mirror_line.y_intercept,
                 )
         else:
-            Exception("Coordinate can only be mirrored about Line()")
+            raise Exception("Coordinate can only be mirrored about Line()")
 
 
 class Entity(object):
@@ -552,7 +555,7 @@ class Entity(object):
         if isinstance(mirror_line, Line):
             return Entity(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
-            Exception("Entity can only be mirrored about Line()")
+            raise Exception("Entity can only be mirrored about Line()")
 
 
 class Line(Entity):
@@ -607,7 +610,7 @@ class Line(Entity):
             float
         """
         if self.is_vertical:
-            Exception("Vertical line, no y interception")
+            raise Exception("Vertical line, no y interception")
         else:
             return ((self.end.x * self.start.y) - (self.start.x * self.end.y)) / (
                 self.end.x - self.start.x
@@ -638,7 +641,7 @@ class Line(Entity):
         if isinstance(mirror_line, Line):
             return Line(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
-            Exception("Line can only be mirrored about Line()")
+            raise Exception("Line can only be mirrored about Line()")
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -844,7 +847,7 @@ class Arc(Entity):
                 -1 * self.radius,
             )
         else:
-            Exception("Arc can only be mirrored about Line()")
+            raise Exception("Arc can only be mirrored about Line()")
 
     @property
     def length(self):
