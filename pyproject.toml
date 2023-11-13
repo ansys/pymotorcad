@@ -48,7 +48,7 @@ doc = [
     "sphinx-gallery==0.14.0",
     "matplotlib",
     "scipy",
-    "pypandoc==1.11"
+    "pypandoc==1.12"
 ]
 
 [project.urls]
