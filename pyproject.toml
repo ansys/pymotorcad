@@ -35,7 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==7.4.2",
+    "pytest==7.4.3",
     "pytest-cov==4.1.0",
     "ansys.platform.instancemanagement>=1.0.2",
     "matplotlib>=3.6.3"
