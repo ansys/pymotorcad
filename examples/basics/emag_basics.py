@@ -4,9 +4,9 @@
 Motor-CAD E-magnetic example script
 ===================================
 This example provides a Motor-CAD E-magnetic script. This script
-creates a partial custom winding pattern using ActiveX to change
+creates a partial custom winding pattern to change
 parameter values, run the analysis, and plot results. To create
-a full winding pattern, you would have to specify parameters
+a full winding pattern, parameters must be specified
 for all coils.
 """
 
@@ -17,10 +17,9 @@ for all coils.
 # working directory, launching Motor-CAD, and disabling all popup
 # messages from Motor-CAD.
 #
-# %%
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Import the required packages.
+
 
 import os
 
@@ -34,7 +33,7 @@ if "QT_API" in os.environ:
 # %%
 # Specify working directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Specify the working directory.
+
 working_folder = os.getcwd()
 
 if os.path.isdir(working_folder) is False:
@@ -45,7 +44,6 @@ if os.path.isdir(working_folder) is False:
 # %%
 # Launch Motor-CAD
 # ~~~~~~~~~~~~~~~~
-# Initialize ActiveX automation and launch Motor-CAD.
 
 print("Starting initialization.")
 mcad = pymotorcad.MotorCAD()
@@ -53,7 +51,7 @@ mcad = pymotorcad.MotorCAD()
 # %%
 # Disable popup messages
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Disable all popup messages from Motor-CAD.
+
 mcad.set_variable("MessageDisplayState", 2)
 print("Initialization completed.")
 print("Running simulation.")
