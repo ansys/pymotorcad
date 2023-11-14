@@ -27,8 +27,8 @@ To turn off popups in Motor-CAD, use the command:
 
    mcApp.set_variable("MessageDisplayState", 2)
 
-This ensures that no dialogs are shown by Motor-CAD.
-Note that this turns off ‘crucial’ popups e.g. prompts to save data or overwrite data, or dialogs used to
+This ensures that no dialogues are shown by Motor-CAD.
+Note that this turns off ‘crucial’ popups, for example: prompts to save data or overwrite data, or dialogues used to
 reconcile differences in material data between the database and .mot file. In each case the default action is
 taken. This setting persists until Motor-CAD is closed.
 
@@ -39,9 +39,12 @@ To get the contents of the messages, use the command:
    num_messages = 100  # Specify number of messages to get
    messages = mcApp.get_messages(num_messages)
 
-The retrieved messages can then be parsed and actioned by the user.
-Using a num_messages value of 0 retrieves all messages in history, as detailed in the method’s description.
-To simplify future calls to get_messages, it is useful to clear the message history after getting the messages,
+The retrieved messages can then be parsed and used by the user.
+Using a ``num_messages`` value of 0 retrieves all messages in history, as detailed in the method’s description.
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+To simplify future calls to :meth:`get_messages`, it is useful to clear the message history after getting the messages,
 by using the command:
 
 .. code:: python
