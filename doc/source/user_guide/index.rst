@@ -10,6 +10,8 @@ User guide
    external_scripting
    matlab_scripting
    backwards_compatibility
+   troubleshooting
+   Motor-CAD_setup
 
 
 PyMotorCAD provides Python access to Motor-CAD. The RPC-based :ref:`ref_MotorCAD_object`
