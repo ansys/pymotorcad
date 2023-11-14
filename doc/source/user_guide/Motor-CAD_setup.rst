@@ -67,7 +67,7 @@ the correct parameter name automatically entered in the search box.
 GUI in Automation
 -----------------
 
-By default, if Motor-CAD is launched by an external script, the GUI is not shown. This improves the speed of startup
+If Motor-CAD is launched by an external script then by default the GUI is not shown. This improves the speed of startup
 and decrease the memory usage while scripting. If the GUI is required during scripting, for example for troubleshooting
 or to script UI commands (e.g. taking screenshots from Motor-CAD), this option can be enabled.
 This setting applies to all instances of this Motor-CAD version.
