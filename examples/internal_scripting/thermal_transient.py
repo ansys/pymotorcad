@@ -47,7 +47,7 @@ def load_script_from_string(mc_instance, script_string):
 # This could also be saved in a separate file
 internal_script = """
 import ansys.motorcad.core as pymotorcad
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # This function is called when "Run" is pressed
 def main():
@@ -55,19 +55,19 @@ def main():
 
 class thermal_transient():
     def initial(self):
-        mcApp.display_screen('Scripting')
+        mc.display_screen('Scripting')
         # initialise water jacket and rotor cooling flow rate
-        mcApp.set_variable('Wet_Rotor_Fluid_Volume_Flow_Rate',0.1)
-        mcApp.set_variable('WJ_Fluid_Volume_Flow_Rate', 0.1)
+        mc.set_variable('Wet_Rotor_Fluid_Volume_Flow_Rate',0.1)
+        mc.set_variable('WJ_Fluid_Volume_Flow_Rate', 0.1)
 
     def main(self):
-        current_time = mcApp.get_variable('CurrentTime')
+        current_time = mc.get_variable('CurrentTime')
         if current_time >= 1000 and current_time < 1500:
             # if between 1000 and 1500 s, stop water jacket coolant flow
-            mcApp.set_variable('WJ_Fluid_Volume_Flow_Rate', 0)
+            mc.set_variable('WJ_Fluid_Volume_Flow_Rate', 0)
         else:
             # if between 1000 and 1500 s, rotor coolant flow
-            mcApp.set_variable('Wet_Rotor_Fluid_Volume_Flow_Rate', 0)
+            mc.set_variable('Wet_Rotor_Fluid_Volume_Flow_Rate', 0)
 
     def final(self):
         # Called after calculation

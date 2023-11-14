@@ -40,7 +40,7 @@ def load_script_from_string(mc_instance, script_string):
 # This could also be saved in a separate file
 internal_script = """
 import ansys.motorcad.core as pymotorcad
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # This function is called when "Run" is pressed
 def main():
@@ -52,8 +52,8 @@ class thermal_steady():
     ambient_node = 0
     def initial(self):
         # Adjust Losses
-        mcApp.display_screen('Scripting')
-        mcApp.set_variable('Armature_Copper_Loss_@Ref_Speed',200)
+        mc.display_screen('Scripting')
+        mc.set_variable('Armature_Copper_Loss_@Ref_Speed',200)
 
     def main(self):
         pass
@@ -88,7 +88,7 @@ print("Armature copper loss = " + str(mc.get_variable("Armature_Copper_Loss_@Ref
 # resistance = (0.01 × ambient_temp) + 1
 internal_script = """
 import ansys.motorcad.core as pymotorcad
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # This function is called when "Run" is pressed
 def main():
@@ -100,19 +100,19 @@ class thermal_steady():
     ambient_node = 0
     def initial(self):
         # Adjust Losses
-        mcApp.display_screen('Scripting')
-        mcApp.set_variable('Armature_Copper_Loss_@Ref_Speed',200)
+        mc.display_screen('Scripting')
+        mc.set_variable('Armature_Copper_Loss_@Ref_Speed',200)
 
     def main(self):
-        ambient_temp = mcApp.get_variable('T_Ambient')
+        ambient_temp = mc.get_variable('T_Ambient')
         resistance = (ambient_temp * 0.01) + 1
-        mcApp.set_resistance_value('Custom Resistance',self.ambient_node,
+        mc.set_resistance_value('Custom Resistance',self.ambient_node,
                                    self.housing_node, resistance,'')
         print(str(resistance))
 
     def final(self):
         # Get temperature from node
-        housing_temp = mcApp.get_node_temperature(self.housing_node)
+        housing_temp = mc.get_node_temperature(self.housing_node)
         print('Housing Temperature: ' + str(round(housing_temp,1)))
 """
 

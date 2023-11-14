@@ -46,7 +46,7 @@ def load_script_from_string(mc_instance, script_string):
 # This could also be saved in a separate file
 internal_script = """
 import ansys.motorcad.core as pymotorcad
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # This function is called when "Run" is pressed
 def main():
@@ -55,12 +55,12 @@ def main():
 class mechanical_stress():
     def initial(self):
         # Called before calculation
-        mcApp.set_variable('ShaftSpeed',1500)
+        mc.set_variable('ShaftSpeed',1500)
 
     def final(self):
         # Called after calculation
-        yield_stress = mcApp.get_variable('YieldStress_RotorLam')
-        max_stress = mcApp.get_variable('MaxStress_RotorLam')
+        yield_stress = mc.get_variable('YieldStress_RotorLam')
+        max_stress = mc.get_variable('MaxStress_RotorLam')
 
         print('Max Stress: ' + str(max_stress))
 

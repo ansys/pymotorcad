@@ -40,7 +40,7 @@ def load_script_from_string(mc_instance, script_string):
 # This could also be saved in a separate file
 internal_script = """
 import ansys.motorcad.core as pymotorcad
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # This function is called when "Run" is pressed
 def main():
@@ -48,17 +48,17 @@ def main():
 
 class emagnetic():
     def initial(self):
-        mcApp.display_screen('Scripting')
-        shaft_speed = mcApp.get_variable('ShaftSpeed')
+        mc.display_screen('Scripting')
+        shaft_speed = mc.get_variable('ShaftSpeed')
         if shaft_speed > 1000:
             print('Shaft speed is too high. Resetting to 500')
-            mcApp.set_variable('ShaftSpeed',500)
+            mc.set_variable('ShaftSpeed',500)
 
     def final(self):
-        loss_total = mcApp.get_variable('loss_total')
+        loss_total = mc.get_variable('loss_total')
         # display total loss rounded to 2dp if available
         print('total loss is: ' + str(round(loss_total,2)))
-        mcApp.display_screen('Calculation')
+        mc.display_screen('Calculation')
 """
 
 # %%
