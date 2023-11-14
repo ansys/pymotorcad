@@ -421,13 +421,14 @@ class _RpcMethodsGeneral:
 
         Returns
         -------
-        list
+        List
             List of messages. The most recent message is first. A
             semicolon (;) separates the messages in the list.
         """
         method = "GetMessages"
         params = [num_messages]
-        return self.connection.send_and_receive(method, params)
+        messages = self.connection.send_and_receive(method, params)
+        return messages.split(";")
 
     def get_licence(self):
         """Check if a license is available for the current context and machine type.
