@@ -18,7 +18,7 @@ If the current version is already registered, this is greyed out as in the image
     :width: 400
 
 .. note::
-   PyMotorCAD creates and run from a new instance of Motor-CAD unless otherwise specified in the creation of the
+   PyMotorCAD creates and runs from a new instance of Motor-CAD unless otherwise specified in the creation of the
    Motor-CAD object. If the Motor-CAD object is set to not open a new instance, then it connects with any open
    Motor-CAD window regardless of version number and without preference for any particular one.
 
