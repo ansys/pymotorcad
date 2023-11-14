@@ -70,7 +70,7 @@ sphinx_gallery_conf = {
     # Modules for which function level galleries are created.  In
     "doc_module": "ansys-motorcad-core",
     "image_scrapers": "matplotlib",
-    "ignore_pattern": "flycheck*",
+    "ignore_pattern": "flycheck*|temp_example_file.*",
 }
 
 # Intersphinx mapping
