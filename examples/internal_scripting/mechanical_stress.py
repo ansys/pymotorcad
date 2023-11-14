@@ -83,7 +83,7 @@ mc.do_mechanical_calculation()
 
 # %%
 # Results
-# ~~~~~~~
+# -------
 # Get all messages
 messages = mc.get_messages(2)
 for message in reversed(messages):

@@ -126,7 +126,7 @@ mc.do_steady_state_analysis()
 
 # %%
 # Results
-# ~~~~~~~
+# -------
 # Get all messages
 messages = mc.get_messages(3)
 for message in reversed(messages):

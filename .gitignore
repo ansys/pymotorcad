@@ -160,3 +160,4 @@ _autosummary/
 .vscode
 
 doc/source/examples/gallery_examples/*
+/examples/internal_scripting/temp_example_file.py

@@ -5,11 +5,10 @@ E-magnetic
 ==========
 This example demonstrates internal scripting E-Mag functionality
 """
-
-import os
-
 # %%
 # Perform required imports
+import os
+
 import ansys.motorcad.core as pymotorcad
 
 # %%
@@ -78,7 +77,7 @@ mc.do_magnetic_calculation()
 
 # %%
 # Results
-# ~~~~~~~
+# -------
 # Get all messages
 messages = mc.get_messages(0)
 for message in reversed(messages):

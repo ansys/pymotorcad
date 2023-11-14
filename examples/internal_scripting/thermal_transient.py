@@ -112,13 +112,13 @@ mc.do_transient_analysis()
 
 # %%
 # Results
-# ~~~~~~~
+# -------
 
 time, winding_temp_average_transient = mc.get_temperature_graph("Winding (Avg)")
 
 # %%
 # Plot results
-# ------------
+# ~~~~~~~~~~~~
 # Plot results from the simulation.
 plt.figure(1)
 plt.plot(time, winding_temp_average_transient)
@@ -128,7 +128,7 @@ plt.show()
 
 # %%
 # Note
-# ~~~~
+# ----
 # For more information about transient thermal analysis, see the Scripting Control In
 # Duty Cycle tutorial, installed under
 # C:\ANSYS_Motor-CAD\VersionNumber\Tutorials\Scripting_Control_In_Duty_Cycle.

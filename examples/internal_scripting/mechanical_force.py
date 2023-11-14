@@ -101,12 +101,12 @@ mc.do_multi_force_calculation()
 
 # %%
 # Results
-# ~~~~~~~
+# -------
 # Get all messages
 messages = mc.get_messages(2)
 for message in reversed(messages):
     print(message)
 # %%
 # Note
-# ~~~~
+# ----
 # For further details, please see the E-NVH tutorial.
