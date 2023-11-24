@@ -14,8 +14,10 @@ class _RpcMethodsMaterials:
             Type of the cooling. Options are ``"InternalFluid"``,
             ``"ExternalFluid"``, ``"ShaftSGFluid"``, ``"RotorWJFluid"``,
             ``"SlotWJFluid"``, ``"HousingWJFluid"``, ``"WetRotorFluid"``,
-            ``"SprayCoolingFluid"``, ``"Spray_RadialHousing_Fluid"``,
-            and ``"TVentFluid"``.
+            ``"SprayCoolingFluid"``, ``"TVentFluid"``,
+            ``"Spray_RadialHousing_Fluid"``, ``"Spray_RadialRotor_Fluid"``,
+            ``"Spray_RadialHousing_Fluid_F"``, ``"Spray_RadialHousing_Fluid_R"``,
+            ``"Spray_RadialRotor_Fluid_F"`` and ``"Spray_RadialRotor_Fluid_R"``.
         fluid :
         """
         method = "SetFluid"
