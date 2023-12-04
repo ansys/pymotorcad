@@ -58,7 +58,11 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
+<<<<<<< HEAD
         region = Region()
+=======
+        region = Region(motorcad_instance=self)
+>>>>>>> main
         region._from_json(raw_region)
 
         return region
@@ -112,14 +116,22 @@ class _RpcMethodsAdaptiveGeometry:
         collision_regions = []
 
         for raw_collision_region in raw_collision_regions:
+<<<<<<< HEAD
             collision_region = Region()
+=======
+            collision_region = Region(motorcad_instance=self)
+>>>>>>> main
             collision_region._from_json(raw_collision_region)
             collision_regions.append(collision_region)
 
         return collision_regions
 
     def save_adaptive_script(self, filepath):
+<<<<<<< HEAD
         """Save adaptive templates script file to Motor-CAD.
+=======
+        """Save adaptive templates script from Motor-CAD to file.
+>>>>>>> main
 
         Parameters
         ----------
@@ -130,3 +142,101 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SaveAdaptiveScript"
         params = [filepath]
         return self.connection.send_and_receive(method, params)
+<<<<<<< HEAD
+=======
+
+    def load_adaptive_script(self, filepath):
+        """Load adaptive templates script file to Motor-CAD.
+
+        Parameters
+        ----------
+        filepath : string
+            full file path of script
+        """
+        self.connection.ensure_version_at_least("2024.0")
+        method = "LoadAdaptiveScript"
+        params = [filepath]
+        return self.connection.send_and_receive(method, params)
+
+    def unite_regions(self, region, regions):
+        """Unite region with two or more other regions.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        regions : list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region objects to united with region
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region
+            United Motor-CAD region object.
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+        raw_regions = [region_internal._to_json() for region_internal in regions]
+
+        method = "UniteRegions"
+        params = [raw_region, raw_regions]
+        united_raw = self.connection.send_and_receive(method, params)
+
+        region = Region(motorcad_instance=self)
+        region._from_json(united_raw)
+
+        return region
+
+    def delete_region(self, region, remove_children=False):
+        """Delete region from Motor-CAD geometry engine.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        remove_children : boolean
+            Whether to remove regions children
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+
+        method = "DeleteRegion"
+        params = [raw_region, remove_children]
+        self.connection.send_and_receive(method, params)
+
+    def subtract_region(self, region, region_subtract):
+        """Subtract Motor-CAD region (region_subtract) from another Motor-CAD region (region).
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        region_subtract : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region objects
+        """
+        self.connection.ensure_version_at_least("2024.0")
+
+        raw_region = region._to_json()
+        raw_region_subtract = region_subtract._to_json()
+
+        method = "SubtractRegion"
+        params = [raw_region, raw_region_subtract]
+        subtracted_raw_regions = self.connection.send_and_receive(method, params)
+
+        regions = []
+        for subtracted_raw in subtracted_raw_regions:
+            returned_region = Region(motorcad_instance=self)
+            returned_region._from_json(subtracted_raw)
+            regions.append(returned_region)
+
+        return regions
+>>>>>>> main

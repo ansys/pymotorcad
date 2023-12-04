@@ -40,8 +40,6 @@ def draw_square():
     mc.add_line_xy(x3, y3, x4, y4)
     mc.add_line_xy(x4, y4, x1, y1)
 
-    mc.add_region_xy(5, 5, "test_region")
-
 
 def test_initiate_geometry_from_script():
     # Placeholder function so that we know this has been tested in other functions.
@@ -67,11 +65,13 @@ def test_add_line_xy():
 
     draw_square()
 
+    mc.add_region_xy(5, 5, "test_region")
+
     mc.create_optimised_mesh()
 
     region = mc._get_region_properties_xy(5, 5)
 
-    assert almost_equal(region["Area"], 100)
+    assert almost_equal(region["RegionArea"], 100)
     reset_model_geometry()
 
 
@@ -105,7 +105,7 @@ def test_add_line_rt():
 
     region = mc._get_region_properties_xy(5, 5)
 
-    assert almost_equal(region["Area"], 100)
+    assert almost_equal(region["RegionArea"], 100)
     reset_model_geometry()
 
 
@@ -133,7 +133,7 @@ def test_add_arc_xy():
 
     region = mc._get_region_properties_xy(10, 10)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -164,7 +164,7 @@ def test_add_arc_rt():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -196,7 +196,7 @@ def test_add_arc_centre_start_end_xy():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 
@@ -230,7 +230,7 @@ def test_add_arc_centre_start_end_rt():
 
     region = mc._get_region_properties_xy(x_c, y_c)
 
-    assert almost_equal(region["Area"], pi * pow(radius, 2))
+    assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     reset_model_geometry()
 
 

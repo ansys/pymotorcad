@@ -1,12 +1,13 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
-from math import atan2, cos, degrees, pow, radians, sin, sqrt
+from copy import deepcopy
+from math import atan2, degrees, inf, isclose, radians, sqrt
 
 
-class Region:
+class Region(object):
     """Python representation of Motor-CAD geometry region."""
 
-    def __init__(self):
+    def __init__(self, motorcad_instance=None):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
         self.material = "air"
@@ -15,25 +16,28 @@ class Region:
         self.centroid = Coordinate(0, 0)
         self.region_coordinate = Coordinate(0, 0)
         self.duplications = 1
-        self.entities = []
+        self.entities = EntityList()
+        self._parent_name = ""
+        self._child_names = []
+        self._motorcad_instance = motorcad_instance
 
         # expect other properties to be implemented here including number duplications, material etc
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
-        if (
+        return (
             isinstance(other, Region)
             and self.name == other.name
             and self.colour == other.colour
-            and self.area == other.area
-            and self.centroid == other.centroid
-            and self.region_coordinate == other.region_coordinate
+            # and self.area == other.area ->
+            # Already check entities - can't expect user to calculate area
+            # and self.centroid == other.centroid ->
+            # Centroid calculated from entities - can't expect user to calculate
+            # and self.region_coordinate == other.region_coordinate ->
+            # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self.duplications == other.duplications
             and self.entities == other.entities
-        ):
-            return True
-        else:
-            return False
+        )
 
     def add_entity(self, entity):
         """Add entity to list of region entities.
@@ -64,7 +68,7 @@ class Region:
         ----------
         index : int
             Index of which to insert at
-        polyline : list of Line or list of Arc
+        polyline : EntityList
             list of Line or list of Arc
         """
         for count, entity in enumerate(polyline):
@@ -110,13 +114,15 @@ class Region:
         )
         self.duplications = json["duplications"]
         self.entities = _convert_entities_from_json(json["entities"])
+        self.parent_name = json["parent_name"]
+        self._child_names = json["child_names"]
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
         """Convert from Python class to Json object.
 
         Returns
-        ----------
+        -------
         dict
             Geometry region json representation
         """
@@ -129,6 +135,7 @@ class Region:
             "region_coordinate": {"x": self.region_coordinate.x, "y": self.region_coordinate.y},
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
+            "parent_name": self.parent_name,
         }
 
         return region_dict
@@ -137,7 +144,7 @@ class Region:
         """Check whether region entities create a closed region.
 
         Returns
-        ----------
+        -------
         Boolean
             Whether region is closed
         """
@@ -156,8 +163,275 @@ class Region:
         else:
             return False
 
+    @property
+    def parent_name(self):
+        """Get region parent name.
 
-class Coordinate:
+        Returns
+        -------
+        string
+        """
+        return self._parent_name
+
+    @parent_name.setter
+    def parent_name(self, name):
+        """Set region parent name."""
+        self._parent_name = name
+
+    @property
+    def child_names(self):
+        """Property for child names list.
+
+        Returns
+        -------
+        list of string
+            list of child region names
+        """
+        return self._child_names
+
+    @property
+    def motorcad_instance(self):
+        """Get linked Motor-CAD instance."""
+        return self._motorcad_instance
+
+    @motorcad_instance.setter
+    def motorcad_instance(self, mc):
+        """Set linked Motor-CAD instance."""
+        # if isinstance(mc, _MotorCADConnection):
+        #     raise Exception("Unable to set self.motorcad_instance,
+        #                      mc is not a Motor-CAD connection")
+        self._motorcad_instance = mc
+
+    @property
+    def children(self):
+        """Return list of child regions from Motor-CAD.
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        self._check_connection()
+        return [self.motorcad_instance.get_region(name) for name in self.child_names]
+
+    @property
+    def parent(self):
+        """Return parent region from Motor-CAD.
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        self._check_connection()
+        return self.motorcad_instance.get_region(self.parent_name)
+
+    @parent.setter
+    def parent(self, region):
+        """Set parent region."""
+        self._parent_name = region.name
+
+    def subtract(self, region):
+        """Subtract region from self, returning any additional regions.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        self._check_connection()
+        regions = self.motorcad_instance.subtract_region(self, region)
+
+        if len(regions) > 0:
+            self.update(regions[0])
+            return regions[1 : len(regions)]
+
+    def unite(self, regions):
+        """Subtract region from self, returning any additional regions.
+
+        Parameters
+        ----------
+        regions : ansys.motorcad.core.geometry.Region or list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region object/list of objects
+        """
+        if type(regions) is not list:
+            regions = [regions]
+
+        self._check_connection()
+        united_region = self.motorcad_instance.unite_regions(self, regions)
+        self.update(united_region)
+
+    def collides(self, regions):
+        """Check whether any of the specified regions collide with self.
+
+        Parameters
+        ----------
+        regions : ansys.motorcad.core.geometry.Region or list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region object/list of objects
+        """
+        if type(regions) is not list:
+            regions = [regions]
+
+        self._check_connection()
+        collisions = self.motorcad_instance.check_collisions(self, regions)
+
+        return len(collisions) > 0
+
+    def mirror(self, mirror_line, unique_name=True):
+        """Mirror region along entity.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror region about
+
+        unique_name : boolean
+            Whether to apply a unique name to returned region
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Region
+        """
+        if isinstance(mirror_line, Line):
+            region = deepcopy(self)
+            region.entities.clear()
+            region.centroid = self.centroid.mirror(mirror_line)
+            region.region_coordinate = self.region_coordinate.mirror(mirror_line)
+            region._child_names = []
+
+            if unique_name:
+                region.name = region.name + "_mirrored"
+
+            for entity in self.entities:
+                region.add_entity(entity.mirror(mirror_line))
+
+            return region
+        else:
+            raise Exception("Region can only be mirrored about Line()")
+
+    def update(self, region):
+        """Update class fields from another region.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+        """
+        self.name = region.name
+        self.material = region.material
+        self.colour = region.colour
+        self.area = region.area
+        self.centroid = deepcopy(region.centroid)
+        self.region_coordinate = deepcopy(region.region_coordinate)
+        self.duplications = region.duplications
+        self.entities = deepcopy(region.entities)
+        self.parent_name = region.parent_name
+        self._child_names = region.child_names
+        self._motorcad_instance = region._motorcad_instance
+
+    def _check_connection(self):
+        """Check mc connection for region."""
+        if self.motorcad_instance is None:
+            raise Exception(
+                "A Motor-CAD connection is required for this function"
+                + ", please set self.motorcad_instance to a valid Motor-CAD instance"
+            )
+        if self.motorcad_instance.connection._wait_for_response(1) is False:
+            raise Exception(
+                "Unable to connect to Motor-CAD using self.motorcad_instance,"
+                + ", please set self.motorcad_instance to a valid Motor-CAD instance"
+            )
+
+    @property
+    def points(self):
+        """Get points that exist in region.
+
+        Returns
+        -------
+        List of Coordinate
+        """
+        return self.entities.points
+
+    def add_point(self, point):
+        """Add a new point into region on an existing Line/Arc.
+
+        The point must already exist on a Line/Arc belonging to the region. The entity will be split
+        and 2 new entities created.
+
+        Parameters
+        ----------
+        point : Coordinate
+            Coordinate at which to add new point
+        """
+        for pos, entity in enumerate(self.entities):
+            if entity.coordinate_on_entity(point):
+                if isinstance(entity, Line):
+                    new_entity_1 = Line(entity.start, point)
+                    new_entity_2 = Line(point, entity.end)
+                elif isinstance(entity, Arc):
+                    new_entity_1 = Arc(entity.start, point, entity.centre, entity.radius)
+                    new_entity_2 = Arc(point, entity.end, entity.centre, entity.radius)
+                else:
+                    raise Exception("Entity type is not Arc or Line")
+
+                self.entities.pop(pos)
+                self.entities.insert(pos, new_entity_1)
+                self.entities.insert(pos + 1, new_entity_2)
+                break
+
+        else:
+            raise Exception("Failed to find point on entity in region")
+
+    def edit_point(self, old_coordinates, new_coordinates):
+        """Edit a point in the region and update entities.
+
+        Parameters
+        ----------
+        old_coordinates : Coordinate
+            Position of point to edit
+        new_coordinates : Coordinate
+            Position to move the point to
+        """
+        for entity in self.entities:
+            edited = False
+
+            if entity.start == old_coordinates:
+                entity.start = deepcopy(new_coordinates)
+                edited = True
+            if entity.end == old_coordinates:
+                entity.end = deepcopy(new_coordinates)
+                edited = True
+
+            if edited and isinstance(entity, Arc):
+                # Draw line between arc start/end
+                # get centre point of that line
+                p_centre = (entity.end + entity.start) / 2
+                # Get vector of that line
+                v_1 = entity.end - entity.start
+                # Get length div 2
+                d1 = abs(v_1) / 2
+
+                # Draw perpendicular line from centre point
+                radius, angle = v_1.get_polar_coords_deg()
+                perpendicular_angle = angle + 90 * (entity.radius / abs(entity.radius))
+
+                if entity.radius < d1:
+                    raise Exception("It is not possible to draw an arc with this geometry")
+
+                # Get vector from p_centre to centre point of arc
+                d_adjacent = sqrt(entity.radius**2 - d1**2)
+                l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+                # Apply vector to centre point of arc
+                entity.centre = p_centre + Coordinate(l_x, l_y)
+
+
+class Coordinate(object):
     """Python representation of coordinate in two-dimensional space.
 
     Parameters
@@ -176,13 +450,69 @@ class Coordinate:
 
     def __eq__(self, other):
         """Override the default equals implementation for Coordinate."""
-        if isinstance(other, Coordinate) and self.x == other.x and self.y == other.y:
-            return True
+        return (
+            isinstance(other, Coordinate)
+            and isclose(self.x, other.x, abs_tol=1e-6)
+            and isclose(self.y, other.y, abs_tol=1e-6)
+        )
+
+    def __sub__(self, other):
+        """Override the default subtract implementation for Coordinate."""
+        return Coordinate(self.x - other.x, self.y - other.y)
+
+    def __add__(self, other):
+        """Override the default add implementation for Coordinate."""
+        return Coordinate(self.x + other.x, self.y + other.y)
+
+    def __abs__(self):
+        """Override the default abs() implementation for Coordinate."""
+        return sqrt(self.x**2 + self.y**2)
+
+    def __mul__(self, other):
+        """Override the default multiplication implementation for Coordinate."""
+        return Coordinate(self.x * other, self.y * other)
+
+    def __truediv__(self, other):
+        """Override the default divide implementation for Coordinate."""
+        return Coordinate(self.x / other, self.y / other)
+
+    def __str__(self):
+        """Override the default str() implementation for Coordinate."""
+        return str([self.x, self.y])
+
+    def get_polar_coords_deg(self):
+        """Get coordinates as polar coordinates in degrees."""
+        return xy_to_rt(self.x, self.y)
+
+    def mirror(self, mirror_line):
+        """Mirror Coordinate about a line entity.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror coordinate about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Coordinate
+        """
+        if isinstance(mirror_line, Line):
+            if mirror_line.is_vertical:
+                d = self.x - mirror_line.start.x
+                return Coordinate(mirror_line.start.x - d, self.y)
+            else:
+                d = (self.x + (self.y - mirror_line.y_intercept) * mirror_line.gradient) / (
+                    1 + mirror_line.gradient**2
+                )
+                return Coordinate(
+                    2 * d - self.x,
+                    2 * d * mirror_line.gradient - self.y + 2 * mirror_line.y_intercept,
+                )
         else:
-            return False
+            raise Exception("Coordinate can only be mirrored about Line()")
 
 
-class Entity:
+class Entity(object):
     """Generic parent class for geometric entities based upon a start and end coordinate.
 
     Parameters
@@ -201,10 +531,31 @@ class Entity:
 
     def __eq__(self, other):
         """Override the default equals implementation for Entity."""
-        if isinstance(other, Entity) and self.start == other.start and self.end == other.end:
-            return True
+        return isinstance(other, Entity) and self.start == other.start and self.end == other.end
+
+    def reverse(self):
+        """Reverse Entity class."""
+        start = self.start
+        end = self.end
+        self.start = end
+        self.end = start
+
+    def mirror(self, mirror_line):
+        """Mirror entity about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror entity about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Entity
+        """
+        if isinstance(mirror_line, Line):
+            return Entity(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
-            return False
+            raise Exception("Entity can only be mirrored about Line()")
 
 
 class Line(Entity):
@@ -225,10 +576,72 @@ class Line(Entity):
 
     def __eq__(self, other):
         """Override the default equals implementation for Line."""
-        if isinstance(other, Line) and self.start == other.start and self.end == other.end:
-            return True
+        return isinstance(other, Line) and self.start == other.start and self.end == other.end
+
+    @property
+    def midpoint(self):
+        """Get midpoint of Line.
+
+        Returns
+        -------
+            Coordinate
+        """
+        return (self.start + self.end) / 2
+
+    @property
+    def gradient(self):
+        """Get gradient of line.
+
+        Returns
+        -------
+            float
+        """
+        if self.is_vertical:
+            return float(inf)
         else:
-            return False
+            return (self.end.y - self.start.y) / (self.end.x - self.start.x)
+
+    @property
+    def y_intercept(self):
+        """Get y intercept of line.
+
+        Returns
+        -------
+            float
+        """
+        if self.is_vertical:
+            raise Exception("Vertical line, no y interception")
+        else:
+            return ((self.end.x * self.start.y) - (self.start.x * self.end.y)) / (
+                self.end.x - self.start.x
+            )
+
+    @property
+    def is_vertical(self):
+        """Check whether line is vertical.
+
+        Returns
+        -------
+            boolean
+        """
+        return self.end.x - self.start.x == 0
+
+    def mirror(self, mirror_line):
+        """Mirror line about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror Line about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Line
+        """
+        if isinstance(mirror_line, Line):
+            return Line(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
+        else:
+            raise Exception("Line can only be mirrored about Line()")
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -253,9 +666,7 @@ class Line(Entity):
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        length = self.get_length()
-
-        t = (length * percentage) / length
+        t = (self.length * percentage) / self.length
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
@@ -284,13 +695,14 @@ class Line(Entity):
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        t = distance / self.get_length()
+        t = distance / self.length
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
         return Coordinate(x, y)
 
-    def get_length(self):
+    @property
+    def length(self):
         """Get length of line.
 
         Returns
@@ -298,7 +710,23 @@ class Line(Entity):
         float
             Length of line
         """
-        return sqrt(pow(self.start.x - self.end.x, 2) + pow(self.start.y - self.end.y, 2))
+        return abs(self.end - self.start)
+
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this line.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the line
+        Returns
+        -------
+        bool
+        """
+        v1 = self.end - coordinate
+        v2 = coordinate - self.start
+
+        return abs(v1) + abs(v2) == self.length
 
 
 class Arc(Entity):
@@ -327,16 +755,26 @@ class Arc(Entity):
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
-        if (
+        return (
             isinstance(other, Arc)
             and self.start == other.start
             and self.end == other.end
             and self.centre == other.centre
             and self.radius == other.radius
-        ):
-            return True
-        else:
-            return False
+        )
+
+    @property
+    def midpoint(self):
+        """Get midpoint of arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        angle_to_rotate = (self.total_angle / 2) * (self.radius / abs(self.radius))
+        angle = self.start_angle + angle_to_rotate
+        x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
+        return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the arc from the reference coord.
@@ -354,7 +792,7 @@ class Arc(Entity):
         Coordinate
             Coordinate at percentage distance along Arc.
         """
-        length = self.get_length() * percentage
+        length = self.length * percentage
 
         return self.get_coordinate_from_distance(ref_coordinate, length)
 
@@ -387,11 +825,32 @@ class Arc(Entity):
             else:
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
-        return Coordinate(
-            self.centre.x + self.radius * cos(angle), self.centre.y + self.radius * sin(angle)
-        )
+        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
 
-    def get_length(self):
+    def mirror(self, mirror_line):
+        """Mirror arc about a line.
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror Line about
+
+        Returns
+        ----------
+        ansys.motorcad.core.geometry.Arc
+        """
+        if isinstance(mirror_line, Line):
+            return Arc(
+                self.start.mirror(mirror_line),
+                self.end.mirror(mirror_line),
+                self.centre.mirror(mirror_line),
+                -1 * self.radius,
+            )
+        else:
+            raise Exception("Arc can only be mirrored about Line()")
+
+    @property
+    def length(self):
         """Get length of arc from start to end along circumference.
 
         Returns
@@ -413,13 +872,154 @@ class Arc(Entity):
 
         return self.radius * radians(arc_angle)
 
+    def reverse(self):
+        """Reverse Arc entity."""
+        super().reverse()
+
+        self.radius *= -1
+
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this Arc.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the Arc
+        Returns
+        -------
+        bool
+        """
+        v_from_centre = coordinate - self.centre
+        radius, angle_to_check = v_from_centre.get_polar_coords_deg()
+
+        if self.radius > 0:
+            theta1 = (angle_to_check - self.start_angle) % 360
+        else:
+            theta1 = (angle_to_check - self.end_angle) % 360
+
+        within_angle = theta1 <= self.total_angle
+
+        return within_angle and (abs(radius) == abs(self.radius))
+
+    @property
+    def start_angle(self):
+        """Get angle of start point from centre point coordinates.
+
+        Returns
+        -------
+        real
+        """
+        _, ang = (self.start - self.centre).get_polar_coords_deg()
+        return ang
+
+    @property
+    def end_angle(self):
+        """Get angle of end point from centre point coordinates.
+
+        Returns
+        -------
+        real
+        """
+        _, ang = (self.end - self.centre).get_polar_coords_deg()
+        return ang
+
+    @property
+    def total_angle(self):
+        """Get arc sweep angle.
+
+        Returns
+        -------
+        real
+        """
+        if self.radius > 0:
+            return (self.end_angle - self.start_angle) % 360
+        else:
+            return (self.start_angle - self.end_angle) % 360
+
+
+class EntityList(list):
+    """Generic class for list of Entities."""
+
+    def __eq__(self, other):
+        """Compare equality of 2 EntityList objects."""
+        return self._entities_same(other, check_reverse=True)
+
+    def reverse(self):
+        """Reverse EntityList, including entity start end coordinates."""
+        super().reverse()
+
+        # Also reverse entity start/end points so the EntityList is continuous
+        for entity in self:
+            entity.reverse()
+
+    @property
+    def points(self):
+        """Get points of shape/region from Entity list.
+
+        Returns
+        -------
+        List of Coordinate
+        """
+        points = []
+        for entity in self:
+            points += [deepcopy(entity.start)]
+        return points
+
+    def _entities_same(self, entities_to_compare, check_reverse=False):
+        """Check whether entities in region are the same as entities a different region.
+
+        Parameters
+        ----------
+        entities_to_compare : EntityList
+            entities to test against
+
+        check_reverse : Boolean
+            Whether to reverse entities when checking entity equivalency.
+
+        Returns
+        -------
+        boolean
+        """
+
+        def _entities_same_with_direction(entities_1, entities_2):
+            start_index = 0
+
+            for count, entity in enumerate(entities_2):
+                if entity == entities_1[0]:
+                    # start entity found
+                    start_index = count
+                    break
+
+            # regenerate entities_b from start index found from entities_a
+            entities_same_order = [entities_2[i] for i in range(start_index, len(entities_1))] + [
+                entities_2[i] for i in range(0, start_index)
+            ]
+
+            if list(entities_1) == list(entities_same_order):
+                return True
+            else:
+                return False
+
+        if check_reverse:
+            if _entities_same_with_direction(self, entities_to_compare):
+                return True
+            else:
+                # Copy list of entities
+                entities_copy = deepcopy(entities_to_compare)
+                entities_copy.reverse()
+
+                return _entities_same_with_direction(self, entities_copy)
+
+        else:
+            return _entities_same_with_direction(self, entities_to_compare)
+
 
 def _convert_entities_to_json(entities):
     """Get entities list as a json object.
 
     Parameters
     ----------
-    entities : list of Line or list of Arc
+    entities : EntityList
         List of Line/Arc class objects representing entities.
 
     Returns
@@ -462,10 +1062,10 @@ def _convert_entities_from_json(json_array):
 
     Returns
     -------
-    list of Line or list of Arc
+    EntityList
         list of Line and Arc objects
     """
-    entities = []
+    entities = EntityList()
 
     for entity in json_array:
         if entity["type"] == "line":
@@ -500,7 +1100,7 @@ def get_entities_have_common_coordinate(entity_1, entity_2):
         Line or Arc object to check for common coordinate
 
     Returns
-    ----------
+    -------
         Boolean
     """
     if (
