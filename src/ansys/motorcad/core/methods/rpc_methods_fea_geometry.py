@@ -208,7 +208,7 @@ class _RpcMethodsFEAGeometry:
         value : float
             Value from the FEA.
         units : string
-            Units for ``paramater``, which is the Motor-CAD shading function.
+            Units for ``parameter``, which is the Motor-CAD shading function.
         """
         method = "GetPointValue"
         params = [{"variant": parameter}, x, y]

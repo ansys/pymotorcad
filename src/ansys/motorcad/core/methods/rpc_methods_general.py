@@ -422,8 +422,7 @@ class _RpcMethodsGeneral:
         Returns
         -------
         List
-            List of messages. The most recent message is first. A
-            semicolon (;) separates the messages in the list.
+            List of messages.
         """
         method = "GetMessages"
         params = [num_messages]
