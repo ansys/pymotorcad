@@ -1,6 +1,9 @@
-.. currentmodule:: ansys.motorcad.core.geometry
+.. _ref_geometry_functions:
 Adaptive geometry
 =================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
 Add some info here about adaptive geometry
 
 
