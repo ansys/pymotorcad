@@ -58,10 +58,10 @@ def test_set_visible():
     mc.set_visible(True)
 
 
-def clear_messages():
+def test_clear_messages():
     test_message = "test_message_to_clear"
     mc.show_message(test_message)
     assert (test_message in message for message in mc.get_messages(0))
 
     mc.clear_messages()
-    assert not (test_message in message for message in mc.get_messages(0))
+    assert mc.get_messages(0) == ""
