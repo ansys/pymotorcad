@@ -187,7 +187,7 @@ def test_load_adaptive_script():
 
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
     # open file and sum number of lines and check against number of lines from Motor-CAD
-    with open(filepath, "rbU") as f:
+    with open(filepath, "r") as f:
         num_lines_file = sum(1 for _ in f)
 
     assert num_lines == num_lines_file
@@ -202,7 +202,7 @@ def test_save_adaptive_script():
     filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
     mc.save_adaptive_script(filepath)
     # sum number of lines in saved file and check against number of lines from Motor-CAD
-    with open(filepath, "rbU") as f:
+    with open(filepath, "r") as f:
         num_lines_file = sum(1 for _ in f)
 
     assert num_lines == num_lines_file
@@ -359,22 +359,22 @@ def test_region_get_parent():
     assert pocket.parent == expected_region
 
 
-# def test_region_set_parent():
-#     shaft = mc.get_region("Shaft")
-#     square = create_square()
-#     square.name = "square"
-#     square.parent = shaft
-#     mc.set_region(square)
-#
-#     shaft_expected = mc.get_region("Shaft")
-#     assert square.name in shaft_expected._child_names
-#
-#
-# def test_region_children():
-#     rotor = mc.get_region("rotor")
-#     children = rotor.children
-#
-#     assert len(children) == 16
+def test_region_set_parent():
+    shaft = mc.get_region("Shaft")
+    square = create_square()
+    square.name = "square"
+    square.parent = shaft
+    mc.set_region(square)
+
+    shaft_expected = mc.get_region("Shaft")
+    assert square.name in shaft_expected._child_names
+
+
+def test_region_children():
+    rotor = mc.get_region("rotor")
+    children = rotor.children
+
+    assert len(children) == 16
 
 
 def test_reverse_entity():
