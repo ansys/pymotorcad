@@ -3,10 +3,13 @@
 
 Motor-CAD Adaptive Templates example script 2
 ==============================================
-This example provides a Motor-CAD Adaptive Template script. This script
-creates a Synchronous Reluctance machine geometry with curved flux barriers.
+This example describes a workflow using Adaptive Templates to
+create a Synchronous Reluctance machine geometry with curved flux barriers.
+This is done using a Motor-CAD Adaptive Template script, which is provided.
 This script works by altering a SYNCREL U-Shape rotor template.
-This script does not support: Zero inner/outer layer thickness or inner/outer posts
+More information on this example can be found in the Motor-CAD Adaptive Templates
+tutorial, provided with a Motor-CAD installation under
+"\\Tutorials\\Adaptive_Templates\\Adaptive_Templates.pdf" (Example 2).
 """
 
 # %%
@@ -443,11 +446,42 @@ mc.set_variable("CornerRounding_Rotor", 1)
 mc.set_variable("CornerRoundingRadius_Rotor", 0.8)
 
 # %%
+# The curved flux barriers have now been set up
+# for this Synchronous Reluctance Machine example.
+
+# %%
+# Display the example design geometry
+# ------------------------------------
+# Take a screenshot of the geometry that was set up using
+# adaptive templates and save to the working directory.
+#
 # Screenshot the geometry
+# ~~~~~~~~~~~~~~~~~~~~~~~
+
 mc.initialise_tab_names()
 mc.save_screen_to_file("Radial", os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
 
+# %%
+# Load, process and display the image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Load the saved image
+
 img = mpimg.imread(os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
-imgplot = plt.imshow(img)
+
+# %%
+# Crop the image to focus on the rotor geometry that was customised using
+# adaptive templates
+
+img_cropped = img[56:341, 250:535, :]
+
+# %%
+# Display the cropped image
+
+imgplot = plt.imshow(img_cropped)
 plt.axis('off')
 plt.show()
+
+# %%
+# The customised rotor geometry is shown for this Synchronous Reluctance Machine
+# example. The flux barriers have been curved using the imported script,
+# and the rotor pocket parameters were adjusted to improve the model.
