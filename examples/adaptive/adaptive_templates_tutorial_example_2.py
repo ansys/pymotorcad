@@ -374,9 +374,52 @@ mc.load_adaptive_script(os.path.join(working_folder, "adaptive_template_script_f
 # The Adaptive Script that was loaded and run has changed
 # the geometry of the rotor pocket regions to become curved.
 #
-# We will set up geometry parameters using the adaptive template
+# Alter the model to improve the model performance using the Adaptive
+# Templates script. Ratio-based parameterisation will be used.
 #
 # Set geometry parameterisation to ratio-based
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 mc.set_variable("GeometryParameterisation", 1)
+
+# %%
+# Set geometry parameters
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Units for the Bridge Thickness, Inner Thickness and Outer Thickness are in mm.
+# U Magnet Web Thickness, U Magnet Diameter are ratios.
+#
+# Set geometry parameters for layer 1:
+
+mc.set_array_variable("UShape_BridgeThickness_Array", 0, 0.5)
+mc.set_array_variable("UShape_Thickness_Inner_Array", 0, 3.5)
+
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.14)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.3)
+
+# %%
+# Set geometry parameters for layer 2:
+
+mc.set_array_variable("UShape_BridgeThickness_Array", 1, 0.5)
+mc.set_array_variable("UShape_Thickness_Inner_Array", 1, 3.0)
+
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.15)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.35)
+
+# %%
+# Set geometry parameters for layer 3:
+
+mc.set_array_variable("UShape_BridgeThickness_Array", 2, 0.5)
+mc.set_array_variable("UShape_Thickness_Outer_Array", 2, 1.5)
+mc.set_array_variable("UShape_Thickness_Inner_Array", 2, 2.5)
+
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.2)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.5)
+
+# %%
+# Set geometry parameters for layer 4:
+
+mc.set_array_variable("UShape_BridgeThickness_Array", 3, 0.5)
+mc.set_array_variable("UShape_Thickness_Outer_Array", 3, 1.0)
+
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.35)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.8)
