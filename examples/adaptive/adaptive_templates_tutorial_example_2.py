@@ -21,6 +21,10 @@ This script does not support: Zero inner/outer layer thickness or inner/outer po
 
 import os
 
+import matplotlib.pyplot as plt
+
+import matplotlib.image as mpimg
+
 import ansys.motorcad.core as pymotorcad
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
@@ -41,6 +45,7 @@ mc = pymotorcad.MotorCAD()
 # ~~~~~~~~~~~~~~~~~~~~~~
 
 mc.set_variable("MessageDisplayState", 2)
+mc.set_visible(True)
 
 # %%
 # Open relevant file
@@ -79,7 +84,7 @@ mc.load_adaptive_script(os.path.join(working_folder, "adaptive_template_script_f
 
 # %%
 #
-#.. code:: python
+# .. code:: python
 #
 #   """Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
 #   This script does not support:
@@ -378,13 +383,13 @@ mc.load_adaptive_script(os.path.join(working_folder, "adaptive_template_script_f
 # Templates script. Ratio-based parameterisation will be used.
 #
 # Set geometry parameterisation to ratio-based
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 mc.set_variable("GeometryParameterisation", 1)
 
 # %%
-# Set geometry parameters
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Set rotor geometry parameters
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Units for the Bridge Thickness, Inner Thickness and Outer Thickness are in mm.
 # U Magnet Web Thickness, U Magnet Diameter are ratios.
 #
@@ -402,8 +407,8 @@ mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.3)
 mc.set_array_variable("UShape_BridgeThickness_Array", 1, 0.5)
 mc.set_array_variable("UShape_Thickness_Inner_Array", 1, 3.0)
 
-mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.15)
-mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.35)
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 1, 0.15)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 1, 0.35)
 
 # %%
 # Set geometry parameters for layer 3:
@@ -412,8 +417,8 @@ mc.set_array_variable("UShape_BridgeThickness_Array", 2, 0.5)
 mc.set_array_variable("UShape_Thickness_Outer_Array", 2, 1.5)
 mc.set_array_variable("UShape_Thickness_Inner_Array", 2, 2.5)
 
-mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.2)
-mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.5)
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 2, 0.2)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 2, 0.5)
 
 # %%
 # Set geometry parameters for layer 4:
@@ -421,5 +426,31 @@ mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.5)
 mc.set_array_variable("UShape_BridgeThickness_Array", 3, 0.5)
 mc.set_array_variable("UShape_Thickness_Outer_Array", 3, 1.0)
 
-mc.set_array_variable("RatioArray_UMagnetWebThickness", 0, 0.35)
-mc.set_array_variable("RatioArray_UMagnetDiameter", 0, 0.8)
+mc.set_array_variable("RatioArray_UMagnetWebThickness", 3, 0.35)
+mc.set_array_variable("RatioArray_UMagnetDiameter", 3, 0.8)
+
+# %%
+# Set corner rounding for rotor pockets
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Enable the option to include corner rounding
+# by setting the following to 'Single definition for all':
+
+mc.set_variable("CornerRounding_Rotor", 1)
+
+# %%
+# Set the Rotor Lamination Corner Radius (units are mm):
+
+mc.set_variable("CornerRoundingRadius_Rotor", 0.8)
+
+# %%
+# Save the file again (TO BE DELETED)
+mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
+
+# %%
+# Screenshot the geometry
+mc.save_screen_to_file("Geometry", os.path.join(working_folder, "Screenshot.png"))
+
+img = mpimg.imread(os.path.join(working_folder, "Adaptive_Temp_Ex_2_Screenshot.png"))
+imgplot = plt.imshow(img)
+plt.axis('off')
+plt.show()
