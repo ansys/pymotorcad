@@ -1,4 +1,5 @@
 """RPC methods for geometry."""
+from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
 
 
 class _RpcMethodsGeometry:
@@ -86,3 +87,10 @@ class _RpcMethodsGeometry:
         method = "CheckIfGeometryIsValid"
         params = [edit_geometry]
         return self.connection.send_and_receive(method, params)
+
+    def reset_geometry(self):
+        """Reset geometry to default."""
+        method = "ResetGeometry"
+        # No need to do this if running internally
+        if not _is_running_in_internal_scripting():
+            return self.connection.send_and_receive(method)

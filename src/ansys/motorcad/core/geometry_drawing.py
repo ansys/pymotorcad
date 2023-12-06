@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
+from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
 
 try:
     import matplotlib.patches as mpatches
@@ -106,6 +107,18 @@ class _RegionDrawing:
             self._plot_text_no_overlap(point, text, colour)
 
         self._plot_text_no_overlap(region.centroid, region.name, colour)
+
+
+def draw_regions_debug(regions):
+    """Draw regions on plot if not being run in Motor-CAD.
+
+    Parameters
+    ----------
+    regions : Region or list of Region
+        entities to draw
+    """
+    if not _is_running_in_internal_scripting():
+        draw_regions(regions)
 
 
 def draw_regions(regions):
