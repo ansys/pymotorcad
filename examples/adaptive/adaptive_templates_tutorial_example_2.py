@@ -8,8 +8,7 @@ create a Synchronous Reluctance machine geometry with curved flux barriers.
 This is done using a Motor-CAD Adaptive Template script, which is provided.
 This script works by altering a SYNCREL U-Shape rotor template.
 More information on this example can be found in the Motor-CAD Adaptive Templates
-tutorial, provided with a Motor-CAD installation under
-"\\Tutorials\\Adaptive_Templates\\Adaptive_Templates.pdf" (Example 2).
+tutorial (Example 2), provided with a Motor-CAD installation.
 """
 
 # %%
@@ -485,3 +484,23 @@ plt.show()
 # The customised rotor geometry is shown for this Synchronous Reluctance Machine
 # example. The flux barriers have been curved using the imported script,
 # and the rotor pocket parameters were adjusted to improve the model.
+
+# %%
+# Creating and Debugging Adaptive Scripts
+# ---------------------------------------
+# Adaptive Template Scripts should be created using a Python Integrated
+# Development Environment (IDE), such as PyCharm.
+# Using an IDE allows for faster creation of the script,
+# allowing access to autocompletion, code correction
+# and other features which are not available in the Motor-CAD scripting interface.
+#
+# Debugging is essential when writing complex scripts, allowing issues with the script to be fixed
+# and the inspection of Python objects (for example geometry regions from Motor-CAD).
+#
+# Use the PyMotorCAD debugging feature to draw geometry regions in Python using ``Matplotlib``.
+# To use this feature, import the ``geometry_drawing`` library.
+
+import ansys.motorcad.core.geometry_drawing as geometry_drawing
+
+# %%
+# Use ``draw_regions()`` to draw a region or list of regions
