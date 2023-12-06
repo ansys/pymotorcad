@@ -443,14 +443,11 @@ mc.set_variable("CornerRounding_Rotor", 1)
 mc.set_variable("CornerRoundingRadius_Rotor", 0.8)
 
 # %%
-# Save the file again (TO BE DELETED)
-mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
-
-# %%
 # Screenshot the geometry
-mc.save_screen_to_file("Geometry", os.path.join(working_folder, "Screenshot.png"))
+mc.initialise_tab_names()
+mc.save_screen_to_file("Radial", os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
 
-img = mpimg.imread(os.path.join(working_folder, "Adaptive_Temp_Ex_2_Screenshot.png"))
+img = mpimg.imread(os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
 imgplot = plt.imshow(img)
 plt.axis('off')
 plt.show()
