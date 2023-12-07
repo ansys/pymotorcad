@@ -23,9 +23,8 @@ tutorial (Example 2), provided with a Motor-CAD installation.
 
 import os
 
-import matplotlib.pyplot as plt
-
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 import ansys.motorcad.core as pymotorcad
 
@@ -72,7 +71,11 @@ mc.set_variable("GeometryTemplateType", 1)
 # Load adaptive templates script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-mc.load_adaptive_script(os.path.join(working_folder, "adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py"))
+mc.load_adaptive_script(
+    os.path.join(
+        working_folder, "adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py"
+    )
+)
 
 # %%
 # The script that was loaded in is shown below:
@@ -84,7 +87,8 @@ mc.load_adaptive_script(os.path.join(working_folder, "adaptive_template_script_f
 #
 # .. code:: python
 #
-#   """Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
+#   """Adaptive Templates script to alter SYNCREL U-Shape
+#   rotor template to use curved rotor pockets.
 #   This script does not support:
 #       Zero inner/outer layer thickness
 #       Inner/outer posts
@@ -473,11 +477,10 @@ img_cropped = img[56:341, 250:535, :]
 # Display the cropped image
 
 imgplot = plt.imshow(img_cropped)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 
 # %%
 # The customised rotor geometry is shown for this Synchronous Reluctance Machine
 # example. The flux barriers have been curved using the imported script,
 # and the rotor pocket parameters were adjusted to improve the model.
-

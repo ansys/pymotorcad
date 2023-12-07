@@ -124,7 +124,7 @@ def get_coordinates_no_centre_post(pocket):
     # return coordinates at indices from pocket.points, these indices match up with
     # coordinates from each pocket region with/without corner rounding
     # coordinate index ordering [start, end, centre, start, end, centre]
-    # indices have been selected using Motor-CAD geometry editor 
+    # indices have been selected using Motor-CAD geometry editor
     if get_pockets_include_corner_rounding():
         return get_coordinates(pocket, [2, 8, 5, 11, 17, 14])
     else:
@@ -151,7 +151,7 @@ def get_coordinates_centre_post(pocket):
     # return coordinates at indices from pocket.points, these indices match up with
     # coordinates from each pocket region with/without corner rounding
     # coordinate index ordering [start, end, centre, start, end, centre]
-    # indices have been selected using Motor-CAD geometry editor 
+    # indices have been selected using Motor-CAD geometry editor
     if get_pockets_include_corner_rounding():
         return get_coordinates(pocket, [2, 5], mirror) + get_coordinates(
             pocket, [8, 11], mirror_line=mirror

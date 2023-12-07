@@ -30,10 +30,6 @@ and the inspection of Python objects (for example geometry regions from Motor-CA
 
 import os
 
-import matplotlib.pyplot as plt
-
-import matplotlib.image as mpimg
-
 import ansys.motorcad.core as pymotorcad
 
 if "QT_API" in os.environ:
@@ -43,11 +39,11 @@ if "QT_API" in os.environ:
 # Import the ``geometry`` library. This is used to create Adaptive Templates.
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
+from ansys.motorcad.core.geometry_drawing import draw_regions
 
 # %%
 # Import the ``geometry_drawing`` library to use the geometry drawing feature
 
-from ansys.motorcad.core.geometry_drawing import draw_regions
 
 # %%
 # Launch Motor-CAD
@@ -99,6 +95,7 @@ mc.set_variable("GeometryTemplateType", 0)
 # This script does not support:
 # Zero inner/outer layer thickness
 # Inner/outer posts
+
 
 def get_barrier_centre_and_radius(coordinate_1, coordinate_2, coordinate_3, arc_direction):
     """Calculate barrier arc centre and radius coordinates.
@@ -379,5 +376,3 @@ for layer in range(number_layers):
 
 # draw all regions
 draw_regions(pockets_all_layers)
-
-
