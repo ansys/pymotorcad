@@ -7,7 +7,8 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADWarning
+from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
@@ -126,6 +127,29 @@ def test_rpc_communication_error():
         assert "One or more parameter types were invalid" in str(e_info.value)
 
 
+def test_ensure_version_later_than():
+    mock_motorcad_connection = _MotorCADConnection.__new__(_MotorCADConnection)
+    mock_motorcad_connection._connected = True
+
+    # Tests will fail if ensure_version_at_least() raises MotorCADError
+    mock_motorcad_connection.program_version = "2023.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    mock_motorcad_connection.program_version = "2023.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2022.1.2")
+
+    mock_motorcad_connection.program_version = "2023.1.2"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    mock_motorcad_connection.program_version = "2023.1.2.0"
+    mock_motorcad_connection.ensure_version_at_least("2023.1.2")
+
+    # Works on local machine but not test server currently.
+    # with pytest.raises(MotorCADError):
+    #     mock_motorcad_connection.program_version = "2023.1.2"
+    #     mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+
+
 def test_ansys_labs_connection(monkeypatch):
     # Use existing Motor-CAD (mc.connection._port)
     mock_instance = pypim.Instance(
@@ -162,3 +186,54 @@ def test_ansys_labs_connection(monkeypatch):
     assert mock_is_configured.called
     assert mock_connect.called
     assert mock_instance.wait_for_ready.called
+
+
+# Fake requests post class for testing functionality without involving Motor-CAD instance
+class FakeRequestsPostWithWarning:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def json(self):
+        result = {"success": 0, "output": [], "errorMessage": "", "warningMessage": "test_warning"}
+        response = {"jsonrpc": "2.0", "id": 347289, "result": result}
+        return response
+
+
+def test_warnings(monkeypatch):
+    # Create fake request result so we can test this before Motor-CAD 24R1
+    # TODO - replace with actual call with warnings e.g. set_region
+    monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
+
+    with pytest.warns(MotorCADWarning):
+        # Call something which triggers send_and_receive
+        mc.get_variable("n/a")
+
+
+def test_using_url_to_connect():
+    port = mc.connection._port
+    url = "http://localhost:" + str(port)
+    full_url = url + "/jsonrpc"
+    mc2 = MotorCAD(url=url)
+
+    assert mc2.connection._get_url() == full_url
+
+
+def test__resolve_localhost():
+    mc2 = MotorCAD()
+
+    # Reset SERVER_IP since this will have been resolved on initial Motor-CAD connection
+    pymotorcad.set_server_ip(pymotorcad.rpc_client_core.LOCALHOST_ADDRESS)
+
+    full_url = (
+        pymotorcad.rpc_client_core.LOCALHOST_ADDRESS + ":" + str(mc2.connection._port) + "/jsonrpc"
+    )
+
+    assert mc2.connection._get_url() == full_url
+
+    ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
+    ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
+
+    mc2.connection._resolve_localhost()
+
+    current_url = mc2.connection._get_url()
+    assert current_url in [ipv4_localhost, ipv6_localhost]

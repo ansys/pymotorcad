@@ -31,17 +31,48 @@ PyMotorCAD
    :alt: Black
 
 
-This Python package provides the core Python RPC-JSON interface for Motor-CAD.
+Overview
+--------
 
-Install the package
--------------------
+Ansys Motor-CAD is a dedicated design and analysis tool for electric motors. It enables rapid
+and accurate multiphysics design and analysis of electric machines across the full-operating
+spectrum.
+
+PyMotorCAD uses a Python JSON-RPC (remote procedure call) interface for
+Motor-CAD to launch or connect with a Motor-CAD instance, either locally or
+from a remote machine via HTTP. With PyMotorCAD, you can programmatically
+create, interact with, and control a Motor-CAD model, with or without using
+the Motor-CAD GUI.
+
+Documentation and issues
+------------------------
+Documentation for the latest stable release of PyMotorCAD is hosted at
+`PyMotorCAD documentation <https://motorcad.docs.pyansys.com/version/stable/>`_.
+
+In the upper right corner of the documentation's title bar, there is an option for switching from
+viewing the documentation for the latest stable release to viewing the documentation for the
+development version or previously released versions.
+
+You can also `view <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.png>`_ or
+`download <https://cheatsheets.docs.pyansys.com/pymotorcad_cheat_sheet.pdf>`_ the
+PyMotorCAD cheat sheet. This one-page reference provides syntax rules and commands
+for using PyMotorCAD. 
+
+On the `PyMotorCAD Issues <https://github.com/ansys/pymotorcad/issues>`_ page, you can create
+issues to report bugs and request new features. On the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback. 
+
+To reach the project support team, email `pyansys.core@ansys.com <mailto:pyansys.core@ansys.com>`_.
+
+Installation
+------------
 
 PyMotorCAD has two installation modes: user and developer.
 
 Install in user mode
 ^^^^^^^^^^^^^^^^^^^^
 
-Before installing PyMotorCAD in user mode, run this command to esure
+Before installing PyMotorCAD in user mode, run this command to ensure
 that you have the latest version of `pip`_:
 
 .. code:: bash
@@ -60,10 +91,8 @@ Install in developer mode
 Installing PyMotorCAD in developer mode allows
 you to modify the source and enhance it.
 
-.. note::
-
-    Before contributing to this project, ensure that you are familiar
-    with all guidelines in the `PyAnsys Developer's Guide`_.
+**Note:** Before contributing to this project, ensure that you are familiar
+with all guidelines in the `PyAnsys Developer's Guide`_.
     
 To install in developer mode, complete these steps:
 
@@ -73,8 +102,8 @@ To install in developer mode, complete these steps:
 
         git clone https://github.com/ansys/pymotorcad
 
-#. Create a fresh-clean Python environment and activate it with
-   these commands:
+#. Create a fresh-clean Python environment and then activate it with these
+   commands:
 
     .. code:: bash
 
@@ -133,8 +162,8 @@ Here are commands for running various checks in the  ``tox`` environment:
 Raw testing
 ^^^^^^^^^^^
 
-If required, you can call style commands, including `black`_, `isort`_,
-and `flake8`_ or unit testing commands like`pytest`_ from the command line.
+If required, you can call style commands, such as `black`_, `isort`_,
+and `flake8`_, or unit testing commands, such as`pytest`_, from the command line.
 However, using these commands does not guarantee that your project is being
 tested in an isolated environment, which is why tools like `tox`_ exist.
 
@@ -150,8 +179,8 @@ encouraged to install this tool by running this command:
     python -m pip install pre-commit && pre-commit install
 
 
-Documentation
--------------
+Documentation builds
+--------------------
 
 To build documentation, you can run the usual rules provided in the
 `Sphinx`_ Makefile with a command like this:
@@ -161,21 +190,18 @@ To build documentation, you can run the usual rules provided in the
     make -C doc/ html && your_browser_name doc/html/index.html
 
 However, the recommended way of checking documentation integrity is to use
-this ``tox`` command:
+a ``tox`` command like this:
 
 .. code:: bash
 
     tox -e doc && your_browser_name .tox/doc_out/index.html
 
 
-For more information, see the `Documentation <https://motorcad.docs.pyansys.com/>`_
-page in the PyMotorCAD documentation.
-
 Distribution
 ------------
 
 If you would like to create either source or wheel files, run the following
-code to install the building requirements and execute the build module:
+commands to install the building requirements and execute the build module:
 
 .. code:: bash
 
@@ -183,13 +209,29 @@ code to install the building requirements and execute the build module:
     python -m build
     python -m twine check dist/*
 
+
+License and acknowledgements
+----------------------------
+
+PyMotorCAD is licensed under the MIT license. For more information, see the
+`LICENSE <https://github.com/ansys/pymotorcad/raw/main/LICENSE>`_ file.
+
+PyMotorCAD makes no commercial claim over Ansys whatsoever. This library
+extends the capability of Ansys Motor-CAD by adding a Python interface
+to Motor-CAD without changing the core behaviour or license of the original
+software. Using PyMotorCAD for interactive control of Motor-CAD requires
+a legally licensed copy of Motor-CAD.
+
+For more information on Motor-CAD, see the `Ansys Motor-CAD <https://www.ansys.com/products/electronics/ansys-motor-cad>`_
+page on the Ansys website.
+
 .. LINKS AND REFERENCES
 .. _black: https://github.com/psf/black
 .. _flake8: https://flake8.pycqa.org/en/latest/
 .. _isort: https://github.com/PyCQA/isort
 .. _pip: https://pypi.org/project/pip/
 .. _pre-commit: https://pre-commit.com/
-.. _PyAnsys Developer's guide: https://dev.docs.pyansys.com/
+.. _PyAnsys Developer's Guide: https://dev.docs.pyansys.com/
 .. _pytest: https://docs.pytest.org/en/stable/
 .. _Sphinx: https://www.sphinx-doc.org/en/master/
 .. _tox: https://tox.wiki/

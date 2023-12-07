@@ -50,7 +50,7 @@ to viewing the documentation for the development version or previously
 released versions.
 
 Adhere to code style
-===================
+====================
 
 PyMotorCAD is compliant with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_. it
