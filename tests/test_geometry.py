@@ -187,7 +187,7 @@ def test_load_adaptive_script():
 
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
     # open file and sum number of lines and check against number of lines from Motor-CAD
-    with open(filepath, "rbU") as f:
+    with open(filepath, "r") as f:
         num_lines_file = sum(1 for _ in f)
 
     assert num_lines == num_lines_file
@@ -202,7 +202,7 @@ def test_save_adaptive_script():
     filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
     mc.save_adaptive_script(filepath)
     # sum number of lines in saved file and check against number of lines from Motor-CAD
-    with open(filepath, "rbU") as f:
+    with open(filepath, "r") as f:
         num_lines_file = sum(1 for _ in f)
 
     assert num_lines == num_lines_file
