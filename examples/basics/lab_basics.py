@@ -12,10 +12,9 @@ This example provides a Motor-CAD Lab model script.
 # Setting up this example consists of performing imports, launching
 # Motor-CAD, disabling all popup messages from Motor-CAD, and opening
 # the file for the lab model.
-
+#
 # Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Import the required packages.
+
 import os
 
 import matplotlib.pyplot as plt
@@ -29,14 +28,14 @@ if "QT_API" in os.environ:
 # %%
 # Launch Motor-CAD
 # ~~~~~~~~~~~~~~~~
-# Initialize ActiveX automation and launch Motor-CAD.
+
 print("Starting initialization.")
 mcad = pymotorcad.MotorCAD()
 
 # %%
 # Disable popup messages
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Disable all popup messages from Motor-CAD.
+
 mcad.set_variable("MessageDisplayState", 2)
 
 # %%
@@ -44,6 +43,7 @@ mcad.set_variable("MessageDisplayState", 2)
 # ~~~~~~~~~~~~~~~~~~
 # Specify the working directory and open the relevant file for
 # the lab model.
+
 working_folder = os.getcwd()
 mcad.load_template("e8")
 mcad_name = "e8_mobility"

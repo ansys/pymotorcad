@@ -35,7 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==7.4.2",
+    "pytest==7.4.3",
     "pytest-cov==4.1.0",
     "ansys.platform.instancemanagement>=1.0.2",
     "matplotlib>=3.6.3"
@@ -43,12 +43,12 @@ tests = [
 doc = [
     "Sphinx==7.2.6",
     "numpydoc==1.6.0",
-    "ansys-sphinx-theme==0.12.2",
+    "ansys-sphinx-theme==0.12.5",
     "sphinx-copybutton==0.5.2",
-    "sphinx-gallery==0.14.0",
+    "sphinx-gallery==0.15.0",
     "matplotlib",
     "scipy",
-    "pypandoc==1.11"
+    "pypandoc==1.12"
 ]
 
 [project.urls]
