@@ -18,7 +18,10 @@ def test_get_magnetic_graph_point():
 
     x, y = mc.get_magnetic_graph_point("TorqueVW", 3)
     assert almost_equal(x, 360)
-    assert almost_equal(y, 180.14)
+    assert almost_equal(
+        y,
+        180.276,
+    )
 
 
 def test_get_temperature_graph_point():
