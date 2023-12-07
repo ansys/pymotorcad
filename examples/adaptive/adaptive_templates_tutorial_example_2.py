@@ -48,8 +48,8 @@ mc.set_visible(True)
 # %%
 # Open relevant file
 # ~~~~~~~~~~~~~~~~~~
-# Specify the working directory and open the relevant file for
-# the lab model.
+# Specify the working directory and open the relevant Synchronous Reluctance machine
+# template file for this example (i3).
 
 working_folder = os.getcwd()
 mc.load_template("i3")
