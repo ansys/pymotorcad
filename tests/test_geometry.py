@@ -359,22 +359,22 @@ def test_region_get_parent():
     assert pocket.parent == expected_region
 
 
-# def test_region_set_parent():
-#     shaft = mc.get_region("Shaft")
-#     square = create_square()
-#     square.name = "square"
-#     square.parent = shaft
-#     mc.set_region(square)
-#
-#     shaft_expected = mc.get_region("Shaft")
-#     assert square.name in shaft_expected._child_names
-#
-#
-# def test_region_children():
-#     rotor = mc.get_region("rotor")
-#     children = rotor.children
-#
-#     assert len(children) == 16
+def test_region_set_parent():
+    shaft = mc.get_region("Shaft")
+    square = create_square()
+    square.name = "square"
+    square.parent = shaft
+    mc.set_region(square)
+
+    shaft_expected = mc.get_region("Shaft")
+    assert square.name in shaft_expected._child_names
+
+
+def test_region_children():
+    rotor = mc.get_region("rotor")
+    children = rotor.children
+
+    assert len(children) == 16
 
 
 def test_reverse_entity():
