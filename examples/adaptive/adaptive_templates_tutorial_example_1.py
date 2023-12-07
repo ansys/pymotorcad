@@ -1,7 +1,7 @@
 """
-.. _ref_adaptive_templates_example_2:
+.. _ref_adaptive_templates_example_1:
 
-Curved Rotor Flux Barriers for SYNCREL U-Shape
+EXAMPLE 1
 ==============================================
 This example describes a workflow using Adaptive Templates to
 create a Synchronous Reluctance machine geometry with curved flux barriers.
@@ -52,8 +52,8 @@ mc.set_visible(True)
 # template file for this example (i3).
 
 working_folder = os.getcwd()
-mc.load_template("i3")
-mot_name = "Adaptive_Templates_Example_2"
+mc.load_template("e9")
+mot_name = "Adaptive_Templates_Example_1"
 mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
 
 # %%
