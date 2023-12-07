@@ -5,8 +5,16 @@ def get_dir_path():
     return path.dirname(path.realpath(__file__))
 
 
+def get_test_files_dir_path():
+    return get_dir_path() + r"\test_files"
+
+
+def get_base_test_file_path():
+    return get_test_files_dir_path() + r"\base_test_file.mot"
+
+
 def get_temp_files_dir_path():
-    return get_dir_path() + r"\test_files\temp_files"
+    return get_test_files_dir_path() + r"\temp_files"
 
 
 def almost_equal(a, b, decimal_places=1):

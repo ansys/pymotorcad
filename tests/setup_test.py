@@ -2,12 +2,12 @@ import os
 import os.path
 import shutil
 
-from RPC_Test_Common import get_dir_path, get_temp_files_dir_path
+from RPC_Test_Common import get_base_test_file_path, get_temp_files_dir_path
 import ansys.motorcad.core as pymotorcad
 
 
 def reset_to_default_file(mc):
-    mc.load_from_file(get_dir_path() + r"\test_files\base_test_file.mot")
+    mc.load_from_file(get_base_test_file_path())
 
     # save to temp location to avoid editing base file
     mc.save_to_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
@@ -29,6 +29,8 @@ def setup_test_env():
     reset_temp_file_folder()
 
     launch_new_motorcad = False
+
+    pymotorcad.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
     try:
         mc
