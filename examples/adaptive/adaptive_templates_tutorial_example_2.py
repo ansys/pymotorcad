@@ -23,6 +23,9 @@ tutorial (Example 2), provided with a Motor-CAD installation.
 
 import os
 
+# import shutil
+import tempfile
+
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
@@ -50,7 +53,7 @@ mc.set_visible(True)
 # Specify the working directory and open the relevant Synchronous Reluctance machine
 # template file for this example (i3).
 
-working_folder = os.getcwd()
+working_folder = tempfile.gettempdir() + r"\adaptive_example"
 mc.load_template("i3")
 mot_name = "Adaptive_Templates_Example_2"
 mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
@@ -71,18 +74,15 @@ mc.set_variable("GeometryTemplateType", 1)
 # Load adaptive templates script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-mc.load_adaptive_script(
-    os.path.join(
-        working_folder, "adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py"
-    )
-)
+script_folder = os.getcwd() + r"\adaptive_template_script_files"
+mc.load_adaptive_script(os.path.join(script_folder, "UShapeSYNCRELCurvedFluxBarriers.py"))
 
 # %%
 # The script that was loaded in is shown below:
 #
 # UShapeSYNCRELCurvedFluxBarriers.py script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# .. literalinclude:: /../../examples/adaptive/adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py    # noqa: E501
+# .. literalinclude:: /../../examples/adaptive/adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py # noqa E501
 
 # %%
 # Improve model performance with adaptive template
@@ -193,3 +193,18 @@ plt.show()
 # The customised rotor geometry is shown for this Synchronous Reluctance Machine
 # example. The flux barriers have been curved using the imported script,
 # and the rotor pocket parameters were adjusted to improve the model.
+
+# %%
+# Exit Motor-CAD
+# --------------
+# Exit Motor-CAD.
+mc.quit()
+
+# %%
+# Remove the temporary working directory
+# shutil.rmtree(working_folder)
+
+# %%
+# To continue working with this instance of Motor-CAD, rather
+# than using the preceding commands, use:
+# :code:`mcad.set_variable('MessageDisplayState', 0)`
