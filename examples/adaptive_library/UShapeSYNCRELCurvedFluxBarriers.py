@@ -1,40 +1,55 @@
-"""Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
-This script does not support:
-    Zero inner/outer layer thickness
-    Inner/outer posts
 """
+.. _ref_SYNC_Curve_Flux_Barriers:
+
+Curved Rotor Flux Barriers for SYNCREL U-Shape
+==============================================
+Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
+"""
+
+# %%
+# This script does not support:
+# * Zero inner/outer layer thickness
+# * Inner/outer posts
+
+# %%
+# Used for the PyMotorCAD Documentation Examples only
+
+try:
+    import setup_scripts.Example_2_Setup
+except:
+    pass
+
+# %%
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
 
+# %%
 # Connect to Motor-CAD
 mc = pymotorcad.MotorCAD(open_new_instance=False)
 
+# %%
+# Define functions for the Adaptive Templates script
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Calculate barrier arc centre and radius coordinates
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to get the radius and centre of a barrier arc.
+#
+# Parameters:
+# * coordinate_1 : Coordinate, Arc start coordinate.
+# * coordinate_2 : Coordinate, Extra coordinate on arc
+# * coordinate_3 : Coordinate, Arc end coordinate
+# * arc_direction : Integer, Direction to create arc between start/end
+#
+# Returns:
+# * radius : float, Arc radius
+# * centre : Coordinate, Arc centre coordinate
+
 
 def get_barrier_centre_and_radius(coordinate_1, coordinate_2, coordinate_3, arc_direction):
-    """Calculate barrier arc centre and radius coordinates.
-
-    Parameters
-    ----------
-    coordinate_1 : Coordinate
-        Arc start coordinate.
-
-    coordinate_2 : Coordinate
-        Extra coordinate on arc
-
-    coordinate_3 : Coordinate
-        Arc end coordinate
-
-    arc_direction : Integer
-        Direction to create arc between start/end
-
-    Returns
-    -------
-    radius : float
-        Arc radius
-
-    centre : Coordinate
-        Arc centre coordinate
-    """
     _, start_t = xy_to_rt(coordinate_1.x, coordinate_1.y)
     _, end_t = xy_to_rt(coordinate_3.x, coordinate_3.y)
 
@@ -60,18 +75,26 @@ def get_barrier_centre_and_radius(coordinate_1, coordinate_2, coordinate_3, arc_
     return radius, centre
 
 
+# %%
+# Whether corner rounding should be applied to pocket
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to determine whether corner rounding should be applied to pocket.
+# Returns a boolean.
+# Returns 'True' if Corner Rounding is selected for the Rotor in the Motor-CAD
+# file, and if the Corner Rounding radius is set to a non-zero value.
 def get_pockets_include_corner_rounding():
-    """Whether corner rounding should be applied to pocket.
-
-    Returns
-    -------
-        boolean
-    """
     return (mc.get_variable("CornerRounding_Rotor") == 1) and (
         mc.get_variable("CornerRoundingRadius_Rotor") > 0
     )
 
 
+# %%
+# Create mirror line through rotor from origin to airgap
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to determine whether corner rounding should be applied to pocket.
+# Returns a boolean.
+# Returns 'True' if Corner Rounding is selected for the Rotor in the Motor-CAD
+# file, and if the Corner Rounding radius is set to a non-zero value.
 def get_rotor_mirror_line():
     """Create mirror line through rotor from origin to airgap.
 
@@ -284,3 +307,8 @@ for layer in range(number_layers):
         if pocket_right.is_closed():
             # set region back into Motor-CAD
             mc.set_region(pocket_right)
+
+try:
+    import setup_scripts.Example_2_Screenshotting  # noqa: F401
+except:
+    pass

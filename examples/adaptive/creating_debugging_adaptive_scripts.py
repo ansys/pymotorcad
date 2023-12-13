@@ -17,7 +17,8 @@ and the inspection of Python objects (for example geometry regions from Motor-CA
 
 # %%
 # For more information on the Synchronous Reluctance machine geometry with curved flux barriers
-# used for this debugging example, please see the :ref:`ref_adaptive_templates_example_2` example.
+# used for this debugging example, please see :ref:`ref_adaptive_templates_example_2`
+# and :ref:`ref_SYNC_Curve_Flux_Barriers`.
 #
 # Set up example
 # --------------

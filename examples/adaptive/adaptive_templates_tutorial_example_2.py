@@ -1,11 +1,13 @@
 """
 .. _ref_adaptive_templates_example_2:
 
-Curved Rotor Flux Barriers for SYNCREL U-Shape
-==============================================
+Tutorial Example 2
+===================
 This example describes a workflow using Adaptive Templates to
 create a Synchronous Reluctance machine geometry with curved flux barriers.
-This is done using a Motor-CAD Adaptive Templates script, which is provided.
+This is done using a Motor-CAD Adaptive Templates script,
+which can be found under :ref:`sphx_glr_examples_adaptive_library`
+(:ref:`ref_SYNC_Curve_Flux_Barriers`).
 This script works by altering a SYNCREL U-Shape rotor template.
 More information on this example can be found in the Motor-CAD Adaptive Templates
 tutorial (Example 2), provided with a Motor-CAD installation.
@@ -69,20 +71,17 @@ mc.set_variable("GeometryTemplateType", 1)
 # Load and run adaptive templates script file
 # --------------------------------------------
 # Load the adaptive templates script file into Motor-CAD.
+# The script used for this example can be found under :ref:`sphx_glr_examples_adaptive_library`
+# (:ref:`ref_SYNC_Curve_Flux_Barriers`).
 # The script will run automatically once loaded.
 #
 # Load adaptive templates script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-script_folder = os.getcwd() + r"\adaptive_template_script_files"
+this_folder = os.getcwd()
+examples_folder = os.path.dirname(this_folder)
+script_folder = examples_folder + r"\adaptive_library"
 mc.load_adaptive_script(os.path.join(script_folder, "UShapeSYNCRELCurvedFluxBarriers.py"))
-
-# %%
-# The script that was loaded in is shown below:
-#
-# UShapeSYNCRELCurvedFluxBarriers.py script file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# .. literalinclude:: /../../examples/adaptive/adaptive_template_script_files/UShapeSYNCRELCurvedFluxBarriers.py # noqa E501
 
 # %%
 # Improve model performance with adaptive template
