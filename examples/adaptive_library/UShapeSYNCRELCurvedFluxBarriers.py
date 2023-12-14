@@ -8,8 +8,17 @@ Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved 
 
 # %%
 # This script does not support:
+#
 # * Zero inner/outer layer thickness
+#
 # * Inner/outer posts
+#
+# Final expected project
+# ~~~~~~~~~~~~~~~~~~~~~~
+#
+# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
+#  :width: 300
+#  :alt: SYNCREL rotor with curved flux barriers.
 
 # %%
 # Used for the PyMotorCAD Documentation Examples only
@@ -309,6 +318,6 @@ for layer in range(number_layers):
             mc.set_region(pocket_right)
 
 try:
-    import setup_scripts.Example_2_Screenshotting  # noqa: F401
+    import setup_scripts.Quit  # noqa: F401
 except:
     pass

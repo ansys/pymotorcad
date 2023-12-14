@@ -21,3 +21,5 @@ _mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
 
 # Disable adaptive templates
 _mc.set_variable("GeometryTemplateType", 0)
+
+# Display screenshot
