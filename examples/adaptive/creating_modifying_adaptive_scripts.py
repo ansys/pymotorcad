@@ -1,9 +1,9 @@
 """
-.. _ref_creating_and_debugging_adaptive_scripts:
+.. _ref_creating_adaptive_scripts:
 
-Creating and Debugging Adaptive Scripts
+Creating and Modifying Adaptive Scripts
 ==============================================
-This example describes how to create and debug Adaptive Templates scripts.
+This example describes how to create and modify Adaptive Templates scripts.
 Adaptive Templates scripts are loaded into Motor-CAD to set up custom geometry templates.
 Adaptive Template Scripts should be created outside Motor-CAD,
 using a Python Integrated Development Environment (IDE) (such as PyCharm).
@@ -11,13 +11,13 @@ Using an IDE allows for faster creation of the script,
 allowing access to autocompletion, code correction
 and other features which are not available in the Motor-CAD scripting interface.
 
-Debugging is essential when writing complex scripts, allowing issues with the script to be fixed
+This is essential when writing complex scripts, allowing issues with the script to be fixed
 and the inspection of Python objects (for example geometry regions from Motor-CAD).
 """
 
 # %%
 # For more information on the Synchronous Reluctance machine geometry with curved flux barriers
-# used for this debugging example, please see :ref:`ref_adaptive_templates_example_2`
+# used for this example, please see :ref:`ref_adaptive_templates_example_2`
 # and :ref:`ref_SYNC_Curve_Flux_Barriers`.
 #
 # Set up example
@@ -70,13 +70,14 @@ mot_name = "Adaptive_Templates_Example_2"
 mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
 
 # %%
-# Debugging the adaptive templates example
-# ----------------------------------------
-# Debug the synchronous reluctance machine example motor
+# Working on the adaptive templates example
+# -----------------------------------------
+# Work on the synchronous reluctance machine example motor
 # with curved flux barriers using adaptive templates
 # (:ref:`ref_adaptive_templates_example_2`).
 #
-# Adaptive templates should be disabled when debugging from an external IDE.
+# Adaptive templates should be disabled when working on a script
+# from an external IDE.
 # This allows the IDE to access the Standard Template Geometry.
 # Set the Geometry Templates Type to Standard (from Adaptive)
 
@@ -85,10 +86,10 @@ mc.set_variable("GeometryTemplateType", 0)
 # %%
 # Instead of loading a script into Motor-CAD,
 # as done in the :ref:`ref_adaptive_templates_example_2` example,
-# the following debug script is run externally.
+# the following script is run externally.
 # The following script is very similar to that in the
 # :ref:`ref_adaptive_templates_example_2` example,
-# but uses the debugging feature to draw the geometry regions.
+# but uses the geometry drawing feature to plot the geometry regions.
 #
 # Adaptive_Templates_Example_2_Debug.py script
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

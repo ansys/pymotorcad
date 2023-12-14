@@ -5,23 +5,17 @@ Curved Rotor Flux Barriers for SYNCREL U-Shape
 ==============================================
 Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
 """
-
 # %%
 # This script does not support:
 #
 # * Zero inner/outer layer thickness
 #
 # * Inner/outer posts
-#
-# Final expected project
-# ~~~~~~~~~~~~~~~~~~~~~~
-#
-# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
-#  :width: 300
-#  :alt: SYNCREL rotor with curved flux barriers.
 
 # %%
-# Used for the PyMotorCAD Documentation Examples only
+# Setup PyMotorCAD Documentation Example
+# --------------------------------------
+# (Used for the PyMotorCAD Documentation Examples only)
 
 try:
     import setup_scripts.Example_2_Setup
@@ -30,7 +24,7 @@ except:
 
 # %%
 # Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------
 
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
@@ -41,20 +35,26 @@ mc = pymotorcad.MotorCAD(open_new_instance=False)
 
 # %%
 # Define functions for the Adaptive Templates script
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# --------------------------------------------------
 #
 # Calculate barrier arc centre and radius coordinates
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define a function to get the radius and centre of a barrier arc.
 #
 # Parameters:
+#
 # * coordinate_1 : Coordinate, Arc start coordinate.
+#
 # * coordinate_2 : Coordinate, Extra coordinate on arc
+#
 # * coordinate_3 : Coordinate, Arc end coordinate
+#
 # * arc_direction : Integer, Direction to create arc between start/end
 #
 # Returns:
+#
 # * radius : float, Arc radius
+#
 # * centre : Coordinate, Arc centre coordinate
 
 
@@ -98,19 +98,13 @@ def get_pockets_include_corner_rounding():
 
 
 # %%
-# Create mirror line through rotor from origin to airgap
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define a function to determine whether corner rounding should be applied to pocket.
-# Returns a boolean.
-# Returns 'True' if Corner Rounding is selected for the Rotor in the Motor-CAD
-# file, and if the Corner Rounding radius is set to a non-zero value.
+# Create a rotor mirror line
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to create mirror line through rotor from origin to airgap.
+# Returns a Line.
+# Get the rotor diameter and pole number from the Motor-CAD file.
+# Calculate the airgap coordinates.
 def get_rotor_mirror_line():
-    """Create mirror line through rotor from origin to airgap.
-
-    Returns
-    -------
-        Line
-    """
     rotor_radius = mc.get_variable("RotorDiameter")
     number_poles = mc.get_variable("Pole_Number")
     airgap_centre_x, airgap_centre_y = rt_to_xy(rotor_radius, (360 / number_poles) / 2)
@@ -118,72 +112,81 @@ def get_rotor_mirror_line():
     return Line(Coordinate(0, 0), Coordinate(airgap_centre_x, airgap_centre_y))
 
 
+# %%
+# Get list of coordinates
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to get a list of coordinates
+# from the pocket using coordinate_indices.
+#
+# Order of coordinates: start, end, extra coordinate on arc.
+#
+# Parameters:
+#
+# * pocket : Region, Pocket region
+#
+# * coordinate_indices : list of integer, Pocket region coordinate indices
+#
+# * mirror_line : Line, Mirror line to generate extra coordinate on arc
+#
+# Returns
+#
+# * list of Coordinates
+#
+# Loop through coordinates and add to a list.
+# Mirror the first coordinate to generate the third coordinate on the arc.
 def get_coordinates(pocket, coordinate_indices, mirror_line=None):
-    """Get list of coordinates from pocket using coordinate_indices.
-    Coordinates ordered : start, end, extra coordinate on arc.
-
-    Parameters
-    ----------
-    pocket : Region
-        Pocket region
-
-    coordinate_indices : list of integer
-        Pocket region coordinate indices
-
-    mirror_line : Line
-        Mirror line to generate extra coordinate on arc
-
-    Returns
-    -------
-        list of Coordinate
-    """
     coordinates = [pocket.points[index] for index in coordinate_indices]
     if mirror_line is not None:
-        # mirror first coordinate to generate third coordinate on arc
         coordinates.append(coordinates[0].mirror(mirror_line))
 
     return coordinates
 
 
+# %%
+# Get list of coordinates for pocket arcs
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define functions to get list of coordinates
+# to use to generate top and bottom arcs for pocket.
+#
+# Return coordinates at indices from pocket.points.
+# These indices match up with coordinates from each pocket region
+# with/without corner rounding.
+#
+# Order of coordinates: [start, end, centre, start, end, centre]
+#
+# Indices have been selected using Motor-CAD geometry editor.
+#
+# For no centre post:
+#
+# Returns
+#
+# * list of Coordinates
 def get_coordinates_no_centre_post(pocket):
-    """Get list of coordinates to use to generate top and bottom arcs for pocket.
-    Coordinates ordered : start, end, extra coordinate for each arc.
-
-    Returns
-    -------
-        list of Coordinate
-    """
-    # return coordinates at indices from pocket.points, these indices match up with
-    # coordinates from each pocket region with/without corner rounding
-    # coordinate index ordering [start, end, centre, start, end, centre]
-    # indices have been selected using Motor-CAD geometry editor
     if get_pockets_include_corner_rounding():
         return get_coordinates(pocket, [2, 8, 5, 11, 17, 14])
     else:
         return get_coordinates(pocket, [1, 5, 3, 6, 0, 8])
 
 
+# %%
+# For centre post:
+#
+# Parameters:
+#
+# * pocket : Region, Pocket region
+#
+# Returns:
+#
+# * list of Coordinates
+#
+# Mirror required to generate the third point on arc.
+# This third point is required to calculate the centre and radius of arc.
+# The mirror line mirrors the start point of each pocket arc
+# to generate this third point.
+
+
 def get_coordinates_centre_post(pocket):
-    """Get list of coordinates to use to generate top and bottom arcs for pocket.
-    Coordinates ordered : start, end, extra coordinate for each arc.
-
-    Parameters
-    ----------
-    pocket : Region
-        Pocket region
-
-    Returns
-    -------
-        list of Coordinate
-    """
-    # mirror required to generate the third point on arc, this third point is required
-    # to calculate the centre and radius of arc, the mirror line mirrors  the start point
-    # of each pocket arc to generate this third point
     mirror = get_rotor_mirror_line()
-    # return coordinates at indices from pocket.points, these indices match up with
-    # coordinates from each pocket region with/without corner rounding
-    # coordinate index ordering [start, end, centre, start, end, centre]
-    # indices have been selected using Motor-CAD geometry editor
     if get_pockets_include_corner_rounding():
         return get_coordinates(pocket, [2, 5], mirror) + get_coordinates(
             pocket, [8, 11], mirror_line=mirror
@@ -194,17 +197,24 @@ def get_coordinates_centre_post(pocket):
         )
 
 
+# %%
+# Update pocket geometry
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to update the pocket entities
+# to create a curved pocket using input coordinates.
+#
+# Parameters:
+#
+# * pocket : Region, Pocket region
+#
+# * coordinates : list of Coordinate, Coordinates to generate arcs with in region
+#
+# Create a list of arc entities from the coordinates.
+# Remove the entities between the start and end coordinates
+# of each arc, then insert into the pocket.
+
+
 def update_pocket_geometry(pocket, coordinates):
-    """Update the pocket entities to create curved pocket using input coordinates.
-
-    Parameters
-    ----------
-    pocket : Region
-        Pocket region
-
-    coordinates : list of Coordinate
-        Coordinates to generate arcs with in region
-    """
     entities = []
     # create list of arc entities from coordinates
     for element in range(0, len(coordinates), 3):
@@ -244,26 +254,61 @@ def update_pocket_geometry(pocket, coordinates):
         pocket.insert_entity(start_index, entities[count])
 
 
+# %%
+# Get unique pocket name
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to return the unique pocket name
+# used in Motor-CAD.
+#
+# Parameters:
+#
+# * index : integer, Current pocket index
+#
+# Returns:
+#
+# * string
+
+
 def get_pocket_name(index):
-    """Return unique pocket name used in Motor-CAD.
-
-    Parameters
-    ----------
-    index : integer
-        Current pocket index
-
-    Returns
-    -------
-        string
-    """
     if index == 0:
         return "Rotor Pocket"
     else:
         return "Rotor Pocket_" + str(index)
 
 
+# %%
+# Create the Adaptive Templates geometry
+# --------------------------------------
+# Get the number of layers in the rotor for the Motor-CAD file
+
 pocket_number = 0
 number_layers = mc.get_variable("Magnet_Layers")
+
+# %%
+# For each layer:
+#
+# * Get the U-Shape layer parameters
+#
+# * Raise an exception if the curved barrier
+#   can't be created for a layer
+#   due to the thickness being zero
+#
+# * Raise an exception if the curved barrier
+#   can't be created for a layer
+#   due to the post width being zero
+#
+# * Get the pocket from Motor-CAD using unique name
+#
+# * Determine whether there are 1 or 2 pockets in the layer
+#   and get the new coordinates
+#
+# * Update the rotor pocket geometry with the new coordinates
+#
+# * Set the updated pocket region in Motor-CAD
+#
+# * If there are 2 pockets in the layer,
+#   the left pocket region is updated first.
+#   This is then mirrored to update the right pocket region.
 
 for layer in range(number_layers):
     # get U-Shape layer parameters
@@ -317,7 +362,12 @@ for layer in range(number_layers):
             # set region back into Motor-CAD
             mc.set_region(pocket_right)
 
+# %%
+# Display geometry for  PyMotorCAD Documentation Example
+# -------------------------------------------------------
+# (Used for the PyMotorCAD Documentation Examples only)
+
 try:
-    import setup_scripts.Quit  # noqa: F401
+    import setup_scripts.Display_Geometry  # noqa: F401
 except:
     pass
