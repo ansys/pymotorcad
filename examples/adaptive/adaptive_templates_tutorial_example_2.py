@@ -24,6 +24,7 @@ tutorial (Example 2), provided with a Motor-CAD installation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
 import os
+from pathlib import Path
 
 # import shutil
 import tempfile
@@ -78,10 +79,10 @@ mc.set_variable("GeometryTemplateType", 1)
 # Load adaptive templates script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-this_folder = os.getcwd()
-examples_folder = os.path.dirname(this_folder)
-script_folder = examples_folder + r"\adaptive_library"
-mc.load_adaptive_script(os.path.join(script_folder, "UShapeSYNCRELCurvedFluxBarriers.py"))
+this_folder = Path(__file__).parent
+examples_folder = this_folder.parent
+script_folder = examples_folder / "adaptive_library"
+mc.load_adaptive_script(script_folder / "UShapeSYNCRELCurvedFluxBarriers.py")
 
 # %%
 # Improve model performance with adaptive template

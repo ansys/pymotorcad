@@ -136,12 +136,12 @@ class _RpcMethodsAdaptiveGeometry:
 
         Parameters
         ----------
-        filepath : string
+        filepath : string or pathlib.Path
             full file path of script
         """
         self.connection.ensure_version_at_least("2024.0")
         method = "LoadAdaptiveScript"
-        params = [filepath]
+        params = [str(filepath)]
         return self.connection.send_and_receive(method, params)
 
     def unite_regions(self, region, regions):
