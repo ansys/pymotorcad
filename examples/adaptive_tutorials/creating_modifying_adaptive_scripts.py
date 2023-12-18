@@ -30,6 +30,9 @@ and the inspection of Python objects (for example geometry regions from Motor-CA
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
 import os
+from pathlib import Path
+import shutil
+import tempfile
 
 import ansys.motorcad.core as pymotorcad
 
@@ -64,10 +67,15 @@ mc.set_variable("MessageDisplayState", 2)
 # Specify the working directory and open the relevant Synchronous Reluctance machine
 # template file for this example (i3).
 
-working_folder = os.getcwd()
+working_folder = Path(tempfile.gettempdir()) / "adaptive_example"
+try:
+    shutil.rmtree(working_folder)
+except:
+    pass
 mc.load_template("i3")
 mot_name = "Adaptive_Templates_Example_2"
-mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
+Path.mkdir(working_folder)
+mc.save_to_file(working_folder / (mot_name + ".mot"))
 
 # %%
 # Working on the adaptive templates example
