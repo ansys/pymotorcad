@@ -25,8 +25,7 @@ tutorial (Example 2), provided with a Motor-CAD installation.
 
 import os
 from pathlib import Path
-
-# import shutil
+import shutil
 import tempfile
 
 import matplotlib.image as mpimg
@@ -56,10 +55,15 @@ mc.set_visible(True)
 # Specify the working directory and open the relevant Synchronous Reluctance machine
 # template file for this example (i3).
 
-working_folder = tempfile.gettempdir() + r"\adaptive_example"
+working_folder = Path(tempfile.gettempdir()) / "adaptive_example"
+try:
+    shutil.rmtree(working_folder)
+except:
+    pass
 mc.load_template("i3")
 mot_name = "Adaptive_Templates_Example_2"
-mc.save_to_file(os.path.join(working_folder, mot_name + ".mot"))
+Path.mkdir(working_folder)
+mc.save_to_file(working_folder / (mot_name + ".mot"))
 
 # %%
 # Enable adaptive templates
@@ -79,8 +83,7 @@ mc.set_variable("GeometryTemplateType", 1)
 # Load adaptive templates script file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-this_folder = Path(__file__).parent
-examples_folder = this_folder.parent
+examples_folder = Path(os.getcwd()).parent
 script_folder = examples_folder / "adaptive_library"
 mc.load_adaptive_script(script_folder / "UShapeSYNCRELCurvedFluxBarriers.py")
 
@@ -167,14 +170,14 @@ mc.set_variable("CornerRoundingRadius_Rotor", 0.8)
 # ~~~~~~~~~~~~~~~~~~~~~~~
 
 mc.initialise_tab_names()
-mc.save_screen_to_file("Radial", os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
+mc.save_screen_to_file("Radial", working_folder / "Radial_Geometry_Screenshot.png")
 
 # %%
 # Load, process and display the image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the saved image
 
-img = mpimg.imread(os.path.join(working_folder, "Radial_Geometry_Screenshot.png"))
+img = mpimg.imread(working_folder / "Radial_Geometry_Screenshot.png")
 
 # %%
 # Crop the image to focus on the rotor geometry that was customised using

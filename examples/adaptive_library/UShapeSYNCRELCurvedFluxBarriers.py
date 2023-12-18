@@ -4,7 +4,7 @@
 Curved Rotor Flux Barriers for SYNCREL U-Shape
 ==============================================
 Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
-THis script is designed to be run from Motor-CAD template "i3".
+This script is designed to be run from Motor-CAD template "i3".
 """
 # %%
 # This script does not support:
@@ -19,7 +19,9 @@ THis script is designed to be run from Motor-CAD template "i3".
 # (Used for the PyMotorCAD Documentation Examples only)
 
 try:
-    import setup_scripts.Example_2_Setup
+    from setup_scripts.Library_Examples import example_setup
+
+    example_setup("i3", "SYNCRELCurvedFluxBarriers")
 except ImportError:
     pass
 
@@ -369,6 +371,8 @@ for layer in range(number_layers):
 # (Used for the PyMotorCAD Documentation Examples only)
 
 try:
-    import setup_scripts.Display_Geometry  # noqa: F401
+    from setup_scripts.Library_Examples import display_geometry  # noqa: F401
+
+    display_geometry("UShapeSYNCRELCurvedFluxBarriers")
 except ImportError:
     pass
