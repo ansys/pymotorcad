@@ -69,3 +69,12 @@ def display_geometry(img_name):
 
     # Quit Motor-CAD
     _mc.quit()
+
+
+def define_parameters(parameters, values):
+    # Launch Motor-CAD
+    _mc = pymotorcad.MotorCAD(open_new_instance=False)
+
+    # Define the new adaptive parameters in the Motor-CAD file.
+    for p in range(len(parameters)):
+        _mc.set_adaptive_parameter_value(str(parameters[p]), float(values[p]))
