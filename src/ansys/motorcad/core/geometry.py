@@ -163,6 +163,26 @@ class Region(object):
         else:
             return False
 
+    def find_entity_from_coordinates(self, c1, c2):
+        """searches through region to find an entity with start and end co-ordinates that match c1,c2
+
+        Parameters
+        ----------
+        c1: ansys.motorcad.core.geometry.Coordinate
+        c2: ansys.motorcad.core.geometry.Coordinate
+
+        Returns
+        -------
+        Line or Arc entity
+        """
+        for entity in self.entities:
+            if c1 == entity.start and c2 == entity.end:
+                return entity
+            elif c1 == entity.end and c2 == entity.start:
+                return entity
+
+        return None
+
     @property
     def parent_name(self):
         """Get region parent name.

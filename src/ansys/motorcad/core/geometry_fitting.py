@@ -1,8 +1,21 @@
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
-from math import dist, atan2, pi, sqrt, sin, cos
-import ezdxf
+from math import dist, sqrt
+
 
 def orientation(c1, c2, c3):
+    """find the orientation of three coordinates
+
+     Parameters
+     ----------
+     c1: ansys.motorcad.core.geometry.Coordinate
+     c2: ansys.motorcad.core.geometry.Coordinate
+     c3: ansys.motorcad.core.geometry.Coordinate
+
+     Returns
+     -------
+     int
+     """
+
     # to find the orientation of three coordinates
     val = (float(c2.y - c1.y) * (c3.x - c2.x)) - \
           (float(c2.x - c1.x) * (c3.y - c2.y))
@@ -16,10 +29,23 @@ def orientation(c1, c2, c3):
         # Collinear orientation
         return 0
 
-def coordinatestoarc(c1, c2, c3):
 
-    midX1 = (c1.x + c2.x) / 2
-    midY1 = (c1.y + c2.y) / 2
+def coordinates_to_arc(c1, c2, c3):
+    """Takes three coordinates and converts to an arc
+
+    Parameters
+    ----------
+     c1: ansys.motorcad.core.geometry.Coordinate
+     c2: ansys.motorcad.core.geometry.Coordinate
+     c3: ansys.motorcad.core.geometry.Coordinate
+
+    Returns
+    -------
+    ansys.motorcad.core.geometry.Arc
+    """
+
+    mid_x1 = (c1.x + c2.x) / 2
+    mid_y1 = (c1.y + c2.y) / 2
 
     # avoid divide by zero errors in case of vertical lines
     if (c2.x - c1.x) == 0:
@@ -32,258 +58,254 @@ def coordinatestoarc(c1, c2, c3):
     else:
         slope2 = (c3.y - c2.y) / (c3.x - c2.x)
 
-    midX2 = (c2.x + c3.x) / 2
-    midY2 = (c2.y + c3.y) / 2
+    mid_x2 = (c2.x + c3.x) / 2
+    mid_y2 = (c2.y + c3.y) / 2
 
     if slope1 != 0 and slope2 != 0 and slope1 != slope2:
 
-        perpslope1 = -1 / slope1
-        perpslope2 = -1 / slope2
+        perpendicular_slope_1 = -1 / slope1
+        perpendicular_slope_2 = -1 / slope2
 
-        xintersect = (midY1 - midY2 + perpslope2 * midX2 - perpslope1 * midX1) / (perpslope2 - perpslope1)
-        yintersect = perpslope1 * (xintersect - midX1) + midY1
+        x_intersect = (mid_y1 - mid_y2 + perpendicular_slope_2 * mid_x2 - perpendicular_slope_1 * mid_x1) / (
+                perpendicular_slope_2 - perpendicular_slope_1)
+        y_intersect = perpendicular_slope_1 * (x_intersect - mid_x1) + mid_y1
 
-    elif slope1==slope2:
-        #lines are parallel so no point of intersection
+    elif slope1 == slope2:
+        # lines are parallel so no point of intersection
         return None
 
-    elif slope1==0 and slope2==0 or slope1==slope2:
-        #three points are on a straight line, no arc is possible
+    elif slope1 == 0 and slope2 == 0 or slope1 == slope2:
+        # three points are on a straight line, no arc is possible
         return None
 
     elif slope1 == 0:
         # if line 1 is either vertical or horizontal
         if (c2.x - c1.x) == 0:
-            yintersect = midY1
-            perpslope2 = -1 / slope2
-            xintersect = ((yintersect - midY2) / perpslope2) + midX2
+            y_intersect = mid_y1
+            perpendicular_slope_2 = -1 / slope2
+            x_intersect = ((y_intersect - mid_y2) / perpendicular_slope_2) + mid_x2
         else:
-            xintersect = midX1
-            perpslope2 = -1 / slope2
-            yintersect = perpslope2 * (xintersect - midX2) + midY2
+            x_intersect = mid_x1
+            perpendicular_slope_2 = -1 / slope2
+            y_intersect = perpendicular_slope_2 * (x_intersect - mid_x2) + mid_y2
 
     elif slope2 == 0:
         # if line 2 is either vertical or horizontal
         if (c3.x - c2.x) == 0:
-            yintersect = midY2
-            perpslope1 = -1 / slope1
-            xintersect = ((yintersect - midY1) / perpslope1) + midX1
+            y_intersect = mid_y2
+            perpendicular_slope_1 = -1 / slope1
+            x_intersect = ((y_intersect - mid_y1) / perpendicular_slope_1) + mid_x1
         else:
-            xintersect = midX2
-            perpslope1 = -1 / slope1
-            yintersect = perpslope1 * (xintersect - midX1) + midY1
+            x_intersect = mid_x2
+            perpendicular_slope_1 = -1 / slope1
+            y_intersect = perpendicular_slope_1 * (x_intersect - mid_x1) + mid_y1
 
-    radius = dist([c1.x, c1.y], [xintersect, yintersect])
+    radius = dist([c1.x, c1.y], [x_intersect, y_intersect])
 
-    coord_centre = Coordinate(xintersect, yintersect)
+    coord_centre = Coordinate(x_intersect, y_intersect)
 
-    arcout = Arc(c1, c3, coord_centre, radius)
+    arc_out = Arc(c1, c3, coord_centre, radius)
 
-    return arcout
+    return arc_out
 
-def checkllineerror(c_xy, slope, b, tolerance):
 
-    errflag = False
+def check_line_error(c_xy, slope, b, tolerance):
+    """
+
+    Parameters
+    ----------
+    c_xy: List
+        List of coordinates of type ansys.motorcad.core.geometry.Coordinate
+    slope: float
+        slope of line equation
+    b: float
+        b from line equation y=mx+b
+    tolerance: float
+        allowed variation of points from line
+
+    Returns
+    -------
+    boolean
+    """
+    error_flag = False
 
     for xy in c_xy:
-        ycalc = slope * xy.x + b
-        yarray = abs(xy.y - ycalc)
-        if (yarray > tolerance):
-            errflag = True
+        y_calc = slope * xy.x + b
+        y_array = abs(xy.y - y_calc)
+        if y_array > tolerance:
+            error_flag = True
 
-    return errflag
+    return error_flag
 
-def checkarcerror(c_xy, c_x0y0, r, tolerance):
 
-    errflag = False
+def check_arc_error(c_xy, c_x0y0, radius, tolerance):
+    """
+
+    Parameters
+    ----------
+    c_xy: List
+        List of coordinates of type ansys.motorcad.core.geometry.Coordinate
+    c_x0y0: ansys.motorcad.core.geometry.Coordinate
+        Coordinate representing arc centre
+    radius: float
+        Radius of arc
+    tolerance: float
+        allowed variation of points from arc
+
+    Returns
+    -------
+    boolean
+    """
+    error_flag = False
 
     for i in range(len(c_xy)):
-        rcalc = sqrt((c_xy[i].x - c_x0y0.x) ** 2 + (c_xy[i].y - c_x0y0.y) ** 2)
+        radius_calculated = sqrt((c_xy[i].x - c_x0y0.x) ** 2 + (c_xy[i].y - c_x0y0.y) ** 2)
 
-        rerror = abs(r - rcalc)
+        radius_error = abs(radius - radius_calculated)
 
-        if rerror > tolerance:
-            errflag = True
+        if radius_error > tolerance:
+            error_flag = True
+
+    return error_flag
 
 
-    return errflag
+def return_entity_list(xy_points, line_tolerance, arc_tolerance):
+    """
 
-def returnentitylist(xypoints, linetolerance, arctolerance):
+    Parameters
+    ----------
+    xy_points: List
+            List of coordinates of type ansys.motorcad.core.geometry.Coordinate
+    line_tolerance: float
+            Maximum allowed variation of line entity from original points
+    arc_tolerance: float
+            Maximum allowed variation of arc entities from original points
 
-    #xypoints is a list of ordered co-ordinates
+    Returns
+    -------
+        List
+        List of Line/Arc class objects representing entities.
+    """
+    # xy_points is a list of ordered co-ordinates
 
-    newentitylist = []
-    currentindex = 0
-    xydynamiclist = xypoints.copy()
+    new_entity_list = []
+    current_index = 0
+    xy_dynamic_list = xy_points.copy()
 
-    while len(xydynamiclist) > 2:
+    while len(xy_dynamic_list) > 2:
+        # future work need to consider sharp angle case where two separate line entities
+        # are required to represent 3 points this could potentially be handled by a maximum arc angle limit
+        line_segments = 1
+        arc_segments = 1
+        arc_entity_complete = False
+        line_entity_complete = False
 
-        # need to consider sharp angle case where two separate line entities are required to represent 3 points
-        # this could potentially be handled by a maximum arc angle limit
-        linesegments = 1
-        arcsegments = 1
-        arcentitycomplete = False
-        lineentitycomplete = False
+        while line_entity_complete is False:
+            line_segments = line_segments + 1
 
-        while lineentitycomplete is False:
-            linesegments = linesegments + 1
+            # loops through extending line until the tolerance is reached
+            if len(xy_dynamic_list) >= line_segments + 1:
+                start_point = xy_points[current_index]
+                end_point = xy_points[current_index + line_segments]
 
-            #loops through extending line until the tolerance is reached
-            if len(xydynamiclist) >= linesegments + 1:
-                startpoint = xypoints[currentindex]
-                endpoint = xypoints[currentindex + linesegments]
-
-                line_master = Line(startpoint, endpoint)
+                line_master = Line(start_point, end_point)
                 slope = line_master.gradient
-                b = startpoint.y - slope * startpoint.x
-                lineentitycomplete = checkllineerror(xypoints[currentindex:currentindex + linesegments + 1], slope,
-                                                     b, linetolerance)
+                b = start_point.y - slope * start_point.x
+                line_entity_complete = check_line_error(xy_points[current_index:current_index + line_segments + 1],
+                                                        slope, b, line_tolerance)
             else:
-                lineentitycomplete = True
+                line_entity_complete = True
 
-        if lineentitycomplete:
-            linesegments = linesegments - 1
+        if line_entity_complete:
+            line_segments = line_segments - 1
 
-        while arcentitycomplete is False:
-            #loops through extending the arc until the tolerance is reached
-            arcsegments = arcsegments + 1
+        while arc_entity_complete is False:
+            # loops through extending the arc until the tolerance is reached
+            arc_segments = arc_segments + 1
 
-            if len(xydynamiclist) >= arcsegments + 1:
-                startpoint = xypoints[currentindex]
-                endpoint = xypoints[currentindex + arcsegments]
-                midpoint = xypoints[currentindex + round(arcsegments / 2)]
+            if len(xy_dynamic_list) >= arc_segments + 1:
+                start_point = xy_points[current_index]
+                end_point = xy_points[current_index + arc_segments]
+                mid_point = xy_points[current_index + round(arc_segments / 2)]
 
-                arc_master = coordinatestoarc(startpoint, midpoint, endpoint)
+                arc_master = coordinates_to_arc(start_point, mid_point, end_point)
 
-                if arc_master==None:
-                    arcentitycomplete = True
+                if arc_master is None:
+                    arc_entity_complete = True
                 else:
-                    arcentitycomplete = checkarcerror(xypoints[currentindex:currentindex + arcsegments + 1],
-                                                      arc_master.centre, arc_master.radius, arctolerance)
+                    arc_entity_complete = check_arc_error(xy_points[current_index:current_index + arc_segments + 1],
+                                                          arc_master.centre, arc_master.radius, arc_tolerance)
 
             else:
-                arcentitycomplete = True
+                arc_entity_complete = True
 
-        if arcentitycomplete:
-            arcsegments = arcsegments - 1
+        if arc_entity_complete:
+            arc_segments = arc_segments - 1
 
-        if linesegments >= arcsegments:
-            endindex = currentindex + linesegments
-            newentitylist.append(Line(xypoints[currentindex], xypoints[endindex]))
+        if line_segments >= arc_segments:
+            end_index = current_index + line_segments
+            new_entity_list.append(Line(xy_points[current_index], xy_points[end_index]))
 
-            for p in range(endindex - currentindex):
-                xydynamiclist.pop(0)
+            for p in range(end_index - current_index):
+                xy_dynamic_list.pop(0)
 
         else:
             # need to recalculate arc here as last arc calculated in loop is outside error bounds and 1 segment too long
-            endindex = currentindex + arcsegments
-            midpoint = round(arcsegments / 2)
+            end_index = current_index + arc_segments
+            mid_point = round(arc_segments / 2)
 
-            arc_complete = coordinatestoarc(xypoints[currentindex], xypoints[currentindex + midpoint], xypoints[endindex])
+            arc_complete = coordinates_to_arc(xy_points[current_index], xy_points[current_index + mid_point],
+                                              xy_points[end_index])
 
-            direction = orientation(xypoints[currentindex], xypoints[currentindex + midpoint], xypoints[endindex])
+            direction = orientation(xy_points[current_index], xy_points[current_index + mid_point],
+                                    xy_points[end_index])
 
             if direction == 1:
 
-                #flip start and end points if direction is clockwise
+                # flip start and end points if direction is clockwise
                 add_arc = Arc(arc_complete.end, arc_complete.start, arc_complete.centre, arc_complete.radius)
-                newentitylist.append(add_arc)
+                new_entity_list.append(add_arc)
 
-                for p in range(endindex - currentindex):
-                    xydynamiclist.pop(0)
+                for p in range(end_index - current_index):
+                    xy_dynamic_list.pop(0)
 
             else:
-                newentitylist.append(arc_complete)
+                new_entity_list.append(arc_complete)
 
-                for p in range(endindex - currentindex):
-                    xydynamiclist.pop(0)
+                for p in range(end_index - current_index):
+                    xy_dynamic_list.pop(0)
 
-        currentindex = endindex
+        current_index = end_index
 
-    #handling end of list where remaining items less than 3 co-ordinates
+    # handling end of list where remaining items less than 3 co-ordinates
 
-    if len(xydynamiclist) == 2:
-        newentitylist.append(Line(xydynamiclist[0], xydynamiclist[1]))
+    if len(xy_dynamic_list) == 2:
+        new_entity_list.append(Line(xy_dynamic_list[0], xy_dynamic_list[1]))
 
         for p in range(2):
-            xydynamiclist.pop(0)
+            xy_dynamic_list.pop(0)
 
-    elif len(xydynamiclist) == 1:
-        xydynamiclist.pop(0)
+    elif len(xy_dynamic_list) == 1:
+        xy_dynamic_list.pop(0)
 
-    return newentitylist
+    return new_entity_list
 
-def coordinatesequal(x1y1, x2y2):
 
-    if (x1y1.x == x2y2.x) and (x1y1.y == x2y2.y):
-        cordequal = True
+def coordinates_equal(c1, c2):
+    """
+
+    Parameters
+    ----------
+    c1: ansys.motorcad.core.geometry.Coordinate
+    c2: ansys.motorcad.core.geometry.Coordinate
+
+    Returns
+    -------
+    bool
+    """
+    if (c1.x == c2.x) and (c1.y == c2.y):
+        equal = True
     else:
-        cordequal = False
+        equal = False
 
-    return cordequal
-
-def returnconnectedregions(entitylist):
-    newentity = False
-    listofregionxy = []
-    regionincrement = 0
-    dynamicentitylist = entitylist
-    regionxy = []
-    firstsearchentity = dynamicentitylist[0]
-    nextsearchentity = firstsearchentity
-
-    dynamicentitylist.pop(0)
-
-    while len(dynamicentitylist) > 0:
-
-        if newentity:
-            regionxy = []
-            nextsearchentity = dynamicentitylist[0]
-            firstsearchentity = nextsearchentity
-            dynamicentitylist.pop(0)
-            newentity = False
-
-        connectionfound = False
-
-        for s in range(len(dynamicentitylist)):
-
-            if coordinatesequal(dynamicentitylist[s].start, nextsearchentity.end):
-                connectionfound = True
-                # add start co-ordinate to output array
-                regionxy.append(nextsearchentity.start)
-
-                nextsearchentity = dynamicentitylist[s]
-                dynamicentitylist.pop(s)
-
-                if coordinatesequal(firstsearchentity.start, nextsearchentity.end):
-                    regionxy.append(nextsearchentity.start)
-                    regionxy.append(nextsearchentity.end)
-
-                    # add increment
-                    listofregionxy.append(regionxy)
-                    regionincrement = regionincrement + 1
-                    newentity = True
-                break
-
-        if connectionfound == False:
-            #not a closed region so throw away points, don't add to list
-            newentity = True
-
-    return listofregionxy
-
-def rotate_offset_Coordinate(c, angle, offsetx, offsety):
-    anglerads = angle * pi / 180
-    xnew = c.x * cos(anglerads) - c.y * sin((anglerads))
-    ynew = c.x * sin(anglerads) + c.y * cos((anglerads))
-    c_new = Coordinate(xnew+offsetx, ynew+offsety)
-    return c_new
-
-def findEntityinRegionfromStartEndCoordinates(c1,c2, searchRegion):
-
-    #searches through a region to find an entity with start and end co-ordinates that match c1,c2
-    for entity in searchRegion.entities:
-        if c1.x == entity.start.x and c2.x == entity.end.x and c1.y == entity.start.y and c2.y == entity.end.y:
-            return entity
-        elif c1.x == entity.end.x and c2.x == entity.start.x and c1.y == entity.end.y and c2.y == entity.start.y:
-            return entity
-
-    return None
+    return equal
