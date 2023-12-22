@@ -222,54 +222,6 @@ def coordinatesequal(x1y1, x2y2):
 
     return cordequal
 
-def getdxfpoints(dxffilepath):
-    doc = ezdxf.readfile(dxffilepath)
-    # iterate over all entities in modelspace
-
-    msp = doc.modelspace()
-
-    group = msp.groupby(dxfattrib="layer")
-    i = 0
-    dxfentitylist =[]
-
-    for layer, entities in group.items():
-        for entity in entities:
-            i = i + 1
-            if entity.DXFTYPE == "LWPOLYLINE":
-                x1 = entity.lwpoints.values[0]
-                y1 = entity.lwpoints.values[1]
-                x2 = entity.lwpoints.values[5]
-                y2 = entity.lwpoints.values[6]
-
-            elif entity.DXFTYPE == "LINE":
-                x1 = entity.dxf.start[0]
-                y1 = entity.dxf.start[1]
-
-                x2 = entity.dxf.end[0]
-                y2 = entity.dxf.end[1]
-            elif entity.DXFTYPE == "ARC":
-
-                x1 = entity.start_point[0]
-                y1 = entity.start_point[1]
-
-                x2 = entity.end_point[0]
-                y2 = entity.end_point[1]
-
-                arcradius = entity.dxf.radius
-                arcanglestart = entity.dxf.start_angle
-                arcangleend = entity.dxf.end_angle
-                arcangle = arcanglestart - arcangleend
-
-                x0 = entity.dxf.center[0]
-                y0 = entity.dxf.center[1]
-
-            c_start = Coordinate(x1, y1)
-            c_end = Coordinate( x2, y2)
-            linetoadd = Line(c_start,c_end)
-            dxfentitylist.append(linetoadd)
-
-    return dxfentitylist
-
 def returnconnectedregions(entitylist):
     newentity = False
     listofregionxy = []
