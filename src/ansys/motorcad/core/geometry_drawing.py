@@ -140,6 +140,8 @@ def draw_objects(objects):
         # loop through colours once end of list reached
         while i > len(colours) - 1:
             i -= len(colours)
+        if object is None:
+            continue
         if isinstance(object, Region):
             region_drawing.draw_region(object, colours[i])
         elif isinstance(object, Entity):

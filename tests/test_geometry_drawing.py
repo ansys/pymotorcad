@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import pytest
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
 from ansys.motorcad.core.geometry_drawing import draw_objects
@@ -36,3 +37,9 @@ def test_draw_objects(monkeypatch):
     draw_objects([l1, a1])
 
     draw_objects([c1, c2])
+
+    # Test missing object doesn't break function
+    draw_objects([c1, c2, None])
+
+    with pytest.raises(TypeError):
+        draw_objects([int(10)])
