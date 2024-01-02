@@ -164,7 +164,7 @@ class Region(object):
             return False
 
     def find_entity_from_coordinates(self, c1, c2):
-        """searches through region to find an entity with start and end co-ordinates that match c1,c2
+        """searches through region to find an entity with start and end coordinates that match c1,c2
 
         Parameters
         ----------

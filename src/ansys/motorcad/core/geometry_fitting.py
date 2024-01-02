@@ -1,33 +1,43 @@
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line
+"""Unit containing functions for drawing geometry from a list of points"""
+
+from enum import Enum
 from math import dist, sqrt
 
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line
 
-def orientation(c1, c2, c3):
-    """find the orientation of three coordinates
 
-     Parameters
-     ----------
-     c1: ansys.motorcad.core.geometry.Coordinate
-     c2: ansys.motorcad.core.geometry.Coordinate
-     c3: ansys.motorcad.core.geometry.Coordinate
+class Orientation(Enum):
+    clockwise = 1
+    anticlockwise = 2
+    collinear = 0
 
-     Returns
-     -------
-     int
-     """
 
-    # to find the orientation of three coordinates
-    val = (float(c2.y - c1.y) * (c3.x - c2.x)) - \
-          (float(c2.x - c1.x) * (c3.y - c2.y))
+def _orientation(c1, c2, c3):
+    """Find the orientation of three coordinates, this can be clockwise, anticlockwise or collinear.
+
+    Parameters
+    ----------
+    c1 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 1
+    c2 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 2
+    c3 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 3
+    Returns
+    -------
+        int
+    """
+    # To find the orientation of three coordinates
+    val = (float(c2.y - c1.y) * (c3.x - c2.x)) - (float(c2.x - c1.x) * (c3.y - c2.y))
     if val > 0:
         # Clockwise orientation
-        return 1
+        return Orientation.clockwise
     elif val < 0:
-        # Counterclockwise orientation
-        return 2
+        # Anticlockwise orientation
+        return Orientation.anticlockwise
     else:
         # Collinear orientation
-        return 0
+        return Orientation.collinear
 
 
 def coordinates_to_arc(c1, c2, c3):
@@ -36,6 +46,7 @@ def coordinates_to_arc(c1, c2, c3):
     Parameters
     ----------
      c1: ansys.motorcad.core.geometry.Coordinate
+
      c2: ansys.motorcad.core.geometry.Coordinate
      c3: ansys.motorcad.core.geometry.Coordinate
 
@@ -62,12 +73,12 @@ def coordinates_to_arc(c1, c2, c3):
     mid_y2 = (c2.y + c3.y) / 2
 
     if slope1 != 0 and slope2 != 0 and slope1 != slope2:
-
         perpendicular_slope_1 = -1 / slope1
         perpendicular_slope_2 = -1 / slope2
 
-        x_intersect = (mid_y1 - mid_y2 + perpendicular_slope_2 * mid_x2 - perpendicular_slope_1 * mid_x1) / (
-                perpendicular_slope_2 - perpendicular_slope_1)
+        x_intersect = (
+            mid_y1 - mid_y2 + perpendicular_slope_2 * mid_x2 - perpendicular_slope_1 * mid_x1
+        ) / (perpendicular_slope_2 - perpendicular_slope_1)
         y_intersect = perpendicular_slope_1 * (x_intersect - mid_x1) + mid_y1
 
     elif slope1 == slope2:
@@ -186,7 +197,7 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
         List
         List of Line/Arc class objects representing entities.
     """
-    # xy_points is a list of ordered co-ordinates
+    # xy_points is a list of ordered coordinates
 
     new_entity_list = []
     current_index = 0
@@ -194,7 +205,8 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
 
     while len(xy_dynamic_list) > 2:
         # future work need to consider sharp angle case where two separate line entities
-        # are required to represent 3 points this could potentially be handled by a maximum arc angle limit
+        # are required to represent 3 points this could potentially be handled by a maximum
+        # arc angle limit
         line_segments = 1
         arc_segments = 1
         arc_entity_complete = False
@@ -211,8 +223,12 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
                 line_master = Line(start_point, end_point)
                 slope = line_master.gradient
                 b = start_point.y - slope * start_point.x
-                line_entity_complete = check_line_error(xy_points[current_index:current_index + line_segments + 1],
-                                                        slope, b, line_tolerance)
+                line_entity_complete = check_line_error(
+                    xy_points[current_index : current_index + line_segments + 1],
+                    slope,
+                    b,
+                    line_tolerance,
+                )
             else:
                 line_entity_complete = True
 
@@ -233,8 +249,12 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
                 if arc_master is None:
                     arc_entity_complete = True
                 else:
-                    arc_entity_complete = check_arc_error(xy_points[current_index:current_index + arc_segments + 1],
-                                                          arc_master.centre, arc_master.radius, arc_tolerance)
+                    arc_entity_complete = check_arc_error(
+                        xy_points[current_index : current_index + arc_segments + 1],
+                        arc_master.centre,
+                        arc_master.radius,
+                        arc_tolerance,
+                    )
 
             else:
                 arc_entity_complete = True
@@ -250,20 +270,24 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
                 xy_dynamic_list.pop(0)
 
         else:
-            # need to recalculate arc here as last arc calculated in loop is outside error bounds and 1 segment too long
+            # need to recalculate arc here as last arc calculated in loop is outside error bounds
+            # and 1 segment too long
             end_index = current_index + arc_segments
             mid_point = round(arc_segments / 2)
 
-            arc_complete = coordinates_to_arc(xy_points[current_index], xy_points[current_index + mid_point],
-                                              xy_points[end_index])
+            arc_complete = coordinates_to_arc(
+                xy_points[current_index], xy_points[current_index + mid_point], xy_points[end_index]
+            )
 
-            direction = orientation(xy_points[current_index], xy_points[current_index + mid_point],
-                                    xy_points[end_index])
+            direction = _orientation(
+                xy_points[current_index], xy_points[current_index + mid_point], xy_points[end_index]
+            )
 
-            if direction == 1:
-
+            if direction == Orientation.clockwise:
                 # flip start and end points if direction is clockwise
-                add_arc = Arc(arc_complete.end, arc_complete.start, arc_complete.centre, arc_complete.radius)
+                add_arc = Arc(
+                    arc_complete.end, arc_complete.start, arc_complete.centre, arc_complete.radius
+                )
                 new_entity_list.append(add_arc)
 
                 for p in range(end_index - current_index):
@@ -277,7 +301,7 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
 
         current_index = end_index
 
-    # handling end of list where remaining items less than 3 co-ordinates
+    # handling end of list where remaining items less than 3 coordinates
 
     if len(xy_dynamic_list) == 2:
         new_entity_list.append(Line(xy_dynamic_list[0], xy_dynamic_list[1]))
@@ -289,23 +313,3 @@ def return_entity_list(xy_points, line_tolerance, arc_tolerance):
         xy_dynamic_list.pop(0)
 
     return new_entity_list
-
-
-def coordinates_equal(c1, c2):
-    """
-
-    Parameters
-    ----------
-    c1: ansys.motorcad.core.geometry.Coordinate
-    c2: ansys.motorcad.core.geometry.Coordinate
-
-    Returns
-    -------
-    bool
-    """
-    if (c1.x == c2.x) and (c1.y == c2.y):
-        equal = True
-    else:
-        equal = False
-
-    return equal
