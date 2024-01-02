@@ -1,7 +1,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, degrees, inf, isclose, radians, sqrt
+from math import atan2, degrees, inf, isclose, radians, sqrt, dist
 
 
 class Region(object):
@@ -646,6 +646,16 @@ class Line(Entity):
         """
         return self.end.x - self.start.x == 0
 
+    @property
+    def is_horizontal(self):
+        """Check whether line is horizontal.
+
+        Returns
+        -------
+            boolean
+        """
+        return self.end.y - self.start.y == 0
+
     def mirror(self, mirror_line):
         """Mirror line about a line.
 
@@ -956,10 +966,70 @@ class Arc(Entity):
         else:
             return (self.start_angle - self.end_angle) % 360
 
+    @classmethod
+    def from_coordinates(cls, c1, c2, c3):
+        """Takes three coordinates and converts to an arc
+
+        Parameters
+        ----------
+        c1: ansys.motorcad.core.geometry.Coordinate
+        c2: ansys.motorcad.core.geometry.Coordinate
+        c3: ansys.motorcad.core.geometry.Coordinate
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Arc
+        """
+        l1 = Line(c1, c2)
+        l2 = Line(c2, c3)
+
+        if not l1.is_horizontal and not l1.is_vertical and not l2.is_horizontal and not l2.is_vertical and (l1.gradient != l2.gradient):
+
+
+            perpendicular_slope_1 = -1 / l1.gradient
+            perpendicular_slope_2 = -1 / l2.gradient
+
+            x_intersect = ((l1.midpoint - l2.midpoint).y + perpendicular_slope_2 * l2.midpoint.x - perpendicular_slope_1 * l1.midpoint.x
+            ) / (perpendicular_slope_2 - perpendicular_slope_1)
+            y_intersect = perpendicular_slope_1 * (x_intersect - l1.midpoint.x) + l1.midpoint.y
+
+        elif l1.gradient == l2.gradient:
+            # three points are on a straight line, no arc is possible
+            return None
+
+        elif (l1.is_horizontal or l1.is_vertical) and (l2.is_horizontal or l2.is_vertical):
+            return None
+            # Not valid  fix this
+
+        elif l1.is_vertical:
+            # line 1 is either vertical
+            y_intersect = l1.midpoint.y
+            perpendicular_slope_2 = -1 / l2.gradient
+            x_intersect = ((y_intersect - l1.midpoint.y) / perpendicular_slope_2) + l1.midpoint.x
+
+        elif l1.is_horizontal:
+            x_intersect = l1.midpoint.x
+            perpendicular_slope_2 = -1 / l2.gradient
+            y_intersect = perpendicular_slope_2 * (x_intersect - l2.midpoint.x) + l2.midpoint.y
+
+        elif l2.is_vertical:
+            y_intersect = l2.midpoint.y
+            perpendicular_slope_1 = -1 / l1.gradient
+            x_intersect = ((y_intersect - l1.midpoint.y) / perpendicular_slope_1) + l1.midpoint.x
+        elif l2.is_horizontal:
+            x_intersect = l2.midpoint.x
+            perpendicular_slope_1 = -1 / l1.gradient
+            y_intersect = perpendicular_slope_1 * (x_intersect - l1.midpoint.x) + l1.midpoint.y
+
+        radius = dist([c1.x, c1.y], [x_intersect, y_intersect])
+
+        coord_centre = Coordinate(x_intersect, y_intersect)
+
+        return cls(c1, c3, coord_centre, radius)
+
 
 class EntityList(list):
     """Generic class for list of Entities."""
-
     def __eq__(self, other):
         """Compare equality of 2 EntityList objects."""
         return self._entities_same(other, check_reverse=True)
