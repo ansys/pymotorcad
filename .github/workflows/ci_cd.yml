@@ -113,7 +113,7 @@ jobs:
         run: tox -e doc
 
       - name: Upload HTML documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: .tox/doc_out/
