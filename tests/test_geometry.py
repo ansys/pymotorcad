@@ -4,6 +4,7 @@ import math
 from math import cos, degrees, inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
+from matplotlib import pyplot as plt
 import pytest
 
 from RPC_Test_Common import get_dir_path
@@ -983,6 +984,24 @@ def test_total_angle():
     assert isclose(a1.total_angle, 300, abs_tol=1e-6)
     a1 = Arc(p1, p0, pc, -1)
     assert isclose(a1.total_angle, 60, abs_tol=1e-6)
+
+
+def test_draw_regions(monkeypatch):
+    # Just check it runs for now
+    # Stop plt.show() blocking tests
+    monkeypatch.setattr(plt, "show", lambda: None)
+
+    region = mc.get_region("Stator")
+    region2 = mc.get_region("StatorWedge")
+    region3 = mc.get_region("ArmatureSlotL1")
+
+    draw_regions(region)
+    draw_regions([region, region2, region3])
+
+    # Test overflow of colours
+    region4 = mc.get_region("StatorAir")
+    region5 = mc.get_region("Shaft")
+    draw_regions([region, region2, region3, region4, region5])
 
 
 def test_is_matplotlib_installed(monkeypatch):
