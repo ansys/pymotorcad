@@ -1009,8 +1009,8 @@ class Arc(Entity):
 
         self.radius *= -1
 
-    def coordinate_on_entity(self, coordinate):
-        """Get if a coordinate exists on this Arc.
+    def coordinate_within_arc_radius(self, coordinate):
+        """Check if coordinate exists within arc radius.
 
         Parameters
         ----------
@@ -1028,9 +1028,22 @@ class Arc(Entity):
         else:
             theta1 = (angle_to_check - self.end_angle) % 360
 
-        within_angle = theta1 <= self.total_angle
+        return theta1 <= self.total_angle
 
-        return within_angle and (abs(radius) == abs(self.radius))
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this Arc.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the Arc
+        Returns
+        -------
+        bool
+        """
+        v_from_centre = coordinate - self.centre
+        radius, _ = v_from_centre.get_polar_coords_deg()
+        return self.coordinate_within_arc_radius(coordinate) and (abs(radius) == abs(self.radius))
 
     @property
     def start_angle(self):

@@ -47,14 +47,18 @@ class _TestEntity:
             return True
 
     def _is_arc_in_tolerance(self):
-        # Does not account for angle
-        # radius only
         for point in self.points_array:
-            radius_calculated = abs(point - self.entity.centre)
-            radius_error = abs(abs(self.entity.radius) - radius_calculated)
-            if radius_error > self.tolerance:
-                return False
+            if self.entity.coordinate_within_arc_radius(point):
+                radius_calculated = abs(point - self.entity.centre)
+                distance = abs(abs(self.entity.radius) - radius_calculated)
+            else:
+                # If not within arc then closest point will be arc start/end
+                d_point_start = abs(point - self.entity.start)
+                d_point_end = abs(point - self.entity.end)
+                distance = min(d_point_start, d_point_end)
 
+            if distance > self.tolerance:
+                return False
         else:
             return True
 
