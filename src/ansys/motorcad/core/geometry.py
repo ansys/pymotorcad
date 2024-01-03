@@ -840,11 +840,6 @@ class Line(Entity):
             # Lines don't intersect
             return None
 
-        # y = c/b - a/b X
-        #
-        # intercept = c/b
-        # grad = -a/b
-
         a_self, b_self, c_self = self._line_equation()
         a_line, b_line, c_line = line._line_equation()
 
