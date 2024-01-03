@@ -1,234 +1,209 @@
-"""Unit containing functions for drawing geometry from a list of points"""
+"""Unit containing functions for drawing geometry from a list of points."""
 
+from copy import copy
 from enum import Enum
-from math import sqrt
 
-from ansys.motorcad.core.geometry import Arc, Line, EntityList
-
-
-class Orientation(Enum):
-    clockwise = 1
-    anticlockwise = 2
-    collinear = 0
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line
 
 
-def _orientation(c1, c2, c3):
-    """Find the orientation of three coordinates, this can be clockwise, anticlockwise or collinear.
-
-    Parameters
-    ----------
-    c1 : ansys.motorcad.core.geometry.Coordinate
-        Coordinate 1
-    c2 : ansys.motorcad.core.geometry.Coordinate
-        Coordinate 2
-    c3 : ansys.motorcad.core.geometry.Coordinate
-        Coordinate 3
-    Returns
-    -------
-        Orientation
-    """
-    # To find the orientation of three coordinates
-    val = (float(c2.y - c1.y) * (c3.x - c2.x)) - (float(c2.x - c1.x) * (c3.y - c2.y))
-    if val > 0:
-        # Clockwise orientation
-        return Orientation.clockwise
-    elif val < 0:
-        # Anticlockwise orientation
-        return Orientation.anticlockwise
-    else:
-        # Collinear orientation
-        return Orientation.collinear
-
-def check_line_error(c_xy, slope, b, tolerance):
-    """
-
-    Parameters
-    ----------
-    c_xy: List
-        List of coordinates of type ansys.motorcad.core.geometry.Coordinate
-    slope: float
-        slope of line equation
-    b: float
-        b from line equation y=mx+b
-    tolerance: float
-        allowed variation of points from line
-
-    Returns
-    -------
-    boolean
-    """
-    error_flag = False
-
-    for xy in c_xy:
-        y_calc = slope * xy.x + b
-        y_array = abs(xy.y - y_calc)
-        if y_array > tolerance:
-            error_flag = True
-
-    return error_flag
+class _EntityType(Enum):
+    line = 0
+    arc = 1
 
 
-def check_arc_error(c_xy, c_x0y0, radius, tolerance):
-    """
+class _TestEntity:
+    def __init__(self, entity, points_array, tolerance):
+        self.entity = entity
+        self.points_array = points_array
+        self.tolerance = tolerance
 
-    Parameters
-    ----------
-    c_xy: List
-        List of coordinates of type ansys.motorcad.core.geometry.Coordinate
-    c_x0y0: ansys.motorcad.core.geometry.Coordinate
-        Coordinate representing arc centre
-    radius: float
-        Radius of arc
-    tolerance: float
-        allowed variation of points from arc
+    def is_in_tolerance(self):
+        if self.entity is None:
+            # Failed to create entity in previous step.
+            # could be caused by trying to create an arc on collinear points
+            return False
+        if isinstance(self.entity, Line):
+            return self._is_line_in_tolerance()
+        elif isinstance(self.entity, Arc):
+            return self._is_arc_in_tolerance()
+        else:
+            raise TypeError("Entity type must be arc or line")
 
-    Returns
-    -------
-    boolean
-    """
-    error_flag = False
+    def _is_line_in_tolerance(self):
+        for xy in self.points_array:
+            # Try to find the closest point on the line
+            angle = self.entity.rotate(self.entity.midpoint, 90).angle
 
-    for i in range(len(c_xy)):
-        radius_calculated = sqrt((c_xy[i].x - c_x0y0.x) ** 2 + (c_xy[i].y - c_x0y0.y) ** 2)
+            p2 = xy + Coordinate.from_polar_coords(1, angle)
+            line_t = Line(xy, p2)
 
-        radius_error = abs(radius - radius_calculated)
+            p_intercept = line_t.get_line_intersection(self.entity)
 
-        if radius_error > tolerance:
-            error_flag = True
+            difference = abs(p_intercept - xy)
 
-    return error_flag
+            if difference > self.tolerance:
+                return False
+        else:
+            return True
 
-
-def return_entity_list(xy_points, line_tolerance, arc_tolerance):
-    """
-
-    Parameters
-    ----------
-    xy_points: List of ansys.motorcad.core.geometry.Coordinate
-            List of coordinates.
-    line_tolerance: float
-            Maximum allowed variation of line entity from original points.
-    arc_tolerance: float
-            Maximum allowed variation of arc entities from original points.
-
-    Returns
-    -------
-        ansys.motorcad.core.geometry.EntityList
-            List of Line/Arc class objects.
-    """
-    # xy_points is a list of ordered coordinates
-
-    new_entity_list = EntityList()
-    current_index = 0
-    xy_dynamic_list = xy_points.copy()
-
-    while len(xy_dynamic_list) > 2:
-        # future work need to consider sharp angle case where two separate line entities
-        # are required to represent 3 points this could potentially be handled by a maximum
-        # arc angle limit
-        line_segments = 1
-        arc_segments = 1
-        arc_entity_complete = False
-        line_entity_complete = False
-
-        while line_entity_complete is False:
-            line_segments = line_segments + 1
-
-            # loops through extending line until the tolerance is reached
-            if len(xy_dynamic_list) >= line_segments + 1:
-                start_point = xy_points[current_index]
-                end_point = xy_points[current_index + line_segments]
-
-                line_master = Line(start_point, end_point)
-                slope = line_master.gradient
-                b = start_point.y - slope * start_point.x
-                line_entity_complete = check_line_error(
-                    xy_points[current_index : current_index + line_segments + 1],
-                    slope,
-                    b,
-                    line_tolerance,
-                )
-            else:
-                line_entity_complete = True
-
-        if line_entity_complete:
-            line_segments = line_segments - 1
-
-        while arc_entity_complete is False:
-            # loops through extending the arc until the tolerance is reached
-            arc_segments = arc_segments + 1
-
-            if len(xy_dynamic_list) >= arc_segments + 1:
-                start_point = xy_points[current_index]
-                end_point = xy_points[current_index + arc_segments]
-                mid_point = xy_points[current_index + round(arc_segments / 2)]
-
-                arc_master = Arc.from_coordinates(start_point, mid_point, end_point)
-
-                if arc_master is None:
-                    arc_entity_complete = True
-                else:
-                    arc_entity_complete = check_arc_error(
-                        xy_points[current_index : current_index + arc_segments + 1],
-                        arc_master.centre,
-                        arc_master.radius,
-                        arc_tolerance,
-                    )
-
-            else:
-                arc_entity_complete = True
-
-        if arc_entity_complete:
-            arc_segments = arc_segments - 1
-
-        if line_segments >= arc_segments:
-            end_index = current_index + line_segments
-            new_entity_list.append(Line(xy_points[current_index], xy_points[end_index]))
-
-            for p in range(end_index - current_index):
-                xy_dynamic_list.pop(0)
+    def _is_arc_in_tolerance(self):
+        # Does not account for angle
+        # radius only
+        for point in self.points_array:
+            radius_calculated = abs(point - self.entity.centre)
+            radius_error = abs(abs(self.entity.radius) - radius_calculated)
+            if radius_error > self.tolerance:
+                return False
 
         else:
-            # need to recalculate arc here as last arc calculated in loop is outside error bounds
-            # and 1 segment too long
-            end_index = current_index + arc_segments
-            mid_point = round(arc_segments / 2)
+            return True
 
-            arc_complete = Arc.from_coordinates(
-                xy_points[current_index], xy_points[current_index + mid_point], xy_points[end_index]
-            )
 
-            direction = _orientation(
-                xy_points[current_index], xy_points[current_index + mid_point], xy_points[end_index]
-            )
+def return_entity_list(coordinates, line_tolerance, arc_tolerance):
+    """Get list of entities from a list of coordinates.
 
-            if direction == Orientation.clockwise:
-                # flip start and end points if direction is clockwise
-                add_arc = Arc(
-                    arc_complete.end, arc_complete.start, arc_complete.centre, arc_complete.radius
+    Parameters
+    ----------
+    coordinates : List of ansys.motorcad.core.geometry.Coordinate
+        coordinates from which to generate the geometry
+    line_tolerance : float
+        maximum allowed distance of point away from generated line
+    arc_tolerance : float
+        maximum allowed distance of point away from generated arc
+
+    Returns
+    -------
+    ansys.motorcad.core.geometry.EntityList
+
+    """
+    p = _PointFitting()
+    return p.return_entity_list(coordinates, line_tolerance, arc_tolerance)
+
+
+class _PointFitting:
+    def __init__(self):
+        self.xy_dynamic_list = []
+        self.line_tolerance = 0
+        self.arc_tolerance = 0
+        # Maximum distance searched along a list of point to generate next line or arc
+        self.max_search_depth = 100
+
+    def get_next_entity(self, entity_type):
+        """Get next valid line or arc entity from list of xy points."""
+        last_valid_entity = None
+
+        # Arcs will always be able to fit 3 points
+        # No point searching for less than this since a 3 point arc is preferred to 2 point line
+        for segments in range(2, self.max_search_depth):
+            if segments >= len(self.xy_dynamic_list):
+                # Reached end of list for searching
+                break
+
+            if entity_type == _EntityType.line:
+                # loops through extending line until the tolerance is reached
+                line_to_check = Line(self.xy_dynamic_list[0], self.xy_dynamic_list[segments])
+
+                test_entity = _TestEntity(
+                    line_to_check, self.xy_dynamic_list[0 : segments + 1], self.line_tolerance
                 )
-                new_entity_list.append(add_arc)
 
-                for p in range(end_index - current_index):
-                    xy_dynamic_list.pop(0)
+            elif entity_type == _EntityType.arc:
+                # Pick the middle value in the array to use for the middle of the arc
+                # Could be improved in future
+                arc_master = Arc.from_coordinates(
+                    self.xy_dynamic_list[0],
+                    self.xy_dynamic_list[round(segments / 2)],
+                    self.xy_dynamic_list[segments],
+                )
+
+                test_entity = _TestEntity(
+                    arc_master, self.xy_dynamic_list[0 : segments + 1], self.arc_tolerance
+                )
+            else:
+                raise Exception("invalid entity type")
+
+            if test_entity.is_in_tolerance():
+                last_valid_entity = test_entity
+            else:
+                break
+
+        return last_valid_entity
+
+    def return_entity_list(self, coordinates, line_tolerance, arc_tolerance):
+        """Create a list of entities from a list of points within a given tolerance.
+
+        Parameters
+        ----------
+        coordinates: List of ansys.motorcad.core.geometry.Coordinate
+            Coordinates to fit entities to
+        line_tolerance: float
+            Maximum allowed variation of line entity from original points.
+        arc_tolerance: float
+            Maximum allowed variation of arc entities from original points.
+        Returns
+        -------
+        ansys.motorcad.core.geometry.EntityList
+            List of Line/Arc class objects.
+        """
+        # coordinates is a list of ordered coordinates
+        entities = EntityList()
+        current_index = 0
+        self.line_tolerance = line_tolerance
+        self.arc_tolerance = arc_tolerance
+
+        # Working list. Coordinates will be popped from the front of this list when used to create
+        # entities
+        self.xy_dynamic_list = copy(coordinates)
+
+        while len(self.xy_dynamic_list) > 2:
+            # future work need to consider sharp angle case where two separate line entities
+            # are required to represent 3 points this could potentially be handled by a maximum
+            # arc angle limit
+
+            next_line = self.get_next_entity(_EntityType.line)
+            next_arc = self.get_next_entity(_EntityType.arc)
+
+            if (next_arc is None) and (next_line is None):
+                raise Exception("failed to create next entity")
+            elif (next_arc is None) or (next_line is None):
+                if next_line is None:
+                    next_object = next_arc
+                else:
+                    next_object = next_line
 
             else:
-                new_entity_list.append(arc_complete)
+                if len(next_line.points_array) >= len(next_arc.points_array):
+                    next_object = next_line
+                else:
+                    next_object = next_arc
 
-                for p in range(end_index - current_index):
-                    xy_dynamic_list.pop(0)
+            if next_object == next_line:
+                # Append the shortest possible line to allow curves on ends e.g.
+                #                 x
+                #                /
+                # x------x---__x"
+                # concatenate collinear lines later
+                new_line = Line(self.xy_dynamic_list[0], self.xy_dynamic_list[1])
+                next_object = _TestEntity(new_line, self.xy_dynamic_list[0:2], self.line_tolerance)
 
-        current_index = end_index
+            entities.append(next_object.entity)
+            self.xy_dynamic_list = self.xy_dynamic_list[len(next_object.points_array) - 1 :]
 
-    # handling end of list where remaining items less than 3 coordinates
+        # Handling end of list where remaining items less than 3 coordinates
+        if len(self.xy_dynamic_list) == 2:
+            entities.append(Line(self.xy_dynamic_list[0], self.xy_dynamic_list[1]))
+            self.xy_dynamic_list = []
 
-    if len(xy_dynamic_list) == 2:
-        new_entity_list.append(Line(xy_dynamic_list[0], xy_dynamic_list[1]))
+        elif len(self.xy_dynamic_list) == 1:
+            # Floating final coordinate - do nothing
+            pass
 
-        for p in range(2):
-            xy_dynamic_list.pop(0)
+        # Concatenate collinear lines
+        for i in range(len(entities) - 1, 0, -1):
+            # search backwards
+            if isinstance(entities[i], Line) and isinstance(entities[i + 1], Line):
+                if entities[i].angle == entities[i + 1].angle:
+                    entities[i] = Line(entities[i].start, entities[i + 1].end)
+                    entities.pop(i + 1)
 
-    elif len(xy_dynamic_list) == 1:
-        xy_dynamic_list.pop(0)
-
-    return new_entity_list
+        return entities
