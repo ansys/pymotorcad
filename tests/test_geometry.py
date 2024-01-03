@@ -17,6 +17,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+from ansys.motorcad.core.geometry_drawing import draw_regions
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
