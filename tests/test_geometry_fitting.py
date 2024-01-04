@@ -38,7 +38,7 @@ def test_return_entity_list():
         Coordinate(14, 5),
         Coordinate(1, 6),
         Coordinate(2, 7),
-        Coordinate(3.6, 7),
+        Coordinate(4, 7),
     ]
     assert e.points == expected_points
     assert isinstance(e[0], Arc)
@@ -47,7 +47,7 @@ def test_return_entity_list():
     assert isinstance(e[3], Arc)
     assert isinstance(e[4], Arc)
     assert isinstance(e[5], Line)
-    assert isinstance(e[6], Arc)
+    assert isinstance(e[6], Line)
 
 
 def test__TestEntity():

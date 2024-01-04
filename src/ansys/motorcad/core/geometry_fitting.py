@@ -179,21 +179,11 @@ class _PointFitting:
                     next_object = next_arc
                 else:
                     next_object = next_line
-
             else:
                 if len(next_line.points_array) >= len(next_arc.points_array):
                     next_object = next_line
                 else:
                     next_object = next_arc
-
-            if next_object == next_line:
-                # Append the shortest possible line to allow curves on ends e.g.
-                #                 x
-                #                /
-                # x------x---__x"
-                # concatenate collinear lines later
-                new_line = Line(self.xy_dynamic_list[0], self.xy_dynamic_list[1])
-                next_object = _TestEntity(new_line, self.xy_dynamic_list[0:2], self.line_tolerance)
 
             entities.append(next_object.entity)
             self.xy_dynamic_list = self.xy_dynamic_list[len(next_object.points_array) - 1 :]
@@ -206,13 +196,5 @@ class _PointFitting:
         elif len(self.xy_dynamic_list) == 1:
             # Floating final coordinate - do nothing
             pass
-
-        # Concatenate collinear lines
-        for i in range(len(entities) - 1, 0, -1):
-            # search backwards
-            if isinstance(entities[i], Line) and isinstance(entities[i + 1], Line):
-                if entities[i].angle == entities[i + 1].angle:
-                    entities[i] = Line(entities[i].start, entities[i + 1].end)
-                    entities.pop(i + 1)
 
         return entities

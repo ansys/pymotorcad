@@ -1113,7 +1113,7 @@ class Arc(Entity):
         l1 = Line(start_point, intersection_point)
         l2 = Line(intersection_point, end_point)
 
-        if l1.gradient == l2.gradient:
+        if isclose(l1.gradient, l2.gradient, abs_tol=1e-6):
             # three points are on a straight line, no arc is possible
             return None
 
