@@ -836,10 +836,6 @@ class Line(Entity):
         -------
         ansys.motorcad.core.geometry.Coordinate or None
         """
-        if self.gradient == line.gradient:
-            # Lines don't intersect
-            return None
-
         a_self, b_self, c_self = self._line_equation()
         a_line, b_line, c_line = line._line_equation()
 
@@ -852,6 +848,7 @@ class Line(Entity):
             y = d_y / d_main
             return Coordinate(x, y)
         else:
+            # Lines don't intersect
             return None
 
 

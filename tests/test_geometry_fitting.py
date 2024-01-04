@@ -1,5 +1,7 @@
+import pytest
+
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
-from ansys.motorcad.core.geometry_fitting import return_entity_list
+from ansys.motorcad.core.geometry_fitting import _TestEntity, return_entity_list
 
 
 def test_return_entity_list():
@@ -41,3 +43,77 @@ def test_return_entity_list():
     assert isinstance(e[4], Arc)
     assert isinstance(e[5], Line)
     assert isinstance(e[6], Arc)
+
+
+def test__TestEntity():
+    # Cover any lines of code missed by other tests
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 0)
+
+    points = [c1, c2]
+    tolerance = 2
+
+    test_entity = _TestEntity("string", points, tolerance)
+    with pytest.raises(TypeError):
+        test_entity.is_in_tolerance()
+
+
+def test__TestEntity_is_line_in_tolerance():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 1)
+    c3 = Coordinate(10, 0)
+
+    points = [c1, c2, c3]
+    l1 = Line(c1, c3)
+    tolerance = 2
+
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert test_entity.is_in_tolerance()
+
+    tolerance = 1
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert test_entity.is_in_tolerance()
+
+    tolerance = 0.9
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert not test_entity.is_in_tolerance()
+
+
+def test__TestEntity_is_arc_in_tolerance():
+    centre = Coordinate(0, 0)
+    c1 = Coordinate(5, 0)
+    c2 = Coordinate(0, 5)
+    l1 = Arc(c1, c2, centre, 5)
+
+    tolerance = 1
+
+    # Within angle and tolerance
+    t1 = Coordinate.from_polar_coords(5.5, 45)
+    points = [c1, t1, c2]
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert test_entity.is_in_tolerance()
+
+    # Within angle and at max tolerance
+    t1 = Coordinate(6, 0)
+    points = [c1, t1, c2]
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert test_entity.is_in_tolerance()
+
+    # Within angle and outside tolerance
+    t1 = Coordinate.from_polar_coords(6.1, 45)
+    points = [c1, t1, c2]
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert not test_entity.is_in_tolerance()
+
+    # Not within angle and in radial tolerance
+    t1 = Coordinate.from_polar_coords(5, -45)
+    points = [c1, t1, c2]
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert not test_entity.is_in_tolerance()
+
+    # Not within angle and in tolerance
+    t1 = c1 - Coordinate(0.5, 0.5)
+    assert not l1.coordinate_within_arc_radius(t1)
+    points = [c1, t1, c2]
+    test_entity = _TestEntity(l1, points, tolerance)
+    assert test_entity.is_in_tolerance()

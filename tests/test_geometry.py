@@ -1566,3 +1566,22 @@ def test__orientation():
     c2 = Coordinate(1, 2)
     c3 = Coordinate(9, 5)
     assert _orientation_of_three_points(c1, c2, c3) == _Orientation.anticlockwise
+
+
+def test_line_is_horizontal():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert l1.is_horizontal
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 1)
+    l1 = Line(c1, c2)
+    assert not l1.is_horizontal
+
+
+def test_line_overrides():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert abs(l1) == 5
