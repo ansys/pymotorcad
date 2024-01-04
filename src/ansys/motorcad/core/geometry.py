@@ -439,6 +439,28 @@ class Region(object):
                 # Apply vector to centre point of arc
                 entity.centre = p_centre + Coordinate(l_x, l_y)
 
+    def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
+        """Search through region to find an entity with start and end coordinates.
+
+        Order of coordinates does not matter.
+
+        Parameters
+        ----------
+        coordinate_1: ansys.motorcad.core.geometry.Coordinate
+        coordinate_2: ansys.motorcad.core.geometry.Coordinate
+
+        Returns
+        -------
+        Line or Arc entity
+        """
+        for entity in self.entities:
+            if (coordinate_1 == entity.start) and (coordinate_2 == entity.end):
+                return entity
+            elif (coordinate_1 == entity.end) and (coordinate_2 == entity.start):
+                return entity
+
+        return None
+
 
 class Coordinate(object):
     """Python representation of coordinate in two-dimensional space.
@@ -1361,7 +1383,7 @@ def _orientation_of_three_points(c1, c2, c3):
 
     Parameters
     ----------
-    c1 : ansys.motorcad.core.geometry.Coordinate
+    coordinate_1 : ansys.motorcad.core.geometry.Coordinate
         Coordinate 1
     c2 : ansys.motorcad.core.geometry.Coordinate
         Coordinate 2

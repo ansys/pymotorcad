@@ -1585,3 +1585,13 @@ def test_line_overrides():
     c2 = Coordinate(5, 0)
     l1 = Line(c1, c2)
     assert abs(l1) == 5
+
+
+def test_region_find_entity_from_coordinates():
+    c1 = create_square()
+
+    assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
+
+    assert (
+        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+    )
