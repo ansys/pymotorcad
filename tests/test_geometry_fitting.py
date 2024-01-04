@@ -1,6 +1,7 @@
+import numpy as np
 import pytest
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region
 from ansys.motorcad.core.geometry_fitting import _TestEntity, return_entity_list
 
 
@@ -122,3 +123,78 @@ def test__TestEntity_is_arc_in_tolerance():
     points = [c1, t1, c2]
     test_entity = _TestEntity(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
+
+
+def test_egg_shape():
+    def yegg(x, L, B, w, D):
+        """
+        The "universal" formula for an egg, from Narushin et al., "Egg and math:
+        introducing a universal formula for egg shape", *Ann. N.Y. Acad. Sci.*,
+        **1505**, 169 (2021).
+
+        x should vary between -L/2 and L/2 where L is the length of the egg; B
+        is the maximum breadth of the egg; w is the distance between two vertical
+        lines corresponding to the maximum breadth and y-axis (with the origin
+        taken to be at the centre of the egg); D is the egg diameter at the point
+        a distance L/4 from the pointed end.
+
+        """
+        fac1 = np.sqrt(5.5 * L**2 + 11 * L * w + 4 * w**2)
+        fac2 = np.sqrt(L**2 + 2 * w * L + 4 * w**2)
+        fac3 = np.sqrt(3) * B * L
+        fac4 = L**2 + 8 * w * x + 4 * w**2
+        return (
+            (B / 2)
+            * np.sqrt((L**2 - 4 * x**2) / fac4)
+            * (
+                1
+                - (fac1 * (fac3 - 2 * D * fac2) / (fac3 * (fac1 - 2 * fac2)))
+                * (
+                    1
+                    - np.sqrt(
+                        L
+                        * fac4
+                        / (
+                            2 * (L - 2 * w) * x**2
+                            + (L**2 + 8 * L * w - 4 * w**2) * x
+                            + 2 * L * w**2
+                            + L**2 * w
+                            + L**3
+                        )
+                    )
+                )
+            )
+        )
+
+    L = 1
+    numpoints = 200
+    x = np.linspace(-L / 2, L / 2, numpoints)
+    y = yegg(x, L, 0.4, 0.1, 0.6)
+    ymirror = np.flip(-y)
+    xmirror = np.flip(x)
+    xtotal = np.concatenate((x, xmirror))
+    ytotal = np.concatenate((y, ymirror))
+
+    xypoints = []
+    for i in range(np.size(xtotal)):
+        c = Coordinate(xtotal[i], ytotal[i])
+        xypoints.append(c)
+
+    linetolerance = 0.001
+    arctolerance = 0.001
+    egg_entities = return_entity_list(xypoints, linetolerance, arctolerance)
+
+    egg_shaped_duct = Region()
+    egg_shaped_duct.name = "Egg_shaped_duct"
+
+    arccount = 0
+    linecount = 0
+    for ent in egg_entities:
+        egg_shaped_duct.add_entity(ent)
+        if isinstance(ent, Arc):
+            arccount = arccount + 1
+        if isinstance(ent, Line):
+            linecount = linecount + 1
+
+    assert arccount == 13
+    assert linecount == 0
