@@ -18,7 +18,12 @@ def test_return_entity_list():
     c.append(Coordinate(1, 6))
     c.append(Coordinate(1, 7))
     c.append(Coordinate(2, 7))
+
+    # Duplicate coordinates
     c.append(Coordinate(3, 7))
+    c.append(Coordinate(3, 7))
+    c.append(Coordinate(3, 7))
+
     c.append(Coordinate(3.2, 7))
     c.append(Coordinate(3.4, 7))
     c.append(Coordinate(3.6, 7))

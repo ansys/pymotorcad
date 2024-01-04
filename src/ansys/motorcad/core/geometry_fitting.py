@@ -159,6 +159,11 @@ class _PointFitting:
         # entities
         self.xy_dynamic_list = copy(coordinates)
 
+        # Pop duplicate coordinates from list
+        for i in range(len(self.xy_dynamic_list) - 1, 0, -1):
+            if self.xy_dynamic_list[i] == self.xy_dynamic_list[i - 1]:
+                self.xy_dynamic_list.pop(i)
+
         while len(self.xy_dynamic_list) > 2:
             # future work need to consider sharp angle case where two separate line entities
             # are required to represent 3 points this could potentially be handled by a maximum
