@@ -16,9 +16,6 @@ import ansys.motorcad.core as pymotorcad
 # Launch Motor-CAD
 mc = pymotorcad.MotorCAD()
 
-# %%
-# Disable pop-up messages
-mc.set_variable("MessageDisplayState", 2)
 
 # %%
 # Create internal script.
@@ -33,6 +30,10 @@ def main():
 
 class mechanical_forces:
     def initial(self):
+        # %%
+        # Disable pop-up messages
+        mc.set_variable("MessageDisplayState", 2)
+
         # Called before calculation
         # For each operating point, set requested torque and speed
         # (using this mode requires that a Lab model has been built)
@@ -61,6 +62,8 @@ class mechanical_forces:
         mc.show_message(" Natural_Freq_Mode_0 " + str(o_Natural_Freq_Mode_0))
         mc.show_message(" Natural_Freq_Mode_8 " + str(o_Natural_Freq_Mode_8))
 
+        mc.set_variable("MessageDisplayState", 0)
+
 
 # %%
 # Note
@@ -77,5 +80,3 @@ except ImportError:
     pass
 else:
     run_mech_force_demo(mc)
-
-mc.set_variable("MessageDisplayState", 0)
