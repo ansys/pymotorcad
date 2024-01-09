@@ -162,7 +162,7 @@ def run_thermal_transient_demo(mc):
     # %%
     # Results
     # -------
-
+    mc.set_variable("MessageDisplayState", 2)
     time, winding_temp_average_transient = mc.get_temperature_graph("Winding (Avg)")
 
     # %%
