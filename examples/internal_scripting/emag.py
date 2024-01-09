@@ -5,14 +5,8 @@ E-magnetic
 ==========
 This example demonstrates internal scripting E-Mag functionality
 """
-# %%
-# Perform required imports
-import os
-
 import ansys.motorcad.core as pymotorcad
 
-# %%
-# Launch Motor-CAD
 mc = pymotorcad.MotorCAD()
 
 # %%
@@ -20,68 +14,35 @@ mc = pymotorcad.MotorCAD()
 mc.set_variable("MessageDisplayState", 2)
 
 
-# %%
-# Function to load script from a string
-def load_script_from_string(mc_instance, script_string):
-    # %%
-    # Save script string to file and load into Motor-CAD
-    internal_script_file = open("temp_example_file.py", "w")
-    internal_script_file.write(script_string)
-
-    internal_script_file_path = os.path.realpath(internal_script_file.name)
-
-    internal_script_file.close()
-
-    mc_instance.load_script(internal_script_file_path)
-
-
-# %%
-# Create internal script
-# This could also be saved in a separate file
-internal_script = """
-import ansys.motorcad.core as pymotorcad
-mc = pymotorcad.MotorCAD()
-
 # This function is called when "Run" is pressed
 def main():
     pass
 
-class emagnetic():
+
+class emagnetic:
     def initial(self):
-        mc.display_screen('Scripting')
-        shaft_speed = mc.get_variable('ShaftSpeed')
+        mc.display_screen("Scripting")
+        shaft_speed = mc.get_variable("ShaftSpeed")
         if shaft_speed > 1000:
-            print('Shaft speed is too high. Resetting to 500')
-            mc.set_variable('ShaftSpeed',500)
+            print("Shaft speed is too high. Resetting to 500")
+            mc.set_variable("ShaftSpeed", 500)
 
     def final(self):
-        loss_total = mc.get_variable('loss_total')
+        loss_total = mc.get_variable("loss_total")
         # display total loss rounded to 2dp if available
-        print('total loss is: ' + str(round(loss_total,2)))
-        mc.display_screen('Calculation')
-"""
+        print("total loss is: " + str(round(loss_total, 2)))
+        mc.display_screen("Calculation")
+
 
 # %%
-# Save script string to file and load into Motor-CAD
-load_script_from_string(mc, internal_script)
+# PyMotorCAD Documentation Example
+# --------------------------------------
+# (Used for the PyMotorCAD Documentation Examples only)
+try:
+    from setup_scripts.setup_script import run_emag_demo
+except ImportError:
+    pass
+else:
+    run_emag_demo(mc)
 
-# %%
-# Enable internal scripting and set shaft speed outside limit specified by script
-mc.set_variable("ScriptAutoRun_PythonClasses", 1)
-mc.set_variable("ShaftSpeed", 10000)
-
-# %%
-# Disable performance tests and perform calculation
-mc.set_variable("TorqueCalculation", False)
-mc.do_magnetic_calculation()
-
-# %%
-# Results
-# -------
-# Get all messages
-messages = mc.get_messages(0)
-for message in reversed(messages):
-    print(message)
-
-# Check shaft speed was reset by internal script
-print("Shaft speed:" + str(mc.get_variable("ShaftSpeed")))
+mc.set_variable("MessageDisplayState", 0)
