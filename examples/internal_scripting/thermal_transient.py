@@ -14,10 +14,6 @@ import ansys.motorcad.core as pymotorcad
 # Launch Motor-CAD
 mc = pymotorcad.MotorCAD()
 
-# %%
-# Disable pop-up messages
-mc.set_variable("MessageDisplayState", 2)
-
 
 # This function is called when "Run" is pressed
 def main():
@@ -26,6 +22,9 @@ def main():
 
 class thermal_transient:
     def initial(self):
+        # %%
+        # Disable pop-up messages
+        mc.set_variable("MessageDisplayState", 2)
         mc.display_screen("Scripting")
         # initialise water jacket and rotor cooling flow rate
         mc.set_variable("Wet_Rotor_Fluid_Volume_Flow_Rate", 0.1)
@@ -43,6 +42,7 @@ class thermal_transient:
     def final(self):
         # Called after calculation
         print("Thermal Transient - Final")
+        mc.set_variable("MessageDisplayState", 0)
 
 
 # %%
