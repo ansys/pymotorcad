@@ -2,48 +2,50 @@
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
-def _get_graph(graphing_func, *args):
-    """Get an array from a Motor-CAD graph.
-
-    Parameters
-    ----------
-    graphing_func : func
-        graph function to use eg. get_magnetic_graph_point
-    *args : str, int
-        Args for selected graphing function
-
-    Returns
-    -------
-    x_array : list
-        Values of x coordinates from the graph.
-    y_array : list
-        Values of y coordinates from the graph.
-    """
-    loop = 0
-    x_points = []
-    y_points = []
-    while True:
-        try:
-            x, y = graphing_func(*args, loop)
-
-            y_points.append(y)
-            x_points.append(x)
-            loop += 1
-
-        except MotorCADError as e:
-            break
-            # Can't be used currently: Bug in Motor-CAD RPC server
-            # if "Point requested is greater than number of points available" in str(e):
-            #     break
-            # else:
-            #     raise
-
-    return x_points, y_points
-
-
 class _RpcMethodsGraphs:
     def __init__(self, mc_connection):
         self.connection = mc_connection
+
+    def _get_graph(self, graphing_func, *args):
+        """Get an array from a Motor-CAD graph.
+
+        Parameters
+        ----------
+        graphing_func : func
+            graph function to use eg. get_magnetic_graph_point
+        *args : str, int
+            Args for selected graphing function
+
+        Returns
+        -------
+        x_array : list
+            Values of x coordinates from the graph.
+        y_array : list
+            Values of y coordinates from the graph.
+        """
+        loop = 0
+        x_points = []
+        y_points = []
+        # turning off message poput window
+        save_message_display_state = self.get_variable("MessageDisplayState")
+        self.set_variable("MessageDisplayState", 2)
+        try:
+            while True:
+                try:
+                    x, y = graphing_func(*args, loop)
+
+                    y_points.append(y)
+                    x_points.append(x)
+                    loop += 1
+                except MotorCADError as e:
+                    if "Point requested is greater than number of points available" in str(e):
+                        break
+                    else:
+                        raise
+        finally:
+            # switching on again the message window
+            self.set_variable("MessageDisplayState", save_message_display_state)
+        return x_points, y_points
 
     def get_magnetic_graph_point(self, graph_name, point_number):
         """Get a point from a Motor-CAD magnetic graph.
@@ -179,7 +181,7 @@ class _RpcMethodsGraphs:
         loop = 0
         x_array = []
         y_array = []
-        return _get_graph(self.get_magnetic_graph_point, graph_name)
+        return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
@@ -199,7 +201,7 @@ class _RpcMethodsGraphs:
         loop = 0
         x_array = []
         y_array = []
-        return _get_graph(self.get_temperature_graph_point, graph_name)
+        return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient power loss graph.
@@ -216,4 +218,4 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        return _get_graph(self.get_power_graph_point, graph_name)
+        return self._get_graph(self.get_power_graph_point, graph_name)
