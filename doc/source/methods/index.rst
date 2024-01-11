@@ -37,6 +37,13 @@ A number of utility functions are available to the user.
 For descriptions, see
 :ref:`ref_utility_functions`.
 
+Motor-CAD Errors
+----------------
+
+A class/exception type used for obtaining and handling errors from Motor-CAD.
+For descriptions, see
+:ref:`MotorCAD_errors`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -45,3 +52,4 @@ For descriptions, see
    MotorCADCompatibility_object
    geometry_functions
    utility_functions
+   MotorCAD_errors
