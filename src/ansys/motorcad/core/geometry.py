@@ -1162,5 +1162,3 @@ def rt_to_xy(radius, theta):
     y = coordinates_complex.imag
 
     return x, y
-
-

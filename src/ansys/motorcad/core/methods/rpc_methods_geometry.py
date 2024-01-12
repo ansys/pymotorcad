@@ -1,6 +1,7 @@
 """RPC methods for geometry."""
 import os
 
+
 class _RpcMethodsGeometry:
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -86,7 +87,6 @@ class _RpcMethodsGeometry:
         method = "CheckIfGeometryIsValid"
         params = [edit_geometry]
         return self.connection.send_and_receive(method, params)
-    
 
     def template_list(self):
         """Return List of templates available in Motor-CAD.
@@ -103,9 +103,6 @@ class _RpcMethodsGeometry:
         '     Cooling': 'Oil cooled',
         '     Drive_Type': 'Sine'},]
         """
-    
-
-        # Motor-CAD installation directory in PC
         mcad_install_dir = self.get_variable("CurrentExeDir_MotorLAB")
         directory = mcad_install_dir + r"Motor-CAD Data\templates"
         template_list1 = []
@@ -138,4 +135,3 @@ class _RpcMethodsGeometry:
                             break
 
         return template_list1
-
