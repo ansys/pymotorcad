@@ -230,6 +230,8 @@ class Region(object):
     def parent(self, region):
         """Set parent region."""
         self._parent_name = region.name
+        if region.motorcad_instance is not None:
+            self.motorcad_instance = region.motorcad_instance
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
