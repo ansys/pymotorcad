@@ -1,4 +1,4 @@
-"""Unit containing functions for drawing geometry from a list of points."""
+"""Unit containing functions for creating geometry using a list of points."""
 
 from copy import copy
 from enum import Enum
@@ -7,11 +7,15 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line
 
 
 class _EntityType(Enum):
+    """Enumerated type to improve readability of entity type checks in rest of this unit."""
+
     line = 0
     arc = 1
 
 
 class _TestEntity:
+    """Used for checking if list of points is within an acceptable tolerance for entity."""
+
     def __init__(self, entity, points_array, tolerance):
         self.entity = entity
         self.points_array = points_array
@@ -85,6 +89,8 @@ def return_entity_list(coordinates, line_tolerance, arc_tolerance):
 
 
 class _PointFitting:
+    """Main class used to fit a list of entities to a list of points."""
+
     def __init__(self):
         self.xy_dynamic_list = []
         self.line_tolerance = 0

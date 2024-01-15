@@ -568,7 +568,7 @@ class Coordinate(object):
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
-        """Create Motor-CAD coordinate from polar coordinates.
+        """Create Coordinate from polar coordinates.
 
         Parameters
         ----------
