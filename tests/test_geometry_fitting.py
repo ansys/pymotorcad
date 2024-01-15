@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region
-from ansys.motorcad.core.geometry_fitting import _TestEntity, return_entity_list
+from ansys.motorcad.core.geometry_fitting import _EntityPointValidation, return_entity_list
 
 
 def test_return_entity_list():
@@ -59,7 +59,7 @@ def test__TestEntity():
     points = [c1, c2]
     tolerance = 2
 
-    test_entity = _TestEntity("string", points, tolerance)
+    test_entity = _EntityPointValidation("string", points, tolerance)
     with pytest.raises(TypeError):
         test_entity.is_in_tolerance()
 
@@ -73,15 +73,15 @@ def test__TestEntity_is_line_in_tolerance():
     l1 = Line(c1, c3)
     tolerance = 2
 
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
 
     tolerance = 1
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
 
     tolerance = 0.9
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert not test_entity.is_in_tolerance()
 
 
@@ -96,32 +96,32 @@ def test__TestEntity_is_arc_in_tolerance():
     # Within angle and tolerance
     t1 = Coordinate.from_polar_coords(5.5, 45)
     points = [c1, t1, c2]
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
 
     # Within angle and at max tolerance
     t1 = Coordinate(6, 0)
     points = [c1, t1, c2]
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
 
     # Within angle and outside tolerance
     t1 = Coordinate.from_polar_coords(6.1, 45)
     points = [c1, t1, c2]
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert not test_entity.is_in_tolerance()
 
     # Not within angle and in radial tolerance
     t1 = Coordinate.from_polar_coords(5, -45)
     points = [c1, t1, c2]
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert not test_entity.is_in_tolerance()
 
     # Not within angle and in tolerance
     t1 = c1 - Coordinate(0.5, 0.5)
     assert not l1.coordinate_within_arc_radius(t1)
     points = [c1, t1, c2]
-    test_entity = _TestEntity(l1, points, tolerance)
+    test_entity = _EntityPointValidation(l1, points, tolerance)
     assert test_entity.is_in_tolerance()
 
 

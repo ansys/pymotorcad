@@ -13,7 +13,7 @@ class _EntityType(Enum):
     arc = 1
 
 
-class _TestEntity:
+class _EntityPointValidation:
     """Used for checking if list of points is within an acceptable tolerance for entity."""
 
     def __init__(self, entity, points_array, tolerance):
@@ -113,7 +113,7 @@ class _PointFitting:
                 # loops through extending line until the tolerance is reached
                 line_to_check = Line(self.xy_dynamic_list[0], self.xy_dynamic_list[segments])
 
-                test_entity = _TestEntity(
+                test_entity = _EntityPointValidation(
                     line_to_check, self.xy_dynamic_list[0 : segments + 1], self.line_tolerance
                 )
 
@@ -126,7 +126,7 @@ class _PointFitting:
                     self.xy_dynamic_list[segments],
                 )
 
-                test_entity = _TestEntity(
+                test_entity = _EntityPointValidation(
                     arc_master, self.xy_dynamic_list[0 : segments + 1], self.arc_tolerance
                 )
             else:
