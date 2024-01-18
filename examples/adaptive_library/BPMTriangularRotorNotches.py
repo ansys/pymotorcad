@@ -12,7 +12,7 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 #
 # This script uses the following adaptive parameters:
 #
-# * Notch Centre Angle (5)
+# * Notch Angle (0)
 #
 # * Notch Sweep (2)
 #
@@ -37,7 +37,7 @@ import shutil
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry_shapes import triangular_notch
 
 # %%
 # Connect to Motor-CAD
@@ -115,7 +115,7 @@ def set_default_parameter(parameter_name, default_value):
 
 # %%
 # Use the ``set_default_parameter`` to set the required parameters if undefined
-set_default_parameter("Notch Centre Angle", 5)
+set_default_parameter("Notch Angle", 0)
 set_default_parameter("Notch Sweep", 2)
 set_default_parameter("Notch Depth", 1)
 set_default_parameter("Notches per Pole", 2)
@@ -125,7 +125,7 @@ set_default_parameter("Notches per Pole", 2)
 # Get required parameters and objects
 # -----------------------------------
 # Get the Adaptive Parameters specified in Motor-CAD, and their values
-notch_mid_angle = mc.get_adaptive_parameter_value("notch centre angle")
+notch_angle = mc.get_adaptive_parameter_value("notch angle")
 notch_angular_width = mc.get_adaptive_parameter_value("notch sweep")
 notch_depth = mc.get_adaptive_parameter_value("notch depth")
 number_notches = int(mc.get_adaptive_parameter_value("notches per pole"))
@@ -137,131 +137,108 @@ number_notches = int(mc.get_adaptive_parameter_value("notches per pole"))
 rotor_region = mc.get_region("Rotor")
 
 rotor_radius = mc.get_variable("RotorDiameter") / 2
-rotor_centre = Coordinate(0, 0)
 duplication_angle = 360 / rotor_region.duplications
 
 # %%
 # Add an ``if`` statement to account for the case
 # when a notch crosses the lower symmetry boundary.
-# This resets ``notch_mid_angle``
+# This resets ``notch_angle``
 # to half the ``notch_angular_width``.
-if notch_mid_angle < notch_angular_width / 2:
+if notch_angle > (duplication_angle / (2 * (number_notches - 1) + 1)) - (notch_angular_width / 2):
     # Limit so notch does not cross the lower symmetry boundary
-    notch_mid_angle = notch_angular_width / 2
-    mc.show_message(
-        "Adaptive Parameter: 'notch mid angle' not valid, reset to " + str(notch_mid_angle)
-    )
-    mc.set_adaptive_parameter_value("notch mid angle", notch_mid_angle)
+    notch_angle = (duplication_angle / (2 * number_notches)) - notch_angular_width / 2
+    mc.show_message("Adaptive Parameter: 'notch angle' not valid, reset to " + str(notch_angle))
+    mc.set_adaptive_parameter_value("notch angle", notch_angle)
+# if an even number of notches
+if number_notches % 2 == 0:
+    x = -1
+else:
+    x = -2
+
+if notch_angle < -((duplication_angle / (2 * number_notches)) - (notch_angular_width / 2)):
+    # Limit so notches do not overlap at centre of pole
+    notch_angle = x * ((duplication_angle / (2 * number_notches)) - notch_angular_width / 2)
+    mc.show_message("Adaptive Parameter: 'notch angle' not valid, reset to " + str(notch_angle))
+    mc.set_adaptive_parameter_value("notch angle", notch_angle)
 
 # %%
 # Add an ``if`` statement to account for the case
 # when a notch crosses the upper symmetry boundary.
-# This resets ``notch_mid_angle``
+# This resets ``notch_angle``
 # to the ``duplication_angle`` minus
 # half the ``notch_angular_width``.
-if notch_mid_angle > duplication_angle - notch_angular_width / 2:
-    # Limit so notch does not cross the upper symmetry boundary
-    notch_mid_angle = duplication_angle - notch_angular_width / 2
-    mc.show_message(
-        "Adaptive Parameter: 'notch mid angle' not valid, reset to " + str(notch_mid_angle)
-    )
-    mc.set_adaptive_parameter_value("notch mid angle", notch_mid_angle)
+# if notch_angle > duplication_angle - notch_angular_width / 2:
+#     # Limit so notch does not cross the upper symmetry boundary
+#     notch_angle = duplication_angle - notch_angular_width / 2
+#     mc.show_message(
+#         "Adaptive Parameter: 'notch mid angle' not valid, reset to " + str(notch_angle)
+#     )
+#     mc.set_adaptive_parameter_value("notch mid angle", notch_angle)
 
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
 # For each notch to be added:
 #
-# * Calculate the angular positions for the notch
+# * Calculate the angular position of the notch
 #   in mechanical degrees
 #
-#   * Centre Angle, Start Angle and End Angle
+# * Apply the offset angle. For notches on the left side of the pole,
+#   the position is shifted by ``+ notch_angle`` mechanical degrees.
+#   For notches on the right side of the pole,
+#   the position is shifted by ``- notch_angle`` mechanical degrees.
 #
-# * For alternate notches,
-#   place the notch on the left or right side of the rotor.
+# * Create the notch Region using the ``triangular_notch()``
+#   function, imported from ``ansys.motorcad.core.geometry_shapes``.
+#   The arguments for the function are:
 #
-#   * For even numbered notches, create notch on the right side of rotor.
+#   * rotor_radius
 #
-#     * Notch airgap arc is drawn anti-clockwise,
-#       a positive radius is required.
+#   * notch_angular_width
 #
-#   * For odd numbered notches, create notch on the left side of rotor.
+#   * notch_centre_angle
 #
-#     * Notch airgap arc is drawn clockwise,
-#       a negative radius is required.
+#   * notch_depth
 #
-#     * Recalculate the notch start/mid/end angles
-#       for the left side of slot using the rotor duplication angle.
+# * Define the properties for the notch region
 #
-# * Create the notch Region and set parameters for the  name, colour etc.
+#   * name
 #
-# * Generate coordinates for the triangular notch
-#   using the start/mid/end angles,
-#   converting from polar to cartesian coordinates.
+#   * colour
 #
-# * Create the entities (``Line``) that make up the notch Region
-#   using notch coordinates.
+#   * duplication angle
 #
-# * Add the entities (``Line``) into the notch Region
+#   * material
 #
-# * If the notch is closed,
-#   set the notches ``parent`` to the rotor region.
+# * set the notch's ``parent`` to the rotor region.
 #   This will allow Motor-CAD to treat the notch as a sub-region
 #   of the rotor and handle subtractions automatically.
+#
+# * If the notch is closed, set the region in Motor-CAD.
 
 for notch_loop in range(0, number_notches):
     notch_name = "Rotor_Notch_" + str(notch_loop + 1)
 
-    notch_multiplier, _ = divmod(notch_loop, 2)
-    # Calculate angles of the points we want in mechanical degrees for this notch
-    notch_centre_angle = notch_mid_angle * (notch_multiplier + 1)
-    notch_start_angle = notch_centre_angle - (notch_angular_width / 2)
-    notch_end_angle = notch_centre_angle + (notch_angular_width / 2)
+    # angular position of notch
+    notch_centre_angle = ((2 * notch_loop) + 1) * (duplication_angle / (2 * number_notches))
 
-    if notch_loop % 2 == 0:
-        # creating notch on right side of rotor, notch airgap arc is drawn
-        # anti-clockwise, positive radius required
-        epsilon = 1
-    else:
-        # creating notch on left side of rotor, notch airgap arc is drawn
-        # clockwise, negative radius required
-        epsilon = -1
-        # recalculate the notch start/mid/end angles for left side of slot
-        # using rotor duplication angle
-        notch_start_angle = duplication_angle - notch_start_angle
-        notch_centre_angle = duplication_angle - notch_centre_angle
-        notch_end_angle = duplication_angle - notch_end_angle
+    # Offset angle by notch_angle
+    if notch_centre_angle < duplication_angle / 2:
+        notch_centre_angle = notch_centre_angle - notch_angle
+    if notch_centre_angle > duplication_angle / 2:
+        notch_centre_angle = notch_centre_angle + notch_angle
 
-    # create notch region and set parameters for name colour etc
-    notch = Region()
+    # generate a triangular notch region
+    notch = triangular_notch(rotor_radius, notch_angular_width, notch_centre_angle, notch_depth)
+
+    # notch properties
     notch.name = notch_name
     notch.colour = (255, 255, 255)
     notch.duplications = rotor_region.duplications
     notch.material = "Air"
-
-    # generate coordinates for triangular notch using start/mid/end
-    # angles above converting from polar to cartesian
-    x1, y1 = rt_to_xy(rotor_radius, notch_start_angle)
-    x2, y2 = rt_to_xy(rotor_radius - notch_depth, notch_centre_angle)
-    x3, y3 = rt_to_xy(rotor_radius, notch_end_angle)
-
-    p1 = Coordinate(x1, y1)
-    p2 = Coordinate(x2, y2)
-    p3 = Coordinate(x3, y3)
-
-    # using coordinate create entities making up notch region
-    line_1 = Line(p3, p2)
-    line_2 = Line(p2, p1)
-    airgap_arc = Arc(p1, p3, rotor_centre, rotor_radius * epsilon)
-    # add entities into notch region
-    notch.add_entity(line_1)
-    notch.add_entity(line_2)
-    notch.add_entity(airgap_arc)
+    notch.parent = rotor_region
 
     if notch.is_closed():
-        # set the notches parent to the rotor region, this will allow Motor-CAD to treat
-        # the notch as a sub-region of the rotor and handle subtractions automatically
-        notch.parent = rotor_region
         mc.set_region(notch)
 
 # %%
