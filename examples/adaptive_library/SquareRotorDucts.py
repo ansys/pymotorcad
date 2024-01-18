@@ -12,7 +12,7 @@ Adaptive Template script to create square rotor ducts.
 #
 # * SqDuct Rad Dia
 #
-# * SqDuct Channel
+# * SqDuct Channels per Pole
 #
 # * SqDuct Width
 #
@@ -28,7 +28,8 @@ try:
 
     example_setup("e10", "SquareRotorDucts")
     define_parameters(
-        ["SqDuct Rad Dia", "SqDuct Channel", "SqDuct Width", "SqDuct Angle"], [55, 8, 3, 0]
+        ["SqDuct Rad Dia", "SqDuct Channels per Pole", "SqDuct Width", "SqDuct Angle"],
+        [55, 2, 3, -11],
     )
 except ImportError:
     pass
@@ -51,9 +52,9 @@ mc = pymotorcad.MotorCAD(open_new_instance=False)
 # -----------------------------------
 # Get the Adaptive parameters specified in Motor-CAD
 sqduct_rad_dia = mc.get_adaptive_parameter_value("sqduct rad dia")
-sqduct_channel = mc.get_adaptive_parameter_value("sqduct channel")
+sqduct_channels_per_pole = int(mc.get_adaptive_parameter_value("sqduct channels per pole"))
 sqduct_width = mc.get_adaptive_parameter_value("sqduct width")
-sqduct_angle = int(mc.get_adaptive_parameter_value("sqduct angle"))
+sqduct_angle = mc.get_adaptive_parameter_value("sqduct angle")
 
 # %%
 # Get the standard template rotor region from Motor-CAD.
@@ -66,23 +67,26 @@ rotor_centre = Coordinate(0, 0)
 duplication_angle = 360 / rotor_region.duplications
 
 # number of ducts per pole
-number_ducts = sqduct_channel / rotor_region.duplications
+number_ducts = sqduct_channels_per_pole
 
-# angular position of duct
-duct_centre_angle = ((duplication_angle / number_ducts) / 2) + sqduct_angle
+for duct_loop in range(0, number_ducts):
+    duct_name = "Square_Rotor_Duct_" + str(duct_loop + 1)
 
-# generate a square region
-duct = square(sqduct_width, sqduct_rad_dia / 2, duct_centre_angle)
+    # angular position of duct
+    duct_centre_angle = ((2 * duct_loop) + 1) * (
+        duplication_angle / (2 * number_ducts)
+    ) + sqduct_angle
 
-# duct properties
-duct_name = "Square_Rotor_Duct_" + str(1)
-duct.name = duct_name
-duct.colour = (255, 255, 255)
-duct.duplications = rotor_region.duplications
-duct.material = "Air"
-duct.parent = rotor_region
+    # generate a square region
+    duct = square(sqduct_width, sqduct_rad_dia / 2, duct_centre_angle)
 
-# Set the duct region in Motor-CAD
+    # duct properties
+    duct.name = duct_name
+    duct.colour = (255, 255, 255)
+    duct.duplications = rotor_region.duplications
+    duct.material = "Air"
+    duct.parent = rotor_region
 
-if duct.is_closed():
-    mc.set_region(duct)
+    # Set the duct region in Motor-CAD
+    if duct.is_closed():
+        mc.set_region(duct)

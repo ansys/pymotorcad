@@ -40,7 +40,8 @@ except ImportError:
 # Import Arc, Coordinate, Line, Region and rt_to_xy
 # to define the adaptive template geometry.
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry import Coordinate
+from ansys.motorcad.core.geometry_shapes import triangular_notch
 
 # %%
 # Connect to Motor-CAD
@@ -50,6 +51,7 @@ mc = pymotorcad.MotorCAD(open_new_instance=False)
 # Get required parameters and objects
 # -----------------------------------
 # Get the Adaptive parameters specified in Motor-CAD
+# Note that notch sweep is in mechanical degrees
 notch_mid_angle = mc.get_adaptive_parameter_value("notch centre angle")
 notch_angular_width = mc.get_adaptive_parameter_value("notch sweep")
 notch_depth = mc.get_adaptive_parameter_value("notch depth")
@@ -137,51 +139,45 @@ if notch_mid_angle > duplication_angle - notch_angular_width / 2:
 for notch_loop in range(0, number_notches):
     notch_name = "Rotor_Notch_" + str(notch_loop + 1)
 
-    notch_multiplier, _ = divmod(notch_loop, 2)
-    # Calculate angles of the points we want in mechanical degrees for this notch
-    notch_centre_angle = notch_mid_angle * (notch_multiplier + 1)
-    notch_start_angle = notch_centre_angle - (notch_angular_width / 2)
-    notch_end_angle = notch_centre_angle + (notch_angular_width / 2)
+    # angular position of duct
+    notch_centre_angle = ((2 * notch_loop) + 1) * (
+        duplication_angle / (2 * number_notches)
+    ) + notch_mid_angle
 
-    if notch_loop % 2 == 0:
-        # creating notch on right side of rotor, notch airgap arc is drawn
-        # anti-clockwise, positive radius required
-        epsilon = 1
-    else:
-        # creating notch on left side of rotor, notch airgap arc is drawn
-        # clockwise, negative radius required
-        epsilon = -1
-        # recalculate the notch start/mid/end angles for left side of slot
-        # using rotor duplication angle
-        notch_start_angle = duplication_angle - notch_start_angle
-        notch_centre_angle = duplication_angle - notch_centre_angle
-        notch_end_angle = duplication_angle - notch_end_angle
+    # notch_multiplier, _ = divmod(notch_loop, 2)
+    # Calculate angles of the points we want in mechanical degrees for this notch
+    # notch_centre_angle = notch_mid_angle * (notch_multiplier + 1)
+    # notch_start_angle = notch_centre_angle - (notch_angular_width / 2)
+    # notch_end_angle = notch_centre_angle + (notch_angular_width / 2)
+
+    # if notch_loop % 2 == 0:
+    #     # creating notch on right side of rotor, notch airgap arc is drawn
+    #     # anti-clockwise, positive radius required
+    #     epsilon = 1
+    # else:
+    #     # creating notch on left side of rotor, notch airgap arc is drawn
+    #     # clockwise, negative radius required
+    #     epsilon = -1
+    #     # recalculate the notch start/mid/end angles for left side of slot
+    #     # using rotor duplication angle
+    #     notch_start_angle = duplication_angle - notch_start_angle
+    #     notch_centre_angle = duplication_angle - notch_centre_angle
+    #     notch_end_angle = duplication_angle - notch_end_angle
 
     # create notch region and set parameters for name colour etc
-    notch = Region()
+    notch = triangular_notch(
+        rotor_radius,
+        rotor_centre,
+        epsilon,
+        notch_start_angle,
+        notch_centre_angle,
+        notch_end_angle,
+        notch_depth,
+    )
     notch.name = notch_name
     notch.colour = (255, 255, 255)
     notch.duplications = rotor_region.duplications
     notch.material = "Air"
-
-    # generate coordinates for triangular notch using start/mid/end
-    # angles above converting from polar to cartesian
-    x1, y1 = rt_to_xy(rotor_radius, notch_start_angle)
-    x2, y2 = rt_to_xy(rotor_radius - notch_depth, notch_centre_angle)
-    x3, y3 = rt_to_xy(rotor_radius, notch_end_angle)
-
-    p1 = Coordinate(x1, y1)
-    p2 = Coordinate(x2, y2)
-    p3 = Coordinate(x3, y3)
-
-    # using coordinate create entities making up notch region
-    line_1 = Line(p3, p2)
-    line_2 = Line(p2, p1)
-    airgap_arc = Arc(p1, p3, rotor_centre, rotor_radius * epsilon)
-    # add entities into notch region
-    notch.add_entity(line_1)
-    notch.add_entity(line_2)
-    notch.add_entity(airgap_arc)
 
     if notch.is_closed():
         # set the notches parent to the rotor region, this will allow Motor-CAD to treat
@@ -193,9 +189,9 @@ for notch_loop in range(0, number_notches):
 # Display geometry for  PyMotorCAD Documentation Example
 # -------------------------------------------------------
 # (Used for the PyMotorCAD Documentation Examples only)
-try:
-    from setup_scripts.Library_Examples import display_geometry  # noqa: F401
-
-    display_geometry("BPMTriangularRotorNotches")
-except ImportError:
-    pass
+# try:
+#     from setup_scripts.Library_Examples import display_geometry  # noqa: F401
+#
+#     display_geometry("BPMTriangularRotorNotches")
+# except ImportError:
+#     pass
