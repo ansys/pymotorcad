@@ -162,20 +162,6 @@ if notch_angle < -((duplication_angle / (2 * number_notches)) - (notch_angular_w
     mc.set_adaptive_parameter_value("notch angle", notch_angle)
 
 # %%
-# Add an ``if`` statement to account for the case
-# when a notch crosses the upper symmetry boundary.
-# This resets ``notch_angle``
-# to the ``duplication_angle`` minus
-# half the ``notch_angular_width``.
-# if notch_angle > duplication_angle - notch_angular_width / 2:
-#     # Limit so notch does not cross the upper symmetry boundary
-#     notch_angle = duplication_angle - notch_angular_width / 2
-#     mc.show_message(
-#         "Adaptive Parameter: 'notch mid angle' not valid, reset to " + str(notch_angle)
-#     )
-#     mc.set_adaptive_parameter_value("notch mid angle", notch_angle)
-
-# %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
 # For each notch to be added:
