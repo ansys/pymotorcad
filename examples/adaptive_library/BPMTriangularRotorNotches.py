@@ -7,31 +7,22 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 """
 # %%
 # This script is designed to be run from Motor-CAD template "e9".
+# If no Motor-CAD file is open,
+# the e9 template will be loaded.
 #
-# This script requires the following adaptive parameters:
+# This script uses the following adaptive parameters:
 #
-# * Notch Centre Angle
+# * Notch Centre Angle (5)
 #
-# * Notch Sweep
+# * Notch Sweep (2)
 #
-# * Notch Depth
+# * Notch Depth (1)
 #
-# * Notches per Pole
-
-# %%
-# Setup PyMotorCAD Documentation Example
-# --------------------------------------
-# (Used for the PyMotorCAD Documentation Examples only)
-
-try:
-    from setup_scripts.Library_Examples import define_parameters, example_setup
-
-    example_setup("e9", "BPMTriRotorNotches")
-    define_parameters(
-        ["Notch Centre Angle", "Notch Sweep", "Notch Depth", "Notches per Pole"], [5, 2, 1, 2]
-    )
-except ImportError:
-    pass
+# * Notches per Pole (2)
+#
+# If these parameters are not already set up in the Motor-CAD file,
+# the parameters will be automatically set,
+# with the default values shown in brackets.
 
 # %%
 # Perform Required imports
@@ -39,17 +30,101 @@ except ImportError:
 # Import pymotorcad to access Motor-CAD.
 # Import Arc, Coordinate, Line, Region and rt_to_xy
 # to define the adaptive template geometry.
+# Import Path, tempfile and shutil
+# to open and save a temporary .mot file if none is open.
+from pathlib import Path
+import shutil
+import tempfile
+
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, rt_to_xy
 
 # %%
 # Connect to Motor-CAD
-mc = pymotorcad.MotorCAD(open_new_instance=False)
+# --------------------
+# If this script is loaded into the Adaptive Templates file in Motor-CAD,
+# the current Motor-CAD instance will be used.
+# If the script is run externally,
+# and a Motor-CAD instance is currently open,
+# that Motor-CAD instance will be used.
+# If no Motor-CAD instance is open,
+# a new Motor-CAD instance will be opened.
+# TODO: Add explanation that adaptive geometry is only set when this script is loaded in.
+try:
+    # Use existing Motor-CAD instance if possible
+    mc = pymotorcad.MotorCAD(open_new_instance=False)
+except pymotorcad.MotorCADError:
+    # Otherwise open a new instance
+    mc = pymotorcad.MotorCAD()
+    # TODO: What to do if it isn't already open,
+    #  but 'Show GUI when launching Motor-CAD from automation' isn't set?
+
+
+# %%
+# Load file if required
+# ---------------------
+# Check if a file is loaded already.
+# If not, open the e9 IPM motor template,
+# save the file to a temporary folder.
+if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
+    # Disable popup messages
+    mc.set_variable("MessageDisplayState", 2)
+    mc.set_visible(True)
+    mc.load_template("e9")
+    # TODO: Should we keep Motor-CAD open if we have launched a new instance,
+    #  so the user can see what's been done?
+
+    # Open relevant file
+    working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
+    try:
+        shutil.rmtree(working_folder)
+    except:
+        pass
+
+    Path.mkdir(working_folder)
+    mot_name = "BPMTriRotorNotches"
+    mc.save_to_file(working_folder / (mot_name + ".mot"))
+
+    # Disable adaptive templates
+    mc.set_variable("GeometryTemplateType", 0)
+
+# %%
+# Set Adaptive Parameters if required
+# -----------------------------------
+# Four Adaptive Parameters are required
+# for this adaptive template.
+# These are used to define the
+# number of rotor notches to be added,
+# their position and size.
+#
+# If the Adaptive Parameters have already been set in the current Motor-CAD file,
+# their current values will be used.
+# Otherwise, the Adaptive Parameters will be defined
+# and set to default values.
+#
+# The function ``set_default_parameter`` is defined to check if a parameter exists,
+# and if not, create it with a default value.
+
+
+def set_default_parameter(parameter_name, default_value):
+    try:
+        mc.get_adaptive_parameter_value(parameter_name)
+    except pymotorcad.MotorCADError:
+        mc.set_adaptive_parameter_value(parameter_name, default_value)
+
+
+# %%
+# Use the ``set_default_parameter`` to set the required parameters if undefined
+set_default_parameter("Notch Centre Angle", 5)
+set_default_parameter("Notch Sweep", 2)
+set_default_parameter("Notch Depth", 1)
+set_default_parameter("Notches per Pole", 2)
+
 
 # %%
 # Get required parameters and objects
 # -----------------------------------
-# Get the Adaptive parameters specified in Motor-CAD
+# Get the Adaptive Parameters specified in Motor-CAD, and their values
 notch_mid_angle = mc.get_adaptive_parameter_value("notch centre angle")
 notch_angular_width = mc.get_adaptive_parameter_value("notch sweep")
 notch_depth = mc.get_adaptive_parameter_value("notch depth")
@@ -190,12 +265,4 @@ for notch_loop in range(0, number_notches):
         mc.set_region(notch)
 
 # %%
-# Display geometry for  PyMotorCAD Documentation Example
-# -------------------------------------------------------
-# (Used for the PyMotorCAD Documentation Examples only)
-try:
-    from setup_scripts.Library_Examples import display_geometry  # noqa: F401
-
-    display_geometry("BPMTriangularRotorNotches")
-except ImportError:
-    pass
+# .. image:: ../../images/BPMTriangularRotorNotches.png
