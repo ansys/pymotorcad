@@ -14,27 +14,68 @@ This script is designed to be run from Motor-CAD template "i3".
 # * Inner/outer posts
 
 # %%
-# Setup PyMotorCAD Documentation Example
-# --------------------------------------
-# (Used for the PyMotorCAD Documentation Examples only)
-
-try:
-    from setup_scripts.Library_Examples import example_setup
-
-    example_setup("i3", "SYNCRELCurvedFluxBarriers")
-except ImportError:
-    pass
-
-# %%
 # Perform required imports
 # ------------------------
+# Import pymotorcad to access Motor-CAD.
+# Import Arc, Coordinate, Line, Region and rt_to_xy
+# to define the adaptive template geometry.
+# Import Path, tempfile and shutil
+# to open and save a temporary .mot file if none is open.
+from pathlib import Path
+import shutil
+import tempfile
 
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
 
 # %%
 # Connect to Motor-CAD
-mc = pymotorcad.MotorCAD(open_new_instance=False)
+# --------------------
+# If this script is loaded into the Adaptive Templates file in Motor-CAD,
+# the current Motor-CAD instance will be used.
+# If the script is run externally,
+# and a Motor-CAD instance is currently open,
+# that Motor-CAD instance will be used.
+# If no Motor-CAD instance is open,
+# a new Motor-CAD instance will be opened.
+# TODO: Add explanation that adaptive geometry is only set when this script is loaded in.
+try:
+    # Use existing Motor-CAD instance if possible
+    mc = pymotorcad.MotorCAD(open_new_instance=False)
+except pymotorcad.MotorCADError:
+    # Otherwise open a new instance
+    mc = pymotorcad.MotorCAD()
+    # TODO: What to do if it isn't already open,
+    #  but 'Show GUI when launching Motor-CAD from automation' isn't set?
+
+# %%
+# Load file if required
+# ---------------------
+# Check if a file is loaded already.
+# If not, open the e9 IPM motor template,
+# save the file to a temporary folder.
+if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
+    # Disable popup messages
+    mc.set_variable("MessageDisplayState", 2)
+    mc.set_visible(True)
+    mc.load_template("i3")
+    # TODO: Should we keep Motor-CAD open if we have launched a new instance,
+    #  so the user can see what's been done?
+
+    # Open relevant file
+    working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
+    try:
+        shutil.rmtree(working_folder)
+    except:
+        pass
+
+    Path.mkdir(working_folder)
+    mot_name = "SYNCRELCurvedFluxBarriers"
+    mc.save_to_file(working_folder / (mot_name + ".mot"))
+
+    # Disable adaptive templates
+    mc.set_variable("GeometryTemplateType", 0)
+
 
 # %%
 # Define functions for the Adaptive Templates script
@@ -366,13 +407,4 @@ for layer in range(number_layers):
             mc.set_region(pocket_right)
 
 # %%
-# Display geometry for  PyMotorCAD Documentation Example
-# -------------------------------------------------------
-# (Used for the PyMotorCAD Documentation Examples only)
-
-try:
-    from setup_scripts.Library_Examples import display_geometry  # noqa: F401
-
-    display_geometry("UShapeSYNCRELCurvedFluxBarriers")
-except ImportError:
-    pass
+# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
