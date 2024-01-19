@@ -228,9 +228,11 @@ def triangular_notch(radius, notch_sweep, notch_centre_angle, notch_depth):
     this_triangular_notch : ansys.motorcad.core.geometry.Region
         Region type with two Line and one Arc entity types.
     """
+    # calculate necessary angles for the coordinate calculation
     rotor_centre = Coordinate(0, 0)
     notch_start_angle = notch_centre_angle - notch_sweep / 2
     notch_end_angle = notch_centre_angle + notch_sweep / 2
+
     # generate coordinates for triangular notch using start/mid/end
     # angles above converting from polar to cartesian
     x1, y1 = rt_to_xy(radius, notch_start_angle)
@@ -244,10 +246,9 @@ def triangular_notch(radius, notch_sweep, notch_centre_angle, notch_depth):
     # using coordinate create entities making up notch region
     line_1 = Line(p3, p2)
     line_2 = Line(p2, p1)
-
-    # epsilon must equal -1 if
     airgap_arc = Arc(p1, p3, rotor_centre, radius)
 
+    # create the triangular notch region and add the 2 lines and 1 arc to the region
     this_triangular_notch = Region()
     this_triangular_notch.entities = EntityList([line_1, line_2, airgap_arc])
 
