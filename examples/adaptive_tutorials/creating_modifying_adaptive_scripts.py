@@ -99,8 +99,8 @@ mc.set_variable("GeometryTemplateType", 0)
 # :ref:`ref_adaptive_templates_example_2` example,
 # but uses the geometry drawing feature to plot the geometry regions.
 #
-# Adaptive_Templates_Example_2_Debug.py script
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Adaptive Templates script
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
 # This script does not support:
 # Zero inner/outer layer thickness
