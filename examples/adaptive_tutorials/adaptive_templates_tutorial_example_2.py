@@ -204,10 +204,6 @@ plt.show()
 mc.quit()
 
 # %%
-# Remove the temporary working directory
-# shutil.rmtree(working_folder)
-
-# %%
 # To continue working with this instance of Motor-CAD, rather
 # than using the preceding commands, use:
-# :code:`mcad.set_variable('MessageDisplayState', 0)`
+# :code:`mc.set_variable('MessageDisplayState', 0)`
