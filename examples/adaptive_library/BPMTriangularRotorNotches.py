@@ -85,9 +85,6 @@ if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
     mot_name = "BPMTriRotorNotches"
     mc.save_to_file(working_folder / (mot_name + ".mot"))
 
-    # Disable adaptive templates
-    mc.set_variable("GeometryTemplateType", 0)
-
 # %%
 # Set Adaptive Parameters if required
 # -----------------------------------
