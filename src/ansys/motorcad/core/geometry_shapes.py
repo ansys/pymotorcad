@@ -209,19 +209,19 @@ def eq_triangle_w(width, r_O, th_O):
     return this_triangle
 
 
-def triangular_notch(radius, notch_sweep, notch_centre_angle, notch_depth):
+def triangular_notch(radius, sweep, centre_angle, depth):
     """Create a triangular notch for a rotor or stator at given angular position with given size.
 
     Parameters
     ----------
     radius : float
         Radius value, radius of the Rotor or Stator for which the notch is being defined.
-    notch_sweep : float
+    sweep : float
         Sweep value, the angular distance (in degrees) that the notch spans.
-    notch_centre_angle : float
-        Angular coordinate of the notch centre.
-    notch_depth : float
-        Depth value.
+    centre_angle : float
+        Angle value, angular coordinate of the notch centre.
+    depth : float
+        Depth value, depth of the notch.
 
     Returns
     -------
@@ -230,13 +230,13 @@ def triangular_notch(radius, notch_sweep, notch_centre_angle, notch_depth):
     """
     # calculate necessary angles for the coordinate calculation
     rotor_centre = Coordinate(0, 0)
-    notch_start_angle = notch_centre_angle - notch_sweep / 2
-    notch_end_angle = notch_centre_angle + notch_sweep / 2
+    notch_start_angle = centre_angle - sweep / 2
+    notch_end_angle = centre_angle + sweep / 2
 
     # generate coordinates for triangular notch using start/mid/end
     # angles above converting from polar to cartesian
     x1, y1 = rt_to_xy(radius, notch_start_angle)
-    x2, y2 = rt_to_xy(radius - notch_depth, notch_centre_angle)
+    x2, y2 = rt_to_xy(radius - depth, centre_angle)
     x3, y3 = rt_to_xy(radius, notch_end_angle)
 
     p1 = Coordinate(x1, y1)
