@@ -142,9 +142,9 @@ duplication_angle = 360 / rotor_region.duplications
 # %%
 # Add an ``if`` statement to account for the case
 # when a notch crosses the lower symmetry boundary.
-# This resets ``notch_angle``
-# to half the ``notch_angular_width``.
-if notch_angle > (duplication_angle / (2 * (number_notches - 1) + 1)) - (notch_angular_width / 2):
+# This resets ``notch_angle`` to half the ``notch_angular_width``
+# away from the boundary.
+if notch_angle > (duplication_angle / (2 * number_notches)) - (notch_angular_width / 2):
     # Limit so notch does not cross the lower symmetry boundary
     notch_angle = (duplication_angle / (2 * number_notches)) - notch_angular_width / 2
     mc.show_message("Adaptive Parameter: 'notch angle' not valid, reset to " + str(notch_angle))
