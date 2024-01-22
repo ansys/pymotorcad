@@ -23,13 +23,27 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 # If these parameters are not already set up in the Motor-CAD file,
 # the parameters will be automatically set,
 # with the default values shown in brackets.
+#
+# To set an adaptive geometry for a Motor-CAD file,
+# a script must be loaded in to the Adaptive Templates tab
+# (Geometry -> Editor -> Adaptive Templates) in Motor-CAD
+# and run.
+# When the option 'Geometry Templates Type' is set to 'Adaptive',
+# this script is automatically run repeatedly
+# to keep the Adaptive Geometry set in Motor-CAD.
+#
+# .. image:: ../../images/Adaptive_Templates_GUI_Screenshot.png
+#
+# This Python script can also be executed externally,
+# but unless the script is loaded in to the Adaptive Templates tab
+# in Motor-CAD, the geometry will only be defined temporarily.
 
 # %%
 # Perform Required imports
 # ------------------------
 # Import pymotorcad to access Motor-CAD.
-# Import Arc, Coordinate, Line, Region and rt_to_xy
-# to define the adaptive template geometry.
+# Import triangular_notch to create the notch geometry region
+# with Adaptive Template geometry.
 # Import Path, tempfile and shutil
 # to open and save a temporary .mot file if none is open.
 from pathlib import Path
@@ -44,21 +58,21 @@ from ansys.motorcad.core.geometry_shapes import triangular_notch
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD,
 # the current Motor-CAD instance will be used.
+#
 # If the script is run externally,
 # and a Motor-CAD instance is currently open,
 # that Motor-CAD instance will be used.
 # If no Motor-CAD instance is open,
 # a new Motor-CAD instance will be opened.
-# TODO: Add explanation that adaptive geometry is only set when this script is loaded in.
+# To keep a new Motor-CAD instance open after executing the script,
+# use the option ``mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)``
+# when opening the new instance.
 try:
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 except pymotorcad.MotorCADError:
     # Otherwise open a new instance
     mc = pymotorcad.MotorCAD()
-    # TODO: What to do if it isn't already open,
-    #  but 'Show GUI when launching Motor-CAD from automation' isn't set?
-
 
 # %%
 # Load file if required
@@ -71,8 +85,6 @@ if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
     mc.load_template("e9")
-    # TODO: Should we keep Motor-CAD open if we have launched a new instance,
-    #  so the user can see what's been done?
 
     # Open relevant file
     working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
