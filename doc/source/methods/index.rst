@@ -1,3 +1,4 @@
+.. _ref_API_Reference:
 .. currentmodule:: ansys.motorcad
 
 API reference
@@ -22,6 +23,14 @@ object, its single class, and its many methods, see
 .. note::
    In addition to giving the available methods, their replacement functions
    have been commented.
+
+Geometry objects and functions
+------------------------------
+The ``ansys.motorcad.core.geometry`` library contains geometry objects and functions
+that provide geometry functionality in Python.
+Geometry objects and functions are used for
+defining and modifying Adaptive Templates geometries in Python.
+For descriptions of the objects and functions, see :ref:`ref_geometry_functions`.
 
 .. toctree::
    :maxdepth: 1

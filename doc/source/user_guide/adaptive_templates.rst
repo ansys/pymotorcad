@@ -82,7 +82,44 @@ This Python package provides access to Motor-CAD.
 
     import ansys.motorcad.core as pymotorcad
 
-Adaptive scripts also require the ``ansys.motorcad.core.geometry`` library.
+``ansys.motorcad.core`` provides access to the Motor-CAD geometry,
+such as the existing regions in the model.
+It can be used to get an existing region from the Motor-CAD model
+(such as the **Rotor**) as an object in Python (``rotor = mc.get_region("Rotor")``).
+It can also be used to set a Motor-CAD region object in the Motor-CAD model
+(``mc.set_region(rotor)``).
+
+For a Motor-CAD region object that has been obtained using PyMotorCAD,
+the region properties are accessible via Python.
+Properties such as the material and colour can be edited with an Adaptive Templates Script:
+
+.. code:: python
+
+     # Connect to Motor-CAD
+     mc = pymotorcad.MotorCAD()
+
+     # Get rotor region from Motor-CAD
+     rotor = mc.get_region("Rotor")
+
+     # Edit region properties
+     rotor.colour = (186, 85, 211)
+     rotor.material = "M470-50A"
+     mc.set_region(rotor)
+
+.. figure:: ../images/Adaptive_Geometry_GUI_Screenshot_UG_Modified.png
+    :width: 500pt
+
+    Rotor geometry with modified colour and material shown in the Geometry -> Editor -> Geometry tab
+
+Details on the Adaptive Geometry functions within ``ansys.motorcad.core``
+that provide access to the Motor-CAD geometry are available
+in the :ref:`ref_MotorCAD_object` under :ref:`ref_Adaptive Geometry_API`.
+
+Using the Geometry objects and functions library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adaptive scripts also require the ``ansys.motorcad.core.geometry`` library
+to modify the model geometry.
 This provides geometry functionality in Python, such as regions and entities.
 It is required so that Lines and Arcs can be defined or modified by the script,
 and so that regions can be created from these entities.
@@ -99,8 +136,13 @@ Alternatively, specific functions (for example Line and Arc) can be imported fro
 
     from ansys.motorcad.core.geometry import Line, Arc
 
-Details on the full list of Adaptive Geometry functions are available in the :ref:`ref_MotorCAD_object`
-under :ref:`ref_geometry_functions`.
+``ansys.motorcad.core.geometry`` is required to edit the entities that belong to a region,
+such as changing the Lines or Arcs that define the region geometry.
+
+Details on the full list of Geometry objects and functions are available
+in the :ref:`ref_API_Reference` under :ref:`ref_geometry_functions`.
+For examples on modifying a Motor-CAD model geometry,
+see :ref:`ref_examples_adaptive_templates_library`.
 
 Adaptive Parameters
 -------------------

@@ -1,9 +1,11 @@
 .. _ref_geometry_functions:
 .. currentmodule:: ansys.motorcad.core.geometry
-Adaptive geometry
-=================
-Adaptive geometry functions are used to define and modify the Motor-CAD Adaptive Templates geometry
-using PyMotorCAD.
+Geometry objects and functions
+==============================
+Geometry functions are used to define and modify
+the Motor-CAD Adaptive Templates geometry using PyMotorCAD.
+More information on Adaptive Templates is available
+in the :ref:`ref_user_guide` under :ref:`ref_adaptive_templates_UG`.
 
 
 Geometry objects
