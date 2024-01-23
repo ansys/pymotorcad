@@ -75,6 +75,33 @@ and the scripting interface enabled, which allows editing of the script.
 
     Geometry -> Editor -> Adaptive Templates tab in Ansys Motor-CAD 2024 R1
 
+Adaptive Templates Scripts require PyMotorCAD to be imported.
+This Python package provides access to Motor-CAD.
+
+.. code:: python
+
+    import ansys.motorcad.core as pymotorcad
+
+Adaptive scripts also require the ``ansys.motorcad.core.geometry`` library.
+This provides geometry functionality in Python, such as regions and entities.
+It is required so that Lines and Arcs can be defined or modified by the script,
+and so that regions can be created from these entities.
+
+The geometry package can be imported:
+
+.. code:: python
+
+    import ansys.motorcad.core.geometry as geometry
+
+Alternatively, specific functions (for example Line and Arc) can be imported from the package:
+
+.. code:: python
+
+    from ansys.motorcad.core.geometry import Line, Arc
+
+Details on the full list of Adaptive Geometry functions are available in the :ref:`ref_MotorCAD_object`
+under :ref:`ref_geometry_functions`.
+
 Adaptive Parameters
 -------------------
 

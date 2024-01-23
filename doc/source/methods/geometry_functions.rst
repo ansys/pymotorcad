@@ -2,7 +2,8 @@
 .. currentmodule:: ansys.motorcad.core.geometry
 Adaptive geometry
 =================
-Add some info here about adaptive geometry
+Adaptive geometry functions are used to define and modify the Motor-CAD Adaptive Templates geometry
+using PyMotorCAD.
 
 
 Geometry objects

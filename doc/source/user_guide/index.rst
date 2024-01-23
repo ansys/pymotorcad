@@ -45,6 +45,10 @@ Adaptive Templates Scripts
 PyMotorCAD can be used to define Adaptive Templates Scripts
 for designing models with geometries that cannot be modelled
 using the standard Motor-CAD template geometries.
+Adaptive Templates Scripts can be defined using the internal
+Geometry -> Editor -> Adaptive Templates tab,
+and are run whenever the Motor-CAD geometry is created.
+
 For more information on Adaptive Templates Scripting, see :ref:`ref_adaptive_templates_UG`.
 
 Backwards compatibility with old scripts
