@@ -2,23 +2,56 @@ from matplotlib import pyplot as plt
 import pytest
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
-from ansys.motorcad.core.geometry_drawing import draw_objects
+from ansys.motorcad.core.geometry_drawing import draw_objects, draw_objects_debug
+from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 from setup_test import setup_test_env
 
 # Get Motor-CAD exe
 mc = setup_test_env()
+drawing_flag = False
+
+
+def set_drawing_flag(*args, **kwargs):
+    global drawing_flag
+    drawing_flag = True
+
+
+def test_draw_objects_debug(monkeypatch):
+    # Just check it runs for now
+    # Stop plt.show() blocking tests
+    global drawing_flag
+    drawing_flag = False
+    monkeypatch.setattr(plt, "show", set_drawing_flag)
+
+    region = mc.get_region("Stator")
+
+    draw_objects_debug(region)
+    assert drawing_flag is True
+
+    drawing_flag = False
+    save_def_instance = DEFAULT_INSTANCE
+    set_default_instance(mc.connection._port)
+
+    draw_objects_debug(region)
+    assert drawing_flag is False
+
+    set_default_instance(save_def_instance)
 
 
 def test_draw_objects(monkeypatch):
     # Just check it runs for now
     # Stop plt.show() blocking tests
-    monkeypatch.setattr(plt, "show", lambda: None)
+    global drawing_flag
+    drawing_flag = False
+
+    monkeypatch.setattr(plt, "show", set_drawing_flag)
 
     region = mc.get_region("Stator")
     region2 = mc.get_region("StatorWedge")
     region3 = mc.get_region("ArmatureSlotL1")
 
     draw_objects(region)
+    assert drawing_flag is True
     draw_objects([region, region2, region3])
 
     # Test overflow of colours
