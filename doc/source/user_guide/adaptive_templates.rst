@@ -163,7 +163,7 @@ Geometry -> Editor -> Adaptive Parameters tab.
 
 Any parameter can be defined, with a Name, Value and Description.
 Parameters can be added within the Motor-CAD interface,
-or via Python script by using the PyMotorCAD function ``mc.set_adaptive_parameter_value()``:
+or via Python script by using ``set_adaptive_parameter_value()`` from ``ansys.motorcad.core``:
 
 .. code:: python
 
@@ -178,7 +178,7 @@ alongside the Standard Template parameters.
     Adaptive Parameters shown in the Geometry -> Radial tab
 
 Adaptive Parameters can be accessed via the Adaptive Templates Script
-using ``mc.get_adaptive_parameter_value()``,
+using ``get_adaptive_parameter_value()`` from ``ansys.motorcad.core``,
 so that the geometry can be defined by these Adaptive Parameters:
 
 .. code:: python
@@ -191,7 +191,7 @@ Scripting workflow
 As well as the defined Adaptive Parameters,
 any parameter from Motor-CAD
 can be used in the Adaptive Templates Script
-by using ``mc.get_variable()`` from PyMotorCAD.
+by using ``get_variable()`` from PyMotorCAD.
 Any Motor-CAD API accessible by PyMotorCAD is available.
 
 For example, when modifying the rotor geometry,
@@ -244,13 +244,16 @@ This is how you set the region parent
 If the region object of the rotor has been created in Python (``rotor = mc.get_region("Rotor")``)
 The rotor region object's properties can be obtained and set for the rotor notch.
 
-The ``duplications`` property represents the symmetry of the region.
+The ``Region.duplications`` property represents the symmetry of the region.
 In the example shown using the e9 IPM template, ``duplications = 8``
 because there are 8 rotor poles of 45 ° symmetry.
 In this example, the notch would have the same symmetry as the rotor.
 
 The parent region of the notch can be set to the rotor region,
-so that the notch will appear as a sub-region of the rotor
+so that the notch is set as a sub-region.
+Motor-CAD uses implicit subtractions,
+so that the notch subtraction will be handled automatically.
+The notch will appear as a sub-region of the rotor
 in the Geometry -> Editor tab in Motor-CAD.
 
 .. code:: python
@@ -262,7 +265,7 @@ Adding entities to a region
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To add two Lines (line_1, line_2) and an Arc (airgap_arc) to the notch region,
-use the ``.add_entity()`` function from ``ansys.motorcad.core``:
+use the ``Region.add_entity()`` function from ``ansys.motorcad.core.geometry``:
 
 .. code:: python
 
@@ -270,13 +273,75 @@ use the ``.add_entity()`` function from ``ansys.motorcad.core``:
     notch.add_entity(line_2)
     notch.add_entity(airgap_arc)
 
+Line and Arc entities can be defined using Motor-CAD Coordinate objects.
+
 Setting a region in Motor-CAD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is how you set the new region in Motor-CAD
+To set the notch in the Motor-CAD model,
+the notch region is sent to Motor-CAD
+using the ``set_region()`` function from ``ansys.motorcad.core``.
 
+We can also perform a check using the ``Region.is_closed()``
+to ensure that the entities that were added to the region
+create a closed region.
 
+.. code:: python
 
+    if notch.is_closed():
+        mc.set_region(notch)
+
+Using the geometry shapes library
+---------------------------------
+
+Line and Arc entities are defined using Motor-CAD Coordinate objects.
+Calculating the coordinate positions can be time consuming and
+may require many lines of Python script.
+
+For commonly used shapes, ready made functions can be used
+to create a region, based on a few required parameters.
+These functions can be imported from the
+``ansys.motorcad.core.geometry_shapes`` library.
+
+A function for creating a triangular notch region can be imported:
+
+.. code:: python
+
+    from ansys.motorcad.core.geometry_shapes import triangular_notch
+
+The ``triangular_notch()`` function requires 4 arguments:
+
+* radius - the radial position of the notch outer edge
+  (for a rotor notch, this is the rotor radius)
+
+* sweep - the sweep of the notch along the rotor airgap, in degrees
+  (defines the notch width)
+
+* centre_angle - the angular position of the notch centre
+
+* depth - the depth of the notch
+
+A rotor notch can be defined using this function,
+so that the user does not need to calculate
+the coordinates for the notch entities.
+
+To use the ``triangular_notch()`` function to create
+a triangular rotor notch region:
+
+.. code:: python
+
+    notch = triangular_notch(
+        rotor_radius, notch_angular_width, notch_centre_angle, notch_depth
+    )
+
+where the arguments ``rotor_radius``, ``notch_angular_width``,
+``notch_centre_angle`` and ``notch_depth``
+must be calculated in the Adaptive Templates Script and
+specified.
+
+The notch region properties can then be defined and
+the region can be set in Motor-CAD,
+as described earlier in this guide.
 
 
 
