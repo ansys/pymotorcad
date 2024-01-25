@@ -1600,6 +1600,11 @@ def test_region_find_entity_from_coordinates():
 
 def test_reset_geometry():
     stator = mc.get_region("stator")
+
+    # When the new regions go out of scope they close Motor-CAD
+    # Do we need to fix this?
+    stator.motorcad_instance = None
+
     stator_copy = deepcopy(stator)
     stator_edited = deepcopy(stator)
 
