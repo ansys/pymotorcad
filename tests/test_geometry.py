@@ -16,6 +16,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
@@ -1595,3 +1596,38 @@ def test_region_find_entity_from_coordinates():
     assert (
         c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
     )
+
+
+def test_reset_geometry():
+    stator = mc.get_region("stator")
+
+    # When the new regions go out of scope they close Motor-CAD
+    # Do we need to fix this?
+    stator.motorcad_instance = None
+
+    stator_copy = deepcopy(stator)
+    stator_edited = deepcopy(stator)
+
+    stator_edited.edit_point(stator_edited.points[1], stator_edited.points[1] + Coordinate(5, 5))
+    assert stator_edited.entities != stator_copy.entities
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities == stator_copy.entities
+
+    save_default_instance = DEFAULT_INSTANCE
+    set_default_instance(mc.connection._port)
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    set_default_instance(save_default_instance)

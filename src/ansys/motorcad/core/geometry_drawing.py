@@ -3,6 +3,7 @@ from copy import deepcopy
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Entity, Line, Region
+from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
 
 try:
     import matplotlib.patches as mpatches
@@ -113,6 +114,18 @@ class _RegionDrawing:
             self.ax.add_patch(arc)
 
         self.ax.set_aspect("equal", adjustable="box")
+
+
+def draw_objects_debug(objects):
+    """Draw regions on plot if not being run in Motor-CAD.
+
+    Parameters
+    ----------
+    objects : List of objects
+        entities to draw
+    """
+    if not _is_running_in_internal_scripting():
+        draw_objects(objects)
 
 
 def draw_objects(objects):
