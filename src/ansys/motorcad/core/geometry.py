@@ -303,7 +303,7 @@ class Region(object):
             Whether to apply a unique name to returned region
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Region
         """
         if isinstance(mirror_line, Line):
@@ -524,7 +524,7 @@ class Coordinate(object):
             Line entity to mirror coordinate about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Coordinate
         """
         if isinstance(mirror_line, Line):
@@ -620,7 +620,7 @@ class Entity(object):
             Line entity to mirror entity about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Entity
         """
         if isinstance(mirror_line, Line):
@@ -718,7 +718,7 @@ class Line(Entity):
             Line entity to mirror Line about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Line
         """
         if isinstance(mirror_line, Line):
@@ -981,7 +981,7 @@ class Arc(Entity):
             Line entity to mirror Line about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Arc
         """
         if isinstance(mirror_line, Line):

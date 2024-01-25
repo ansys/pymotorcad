@@ -177,6 +177,7 @@ doc/source/examples/gallery_examples/*
 /examples/basics/MotorCAD_Thermal_Python/*
 /examples/Maximum Torque VS Speed Curve.png
 /examples/MotorCAD_Thermal_Python.mot
+/examples/internal_scripting/temp_example_file.py
 
 # tests
 /tests/test_files/SRM_test_file/*
@@ -186,4 +187,3 @@ doc/source/examples/gallery_examples/*
 /tests/test_files/base_test_file/*
 /tests/test_files/SaveLoadFiles/*
 /tests/test_files/SaveLoadFiles.mot
-
