@@ -15,6 +15,14 @@ from scratch or based on the Standard Templates.
 Using Adaptive Templates, custom geometric parameterisations
 are set up using a Python script.
 
+Adaptive Templates examples are available in the PyMotorCAD Documentation
+under :ref:`ref_examples_adaptive_templates_library`.
+For the example shown in this user guide,
+see :ref:`ref_BPM_Triangular_Rotor_Notches`.
+
+For more information on Motor-CAD Adaptive Templates,
+see also the Tutorial supplied with Motor-CAD.
+
 Geometry Editor
 ***************
 
@@ -347,6 +355,68 @@ specified.
 The notch region properties can then be defined and
 the region can be set in Motor-CAD,
 as described earlier in this guide.
+
+For a full Adaptive Templates example
+using the workflow described here,
+see :ref:`ref_BPM_Triangular_Rotor_Notches`.
+
+Creating and Modifying Adaptive Templates Scripts
+*************************************************
+
+It is recommended to create Adaptive Template Scripts outside Motor-CAD,
+using a Python Integrated Development Environment (IDE) (such as PyCharm).
+Using an IDE allows for faster creation of the script,
+allowing access to autocompletion, code correction
+and other features which are not available in the Motor-CAD scripting interface.
+
+This is essential when writing complex scripts,
+allowing issues with the script to be fixed
+and the inspection of Python objects
+(for example geometry regions from Motor-CAD).
+
+For more information on the Synchronous Reluctance machine geometry
+with curved flux barriers used for this example,
+please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
+
+Working on the Adaptive Templates script
+----------------------------------------
+Adaptive templates should be disabled in Motor-CAD,
+when working on a script from an external IDE,
+by setting the Geometry Templates Type to Standard (from Adaptive).
+This allows the IDE to access the Standard Template Geometry.
+
+Instead of loading the script into Motor-CAD,
+the script being worked on can be run externally.
+
+Drawing geometry objects
+------------------------
+When working on and debugging Adaptive Templates scripts,
+it is useful to use the geometry drawing feature
+to plot the geometry objects and regions.
+``ansys.motorcad.core.geometry_drawing`` contains the function
+``draw_objects()`` which can be used to plot any region
+that has been defined in Python.
+
+The geometry drawing package can be imported:
+
+.. code:: python
+
+    from ansys.motorcad.core.geometry_drawing import draw_objects
+
+For an Adaptive Templates script where curved flux barrier/rotor pockets
+Region objects are added to a list ``pockets_all_layers``,
+the function ``draw_objects()`` can be used to plot the regions:
+
+.. code:: python
+
+    draw_objects(pockets_all_layers)
+
+.. figure:: ../images/Adaptive_Geometry_Drawing_all.png
+    :width: 500pt
+
+    Plot of rotor pocket regions drawn using the ``draw_objects()`` function.
+
+
 
 
 
