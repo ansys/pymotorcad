@@ -12,7 +12,7 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 #
 # This script uses the following adaptive parameters:
 #
-# * Notch Angle (0)
+# * Notch Angle (-4)
 #
 # * Notch Sweep (2)
 #
@@ -124,7 +124,7 @@ def set_default_parameter(parameter_name, default_value):
 
 # %%
 # Use the ``set_default_parameter`` to set the required parameters if undefined
-set_default_parameter("Notch Angle", 0)
+set_default_parameter("Notch Angle", -4)
 set_default_parameter("Notch Sweep", 2)
 set_default_parameter("Notch Depth", 1)
 set_default_parameter("Notches per Pole", 2)
