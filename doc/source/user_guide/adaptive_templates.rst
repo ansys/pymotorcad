@@ -321,6 +321,11 @@ The ``triangular_notch()`` function requires 4 arguments:
 
 * depth - the depth of the notch
 
+.. figure:: ../images/Adaptive_Geometry_Shapes_Diagram.png
+    :width: 500pt
+
+    Required arguments for the ``triangular_notch()`` function.
+
 A rotor notch can be defined using this function,
 so that the user does not need to calculate
 the coordinates for the notch entities.
