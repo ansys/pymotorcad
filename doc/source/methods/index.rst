@@ -32,6 +32,14 @@ Geometry objects and functions are used for
 defining and modifying Adaptive Templates geometries in Python.
 For descriptions of the objects and functions, see :ref:`ref_geometry_functions`.
 
+Geometry shapes
+------------------------------
+The ``ansys.motorcad.core.geometry_shapes`` library contains geometry functions
+that provide geometry calculations in Python.
+Geometry shapes functions are used for
+defining and modifying Adaptive Templates geometries in Python.
+For descriptions of the functions, see :ref:`ref_geometry_shapes`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -39,3 +47,4 @@ For descriptions of the objects and functions, see :ref:`ref_geometry_functions`
    MotorCAD_object
    MotorCADCompatibility_object
    geometry_functions
+   geometry_shapes

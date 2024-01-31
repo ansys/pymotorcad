@@ -361,6 +361,9 @@ For a full Adaptive Templates example
 using the workflow described here,
 see :ref:`ref_BPM_Triangular_Rotor_Notches`.
 
+Details on the Geometry Shapes functions within ``ansys.motorcad.core.geometry_shapes``
+are available in the :ref:`ref_API_Reference` under :ref:`ref_geometry_shapes`.
+
 Creating and Modifying Adaptive Templates Scripts
 *************************************************
 
