@@ -7,6 +7,11 @@ Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved 
 This script is designed to be run from Motor-CAD template "i3".
 """
 # %%
+# .. note::
+#    For more information on the use of Adaptive Templates in Motor-CAD,
+#    and how to create, modify and debug Adaptive Templates Scripts,
+#    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
+#
 # This script does not support:
 #
 # * Zero inner/outer layer thickness
@@ -33,34 +38,34 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD,
 # the current Motor-CAD instance will be used.
+#
 # If the script is run externally,
 # and a Motor-CAD instance is currently open,
 # that Motor-CAD instance will be used.
 # If no Motor-CAD instance is open,
 # a new Motor-CAD instance will be opened.
-# TODO: Add explanation that adaptive geometry is only set when this script is loaded in.
+# To keep a new Motor-CAD instance open after executing the script,
+# use the option ``mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)``
+# when opening the new instance.
 try:
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
+    mc.connection.ensure_version_at_least("2024.1.1")
 except pymotorcad.MotorCADError:
     # Otherwise open a new instance
     mc = pymotorcad.MotorCAD()
-    # TODO: What to do if it isn't already open,
-    #  but 'Show GUI when launching Motor-CAD from automation' isn't set?
 
 # %%
 # Load file if required
 # ---------------------
 # Check if a file is loaded already.
-# If not, open the e9 IPM motor template,
+# If not, open the i3 IPM motor template,
 # save the file to a temporary folder.
 if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
     mc.load_template("i3")
-    # TODO: Should we keep Motor-CAD open if we have launched a new instance,
-    #  so the user can see what's been done?
 
     # Open relevant file
     working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
@@ -77,6 +82,10 @@ if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
 # %%
 # Define functions for the Adaptive Templates script
 # --------------------------------------------------
+# This example Adaptive Templates Script works by defining
+# a number of required functions.
+# These functions are then called within a ``for`` loop,
+# which executes the script for each rotor duct layer.
 #
 # Calculate barrier arc centre and radius coordinates
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,19 +93,19 @@ if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
 #
 # Parameters:
 #
-# * coordinate_1 : Coordinate, Arc start coordinate.
+# * ``coordinate_1`` : Coordinate, Arc start coordinate.
 #
-# * coordinate_2 : Coordinate, Extra coordinate on arc
+# * ``coordinate_2`` : Coordinate, Extra coordinate on arc
 #
-# * coordinate_3 : Coordinate, Arc end coordinate
+# * ``coordinate_3`` : Coordinate, Arc end coordinate
 #
-# * arc_direction : Integer, Direction to create arc between start/end
+# * ``arc_direction`` : Integer, Direction to create arc between start/end
 #
 # Returns:
 #
-# * radius : float, Arc radius
+# * ``radius`` : float, Arc radius
 #
-# * centre : Coordinate, Arc centre coordinate
+# * ``centre`` : Coordinate, Arc centre coordinate
 
 
 def get_barrier_centre_and_radius(coordinate_1, coordinate_2, coordinate_3, arc_direction):
@@ -130,7 +139,7 @@ def get_barrier_centre_and_radius(coordinate_1, coordinate_2, coordinate_3, arc_
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define a function to determine whether corner rounding should be applied to pocket.
 # Returns a boolean.
-# Returns 'True' if Corner Rounding is selected for the Rotor in the Motor-CAD
+# Returns ``True`` if Corner Rounding is selected for the Rotor in the Motor-CAD
 # file, and if the Corner Rounding radius is set to a non-zero value.
 def get_pockets_include_corner_rounding():
     return (mc.get_variable("CornerRounding_Rotor") == 1) and (
@@ -163,11 +172,11 @@ def get_rotor_mirror_line():
 #
 # Parameters:
 #
-# * pocket : Region, Pocket region
+# * ``pocket`` : Region, Pocket region
 #
-# * coordinate_indices : list of integer, Pocket region coordinate indices
+# * ``coordinate_indices`` : list of integer, Pocket region coordinate indices
 #
-# * mirror_line : Line, Mirror line to generate extra coordinate on arc
+# * ``mirror_line`` : Line, Mirror line to generate extra coordinate on arc
 #
 # Returns
 #
@@ -184,12 +193,12 @@ def get_coordinates(pocket, coordinate_indices, mirror_line=None):
 
 
 # %%
-# Get list of coordinates for pocket arcs
+# Get list of coordinates for ``pocket`` arcs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define functions to get list of coordinates
-# to use to generate top and bottom arcs for pocket.
+# Define functions to get a list of coordinates
+# to use to generate the top and bottom arcs for ``pocket``.
 #
-# Return coordinates at indices from pocket.points.
+# Return coordinates at indices from ``pocket.points``.
 # These indices match up with coordinates from each pocket region
 # with/without corner rounding.
 #
@@ -198,6 +207,10 @@ def get_coordinates(pocket, coordinate_indices, mirror_line=None):
 # Indices have been selected using Motor-CAD geometry editor.
 #
 # For no centre post:
+#
+# Parameters:
+#
+# * ``pocket`` : Region, Pocket region
 #
 # Returns
 #
@@ -214,7 +227,7 @@ def get_coordinates_no_centre_post(pocket):
 #
 # Parameters:
 #
-# * pocket : Region, Pocket region
+# * ``pocket`` : Region, Pocket region
 #
 # Returns:
 #
@@ -241,14 +254,14 @@ def get_coordinates_centre_post(pocket):
 # %%
 # Update pocket geometry
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Define a function to update the pocket entities
+# Define a function to update the ``pocket`` entities
 # to create a curved pocket using input coordinates.
 #
 # Parameters:
 #
-# * pocket : Region, Pocket region
+# * ``pocket`` : Region, Pocket region
 #
-# * coordinates : list of Coordinate, Coordinates to generate arcs with in region
+# * ``coordinates`` : list of Coordinate, Coordinates to generate arcs with in region
 #
 # Create a list of arc entities from the coordinates.
 # Remove the entities between the start and end coordinates
@@ -303,7 +316,7 @@ def update_pocket_geometry(pocket, coordinates):
 #
 # Parameters:
 #
-# * index : integer, Current pocket index
+# * ``index`` : integer, Current pocket index
 #
 # Returns:
 #

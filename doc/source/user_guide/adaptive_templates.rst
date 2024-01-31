@@ -3,6 +3,8 @@
 Motor-CAD Adaptive Templates Scripting
 ======================================
 
+.. note::
+    Adaptive Templates in Motor-CAD require version 2024 R1 or later
 
 This guide describes the Adaptive Templates functionality.
 Motor-CAD provides the Adaptive Templates functionality
@@ -17,11 +19,12 @@ are set up using a Python script.
 
 Adaptive Templates examples are available in the PyMotorCAD Documentation
 under :ref:`ref_examples_adaptive_templates_library`.
-For the example shown in this user guide,
-see :ref:`ref_BPM_Triangular_Rotor_Notches`.
+For the examples shown in this user guide,
+see :ref:`ref_BPM_Triangular_Rotor_Notches` and :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
-For more information on Motor-CAD Adaptive Templates,
-see also the Tutorial supplied with Motor-CAD.
+It is recommended that users new to Motor-CAD Adaptive Templates
+work through the Tutorial supplied with Motor-CAD.
+The tutorial contains additional information and full workflow examples.
 
 Geometry Editor
 ***************
@@ -246,8 +249,6 @@ Region properties can be set using the appropriate field/property:
     notch.name = "Rotor_Notch_1"
     notch.colour = (255, 255, 255)
     notch.material = "Air"
-
-This is how you set the region parent
 
 If the region object of the rotor has been created in Python (``rotor = mc.get_region("Rotor")``)
 The rotor region object's properties can be obtained and set for the rotor notch.

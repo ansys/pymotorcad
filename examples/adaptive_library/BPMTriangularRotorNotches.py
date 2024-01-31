@@ -6,6 +6,11 @@ Triangular Rotor Notches for IPM
 Adaptive Template script to create triangular rotor notches to improve NVH performance.
 """
 # %%
+# .. note::
+#    For more information on the use of Adaptive Templates in Motor-CAD,
+#    and how to create, modify and debug Adaptive Templates Scripts,
+#    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
+#
 # This script is designed to be run from Motor-CAD template "e9".
 # If no Motor-CAD file is open,
 # the e9 template will be loaded.
@@ -70,6 +75,7 @@ from ansys.motorcad.core.geometry_shapes import triangular_notch
 try:
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
+    mc.connection.ensure_version_at_least("2024.1.1")
 except pymotorcad.MotorCADError:
     # Otherwise open a new instance
     mc = pymotorcad.MotorCAD()
@@ -150,15 +156,25 @@ duplication_angle = 360 / rotor_region.duplications
 
 # %%
 # Add an ``if`` statement to account for the case
-# when a notch crosses the lower symmetry boundary.
+# when a notch crosses the symmetry boundary.
 # This resets ``notch_angle`` to half the ``notch_angular_width``
 # away from the boundary.
 if notch_angle > (duplication_angle / (2 * number_notches)) - (notch_angular_width / 2):
-    # Limit so notch does not cross the lower symmetry boundary
+    # Limit so notch does not cross the symmetry boundary
     notch_angle = (duplication_angle / (2 * number_notches)) - notch_angular_width / 2
     mc.show_message("Adaptive Parameter: 'notch angle' not valid, reset to " + str(notch_angle))
     mc.set_adaptive_parameter_value("notch angle", notch_angle)
-# if an even number of notches
+
+# %%
+# Add an ``if`` statement to account for the case
+# when notches overlap at the centre of the pole.
+# This resets ``notch_angle`` to:
+#
+# * Half the ``notch_angular_width``
+#   away from the pole centre when there are an even number of notches
+#
+# * The full ``notch_angular_width``
+#   away from the pole centre when there are an odd number of notches
 if number_notches % 2 == 0:
     x = -1
 else:
