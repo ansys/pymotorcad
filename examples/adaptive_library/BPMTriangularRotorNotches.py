@@ -93,7 +93,12 @@ if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
     mc.load_template("e9")
 
     # Open relevant file
-    working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
+   working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
+try:
+    shutil.rmtree(working_folder)
+except:
+    pass
+os.mkdir(working_folder)
     try:
         shutil.rmtree(working_folder)
     except:
