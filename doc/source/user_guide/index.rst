@@ -10,6 +10,8 @@ User guide
    external_scripting
    matlab_scripting
    backwards_compatibility
+   troubleshooting
+   Motor-CAD_setup
    adaptive_templates
 
 
@@ -53,6 +55,7 @@ For more information on Adaptive Templates Scripting, see :ref:`ref_adaptive_tem
 
 Backwards compatibility with old scripts
 -----------------------------------------
+
 Altering old scripts for use with PyMotorCAD is straightforward and allows the user to take advantage of the improvements
 offered by PyMotorCAD over the previous Motor-CAD communication method (ActiveX).
 For information on converting ActiveX scripts to use PyMotorCAD, see :ref:`ref_backwards_compatibility`.

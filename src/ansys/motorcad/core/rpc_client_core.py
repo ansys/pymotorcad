@@ -38,6 +38,10 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 DONT_CHECK_MOTORCAD_VERSION = False
 
 
+def _is_running_in_internal_scripting():
+    return DEFAULT_INSTANCE != -1
+
+
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
     global SERVER_IP
@@ -45,7 +49,10 @@ def set_server_ip(ip):
 
 
 def set_default_instance(port):
-    """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD."""
+    """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD.
+
+    For Motor-CAD internal use only. Do not use this function.
+    """
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
