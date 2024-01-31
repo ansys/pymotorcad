@@ -18,16 +18,15 @@ This script is designed to be run from Motor-CAD template "i3".
 #
 # * Inner/outer posts
 
-import os
-
 # %%
 # Perform required imports
 # ------------------------
 # Import pymotorcad to access Motor-CAD.
 # Import Arc, Coordinate, Line, Region and rt_to_xy
 # to define the adaptive template geometry.
-# Import Path, tempfile and shutil
+# Import os, tempfile and shutil
 # to open and save a temporary .mot file if none is open.
+import os
 import shutil
 import tempfile
 

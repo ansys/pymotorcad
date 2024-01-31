@@ -49,7 +49,7 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 # Import pymotorcad to access Motor-CAD.
 # Import triangular_notch to create the notch geometry region
 # with Adaptive Template geometry.
-# Import Path, tempfile and shutil
+# Import os, tempfile and shutil
 # to open and save a temporary .mot file if none is open.
 import os
 import shutil
