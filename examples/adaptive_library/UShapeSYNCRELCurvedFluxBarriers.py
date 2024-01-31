@@ -18,6 +18,8 @@ This script is designed to be run from Motor-CAD template "i3".
 #
 # * Inner/outer posts
 
+import os
+
 # %%
 # Perform required imports
 # ------------------------
@@ -26,7 +28,6 @@ This script is designed to be run from Motor-CAD template "i3".
 # to define the adaptive template geometry.
 # Import Path, tempfile and shutil
 # to open and save a temporary .mot file if none is open.
-from pathlib import Path
 import shutil
 import tempfile
 
@@ -61,22 +62,22 @@ except pymotorcad.MotorCADError:
 # Check if a file is loaded already.
 # If not, open the i3 IPM motor template,
 # save the file to a temporary folder.
-if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
+if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
     mc.load_template("i3")
 
     # Open relevant file
-    working_folder = Path(tempfile.gettempdir()) / "adaptive_library"
+    working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
     try:
         shutil.rmtree(working_folder)
     except:
         pass
 
-    Path.mkdir(working_folder)
+    os.mkdir(working_folder)
     mot_name = "SYNCRELCurvedFluxBarriers"
-    mc.save_to_file(working_folder / (mot_name + ".mot"))
+    mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
 
 # %%

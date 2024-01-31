@@ -51,7 +51,7 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 # with Adaptive Template geometry.
 # Import Path, tempfile and shutil
 # to open and save a temporary .mot file if none is open.
-from pathlib import Path
+import os
 import shutil
 import tempfile
 
@@ -93,20 +93,14 @@ if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
     mc.load_template("e9")
 
     # Open relevant file
-   working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
-try:
-    shutil.rmtree(working_folder)
-except:
-    pass
-os.mkdir(working_folder)
+    working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
     try:
         shutil.rmtree(working_folder)
     except:
         pass
-
-    Path.mkdir(working_folder)
+    os.mkdir(working_folder)
     mot_name = "BPMTriRotorNotches"
-    mc.save_to_file(working_folder / (mot_name + ".mot"))
+    mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
 # %%
 # Set Adaptive Parameters if required
