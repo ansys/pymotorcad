@@ -86,7 +86,7 @@ except pymotorcad.MotorCADError:
 # Check if a file is loaded already.
 # If not, open the e9 IPM motor template,
 # save the file to a temporary folder.
-if mc.get_variable("CurrentMotFilePath_MotorLAB") == "":
+if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
