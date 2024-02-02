@@ -86,6 +86,12 @@ and the scripting interface enabled, which allows editing of the script.
 
     Geometry -> Editor -> Adaptive Templates tab in Ansys Motor-CAD 2024 R1
 
+To set an adaptive geometry for a Motor-CAD file,
+a script must be loaded in to the Adaptive Templates tab and run.
+Adaptive Templates Python scripts can also be executed externally,
+but unless the script is loaded in to the Adaptive Templates tab
+in Motor-CAD, the geometry will only be defined temporarily.
+
 Adaptive Templates Scripts require PyMotorCAD to be imported.
 This Python package provides access to Motor-CAD.
 

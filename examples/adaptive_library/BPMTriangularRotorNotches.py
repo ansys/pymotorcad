@@ -87,6 +87,7 @@ except pymotorcad.MotorCADError:
 # If not, open the e9 IPM motor template,
 # save the file to a temporary folder.
 if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
+    mode = "External_Run"
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
@@ -101,6 +102,9 @@ if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
     os.mkdir(working_folder)
     mot_name = "BPMTriRotorNotches"
     mc.save_to_file(working_folder + "/" + mot_name + ".mot")
+
+else:
+    mode = "Internal_Run"
 
 # %%
 # Set Adaptive Parameters if required
@@ -253,3 +257,9 @@ for notch_loop in range(0, number_notches):
 
 # %%
 # .. image:: ../../images/BPMTriangularRotorNotches.png
+
+
+if mode == "External_Run":
+    mc.set_variable("GeometryTemplateType", 1)
+    mc.load_adaptive_script(__file__)
+    mc.display_screen("Geometry;Radial")

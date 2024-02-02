@@ -11,14 +11,34 @@ This script is designed to be run from Motor-CAD template "i3".
 #    For more information on the use of Adaptive Templates in Motor-CAD,
 #    and how to create, modify and debug Adaptive Templates Scripts,
 #    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
-#
-# This script does not support:
-#
-# * Zero inner/outer layer thickness
-#
-# * Inner/outer posts
 
 # %%
+# .. note::
+#    This script does not support:
+#
+#    * Zero inner/outer layer thickness
+#
+#    * Inner/outer posts
+
+# %%
+# This script is designed to be run from Motor-CAD template "i3".
+# If no Motor-CAD file is open,
+# the i3 template will be loaded.
+#
+# To set an adaptive geometry for a Motor-CAD file,
+# a script must be loaded in to the Adaptive Templates tab
+# (Geometry -> Editor -> Adaptive Templates) in Motor-CAD
+# and run.
+# When the option 'Geometry Templates Type' is set to 'Adaptive',
+# this script is automatically run repeatedly
+# to keep the Adaptive Geometry set in Motor-CAD.
+#
+# .. image:: ../../images/Adaptive_Templates_GUI_Screenshot.png
+#
+# This Python script can also be executed externally,
+# but unless the script is loaded in to the Adaptive Templates tab
+# in Motor-CAD, the geometry will only be defined temporarily.
+#
 # Perform required imports
 # ------------------------
 # Import pymotorcad to access Motor-CAD.
