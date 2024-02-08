@@ -61,14 +61,16 @@ from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scriptin
 #
 # If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
 # template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, use the option
-# ``mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)`` when opening the new instance.
+# To keep a new Motor-CAD instance open after executing the script, the option
+# ``mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)`` is used when opening the new instance.
+# Alternatively, use ``mc = pymotorcad.MotorCAD()`` and the Motor-CAD instance will close after the
+# script is executed.
 
 if _is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 else:
-    mc = pymotorcad.MotorCAD()
+    mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
