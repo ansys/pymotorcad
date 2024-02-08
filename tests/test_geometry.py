@@ -1,7 +1,7 @@
 import builtins
 from copy import deepcopy
 import math
-from math import cos, degrees, inf, isclose, pi, radians, sin, sqrt
+from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
 import pytest
@@ -17,7 +17,6 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_drawing import draw_objects_debug
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -884,7 +883,6 @@ def test_arc_start_end_angle():
     radius = -2
 
     a0 = Arc(p_start, p_end, p_centre, radius)
-    draw_objects_debug(a0)
 
     assert a0.start_angle == -90
     assert a0.end_angle == 0
@@ -916,17 +914,18 @@ def test_arc_coordinate_on_entity():
 
     p0 = Coordinate(1, 1)
     p1 = Coordinate(1, -1)
-    radius = abs(cos(degrees(45)))
+    radius = sqrt(2)
 
     a1 = Arc(p0, p1, p_c, -radius)
+
     p_test1 = Coordinate(radius, 0)
     p_test2 = Coordinate(-radius, 0)
     assert a1.coordinate_on_entity(p_test1) is True
     assert a1.coordinate_on_entity(p_test2) is False
 
-    a1 = Arc(p0, p1, p_c, radius)
-    assert a1.coordinate_on_entity(p_test2) is True
-    assert a1.coordinate_on_entity(p_test1) is False
+    a2 = Arc(p0, p1, p_c, radius)
+    assert a2.coordinate_on_entity(p_test1) is False
+    assert a2.coordinate_on_entity(p_test2) is True
 
 
 def test_midpoints():
@@ -1656,7 +1655,7 @@ def test_translation_coord():
     assert c1 == c2
 
     c1 = Coordinate(1, 2)
-    c2 = Coordinate(-3.5, 1)
+    c2 = Coordinate(-1.5, 1)
     c1.translate(-2.5, -1)
     assert c1 == c2
 

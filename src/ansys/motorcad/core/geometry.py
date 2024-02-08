@@ -439,6 +439,9 @@ class Region(object):
                 entity.start = deepcopy(new_coordinates)
             if entity.end == old_coordinates:
                 entity.end = deepcopy(new_coordinates)
+            if isinstance(entity, Arc):
+                # Check Arc is still valid
+                _ = entity.centre
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
@@ -894,47 +897,14 @@ class Line(Entity):
             return None
 
 
-class Arc(Entity):
-    """Python representation of Motor-CAD arc entity based upon start, end, (centre or radius).
+class _BaseArc(Entity):
+    """Internal class to allow creation of Arcs."""
 
-    Parameters
-    ----------
-    start : Coordinate
-        Start coordinate.
-
-    end : Coordinate
-        End coordinate.
-
-    centre : Coordinate, optional
-       Centre coordinate.
-
-    radius : float, optional
-        Arc radius
-    """
-
-    def __init__(self, start, end, centre=None, radius=None):
-        """Initialise Arc."""
+    def __init__(self, start, end, centre, radius):
+        """Initialise base Arc object."""
         super().__init__(start, end)
-
-        if radius is not None:
-            # Always calculate radius
-            self.radius = radius
-            # Check we can get a valid centre for this geometry
-            _ = self.centre
-        elif centre is not None:
-            # Calc radius from centre point
-            r1 = abs(self.start - centre)
-            r2 = abs(self.end - centre)
-            if not isclose(r1, r2, abs_tol=1e-6):
-                raise Exception("It is not possible to draw an arc with this geometry")
-            else:
-                self.radius = r1
-
-            if _orientation_of_three_points(centre, self.start, self.end) is _Orientation.clockwise:
-                self.radius *= -1
-
-        else:
-            raise ValueError("You must specify either a centre point or radius for Arc object.")
+        self.centre = deepcopy(centre)
+        self.radius = radius
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
@@ -945,36 +915,6 @@ class Arc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
-
-    @property
-    def centre(self):
-        """Get centre point of circle defining arc.
-
-        Returns
-        -------
-            Coordinate
-        """
-        # Draw line between arc start/end
-        # get centre point of that line
-        p_centre = (self.end + self.start) / 2
-        # Get vector of that line
-        v_1 = self.end - self.start
-        # Get length div 2
-        d1 = abs(v_1) / 2
-
-        # Draw perpendicular line from centre point
-        radius, angle = v_1.get_polar_coords_deg()
-        perpendicular_angle = angle + 90 * (self.radius / abs(self.radius))
-
-        if abs(self.radius) < d1:
-            raise Exception("It is not possible to draw an arc with this geometry")
-
-        # Get vector from p_centre to centre point of arc
-        d_adjacent = sqrt(self.radius**2 - d1**2)
-        l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
-
-        # Apply vector to centre point of arc
-        return p_centre + Coordinate(l_x, l_y)
 
     @property
     def midpoint(self):
@@ -1213,6 +1153,97 @@ class Arc(Entity):
         arc_centre = Coordinate(intersection.x, intersection.y)
 
         return cls(start_point, end_point, arc_centre, radius)
+
+
+class Arc(_BaseArc):
+    """Python representation of Motor-CAD arc entity based upon start, end, (centre or radius).
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+
+    centre : Coordinate, optional
+       Centre coordinate.
+
+    radius : float, optional
+        Arc radius
+    """
+
+    def __init__(self, start, end, centre=None, radius=None):
+        """Initialise Arc."""
+        self.start = deepcopy(start)
+        self.end = deepcopy(end)
+
+        # Centre point of arc is valid in 2 different locations depending on angle smaller or
+        # greater than 180 deg
+        # Assume angle is <180 deg unless centre and radius are specified and prove otherwise
+        self._centre_point_pos = 1
+
+        if radius and centre:
+            # User has defined both radius and centre - normally assume angle is acute but need to
+            # check for this case
+            test_arc = _BaseArc(start, end, centre, radius)
+            test = test_arc.total_angle
+            if test > 180:
+                # Use second location of arc centre point since arc defined as >180 deg
+                self._centre_point_pos = 2
+
+        if radius is not None:
+            # Always calculate radius
+            self.radius = radius
+            # Check we can get a valid centre for this geometry
+            _ = self.centre
+        elif centre is not None:
+            # Calc radius from centre point
+            r1 = abs(self.start - centre)
+            r2 = abs(self.end - centre)
+            if not isclose(r1, r2, abs_tol=1e-6):
+                raise Exception("It is not possible to draw an arc with this geometry")
+            else:
+                self.radius = r1
+
+            if _orientation_of_three_points(centre, self.start, self.end) is _Orientation.clockwise:
+                self.radius *= -1
+        else:
+            raise ValueError("You must specify either a centre point or radius for Arc object.")
+
+    @property
+    def centre(self):
+        """Get centre point of circle defining arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        # Draw line between arc start/end
+        # get centre point of that line
+        p_centre = (self.end + self.start) / 2
+        # Get vector of that line
+        v_1 = self.end - self.start
+        # Get length div 2
+        d1 = abs(v_1) / 2
+
+        # Draw perpendicular line from centre point
+        radius, angle = v_1.get_polar_coords_deg()
+        perpendicular_angle = angle + 90 * (self.radius / abs(self.radius))
+
+        if abs(self.radius) < d1:
+            raise Exception("It is not possible to draw an arc with this geometry")
+
+        # Get vector from p_centre to centre point of arc
+        d_adjacent = sqrt(self.radius**2 - d1**2)
+        l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+        # Apply vector to centre point of arc
+        if self._centre_point_pos == 1:
+            return p_centre + Coordinate(l_x, l_y)
+        else:
+            # Arc had an angle defined as greater than 180 deg
+            return p_centre - Coordinate(l_x, l_y)
 
 
 class EntityList(list):
