@@ -325,6 +325,32 @@ class Region(object):
         else:
             raise Exception("Region can only be mirrored about Line()")
 
+    def rotate(self, centre_point, angle):
+        """Rotate Region around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            point to rotate Coordinate around.
+        angle : float
+            Angle of rotation in degrees. Anticlockwise direction is positive.
+        """
+        for entity in self.entities:
+            entity.rotate(centre_point, angle)
+
+    def translate(self, x, y):
+        """Translate Region by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        for entity in self.entities:
+            entity.translate(x, y)
+
     def update(self, region):
         """Update class fields from another region.
 
@@ -409,37 +435,10 @@ class Region(object):
             Position to move the point to
         """
         for entity in self.entities:
-            edited = False
-
             if entity.start == old_coordinates:
                 entity.start = deepcopy(new_coordinates)
-                edited = True
             if entity.end == old_coordinates:
                 entity.end = deepcopy(new_coordinates)
-                edited = True
-
-            if edited and isinstance(entity, Arc):
-                # Draw line between arc start/end
-                # get centre point of that line
-                p_centre = (entity.end + entity.start) / 2
-                # Get vector of that line
-                v_1 = entity.end - entity.start
-                # Get length div 2
-                d1 = abs(v_1) / 2
-
-                # Draw perpendicular line from centre point
-                radius, angle = v_1.get_polar_coords_deg()
-                perpendicular_angle = angle + 90 * (entity.radius / abs(entity.radius))
-
-                if entity.radius < d1:
-                    raise Exception("It is not possible to draw an arc with this geometry")
-
-                # Get vector from p_centre to centre point of arc
-                d_adjacent = sqrt(entity.radius**2 - d1**2)
-                l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
-
-                # Apply vector to centre point of arc
-                entity.centre = p_centre + Coordinate(l_x, l_y)
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
@@ -552,11 +551,7 @@ class Coordinate(object):
         centre_point : Coordinate
             point to rotate Coordinate around.
         angle : float
-            Angle of rotation in degrees.
-
-        Returns
-        -------
-        Coordinate
+            Angle of rotation in degrees. Anticlockwise direction is positive.
         """
         angle_r = radians(angle)
         x_new = centre_point.x + (
@@ -565,8 +560,21 @@ class Coordinate(object):
         y_new = centre_point.y + (
             (sin(angle_r) * (self.x - centre_point.x)) + (cos(angle_r) * (self.y - centre_point.y))
         )
+        self.x = x_new
+        self.y = y_new
 
-        return Coordinate(x_new, y_new)
+    def translate(self, x, y):
+        """Translate Coordinate by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        self.x += x
+        self.y += y
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
@@ -629,6 +637,32 @@ class Entity(object):
             return Entity(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
             raise Exception("Entity can only be mirrored about Line()")
+
+    def rotate(self, centre_point, angle):
+        """Rotate entity around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            Coordinate to rotate line around.
+        angle : float
+            Angle of rotation in degrees. Anticlockwise direction is positive.
+        """
+        self.start.rotate(centre_point, angle)
+        self.end.rotate(centre_point, angle)
+
+    def translate(self, x, y):
+        """Translate Entity by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        self.start.translate(x, y)
+        self.end.translate(x, y)
 
 
 class Line(Entity):
@@ -823,22 +857,6 @@ class Line(Entity):
 
         return isclose(abs(v1) + abs(v2), self.length, abs_tol=GEOM_TOLERANCE)
 
-    def rotate(self, centre_point, angle):
-        """Rotate line around a point for a given angle.
-
-        Parameters
-        ----------
-        centre_point : Coordinate
-            Coordinate to rotate line around.
-        angle : float
-            Angle of rotation in degrees.
-
-        Returns
-        -------
-        Line
-        """
-        return Line(self.start.rotate(centre_point, angle), self.end.rotate(centre_point, angle))
-
     def _line_equation(self):
         """Get value of coefficients of line in format A*x + B*y = C."""
         a = self.start.y - self.end.y
@@ -877,7 +895,7 @@ class Line(Entity):
 
 
 class Arc(Entity):
-    """Python representation of Motor-CAD arc entity based upon start, end, centre and radius.
+    """Python representation of Motor-CAD arc entity based upon start, end, (centre or radius).
 
     Parameters
     ----------
@@ -887,18 +905,36 @@ class Arc(Entity):
     end : Coordinate
         End coordinate.
 
-    centre :Coordinate
+    centre : Coordinate, optional
        Centre coordinate.
 
-    radius : float
+    radius : float, optional
         Arc radius
     """
 
-    def __init__(self, start, end, centre, radius):
+    def __init__(self, start, end, centre=None, radius=None):
         """Initialise Arc."""
         super().__init__(start, end)
-        self.radius = deepcopy(radius)
-        self.centre = deepcopy(centre)
+
+        if radius is not None:
+            # Always calculate radius
+            self.radius = radius
+            # Check we can get a valid centre for this geometry
+            _ = self.centre
+        elif centre is not None:
+            # Calc radius from centre point
+            r1 = abs(self.start - centre)
+            r2 = abs(self.end - centre)
+            if not isclose(r1, r2, abs_tol=1e-6):
+                raise Exception("It is not possible to draw an arc with this geometry")
+            else:
+                self.radius = r1
+
+            if _orientation_of_three_points(centre, self.start, self.end) is _Orientation.clockwise:
+                self.radius *= -1
+
+        else:
+            raise ValueError("You must specify either a centre point or radius for Arc object.")
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
@@ -909,6 +945,36 @@ class Arc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
+
+    @property
+    def centre(self):
+        """Get centre point of circle defining arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        # Draw line between arc start/end
+        # get centre point of that line
+        p_centre = (self.end + self.start) / 2
+        # Get vector of that line
+        v_1 = self.end - self.start
+        # Get length div 2
+        d1 = abs(v_1) / 2
+
+        # Draw perpendicular line from centre point
+        radius, angle = v_1.get_polar_coords_deg()
+        perpendicular_angle = angle + 90 * (self.radius / abs(self.radius))
+
+        if abs(self.radius) < d1:
+            raise Exception("It is not possible to draw an arc with this geometry")
+
+        # Get vector from p_centre to centre point of arc
+        d_adjacent = sqrt(self.radius**2 - d1**2)
+        l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+        # Apply vector to centre point of arc
+        return p_centre + Coordinate(l_x, l_y)
 
     @property
     def midpoint(self):
@@ -1059,9 +1125,7 @@ class Arc(Entity):
         """
         v_from_centre = coordinate - self.centre
         radius, _ = v_from_centre.get_polar_coords_deg()
-        return self.coordinate_within_arc_radius(coordinate) and isclose(
-            abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
-        )
+        return self.coordinate_within_arc_radius(coordinate) and (abs(radius) == abs(self.radius))
 
     @property
     def start_angle(self):
@@ -1129,8 +1193,10 @@ class Arc(Entity):
         #  |___________________________
 
         # Work out perpendicular lines
-        l1_p = l1.rotate(l1.midpoint, 90)
-        l2_p = l2.rotate(l2.midpoint, 90)
+        l1_p = deepcopy(l1)
+        l1_p.rotate(l1.midpoint, 90)
+        l2_p = deepcopy(l2)
+        l2_p.rotate(l2.midpoint, 90)
 
         # Get intersection of perpendicular lines
         intersection = l1_p.get_line_intersection(l2_p)
