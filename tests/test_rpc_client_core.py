@@ -106,6 +106,27 @@ def test_reusing_parallel_instances():
     mc3.set_free()
 
 
+# test keeping an instance open
+def test_keeping_instance_open():
+    # This should connect to mc test instance
+    mc2 = MotorCAD(keep_instance_open=True)
+
+    original_port = mc2.connection._port
+
+    # finished with this instance
+    del mc2
+
+    # connect to the same instance (if it is still open)
+    mc3 = pymotorcad.MotorCAD(open_new_instance=False)
+
+    # check the instance is the same as before
+    assert mc3.connection._port == original_port
+
+    mc3.quit()
+
+    del mc3
+
+
 # Check that Motor-CAD closes when Motor-CAD object is freed
 def test_deleting_object():
     mc3 = MotorCAD(open_new_instance=True)
