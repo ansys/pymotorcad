@@ -37,7 +37,8 @@ class _EntityPointValidation:
         for xy in self.points_array:
             # Try to find the closest point on the line
             test_line = deepcopy(self.entity)
-            angle = test_line.rotate(self.entity.midpoint, 90).angle
+            test_line.rotate(self.entity.midpoint, 90)
+            angle = test_line.angle
 
             p2 = xy + Coordinate.from_polar_coords(1, angle)
             line_t = Line(xy, p2)
