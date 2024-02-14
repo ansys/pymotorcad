@@ -117,7 +117,7 @@ def test_keeping_instance_open():
     del mc2
 
     # connect to the same instance (if it is still open)
-    mc3 = pymotorcad.MotorCAD(open_new_instance=False)
+    mc3 = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
 
     # check the instance is the same as before
     assert mc3.connection._port == original_port
