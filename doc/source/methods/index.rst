@@ -23,6 +23,27 @@ object, its single class, and its many methods, see
    In addition to giving the available methods, their replacement functions
    have been commented.
 
+Adaptive geometry
+------------------
+
+Adaptive geometry can be used to set up custom geometries in Motor-CAD.
+For descriptions of adaptive geometry objects and functions, see
+:ref:`ref_geometry_functions`.
+
+Utility functions
+------------------
+
+A number of utility functions are available to the user.
+For descriptions, see
+:ref:`ref_utility_functions`.
+
+Motor-CAD Errors
+----------------
+
+A class/exception type used for obtaining and handling errors from Motor-CAD.
+For descriptions, see
+:ref:`MotorCAD_errors`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -30,3 +51,5 @@ object, its single class, and its many methods, see
    MotorCAD_object
    MotorCADCompatibility_object
    geometry_functions
+   utility_functions
+   MotorCAD_errors
