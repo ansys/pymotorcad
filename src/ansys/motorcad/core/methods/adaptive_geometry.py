@@ -1,6 +1,6 @@
 """Methods for adaptive geometry."""
 from ansys.motorcad.core.geometry import Region
-from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -231,5 +231,5 @@ class _RpcMethodsAdaptiveGeometry:
         """Reset geometry to default."""
         method = "ResetGeometry"
         # No need to do this if running internally
-        if not _is_running_in_internal_scripting():
+        if not is_running_in_internal_scripting():
             return self.connection.send_and_receive(method)

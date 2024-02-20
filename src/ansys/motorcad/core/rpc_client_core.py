@@ -38,7 +38,8 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 DONT_CHECK_MOTORCAD_VERSION = False
 
 
-def _is_running_in_internal_scripting():
+def is_running_in_internal_scripting():
+    """Whether the script is running internally in Motor-CAD."""
     return DEFAULT_INSTANCE != -1
 
 
