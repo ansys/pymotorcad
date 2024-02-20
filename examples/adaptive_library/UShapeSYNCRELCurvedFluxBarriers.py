@@ -11,6 +11,9 @@ This script is designed to be run from Motor-CAD template "i3".
 #    For more information on the use of Adaptive Templates in Motor-CAD,
 #    and how to create, modify and debug Adaptive Templates Scripts,
 #    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
+#
+# .. note::
+#    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
 
 # %%
 # .. note::

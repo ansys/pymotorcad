@@ -4,7 +4,7 @@ Motor-CAD Adaptive Templates Scripting
 ======================================
 
 .. note::
-    Adaptive Templates in Motor-CAD require version 2024 R1 or later
+    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
 
 This guide describes the Adaptive Templates functionality.
 Motor-CAD provides the Adaptive Templates functionality

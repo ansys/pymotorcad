@@ -6,7 +6,7 @@ Library of adaptive templates examples for setting up custom geometries in Motor
 These scripts can be loaded into the Motor-CAD Adaptive Templates tab.
 
 .. note::
-    Adaptive Templates in Motor-CAD require version 2024 R1 or later
+    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
 
 .. note::
     For more information on the use of Adaptive Templates in Motor-CAD,

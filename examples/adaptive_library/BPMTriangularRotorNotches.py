@@ -11,6 +11,9 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 #    and debug Adaptive Templates Scripts, see :ref:`ref_adaptive_templates_UG` in the
 #    :ref:`ref_user_guide`.
 #
+# .. note::
+#    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
+#
 # This script is designed to be run from Motor-CAD template "e9". If no Motor-CAD file is open, the
 # e9 template will be loaded.
 #
@@ -62,8 +65,8 @@ from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scriptin
 # If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
 # template will be loaded and the file will be saved to a temporary folder.
 # To keep a new Motor-CAD instance open after executing the script, the option
-# ``mc = pymotorcad.MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``mc = pymotorcad.MotorCAD()`` and the Motor-CAD instance will close after the
+# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
+# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
 # script is executed.
 
 if _is_running_in_internal_scripting():
