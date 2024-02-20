@@ -389,8 +389,9 @@ please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive templates script can be edited from an external IDE (e.g. PyCharm, VSCode).
-When using an external IDE it is important to ensure that the script contains this method before getting/setting any Motor-CAD geometry:
+Adaptive templates script can be edited from an external IDE (for example: PyCharm, VSCode).
+When using an external IDE it is important to ensure that the script contains this method
+before getting/setting any Motor-CAD geometry:
 
 .. code:: python
 
@@ -403,7 +404,7 @@ it is useful to use the geometry drawing feature
 to plot the geometry objects and regions.
 ``ansys.motorcad.core.geometry_drawing`` contains the function
 ``draw_objects_debug()`` which can be used to plot any region
-that has been defined in Python. This function will only plot regions when called from an external IDE to assist with debugging scripts.
+that has been defined in Python. This function only plots regions when called from an external IDE to assist with debugging scripts.
 To plot regions from the Motor-CAD scripting interface, use ``draw_objects``.
 
 The geometry drawing package can be imported:

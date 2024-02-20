@@ -232,7 +232,7 @@ class _MotorCADConnection:
 
         if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
             # Try to resolve localhost at same time as checking for connection
-            # to decrease connection times
+            # to decrease connection _start_times
             self._connected = self._try_resolve_wait_for_response(self._timeout)
         else:
             # Check for response
