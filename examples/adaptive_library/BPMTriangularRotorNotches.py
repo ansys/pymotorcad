@@ -54,7 +54,6 @@ import tempfile
 
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry_shapes import triangular_notch
-from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 # %%
 # Connect to Motor-CAD
@@ -69,7 +68,7 @@ from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 # Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
 # script is executed.
 
-if is_running_in_internal_scripting():
+if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 else:
@@ -241,7 +240,7 @@ for notch_loop in range(0, number_notches):
 #   geometry
 
 
-if not is_running_in_internal_scripting():
+if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
