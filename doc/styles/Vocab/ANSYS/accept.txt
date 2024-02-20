@@ -13,3 +13,9 @@ optiSLang
 Scripting
 scripting
 snake_case
+GUI
+parameterisations
+colour
+airgap
+centre
+VSCode
