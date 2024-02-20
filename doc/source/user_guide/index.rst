@@ -42,7 +42,7 @@ For more information on using PyMotorCAD with an external Python installation, s
 
 PyMotorCAD can also be used in MATLAB, for information on this, see :ref:`ref_matlab_scripting`.
 
-Adaptive Templates Scripts
+Adaptive templates scripts
 --------------------------
 PyMotorCAD can be used to define Adaptive Templates Scripts
 for designing models with geometries that cannot be modelled
