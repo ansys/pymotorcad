@@ -344,12 +344,14 @@ class _RpcMethodsGeneral:
 
         Parameters
         ----------
-        mot_file : string or pathlib.Path
+        mot_file : str
             Full path to file, including file name. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
         method = "SaveToFile"
-        params = [str(mot_file)]
+        if not isinstance(mot_file, str):
+            mot_file = str(mot_file)
+        params = [mot_file]
         return self.connection.send_and_receive(method, params)
 
     def save_results(self, solution_type):
