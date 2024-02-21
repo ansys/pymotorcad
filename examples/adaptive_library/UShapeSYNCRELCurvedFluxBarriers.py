@@ -51,6 +51,7 @@ This script is designed to be run from Motor-CAD template "i3".
 # to open and save a temporary .mot file if none is open.
 import os
 import shutil
+import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
@@ -59,32 +60,21 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_
 # %%
 # Connect to Motor-CAD
 # --------------------
-# If this script is loaded into the Adaptive Templates file in Motor-CAD,
-# the current Motor-CAD instance will be used.
+# If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
+# instance will be used.
 #
-# If the script is run externally,
-# and a Motor-CAD instance is currently open,
-# that Motor-CAD instance will be used.
-# If no Motor-CAD instance is open,
-# a new Motor-CAD instance will be opened.
-# To keep a new Motor-CAD instance open after executing the script,
-# use the option ``mc = pymotorcad.MotorCAD(reuse_parallel_instances=True)``
-# when opening the new instance.
-try:
+# If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
+# template will be loaded and the file will be saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, the option
+# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
+# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# script is executed.
+
+if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
-    mc.connection.ensure_version_at_least("2024.1.1")
-except pymotorcad.MotorCADError:
-    # Otherwise open a new instance
-    mc = pymotorcad.MotorCAD()
-
-# %%
-# Load file if required
-# ---------------------
-# Check if a file is loaded already.
-# If not, open the i3 IPM motor template,
-# save the file to a temporary folder.
-if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
+else:
+    mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
@@ -96,10 +86,12 @@ if not mc.get_variable("CurrentMotFilePath_MotorLAB"):
         shutil.rmtree(working_folder)
     except:
         pass
-
     os.mkdir(working_folder)
     mot_name = "SYNCRELCurvedFluxBarriers"
     mc.save_to_file(working_folder + "/" + mot_name + ".mot")
+
+# Reset geometry to default
+mc.reset_adaptive_geometry()
 
 
 # %%
@@ -438,6 +430,24 @@ for layer in range(number_layers):
         if pocket_right.is_closed():
             # set region back into Motor-CAD
             mc.set_region(pocket_right)
+
+# %%
+# Load in Adaptive Templates Script if required
+# ---------------------------------------------
+# When the script is run externally:
+#
+# * Set Geometry type to "Adaptive"
+#
+# * Load the script into the Adaptive Templates tab
+#
+# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
+#   geometry
+
+
+if not pymotorcad.is_running_in_internal_scripting():
+    mc.set_variable("GeometryTemplateType", 1)
+    mc.load_adaptive_script(sys.argv[0])
+    mc.display_screen("Geometry;Radial")
 
 # %%
 # .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
