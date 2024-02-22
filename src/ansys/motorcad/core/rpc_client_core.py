@@ -157,6 +157,7 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
+        keep_instance_open,
         url="",
         timeout=2,
         compatibility_mode=False,
@@ -176,6 +177,8 @@ class _MotorCADConnection:
         reuse_parallel_instances: Boolean
             Whether to reuse MotorCAD instances when running in parallel. You must free
             instances after use.
+        keep_instance_open : Boolean, default: False
+            Whether to keep the Motor-CAD instance open after the instance becomes free.
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
@@ -193,6 +196,8 @@ class _MotorCADConnection:
 
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
+
+        self.keep_instance_open = keep_instance_open
 
         self._open_new_instance = open_new_instance
 
@@ -307,7 +312,11 @@ class _MotorCADConnection:
             and (self._compatibility_mode is False)
         ):
             # Local Motor-CAD has been launched by Python
-            return True
+            if self.keep_instance_open:
+                return False
+            else:
+                return True
+                # keep the instance open if specified
         elif _HAS_PIM and pypim.is_configured():
             # Always try to close Ansys Lab instance
             return True
