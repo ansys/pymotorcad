@@ -12,7 +12,9 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 #    :ref:`ref_user_guide`.
 #
 # .. note::
-#    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
+#    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later and
+#    PyMotorCAD v0.5.0. To update PyMotorCAD in Motor-CAD, go to Scripting -> Settings -> PyMotorCAD
+#    updates and select "Update to Latest Release".
 #
 # This script is designed to be run from Motor-CAD template "e9". If no Motor-CAD file is open, the
 # e9 template will be loaded.
