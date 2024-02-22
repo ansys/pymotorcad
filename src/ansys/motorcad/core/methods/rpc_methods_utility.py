@@ -19,9 +19,20 @@ class _RpcMethodsUtility:
         -------
         bool
             ``True`` if the Motor-CAD executable file is still running,
-            ``Fasle`` if this file is not running.
+            ``False`` if this file is not running.
         """
         if self.connection.pid != -1:
             return psutil.pid_exists(self.connection.pid)
         else:
             raise MotorCADError("Motor-CAD process is not created.")
+
+    def is_file_loaded(self):
+        """Check if a Motor-CAD file is loaded.
+
+        Returns
+        -------
+        bool
+            ``True`` if a Motor-CAD file is loaded,
+            ``False`` if no file is loaded in Motor-CAD.
+        """
+        return not self.get_variable("CurrentMotFilePath_MotorLAB")

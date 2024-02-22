@@ -38,7 +38,8 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 DONT_CHECK_MOTORCAD_VERSION = False
 
 
-def _is_running_in_internal_scripting():
+def is_running_in_internal_scripting():
+    """Whether the script is running internally in Motor-CAD."""
     return DEFAULT_INSTANCE != -1
 
 
@@ -231,7 +232,7 @@ class _MotorCADConnection:
 
         if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
             # Try to resolve localhost at same time as checking for connection
-            # to decrease connection times
+            # to decrease connection _start_times
             self._connected = self._try_resolve_wait_for_response(self._timeout)
         else:
             # Check for response
