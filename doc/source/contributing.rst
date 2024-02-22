@@ -54,7 +54,7 @@ Adhere to code style
 
 PyMotorCAD is compliant with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_. it
-uses the tool `pre-commit <pre-commit_>`_ to check the code style.
+uses the tool `pre-commit <pre-commit_>`_ to enforce the code style.
 You can install and activate this tool with this code::
 
     pip install pre-commit

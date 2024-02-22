@@ -349,6 +349,8 @@ class _RpcMethodsGeneral:
             syntax to force Python to ignore special characters.
         """
         method = "SaveToFile"
+        if not isinstance(mot_file, str):
+            mot_file = str(mot_file)
         params = [mot_file]
         return self.connection.send_and_receive(method, params)
 

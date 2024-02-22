@@ -118,12 +118,12 @@ class _RpcMethodsUI:
         ----------
         screen_name : str
             Name of the screen.
-        file_name : str
+        file_name : string or pathlib.Path
             Full path for the image file, including the file name and file extension. The
             extensions supported are BMP, JPG, and PNG.
         """
         method = "SaveScreenToFile"
-        params = [screen_name, file_name]
+        params = [screen_name, str(file_name)]
         return self.connection.send_and_receive(method, params)
 
     def set_3d_component_visibility(self, group_name, component_name, visibility):
