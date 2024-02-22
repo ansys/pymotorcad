@@ -391,7 +391,7 @@ please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive templates script can be edited from an external IDE (for example: PyCharm, VSCode).
+Adaptive templates script can be edited from an external IDE (for example PyCharm, VSCode).
 When using an external IDE it is important to ensure that the script contains this method
 before getting/setting any Motor-CAD geometry:
 

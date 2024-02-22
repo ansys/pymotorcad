@@ -312,7 +312,7 @@ class _MotorCADConnection:
             and (self._compatibility_mode is False)
         ):
             # Local Motor-CAD has been launched by Python
-            if self.keep_instance_open is True:
+            if self.keep_instance_open:
                 return False
             else:
                 return True
