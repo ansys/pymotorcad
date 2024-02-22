@@ -5,7 +5,7 @@ Motor-CAD adaptive templates scripting
 
 .. note::
     Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later and
-    PyMotorCAD v0.5.0. To update PyMotorCAD in Motor-CAD, go to Scripting -> Settings -> PyMotorCAD
+    PyMotorCAD v0.4.1. To update PyMotorCAD in Motor-CAD, go to Scripting -> Settings -> PyMotorCAD
     updates and select "Update to Latest Release".
 
 This guide describes the Adaptive Templates feature.
