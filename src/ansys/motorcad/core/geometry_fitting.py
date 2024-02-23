@@ -1,6 +1,6 @@
 """Unit containing functions for creating geometry using a list of points."""
 
-from copy import copy
+from copy import copy, deepcopy
 from enum import Enum
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line
@@ -36,7 +36,9 @@ class _EntityPointValidation:
     def _is_line_in_tolerance(self):
         for xy in self.points_array:
             # Try to find the closest point on the line
-            angle = self.entity.rotate(self.entity.midpoint, 90).angle
+            test_line = deepcopy(self.entity)
+            test_line.rotate(self.entity.midpoint, 90)
+            angle = test_line.angle
 
             p2 = xy + Coordinate.from_polar_coords(1, angle)
             line_t = Line(xy, p2)
