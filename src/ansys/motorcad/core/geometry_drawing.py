@@ -3,7 +3,7 @@ from copy import deepcopy
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Entity, Line, Region
-from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:
     import matplotlib.patches as mpatches
@@ -124,7 +124,7 @@ def draw_objects_debug(objects):
     objects : List of objects
         entities to draw
     """
-    if not _is_running_in_internal_scripting():
+    if not is_running_in_internal_scripting():
         draw_objects(objects)
 
 

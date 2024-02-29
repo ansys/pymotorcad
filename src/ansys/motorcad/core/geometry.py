@@ -282,7 +282,7 @@ class Region(object):
             return regions[1 : len(regions)]
 
     def unite(self, regions):
-        """Subtract region from self, returning any additional regions.
+        """Unite one or more other regions with self.
 
         Parameters
         ----------

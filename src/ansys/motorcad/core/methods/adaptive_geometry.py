@@ -1,6 +1,6 @@
 """Methods for adaptive geometry."""
 from ansys.motorcad.core.geometry import Region
-from ansys.motorcad.core.rpc_client_core import _is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -135,12 +135,12 @@ class _RpcMethodsAdaptiveGeometry:
 
         Parameters
         ----------
-        filepath : string
+        filepath : string or pathlib.Path
             full file path of script
         """
         self.connection.ensure_version_at_least("2024.0")
         method = "LoadAdaptiveScript"
-        params = [filepath]
+        params = [str(filepath)]
         return self.connection.send_and_receive(method, params)
 
     def unite_regions(self, region, regions):
@@ -227,5 +227,5 @@ class _RpcMethodsAdaptiveGeometry:
         """Reset geometry to default."""
         method = "ResetGeometry"
         # No need to do this if running internally
-        if not _is_running_in_internal_scripting():
+        if not is_running_in_internal_scripting():
             return self.connection.send_and_receive(method)
