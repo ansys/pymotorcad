@@ -10,6 +10,7 @@ Geometry objects
    :toctree: _autosummary_geometry_methods
 
    Region
+   RegionMagnet
    Coordinate
    Entity
    EntityList

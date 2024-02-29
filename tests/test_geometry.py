@@ -310,8 +310,7 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
 
-    region = geometry.Region()
-    region._from_json(raw_region)
+    region = geometry.Region._from_json(raw_region)
 
     assert region == test_region
 
