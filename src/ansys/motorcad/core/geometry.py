@@ -119,9 +119,10 @@ class Region(object):
 
         if is_magnet:
             new_region = RegionMagnet(motorcad_instance)
-            new_region._magnet_angle = json["_magnet_angle"]
+            new_region._magnet_angle = json["magnet_angle"]
             new_region._mag_factor = json["magnet_magfactor"]
             new_region._magnet_polarity = json["magnet_polarity"]
+            new_region._br_magnet = json["magnet_br_value"]
         else:
             new_region = cls(motorcad_instance)
 
@@ -505,7 +506,7 @@ class RegionMagnet(Region):
         region_dict = super()._to_json()
 
         region_dict["magnet_magfactor"] = self._mag_factor
-        region_dict["_magnet_angle"] = self._magnet_angle
+        region_dict["magnet_angle"] = self._magnet_angle
 
         return region_dict
 
