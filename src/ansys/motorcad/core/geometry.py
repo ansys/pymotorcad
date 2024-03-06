@@ -21,6 +21,8 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
+        self.singular = False
+        self.length = 0
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -38,6 +40,8 @@ class Region(object):
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self.duplications == other.duplications
             and self.entities == other.entities
+            and self.singular == other.singular
+            and self.length == other.length
         )
 
     @classmethod
@@ -125,6 +129,8 @@ class Region(object):
         self.entities = _convert_entities_from_json(json["entities"])
         self.parent_name = json["parent_name"]
         self._child_names = json["child_names"]
+        # self.singular = json["singular"]
+        # self.length = json["length"]
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -145,6 +151,8 @@ class Region(object):
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
+            "length": self.length,
+            "singular": self.singular,
         }
 
         return region_dict
@@ -1220,6 +1228,10 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+    @property
+    def get_entity_type_string_array(self):
+        return [str(type(entity)) for entity in self]
 
 
 def _convert_entities_to_json(entities):
