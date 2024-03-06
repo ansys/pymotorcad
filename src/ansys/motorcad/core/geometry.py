@@ -21,7 +21,7 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
-        self._region_type = RegionType.unknown
+        self._region_type = RegionType.adaptive
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -1607,4 +1607,3 @@ class RegionType(Enum):
     invalidduct = "Invalid Duct"
     impreglossslot_acloss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
-    unknown = "Unknown"
