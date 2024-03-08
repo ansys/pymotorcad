@@ -568,7 +568,7 @@ class RegionMagnet(Region):
         -------
         float
         """
-        return cos(radians(self.magnet_angle)) * self.br_value * self._mag_factor
+        return cos(radians(self.magnet_angle)) * self.br_used
 
     @property
     def br_y(self):
@@ -578,7 +578,7 @@ class RegionMagnet(Region):
         -------
         float
         """
-        return sin(radians(self.magnet_angle)) * self.br_value * self._mag_factor
+        return sin(radians(self.magnet_angle)) * self.br_used
 
     @property
     def br_used(self):
