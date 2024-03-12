@@ -4,6 +4,8 @@ from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
 
+GEOM_TOLERANCE = 1e-6
+
 
 class Region(object):
     """Python representation of Motor-CAD geometry region."""
@@ -483,8 +485,8 @@ class Coordinate(object):
         """Override the default equals implementation for Coordinate."""
         return (
             isinstance(other, Coordinate)
-            and isclose(self.x, other.x, abs_tol=1e-6)
-            and isclose(self.y, other.y, abs_tol=1e-6)
+            and isclose(self.x, other.x, abs_tol=GEOM_TOLERANCE)
+            and isclose(self.y, other.y, abs_tol=GEOM_TOLERANCE)
         )
 
     def __sub__(self, other):
@@ -697,7 +699,7 @@ class Line(Entity):
         -------
             boolean
         """
-        return self.end.x - self.start.x == 0
+        return isclose(self.end.x - self.start.x, 0, abs_tol=GEOM_TOLERANCE)
 
     @property
     def is_horizontal(self):
@@ -707,7 +709,7 @@ class Line(Entity):
         -------
             boolean
         """
-        return self.end.y - self.start.y == 0
+        return isclose(self.end.y - self.start.y, 0, abs_tol=GEOM_TOLERANCE)
 
     def mirror(self, mirror_line):
         """Mirror line about a line.
@@ -819,7 +821,7 @@ class Line(Entity):
         v1 = self.end - coordinate
         v2 = coordinate - self.start
 
-        return abs(v1) + abs(v2) == self.length
+        return isclose(abs(v1) + abs(v2), self.length, abs_tol=GEOM_TOLERANCE)
 
     def rotate(self, centre_point, angle):
         """Rotate line around a point for a given angle.
@@ -1057,7 +1059,9 @@ class Arc(Entity):
         """
         v_from_centre = coordinate - self.centre
         radius, _ = v_from_centre.get_polar_coords_deg()
-        return self.coordinate_within_arc_radius(coordinate) and (abs(radius) == abs(self.radius))
+        return self.coordinate_within_arc_radius(coordinate) and isclose(
+            abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
+        )
 
     @property
     def start_angle(self):
@@ -1113,7 +1117,7 @@ class Arc(Entity):
         l1 = Line(start_point, intersection_point)
         l2 = Line(intersection_point, end_point)
 
-        if isclose(l1.gradient, l2.gradient, abs_tol=1e-6):
+        if isclose(l1.gradient, l2.gradient, abs_tol=GEOM_TOLERANCE):
             # three points are on a straight line, no arc is possible
             return None
 
