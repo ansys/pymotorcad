@@ -30,7 +30,7 @@ class Region(object):
             and self.name == other.name
             and self.colour == other.colour
             # and self.area == other.area ->
-            # Already check entities - can't expect user to calculate ar ea
+            # Already check entities - can't expect user to calculate area
             # and self.centroid == other.centroid ->
             # Centroid calculated from entities - can't expect user to calculate
             # and self.region_coordinate == other.region_coordinate ->
