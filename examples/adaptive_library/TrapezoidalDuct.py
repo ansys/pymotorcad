@@ -77,13 +77,11 @@ def set_default_parameter(parameter_name, default_value):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The rectangle consists of two lines of length equal to the rectangle width. Only top line requires
 # modification. It is necessary to check whether the line is closest to the origin. Index ``i`` is
-# the line under investigation. Index ``j`` is the other line. If the radius of midpoint of line
+# the line under investigation. Index ``j`` is the adjacent line. If the radius of midpoint of line
 # ``i`` is less than that of line ``j`` , line ``i`` is closer to the origin.
 def check_line_origin_distance(i, duct_region):
     if i == 0:  # first index of rectangle duct
         j = 1
-    elif i == 3:  # last index of rectangle duct
-        j = 2
     else:
         j = i - 1
     rad_start_i, _ = xy_to_rt(duct_region.entities[i].start.x, duct_region.entities[i].start.y)
