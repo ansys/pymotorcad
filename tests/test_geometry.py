@@ -178,6 +178,18 @@ def test_get_region():
     assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 
 
+def test_get_region_dxf():
+    expected_region = mc.get_region("Shaft")
+
+    region = mc.get_region_dxf("Shaft")
+    assert region == expected_region
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region_dxf("Rotor")
+
+    assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
+
+
 def test_set_region():
     region = generate_constant_region()
     mc.set_region(region)
