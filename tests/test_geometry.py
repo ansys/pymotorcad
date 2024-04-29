@@ -179,13 +179,33 @@ def test_get_region():
 
 
 def test_get_region_dxf():
-    expected_region = mc.get_region("Shaft")
+    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    expected_region = geometry.Region()
+    expected_region.name = "Shaft"
+    expected_region.colour = (160, 160, 160)
+    expected_region.duplications = 8
+    expected_region.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(27.5, 0),
+            geometry.Coordinate(19.4454364826301, 19.4454364826301),
+            geometry.Coordinate(0, 0),
+            27.5,
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(
+            geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0)
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
+    )
 
     region = mc.get_region_dxf("Shaft")
     assert region == expected_region
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region_dxf("Rotor")
+        mc.get_region_dxf("Hello_World")
 
     assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 

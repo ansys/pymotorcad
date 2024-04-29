@@ -83,7 +83,8 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
-        region = Region._from_json(raw_region, motorcad_instance=self)
+        region = Region(motorcad_instance=self)
+        region._from_json(raw_region)
 
         return region
 
