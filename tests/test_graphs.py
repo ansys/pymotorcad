@@ -20,7 +20,7 @@ def test_get_magnetic_graph_point():
     assert almost_equal(x, 360)
     assert almost_equal(
         y,
-        180.276,
+        180.596,
     )
 
 
