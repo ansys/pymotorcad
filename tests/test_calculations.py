@@ -62,3 +62,21 @@ def test_calculate_force_harmonics_temporal():
 
 def test_do_weight_calculation():
     mc.do_weight_calculation()
+
+
+def test_create_winding_pattern():
+    # Copper solot fill definition so changing strands in hand will change wire diameter
+    wire_diameter = mc.get_variable("Wire_Diameter")
+    strands = mc.get_variable("NumberStrandsHand")
+
+    mc.set_variable("NumberStrandsHand", strands - 1)
+    # winding not updated yet
+    assert mc.get_variable("Wire_Diameter") == wire_diameter
+
+    mc.create_winding_pattern()
+    # less strands in hand -> larger wire diameter
+    assert mc.get_variable("Wire_Diameter") > wire_diameter
+
+    # Reset model
+    mc.set_variable("NumberStrandsHand", strands)
+    mc.create_winding_pattern()
