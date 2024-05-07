@@ -1,7 +1,10 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
-from math import atan2, degrees, inf, isclose, radians, sqrt
+from enum import Enum
+from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+
+GEOM_TOLERANCE = 1e-6
 
 
 class Region(object):
@@ -38,6 +41,14 @@ class Region(object):
             and self.duplications == other.duplications
             and self.entities == other.entities
         )
+
+    @classmethod
+    def from_coordinate_list(cls):
+        """Work in progress. Need to split up geometry first to avoid circular imports.
+
+        Use geometry_fitting.return_entity_list for now
+        """
+        pass
 
     def add_entity(self, entity):
         """Add entity to list of region entities.
@@ -252,7 +263,7 @@ class Region(object):
             return regions[1 : len(regions)]
 
     def unite(self, regions):
-        """Subtract region from self, returning any additional regions.
+        """Unite one or more other regions with self.
 
         Parameters
         ----------
@@ -294,7 +305,7 @@ class Region(object):
             Whether to apply a unique name to returned region
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Region
         """
         if isinstance(mirror_line, Line):
@@ -430,6 +441,28 @@ class Region(object):
                 # Apply vector to centre point of arc
                 entity.centre = p_centre + Coordinate(l_x, l_y)
 
+    def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
+        """Search through region to find an entity with start and end coordinates.
+
+        Order of coordinates does not matter.
+
+        Parameters
+        ----------
+        coordinate_1: ansys.motorcad.core.geometry.Coordinate
+        coordinate_2: ansys.motorcad.core.geometry.Coordinate
+
+        Returns
+        -------
+        Line or Arc entity
+        """
+        for entity in self.entities:
+            if (coordinate_1 == entity.start) and (coordinate_2 == entity.end):
+                return entity
+            elif (coordinate_1 == entity.end) and (coordinate_2 == entity.start):
+                return entity
+
+        return None
+
 
 class Coordinate(object):
     """Python representation of coordinate in two-dimensional space.
@@ -452,8 +485,8 @@ class Coordinate(object):
         """Override the default equals implementation for Coordinate."""
         return (
             isinstance(other, Coordinate)
-            and isclose(self.x, other.x, abs_tol=1e-6)
-            and isclose(self.y, other.y, abs_tol=1e-6)
+            and isclose(self.x, other.x, abs_tol=GEOM_TOLERANCE)
+            and isclose(self.y, other.y, abs_tol=GEOM_TOLERANCE)
         )
 
     def __sub__(self, other):
@@ -493,7 +526,7 @@ class Coordinate(object):
             Line entity to mirror coordinate about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Coordinate
         """
         if isinstance(mirror_line, Line):
@@ -509,7 +542,47 @@ class Coordinate(object):
                     2 * d * mirror_line.gradient - self.y + 2 * mirror_line.y_intercept,
                 )
         else:
-            raise Exception("Coordinate can only be mirrored about Line()")
+            raise Exception("Coordinate can only be mirrored about Line")
+
+    def rotate(self, centre_point, angle):
+        """Rotate Coordinate around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            point to rotate Coordinate around.
+        angle : float
+            Angle of rotation in degrees.
+
+        Returns
+        -------
+        Coordinate
+        """
+        angle_r = radians(angle)
+        x_new = centre_point.x + (
+            (cos(angle_r) * (self.x - centre_point.x)) + (-sin(angle_r) * (self.y - centre_point.y))
+        )
+        y_new = centre_point.y + (
+            (sin(angle_r) * (self.x - centre_point.x)) + (cos(angle_r) * (self.y - centre_point.y))
+        )
+
+        return Coordinate(x_new, y_new)
+
+    @classmethod
+    def from_polar_coords(cls, radius, theta):
+        """Create Coordinate from polar coordinates.
+
+        Parameters
+        ----------
+        radius : float
+            Radial coordinate.
+        theta : float
+            Angular coordinate.
+        Returns
+        -------
+        Coordinate
+        """
+        return cls(*rt_to_xy(radius, theta))
 
 
 class Entity(object):
@@ -526,8 +599,8 @@ class Entity(object):
 
     def __init__(self, start, end):
         """Initialise Entity."""
-        self.start = start
-        self.end = end
+        self.start = deepcopy(start)
+        self.end = deepcopy(end)
 
     def __eq__(self, other):
         """Override the default equals implementation for Entity."""
@@ -549,7 +622,7 @@ class Entity(object):
             Line entity to mirror entity about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Entity
         """
         if isinstance(mirror_line, Line):
@@ -590,7 +663,9 @@ class Line(Entity):
 
     @property
     def gradient(self):
-        """Get gradient of line.
+        """Get gradient of line - A in equation (y = Ax + B).
+
+        Undefined for vertical lines.
 
         Returns
         -------
@@ -603,7 +678,7 @@ class Line(Entity):
 
     @property
     def y_intercept(self):
-        """Get y intercept of line.
+        """Get y intercept of line - B in equation (y = Ax + B).
 
         Returns
         -------
@@ -624,7 +699,17 @@ class Line(Entity):
         -------
             boolean
         """
-        return self.end.x - self.start.x == 0
+        return isclose(self.end.x - self.start.x, 0, abs_tol=GEOM_TOLERANCE)
+
+    @property
+    def is_horizontal(self):
+        """Check whether line is horizontal.
+
+        Returns
+        -------
+            boolean
+        """
+        return isclose(self.end.y - self.start.y, 0, abs_tol=GEOM_TOLERANCE)
 
     def mirror(self, mirror_line):
         """Mirror line about a line.
@@ -635,7 +720,7 @@ class Line(Entity):
             Line entity to mirror Line about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Line
         """
         if isinstance(mirror_line, Line):
@@ -712,6 +797,16 @@ class Line(Entity):
         """
         return abs(self.end - self.start)
 
+    def __abs__(self):
+        """Override the default abs() implementation for Line."""
+        return self.length
+
+    @property
+    def angle(self):
+        """Get angle of line vector."""
+        _, angle = (self.end - self.start).get_polar_coords_deg()
+        return angle
+
     def coordinate_on_entity(self, coordinate):
         """Get if a coordinate exists on this line.
 
@@ -726,7 +821,59 @@ class Line(Entity):
         v1 = self.end - coordinate
         v2 = coordinate - self.start
 
-        return abs(v1) + abs(v2) == self.length
+        return isclose(abs(v1) + abs(v2), self.length, abs_tol=GEOM_TOLERANCE)
+
+    def rotate(self, centre_point, angle):
+        """Rotate line around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            Coordinate to rotate line around.
+        angle : float
+            Angle of rotation in degrees.
+
+        Returns
+        -------
+        Line
+        """
+        return Line(self.start.rotate(centre_point, angle), self.end.rotate(centre_point, angle))
+
+    def _line_equation(self):
+        """Get value of coefficients of line in format A*x + B*y = C."""
+        a = self.start.y - self.end.y
+        b = self.end.x - self.start.x
+        c = a * self.start.x + b * self.start.y
+
+        return a, b, c
+
+    def get_line_intersection(self, line):
+        """Get intersection Coordinate of line with another line.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or None
+        """
+        a_self, b_self, c_self = self._line_equation()
+        a_line, b_line, c_line = line._line_equation()
+
+        d_main = (a_self * b_line) - (b_self * a_line)
+        d_x = (c_self * b_line) - (b_self * c_line)
+        d_y = (a_self * c_line) - (c_self * a_line)
+
+        if d_main != 0:
+            x = d_x / d_main
+            y = d_y / d_main
+            return Coordinate(x, y)
+        else:
+            # Lines don't intersect
+            return None
 
 
 class Arc(Entity):
@@ -750,8 +897,8 @@ class Arc(Entity):
     def __init__(self, start, end, centre, radius):
         """Initialise Arc."""
         super().__init__(start, end)
-        self.radius = radius
-        self.centre = centre
+        self.radius = deepcopy(radius)
+        self.centre = deepcopy(centre)
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
@@ -836,7 +983,7 @@ class Arc(Entity):
             Line entity to mirror Line about
 
         Returns
-        ----------
+        -------
         ansys.motorcad.core.geometry.Arc
         """
         if isinstance(mirror_line, Line):
@@ -878,8 +1025,8 @@ class Arc(Entity):
 
         self.radius *= -1
 
-    def coordinate_on_entity(self, coordinate):
-        """Get if a coordinate exists on this Arc.
+    def coordinate_within_arc_radius(self, coordinate):
+        """Check if coordinate exists within arc radius.
 
         Parameters
         ----------
@@ -897,9 +1044,24 @@ class Arc(Entity):
         else:
             theta1 = (angle_to_check - self.end_angle) % 360
 
-        within_angle = theta1 <= self.total_angle
+        return theta1 <= self.total_angle
 
-        return within_angle and (abs(radius) == abs(self.radius))
+    def coordinate_on_entity(self, coordinate):
+        """Get if a coordinate exists on this Arc.
+
+        Parameters
+        ----------
+        coordinate : Coordinate
+            Check if this coordinate is on the Arc
+        Returns
+        -------
+        bool
+        """
+        v_from_centre = coordinate - self.centre
+        radius, _ = v_from_centre.get_polar_coords_deg()
+        return self.coordinate_within_arc_radius(coordinate) and isclose(
+            abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
+        )
 
     @property
     def start_angle(self):
@@ -935,6 +1097,56 @@ class Arc(Entity):
             return (self.end_angle - self.start_angle) % 360
         else:
             return (self.start_angle - self.end_angle) % 360
+
+    @classmethod
+    def from_coordinates(cls, start_point, intersection_point, end_point):
+        """Take three coordinates and converts to an arc.
+
+        Parameters
+        ----------
+        start_point: ansys.motorcad.core.geometry.Coordinate
+            Start coordinate of Arc.
+        intersection_point: ansys.motorcad.core.geometry.Coordinate
+            Coordinate which arc will intersect.
+        end_point: ansys.motorcad.core.geometry.Coordinate
+            End coordinate of Arc.
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Arc
+        """
+        l1 = Line(start_point, intersection_point)
+        l2 = Line(intersection_point, end_point)
+
+        if isclose(l1.gradient, l2.gradient, abs_tol=GEOM_TOLERANCE):
+            # three points are on a straight line, no arc is possible
+            return None
+
+        # Trying to get the intersection of perpendicular lines:
+        #  |
+        #  |
+        #  |              x
+        #  |
+        #  |___________________________
+
+        # Work out perpendicular lines
+        l1_p = l1.rotate(l1.midpoint, 90)
+        l2_p = l2.rotate(l2.midpoint, 90)
+
+        # Get intersection of perpendicular lines
+        intersection = l1_p.get_line_intersection(l2_p)
+
+        # Get appropriate sign for radius
+        if (
+            _orientation_of_three_points(start_point, intersection_point, end_point)
+            == _Orientation.anticlockwise
+        ):
+            radius = Line(start_point, intersection).length
+        else:
+            radius = -Line(start_point, intersection).length
+
+        arc_centre = Coordinate(intersection.x, intersection.y)
+
+        return cls(start_point, end_point, arc_centre, radius)
 
 
 class EntityList(list):
@@ -1162,3 +1374,37 @@ def rt_to_xy(radius, theta):
     y = coordinates_complex.imag
 
     return x, y
+
+
+class _Orientation(Enum):
+    clockwise = 1
+    anticlockwise = 2
+    collinear = 0
+
+
+def _orientation_of_three_points(c1, c2, c3):
+    """Find the orientation of three coordinates, this can be clockwise, anticlockwise or collinear.
+
+    Parameters
+    ----------
+    coordinate_1 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 1
+    c2 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 2
+    c3 : ansys.motorcad.core.geometry.Coordinate
+        Coordinate 3
+    Returns
+    -------
+        _Orientation
+    """
+    # To find the orientation of three coordinates
+    val = (float(c2.y - c1.y) * (c3.x - c2.x)) - (float(c2.x - c1.x) * (c3.y - c2.y))
+    if val > 0:
+        # Clockwise orientation
+        return _Orientation.clockwise
+    elif val < 0:
+        # Anticlockwise orientation
+        return _Orientation.anticlockwise
+    else:
+        # Collinear orientation
+        return _Orientation.collinear

@@ -349,6 +349,8 @@ class _RpcMethodsGeneral:
             syntax to force Python to ignore special characters.
         """
         method = "SaveToFile"
+        if not isinstance(mot_file, str):
+            mot_file = str(mot_file)
         params = [mot_file]
         return self.connection.send_and_receive(method, params)
 
@@ -421,13 +423,13 @@ class _RpcMethodsGeneral:
 
         Returns
         -------
-        list
-            List of messages. The most recent message is first. A
-            semicolon (;) separates the messages in the list.
+        List
+            List of messages.
         """
         method = "GetMessages"
         params = [num_messages]
-        return self.connection.send_and_receive(method, params)
+        messages = self.connection.send_and_receive(method, params)
+        return messages.split(";")
 
     def get_licence(self):
         """Check if a license is available for the current context and machine type.

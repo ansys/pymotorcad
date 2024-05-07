@@ -17,6 +17,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
         url="",
         timeout=2,
     ):
@@ -26,6 +27,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            keep_instance_open,
             url=url,
             timeout=timeout,
         )
@@ -48,8 +50,10 @@ class MotorCAD(_MotorCADCore):
     enable_success_variable : Boolean, default: False
         Whether Motor-CAD methods return a success variable (first object in tuple).
     reuse_parallel_instances : Boolean, default: False
-        Whether to reuse MotorCAD instances when running in parallel. You must
+        Whether to reuse Motor-CAD instances when running in parallel. You must
         free instances after use.
+    keep_instance_open : Boolean, default: False
+        Whether to keep the Motor-CAD instance open after the instance becomes free.
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
     Returns
@@ -64,6 +68,7 @@ class MotorCAD(_MotorCADCore):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
         url="",
     ):
         """Initiate MotorCAD object."""
@@ -74,6 +79,7 @@ class MotorCAD(_MotorCADCore):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            keep_instance_open=keep_instance_open,
             url=url,
         )
 
@@ -98,6 +104,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
         enable_exceptions=False,
         enable_success_variable=True,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
     ):
         """Create MotorCADCompatibility object."""
         self.connection = _MotorCADConnection(
@@ -106,6 +113,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            keep_instance_open=keep_instance_open,
             compatibility_mode=True,
         )
 
