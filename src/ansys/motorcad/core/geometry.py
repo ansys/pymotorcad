@@ -107,14 +107,14 @@ class Region(object):
     # method to receive region from Motor-CAD and create python object
     @classmethod
     def _from_json(cls, json, motorcad_instance=None):
-        """Convert class from json object.
+        """Convert the class from a JSON object.
 
         Parameters
         ----------
         json: dict
-            Represents geometry region
+            Dictionary representing the geometry region.
         motorcad_instance : ansys.motorcad.core.MotorCAD
-            Motor-CAD instance that is connected
+            Motor-CAD instance to connect to. The default is ``None``.
         """
         has_region_type = "region_type" in json
         is_magnet = has_region_type and (json["region_type"] == RegionType.magnet.value)
@@ -487,10 +487,10 @@ class Region(object):
 
 
 class RegionMagnet(Region):
-    """Python representation of Motor-CAD magnet geometry region."""
+    """Provides the Python representation of a Motor-CAD magnet geometry region."""
 
     def __init__(self, motorcad_instance=None):
-        """Initialise RegionMagnet."""
+        """Initialise a ``RegionMagnet`` instance."""
         super().__init__(motorcad_instance)
         self._magnet_angle = 0.0
         self._mag_factor = 0.0
@@ -498,12 +498,12 @@ class RegionMagnet(Region):
         self._magnet_polarity = ""
 
     def _to_json(self):
-        """Convert from Python class to Json object.
+        """Convert from a Python class to a JSON object.
 
         Returns
         -------
         dict
-            Geometry region json representation
+            Dictionary of the geometry region represented as JSON.
         """
         region_dict = super()._to_json()
 
@@ -544,7 +544,7 @@ class RegionMagnet(Region):
 
     @property
     def magnet_angle(self):
-        """Get angle of magnet (degrees).
+        """Angle of the magnet in degrees.
 
         Returns
         -------
@@ -574,7 +574,7 @@ class RegionMagnet(Region):
 
     @property
     def br_y(self):
-        """Get y axis component of br value.
+        """Y-axis component of the br value.
 
         Returns
         -------
@@ -594,7 +594,7 @@ class RegionMagnet(Region):
 
     @property
     def magnet_polarity(self):
-        """Get polarity of magnet.
+        """Polarity of the magnet.
 
         Returns
         -------
@@ -604,7 +604,7 @@ class RegionMagnet(Region):
 
 
 class Coordinate(object):
-    """Python representation of coordinate in two-dimensional space.
+    """Provides the Python representation of a coordinate in two-dimensional space.
 
     Parameters
     ----------
@@ -1550,7 +1550,7 @@ def _orientation_of_three_points(c1, c2, c3):
 
 
 class RegionType(Enum):
-    """Class to store region types for Motor-CAD regions."""
+    """Provides an enumeration for storing region types for Motor-CAD regions."""
 
     stator = "Stator"
     rotor = "Rotor"
