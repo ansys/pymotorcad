@@ -1590,7 +1590,5 @@ class RegionType(Enum):
     commutator = "Commutator"
     airgap = "Airgap"
     dxf_import = "DXF Import"
-    no_type = "No type"
-    invalid_duct = "Invalid Duct"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
