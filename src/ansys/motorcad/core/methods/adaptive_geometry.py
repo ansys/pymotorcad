@@ -70,7 +70,7 @@ class _RpcMethodsAdaptiveGeometry:
         Parameters
         ----------
         name : string
-            name of region.
+            Name of the region.
 
         Returns
         -------
@@ -78,7 +78,7 @@ class _RpcMethodsAdaptiveGeometry:
             Motor-CAD region object.
 
         """
-        self.connection.ensure_version_at_least("2024.0")
+        self.connection.ensure_version_at_least("2024.2.0")
         method = "GetRegion_DXF"
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
