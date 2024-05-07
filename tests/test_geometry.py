@@ -1639,7 +1639,7 @@ def test_get_set_region_magnet():
     magnet = mc.get_region("L1_1Magnet2")
     assert isinstance(magnet, RegionMagnet)
 
-    assert magnet.mag_factor == 1
+    assert magnet.br_multiplier == 1
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31
     assert magnet.magnet_angle == 22.5
@@ -1652,13 +1652,13 @@ def test_get_set_region_magnet():
     assert isclose(magnet.br_x, 1.31, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
 
-    magnet.mag_factor = 2
+    magnet.br_multiplier = 2
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
 
     mc.set_region(magnet)
     magnet = mc.get_region("L1_1Magnet2")
-    assert magnet.mag_factor == 2
+    assert magnet.br_multiplier == 2
     assert magnet.magnet_angle == 0
     assert magnet.magnet_polarity == "N"
     assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)

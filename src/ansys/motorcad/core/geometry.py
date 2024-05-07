@@ -122,7 +122,7 @@ class Region(object):
         if is_magnet:
             new_region = RegionMagnet(motorcad_instance)
             new_region._magnet_angle = json["magnet_angle"]
-            new_region._mag_factor = json["magnet_magfactor"]
+            new_region._br_multiplier = json["magnet_magfactor"]
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
         else:
@@ -490,7 +490,7 @@ class RegionMagnet(Region):
         """Initialise a ``RegionMagnet`` instance."""
         super().__init__(motorcad_instance)
         self._magnet_angle = 0.0
-        self._mag_factor = 0.0
+        self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
 
@@ -504,24 +504,24 @@ class RegionMagnet(Region):
         """
         region_dict = super()._to_json()
 
-        region_dict["magnet_magfactor"] = self._mag_factor
+        region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
 
         return region_dict
 
     @property
-    def mag_factor(self):
-        """Get mag_factor.
+    def br_multiplier(self):
+        """Get Br multiplier.
 
         Returns
         -------
         float
         """
-        return self._mag_factor
+        return self._br_multiplier
 
-    @mag_factor.setter
-    def mag_factor(self, mag_factor):
-        self._mag_factor = mag_factor
+    @br_multiplier.setter
+    def br_multiplier(self, br_multiplier):
+        self._br_multiplier = br_multiplier
 
     @property
     def br_value(self):
@@ -569,13 +569,13 @@ class RegionMagnet(Region):
 
     @property
     def br_used(self):
-        """Br used after applying mag factor.
+        """Br used after applying Br multiplier.
 
         Returns
         -------
         float
         """
-        return self._br_magnet * self.mag_factor
+        return self._br_magnet * self.br_multiplier
 
     @property
     def magnet_polarity(self):
