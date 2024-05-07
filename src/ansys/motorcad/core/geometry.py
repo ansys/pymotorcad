@@ -208,7 +208,6 @@ class Region(object):
 
     @parent_name.setter
     def parent_name(self, name):
-        """Set region parent name."""
         self._parent_name = name
 
     @property
@@ -229,7 +228,6 @@ class Region(object):
 
     @motorcad_instance.setter
     def motorcad_instance(self, mc):
-        """Set linked Motor-CAD instance."""
         # if isinstance(mc, _MotorCADConnection):
         #     raise Exception("Unable to set self.motorcad_instance,
         #                      mc is not a Motor-CAD connection")
@@ -261,7 +259,6 @@ class Region(object):
 
     @parent.setter
     def parent(self, region):
-        """Set parent region."""
         self._parent_name = region.name
 
     def subtract(self, region):
@@ -524,12 +521,6 @@ class RegionMagnet(Region):
 
     @mag_factor.setter
     def mag_factor(self, mag_factor):
-        """Set mag_factor.
-
-        Parameters
-        ----------
-        mag_factor : float
-        """
         self._mag_factor = mag_factor
 
     @property
@@ -554,12 +545,6 @@ class RegionMagnet(Region):
 
     @magnet_angle.setter
     def magnet_angle(self, magnet_angle):
-        """Set magnet angle (degrees).
-
-        Parameters
-        ----------
-        magnet_angle : float
-        """
         self._magnet_angle = magnet_angle
 
     @property
