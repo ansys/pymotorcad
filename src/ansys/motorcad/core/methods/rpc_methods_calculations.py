@@ -100,3 +100,11 @@ class _RpcMethodsCalculations:
         """Run the Motor-CAD mechanical calculation."""
         method = "DoMechanicalCalculation"
         return self.connection.send_and_receive(method)
+
+    def create_winding_pattern(self):
+        """Create winding pattern.
+
+        Refreshes the UI to recreate winding pattern. Will be replaced by direct API call soon.
+        """
+        self.display_screen("Scripting")
+        self.display_screen("Winding;Definition")

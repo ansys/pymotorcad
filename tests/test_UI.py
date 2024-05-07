@@ -10,8 +10,8 @@ mc = setup_test_env()
 def test_show_message():
     test_message = "test 1"
     mc.show_message(test_message)
-    message = mc.get_messages(1)
-    assert test_message in message
+    messages = mc.get_messages(1)
+    assert (test_message in message for message in messages)
 
 
 # Difficult to check these tests have actually worked

@@ -1,16 +1,22 @@
 import builtins
 from copy import deepcopy
 import math
-from math import cos, degrees, inf, isclose, radians, sin, sqrt
+from math import cos, degrees, inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
-from matplotlib import pyplot as plt
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy
-from ansys.motorcad.core.geometry_drawing import draw_regions
+from ansys.motorcad.core.geometry import (
+    Arc,
+    Coordinate,
+    Line,
+    _Orientation,
+    _orientation_of_three_points,
+    rt_to_xy,
+)
+from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 from setup_test import reset_to_default_file, setup_test_env
 
 # Get Motor-CAD exe
@@ -359,22 +365,22 @@ def test_region_get_parent():
     assert pocket.parent == expected_region
 
 
-# def test_region_set_parent():
-#     shaft = mc.get_region("Shaft")
-#     square = create_square()
-#     square.name = "square"
-#     square.parent = shaft
-#     mc.set_region(square)
-#
-#     shaft_expected = mc.get_region("Shaft")
-#     assert square.name in shaft_expected._child_names
-#
-#
-# def test_region_children():
-#     rotor = mc.get_region("rotor")
-#     children = rotor.children
-#
-#     assert len(children) == 16
+def test_region_set_parent():
+    shaft = mc.get_region("Shaft")
+    square = create_square()
+    square.name = "square"
+    square.parent = shaft
+    mc.set_region(square)
+
+    shaft_expected = mc.get_region("Shaft")
+    assert square.name in shaft_expected._child_names
+
+
+def test_region_children():
+    rotor = mc.get_region("rotor")
+    children = rotor.children
+
+    assert len(children) == 16
 
 
 def test_reverse_entity():
@@ -980,24 +986,6 @@ def test_total_angle():
     assert isclose(a1.total_angle, 60, abs_tol=1e-6)
 
 
-def test_draw_regions(monkeypatch):
-    # Just check it runs for now
-    # Stop plt.show() blocking tests
-    monkeypatch.setattr(plt, "show", lambda: None)
-
-    region = mc.get_region("Stator")
-    region2 = mc.get_region("StatorWedge")
-    region3 = mc.get_region("ArmatureSlotL1")
-
-    draw_regions(region)
-    draw_regions([region, region2, region3])
-
-    # Test overflow of colours
-    region4 = mc.get_region("StatorAir")
-    region5 = mc.get_region("Shaft")
-    draw_regions([region, region2, region3, region4, region5])
-
-
 def test_is_matplotlib_installed(monkeypatch):
     original_import = builtins.__import__
 
@@ -1454,4 +1442,192 @@ def test_coordinate_mirror_1():
     with pytest.raises(Exception) as e_info:
         coord.mirror(mirror_line)
 
-    assert "Coordinate can only be mirrored about Line()" in str(e_info.value)
+    assert "Coordinate can only be mirrored about Line" in str(e_info.value)
+
+
+def test_coordinate_rotation():
+    centre = Coordinate(0, 0)
+
+    c1 = Coordinate(10, 0)
+    c1 = c1.rotate(centre, 90)
+    assert c1 == Coordinate(0, 10)
+
+    c1 = Coordinate(10, 0)
+    c1 = c1.rotate(centre, -90)
+    assert c1 == Coordinate(0, -10)
+
+    centre = Coordinate(9, 0)
+    c1 = Coordinate(10, 0)
+    c1 = c1.rotate(centre, 90)
+    assert c1 == Coordinate(9, 1)
+
+
+def test_line_rotation():
+    centre = Coordinate(0, 0)
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 0)
+
+    l1 = Line(c1, c2)
+    l1 = l1.rotate(centre, 90)
+    assert l1 == Line(Coordinate(0, 0), Coordinate(0, 10))
+
+    l1 = Line(c1, c2)
+    old_mid = l1.midpoint
+    l1 = l1.rotate(l1.midpoint, 90)
+    assert l1 == Line(Coordinate(5, -5), Coordinate(5, 5))
+    assert l1.midpoint == old_mid
+
+
+def test_get_line_intersection():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 10)
+    l1 = Line(c1, c2)
+
+    c3 = Coordinate(0, 10)
+    c4 = Coordinate(10, 0)
+    l2 = Line(c3, c4)
+
+    assert l1.get_line_intersection(l2) == Coordinate(5, 5)
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 0)
+    l1 = Line(c1, c2)
+
+    c3 = Coordinate(0, 5)
+    c4 = Coordinate(10, 5)
+    l2 = Line(c3, c4)
+
+    assert l1.get_line_intersection(l2) is None
+
+
+def test_arc_from_coordinates():
+    c1 = Coordinate(1, 0)
+    c2 = Coordinate(sin(pi / 4), sin(pi / 4))
+    c3 = Coordinate(0, 1)
+
+    a1 = Arc.from_coordinates(c1, c2, c3)
+    assert a1 == Arc(c1, c3, Coordinate(0, 0), 1)
+
+    c1 = Coordinate(7, 11)
+    c2 = Coordinate(20, 10)
+    c3 = Coordinate(24, 7)
+
+    a1 = Arc.from_coordinates(c1, c2, c3)
+    assert a1 == Arc(
+        Coordinate(7, 11),
+        Coordinate(24, 7),
+        Coordinate(12.357142857142858, -4.357142857142857),
+        -16.264710766765287,
+    )
+
+
+def test_coordinate_from_polar_coords():
+    c1 = Coordinate.from_polar_coords(2 ** (1 / 2), 45)
+    assert c1 == Coordinate(1, 1)
+
+
+def test_line_angle():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 1)
+    l1 = Line(c1, c2)
+    assert l1.angle == 45
+
+    # negative
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(-1, -1)
+    l1 = Line(c1, c2)
+    assert l1.angle == -135
+
+    # vertical
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(0, 1)
+    l1 = Line(c1, c2)
+    assert l1.angle == 90
+
+    # vertical
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 0)
+    l1 = Line(c1, c2)
+    assert l1.angle == 0
+
+
+def test__orientation():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 1)
+    c3 = Coordinate(2, 2)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.collinear
+
+    c1 = Coordinate(0, 3)
+    c2 = Coordinate(4, 2)
+    c3 = Coordinate(3, 1)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.clockwise
+
+    c1 = Coordinate(0, 3)
+    c2 = Coordinate(1, 2)
+    c3 = Coordinate(9, 5)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.anticlockwise
+
+
+def test_line_is_horizontal():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert l1.is_horizontal
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 1)
+    l1 = Line(c1, c2)
+    assert not l1.is_horizontal
+
+
+def test_line_overrides():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert abs(l1) == 5
+
+
+def test_region_find_entity_from_coordinates():
+    c1 = create_square()
+
+    assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
+
+    assert (
+        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+    )
+
+
+def test_reset_geometry():
+    stator = mc.get_region("stator")
+
+    # When the new regions go out of scope they close Motor-CAD
+    # Do we need to fix this?
+    stator.motorcad_instance = None
+
+    stator_copy = deepcopy(stator)
+    stator_edited = deepcopy(stator)
+
+    stator_edited.edit_point(stator_edited.points[1], stator_edited.points[1] + Coordinate(5, 5))
+    assert stator_edited.entities != stator_copy.entities
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities == stator_copy.entities
+
+    save_default_instance = DEFAULT_INSTANCE
+    set_default_instance(mc.connection._port)
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    set_default_instance(save_default_instance)

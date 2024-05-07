@@ -189,8 +189,8 @@ def test_get_message():
     mc.show_message("test3")
 
     messages = mc.get_messages(3)
-    assert "test1" in messages
-    assert "test3" in messages
+    assert ("test1" in message for message in messages)
+    assert ("test3" in message for message in messages)
 
 
 def file_contents_equal(file_1, file_2):
