@@ -4,10 +4,7 @@ import pytest
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line
 from ansys.motorcad.core.geometry_drawing import draw_objects, draw_objects_debug
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
-from setup_test import setup_test_env
 
-# Get Motor-CAD exe
-mc = setup_test_env()
 drawing_flag = False
 
 
@@ -16,7 +13,7 @@ def set_drawing_flag(*args, **kwargs):
     drawing_flag = True
 
 
-def test_draw_objects_debug(monkeypatch):
+def test_draw_objects_debug(mc, monkeypatch):
     # Just check it runs for now
     # Stop plt.show() blocking tests
     global drawing_flag
@@ -38,7 +35,7 @@ def test_draw_objects_debug(monkeypatch):
     set_default_instance(save_def_instance)
 
 
-def test_draw_objects(monkeypatch):
+def test_draw_objects(mc, monkeypatch):
     # Just check it runs for now
     # Stop plt.show() blocking tests
     global drawing_flag

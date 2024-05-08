@@ -1,15 +1,9 @@
 # import pytest
 
-from RPC_Test_Common import almost_equal
-
-# from ansys.motorcad.core import MotorCADError
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
+from RPC_Test_Common import almost_equal, reset_to_default_file
 
 
-def test_get_magnetic_graph_point():
+def test_get_magnetic_graph_point(mc):
     reset_to_default_file(mc)
 
     mc.set_variable("TorqueCalculation", True)
@@ -24,7 +18,7 @@ def test_get_magnetic_graph_point():
     )
 
 
-def test_get_temperature_graph_point():
+def test_get_temperature_graph_point(mc):
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
 
@@ -36,7 +30,7 @@ def test_get_temperature_graph_point():
     assert almost_equal(y, 47.66)
 
 
-def test_get_temperature_graph():
+def test_get_temperature_graph(mc):
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
 
@@ -49,7 +43,7 @@ def test_get_temperature_graph():
     assert almost_equal(y, y1[4])
 
 
-def test_get_power_graph_point():
+def test_get_power_graph_point(mc):
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
 
@@ -61,7 +55,7 @@ def test_get_power_graph_point():
     assert almost_equal(y, 341.3)
 
 
-def test_get_power_graph():
+def test_get_power_graph(mc):
     reset_to_default_file(mc)
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
@@ -75,7 +69,7 @@ def test_get_power_graph():
     assert almost_equal(y, y1[4])
 
 
-def test_get_magnetic_graph():
+def test_get_magnetic_graph(mc):
     reset_to_default_file(mc)
     mc.set_variable("TorqueCalculation", True)
 

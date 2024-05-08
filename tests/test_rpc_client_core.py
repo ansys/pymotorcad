@@ -7,15 +7,11 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import MotorCAD, MotorCADWarning
+from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
-from setup_test import setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 
-def test__find_free_motor_cad():
+def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
     mc2 = MotorCAD(open_new_instance=False)
 
@@ -48,7 +44,7 @@ def test_set_motorcad_exe():
 
 
 # Test the method used to connect to Motor-CAD from internal scripting
-def test_internal_connection():
+def test_internal_connection(mc):
     port = mc.connection._port
 
     pymotorcad.rpc_client_core.set_default_instance(port)
@@ -66,14 +62,16 @@ def test_open_new_with_port():
     test_port = 36020
 
     mc2 = MotorCAD(open_new_instance=True, port=test_port)
-
-    assert mc2.connection._port == test_port
-
-    mc2.quit()
+    try:
+        assert mc2.connection._port == test_port
+    except Exception as e:
+        raise e
+    finally:
+        mc2.quit()
 
 
 # Test connecting to known Motor-CAD instance
-def test_connect_existing_with_port():
+def test_connect_existing_with_port(mc):
     test_port = mc.connection._port
 
     mc2 = MotorCAD(open_new_instance=False, port=test_port)
@@ -81,29 +79,46 @@ def test_connect_existing_with_port():
     assert mc2.connection._port == test_port
 
 
-def test_reusing_parallel_instances():
+def test_reusing_parallel_instances(mc, monkeypatch):
     # This should connect to mc test instance
-    mc2 = MotorCAD(reuse_parallel_instances=True)
-    original_port = mc2.connection._port
+    mc2 = MotorCAD(reuse_parallel_instances=True, port=mc.connection._port)
+    try:
+        original_port = mc2.connection._port
 
-    mc3 = MotorCAD(reuse_parallel_instances=True)
+        # Force open another Motor-CAD to avoid hijacking existing instance
+        mock_set_busy = create_autospec(_MotorCADConnection._set_busy, return_value=False)
+        monkeypatch.setattr(_MotorCADConnection, "_set_busy", mock_set_busy)
 
-    # Ensure connected to different instances
-    assert mc3.connection._port != original_port
-
-    # close second instance
-    mc3.quit()
-
-    mc2.set_free()
+        mc3 = MotorCAD(reuse_parallel_instances=True)
+        try:
+            # Ensure connected to different instances
+            assert mc3.connection._port != original_port
+        except Exception as e:
+            raise e
+        finally:
+            # close second instance
+            mc3.quit()
+    except Exception as e:
+        raise e
+    finally:
+        # close second instance
+        mc2.set_free()
 
     # Check that original python object deleting doesn't close Motor-CAD
     del mc2
 
-    mc3 = MotorCAD(reuse_parallel_instances=True)
+    assert mc.is_open()
 
-    assert mc3.connection._port == original_port
 
-    mc3.set_free()
+def test_set_busy(mc):
+    mc.set_free()
+    mc2 = MotorCAD(open_new_instance=False, port=mc.connection._port)
+
+    mc2.connection._set_busy()
+
+    mc3 = MotorCAD(open_new_instance=False, port=mc.connection._port)
+    with pytest.raises(MotorCADError):
+        mc3.connection._set_busy()
 
 
 # test keeping an instance open
@@ -141,7 +156,7 @@ def test_deleting_object():
     assert pid_exists(proc_id) is False
 
 
-def test_rpc_communication_error():
+def test_rpc_communication_error(mc):
     # raise error by calling method with incorrect params
     with pytest.raises(Exception) as e_info:
         mc.connection.send_and_receive("GetVariable", ["var", "extra params", 1])
@@ -171,13 +186,13 @@ def test_ensure_version_later_than():
     #     mock_motorcad_connection.ensure_version_at_least("2023.2.0")
 
 
-def test_ansys_labs_connection(monkeypatch):
+def test_ansys_labs_connection(mc, monkeypatch):
     # Use existing Motor-CAD (mc.connection._port)
     mock_instance = pypim.Instance(
         definition_name="definitions/fake-motorcad",
         name="instances/fake-motorcad",
         ready=True,
-        status_message=None,
+        status_message="",
         services={
             "http": pypim.Service(uri="http://localhost:" + str(mc.connection._port), headers={})
         },
@@ -220,7 +235,7 @@ class FakeRequestsPostWithWarning:
         return response
 
 
-def test_warnings(monkeypatch):
+def test_warnings(mc, monkeypatch):
     # Create fake request result so we can test this before Motor-CAD 24R1
     # TODO - replace with actual call with warnings e.g. set_region
     monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
@@ -230,7 +245,7 @@ def test_warnings(monkeypatch):
         mc.get_variable("n/a")
 
 
-def test_using_url_to_connect():
+def test_using_url_to_connect(mc):
     port = mc.connection._port
     url = "http://localhost:" + str(port)
     full_url = url + "/jsonrpc"
@@ -241,20 +256,27 @@ def test_using_url_to_connect():
 
 def test__resolve_localhost():
     mc2 = MotorCAD()
+    try:
+        # Reset SERVER_IP since this will have been resolved on initial Motor-CAD connection
+        pymotorcad.set_server_ip(pymotorcad.rpc_client_core.LOCALHOST_ADDRESS)
 
-    # Reset SERVER_IP since this will have been resolved on initial Motor-CAD connection
-    pymotorcad.set_server_ip(pymotorcad.rpc_client_core.LOCALHOST_ADDRESS)
+        full_url = (
+            pymotorcad.rpc_client_core.LOCALHOST_ADDRESS
+            + ":"
+            + str(mc2.connection._port)
+            + "/jsonrpc"
+        )
 
-    full_url = (
-        pymotorcad.rpc_client_core.LOCALHOST_ADDRESS + ":" + str(mc2.connection._port) + "/jsonrpc"
-    )
+        assert mc2.connection._get_url() == full_url
 
-    assert mc2.connection._get_url() == full_url
+        ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
+        ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
 
-    ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
-    ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
+        mc2.connection._resolve_localhost()
 
-    mc2.connection._resolve_localhost()
-
-    current_url = mc2.connection._get_url()
-    assert current_url in [ipv4_localhost, ipv6_localhost]
+        current_url = mc2.connection._get_url()
+        assert current_url in [ipv4_localhost, ipv6_localhost]
+    except Exception as e:
+        raise e
+    finally:
+        mc2.quit()
