@@ -1,11 +1,7 @@
 import pytest
 
-from RPC_Test_Common import almost_equal, get_temp_files_dir_path
+from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
 from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 MATERIAL_INVALID_NAME = "invalid material name here"
 MATERIAL_EPOXY = "Epoxy"
@@ -15,13 +11,13 @@ X_INVALID = 10000000
 Y_INVALID = 10000000
 
 
-def reset_model_geometry():
+def reset_model_geometry(mc):
     mc.reset_regions()
     mc.set_variable("UseDXFImportForFEA_Magnetic", False)
 
 
 # Draw square with centre at 5,5
-def draw_square():
+def draw_square(mc):
     # point coordinates
     x1 = 0
     y1 = 0
@@ -53,7 +49,7 @@ def test_initiate_geometry_from_script():
     assert True
 
 
-def test_add_line_xy():
+def test_add_line_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -61,7 +57,7 @@ def test_add_line_xy():
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    draw_square()
+    draw_square(mc)
 
     mc.add_region_xy(5, 5, "test_region")
 
@@ -72,10 +68,10 @@ def test_add_line_xy():
     # assert almost_equal(region["RegionArea"], 100)
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_line_rt():
+def test_add_line_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -108,10 +104,10 @@ def test_add_line_rt():
     # assert almost_equal(region["RegionArea"], 100)
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_arc_xy():
+def test_add_arc_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -138,10 +134,10 @@ def test_add_arc_xy():
     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_arc_rt():
+def test_add_arc_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -171,10 +167,10 @@ def test_add_arc_rt():
     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_arc_centre_start_end_xy():
+def test_add_arc_centre_start_end_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -205,10 +201,10 @@ def test_add_arc_centre_start_end_xy():
     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_arc_centre_start_end_rt():
+def test_add_arc_centre_start_end_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -241,10 +237,10 @@ def test_add_arc_centre_start_end_rt():
     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
     # RegionArea not working in this function - don't bother fixing since these will be deprecated
     assert region["RegionName"] == "test_region"
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_region_xy():
+def test_add_region_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -254,7 +250,7 @@ def test_add_region_xy():
     x_c = 5
     y_c = 5
 
-    draw_square()
+    draw_square(mc)
 
     region_name = "test_region"
 
@@ -271,10 +267,10 @@ def test_add_region_xy():
         mc.add_region_xy(X_INVALID, Y_INVALID, region_name)
 
     assert "Could not find region" in str(e_info.value)
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_region_rt():
+def test_add_region_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -286,7 +282,7 @@ def test_add_region_rt():
     y_c = 5
     r_c, t_c = xy_to_rt(x_c, y_c)
 
-    draw_square()
+    draw_square(mc)
 
     region_name = "test_region"
 
@@ -297,11 +293,11 @@ def test_add_region_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == region_name
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
 # Draw region that can be added as a magnet
-def draw_magnet(x_c, y_c):
+def draw_magnet(mc, x_c, y_c):
     # Ensure magnetic context active for FEA tests
 
     radius = 2
@@ -313,7 +309,7 @@ def draw_magnet(x_c, y_c):
 
 # Can be improved by adding to get_region_properties
 # Currently magnet properties aren't available
-def test_add_magnet_region_xy():
+def test_add_magnet_region_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -326,7 +322,7 @@ def test_add_magnet_region_xy():
     x_c = 15
     y_c = 15
 
-    draw_magnet(x_c, y_c)
+    draw_magnet(mc, x_c, y_c)
 
     magnet_name = "magnet_test"
     magnet_material = "N30UH"
@@ -375,10 +371,10 @@ def test_add_magnet_region_xy():
         )
 
     assert "is not a magnet material" in str(e_info.value)
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_magnet_region_rt():
+def test_add_magnet_region_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -392,7 +388,7 @@ def test_add_magnet_region_rt():
 
     r_c, t_c = xy_to_rt(x_c, y_c)
 
-    draw_magnet(x_c, y_c)
+    draw_magnet(mc, x_c, y_c)
 
     magnet_name = "magnet_test"
     magnet_material = "N30UH"
@@ -408,7 +404,7 @@ def test_add_magnet_region_rt():
     region = mc._get_region_properties_xy(x_c, y_c)
 
     assert region["RegionName"] == magnet_name
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
 def test_get_region_properties_xy():
@@ -422,7 +418,7 @@ def test_get_region_properties_xy():
     assert True
 
 
-def test_add_point_custom_material_xy():
+def test_add_point_custom_material_xy(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -432,7 +428,7 @@ def test_add_point_custom_material_xy():
     x_c = 5
     y_c = 5
 
-    draw_square()
+    draw_square(mc)
 
     # Valid region
     region_name = "test_region"
@@ -463,10 +459,10 @@ def test_add_point_custom_material_xy():
         mc.add_point_custom_material_xy(x_c, y_c, region_name, MATERIAL_INVALID_NAME, colour)
 
     assert "Material does not exist in database" in str(e_info.value)
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_add_point_custom_material_rt():
+def test_add_point_custom_material_rt(mc):
     # Ensure magnetic context active for FEA tests
     mc.show_magnetic_context()
 
@@ -479,7 +475,7 @@ def test_add_point_custom_material_rt():
 
     r_c, t_c = xy_to_rt(x_c, y_c)
 
-    draw_square()
+    draw_square(mc)
 
     region_name = "test_region"
     material_name = "M43"
@@ -494,10 +490,10 @@ def test_add_point_custom_material_rt():
     assert region["RegionName"] == region_name
     assert region["MaterialName"] == material_name
     assert hex(region["Colour"]) == colour_code
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_edit_magnet_region():
+def test_edit_magnet_region(mc):
     reset_to_default_file(mc)
 
     # Ensure magnetic context active for FEA tests
@@ -511,10 +507,10 @@ def test_edit_magnet_region():
     # Can't currently access magnet properties except for material name
     # This needs improving in the future
     assert region["MaterialName"] == material_name
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
-def test_get_region_value():
+def test_get_region_value(mc):
     # Ensure magnetic context active for FEA tests
     reset_to_default_file(mc)
 
@@ -530,4 +526,4 @@ def test_get_region_value():
 
     assert almost_equal(value, 0.00169, 4)
     assert almost_equal(area, 0.00181, 4)
-    reset_model_geometry()
+    reset_model_geometry(mc)
