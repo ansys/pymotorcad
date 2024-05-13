@@ -57,7 +57,7 @@ def test_add_line_xy(mc):
     mc.clear_all_data()
     mc.initiate_geometry_from_script()
 
-    draw_square()
+    draw_square(mc)
 
     mc.add_region_xy(5, 5, "test_region")
 
@@ -371,7 +371,7 @@ def test_add_magnet_region_xy(mc):
         )
 
     assert "is not a magnet material" in str(e_info.value)
-    reset_model_geometry()
+    reset_model_geometry(mc)
 
 
 def test_add_magnet_region_rt(mc):
@@ -428,7 +428,7 @@ def test_add_point_custom_material_xy(mc):
     x_c = 5
     y_c = 5
 
-    draw_square()
+    draw_square(mc)
 
     # Valid region
     region_name = "test_region"

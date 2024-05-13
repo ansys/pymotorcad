@@ -1060,7 +1060,7 @@ def test_edit_point():
     assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
-def test_subtract_regions():
+def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
     # |--------|    |--------|

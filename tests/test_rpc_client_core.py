@@ -86,7 +86,7 @@ def test_reusing_parallel_instances(mc, monkeypatch):
         original_port = mc2.connection._port
 
         # Force open another Motor-CAD to avoid hijacking existing instance
-        mock_set_busy = create_autospec(_MotorCADConnection._set_busy, return_value=False)
+        mock_set_busy = create_autospec(_MotorCADConnection._set_busy, return_value=1)
         monkeypatch.setattr(_MotorCADConnection, "_set_busy", mock_set_busy)
 
         mc3 = MotorCAD(reuse_parallel_instances=True)
@@ -111,9 +111,8 @@ def test_reusing_parallel_instances(mc, monkeypatch):
 
 
 def test_set_busy(mc):
-    mc.set_free()
     mc2 = MotorCAD(open_new_instance=False, port=mc.connection._port)
-
+    mc2.set_free()
     mc2.connection._set_busy()
 
     mc3 = MotorCAD(open_new_instance=False, port=mc.connection._port)
