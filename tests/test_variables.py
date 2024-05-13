@@ -1,13 +1,10 @@
 import pytest
 
+from RPC_Test_Common import reset_to_default_file
 from ansys.motorcad.core import MotorCADError
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 
-def test_get_variable():
+def test_get_variable(mc):
     # normal call and checks result isn't wild
     var = mc.get_variable("tooth_width")
     assert var > 0
@@ -30,7 +27,7 @@ def test_get_variable():
     assert isinstance(var, str)
 
 
-def test_set_variable():
+def test_set_variable(mc):
     # Standard call and check var has been set
     # Might be better to move this to some longer test sequences
     # Can specify order of tests so can run sequences after short tests
@@ -50,7 +47,7 @@ def test_set_variable():
     assert mc.get_variable("Discovery_FileName") == "test"
 
 
-def test_get_array_variable():
+def test_get_array_variable(mc):
     reset_to_default_file(mc)
 
     var = mc.get_array_variable("Duty_Cycle_Time", 2)
@@ -63,7 +60,7 @@ def test_get_array_variable():
     assert isinstance(var, bool)
 
 
-def test_set_array_variable():
+def test_set_array_variable(mc):
     # Float
     mc.set_array_variable("Duty_Cycle_Time", 2, 30)
     var = mc.get_array_variable("Duty_Cycle_Time", 2)
@@ -80,7 +77,7 @@ def test_set_array_variable():
     assert var is True
 
 
-def test_get_set_array_variable_2d():
+def test_get_set_array_variable_2d(mc):
     test_value = 10
 
     save_value = mc.get_array_variable_2d("ConductorCentre_L_x", 2, 2)
@@ -94,7 +91,7 @@ def test_get_set_array_variable_2d():
     mc.set_array_variable_2d("ConductorCentre_L_x", 2, 2, save_value)
 
 
-def test_restore_compatibility_settings():
+def test_restore_compatibility_settings(mc):
     test_compatibility_setting = "EWdgAreaCalculation"
     original_method = 0
     improved_method = 1

@@ -6,7 +6,7 @@ import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path
+from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     Arc,
@@ -18,10 +18,6 @@ from ansys.motorcad.core.geometry import (
     rt_to_xy,
 )
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 
 def generate_constant_region():
@@ -86,7 +82,7 @@ def create_lines_from_points(points):
     return lines
 
 
-def test_set_get_winding_coil():
+def test_set_get_winding_coil(mc):
     phase = 1
     path = 1
     coil = 1
@@ -116,7 +112,7 @@ def test_set_get_winding_coil():
     assert turns == turns_test
 
 
-def test_check_if_geometry_is_valid():
+def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
     mc.check_if_geometry_is_valid(0)
 
@@ -132,7 +128,7 @@ def test_check_if_geometry_is_valid():
     mc.set_variable("Slot_Depth", save_slot_depth)
 
 
-def test_set_adaptive_parameter_value():
+def test_set_adaptive_parameter_value(mc):
     parameter_name = "test_parameter"
     parameter_value = 100
 
@@ -147,26 +143,26 @@ def test_set_adaptive_parameter_value():
     assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
 
-def test_set_adaptive_parameter_value_incorrect_type():
+def test_set_adaptive_parameter_value_incorrect_type(mc):
     with pytest.raises(MotorCADError):
         mc.set_adaptive_parameter_value("incorrect_type", "test_string")
 
 
-def test_get_adaptive_parameter_value():
+def test_get_adaptive_parameter_value(mc):
     mc.set_adaptive_parameter_value("test_parameter_1", 100)
 
     value = mc.get_adaptive_parameter_value("test_parameter_1")
     assert value == 100
 
 
-def test_get_adaptive_parameter_value_does_not_exist():
+def test_get_adaptive_parameter_value_does_not_exist(mc):
     with pytest.raises(Exception) as e_info:
         mc.get_adaptive_parameter_value("testing_parameter")
 
     assert "No adaptive parameter found with name" in str(e_info.value)
 
 
-def test_get_region():
+def test_get_region(mc):
     expected_region = generate_constant_region()
     mc.set_region(expected_region)
 
@@ -179,14 +175,14 @@ def test_get_region():
     assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 
 
-def test_set_region():
+def test_set_region(mc):
     region = generate_constant_region()
     mc.set_region(region)
     returned_region = mc.get_region("testing_region")
     assert returned_region == region
 
 
-def test_load_adaptive_script():
+def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
     # load file into Motor-CAD
@@ -200,7 +196,7 @@ def test_load_adaptive_script():
     assert num_lines == num_lines_file
 
 
-def test_save_adaptive_script():
+def test_save_adaptive_script(mc):
     """Test save adaptive template script from Motor-CAD to specified file path."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
     mc.load_adaptive_script(filepath)
@@ -358,14 +354,14 @@ def test_region_contains_same_entities():
     assert region == expected_region
 
 
-def test_region_get_parent():
+def test_region_get_parent(mc):
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
     assert pocket.parent == expected_region
 
 
-def test_region_set_parent():
+def test_region_set_parent(mc):
     shaft = mc.get_region("Shaft")
     square = create_square()
     square.name = "square"
@@ -376,7 +372,7 @@ def test_region_set_parent():
     assert square.name in shaft_expected._child_names
 
 
-def test_region_children():
+def test_region_children(mc):
     rotor = mc.get_region("rotor")
     children = rotor.children
 
@@ -588,7 +584,7 @@ def test_get_entities_have_common_coordinate():
     assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
 
 
-def test_unite_regions():
+def test_unite_regions(mc):
     """Test unite two regions into a single region."""
     #   Before         After
     # |--------|    |--------|
@@ -637,7 +633,7 @@ def test_unite_regions():
     assert united_region == expected_region
 
 
-def test_unite_regions_1():
+def test_unite_regions_1(mc):
     """Testing two regions not touching cannot be united."""
     #          Before                         After
     # |--------|
@@ -664,7 +660,7 @@ def test_unite_regions_1():
     assert "Unable to unite regions" in str(e_info.value)
 
 
-def test_unite_regions_2():
+def test_unite_regions_2(mc):
     """Test unite two regions into a single region. No vertices from either region are within
     the other region."""
     #     Before                    After
@@ -703,7 +699,7 @@ def test_unite_regions_2():
     assert expected_region == union
 
 
-def test_check_collisions():
+def test_check_collisions(mc):
     """Collision Type : Collision detected.
     No vertices from the other region within the other region."""
     #      Before                          After
@@ -731,7 +727,7 @@ def test_check_collisions():
     assert collisions[0] == region_b
 
 
-def test_check_collisions_1():
+def test_check_collisions_1(mc):
     """Collision Type : Collision Detected.
     Two vertices from the other region within the other region."""
     #      Before                          After
@@ -762,7 +758,7 @@ def test_check_collisions_1():
     assert collisions[0] == region_b
 
 
-def test_check_collisions_2():
+def test_check_collisions_2(mc):
     """Collision Type : No collision.
     Regions touching on single entity"""
     #      Before                          After
@@ -788,7 +784,7 @@ def test_check_collisions_2():
     assert num_collisions == 0
 
 
-def test_check_collisions_3():
+def test_check_collisions_3(mc):
     """Collision Type : Collision detected.
     No vertices from the other region within the other region.
     Square region drawn clockwise."""
@@ -834,7 +830,7 @@ def test_check_collisions_3():
     assert collisions[0] == triangle
 
 
-def test_delete_region():
+def test_delete_region(mc):
     stator = mc.get_region("Stator")
 
     mc.delete_region(stator)
@@ -1064,7 +1060,7 @@ def test_edit_point():
     assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
-def test_subtract_regions():
+def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
     # |--------|    |--------|
@@ -1114,7 +1110,7 @@ def test_subtract_regions():
     assert subtracted_regions[0] == expected_region
 
 
-def test_subtract_region_1():
+def test_subtract_region_1(mc):
     """Test subtracting long rectangle from square to generate two rectangles as shown below."""
     #      Before           After
     #      |---|
@@ -1165,7 +1161,7 @@ def test_subtract_region_1():
     assert regions[0] == expected_region_2
 
 
-def test_subtract_region_2():
+def test_subtract_region_2(mc):
     """Test subtracting triangle from square. No vertices from either region are within
     the other region."""
     #     Before             After
@@ -1196,7 +1192,7 @@ def test_subtract_region_2():
     assert square == expected_region
 
 
-def test_subtract_region_3():
+def test_subtract_region_3(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
     # |--------|    |--------|
@@ -1234,7 +1230,7 @@ def test_subtract_region_3():
     assert subtracted_regions[0] == expected_region
 
 
-def test_subtract_region_4():
+def test_subtract_region_4(mc):
     """Test subtract rectangle from rectangle, where one rectangle is a sub region of the other."""
     #   Before         After
     # |--------|    |--------|
@@ -1294,7 +1290,7 @@ def test_region_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        square.mirror(mirror_line, unique_name=False)
+        square.mirror(mirror_line, unique_name=False)  # noqa
 
     assert "Region can only be mirrored about Line()" in str(e_info.value)
 
@@ -1319,7 +1315,7 @@ def test_entity_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        entity.mirror(mirror_line)
+        entity.mirror(mirror_line)  # noqa
 
     assert "Entity can only be mirrored about Line()" in str(e_info.value)
 
@@ -1348,7 +1344,7 @@ def test_line_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        entity.mirror(mirror_line)
+        entity.mirror(mirror_line)  # noqa
 
     assert "Line can only be mirrored about Line()" in str(e_info.value)
 
@@ -1416,7 +1412,7 @@ def test_arc_mirror_1():
     mirror_line = geometry.Entity(geometry.Coordinate(0, -1), geometry.Coordinate(10, -1))
 
     with pytest.raises(Exception) as e_info:
-        arc.mirror(mirror_line)
+        arc.mirror(mirror_line)  # noqa
 
     assert "Arc can only be mirrored about Line()" in str(e_info.value)
 
@@ -1440,7 +1436,7 @@ def test_coordinate_mirror_1():
     mirror_line = geometry.Entity(geometry.Coordinate(-2, -2), geometry.Coordinate(-2, 10))
 
     with pytest.raises(Exception) as e_info:
-        coord.mirror(mirror_line)
+        coord.mirror(mirror_line)  # noqa
 
     assert "Coordinate can only be mirrored about Line" in str(e_info.value)
 
@@ -1598,7 +1594,7 @@ def test_region_find_entity_from_coordinates():
     )
 
 
-def test_reset_geometry():
+def test_reset_geometry(mc):
     stator = mc.get_region("stator")
 
     # When the new regions go out of scope they close Motor-CAD
