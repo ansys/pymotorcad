@@ -293,6 +293,7 @@ def test_region_from_json():
         "entities": [],
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
+        "region type": "Adaptive Region",
     }
 
     test_region = geometry.Region()
@@ -1629,7 +1630,7 @@ def test_reset_geometry(mc):
     set_default_instance(save_default_instance)
 
 
-def test_get_set_region_magnet():
+def test_get_set_region_magnet(mc):
     mc.set_variable("GeometryTemplateType", 1)
     mc.reset_adaptive_geometry()
     magnet = mc.get_region("L1_1Magnet2")
