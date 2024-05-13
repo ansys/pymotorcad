@@ -2,13 +2,9 @@ import pytest
 
 from RPC_Test_Common import almost_equal, get_dir_path
 from ansys.motorcad.core.rpc_client_core import MotorCADError
-from setup_test import setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 
-def test_set_resistance_value():
+def test_set_resistance_value(mc):
     mc.set_resistance_value("test res", 6, 27, 4444, "test resistance")
 
     mc.do_steady_state_analysis()
@@ -17,7 +13,7 @@ def test_set_resistance_value():
     assert res == 4444
 
 
-def test_set_resistance_multiplier():
+def test_set_resistance_multiplier(mc):
     mc.set_resistance_multiplier("test res mult", 7, 8, 5, "test resistance multiplier")
 
     # Value is being set correctly but
@@ -30,13 +26,13 @@ def test_set_resistance_multiplier():
     # assert res ==
 
 
-def test_get_node_to_node_resistance():
+def test_get_node_to_node_resistance(mc):
     mc.do_steady_state_analysis()
     res = mc.get_node_to_node_resistance(1, 9)
     assert almost_equal(res, 0.0043, 3)
 
 
-def test_save_load_clear_external_circuit():
+def test_save_load_clear_external_circuit(mc):
     mc.set_resistance_value("test res", 3, 4, 150, "test resistance")
 
     mc.do_steady_state_analysis()
@@ -61,7 +57,7 @@ def test_save_load_clear_external_circuit():
     assert res == 150
 
 
-def test_set_get_node_capacitance():
+def test_set_get_node_capacitance(mc):
     mc.set_capacitance_value("test cap", 795, 35, "test capacitance value")
     mc.do_steady_state_analysis()
 
@@ -69,21 +65,21 @@ def test_set_get_node_capacitance():
     assert cap == 35
 
 
-def test_get_node_power():
+def test_get_node_power(mc):
     mc.do_steady_state_analysis()
 
     power = mc.get_node_power(397)
     assert almost_equal(power, 75.2)
 
 
-def test_get_node_temperature():
+def test_get_node_temperature(mc):
     mc.do_steady_state_analysis()
     # ambient
     temp = mc.get_node_temperature(0)
     assert temp == 40
 
 
-def test_get_node_exists():
+def test_get_node_exists(mc):
     mc.do_steady_state_analysis()
 
     assert mc.get_node_exists(2) is True
