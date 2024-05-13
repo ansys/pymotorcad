@@ -324,6 +324,7 @@ def test_region_to_json():
         "duplications": 10,
         "entities": [],
         "parent_name": "Insulation",
+        "region_type": "Adaptive Region",
     }
 
     test_region = geometry.Region()
