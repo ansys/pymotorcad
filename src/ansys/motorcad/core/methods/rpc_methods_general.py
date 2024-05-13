@@ -112,8 +112,9 @@ class _RpcMethodsGeneral:
         Parameters
         ----------
         solution_type : str
-            Type of the solution. Options are ``'SteadyState'``, ``'Transient'``,
-            ``'EMagnetic'``, and ``'Lab'``.
+            Type of the solution. Options are ``'SteadyState'`` (Steady State Thermal Solution),
+            ``'Transient'`` (Transient Thermal Solution), ``'EMagnetic'`` (E-Magnetic Solution), and
+            ``'Lab'`` (Lab Operating Point Solution).
         file_path : str
             Absolute filepath for the CSV file. The default is the Windows
             directory on the C: drive. The filepath must include the name
