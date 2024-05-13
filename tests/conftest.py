@@ -5,11 +5,10 @@ import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD
 
 motorcad_instance = None
+motorcad_instance_fea_old = None
 
 
 def pytest_sessionstart(session):
-    global motorcad_instance
-
     reset_temp_file_folder()
     ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
@@ -36,7 +35,18 @@ def mc():
         motorcad_instance.set_variable("MessageDisplayState", 2)
         reset_to_default_file(motorcad_instance)
 
-        # Disable messages if opened with UI
-        motorcad_instance.set_variable("MessageDisplayState", 2)
-
     return motorcad_instance
+
+
+@pytest.fixture
+def mc_fea_old():
+    """Old fea geometry tests cause lots of conflicts - use a new MotorCAD"""
+    global motorcad_instance_fea_old
+
+    if not (hasattr(motorcad_instance_fea_old, "is_open") and motorcad_instance_fea_old.is_open()):
+        motorcad_instance_fea_old = MotorCAD()
+        # Disable messages if opened with UI
+        motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
+        reset_to_default_file(motorcad_instance_fea_old)
+
+    return motorcad_instance_fea_old
