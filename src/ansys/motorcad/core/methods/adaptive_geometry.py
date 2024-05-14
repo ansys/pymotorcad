@@ -64,6 +64,30 @@ class _RpcMethodsAdaptiveGeometry:
 
         return region
 
+    def get_region_dxf(self, name):
+        """Get Motor-CAD dxf geometry region.
+
+        Parameters
+        ----------
+        name : string
+            Name of the region.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region or ansys.motorcad.core.geometry.RegionMagnet
+            Motor-CAD region object.
+
+        """
+        self.connection.ensure_version_at_least("2024.2.0")
+        method = "GetRegion_DXF"
+        params = [name]
+        raw_region = self.connection.send_and_receive(method, params)
+
+        region = Region(motorcad_instance=self)
+        region._from_json(raw_region)
+
+        return region
+
     def set_region(self, region):
         """Set Motor-CAD geometry region.
 
