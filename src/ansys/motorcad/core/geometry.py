@@ -1535,7 +1535,7 @@ def _orientation_of_three_points(c1, c2, c3):
 
 
 class RegionType(Enum):
-    """Provides an enumeration for storing region types for Motor-CAD regions."""
+    """Provides an enumeration for storing Motor-CAD region types."""
 
     stator = "Stator"
     rotor = "Rotor"
