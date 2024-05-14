@@ -525,7 +525,7 @@ class RegionMagnet(Region):
 
     @property
     def br_value(self):
-        """Br value of magnet before mag factor applied.
+        """Br value of magnet before Br multiplier applied.
 
         Returns
         -------
