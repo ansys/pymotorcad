@@ -552,7 +552,7 @@ class Coordinate(object):
         Parameters
         ----------
         centre_point : Coordinate
-            point to rotate Coordinate around.
+            Point to rotate Coordinate around.
         angle : float
             Angle of rotation in degrees. Anticlockwise direction is positive.
         """
