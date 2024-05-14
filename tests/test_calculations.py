@@ -1,13 +1,13 @@
 # import os
 
-from RPC_Test_Common import almost_equal, get_dir_path  # , get_temp_files_dir_path
-from setup_test import reset_to_default_file, setup_test_env
+from RPC_Test_Common import (  # get_temp_files_dir_path
+    almost_equal,
+    get_dir_path,
+    reset_to_default_file,
+)
 
-# Get Motor-CAD exe
-mc = setup_test_env()
 
-
-def test_do_magnetic_thermal_calculation():
+def test_do_magnetic_thermal_calculation(mc):
     mc.do_magnetic_thermal_calculation()
 
     assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 133.367)
@@ -21,7 +21,7 @@ def test_do_magnetic_thermal_calculation():
 #     assert os.path.exists(file_path)
 
 
-def test_do_transient_analysis():
+def test_do_transient_analysis(mc):
     # Simple transient
     mc.set_variable("TransientCalculationType", 0)
 
@@ -40,11 +40,11 @@ def test_do_transient_analysis():
 # Check for exceptions for now
 
 
-def test_do_mechanical_calculation():
+def test_do_mechanical_calculation(mc):
     mc.do_mechanical_calculation()
 
 
-def test_calculate_im_saturation_model():
+def test_calculate_im_saturation_model(mc):
     mc.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
 
     mc.calculate_im_saturation_model()
@@ -52,19 +52,19 @@ def test_calculate_im_saturation_model():
     reset_to_default_file(mc)
 
 
-def test_calculate_force_harmonics_spatial():
+def test_calculate_force_harmonics_spatial(mc):
     mc.calculate_force_harmonics_spatial()
 
 
-def test_calculate_force_harmonics_temporal():
+def test_calculate_force_harmonics_temporal(mc):
     mc.calculate_force_harmonics_temporal()
 
 
-def test_do_weight_calculation():
+def test_do_weight_calculation(mc):
     mc.do_weight_calculation()
 
 
-def test_create_winding_pattern():
+def test_create_winding_pattern(mc):
     # Copper solot fill definition so changing strands in hand will change wire diameter
     wire_diameter = mc.get_variable("Wire_Diameter")
     strands = mc.get_variable("NumberStrandsHand")

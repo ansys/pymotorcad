@@ -1,20 +1,29 @@
-import time
-
 from ansys.motorcad.core import MotorCADCompatibility
-from setup_test import setup_test_env
+from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 
-# Get Motor-CAD exe
-mc = setup_test_env()
+open_new_instance_flag = False
+
+
+def set_instance_flag(*args, **kwargs):
+    global open_new_instance_flag
+    open_new_instance_flag = True
 
 
 # Check MotorCADCompatibility object working as expected
-def test_motorcadcompatibility():
-    # Ensure Motor-CAD has opened successfully
-    time.sleep(5)
+def test_motorcadcompatibility(mc, monkeypatch):
+    global open_new_instance_flag
+    open_new_instance_flag = False
 
-    mc2 = MotorCADCompatibility()
+    monkeypatch.setattr(_MotorCADConnection, "_open_motor_cad_local", set_instance_flag)
+
+    # Ensure Motor-CAD has opened successfully
+    mc.connection._wait_for_response(30)
+
+    mc2 = MotorCADCompatibility(port=mc.connection._port)
 
     # should have connected to open instance
+    # Think this will actually just throw an exception if this fails
+    assert open_new_instance_flag == False
     assert mc2.connection._port == mc.connection._port
 
     # Try simple method
