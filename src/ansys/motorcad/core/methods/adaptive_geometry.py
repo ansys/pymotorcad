@@ -50,7 +50,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         Returns
         -------
-        ansys.motorcad.core.geometry.Region
+        ansys.motorcad.core.geometry.Region or ansys.motorcad.core.geometry.RegionMagnet
             Motor-CAD region object.
 
         """
@@ -59,8 +59,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
-        region = Region(motorcad_instance=self)
-        region._from_json(raw_region)
+        region = Region._from_json(raw_region, motorcad_instance=self)
 
         return region
 
@@ -127,7 +126,7 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()
-        raw_regions = [region_to_Check._to_json() for region_to_Check in regions_to_check]
+        raw_regions = [region_to_check._to_json() for region_to_check in regions_to_check]
 
         method = "Check_Collisions"
         params = [raw_region, raw_regions]
@@ -137,8 +136,7 @@ class _RpcMethodsAdaptiveGeometry:
         collision_regions = []
 
         for raw_collision_region in raw_collision_regions:
-            collision_region = Region(motorcad_instance=self)
-            collision_region._from_json(raw_collision_region)
+            collision_region = Region._from_json(raw_collision_region, motorcad_instance=self)
             collision_regions.append(collision_region)
 
         return collision_regions
@@ -194,8 +192,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region, raw_regions]
         united_raw = self.connection.send_and_receive(method, params)
 
-        region = Region(motorcad_instance=self)
-        region._from_json(united_raw)
+        region = Region._from_json(united_raw, motorcad_instance=self)
 
         return region
 
@@ -245,8 +242,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         regions = []
         for subtracted_raw in subtracted_raw_regions:
-            returned_region = Region(motorcad_instance=self)
-            returned_region._from_json(subtracted_raw)
+            returned_region = Region._from_json(subtracted_raw, motorcad_instance=self)
             regions.append(returned_region)
 
         return regions
