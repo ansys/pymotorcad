@@ -103,42 +103,23 @@ class Region(object):
                     ):
                         self.entities.remove(entity)
 
-    def replace(self, replacement_regions):
+    def replace(self, replacement_region):
         """Replace self with another region.
 
-        from 1 or more replacement region objects (for example imported DXF regions).
-        The existing region object will be kept. If the replacements are not connected,
-        an Exception is raised.
+        The region entities will be replaced by entities from the replacement region object (for
+        example an imported DXF region).
 
         Parameters
         ----------
-        replacement_regions : list of ansys.motorcad.core.geometry.Region
-            List of Motor-CAD region objects, whose entities will replace those of the
+        replacement_region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object, whose entities will replace those of the
             existing region.
         """
         # Remove Existing Entities from the Region object
         self.entities.clear()
 
-        # Loop through the replacement regions that will replace the Standard Region
-        # Try to unite the replacement regions
-        try:
-            replacement_regions[0].unite(replacement_regions[1:])
-        except Exception as e:
-            if "Unable to unite regions." in str(e):
-                replacement_region_names = []
-                for i in replacement_regions:
-                    replacement_region_names.append(i.name)
-                raise Exception(
-                    self.name
-                    + " can't be replaced by "
-                    + " and ".join(i for i in replacement_region_names)
-                    + ". Recommend creating separate regions."
-                )
-            else:
-                raise
-
         # Get the list of replacement region entities
-        replacement_region_entities = replacement_regions[0].entities
+        replacement_region_entities = replacement_region.entities
 
         # Add the replacement region entities to the Region object
         for j in replacement_region_entities:
