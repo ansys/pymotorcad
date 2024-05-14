@@ -1065,7 +1065,9 @@ class _BaseArc(Entity):
         """
         v_from_centre = coordinate - self.centre
         radius, _ = v_from_centre.get_polar_coords_deg()
-        return self.coordinate_within_arc_radius(coordinate) and (abs(radius) == abs(self.radius))
+        return self.coordinate_within_arc_radius(coordinate) and isclose(
+            abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
+        )
 
     @property
     def start_angle(self):
