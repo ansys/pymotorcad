@@ -511,7 +511,7 @@ class RegionMagnet(Region):
 
     @property
     def br_multiplier(self):
-        """Get Br multiplier.
+        """Br multiplier.
 
         Returns
         -------
