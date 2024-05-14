@@ -549,7 +549,7 @@ class RegionMagnet(Region):
 
     @property
     def br_x(self):
-        """Get x axis component of br value.
+        """X-axis component of br value.
 
         Returns
         -------
