@@ -428,6 +428,25 @@ the function ``draw_objects_debug()`` can be used to plot the regions:
 
     Plot of rotor pocket regions drawn using the ``draw_objects()`` function.
 
+Adding imported DXF geometries to adaptive templates
+****************************************************
+Custom geometry can be imported to Motor-CAD from a DXF file. For details on how to import a custom
+geometry from DXF file, please see the 'Custom Machine Geometries' tutorial supplied with Motor-CAD.
+
+When a custom geometry is imported, it is separated into regions which will appear under 'Imported'
+in the Geometry -> Editor tab.
+
+.. figure:: ../images/Adaptive_Geometry_DXF__1.png
+    :width: 500pt
+
+    Geometry -> Editor -> Geometry tab with an imported custom geometry from DXF file.
+
+Imported regions can be accessed using ``get_region_dxf()`` from ``ansys.motorcad.core``. A Standard
+Template region can be replaced by an imported DXF region using ``Region.replace()``.
+
+
+
+
 
 
 
