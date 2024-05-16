@@ -127,13 +127,13 @@ rt_region = mc.get_region("Rotor")  # get the rotor region
 # Script to modify existing Standard Template rectangular duct objects to form trapezoid ducts.
 # For each child region of the rotor region:
 #
-# * Check whether the region is a rotor duct
+# * Check whether the region is a rotor duct.
 #
-# * Find the top line that makes up the duct
+# * Find the top line that makes up the duct.
 #
-# * Modify the start and end points of the line
+# * Modify the start and end points of the line.
 #
-# * Set the region in Motor-CAD
+# * Set the region in Motor-CAD.
 #
 # The script accounts for whether ducts are full ducts or half ducts (the case when a duct spans the
 # rotor pole boundary)
