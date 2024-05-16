@@ -118,7 +118,7 @@ Trap_H = mc.get_array_variable(
 )
 
 # %%
-# Get the standard template rotor region from Motor-CAD. This can be drawn for debugging if required
+# Get the standard template rotor region from Motor-CAD. This can be drawn for debugging if required.
 rt_region = mc.get_region("Rotor")  # get the rotor region
 
 # %%
