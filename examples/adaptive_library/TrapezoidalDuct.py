@@ -1,16 +1,17 @@
 """
 Trapezoidal ducts
 =================
-Adaptive Templates script to alter rectangular ducts to trapezoidal ducts.
+This script applies the adaptive template functionality to modify rectangular ducts
+into trapezoidal ducts.
 """
 # %%
 # Perform required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD.
-# Import Arc, Coordinate, Line, Region and rt_to_xy
+# Import PyMotorcad to access Motor-CAD.
+# Import arc, coordinate, line, region and ``rt_to_xy``
 # to define the adaptive template geometry.
-# Import os, tempfile and shutil
-# to open and save a temporary .mot file if none is open.
+# Import os, shutil, sys, and tempfile
+# to open and save a temporary MOT file if none is open.
 import os
 import shutil
 import sys
@@ -23,13 +24,13 @@ from ansys.motorcad.core.geometry import Coordinate, rt_to_xy, xy_to_rt
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e10 IPM motor
-# template will be loaded, and set up with 4 rectangular rotor ducts. The file will be saved to a
-# temporary folder. To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the e10 IPM motor template is loaded and set up with four rectangular rotor ducts, and the file is
+# saved to atemporary folder. To keep a new Motor-CAD instance open after executing the script, use
+# the``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -61,10 +62,10 @@ mc.reset_adaptive_geometry()
 # %%
 # Define necessary functions
 # --------------------------
-# Set Adaptive Parameter if required
+# Set adaptive parameter if required
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The function ``set_default_parameter`` is defined to check if a parameter exists, and if not,
-# create it with a default value.
+# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
+# it creates the parameter with a default value.
 def set_default_parameter(parameter_name, default_value):
     try:
         mc.get_adaptive_parameter_value(parameter_name)
@@ -75,8 +76,9 @@ def set_default_parameter(parameter_name, default_value):
 # %%
 # Check line distance from origin
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The rectangle consists of two lines of length equal to the rectangle width. Only top line requires
-# modification. It is necessary to check whether the line is closest to the origin. Index ``i`` is
+# The rectangle consists of two lines of length equal to the rectangle width.
+# Only the top line requires modification.
+#  It is necessary to check whether the line is closest to the origin. Index ``i`` is
 # the line under investigation. Index ``j`` is the adjacent line. If the radius of midpoint of line
 # ``i`` is less than that of line ``j`` , line ``i`` is closer to the origin.
 def check_line_origin_distance(i, duct_region):
@@ -99,9 +101,10 @@ def check_line_origin_distance(i, duct_region):
 # %%
 # Get required parameters and objects
 # -----------------------------------
-# Get the Adaptive Parameters specified in Motor-CAD, and their values.
+# Get the adaptive parameters specified in Motor-CAD, and their values.
 #
-# Use the ``set_default_parameter()`` method to set the required ``Trapezoid_base_ratio`` parameter if undefined.
+# Use the ``set_default_parameter()`` method to set the required ``Trapezoid_base_ratio`` parameter
+# if undefined.
 set_default_parameter("Trapezoid_base_ratio", 0.7)
 
 # %%
@@ -118,13 +121,12 @@ Trap_H = mc.get_array_variable(
 )
 
 # %%
-# Get the standard template rotor region from Motor-CAD. This can be drawn for debugging if required.
+# Get the standard template rotor region. This can be drawn for debugging if required.
 rt_region = mc.get_region("Rotor")  # get the rotor region
 
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
-# Script to modify existing Standard Template rectangular duct objects to form trapezoid ducts.
 # For each child region of the rotor region:
 #
 # * Check whether the region is a rotor duct.
