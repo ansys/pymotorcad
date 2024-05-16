@@ -441,8 +441,13 @@ in the Geometry -> Editor tab.
 
     Geometry -> Editor -> Geometry tab with an imported custom geometry from DXF file.
 
-Imported regions can be accessed using ``get_region_dxf()`` from ``ansys.motorcad.core``. A Standard
-Template region can be replaced by an imported DXF region using ``Region.replace()``.
+By default, the imported regions will not be displayed. To display an imported region, tick the
+check box.
+
+Imported regions can be accessed using ``get_region_dxf()`` from ``ansys.motorcad.core``. The region
+can then be modified and interacted with in the same way as any other Region object. A Standard
+Template region can be replaced by an imported DXF region using ``Region.replace()``. As with any
+Region object, it is set in the Motor-CAD model using ``set_region()``.
 
 
 
