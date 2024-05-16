@@ -217,8 +217,8 @@ for child_name in rt_region.child_names:
 
 # %%
 # .. note::
-#    When running in a Jupyter Notebook, the path for the Adaptive Templates script (.py file) must
-#    be given instead of ``sys.argv[0]`` when using ``load_adaptive_script()``.
+#    When running in a Jupyter Notebook, the path for the Adaptive Templates script (PY file) must
+#    be given instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
