@@ -147,7 +147,7 @@ class _RpcMethodsUI:
         return self.connection.send_and_receive(method, params)
 
     def clear_messages(self):
-        """Clear messages in message display window."""
+        """Clear messages in the message display window."""
         self.connection.ensure_version_at_least("2024.2")
         method = "ClearMessages"
         params = []
