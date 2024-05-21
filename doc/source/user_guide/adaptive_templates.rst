@@ -434,7 +434,7 @@ Custom geometry can be imported to Motor-CAD from a DXF file. For details on how
 geometry from DXF file, please see the 'Custom Machine Geometries' tutorial supplied with Motor-CAD.
 
 When a custom geometry is imported, it is separated into regions which will appear under 'Imported'
-in the Geometry -> Editor tab.
+in the Geometry -> Editor tab. The Standard Template geometry regions are shown under 'Standard'.
 
 .. figure:: ../images/Adaptive_Geometry_DXF__1.png
     :width: 500pt
