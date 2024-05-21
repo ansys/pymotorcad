@@ -3,8 +3,8 @@
 
 Curved Rotor Flux Barriers for SYNCREL U-Shape
 ==============================================
-Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
-This script is designed to be run from Motor-CAD template "i3".
+This script applies the adaptive templates functionality to alter SYNCREL U-Shape rotor template to
+use curved rotor pockets.
 """
 # %%
 # .. note::
@@ -46,10 +46,10 @@ This script is designed to be run from Motor-CAD template "i3".
 #
 # Perform required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD.
-# Import Arc, Coordinate, Line, Region and rt_to_xy
+# Import ``pymotorcad`` to access Motor-CAD.
+# Import ``Arc``, ``Coordinate``, ``Line``, ``Region`` and ``rt_to_xy``
 # to define the adaptive template geometry.
-# Import os, tempfile and shutil
+# Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 import os
 import shutil
@@ -63,13 +63,13 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
-# template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the i3 SYNC motor template is loaded, and the file is saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, use the
+# ``MotorCAD(keep_instance_open=True)``  option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -436,7 +436,7 @@ for layer in range(number_layers):
 # %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
-# When the script is run externally:
+# When this script is run externally, the following is executed:
 #
 # * Set Geometry type to "Adaptive"
 #
