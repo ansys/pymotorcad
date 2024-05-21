@@ -3,7 +3,8 @@
 
 Triangular Rotor Notches for IPM
 ================================
-Adaptive Template script to create triangular rotor notches to improve NVH performance.
+This script applies the adaptive templates functionality to create triangular rotor notches to
+improve NVH performance.
 """
 # %%
 # .. note::
@@ -46,9 +47,9 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 # %%
 # Perform Required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD. Import triangular_notch to create the notch geometry region
-# with Adaptive Template geometry. Import os, tempfile and shutil to open and save a temporary .mot
-# file if none is open.
+# Import ``pymotorcad`` to access Motor-CAD. Import ``triangular_notch`` to create the notch
+# geometry region with Adaptive Template geometry. Import ``os``, ``shutil``, ``sys``, and
+# ``tempfile`` to open and save a temporary .mot file if none is open.
 import os
 import shutil
 import sys
@@ -61,13 +62,13 @@ from ansys.motorcad.core.geometry_shapes import triangular_notch
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
-# template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the e9 IPM motor template is loaded, and the file is saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, use the
+# ``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -232,7 +233,7 @@ for notch_loop in range(0, number_notches):
 # %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
-# When the script is run externally:
+# When this script is run externally, the following is executed:
 #
 # * Set Geometry type to "Adaptive"
 #
