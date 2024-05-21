@@ -454,7 +454,8 @@ Use the ``get_region_dxf()`` method in an adaptive templates script to access an
 The region can then be modified and interacted with in the same way as any other Region object.
 The name, properties and parent regions of the imported region can be defined.
 
-A Template region can be replaced by an imported DXF region using ``Region.replace()``.
+The ``Region.replace()`` method can be used to replace an existing region with an imported DXF
+region.
 
 As with any Region object, it is set in the Motor-CAD model using ``set_region()``. The imported
 region will then appear under 'Template' in the Geometry tree on the Geometry -> Editor -> Geometry
