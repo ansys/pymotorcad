@@ -101,7 +101,7 @@ def check_line_origin_distance(i, duct_region):
 # %%
 # Get required parameters and objects
 # -----------------------------------
-# Get the adaptive parameters specified in Motor-CAD, and their values.
+# From Motor-CAD, get the adaptive parameters and their values.
 #
 # Use the ``set_default_parameter()`` method to set the required ``Trapezoid_base_ratio`` parameter
 # if undefined.
