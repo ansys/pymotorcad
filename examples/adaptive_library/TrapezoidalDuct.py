@@ -1,16 +1,16 @@
 """
 Trapezoidal ducts
 =================
-This script applies the adaptive template functionality to modify rectangular ducts
+This script applies the adaptive templates functionality to modify rectangular ducts
 into trapezoidal ducts.
 """
 # %%
 # Perform required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD.
+# Import ``pymotorcad`` to access Motor-CAD.
 # Import ``Coordinate``, ``rt_to_xy``, ``xy_to_rt``
 # to define the adaptive template geometry.
-# Import os, shutil, sys, and tempfile
+# Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 import os
 import shutil
@@ -208,7 +208,7 @@ for child_name in rt_region.child_names:
 # %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
-# When the script is run externally:
+# When this script is run externally, the following is executed:
 #
 # * Set Geometry type to "Adaptive"
 #
