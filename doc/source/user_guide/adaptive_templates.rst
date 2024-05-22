@@ -25,19 +25,19 @@ For the examples shown in this user guide,
 see :ref:`ref_BPM_Triangular_Rotor_Notches` and :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
 It is recommended that users new to Motor-CAD Adaptive Templates
-work through the Tutorial supplied with Motor-CAD.
+work through the tutorial supplied with Motor-CAD.
 The tutorial contains additional information and full workflow examples.
 
 Geometry editor
 ***************
 
-The Geometry -> Editor tab in Ansys Motor-CAD
+The **Geometry -> Editor** tab in Ansys Motor-CAD
 shows each geometry region currently in use in the model.
 
 .. figure:: ../images/Adaptive_Geometry_GUI_Screenshot.png
     :width: 500pt
 
-    Geometry -> Editor -> Geometry tab in Ansys Motor-CAD 2024 R1
+    **Geometry -> Editor -> Geometry** tab in Ansys Motor-CAD 2024 R1
 
 The interface is fully interactive.
 Individual geometry regions can be selected
@@ -66,18 +66,18 @@ it is highlighted in the diagram.
 
 Either Cartesian or Polar coordinate systems can be used.
 The coordinate system can be changed by going to
-Input Data -> Settings -> Geometry.
+**Input Data -> Settings -> Geometry**.
 
 .. figure:: ../images/Geometry_Coordinate_System_GUI_Screenshot.png
     :width: 500pt
 
-    Input Data -> Settings -> Geometry tab in Ansys Motor-CAD 2024 R1
+    **Input Data -> Settings -> Geometry** tab in Ansys Motor-CAD 2024 R1
 
 Adaptive templates script
 *************************
 
 Adaptive Templates can be enabled by going to the
-Geometry -> Editor -> Adaptive Templates tab
+**Geometry -> Editor -> Adaptive Templates** tab
 and setting the Geometry Templates Type from **Standard** to **Adaptive**.
 This means that the Adaptive Templates Script is run
 every time the Motor-CAD geometry is created,
@@ -86,12 +86,12 @@ and the scripting interface enabled, which allows editing of the script.
 .. figure:: ../images/Adaptive_Templates_GUI_Screenshot.png
     :width: 500pt
 
-    Geometry -> Editor -> Adaptive Templates tab in Ansys Motor-CAD 2024 R1
+    **Geometry -> Editor -> Adaptive Templates** tab in Ansys Motor-CAD 2024 R1
 
 To set an adaptive geometry for a Motor-CAD file,
-a script must be loaded in to the Adaptive Templates tab and run.
+a script must be loaded in to the **Adaptive Templates** tab and run.
 Adaptive Templates Python scripts can also be executed externally,
-but unless the script is loaded in to the Adaptive Templates tab
+but unless the script is loaded in to the **Adaptive Templates** tab
 in Motor-CAD, the geometry is only defined temporarily.
 
 Adaptive Templates Scripts require PyMotorCAD to be imported.
@@ -131,7 +131,7 @@ Properties such as the material and colour can be edited with an Adaptive Templa
 .. figure:: ../images/Adaptive_Geometry_GUI_Screenshot_UG_Modified.png
     :width: 500pt
 
-    Rotor geometry with modified colour and material shown in the Geometry -> Editor -> Geometry tab
+    Rotor geometry with modified colour and material shown in the **Geometry -> Editor -> Geometry** tab
 
 Details on the Adaptive Geometry functions within ``ansys.motorcad.core``
 that provide access to the Motor-CAD geometry are available
@@ -169,32 +169,30 @@ see :ref:`ref_examples_adaptive_templates_library`.
 Adaptive parameters
 *******************
 
-An Adaptive Templates script can be set
-based on the Standard Template parameters
-or based on custom Adaptive Parameters.
-Adaptive Parameters are shown in the
-Geometry -> Editor -> Adaptive Parameters tab.
+An Adaptive Templates script can be set based on the Standard Template parameters or based on custom
+Adaptive Parameters. Adaptive Parameters are shown in the
+**Geometry -> Editor -> Adaptive Parameters** tab.
 
 .. figure:: ../images/Adaptive_Parameters_GUI_Screenshot.png
     :width: 500pt
 
-    Geometry -> Editor -> Adaptive Parameters tab in Ansys Motor-CAD 2024 R1
+    **Geometry -> Editor -> Adaptive Parameters** tab in Ansys Motor-CAD 2024 R1
 
-Any parameter can be defined, with a Name, Value, and Description.
-Parameters can be added within the Motor-CAD interface,
-or via Python script by using ``set_adaptive_parameter_value()`` from ``ansys.motorcad.core``:
+Any parameter can be defined, with a Name, Value, and Description. Parameters can be added within
+the Motor-CAD interface, or via Python script by using ``set_adaptive_parameter_value()``
+from ``ansys.motorcad.core``:
 
 .. code:: python
 
     mc.set_adaptive_parameter_value("Notches per Pole", 2)
 
-Adaptive Parameters also appear in the Geometry -> Radial tab,
+Adaptive Parameters also appear in the **Geometry -> Radial** tab,
 alongside the Standard Template parameters.
 
 .. figure:: ../images/Adaptive_Parameters_GUI_Screenshot_2.png
     :width: 500pt
 
-    Adaptive Parameters shown in the Geometry -> Radial tab
+    Adaptive Parameters shown in the **Geometry -> Radial** tab
 
 Adaptive Parameters can be accessed via the Adaptive Templates Script
 using ``get_adaptive_parameter_value()`` from ``ansys.motorcad.core``,
@@ -207,14 +205,11 @@ so that the geometry can be defined by these Adaptive Parameters:
 Scripting workflow
 *******************
 
-As well as the defined Adaptive Parameters,
-any parameter from Motor-CAD
-can be used in the Adaptive Templates Script
-by using ``get_variable()`` from PyMotorCAD.
-Any Motor-CAD API accessible by PyMotorCAD is available.
+As well as the defined Adaptive Parameters, any parameter from Motor-CAD can be used in the Adaptive
+Templates Script by using ``get_variable()`` from PyMotorCAD. Any Motor-CAD API accessible by
+PyMotorCAD is available.
 
-For example, when modifying the rotor geometry,
-it is often necessary to retrieve the rotor radius:
+For example, when modifying the rotor geometry, it is often necessary to retrieve the rotor radius:
 
 .. code:: python
 
@@ -222,26 +217,24 @@ it is often necessary to retrieve the rotor radius:
 
 Adding a region to the geometry
 -------------------------------
-To add a new geometry feature to the Motor-CAD model,
-such as a notch, the workflow is as follows:
+To add a new geometry feature to the Motor-CAD model, such as a notch, the workflow is as follows:
 
 * A new region is created to represent the notch
 
 * The region properties are defined (material, colour etc.)
 
-* Entities are added to the region
-  to define the geometry (shape and position)
+* Entities are added to the region to define the geometry (shape and position)
 
-* The parent region is defined for the new region.
-  For a rotor duct, the parent would be set to the rotor region.
+* The parent region is defined for the new region. For a rotor duct, the parent would be set to the
+  rotor region.
 
 * The new region is set in Motor-CAD
 
 Creating a region
 ~~~~~~~~~~~~~~~~~
 
-To create a new region to represent the notch,
-use the Region object from ``ansys.motorcad.core.geometry``:
+To create a new region to represent the notch, use the Region object from
+``ansys.motorcad.core.geometry``:
 
 .. code:: python
 
@@ -261,17 +254,14 @@ Region properties can be set using the appropriate field/property:
 If the region object of the rotor has been created in Python (``rotor = mc.get_region("Rotor")``)
 The rotor region object's properties can be obtained and set for the rotor notch.
 
-The ``Region.duplications`` property represents the symmetry of the region.
-In the example shown using the e9 IPM template, ``duplications = 8``
-because there are 8 rotor poles of 45 ° symmetry.
+The ``Region.duplications`` property represents the symmetry of the region. In the example shown
+using the e9 IPM template, ``duplications = 8`` because there are 8 rotor poles of 45 ° symmetry.
 In this example, the notch would have the same symmetry as the rotor.
 
-The parent region of the notch can be set to the rotor region,
-so that the notch is set as a sub-region.
-Motor-CAD uses implicit subtractions,
-so that the notch subtraction is handled automatically.
-The notch appears as a sub-region of the rotor
-in the Geometry -> Editor tab in Motor-CAD.
+The parent region of the notch can be set to the rotor region, so that the notch is set as a
+sub-region. Motor-CAD uses implicit subtractions, so that the notch subtraction is handled
+automatically. The notch appears as a sub-region of the rotor in tree shown in the
+**Geometry -> Editor** tab in Motor-CAD.
 
 .. code:: python
 
@@ -295,12 +285,11 @@ Line and Arc entities can be defined using Motor-CAD Coordinate objects.
 Setting a region in Motor-CAD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To set the notch in the Motor-CAD model,
-the notch region is sent to Motor-CAD
-using the ``set_region()`` function from ``ansys.motorcad.core``.
+To set the notch in the Motor-CAD model, the notch region is sent to Motor-CAD using the
+``set_region()`` function from ``ansys.motorcad.core``.
 
-``Region.is_closed()`` can be used to ensure that the entities that were added to the region
-create a closed region.
+``Region.is_closed()`` can be used to ensure that the entities that were added to the region create
+a closed region.
 
 .. code:: python
 
@@ -310,13 +299,11 @@ create a closed region.
 Using the geometry shapes library
 ---------------------------------
 
-Line and Arc entities are defined using Motor-CAD Coordinate objects.
-Calculating the coordinate positions can be time consuming and
-may require many lines of Python script.
+Line and Arc entities are defined using Motor-CAD Coordinate objects. Calculating the coordinate
+positions can be time consuming and may require many lines of Python script.
 
-For commonly used shapes, ready made functions can be used
-to create a region, based on a few required parameters.
-These functions can be imported from the
+For commonly used shapes, ready made functions can be used to create a region, based on a few
+required parameters. These functions can be imported from the
 ``ansys.motorcad.core.geometry_shapes`` library.
 
 A function for creating a triangular notch region can be imported:
@@ -327,11 +314,10 @@ A function for creating a triangular notch region can be imported:
 
 The ``triangular_notch()`` function requires 4 arguments:
 
-* ``radius`` - the radial position of the notch outer edge
-  (for a rotor notch, this is the rotor radius)
+* ``radius`` - the radial position of the notch outer edge (for a rotor notch, this is the rotor
+  radius)
 
-* ``sweep`` - the sweep of the notch along the rotor airgap, in degrees
-  (defines the notch width)
+* ``sweep`` - the sweep of the notch along the rotor airgap, in degrees (defines the notch width)
 
 * ``centre_angle`` - the angular position of the notch centre
 
@@ -342,12 +328,10 @@ The ``triangular_notch()`` function requires 4 arguments:
 
     Required arguments for the ``triangular_notch()`` function.
 
-A rotor notch can be defined using this function,
-so that the user does not need to calculate
-the coordinates for the notch entities.
+A rotor notch can be defined using this function, so that the user does not need to calculate the
+coordinates for the notch entities.
 
-To use the ``triangular_notch()`` function to create
-a triangular rotor notch region:
+To use the ``triangular_notch()`` function to create a triangular rotor notch region:
 
 .. code:: python
 
@@ -355,45 +339,37 @@ a triangular rotor notch region:
         rotor_radius, notch_angular_width, notch_centre_angle, notch_depth
     )
 
-where the arguments ``rotor_radius``, ``notch_angular_width``,
-``notch_centre_angle`` and ``notch_depth``
-must be calculated in the Adaptive Templates Script and
-specified.
+where the arguments ``rotor_radius``, ``notch_angular_width``, ``notch_centre_angle`` and
+``notch_depth`` must be calculated in the Adaptive Templates Script and specified.
 
-The notch region properties can then be defined and
-the region can be set in Motor-CAD,
-as described earlier in this guide.
+The notch region properties can then be defined and the region can be set in Motor-CAD, as described
+earlier in this guide.
 
-For a full Adaptive Templates example
-using the workflow described here,
-see :ref:`ref_BPM_Triangular_Rotor_Notches`.
+For a full Adaptive Templates example using the workflow described here, see
+:ref:`ref_BPM_Triangular_Rotor_Notches`.
 
-Details on the Geometry Shapes functions within ``ansys.motorcad.core.geometry_shapes``
-are available in the :ref:`ref_API_Reference` under :ref:`ref_geometry_shapes`.
+Details on the Geometry Shapes functions within ``ansys.motorcad.core.geometry_shapes`` are
+available in the :ref:`ref_API_Reference` under :ref:`ref_geometry_shapes`.
 
 Creating and modifying adaptive templates scripts
 *************************************************
 
-It is recommended to create Adaptive Template Scripts outside Motor-CAD,
-using a Python Integrated Development Environment (IDE) (such as PyCharm).
-Using an IDE allows for faster creation of the script,
-allowing access to autocompletion, code correction
-and other features which are not available in the Motor-CAD scripting interface.
+It is recommended to create Adaptive Template Scripts outside Motor-CAD, using a Python Integrated
+Development Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the
+script, allowing access to autocompletion, code correction and other features which are not
+available in the Motor-CAD scripting interface.
 
-This is essential when writing complex scripts,
-allowing issues with the script to be fixed
-and the inspection of Python objects
-(for example geometry regions from Motor-CAD).
+This is essential when writing complex scripts, allowing issues with the script to be fixed and the
+inspection of Python objects (for example geometry regions from Motor-CAD).
 
-For more information on the Synchronous Reluctance machine geometry
-with curved flux barriers used for this example,
-please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
+For more information on the Synchronous Reluctance machine geometry with curved flux barriers used
+for this example, please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive templates script can be edited from an external IDE (for example PyCharm, VSCode).
-When using an external IDE it is important to ensure that the script contains this method
-before getting/setting any Motor-CAD geometry:
+Adaptive templates script can be edited from an external IDE (for example PyCharm, VSCode). When
+using an external IDE it is important to ensure that the script contains this method before
+getting/setting any Motor-CAD geometry:
 
 .. code:: python
 
@@ -401,13 +377,11 @@ before getting/setting any Motor-CAD geometry:
 
 Drawing geometry objects
 ------------------------
-When working on and debugging Adaptive Templates scripts,
-it is useful to use the geometry drawing feature
-to plot the geometry objects and regions.
-``ansys.motorcad.core.geometry_drawing`` contains the function
-``draw_objects_debug()`` which can be used to plot any region
-that has been defined in Python. This function only plots regions when called from an external IDE to assist with debugging scripts.
-To plot regions from the Motor-CAD scripting interface, use ``draw_objects``.
+When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
+feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
+the function ``draw_objects_debug()`` which can be used to plot any region that has been defined in
+Python. This function only plots regions when called from an external IDE to assist with debugging
+scripts. To plot regions from the Motor-CAD scripting interface, use ``draw_objects``.
 
 The geometry drawing package can be imported:
 
@@ -415,9 +389,9 @@ The geometry drawing package can be imported:
 
     from ansys.motorcad.core.geometry_drawing import draw_objects_debug
 
-For an Adaptive Templates script where curved flux barrier/rotor pockets
-Region objects are added to a list ``pockets_all_layers``,
-the function ``draw_objects_debug()`` can be used to plot the regions:
+For an Adaptive Templates script where curved flux barrier/rotor pockets Region objects are added to
+a list ``pockets_all_layers``, the function ``draw_objects_debug()`` can be used to plot the
+regions:
 
 .. code:: python
 
@@ -430,18 +404,19 @@ the function ``draw_objects_debug()`` can be used to plot the regions:
 
 Adding imported DXF geometries to adaptive templates
 ****************************************************
-Custom geometry can be imported to Motor-CAD from a DXF file. For details on how to import a custom
-geometry from DXF file, please see the 'Custom Machine Geometries' tutorial supplied with Motor-CAD.
+Custom geometry can be imported to Motor-CAD from a DXF file. For information on how to import
+custom geometry from a DXF file, please see the "Custom Machine Geometries" tutorial supplied with
+Motor-CAD.
 
-Once a custom geometry has been imported, it is automatically separated into regions which will
-appear under 'Import' in the Geometry -> Editor tab. These imported geometry regions can be
-accessed using ``get_region_dxf()`` from ``ansys.motorcad.core``. The geometry regions that are
-currently set in the Motor-CAD model are shown under 'Template' in the tree.
+Once a custom geometry has been imported, it is automatically separated into regions, which will
+appear under **Import** in the **Geometry -> Editor** tab. These imported geometry regions can be
+accessed using the ``get_region_dxf()`` method from the ``ansys.motorcad.core`` API. The geometry
+regions that are currently set in the Motor-CAD model are shown under **Template** in the tree.
 
 .. figure:: ../images/Adaptive_Geometry_DXF__1.png
     :width: 500pt
 
-    Geometry -> Editor -> Geometry tab with an imported custom geometry from DXF file.
+    **Geometry -> Editor -> Geometry** tab with an imported custom geometry from DXF file.
 
 By default, the imported regions will not be displayed. To display an imported region, tick the
 check box.
@@ -458,8 +433,8 @@ The ``Region.replace()`` method can be used to replace an existing region with a
 region.
 
 As with any Region object, it is set in the Motor-CAD model using ``set_region()``. The imported
-region will then appear under 'Template' in the Geometry tree on the Geometry -> Editor -> Geometry
-tab in Motor-CAD.
+region will then appear under **Template** in the Geometry tree shown in the
+**Geometry -> Editor -> Geometry** tab in Motor-CAD.
 
 
 
