@@ -116,7 +116,7 @@ class Region(object):
             Motor-CAD region object, whose entities will replace those of the
             existing region.
         """
-        # Remove Existing Entities from the Region object
+        # Remove existing entities from the region object
         self.entities.clear()
 
         # Get the list of replacement region entities
