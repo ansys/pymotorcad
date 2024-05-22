@@ -113,7 +113,7 @@ class Region(object):
         Parameters
         ----------
         replacement_region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object, whose entities will replace those of the
+            Motor-CAD region object, whose entities are to replace those of the
             existing region.
         """
         # Remove existing entities from the region object
