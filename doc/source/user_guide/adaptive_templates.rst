@@ -418,22 +418,21 @@ regions that are currently set in the Motor-CAD model are shown under **Template
 
     **Geometry -> Editor -> Geometry** tab with an imported custom geometry from DXF file.
 
-By default, the imported regions will not be displayed. To display an imported region, tick the
-check box.
+By default, the imported regions are not displayed. To display an imported region, select the
+checkbox.
 
 Imported regions are not automatically set in the Motor-CAD model or used by the Motor-CAD
 calculations. Adaptive templates can be used to customise the Motor-CAD model geometry with the
 imported geometry.
 
-Use the ``get_region_dxf()`` method in an adaptive templates script to access and imported region.
-The region can then be modified and interacted with in the same way as any other Region object.
+Use the ``get_region_dxf()`` method in an adaptive templates script to access an imported region.
+Then, modify and interact with the region in the same way as for any other region object.
 The name, properties and parent regions of the imported region can be defined.
 
-The ``Region.replace()`` method can be used to replace an existing region with an imported DXF
-region.
+To replace an existing region with an imported DXF region, use the ``Region.replace()`` method.
 
 As with any Region object, it is set in the Motor-CAD model using ``set_region()``. The imported
-region will then appear under **Template** in the Geometry tree shown in the
+region then appears under **Template** in the Geometry tree shown in the
 **Geometry -> Editor -> Geometry** tab in Motor-CAD.
 
 

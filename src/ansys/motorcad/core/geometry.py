@@ -107,8 +107,8 @@ class Region(object):
     def replace(self, replacement_region):
         """Replace self with another region.
 
-        The region entities will be replaced by entities from the replacement region object (for
-        example an imported DXF region).
+        This method replaces region entities with entities from the replacement region object
+        (for example an imported DXF region).
 
         Parameters
         ----------
@@ -122,7 +122,7 @@ class Region(object):
         # Get the list of replacement region entities
         replacement_region_entities = replacement_region.entities
 
-        # Add the replacement region entities to the Region object
+        # Add the replacement region entities to the region object
         for j in replacement_region_entities:
             self.add_entity(j)
 
