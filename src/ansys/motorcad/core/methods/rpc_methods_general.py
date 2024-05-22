@@ -116,7 +116,7 @@ class _RpcMethodsGeneral:
             ``'Lab'`` (Lab Operating Point Solution), ``'SteadyState'`` (Steady State
             Thermal Solution), and ``'Transient'`` (Transient Thermal Solution).
         file_path : str
-            Absolute filepath for the CSV file. The default is the Windows
+            Absolute path for the CSV file. The default is the Windows
             directory on the C: drive. The filepath must include the name
             of the file, with a CSV extension. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
