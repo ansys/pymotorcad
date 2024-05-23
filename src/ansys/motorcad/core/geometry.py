@@ -119,12 +119,8 @@ class Region(object):
         # Remove existing entities from the region object
         self.entities.clear()
 
-        # Get the list of replacement region entities
-        replacement_region_entities = replacement_region.entities
-
-        # Add the replacement region entities to the region object
-        for j in replacement_region_entities:
-            self.add_entity(j)
+        # Set the region object entities to be the list of replacement region entities
+        self.entities = deepcopy(replacement_region.entities)
 
     # method to receive region from Motor-CAD and create python object
     @classmethod
