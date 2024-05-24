@@ -300,7 +300,7 @@ Using the geometry shapes library
 ---------------------------------
 
 Line and Arc entities are defined using Motor-CAD Coordinate objects. Calculating the coordinate
-positions can be time consuming and may require many lines of Python script.
+positions can be time-consuming and can require many lines of Python script.
 
 For commonly used shapes, ready made functions can be used to create a region, based on a few
 required parameters. These functions can be imported from the
