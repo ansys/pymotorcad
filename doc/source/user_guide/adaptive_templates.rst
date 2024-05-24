@@ -258,8 +258,8 @@ The ``Region.duplications`` property represents the symmetry of the region. In t
 using the e9 IPM template, ``duplications = 8`` because there are 8 rotor poles of 45 ° symmetry.
 In this example, the notch would have the same symmetry as the rotor.
 
-The parent region of the notch can be set to the rotor region, so that the notch is set as a
-sub-region. Motor-CAD uses implicit subtractions, so that the notch subtraction is handled
+The parent region of the notch can be set to the rotor region so that the notch is set as a
+sub-region. Motor-CAD uses implicit subtractions so that the notch subtraction is handled
 automatically. The notch appears as a sub-region of the rotor in tree shown in the
 **Geometry -> Editor** tab in Motor-CAD.
 
