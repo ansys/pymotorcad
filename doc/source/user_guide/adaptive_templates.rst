@@ -381,7 +381,7 @@ When working on and debugging Adaptive Templates scripts, it is useful to use th
 feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
 the ``draw_objects_debug()`` function, which can be used to plot any region that has been defined in
 Python. This function only plots regions when called from an external IDE to assist with debugging
-scripts. To plot regions from the Motor-CAD scripting interface, use ``draw_objects``.
+scripts. To plot regions from the Motor-CAD scripting interface, use the ``draw_objects()`` function.
 
 The geometry drawing package can be imported:
 
