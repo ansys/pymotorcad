@@ -381,7 +381,8 @@ When working on and debugging Adaptive Templates scripts, it is useful to use th
 feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
 the ``draw_objects_debug()`` function, which can be used to plot any region that has been defined in
 Python. This function only plots regions when called from an external IDE to assist with debugging
-scripts. To plot regions from the Motor-CAD scripting interface, use the ``draw_objects()`` function.
+scripts. To plot regions from the Motor-CAD scripting interface, use the ``draw_objects()``
+function.
 
 The geometry drawing package can be imported:
 
@@ -389,9 +390,9 @@ The geometry drawing package can be imported:
 
     from ansys.motorcad.core.geometry_drawing import draw_objects_debug
 
-For an Adaptive Templates script where curved flux barrier/rotor pockets Region objects are added to
-a list ``pockets_all_layers``, the function ``draw_objects_debug()`` can be used to plot the
-regions:
+In the :ref:`ref_SYNC_Curve_Flux_Barriers` example, curved flux barrier (rotor pockets) region
+objects are added to a list, ``pockets_all_layers``. The ``draw_objects_debug()`` function can be
+used to plot the regions:
 
 .. code:: python
 
@@ -402,16 +403,16 @@ regions:
 
     Plot of rotor pocket regions drawn using the ``draw_objects()`` function.
 
-Adding imported DXF geometries to adaptive templates
-****************************************************
+Add imported DXF geometries to adaptive templates
+*************************************************
 Custom geometry can be imported to Motor-CAD from a DXF file. For information on how to import
-custom geometry from a DXF file, please see the "Custom Machine Geometries" tutorial supplied with
+custom geometry from a DXF file, see the "Custom Machine Geometries" tutorial supplied with
 Motor-CAD.
 
-Once a custom geometry has been imported, it is automatically separated into regions, which will
-appear under **Import** in the **Geometry -> Editor** tab. These imported geometry regions can be
-accessed using the ``get_region_dxf()`` method from the ``ansys.motorcad.core`` API. The geometry
-regions that are currently set in the Motor-CAD model are shown under **Template** in the tree.
+Once a custom geometry is imported, it is automatically separated into regions, which appear under
+**Import** in the **Geometry -> Editor** tab. These imported geometry regions are accessed using
+the ``get_region_dxf()`` method from the ``ansys.motorcad.core`` API. The geometry regions that are
+currently set in the Motor-CAD model are shown under **Template** in the tree.
 
 .. figure:: ../images/Adaptive_Geometry_DXF__1.png
     :width: 500pt
@@ -422,17 +423,17 @@ By default, the imported regions are not displayed. To display an imported regio
 checkbox.
 
 Imported regions are not automatically set in the Motor-CAD model or used by the Motor-CAD
-calculations. Adaptive templates can be used to customise the Motor-CAD model geometry with the
-imported geometry.
+calculations. To customise the Motor-CAD template geometry with the imported geometry, use Adaptive
+Templates.
 
 Use the ``get_region_dxf()`` method in an adaptive templates script to access an imported region.
-Then, modify and interact with the region in the same way as for any other region object.
+You can then modify and interact with the region in the same way as for any other region object.
 The name, properties and parent regions of the imported region can be defined.
 
 To replace an existing region with an imported DXF region, use the ``Region.replace()`` method.
 
-As with any Region object, it is set in the Motor-CAD model using ``set_region()``. The imported
-region then appears under **Template** in the Geometry tree shown in the
+As with any region object, it is set in the Motor-CAD model using the ``set_region()`` method. The
+imported region then appears under **Template** in the Geometry tree shown in the
 **Geometry -> Editor -> Geometry** tab in Motor-CAD.
 
 
