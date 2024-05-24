@@ -315,7 +315,7 @@ A function for creating a triangular notch region can be imported:
 The ``triangular_notch()`` function requires 4 arguments:
 
 * ``radius``: Radial position of the notch outer edge. (For a rotor notch, this is the rotor
-  radius)
+  radius.)
 
 * ``sweep`` - the sweep of the notch along the rotor airgap, in degrees (defines the notch width)
 
