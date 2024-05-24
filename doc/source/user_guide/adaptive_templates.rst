@@ -24,9 +24,8 @@ under :ref:`ref_examples_adaptive_templates_library`.
 For the examples shown in this user guide,
 see :ref:`ref_BPM_Triangular_Rotor_Notches` and :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
-It is recommended that users new to Motor-CAD Adaptive Templates
-work through the tutorial supplied with Motor-CAD.
-The tutorial contains additional information and full workflow examples.
+Those who are new to Motor-CAD Adaptive Templates should work through the tutorial supplied with
+Motor-CAD. The tutorial contains additional information and full workflow examples.
 
 Geometry editor
 ***************
@@ -317,19 +316,20 @@ The ``triangular_notch()`` function requires four arguments:
 * ``radius``: Radial position of the notch outer edge. (For a rotor notch, this is the rotor
   radius.)
 
-* ``sweep`` - the sweep of the notch along the rotor airgap, in degrees (defines the notch width)
+* ``sweep`` - Sweep of the notch along the rotor airgap, in degrees. (This parameter defines the
+  notch width.)
 
-* ``centre_angle`` - the angular position of the notch centre
+* ``centre_angle`` - Angular position of the notch centre.
 
-* ``depth`` - the depth of the notch
+* ``depth`` - Depth of the notch
 
 .. figure:: ../images/Adaptive_Geometry_Shapes_Diagram.png
     :width: 500pt
 
     Required arguments for the ``triangular_notch()`` function.
 
-A rotor notch can be defined using this function, so that the user does not need to calculate the
-coordinates for the notch entities.
+A rotor notch can be defined using this function so that the coordinates for the notch entities do
+not need to be calculated.
 
 To use the ``triangular_notch()`` function to create a triangular rotor notch region:
 
@@ -339,11 +339,11 @@ To use the ``triangular_notch()`` function to create a triangular rotor notch re
         rotor_radius, notch_angular_width, notch_centre_angle, notch_depth
     )
 
-where the arguments ``rotor_radius``, ``notch_angular_width``, ``notch_centre_angle`` and
-``notch_depth`` must be calculated in the Adaptive Templates Script and specified.
+The arguments, ``rotor_radius``, ``notch_angular_width``, ``notch_centre_angle`` and
+``notch_depth`` must be calculated in the Adaptive Templates script and specified.
 
 The notch region properties can then be defined and the region can be set in Motor-CAD, as described
-earlier in this guide.
+earlier.
 
 For a full Adaptive Templates example using the workflow described here, see
 :ref:`ref_BPM_Triangular_Rotor_Notches`.
@@ -351,25 +351,25 @@ For a full Adaptive Templates example using the workflow described here, see
 Details on the Geometry Shapes functions within ``ansys.motorcad.core.geometry_shapes`` are
 available in the :ref:`ref_API_Reference` under :ref:`ref_geometry_shapes`.
 
-Creating and modifying adaptive templates scripts
-*************************************************
+Create and modify adaptive templates scripts
+********************************************
 
-It is recommended to create Adaptive Template Scripts outside Motor-CAD, using a Python Integrated
-Development Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the
-script, allowing access to autocompletion, code correction and other features which are not
-available in the Motor-CAD scripting interface.
+Adaptive Template Scripts should be created outside Motor-CAD, using a Python Integrated Development
+Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the script, allowing
+access to autocompletion, code correction and other features which are not available in the
+Motor-CAD scripting interface.
 
 This is essential when writing complex scripts, allowing issues with the script to be fixed and the
-inspection of Python objects (for example geometry regions from Motor-CAD).
+inspection of Python objects, such as geometry regions from Motor-CAD.
 
 For more information on the Synchronous Reluctance machine geometry with curved flux barriers used
-for this example, please see :ref:`ref_SYNC_Curve_Flux_Barriers`.
+for this example, see :ref:`ref_SYNC_Curve_Flux_Barriers`.
 
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive templates script can be edited from an external IDE (for example PyCharm, VSCode). When
-using an external IDE it is important to ensure that the script contains this method before
-getting/setting any Motor-CAD geometry:
+Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). When
+using an external IDE, it is important to ensure that the script contains this method before
+getting or setting any Motor-CAD geometry:
 
 .. code:: python
 
@@ -379,7 +379,7 @@ Drawing geometry objects
 ------------------------
 When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
 feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
-the function ``draw_objects_debug()`` which can be used to plot any region that has been defined in
+the ``draw_objects_debug()`` function, which can be used to plot any region that has been defined in
 Python. This function only plots regions when called from an external IDE to assist with debugging
 scripts. To plot regions from the Motor-CAD scripting interface, use ``draw_objects``.
 
