@@ -107,13 +107,13 @@ class Region(object):
     def replace(self, replacement_region):
         """Replace self with another region.
 
-        This method replaces region entities with entities from the replacement region object
-        (for example an imported DXF region).
+        This method replaces region entities with entities from the replacement region object,
+        such as an imported DXF region.
 
         Parameters
         ----------
         replacement_region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object, whose entities are to replace those of the
+            Motor-CAD region object whose entities are to replace those of the
             existing region.
         """
         # Remove existing entities from the region object
