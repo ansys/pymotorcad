@@ -251,8 +251,8 @@ Region properties can be set using the appropriate field/property:
     notch.colour = (255, 255, 255)
     notch.material = "Air"
 
-If the region object of the rotor has been created in Python (``rotor = mc.get_region("Rotor")``)
-The rotor region object's properties can be obtained and set for the rotor notch.
+If the region object of the rotor has been created in Python (``rotor = mc.get_region("Rotor")``),
+the rotor region object's properties can be obtained and set for the rotor notch.
 
 The ``Region.duplications`` property represents the symmetry of the region. In the example shown
 using the e9 IPM template, ``duplications = 8`` because there are 8 rotor poles of 45 ° symmetry.
