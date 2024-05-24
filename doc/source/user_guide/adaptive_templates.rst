@@ -312,7 +312,7 @@ A function for creating a triangular notch region can be imported:
 
     from ansys.motorcad.core.geometry_shapes import triangular_notch
 
-The ``triangular_notch()`` function requires 4 arguments:
+The ``triangular_notch()`` function requires four arguments:
 
 * ``radius``: Radial position of the notch outer edge. (For a rotor notch, this is the rotor
   radius.)
