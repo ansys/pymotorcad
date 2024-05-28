@@ -177,7 +177,7 @@ Adaptive Parameters. Adaptive Parameters are shown in the
 
     **Geometry -> Editor -> Adaptive Parameters** tab in Ansys Motor-CAD 2024 R1
 
-Any parameter can be defined, with a Name, Value, and Description. Parameters can be added within
+Any parameter can be defined, with a name, value, and description. Parameters can be added within
 the Motor-CAD interface, or via Python script by using ``set_adaptive_parameter_value()``
 from ``ansys.motorcad.core``:
 
