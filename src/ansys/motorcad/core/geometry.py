@@ -104,6 +104,24 @@ class Region(object):
                     ):
                         self.entities.remove(entity)
 
+    def replace(self, replacement_region):
+        """Replace self with another region.
+
+        This method replaces region entities with entities from the replacement region object,
+        such as an imported DXF region.
+
+        Parameters
+        ----------
+        replacement_region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object whose entities are to replace those of the
+            existing region.
+        """
+        # Remove existing entities from the region object
+        self.entities.clear()
+
+        # Set the region object entities to be the list of replacement region entities
+        self.entities = deepcopy(replacement_region.entities)
+
     # method to receive region from Motor-CAD and create python object
     @classmethod
     def _from_json(cls, json, motorcad_instance=None):

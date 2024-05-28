@@ -733,6 +733,44 @@ def test_unite_regions_2(mc):
     assert expected_region == union
 
 
+def test_replace_region(mc):
+    """Test replace region entities with entities from another region."""
+    region_a = geometry.Region()
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 8)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(5, 8), geometry.Coordinate(7, 10), geometry.Coordinate(7, 8), -2
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(7, 10), geometry.Coordinate(7.5, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(7.5, 10),
+            geometry.Coordinate(8.5, 10),
+            geometry.Coordinate(8, 10),
+            -0.5,
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(8.5, 10), geometry.Coordinate(9, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(9, 10), geometry.Coordinate(10, 9), geometry.Coordinate(9, 9), -1
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 9), geometry.Coordinate(10, 5)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_a.replace(region_b)
+
+    assert region_a.entities == region_b.entities
+
+
 def test_check_collisions(mc):
     """Collision Type : Collision detected.
     No vertices from the other region within the other region."""
