@@ -204,6 +204,8 @@ for child_name in rt_region.child_names:
 
                             mc.set_region(duct_region)
 
+# %%
+# .. image:: ../../images/TrapezoidalDuct1.png
 
 # %%
 # Load in Adaptive Templates Script if required
