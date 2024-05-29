@@ -178,8 +178,8 @@ def test_get_region(mc):
 def test_get_region_dxf(mc):
     mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
     expected_region = geometry.Region()
-    expected_region.name = "Shaft"
-    expected_region.colour = (160, 160, 160)
+    expected_region.name = "DXFRegion_Rotor"
+    expected_region.colour = (192, 192, 192)
     expected_region.duplications = 8
     expected_region.add_entity(
         geometry.Arc(
@@ -198,7 +198,7 @@ def test_get_region_dxf(mc):
         geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
     )
 
-    region = mc.get_region_dxf("Shaft")
+    region = mc.get_region_dxf("DXFRegion_Rotor")
     assert region == expected_region
 
     with pytest.raises(Exception) as e_info:
