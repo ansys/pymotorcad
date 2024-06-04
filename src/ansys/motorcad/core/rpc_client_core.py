@@ -428,12 +428,18 @@ class _MotorCADConnection:
                 )
 
     def ensure_version_at_least(self, required_version):
-        """Check that the Motor-CAD version is later or equal to required version."""
-        if DONT_CHECK_MOTORCAD_VERSION is False:
-            if version.parse(self.program_version) < version.parse(required_version):
-                raise MotorCADError(
-                    "This function requires Motor-CAD version: " + required_version + " or later"
-                )
+        """Ensure if the Motor-CAD version is later or equal to required version."""
+        if not self.check_version_at_least(required_version):
+            raise MotorCADError(
+                "This function requires Motor-CAD version: " + required_version + " or later"
+            )
+
+    def check_version_at_least(self, required_version):
+        """Check if the Motor-CAD version is later or equal to required version."""
+        if DONT_CHECK_MOTORCAD_VERSION:
+            return True
+        else:
+            return version.parse(self.program_version) > version.parse(required_version)
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0

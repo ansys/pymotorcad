@@ -23,6 +23,7 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
+        self._region_type = RegionType.adaptive
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -103,30 +104,68 @@ class Region(object):
                     ):
                         self.entities.remove(entity)
 
+    def replace(self, replacement_region):
+        """Replace self with another region.
+
+        This method replaces region entities with entities from the replacement region object,
+        such as an imported DXF region.
+
+        Parameters
+        ----------
+        replacement_region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object whose entities are to replace those of the
+            existing region.
+        """
+        # Remove existing entities from the region object
+        self.entities.clear()
+
+        # Set the region object entities to be the list of replacement region entities
+        self.entities = deepcopy(replacement_region.entities)
+
     # method to receive region from Motor-CAD and create python object
-    def _from_json(self, json):
-        """Convert class from json object.
+    @classmethod
+    def _from_json(cls, json, motorcad_instance=None):
+        """Convert the class from a JSON object.
 
         Parameters
         ----------
         json: dict
-            Represents geometry region
+            Dictionary representing the geometry region.
+        motorcad_instance : ansys.motorcad.core.MotorCAD
+            Motor-CAD instance to connect to. The default is ``None``.
         """
+        has_region_type = "region_type" in json
+        is_magnet = has_region_type and (json["region_type"] == RegionType.magnet.value)
+
+        if is_magnet:
+            new_region = RegionMagnet(motorcad_instance)
+            new_region._magnet_angle = json["magnet_angle"]
+            new_region._br_multiplier = json["magnet_magfactor"]
+            new_region._magnet_polarity = json["magnet_polarity"]
+            new_region._br_magnet = json["magnet_br_value"]
+        else:
+            new_region = cls(motorcad_instance)
+
+        if has_region_type:
+            new_region._region_type = RegionType(json["region_type"])
+
         # self.Entities = json.Entities
-        self.name = json["name"]
-        self.material = json["material"]
+        new_region.name = json["name"]
+        new_region.material = json["material"]
 
-        self.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
-        self.area = json["area"]
+        new_region.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        new_region.area = json["area"]
 
-        self.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
-        self.region_coordinate = Coordinate(
+        new_region.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        new_region.region_coordinate = Coordinate(
             json["region_coordinate"]["x"], json["region_coordinate"]["y"]
         )
-        self.duplications = json["duplications"]
-        self.entities = _convert_entities_from_json(json["entities"])
-        self.parent_name = json["parent_name"]
-        self._child_names = json["child_names"]
+        new_region.duplications = json["duplications"]
+        new_region.entities = _convert_entities_from_json(json["entities"])
+        new_region.parent_name = json["parent_name"]
+        new_region._child_names = json["child_names"]
+
+        return new_region
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -147,6 +186,7 @@ class Region(object):
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
+            "region_type": self._region_type.value,
         }
 
         return region_dict
@@ -186,7 +226,6 @@ class Region(object):
 
     @parent_name.setter
     def parent_name(self, name):
-        """Set region parent name."""
         self._parent_name = name
 
     @property
@@ -207,7 +246,6 @@ class Region(object):
 
     @motorcad_instance.setter
     def motorcad_instance(self, mc):
-        """Set linked Motor-CAD instance."""
         # if isinstance(mc, _MotorCADConnection):
         #     raise Exception("Unable to set self.motorcad_instance,
         #                      mc is not a Motor-CAD connection")
@@ -239,7 +277,6 @@ class Region(object):
 
     @parent.setter
     def parent(self, region):
-        """Set parent region."""
         self._parent_name = region.name
 
     def subtract(self, region):
@@ -466,8 +503,113 @@ class Region(object):
         return None
 
 
+class RegionMagnet(Region):
+    """Provides the Python representation of a Motor-CAD magnet geometry region."""
+
+    def __init__(self, motorcad_instance=None):
+        """Initialise a ``RegionMagnet`` instance."""
+        super().__init__(motorcad_instance)
+        self._magnet_angle = 0.0
+        self._br_multiplier = 0.0
+        self._br_magnet = 0.0
+        self._magnet_polarity = ""
+
+    def _to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        dict
+            Dictionary of the geometry region represented as JSON.
+        """
+        region_dict = super()._to_json()
+
+        region_dict["magnet_magfactor"] = self._br_multiplier
+        region_dict["magnet_angle"] = self._magnet_angle
+
+        return region_dict
+
+    @property
+    def br_multiplier(self):
+        """Br multiplier.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_multiplier
+
+    @br_multiplier.setter
+    def br_multiplier(self, br_multiplier):
+        self._br_multiplier = br_multiplier
+
+    @property
+    def br_value(self):
+        """Br value of magnet before Br multiplier applied.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_magnet
+
+    @property
+    def magnet_angle(self):
+        """Angle of the magnet in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._magnet_angle
+
+    @magnet_angle.setter
+    def magnet_angle(self, magnet_angle):
+        self._magnet_angle = magnet_angle
+
+    @property
+    def br_x(self):
+        """X-axis component of br value.
+
+        Returns
+        -------
+        float
+        """
+        return cos(radians(self.magnet_angle)) * self.br_used
+
+    @property
+    def br_y(self):
+        """Y-axis component of the br value.
+
+        Returns
+        -------
+        float
+        """
+        return sin(radians(self.magnet_angle)) * self.br_used
+
+    @property
+    def br_used(self):
+        """Br used after applying Br multiplier.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_magnet * self.br_multiplier
+
+    @property
+    def magnet_polarity(self):
+        """Polarity of the magnet.
+
+        Returns
+        -------
+        string
+        """
+        return self._magnet_polarity
+
+
 class Coordinate(object):
-    """Python representation of coordinate in two-dimensional space.
+    """Provides the Python representation of a coordinate in two-dimensional space.
 
     Parameters
     ----------
@@ -1507,3 +1649,63 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
+
+
+class RegionType(Enum):
+    """Provides an enumeration for storing Motor-CAD region types."""
+
+    stator = "Stator"
+    rotor = "Rotor"
+    slot_area_stator = "Stator Slot"
+    slot_area_rotor = "Rotor Slot"
+    slot_split = "Split Slot"
+    stator_liner = "Stator Liner"
+    rotor_liner = "Rotor Liner"
+    wedge = "Wedge"
+    stator_duct = "Stator Duct"
+    housing = "Housing"
+    housing_magnetic = "Magnetic Housing"
+    stator_impreg = "Stator Impreg"
+    impreg_gap = "Impreg Gap"
+    stator_copper = "Stator Copper"
+    stator_copper_ins = "Stator Copper Insulation"
+    stator_divider = "Stator Divider"
+    stator_slot_spacer = "Stator Slot Spacer"
+    stator_separator = "Stator slot separator"
+    coil_insulation = "Coil Insulation"
+    stator_air = "Stator Air"
+    rotor_hub = "Rotor hub"
+    rotor_air = "Rotor Air"
+    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
+    rotor_pocket = "Rotor Pocket"
+    pole_spacer = "Pole Spacer"
+    rotor_slot = "Rotor Slot"
+    coil_separator = "Coil Separator"
+    damper_bar = "Damper Bar"
+    wedge_rotor = "Rotor Wedge"
+    rotor_divider = "Rotor Divider"
+    rotor_copper_ins = "Rotor Copper Insulation"
+    rotor_copper = "Rotor Copper"
+    rotor_impreg = "Rotor Impreg"
+    shaft = "Shaft"
+    axle = "Axle"
+    rotor_duct = "Rotor Duct"
+    magnet = "Magnet"
+    barrier = "Barrier"
+    mounting_base = "Base Mount"
+    mounting_plate = "Plate Mount"
+    banding = "Banding"
+    sleeve = "Sleeve"
+    rotor_cover = "Rotor Cover"
+    slot_wj_insulation = "Slot Water Jacket Insulation"
+    slot_wj_wall = "Slot Water Jacket Wall"
+    slot_wj_duct = "Slot Water Jacket Duct"
+    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
+    cowling = "Cowling"
+    cowling_gril = "Cowling Grill"
+    brush = "Brush"
+    commutator = "Commutator"
+    airgap = "Airgap"
+    dxf_import = "DXF Import"
+    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    adaptive = "Adaptive Region"

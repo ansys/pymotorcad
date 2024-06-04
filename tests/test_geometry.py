@@ -13,6 +13,7 @@ from ansys.motorcad.core.geometry import (
     Coordinate,
     Line,
     Region,
+    RegionMagnet,
     _Orientation,
     _orientation_of_three_points,
     rt_to_xy,
@@ -175,6 +176,38 @@ def test_get_region(mc):
     assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 
 
+def test_get_region_dxf(mc):
+    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    expected_region = geometry.Region()
+    expected_region.name = "DXFRegion_Rotor"
+    expected_region.colour = (192, 192, 192)
+    expected_region.duplications = 8
+    expected_region.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(27.5, 0),
+            geometry.Coordinate(19.4454364826301, 19.4454364826301),
+            geometry.Coordinate(0, 0),
+            27.5,
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(
+            geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0)
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
+    )
+
+    region = mc.get_region_dxf("DXFRegion_Rotor")
+    assert region == expected_region
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region_dxf("Hello_World")
+
+    assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
+
+
 def test_set_region(mc):
     region = generate_constant_region()
     mc.set_region(region)
@@ -293,6 +326,7 @@ def test_region_from_json():
         "entities": [],
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
+        "region type": "Adaptive Region",
     }
 
     test_region = geometry.Region()
@@ -307,8 +341,7 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
 
-    region = geometry.Region()
-    region._from_json(raw_region)
+    region = geometry.Region._from_json(raw_region)
 
     assert region == test_region
 
@@ -324,6 +357,7 @@ def test_region_to_json():
         "duplications": 10,
         "entities": [],
         "parent_name": "Insulation",
+        "region_type": "Adaptive Region",
     }
 
     test_region = geometry.Region()
@@ -698,6 +732,44 @@ def test_unite_regions_2(mc):
     union = mc.unite_regions(square, [triangle])
 
     assert expected_region == union
+
+
+def test_replace_region(mc):
+    """Test replace region entities with entities from another region."""
+    region_a = geometry.Region()
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 8)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(5, 8), geometry.Coordinate(7, 10), geometry.Coordinate(7, 8), -2
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(7, 10), geometry.Coordinate(7.5, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(7.5, 10),
+            geometry.Coordinate(8.5, 10),
+            geometry.Coordinate(8, 10),
+            -0.5,
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(8.5, 10), geometry.Coordinate(9, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(9, 10), geometry.Coordinate(10, 9), geometry.Coordinate(9, 9), -1
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 9), geometry.Coordinate(10, 5)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_a.replace(region_b)
+
+    assert region_a.entities == region_b.entities
 
 
 def test_check_collisions(mc):
@@ -1722,3 +1794,37 @@ def test_region_translate():
 
     r1.translate(3, -2)
     assert r1 == r2
+
+
+def test_get_set_region_magnet(mc):
+    mc.set_variable("GeometryTemplateType", 1)
+    mc.reset_adaptive_geometry()
+    magnet = mc.get_region("L1_1Magnet2")
+    assert isinstance(magnet, RegionMagnet)
+
+    assert magnet.br_multiplier == 1
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31
+    assert magnet.magnet_angle == 22.5
+    assert magnet.magnet_polarity == "N"
+
+    assert isclose(magnet.br_x, 1.21028, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0.50131, abs_tol=1e-3)
+
+    magnet.magnet_angle = 0
+    assert isclose(magnet.br_x, 1.31, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0, abs_tol=1e-3)
+
+    magnet.br_multiplier = 2
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31 * 2
+
+    mc.set_region(magnet)
+    magnet = mc.get_region("L1_1Magnet2")
+    assert magnet.br_multiplier == 2
+    assert magnet.magnet_angle == 0
+    assert magnet.magnet_polarity == "N"
+    assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0, abs_tol=1e-3)
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31 * 2
