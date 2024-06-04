@@ -240,6 +240,16 @@ class Region(object):
         return self._child_names
 
     @property
+    def region_type(self):
+        """Get region type.
+
+        Returns
+        -------
+        string
+        """
+        return self._region_type
+
+    @property
     def motorcad_instance(self):
         """Get linked Motor-CAD instance."""
         return self._motorcad_instance
@@ -511,6 +521,7 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+        self._region_type = RegionType.magnet
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
