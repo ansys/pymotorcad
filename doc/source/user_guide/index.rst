@@ -13,6 +13,7 @@ User guide
    troubleshooting
    Motor-CAD_setup
    adaptive_templates
+   virtual_env_motorcad
 
 
 PyMotorCAD provides Python access to Motor-CAD. The RPC-based :ref:`ref_MotorCAD_object`
