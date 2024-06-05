@@ -1,7 +1,7 @@
 import builtins
 from copy import deepcopy
 import math
-from math import cos, degrees, inf, isclose, pi, radians, sin, sqrt
+from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
 import pytest
@@ -12,6 +12,7 @@ from ansys.motorcad.core.geometry import (
     Arc,
     Coordinate,
     Line,
+    Region,
     RegionMagnet,
     _Orientation,
     _orientation_of_three_points,
@@ -954,6 +955,7 @@ def test_arc_start_end_angle():
     radius = -2
 
     a0 = Arc(p_start, p_end, p_centre, radius)
+
     assert a0.start_angle == -90
     assert a0.end_angle == 0
 
@@ -984,17 +986,18 @@ def test_arc_coordinate_on_entity():
 
     p0 = Coordinate(1, 1)
     p1 = Coordinate(1, -1)
-    radius = abs(cos(degrees(45)))
+    radius = sqrt(2)
 
     a1 = Arc(p0, p1, p_c, -radius)
+
     p_test1 = Coordinate(radius, 0)
     p_test2 = Coordinate(-radius, 0)
     assert a1.coordinate_on_entity(p_test1) is True
     assert a1.coordinate_on_entity(p_test2) is False
 
-    a1 = Arc(p0, p1, p_c, radius)
-    assert a1.coordinate_on_entity(p_test2) is True
-    assert a1.coordinate_on_entity(p_test1) is False
+    a2 = Arc(p0, p1, p_c, radius)
+    assert a2.coordinate_on_entity(p_test1) is False
+    assert a2.coordinate_on_entity(p_test2) is True
 
 
 def test_midpoints():
@@ -1517,16 +1520,16 @@ def test_coordinate_rotation():
     centre = Coordinate(0, 0)
 
     c1 = Coordinate(10, 0)
-    c1 = c1.rotate(centre, 90)
+    c1.rotate(centre, 90)
     assert c1 == Coordinate(0, 10)
 
     c1 = Coordinate(10, 0)
-    c1 = c1.rotate(centre, -90)
+    c1.rotate(centre, -90)
     assert c1 == Coordinate(0, -10)
 
     centre = Coordinate(9, 0)
     c1 = Coordinate(10, 0)
-    c1 = c1.rotate(centre, 90)
+    c1.rotate(centre, 90)
     assert c1 == Coordinate(9, 1)
 
 
@@ -1537,14 +1540,30 @@ def test_line_rotation():
     c2 = Coordinate(10, 0)
 
     l1 = Line(c1, c2)
-    l1 = l1.rotate(centre, 90)
+    l1.rotate(centre, 90)
     assert l1 == Line(Coordinate(0, 0), Coordinate(0, 10))
 
     l1 = Line(c1, c2)
     old_mid = l1.midpoint
-    l1 = l1.rotate(l1.midpoint, 90)
+    l1.rotate(l1.midpoint, 90)
     assert l1 == Line(Coordinate(5, -5), Coordinate(5, 5))
     assert l1.midpoint == old_mid
+
+
+def test_arc_rotation():
+    centre = Coordinate(0, 0)
+    radius = 10
+    c1 = Coordinate(radius, 0)
+    c2 = Coordinate(0, 10)
+
+    a1 = Arc(c1, c2, centre, radius)
+
+    c3 = Coordinate(-radius, 0)
+    a2 = Arc(c2, c3, centre, radius)
+
+    a1.rotate(centre, 90)
+
+    assert a1 == a2
 
 
 def test_get_line_intersection():
@@ -1699,6 +1718,82 @@ def test_reset_geometry(mc):
     assert stator.entities != stator_copy.entities
 
     set_default_instance(save_default_instance)
+
+
+def test_translation_coord():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(2, 2)
+    c1.translate(2, 2)
+    assert c1 == c2
+
+    c1 = Coordinate(1, 2)
+    c2 = Coordinate(-1.5, 1)
+    c1.translate(-2.5, -1)
+    assert c1 == c2
+
+
+def test_arc_new_init():
+    a1 = Arc(Coordinate(10, 0), Coordinate(0, 10), radius=10)
+    assert a1.centre == Coordinate(0, 0)
+
+    with pytest.raises(Exception):
+        _ = Arc(Coordinate(10, 0), Coordinate(0, 10), radius=6)
+
+    a1 = Arc(Coordinate(10, 0), Coordinate(0, 10), centre=Coordinate(0, 0))
+    assert a1.radius == 10
+
+    a2 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(10, 10))
+    assert a2.radius == 10
+
+    a3 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(0, 0))
+    assert a3.radius == -10
+    assert a3.centre == Coordinate(0, 0)
+
+
+def test_region_rotate():
+    p1 = Coordinate(0, 0)
+    p2 = Coordinate(5, 0)
+    p3 = Coordinate(0, 5)
+
+    r1 = Region()
+    r1.add_entity(Line(p1, p2))
+    r1.add_entity(Arc(p2, p3, radius=10))
+    r1.add_entity(Line(p3, p1))
+
+    p4 = Coordinate(10, 5)
+    p5 = Coordinate(5, 5)
+    r2 = Region()
+    r2.add_entity(Arc(p2, p4, radius=10))
+    r2.add_entity(Line(p4, p5))
+    r2.add_entity(Line(p5, p2))
+
+    assert r1 != r2
+
+    r1.rotate(p2, -90)
+    assert r1 == r2
+
+
+def test_region_translate():
+    p1 = Coordinate(0, 0)
+    p2 = Coordinate(5, 0)
+    p3 = Coordinate(0, 5)
+    r1 = Region()
+    r1.add_entity(Line(p1, p2))
+    r1.add_entity(Arc(p2, p3, radius=10))
+    r1.add_entity(Line(p3, p1))
+
+    p4 = Coordinate(3, -2)
+    p5 = Coordinate(8, -2)
+    p6 = Coordinate(3, 3)
+    r2 = Region()
+    r2.add_entity(Line(p4, p5))
+    r2.add_entity(Arc(p5, p6, radius=10))
+    r2.add_entity(Line(p6, p4))
+
+    assert r1 != r2
+
+    r1.translate(3, -2)
+    assert r1 == r2
 
 
 def test_get_set_region_magnet(mc):
