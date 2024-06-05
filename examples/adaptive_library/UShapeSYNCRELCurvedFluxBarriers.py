@@ -434,6 +434,9 @@ for layer in range(number_layers):
             mc.set_region(pocket_right)
 
 # %%
+# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
+
+# %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
 # When this script is run externally, the following is executed:
@@ -445,11 +448,11 @@ for layer in range(number_layers):
 # * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
 #   geometry
 
-
+# %%
+# .. note::
+#    When running in a Jupyter Notebook, the path for the Adaptive Templates script (PY file) must
+#    be given instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
-# %%
-# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png

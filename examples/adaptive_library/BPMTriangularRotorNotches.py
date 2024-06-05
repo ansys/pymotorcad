@@ -231,6 +231,10 @@ for notch_loop in range(0, number_notches):
         mc.set_region(notch)
 
 # %%
+# .. image:: ../../images/BPMTriangularRotorNotches.png
+#     :width: 300pt
+
+# %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
 # When this script is run externally, the following is executed:
@@ -242,12 +246,11 @@ for notch_loop in range(0, number_notches):
 # * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
 #   geometry
 
-
+# %%
+# .. note::
+#    When running in a Jupyter Notebook, the path for the Adaptive Templates script (PY file) must
+#    be given instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
-# %%
-# .. image:: ../../images/BPMTriangularRotorNotches.png
-#     :width: 300pt

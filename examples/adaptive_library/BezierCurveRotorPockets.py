@@ -39,6 +39,8 @@ with a custom curve defined using a Bezier function.
 # Import ``bezier`` used to draw the curve.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
@@ -279,6 +281,7 @@ if Rotor_Pocket_regions[1].is_closed():
 
 # %%
 # .. image:: ../../images/Adaptive_Geometry_Bezier_e4a_3.png
+#     :width: 300pt
 
 # %%
 # Load in Adaptive Templates Script if required
