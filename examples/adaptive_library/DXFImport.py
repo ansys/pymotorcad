@@ -43,6 +43,8 @@ This script applies the adaptive templates functionality to import custom rotor 
 # Import ``pymotorcad`` to access Motor-CAD.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_path = 'images/Adaptive_DXF_Import_5.png'
 import os
 import shutil
 import sys

@@ -50,6 +50,8 @@ improve NVH performance.
 # Import ``pymotorcad`` to access Motor-CAD. Import ``triangular_notch`` to create the notch
 # geometry region with Adaptive Template geometry. Import ``os``, ``shutil``, ``sys``, and
 # ``tempfile`` to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys

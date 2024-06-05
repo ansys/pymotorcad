@@ -12,6 +12,8 @@ into trapezoidal ducts.
 # to define the adaptive template geometry.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
