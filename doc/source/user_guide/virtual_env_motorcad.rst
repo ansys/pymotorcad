@@ -31,8 +31,8 @@ Activate the newly created virtual environment
 
      .\virtual_environment_folder_location\Scripts\activate.ps1
 
-Based on terminal specification, the virtual environment name may highlight here. Install all needed
-packages such as  :code:`ansys.motorcad.core` ,  :code:`bezier`  via pip etc. 
+Depending on the terminal specification, the virtual environment name might be highlighted.
+Use ``pip`` to install all needed packages, such as :code:`ansys.motorcad.core` and :code:`bezier`. 
 
 .. code-block:: console
 
