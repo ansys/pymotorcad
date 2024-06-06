@@ -9,7 +9,7 @@ comes with Motor-CAD installation.
 .. figure:: ../images/defaults_python_path.PNG
     :width: 500pt
 
-Creating a new local Python virtual environment
+Create a local Python virtual environment
 *******************************
 If python is already installed we can check the python version by following command in a terminal
 (windows terminal or any terminal integrated with IDE such as VSCODE or PyCharm)
