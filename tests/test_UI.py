@@ -52,3 +52,12 @@ def test_set_3d_component_visibility(mc):
 def test_set_visible(mc):
     mc.set_visible(False)
     mc.set_visible(True)
+
+
+def test_clear_messages(mc):
+    test_message = "test_message_to_clear"
+    mc.show_message(test_message)
+    assert (test_message in message for message in mc.get_messages(0))
+
+    mc.clear_messages()
+    assert mc.get_messages(0) == [""]

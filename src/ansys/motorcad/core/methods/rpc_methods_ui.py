@@ -145,3 +145,10 @@ class _RpcMethodsUI:
         method = "Set3DComponentVisibility"
         params = [group_name, component_name, visibility]
         return self.connection.send_and_receive(method, params)
+
+    def clear_messages(self):
+        """Clear messages in the message display window."""
+        self.connection.ensure_version_at_least("2024.2")
+        method = "ClearMessages"
+        params = []
+        return self.connection.send_and_receive(method, params)
