@@ -1,6 +1,6 @@
 .. _ref_virtual_env_motorcad:
 
-Using Python Virtual Environment in Motor-CAD
+Using a Python virtual environment in Motor-CAD
 ===============================
 
 User have a flexibility to use python virtual environment with Motor-CAD. By default Motor-CAD uses python 
