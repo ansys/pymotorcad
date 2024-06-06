@@ -19,7 +19,7 @@ such as Visual Studio Code or PyCharm.)
 
     python --version
 
-Based on the above python version, a virtual environment can be created
+Based on the Python version, you create a virtual environment:
 
 .. code-block:: console
 
