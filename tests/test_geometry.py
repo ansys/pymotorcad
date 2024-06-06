@@ -13,10 +13,10 @@ from ansys.motorcad.core.geometry import (
     Coordinate,
     Line,
     RegionMagnet,
+    RegionType,
     _Orientation,
     _orientation_of_three_points,
     rt_to_xy,
-    RegionType,
 )
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
