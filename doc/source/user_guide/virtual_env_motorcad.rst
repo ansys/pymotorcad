@@ -12,7 +12,8 @@ comes with Motor-CAD installation.
 Create a local Python virtual environment
 *******************************
 If python is already installed we can check the python version by following command in a terminal
-(windows terminal or any terminal integrated with IDE such as VSCODE or PyCharm)
+(You can use the Windows terminal or any terminal integrated with an IDE
+such as Visual Studio Code or PyCharm.)
 
 .. code-block:: console
 
