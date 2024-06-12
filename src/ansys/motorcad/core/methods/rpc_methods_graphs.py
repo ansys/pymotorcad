@@ -32,7 +32,14 @@ class _RpcMethodsGraphs:
         try:
             while True:
                 try:
-                    x, y = graphing_func(*args, loop)
+                    # fea and magnetic 3D graph point functions require additional arguments
+                    if len(args) > 1:
+                        (
+                            x,
+                            y,
+                        ) = graphing_func(args[0], args[1], loop, args[2])
+                    else:
+                        x, y = graphing_func(*args, loop)
 
                     y_points.append(y)
                     x_points.append(x)
@@ -146,12 +153,12 @@ class _RpcMethodsGraphs:
         graph_id : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
-
+        slice_number : int
+            Slice number to get x and y coordinate values from.
         point_number : int
             Point number to get x and y coordinate values from.
-        time_step_number
-
+        time_step_number : int
+            Time step number to get x and y coordinate values from.
         Returns
         -------
         xValue : float
@@ -162,6 +169,50 @@ class _RpcMethodsGraphs:
         method = "GetFEAGraphPoint"
         params = [{"variant": graph_id}, slice_number, point_number, time_step_number]
         return self.connection.send_and_receive(method, params)
+
+    def get_fea_graph(self, graph_name, slice_number, time_step_number):
+        """Get graph points from a Motor-CAD FEA graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Slice number to get x and y coordinate values from.
+        time_step_number : int
+            Time step number to get x and y coordinate values from.
+        Returns
+        -------
+        x_values : list
+            Value of x coordinates from graph
+        y_values : list
+            Value of y coordinates from graph
+        """
+        return self._get_graph(self.get_fea_graph_point, graph_name, slice_number, time_step_number)
+
+    def get_magnetic_3d_graph(self, graph_name, slice_number, time_step_number):
+        """Get graph points from a Motor-CAD magnetic 3D graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Slice number to get x and y coordinate values from.
+        time_step_number : int
+            Time step number to get x and y coordinate values from.
+        Returns
+        -------
+        x_values : list
+            Value of x coordinates from graph
+        y_values : list
+            Value of y coordinates from graph
+        """
+        return self._get_graph(
+            self.get_magnetic_3d_graph_point, graph_name, slice_number, time_step_number
+        )
 
     def get_magnetic_graph(self, graph_name):
         """Get graph points from a Motor-CAD Magnetic graph.
