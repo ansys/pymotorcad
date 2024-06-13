@@ -10,8 +10,8 @@ DXF file.
 #    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
 #
 # .. note::
-#    DXF import for Adaptive Templates in Motor-CAD requires v2024.2.0.6 (Motor-CAD 2024 R2) or
-#    later and PyMotorCAD v0.4.2. To update PyMotorCAD in Motor-CAD, select
+#    DXF import for Adaptive Templates in Motor-CAD requires v2024.2.1.16 (Motor-CAD 2024 R2) or
+#    later and PyMotorCAD v0.5.0. To update PyMotorCAD in Motor-CAD, select
 #    **Update to Latest Release** under **PyMotorCAD updates** from the **Scripting -> Settings**
 #    tab.
 
