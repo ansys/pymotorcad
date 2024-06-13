@@ -6,7 +6,7 @@ Using a Python virtual environment in Motor-CAD
 You can use a Python virtual environment with Motor-CAD. By default, Motor-CAD uses the Python 
 that comes with the Motor-CAD installation. 
 
-.. figure:: ../images/defaults_python_path.PNG
+.. figure:: ../images/defaults_python_path.png
     :width: 500pt
 
 Create a local Python virtual environment
@@ -63,7 +63,7 @@ Proceed to change the Python Exe file path in  **Defaults>Default File Locations
 should point to the :code:`pythonw.exe` file in the  :code:`Scripts` folder of the virtual environment
 as shown below.
 
-.. figure:: ../images/change_python_location.PNG
+.. figure:: ../images/change_python_location.png
     :width: 500pt
 
 
@@ -71,5 +71,5 @@ as shown below.
 The new Python file path is updated accordingly, and Python version is recognized by the 
 Motor-CAD UI. 
 
-.. figure:: ../images/changed_python_location.PNG
+.. figure:: ../images/changed_python_location.png
     :width: 500pt
