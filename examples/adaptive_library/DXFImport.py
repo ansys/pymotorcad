@@ -10,12 +10,8 @@ DXF file.
 #    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
 #
 # .. note::
-#    DXF import for Adaptive Templates in Motor-CAD requires v2024.2.1.16 (Motor-CAD 2024 R2) or
-#    later and PyMotorCAD v0.5.0. To update PyMotorCAD in Motor-CAD, select
-#    **Update to Latest Release** under **PyMotorCAD updates** from the **Scripting -> Settings**
-#    tab.
-
-# %%
+#    DXF import for Adaptive Templates in Motor-CAD requires Motor-CAD 2024 R2 or later.
+#
 # This script is designed to be run from Motor-CAD template "e8". The "e8" template file contains an
 # imported custom geometry from a DXF file. The template should be adjusted slightly to more
 # closely match the imported custom geometry before running the Adaptive Templates script.
