@@ -59,7 +59,7 @@ In the terminal window the preceding commands might look like this:
 
 Change the Python EXE file path in the Motor-CAD UI
 *******************************
-Proceed to change the Python Exe file path in  **Defaults>Default File Locations**. This
+Proceed to change the Python Exe file path in **Defaults>Default File Locations**. This
 should point to the :code:`pythonw.exe` file in the  :code:`Scripts` folder of the virtual environment
 as shown below.
 
