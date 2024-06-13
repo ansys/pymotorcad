@@ -53,7 +53,7 @@ Use ``pip`` to install all needed packages, such as :code:`ansys.motorcad.core` 
 
 In the terminal window the preceding commands might look like this:
 
-.. figure:: ../images/python_venv_summary.PNG
+.. figure:: ../images/python_venv_summary.png
     :width: 500pt
 
 
