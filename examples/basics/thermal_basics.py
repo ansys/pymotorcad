@@ -3,10 +3,14 @@
 
 Motor-CAD thermal example script
 ================================
-This example provides a Motor-CAD thermal script.
+This example provides a Motor-CAD thermal script to run calculations and plot results.
 """
-
 # %%
+# This script will change thermal model input data parameter values (geometry, housing water
+# jacket), run thermal steady state and transient calculations, extract and plot results. The
+# Motor-CAD heat transfer correlations for housing water jacket cooling are disabled and
+# user-defined heat transfer coefficients are specified.
+#
 # Set up example
 # --------------
 # Setting up this example consists of performing imports, launching
