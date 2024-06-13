@@ -124,14 +124,19 @@ mc.set_array_variable("HousingWJ_CalcInputH_A", 0, 1)
 # %%
 # Get fluid properties (thermal conductivity, density and dynamic viscosity) and the fluid
 # velocities for the rear and active segments of the housing. Calculate new heat transfer
-# coefficients for the rear and active segments of the housing.
+# coefficients for the rear and active segments of the housing. Run a steady state thermal
+# calculation to ensure that the fluid properties and velocities are correctly calculated based on
+# the model changes made earlier.
+#
+# .. note::
+#    Some Motor-CAD output parameters are not automatically updated when an input parameter is set.
+#    Outputs will be updated when a steady state thermal calculation runs. Alternatively, the
+#    relevant tab (for example, *Input Data -> Housing Water Jacket -> Heat Transfer*) can be
+#    displayed - however this may not be suitable when running Motor-CAD without the GUI.
+mc.do_steady_state_analysis()
 wj_fluid_k = mc.get_variable("WJ_Fluid_Thermal_Conductivity")
 wj_fluid_rho = mc.get_variable("WJ_Fluid_Density")
 wj_fluid_mu = mc.get_variable("WJ_Fluid_Dynamic_Viscosity")
-
-
-mc.initialise_tab_names()
-mc.display_screen("Input Data;Housing Water Jacket;Heat Transfer")
 wj_fluid_u_r = mc.get_variable("WJ_Channel_Fluid_Velocity_[Rear]")
 wj_fluid_u_a = mc.get_array_variable("HousingWJ_Velocity_A", 0)
 
