@@ -73,7 +73,7 @@ mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 # Set Motor-CAD to Thermal
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Show the Thermal context in Motor-CAD and ensure that the BPM
-# # Motor Type is set.
+# Motor Type is set.
 mc.show_thermal_context()
 mc.set_variable("Motor_Type", 0)
 print("Initialisation completed.")
@@ -81,7 +81,8 @@ print("Initialisation completed.")
 # %%
 # Set up analysis
 # ---------------
-# Setting up the analysis consists of setting the model parameters and saving the file.
+# Setting up the analysis consists of setting the geometry and thermal input data parameters and
+# saving the file.
 #
 # Geometry setup
 # ~~~~~~~~~~~~~~
@@ -96,40 +97,59 @@ mc.display_screen("Scripting")
 mc.set_variable("Housing_Dia", 250)
 
 # %%
-# Set the flow rate of the WJ fluid volume.
+# Thermal input data setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Set the housing water jacket cooling parameters:
+#
+# * Fluid volume flow rate (in units of m\ :sup:`3`/s).
+#
+# * Fluid inlet temperature (in units of °C).
+#
+# * Fluid used by the HWJ (from material database).
 mc.set_variable("WJ_Fluid_Volume_Flow_Rate", 0.002)
-
-# %%
-# Set the temperature of the WJ fluid inlet.
 mc.set_variable("WJ_Fluid_Inlet_Temperature", 25)
-
-# %%
-# Change the cooling fluid.
 mc.set_fluid("HousingWJFluid", "Dynalene HF-LO")
 
 # %%
-# Set the heat transfer correlation.
+# Disable the option for *Active Cooling Only*, so that the HWJ channel also cools the front and
+# rear housing segments.
+mc.set_variable("Water_Jacket_Active_Cooling_Only", 0)
+
+# %%
+# Enable the *Input h* option to allow user input of the heat transfer coefficients for HWJ cooling
+# of the rear and active segments of the housing.
 mc.set_variable("Calc/Input_h[WJ]_Rear_Housing", 1)
 mc.set_array_variable("HousingWJ_CalcInputH_A", 0, 1)
 
+# %%
+# Get fluid properties (thermal conductivity, density and dynamic viscosity) and the fluid
+# velocities for the rear and active segments of the housing. Calculate new heat transfer
+# coefficients for the rear and active segments of the housing.
 wj_fluid_k = mc.get_variable("WJ_Fluid_Thermal_Conductivity")
 wj_fluid_rho = mc.get_variable("WJ_Fluid_Density")
 wj_fluid_mu = mc.get_variable("WJ_Fluid_Dynamic_Viscosity")
-wj_fluid_u_a = mc.get_array_variable("HousingWJ_Velocity_A", 0)
-wj_fluid_u_r = mc.get_variable("WJ_Channel_Fluid_Velocity_[Rear]")
 
-h_A = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_a / wj_fluid_mu
+
+mc.initialise_tab_names()
+mc.display_screen("Input Data;Housing Water Jacket;Heat Transfer")
+wj_fluid_u_r = mc.get_variable("WJ_Channel_Fluid_Velocity_[Rear]")
+wj_fluid_u_a = mc.get_array_variable("HousingWJ_Velocity_A", 0)
+
 h_R = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_r / wj_fluid_mu
+h_A = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_a / wj_fluid_mu
 
 print("h_A = ", h_A)
 print("h_R = ", h_R)
 
+# %%
+# Set the calculated heat transfer coefficients for HWJ cooling of the rear and active segments of
+# the housing.
 mc.set_array_variable("HousingWJ_InputH_A", 0, h_A)
 mc.set_variable("Input_Value_h[WJ]_Rear_Housing", h_R)
 
 # %%
 # Save the file.
-mc.save_to_file(os.path.join(working_folder, "../MotorCAD_Thermal_Python.mot"))
+mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
 # %%
 # Calculate steady state
