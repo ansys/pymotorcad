@@ -20,3 +20,4 @@ airgap
 centre
 VSCode
 PyCharm
+Powershell
