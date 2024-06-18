@@ -12,6 +12,8 @@ into trapezoidal ducts.
 # to define the adaptive template geometry.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
@@ -204,6 +206,8 @@ for child_name in rt_region.child_names:
 
                             mc.set_region(duct_region)
 
+# %%
+# .. image:: ../../images/TrapezoidalDuct1.png
 
 # %%
 # Load in Adaptive Templates Script if required
