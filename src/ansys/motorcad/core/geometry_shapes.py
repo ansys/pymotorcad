@@ -256,4 +256,6 @@ def triangular_notch(radius, sweep, centre_angle, depth):
 
     test = 2
 
+    test = 3
+
     return this_triangular_notch
