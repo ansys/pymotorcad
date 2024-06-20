@@ -38,7 +38,11 @@ class _RegionDrawing:
                 difference = Coordinate(0.00001, 0.00001)
 
             unit_vector = difference / abs(difference)
+            pass
 
+            pass
+
+            pass
             if abs(difference) < overlap_tol:
                 result += unit_vector * overlap_tol * self._get_plot_range() * 1.1
                 result = self._find_coord_no_overlap(result)

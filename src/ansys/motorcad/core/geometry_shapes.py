@@ -252,4 +252,6 @@ def triangular_notch(radius, sweep, centre_angle, depth):
     this_triangular_notch = Region()
     this_triangular_notch.entities = EntityList([line_1, line_2, airgap_arc])
 
+    test = 1
+
     return this_triangular_notch

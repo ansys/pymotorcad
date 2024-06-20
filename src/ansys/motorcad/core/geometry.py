@@ -16,14 +16,6 @@ class Region(object):
         self.material = "air"
         self.colour = (0, 0, 0)
         self.area = 0.0
-        self.centroid = Coordinate(0, 0)
-        self.region_coordinate = Coordinate(0, 0)
-        self.duplications = 1
-        self.entities = EntityList()
-        self._parent_name = ""
-        self._child_names = []
-        self._motorcad_instance = motorcad_instance
-        self._region_type = RegionType.adaptive
 
         # expect other properties to be implemented here including number duplications, material etc
 
