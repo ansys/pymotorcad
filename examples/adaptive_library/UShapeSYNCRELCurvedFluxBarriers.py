@@ -213,7 +213,7 @@ def get_coordinates(pocket, coordinate_indices, mirror_line=None):
 
 # %%
 # Get list of coordinates for ``pocket`` arcs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define functions to get a list of coordinates
 # to use to generate the top and bottom arcs for ``pocket``.
 #
