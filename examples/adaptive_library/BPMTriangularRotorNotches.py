@@ -47,9 +47,11 @@ improve NVH performance.
 # %%
 # Perform Required imports
 # ------------------------
-# Import ``pymotorcad`` to access Motor-CAD. Import ``triangular_notch`` to create the notch
-# geometry region with Adaptive Template geometry. Import ``os``, ``shutil``, ``sys``, and
-# ``tempfile`` to open and save a temporary .mot file if none is open.
+# Import the ``pymotorcad`` package to access Motor-CAD. Import the ``triangular_notch`` function to
+# create the notch geometry region with Adaptive Templates geometry. Import the ``os``, ``shutil``,
+# ``sys``, and ``tempfile`` packages to open and save a temporary MOT file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
@@ -237,14 +239,14 @@ for notch_loop in range(0, number_notches):
 # %%
 # Load in Adaptive Templates Script if required
 # ---------------------------------------------
-# When this script is run externally, the following is executed:
+# When this script is run externally, the script executes the following:
 #
-# * Set Geometry type to "Adaptive"
+# * Set **Geometry type** to **Adaptive**.
 #
-# * Load the script into the Adaptive Templates tab
+# * Load the script into the **Adaptive Templates** tab.
 #
-# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
-#   geometry
+# * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
+#   geometry.
 
 # %%
 # .. note::

@@ -14,6 +14,7 @@ from ansys.motorcad.core.geometry import (
     Line,
     Region,
     RegionMagnet,
+    RegionType,
     _Orientation,
     _orientation_of_three_points,
     rt_to_xy,
@@ -1807,6 +1808,7 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_used == 1.31
     assert magnet.magnet_angle == 22.5
     assert magnet.magnet_polarity == "N"
+    assert magnet.region_type == RegionType.magnet
 
     assert isclose(magnet.br_x, 1.21028, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0.50131, abs_tol=1e-3)
@@ -1828,3 +1830,4 @@ def test_get_set_region_magnet(mc):
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
+    assert magnet.region_type == RegionType.magnet
