@@ -4,6 +4,8 @@ from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
 
+# from ansys.motorcad.core.geometry_fitting import return_entity_list
+
 GEOM_TOLERANCE = 1e-6
 
 
@@ -384,6 +386,25 @@ class Region(object):
         """
         for entity in self.entities:
             entity.rotate(centre_point, angle)
+
+    def rotate_horizontal(self):
+        """Rotate region so that its longest line entity is horizontal.
+
+        Returns
+        ----------
+        rotation_angle : the angle the region was rotated by.
+        """
+        line_lengths = []
+        line_entity_indices = []
+        for index in range(len(self.entities)):
+            i = self.entities[index]
+            if isinstance(i, Line):
+                line_lengths.append(i.length)
+                line_entity_indices.append(index)
+        line_id = line_lengths.index(max(line_lengths))
+        rotation_angle = self.entities[line_entity_indices[line_id]].angle
+        self.rotate(self.centroid, -rotation_angle)
+        return rotation_angle
 
     def translate(self, x, y):
         """Translate Region by specified x,y distances.

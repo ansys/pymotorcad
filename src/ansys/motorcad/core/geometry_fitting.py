@@ -3,7 +3,7 @@
 from copy import copy, deepcopy
 from enum import Enum
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, Region
 
 
 class _EntityType(Enum):
@@ -88,6 +88,61 @@ def return_entity_list(coordinates, line_tolerance, arc_tolerance):
     """
     p = _PointFitting()
     return p.return_entity_list(coordinates, line_tolerance, arc_tolerance)
+
+
+def scale(region, a, b, centre):
+    """Scale a region in 2 dimensions.
+
+    Rotates the region to be horizontal in the x-y plane, then scales in x and y directions from
+    the centre. Then rotates the region back to its original orientation.
+
+    Parameters
+    ----------
+    region : ansys.motorcad.core.geometry.Region
+        region to be scaled.
+    a : float
+        factor to scale the region by horizontally.
+    b : float
+        factor to scale the region by vertically.
+    centre : ansys.motorcad.core.geometry.Coordinate
+        Coordinate to scale around.
+
+    Returns
+    ----------
+    scaled_region : ansys.motorcad.core.geometry.Region
+        Scaled Motor-CAD region object.
+    """
+    # if no centre given, use region_to_scale.centroid
+    region_to_scale = Region()
+    region_to_scale.update(region)
+    rotation_angle = region_to_scale.rotate_horizontal()
+    centre.rotate(region_to_scale.centroid, -rotation_angle)
+    scaled_entities = []
+    for i in region_to_scale.entities:
+        if type(i) == Line:
+            i_points = [i.start, i.end]
+        elif type(i) == Arc:
+            i_points = [i.start, i.midpoint, i.end]
+        scaled_points = []
+        for j in i_points:
+            x_position = j.x - centre.x
+            y_position = j.y - centre.y
+            scaled_points.append(Coordinate(centre.x + a * x_position, centre.y + b * y_position))
+        if type(i) == Line:
+            scaled_entities.append(Line(scaled_points[0], scaled_points[1]))
+        elif type(i) == Arc:
+            # scaled_entities.append(Arc(scaled_points[0], scaled_points[1], scaled_points[2]))
+            scaled_arc_entities = return_entity_list(scaled_points, 0.01, 0.01)
+            for k in scaled_arc_entities:
+                scaled_entities.append(k)
+
+    scaled_region = Region()
+    scaled_region.update(region)
+    scaled_region.entities.clear()
+    for k in scaled_entities:
+        scaled_region.add_entity(k)
+    scaled_region.rotate(region.centroid, rotation_angle)
+    return scaled_region
 
 
 class _PointFitting:
