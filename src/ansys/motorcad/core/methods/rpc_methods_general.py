@@ -356,28 +356,28 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def save_results(self, solution_type):
-        """Save the output results from an ``"EMagnetic"`` solution.
+        """Save the output results from an ``"EMagnetic" or "Thermal"`` solution.
 
-        This method supports only ``"EMagnetic"`` solutions.
+        This method supports only ``"EMagnetic" or "Thermal"`` solutions.
 
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic"``.
+            Soultion type, which must be ``"EMagnetic" or "Thermal"``.
         """
         method = "SaveResults"
         params = [solution_type]
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
-        """Load the output results from an ``"EMagnetic"`` solution.
+        """Load the output results from an ``"EMagnetic" or "Thermal"`` solution.
 
-        This method supports only ``"EMagnetic"`` solution.
+        This method supports only ``"EMagnetic" or "Thermal"`` solution.
 
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic"``.
+            Soultion type, which must be ``"EMagnetic" or "Thermal"``.
         """
         method = "LoadResults"
         params = [solution_type]
