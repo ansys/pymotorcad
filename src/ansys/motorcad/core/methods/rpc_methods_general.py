@@ -1,4 +1,5 @@
 """RPC methods (general)."""
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class _RpcMethodsGeneral:
@@ -367,6 +368,13 @@ class _RpcMethodsGeneral:
         """
         method = "SaveResults"
         params = [solution_type]
+
+        if solution_type == "Thermal":
+            self.connection.ensure_version_at_least("2025.0")
+        elif solution_type != "EMagnetic":
+            raise MotorCADError(
+                "SaveResults not available for this solution type: " + solution_type
+            )
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
@@ -381,6 +389,13 @@ class _RpcMethodsGeneral:
         """
         method = "LoadResults"
         params = [solution_type]
+
+        if solution_type == "Thermal":
+            self.connection.ensure_version_at_least("2025.0")
+        elif solution_type != "EMagnetic":
+            raise MotorCADError(
+                "LoadResults not available for this solution type: " + solution_type
+            )
         return self.connection.send_and_receive(method, params)
 
     def load_magnetisation_curves(self, file_path):
