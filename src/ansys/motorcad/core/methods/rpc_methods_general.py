@@ -375,7 +375,7 @@ class _RpcMethodsGeneral:
             raise MotorCADError(
                 "Save results are not available for this solution type: "
                 + solution_type
-                + "Available solution types are: Thermal, EMagnetic"
+                + "\nAvailable solution types are: Thermal, EMagnetic"
             )
         return self.connection.send_and_receive(method, params)
 
@@ -398,7 +398,7 @@ class _RpcMethodsGeneral:
             raise MotorCADError(
                 "Load results are not available for this solution type: "
                 + solution_type
-                + "Available solution types are: Thermal, EMagnetic"
+                + "\nAvailable solution types are: Thermal, EMagnetic"
             )
         return self.connection.send_and_receive(method, params)
 
