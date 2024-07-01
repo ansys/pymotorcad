@@ -369,11 +369,13 @@ class _RpcMethodsGeneral:
         method = "SaveResults"
         params = [solution_type]
 
-        if solution_type == "Thermal":
+        if solution_type.lower() == "thermal":
             self.connection.ensure_version_at_least("2025.0")
-        elif solution_type != "EMagnetic":
+        elif solution_type.lower() != "emagnetic":
             raise MotorCADError(
-                "SaveResults not available for this solution type: " + solution_type
+                "Save results are not available for this solution type: "
+                + solution_type
+                + "Available solution types are: Thermal, EMagnetic"
             )
         return self.connection.send_and_receive(method, params)
 
@@ -390,11 +392,13 @@ class _RpcMethodsGeneral:
         method = "LoadResults"
         params = [solution_type]
 
-        if solution_type == "Thermal":
+        if solution_type.lower() == "thermal":
             self.connection.ensure_version_at_least("2025.0")
-        elif solution_type != "EMagnetic":
+        elif solution_type.lower() != "emagnetic":
             raise MotorCADError(
-                "LoadResults not available for this solution type: " + solution_type
+                "Load results are not available for this solution type: "
+                + solution_type
+                + "Available solution types are: Thermal, EMagnetic"
             )
         return self.connection.send_and_receive(method, params)
 
