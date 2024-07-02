@@ -364,7 +364,7 @@ class _RpcMethodsGeneral:
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic" or "Thermal"``.
+            Solution type, which must be ``"EMagnetic" or "Thermal"``.
         """
         method = "SaveResults"
         params = [solution_type]
@@ -387,7 +387,7 @@ class _RpcMethodsGeneral:
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic" or "Thermal"``.
+            Solution type, which must be ``"EMagnetic" or "Thermal"``.
         """
         method = "LoadResults"
         params = [solution_type]
