@@ -387,6 +387,22 @@ class Region(object):
         for entity in self.entities:
             entity.rotate(centre_point, angle)
 
+    def scale(self, origin, scale_x, scale_y):
+        """Scale Region by specified x,y factors.
+
+        Parameters
+        ----------
+        origin : Coordinate
+            Coordinate to scale line around.
+        scale_x : float
+            x factor.
+        scale_y : float
+            y factor.
+        """
+        for entity in self.entities:
+            entity.start.scale(origin, scale_x, scale_y)
+            entity.end.scale(origin, scale_x, scale_y)
+
     def rotate_horizontal(self):
         """Rotate region so that its longest line entity is horizontal.
 
@@ -685,6 +701,10 @@ class Coordinate(object):
         """Override the default divide implementation for Coordinate."""
         return Coordinate(self.x / other, self.y / other)
 
+    def elementwise_mul(self, other):
+        """Elementwise multiplication."""
+        return Coordinate(self.x * other.x, self.y * other.y)
+
     def __str__(self):
         """Override the default str() implementation for Coordinate."""
         return str([self.x, self.y])
@@ -752,6 +772,24 @@ class Coordinate(object):
         """
         self.x += x
         self.y += y
+
+    def scale(self, origin, scale_x, scale_y):
+        """Scale Coordinate by specified x,y factors.
+
+        Parameters
+        ----------
+        origin : Coordinate
+            Coordinate to scale Coordinate around.
+        scale_x : float
+            x factor.
+        scale_y : float
+            y factor.
+        """
+        original_vector = Coordinate(self.x, self.y) - origin
+        scaled_vector = original_vector.elementwise_mul(Coordinate(scale_x, scale_y))
+        new_vector = origin + scaled_vector
+        self.x = new_vector.x
+        self.y = new_vector.y
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
@@ -938,6 +976,21 @@ class Line(Entity):
             return Line(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
             raise Exception("Line can only be mirrored about Line()")
+
+    def scale(self, origin, scale_x, scale_y):
+        """Scale Line by specified x,y factors.
+
+        Parameters
+        ----------
+        origin : Coordinate
+            Coordinate to scale line around.
+        scale_x : float
+            x factor.
+        scale_y : float
+            y factor.
+        """
+        self.start.scale(origin, scale_x, scale_y)
+        self.end.scale(origin, scale_x, scale_y)
 
     def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
         """Get the coordinate at the percentage distance along the line from the reference.
@@ -1144,15 +1197,17 @@ class _BaseArc(Entity):
                 # anticlockwise
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
             else:
+                # clockwise
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
         else:
             if self.radius >= 0:
                 # anticlockwise
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
             else:
+                # clockwise
                 angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
 
-        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+        return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
