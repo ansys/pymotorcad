@@ -178,10 +178,17 @@ class _RpcMethodsGraphs:
         y_values : list
             Value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_magnetic_graph_point, graph_name)
+        # Need to add compatibility for old versions of Motor-CAD
+
+        # loop = 0
+        # x_array = []
+        # y_array = []
+        #
+        # return self._get_graph(self.get_magnetic_graph_point, graph_name)
+
+        method = "GetMagneticGraph"
+        params = [{"variant": graph_name}]
+        return self.connection.send_and_receive(method, params)
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
