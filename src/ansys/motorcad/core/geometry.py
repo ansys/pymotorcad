@@ -1387,7 +1387,12 @@ class Arc(_BaseArc):
         perpendicular_angle = angle + 90 * (self.radius / abs(self.radius))
 
         if abs(self.radius) < d1:
-            raise Exception("It is not possible to draw an arc with this geometry")
+            if (d1 - abs(self.radius)) < GEOM_TOLERANCE:
+                # Radius is smaller than possible but within tolerance
+                # Bump it to minimum viable radius and preserve sign
+                self.radius = d1 * (self.radius / abs(self.radius))
+            else:
+                raise Exception("It is not possible to draw an arc with this geometry")
 
         # Get vector from p_centre to centre point of arc
         d_adjacent = sqrt(self.radius**2 - d1**2)
