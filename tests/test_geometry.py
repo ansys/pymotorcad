@@ -9,6 +9,7 @@ import pytest
 from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
+    GEOM_TOLERANCE,
     Arc,
     Coordinate,
     Line,
@@ -1749,6 +1750,16 @@ def test_arc_new_init():
     a3 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(0, 0))
     assert a3.radius == -10
     assert a3.centre == Coordinate(0, 0)
+
+    # Check tolerances
+    with pytest.raises(Exception):
+        _ = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=4)
+
+    original_radius = -5 + (GEOM_TOLERANCE * 0.95)
+    a5 = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=original_radius)
+    # Arc creation will bump radius to a value that is physically possible since within tolerance
+    # check sign is preserved
+    assert (a5.radius - original_radius) < GEOM_TOLERANCE
 
 
 def test_region_rotate():
