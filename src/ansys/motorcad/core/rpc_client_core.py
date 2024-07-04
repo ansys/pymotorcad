@@ -439,7 +439,7 @@ class _MotorCADConnection:
         if DONT_CHECK_MOTORCAD_VERSION:
             return True
         else:
-            return version.parse(self.program_version) > version.parse(required_version)
+            return version.parse(self.program_version) >= version.parse(required_version)
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
