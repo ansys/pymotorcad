@@ -20,7 +20,6 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_drawing import draw_objects_debug
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -1761,7 +1760,6 @@ def test_arc_new_init():
     # Arc creation will bump radius to a value that is physically possible since within tolerance
     # check sign is preserved
     assert (a5.radius - original_radius) < GEOM_TOLERANCE
-    draw_objects_debug(a5)
 
 
 def test_region_rotate():
