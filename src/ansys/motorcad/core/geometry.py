@@ -1118,20 +1118,17 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at distance along Arc.
         """
+        ref_coordinate_angle = atan2(
+            (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
+        )
         if ref_coordinate == self.end:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
+            e = -1
         else:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-
-        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+            e = 1
+        angle = ref_coordinate_angle + e * (
+            distance / self.radius
+        )  # sign of the radius accounts for clockwise/anticlockwise arcs
+        return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
