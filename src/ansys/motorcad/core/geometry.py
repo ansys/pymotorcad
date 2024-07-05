@@ -490,6 +490,37 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
+    def round_corner(self, corner_coordinate, radius):
+        """Round the corner of a region.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to be rounded.
+        radius : float
+            Radius by which the corner will be rounded.
+        """
+        adj_entities = []
+        entity_indicies = []
+        coordinates = []
+        # angle =
+        # distance = (2/sqrt(2))*abs(radius)*sin(angle/2)
+        for index in range(len(self.entities)):
+            i = self.entities[index]
+            if i.coordinate_on_entity(corner_coordinate):
+                coordinates.append(i.get_coordinate_from_distance(corner_coordinate, 1))
+                adj_entities.append(i)
+                entity_indicies.append(index)
+        for index in range(len(adj_entities)):
+            j = adj_entities[index]
+            if j.start == corner_coordinate:
+                j.start = coordinates[index]
+            elif j.end == corner_coordinate:
+                j.end = coordinates[index]
+
+        corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
+        self.insert_entity(entity_indicies[0] + 1, corner_arc)
+
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
 
