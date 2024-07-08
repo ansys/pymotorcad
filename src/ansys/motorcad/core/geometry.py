@@ -510,6 +510,12 @@ class Region(object):
                 # coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
                 adj_entities.append(i)
                 entity_indicies.append(index)
+        # if first and last entities, swap the positions
+        if entity_indicies[0] == 0 and entity_indicies[1] == len(self.entities) - 1:
+            entity_indicies[0], entity_indicies[1] = entity_indicies[1], entity_indicies[0]
+            adj_entities[0], adj_entities[1] = adj_entities[1], adj_entities[0]
+            print(entity_indicies)
+            print(adj_entities)
         # Calculate distances for adjacent entities
         if type(adj_entities[0]) == Line:
             angle_1 = degrees(
@@ -556,6 +562,7 @@ class Region(object):
                 j.end = coordinates[index]
 
         corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
+        print(entity_indicies, len(self.entities) - 1)
         self.insert_entity(entity_indicies[0] + 1, corner_arc)
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
