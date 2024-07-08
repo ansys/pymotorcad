@@ -186,8 +186,8 @@ class _RpcMethodsGraphs:
         #
         # return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
-        method = "GetMagneticGraph"
-        params = [{"variant": graph_name}]
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, 8]
         return self.connection.send_and_receive(method, params)
 
     def get_temperature_graph(self, graph_name):
