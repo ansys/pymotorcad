@@ -490,7 +490,7 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
-    def round_corner(self, corner_coordinate, radius):
+    def round_corner(self, corner_coordinate, radius, distance):
         """Round the corner of a region.
 
         Parameters
@@ -508,7 +508,7 @@ class Region(object):
         for index in range(len(self.entities)):
             i = self.entities[index]
             if i.coordinate_on_entity(corner_coordinate):
-                coordinates.append(i.get_coordinate_from_distance(corner_coordinate, 1))
+                coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
                 adj_entities.append(i)
                 entity_indicies.append(index)
         for index in range(len(adj_entities)):
