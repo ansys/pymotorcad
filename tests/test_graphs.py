@@ -86,6 +86,20 @@ def test_get_magnetic_graph(mc):
     #     x, y = mc.get_magnetic_graph("ediujhweioufbewkijbf")
 
 
+def test_get_heatflow_graph(mc):
+    reset_to_default_file(mc)
+    # Simple transient
+    mc.set_variable("TransientCalculationType", 0)
+    mc.do_transient_analysis()
+
+    x, y = mc.get_heatflow_graph("Housing OH [Rear] to Ambient")
+    x1, y1 = mc.get_heatflow_graph(400524)
+
+    assert len(x) == len(y) == 9
+    assert len(x1) == len(y1) == 11
+    assert almost_equal(y1[3], 11.68)
+
+
 #   #Not fully ready submitted an issue
 # def test_get_fea_graph_point():
 #     reset_to_default_file(mc)
