@@ -490,7 +490,7 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
-    def round_corner(self, corner_coordinate, radius, distance):
+    def round_corner(self, corner_coordinate, radius):
         """Round the corner of a region.
 
         Parameters
@@ -503,16 +503,53 @@ class Region(object):
         adj_entities = []
         entity_indicies = []
         coordinates = []
-        # angle =
-        # distance = (2/sqrt(2))*abs(radius)*sin(angle/2)
+        # Get entities at corner
         for index in range(len(self.entities)):
             i = self.entities[index]
             if i.coordinate_on_entity(corner_coordinate):
-                coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
+                # coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
                 adj_entities.append(i)
                 entity_indicies.append(index)
+        # Calculate distances for adjacent entities
+        if type(adj_entities[0]) == Line:
+            angle_1 = degrees(
+                atan2(
+                    adj_entities[0].start.y - adj_entities[0].end.y,
+                    adj_entities[0].start.x - adj_entities[0].end.x,
+                )
+            )
+        else:  # Arc
+            point_on_curve = adj_entities[0].get_coordinate_from_distance(corner_coordinate, 0.01)
+            angle_1 = degrees(
+                atan2(
+                    point_on_curve.y - adj_entities[0].end.y,
+                    point_on_curve.x - adj_entities[0].end.x,
+                )
+            )
+        if type(adj_entities[1]) == Line:
+            angle_2 = degrees(
+                atan2(
+                    adj_entities[1].end.y - adj_entities[1].start.y,
+                    adj_entities[1].end.x - adj_entities[1].start.x,
+                )
+            )
+        else:  # Arc
+            point_on_curve = adj_entities[1].get_coordinate_from_distance(corner_coordinate, 0.01)
+            angle_2 = degrees(
+                atan2(
+                    point_on_curve.y - adj_entities[1].start.y,
+                    point_on_curve.x - adj_entities[1].start.x,
+                )
+            )
+
+        corner_angle = abs(angle_1 - angle_2)
+        arc_angle = 90 + (90 - corner_angle)
+        half_chord = radius * sin(radians(arc_angle) / 2)
+        distance = abs(half_chord / (sin(radians(corner_angle) / 2)))
+
         for index in range(len(adj_entities)):
             j = adj_entities[index]
+            coordinates.append(j.get_coordinate_from_distance(corner_coordinate, distance))
             if j.start == corner_coordinate:
                 j.start = coordinates[index]
             elif j.end == corner_coordinate:
