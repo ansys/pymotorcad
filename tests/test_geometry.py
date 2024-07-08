@@ -1137,6 +1137,37 @@ def test_edit_point():
     assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
+def test_round_corner():
+    radius = 0.5
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the rounded triangle are of the expected types
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        # check that the midpoints of the shortened lines are the same as the original lines
+        assert triangle_1.entities[2 * i].midpoint == triangle_2.entities[i].midpoint
+
+    # check that the original corner coordinates are not on any of the rounded triangle's entities
+    corners = []
+    for i in range(3):
+        corners.append(triangle_2.entities[i].end)
+    for entity in triangle_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        triangle_1.round_corner(corners[0], radius)
+    with pytest.raises(Exception):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+
+
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
