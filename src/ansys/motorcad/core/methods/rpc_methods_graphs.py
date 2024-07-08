@@ -203,10 +203,15 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_temperature_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "TransientDataSource"]
+            return self.connection.send_and_receive(method, params)
+        else:
+            loop = 0
+            x_array = []
+            y_array = []
+            return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient power loss graph.
@@ -223,7 +228,12 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        return self._get_graph(self.get_power_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "PowerDataSource"]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_power_graph_point, graph_name)
 
     def get_heatflow_graph(self, graph_name):
         """Get graph points from a Motor-CAD heat flow graph.
