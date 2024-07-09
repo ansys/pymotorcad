@@ -6,7 +6,7 @@ with a custom curve defined using a Bezier function.
 """
 # %%
 # .. note::
-#    This script requires the ``bezier`` Python package to be installed.
+#    This script requires Motor-CAD 2024 R2 or later.
 
 # %%
 # This script is designed to be run from a Motor-CAD model based on the e4a template (a 48 slot,
@@ -62,7 +62,7 @@ from ansys.motorcad.core.geometry_fitting import return_entity_list
 # If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
 # the e4a IPM motor template is loaded, the geometry changes described earlier are applied and the
 # file is saved to a temporary folder. To keep a new Motor-CAD instance open after executing the
-# script, use the``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
+# script, use the ``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
 # Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
