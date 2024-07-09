@@ -110,24 +110,24 @@ def set_default_parameter(parameter_name, default_value):
 
 
 # %%
-# Use the ``set_default_parameter()`` function to set the required ``bez_curve_projection``,
-# ``upperconvex`` and ``lowerconcave`` parameters if undefined.
-set_default_parameter("bez_curve_projection", 6)
-set_default_parameter("upperconvex", 0.5)
-set_default_parameter("lowerconcave", -0.3)
+# Use the ``set_default_parameter()`` function to set the required ``L1 Bezier Curve Projection``,
+# ``L1 Upper Convex`` and ``L1 Lower Concave`` parameters if undefined.
+set_default_parameter("L1 Bezier Curve Projection", 6)
+set_default_parameter("L1 Upper Convex", 0.5)
+set_default_parameter("L1 Lower Concave", -0.3)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier
 # function. The parameters relate to the rotor pocket shape as follows:
 #
-# * ``bez_curve_projection``: Defines the rotor pocket extension beyond the magnet edge in the
+# * ``L1 Bezier Curve Projection``: Defines the rotor pocket extension beyond the magnet edge in the
 #   direction of the magnet length in mm.
 #
-# * ``upperconvex``: Defines the concave rotor pocket extension beyond the magnet edge in the
+# * ``L1 Upper Convex``: Defines the concave rotor pocket extension beyond the magnet edge in the
 #   direction of the magnet thickness. This parameter is dependent on the magnet thickness (a
 #   Standard Template parameter).
 #
-# * ``lowerconcave``: Defines the convex rotor pocket curvature in the direction of the magnet
+# * ``L1 Lower Concave``: Defines the convex rotor pocket curvature in the direction of the magnet
 #   thickness. This parameter is dependent on the magnet thickness (a Standard Template parameter).
 #
 # .. image:: ../../images/Adaptive_Geometry_Bezier_e4a_2.png
@@ -146,9 +146,9 @@ pole_angle = 360 / (poles * 2)
 
 # %%
 # Get the adaptive parameters specified in Motor-CAD, and their values
-totalprojection = mc.get_adaptive_parameter_value("bez_curve_projection")
-upperconvex = mc.get_adaptive_parameter_value("upperconvex")
-lowerconcave = mc.get_adaptive_parameter_value("lowerconcave")
+totalprojection = mc.get_adaptive_parameter_value("L1 Bezier Curve Projection")
+upperconvex = mc.get_adaptive_parameter_value("L1 Upper Convex")
+lowerconcave = mc.get_adaptive_parameter_value("L1 Lower Concave")
 
 # %%
 # Get the Rotor Pocket regions
