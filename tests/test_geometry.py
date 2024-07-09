@@ -20,6 +20,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
