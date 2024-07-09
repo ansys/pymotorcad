@@ -540,6 +540,12 @@ def test_arc_get_coordinate_from_percentage_distance():
     assert isclose(coord.x, 0, abs_tol=1e-12)
     assert isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test an arc that failed with the old definition of get_coordinate_from_percentage_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_percentage_distance(arc_2.end, 1e-13)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
+
 
 def test_arc_get_coordinate_from_distance():
     arc = geometry.Arc(
@@ -549,6 +555,12 @@ def test_arc_get_coordinate_from_distance():
     coord = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
+
+    # test an arc that failed with the old definition of get_coordinate_from_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_distance(arc_2.end, 1e-15)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
 
 
 def test_arc_length():
