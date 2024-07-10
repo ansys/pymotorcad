@@ -43,8 +43,8 @@ For descriptions of the functions, see :ref:`ref_geometry_shapes`.
 Utility functions
 ------------------
 
-A number of utility functions are available to the user.
-For descriptions, see
+A number of utility functions are available.
+For more information, see
 :ref:`ref_utility_functions`.
 
 Motor-CAD Errors
