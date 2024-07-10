@@ -48,7 +48,8 @@ doc = [
     "sphinx-gallery==0.16.0",
     "matplotlib",
     "scipy",
-    "pypandoc==1.13"
+    "pypandoc==1.13",
+    "bezier>=2023.7.28"
 ]
 
 [project.urls]
