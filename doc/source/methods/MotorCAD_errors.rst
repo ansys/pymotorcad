@@ -1,6 +1,6 @@
 .. _ref_MotorCAD_errors:
 
-Motor-CAD Errors
+Motor-CAD errors
 ================
 
 .. currentmodule:: ansys.motorcad.core.rpc_client_core
