@@ -63,7 +63,7 @@ def set_default_instance(port):
         Parameters
         ----------
         port : int
-            Port number of the Motor-CAD instance to be set as default.
+            Port number of the Motor-CAD instance to set as the default.
     """
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
