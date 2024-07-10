@@ -47,7 +47,7 @@ A number of utility functions are available.
 For more information, see
 :ref:`ref_utility_functions`.
 
-Motor-CAD Errors
+Motor-CAD errors
 ----------------
 
 A class/exception type used for obtaining and handling errors from Motor-CAD.
