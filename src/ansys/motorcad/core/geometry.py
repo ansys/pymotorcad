@@ -2,7 +2,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from math import atan2, cos, degrees, inf, isclose, pi, radians, sin, sqrt
 
 GEOM_TOLERANCE = 1e-6
 
@@ -323,6 +323,87 @@ class Region(object):
         self._check_connection()
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
+
+    def boundary_split(self, region=None):
+        """Split and repeat a region that overhangs the boundary.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object whose boundary self overhangs
+        """
+        if not region:
+            try:
+                region = self.parent
+            except:
+                raise Exception(
+                    "You must set the parent region of "
+                    + str(self)
+                    + "or provide a region whose boundary "
+                    + str(self)
+                    + " overhangs."
+                )
+
+        duplication_number = region.duplications
+        boundary_line_1 = Line(
+            Coordinate(0, 0),
+            Coordinate(*rt_to_xy(region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2, 0)),
+        )
+        boundary_line_2 = Line(
+            Coordinate(0, 0),
+            Coordinate(
+                *rt_to_xy(
+                    region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2,
+                    (360 / duplication_number),
+                )
+            ),
+        )
+        mirror_line = Line(
+            Coordinate(0, 0),
+            Coordinate(
+                *rt_to_xy(
+                    region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2,
+                    (360 / duplication_number) / 2,
+                )
+            ),
+        )
+
+        boundary_crossed = None
+        for entity in self.entities:
+            if type(entity) == Line:
+                intersection_1 = entity.get_line_intersection(boundary_line_1)
+                intersection_2 = entity.get_line_intersection(boundary_line_2)
+                if entity.coordinate_on_entity(intersection_1):
+                    boundary_crossed = "lower"
+                elif entity.coordinate_on_entity(intersection_2):
+                    boundary_crossed = "upper"
+            else:
+                if entity.get_intersects_with_line(boundary_line_1):
+                    boundary_crossed = "lower"
+                elif entity.get_intersects_with_line(boundary_line_2):
+                    boundary_crossed = "upper"
+
+        if boundary_crossed == "lower":
+            boundary_line = boundary_line_1
+        elif boundary_crossed == "upper":
+            boundary_line = boundary_line_2
+        else:
+            raise Exception(
+                str(self) + " does not cross either boundary. No boundary split to execute."
+            )
+
+        parent_region_mirrored_1 = region.mirror(boundary_line)
+        parent_region_mirrored_2 = parent_region_mirrored_1.mirror(mirror_line)
+        self_region_mirrored = self.mirror(boundary_line)
+        self_repeated = self_region_mirrored.mirror(mirror_line)
+        self_repeated.motorcad_instance = region.motorcad_instance
+        self_repeated.name = self.name + "_boundary_split"
+
+        # subtract mirrored parent regions from self and self_repeated
+        self.subtract(parent_region_mirrored_1)
+        self_repeated.subtract(parent_region_mirrored_2)
+
+        return self_repeated
 
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
@@ -1211,6 +1292,34 @@ class _BaseArc(Entity):
             distance / self.radius
         )  # sign of the radius accounts for clockwise/anticlockwise arcs
         return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
+
+    def get_intersects_with_line(self, line, tolerance=0.0001):
+        """Get if a line intersects with this arc.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+            Check if this Line entity intersects with self
+
+        Returns
+        -------
+        bool
+        """
+        start = self.start
+        end = self.end
+        points = 1 / tolerance  # 10000
+        length = 2 * pi * self.radius * (abs(self.total_angle) / 360)
+        line_crossed = False
+        for i in range(int(points)):
+            point_1 = self.get_coordinate_from_distance(start, (i * (length / points)))
+            point_2 = self.get_coordinate_from_distance(point_1, length / points)
+            tangent = Line(point_1, point_2)
+            intersection = tangent.get_line_intersection(line)
+            if intersection == None:
+                pass
+            elif tangent.coordinate_on_entity(intersection):
+                line_crossed = True
+        return line_crossed
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
