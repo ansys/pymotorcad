@@ -941,7 +941,7 @@ class Line(Entity):
             coordinate_1 = self.start
             coordinate_2 = self.end
 
-        t = (self.length * percentage) / self.length
+        t = (self.length * (percentage / 100)) / self.length
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
@@ -1098,7 +1098,7 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at percentage distance along Arc.
         """
-        length = self.length * percentage
+        length = self.length * (percentage / 100)
 
         return self.get_coordinate_from_distance(ref_coordinate, length)
 
