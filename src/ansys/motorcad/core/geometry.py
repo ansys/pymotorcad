@@ -918,36 +918,31 @@ class Line(Entity):
         else:
             raise Exception("Line can only be mirrored about Line()")
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the line from the reference.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the line from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Arc.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Line.
+        fraction : float
+            Fractional distance along Arc.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Line.
+            Coordinate at fractional distance along Arc.
         """
-        if ref_coordinate == self.end:
-            coordinate_1 = self.end
-            coordinate_2 = self.start
-        else:
-            coordinate_1 = self.start
-            coordinate_2 = self.end
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        t = (self.length * (percentage / 100)) / self.length
-        x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
-        y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
-
-        return Coordinate(x, y)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the line from the reference.
 
         Parameters
@@ -955,14 +950,31 @@ class Line(Entity):
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along Line.
+
+        fraction : float, optional
+            Fractional distance along Line.
+
+        percentage : float, optional
+            Percentage distance along Line.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Line.
         """
+        if not distance:
+            if fraction:
+                distance = self.length * fraction
+                if percentage:
+                    if percentage != fraction * 100:
+                        print("Both fraction and percentage provided. Using fraction.")
+            elif percentage:
+                distance = self.length * (percentage / 100)
+            else:
+                raise Exception("You must provide either a distance, fraction or percentage.")
+
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
@@ -1082,27 +1094,31 @@ class _BaseArc(Entity):
         x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
         return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the arc from the reference coord.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the arc from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Arc.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Arc.
+        fraction : float
+            Fractional distance along Arc.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Arc.
+            Coordinate at fractional distance along Arc.
         """
-        length = self.length * (percentage / 100)
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        return self.get_coordinate_from_distance(ref_coordinate, length)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the arc from the reference coordinate.
 
         Parameters
@@ -1110,28 +1126,42 @@ class _BaseArc(Entity):
         ref_coordinate : Coordinate
            Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along arc.
+
+        fraction : float, optional
+            Fractional distance along Line.
+
+        percentage : float, optional
+            Percentage distance along Line.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Arc.
         """
-        if ref_coordinate == self.end:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
+        if not distance:
+            if fraction:
+                distance = self.length * fraction
+                if percentage:
+                    if percentage != fraction * 100:
+                        print("Both fraction and percentage provided. Using fraction.")
+            elif percentage:
+                distance = self.length * (percentage / 100)
             else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
-        else:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
+                raise Exception("You must provide either a distance, fraction or percentage.")
 
-        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+        ref_coordinate_angle = atan2(
+            (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
+        )
+        if ref_coordinate == self.end:
+            e = -1
+        else:
+            e = 1
+        angle = ref_coordinate_angle + e * (
+            distance / self.radius
+        )  # sign of the radius accounts for clockwise/anticlockwise arcs
+        return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
