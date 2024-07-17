@@ -338,72 +338,59 @@ class Region(object):
             except:
                 raise Exception(
                     "You must set the parent region of "
-                    + str(self)
+                    + str(self.name)
                     + "or provide a region whose boundary "
-                    + str(self)
+                    + str(self.name)
                     + " overhangs."
                 )
 
         duplication_number = region.duplications
-        boundary_line_1 = Line(
-            Coordinate(0, 0),
-            Coordinate(*rt_to_xy(region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2, 0)),
-        )
-        boundary_line_2 = Line(
-            Coordinate(0, 0),
-            Coordinate(
-                *rt_to_xy(
-                    region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2,
-                    (360 / duplication_number),
-                )
-            ),
-        )
-        mirror_line = Line(
-            Coordinate(0, 0),
-            Coordinate(
-                *rt_to_xy(
-                    region.motorcad_instance.get_variable("Stator_Lam_Dia") / 2,
-                    (360 / duplication_number) / 2,
-                )
-            ),
-        )
+        mc = self.motorcad_instance
 
-        boundary_crossed = None
-        for entity in self.entities:
-            if type(entity) == Line:
-                intersection_1 = entity.get_line_intersection(boundary_line_1)
-                intersection_2 = entity.get_line_intersection(boundary_line_2)
-                if entity.coordinate_on_entity(intersection_1):
-                    boundary_crossed = "lower"
-                elif entity.coordinate_on_entity(intersection_2):
-                    boundary_crossed = "upper"
-            else:
-                if entity.get_intersects_with_line(boundary_line_1):
-                    boundary_crossed = "lower"
-                elif entity.get_intersects_with_line(boundary_line_2):
-                    boundary_crossed = "upper"
+        # get the portion of self that overhangs the region boundary
+        self_overhang = deepcopy(self)
+        try:
+            self_overhang.subtract(region)
+        except Exception as e:
+            if "Unable to subtract" in str(e):
+                raise Exception(
+                    str(self.name) + " does not overhang the boundary of " + str(region.name)
+                )
 
-        if boundary_crossed == "lower":
-            boundary_line = boundary_line_1
-        elif boundary_crossed == "upper":
-            boundary_line = boundary_line_2
+        # get the portion of self that is within the region boundary
+        self_within = deepcopy(self)
+        self_within.subtract(self_overhang)
+
+        # check whether self crosses the upper or lower boundary
+        # if it crosses the lower boundary, set e = 1 so that we rotate by a positive angle
+        # if it doesn't cross the lower boundary, it must cross the upper boundary so rotate by
+        # a negative angle
+        e = -1
+        self_name = self.name
+        self_within.name = self_name
+        self_number = int("".join(filter(str.isdigit, self_name)))
+        string_1 = "_" + str(self_number)
+        string_2 = "_" + str(self_number + 1)
+
+        if string_1 in self_name:
+            self_overhang.name = self_name.replace(string_1, string_2)
         else:
-            raise Exception(
-                str(self) + " does not cross either boundary. No boundary split to execute."
-            )
+            self_overhang.name = self_name + "_boundary_split"
 
-        parent_region_mirrored_1 = region.mirror(boundary_line)
-        parent_region_mirrored_2 = parent_region_mirrored_1.mirror(mirror_line)
-        self_region_mirrored = self.mirror(boundary_line)
-        self_repeated = self_region_mirrored.mirror(mirror_line)
-        self_repeated.motorcad_instance = region.motorcad_instance
-        self_repeated.name = self.name + "_boundary_split"
+        for entity in self.entities:
+            if entity.start.y < 0 or entity.end.y < 0:
+                e = 1
+                if string_1 in self_name:
+                    self_within.name = self_name.replace(string_1, string_2)
+                else:
+                    self_within.name = self_name + "_boundary_split"
+                self_overhang.name = self_name
 
-        # subtract mirrored parent regions from self and self_repeated
-        self.subtract(parent_region_mirrored_1)
-        self_repeated.subtract(parent_region_mirrored_2)
+        # rotate the portion of self that overhangs the region boundary to the opposite boundary
+        self_overhang.rotate(Coordinate(0, 0), e * 360 / duplication_number)
 
-        return self_repeated
+        self.update(self_within)
+        return self_overhang
 
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
