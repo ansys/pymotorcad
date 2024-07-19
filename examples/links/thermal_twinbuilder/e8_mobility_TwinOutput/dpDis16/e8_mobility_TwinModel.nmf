@@ -1,0 +1,92 @@
+Node Grouping Matrix file 19/07/2024 16:22:28  C:\Workspace\pymotorcad\examples\links\thermal_twinbuilder\e8_mobility_TwinOutput\e8_mobility_TwinModel.mot
+Number of nodes = 65
+
+[Armature Winding (Active)]
+342 (Wedge)
+343 (SlotCentre(C1))
+344 (Liner(C1))
+345 (Liner_yoke)
+348 (Wdg_F(C1))
+349 (Wdg_R(C1))
+350 (Winding (Avg)(C1))
+366 (SlotCentre(C2))
+367 (Liner(C2))
+370 (Wdg_Inner_C(C2))
+371 (Wdg_F(C2))
+372 (Wdg_R(C2))
+373 (Winding (Avg)(C2))
+
+[Armature Winding (Endwinding Front)]
+330 (EWdg_Outer_F(C1))
+332 (EWdg_End_F(C1))
+333 (EWdg_Front_F(C1))
+334 (EWdg_Rear_F(C1))
+335 (EWdg_F (Average)(C1))
+353 (EWdg_Outer_F(C2))
+354 (EWdg_Inner_F(C2))
+355 (EWdg_End_F(C2))
+356 (EWdg_Front_F(C2))
+357 (EWdg_Rear_F(C2))
+358 (EWdg_F (Average)(C2))
+
+[Armature Winding (Endwinding Rear)]
+336 (EWdg_Outer_R(C1))
+338 (EWdg_End_R(C1))
+339 (EWdg_Front_R(C1))
+340 (EWdg_Rear_R(C1))
+341 (EWdg_R (Average)(C1))
+359 (EWdg_Outer_R(C2))
+360 (EWdg_Inner_R(C2))
+361 (EWdg_End_R(C2))
+362 (EWdg_Front_R(C2))
+363 (EWdg_Rear_R(C2))
+364 (EWdg_R (Average)(C2))
+
+[Stator Lamination]
+9 (Stator_Yoke)
+11 (Stator_Surface)
+351 (Tooth(C1))
+374 (Tooth(C2))
+
+[Rotor Lamination]
+12 (Rot_Surface)
+15 (Rot_Lam_Yoke)
+62 (Magnet Pole)
+124 (Rotor_F)
+125 (Rotor_R)
+
+[Magnet]
+13 (Magnet)
+126 (Magnet_F)
+127 (Magnet_R)
+
+[Housing]
+1 (Housing)
+2 (Housing_OH_F)
+3 (Housing_F)
+4 (Endcap_F)
+6 (Housing_OH_R)
+7 (Housing_R)
+8 (Endcap_R)
+
+[Bearings]
+65 (Bearing_Front)
+66 (Bearing_Rear)
+
+[Shaft]
+16 (Shaft_Centre)
+17 (Shaft_F)
+18 (Shaft_R)
+23 (Shaft_OH_F)
+24 (Shaft_OH_R)
+
+[End Space]
+26 (Rotor_ES_F)
+27 (Rotor_ES_R)
+
+[Housing Water Jacket]
+29 (HousingWJ_A)
+132 (HousingWJ_Inlet_F)
+
+[Uncategorised]
+0 (Ambient)
