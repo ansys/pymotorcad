@@ -4,7 +4,7 @@ Motor-CAD Thermal Twin Builder ROM
 This example shows how to create the files needed to generate a Motor-CAD Thermal model using the
 Twin Builder *Motor-CAD ROM* component.
 """
-# %% 
+# %%
 # Background
 # ----------
 # .. note:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
@@ -32,7 +32,7 @@ Twin Builder *Motor-CAD ROM* component.
 # standalone (does not require Motor-CAD), thus allowing it to be shared/used in alternate systems
 # whilst obscuring the underlying Motor-CAD geometry.
 
-# %% 
+# %%
 # Data required to generate a *Motor-CAD ROM* component
 # ----------------------------------------
 # To generate the component, within Ansys Electronics Desktop, go to the menu bar and select **Twin
@@ -76,7 +76,7 @@ import ansys.motorcad.core as pymotorcad
 
 # %%
 # 1. The Motor-CAD model calculation settings are configured
-# 2. The thermal node numbers, node names and other requried node data is determined
+# 2. The thermal node numbers, node names and other required node data is determined
 # 3. The cooling system nodes and flow path are identified and saved to the ``CoolingSystems.csv``
 #    file
 # 4. For each desired speed, the thermal model is solved and thermal matrices exported and saved to
@@ -694,7 +694,7 @@ class MotorCADTwinModel:
             if statorCoolingOnly == False:
                 warnings.warn(
                     "Temperature dependent airgap not supported for ventilated cooling with airgap"
-                     "flow"
+                    "flow"
                 )
 
         wetrotor = self.mcad.get_variable("Wet_Rotor")
@@ -717,14 +717,14 @@ class MotorCADTwinModel:
         return airgapNodeStator, airgapNodeRotor
 
 
-# %% 
+# %%
 # Example use case
 # ----------------
 # Below is an example of how the above ``MotorCADTwinModel`` class can be used. The .mot file that
 # will be used is the ``e8_eMobility`` template.
 
 
-# %% 
+# %%
 # The ``generateTwinData`` method accepts as an optional parameter a dictionary of Housing and
 # Ambient temperatures to be investigated. This can be provided if Natural Convection cooling of the
 # housing should be modelled in the Twin Builder *Motor-CAD ROM* component. For this example, a
@@ -775,14 +775,14 @@ mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder", mcad_name + "_TwinOutput")
 
-# %% 
+# %%
 # Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
 # reduce calculation time, but in real use it is recommended that this be greater.
 rpms = [200, 500, 1000]
 
-# %% 
+# %%
 # Specify the airgap temperatures to investigate, in order for the temperature dependent nature
 # of the airgap heat transfer to be included in the *Motor-CAD ROM* component. The generated
 # *Motor-CAD ROM* component will interpolate between these, so it is important to cover the complete
@@ -790,7 +790,7 @@ rpms = [200, 500, 1000]
 # This parameter can be set to ``None`` should this not be required.
 airgapTemps = [40, 50, 65]
 
-# %% 
+# %%
 # Specify the housing and ambient temperatures to investigate, in order for the natural
 # convection cooling of the housing to be be included in the *Motor-CAD ROM* component. The
 # generated *Motor-CAD ROM* component will interpolate between these, so it is important to cover
@@ -798,12 +798,12 @@ airgapTemps = [40, 50, 65]
 # to maintain accuracy. This parameter can be set to ``None`` should this not be required.
 housingAmbientTemps = temperaturesHousingAmbient()
 
-# %% 
+# %%
 # Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
 # well as the directory to which the results should be saved.
 MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 
-# %% 
+# %%
 # Finally, generate the required data. This function will write the data to the directory
 # specified above. The identified cooling system node flow path is automatically plotted.
 MotorCADTwin.generateTwinData(
@@ -813,7 +813,7 @@ MotorCADTwin.generateTwinData(
 )
 
 
-# %% 
+# %%
 # Generating the *Motor-CAD ROM* component
 # ----------------------------------------
 # To generate the component, within Ansys Electronics Desktop, go to the menu bar and select **Twin
