@@ -1,4 +1,0 @@
-HousingTempDependency=1
-AirGapTempDependency=1
-CopperLossScaling=0
-SpeedDependentLosses=0
