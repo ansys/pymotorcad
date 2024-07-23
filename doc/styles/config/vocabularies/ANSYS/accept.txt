@@ -23,3 +23,4 @@ PyCharm
 Powershell
 recognised
 exe
+UI
