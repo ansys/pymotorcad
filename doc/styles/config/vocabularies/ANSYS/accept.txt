@@ -22,3 +22,4 @@ VSCode
 PyCharm
 Powershell
 recognised
+exe
