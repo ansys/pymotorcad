@@ -563,6 +563,11 @@ def test_arc_length():
 
     assert arc.length == math.pi
 
+    radius = 45
+    line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
+    arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
+    assert arc_2.length > line_1.length
+
 
 def test_convert_entities_to_json():
     raw_entities = [
