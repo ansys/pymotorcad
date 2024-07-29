@@ -1118,20 +1118,17 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at distance along Arc.
         """
+        ref_coordinate_angle = atan2(
+            (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
+        )
         if ref_coordinate == self.end:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
+            e = -1
         else:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-
-        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+            e = 1
+        angle = ref_coordinate_angle + e * (
+            distance / self.radius
+        )  # sign of the radius accounts for clockwise/anticlockwise arcs
+        return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
@@ -1164,19 +1161,7 @@ class _BaseArc(Entity):
         float
             Length of arc
         """
-        radius, angle_1 = xy_to_rt(self.start.x, self.start.y)
-        radius, angle_2 = xy_to_rt(self.end.x, self.end.y)
-
-        if self.radius == 0:
-            arc_angle = 0
-        elif ((self.radius > 0) and (angle_1 > angle_2)) or (
-            (self.radius < 0) and angle_2 < angle_1
-        ):
-            arc_angle = angle_2 - (angle_1 - 360)
-        else:
-            arc_angle = angle_2 - angle_1
-
-        return self.radius * radians(arc_angle)
+        return abs(self.radius * radians(self.total_angle))
 
     def reverse(self):
         """Reverse Arc entity."""
