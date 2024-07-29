@@ -131,7 +131,7 @@ def test_set_busy(mc):
 
 
 # test keeping an instance open
-def test_keeping_instance_open():
+def test_keeping_instance_open(monkeypatch):
     # This should connect to mc test instance
     mc2 = MotorCAD(keep_instance_open=True)
 
@@ -149,6 +149,18 @@ def test_keeping_instance_open():
     mc3.quit()
 
     del mc3
+
+    # Check keep_instance_open ignored when building docs
+    monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
+
+    mc2 = MotorCAD(keep_instance_open=True)
+
+    original_port = mc2.connection._port
+
+    del mc2
+
+    with pytest.raises(Exception):
+        _ = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
 
 
 # Check that Motor-CAD closes when Motor-CAD object is freed
