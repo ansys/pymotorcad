@@ -80,9 +80,11 @@ def set_default_parameter(parameter_name, default_value):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The rectangle consists of two lines of length equal to the rectangle width.
 # Only the top line requires modification.
-#  It is necessary to check whether the line is closest to the origin. Index ``i`` is
+# It is necessary to check whether the line is closest to the origin. Index ``i`` is
 # the line under investigation. Index ``j`` is the adjacent line. If the radius of midpoint of line
 # ``i`` is less than that of line ``j`` , line ``i`` is closer to the origin.
+
+
 def check_line_origin_distance(i, duct_region):
     if i == 0:  # first index of rectangle duct
         j = 1
@@ -208,23 +210,24 @@ for child_name in rt_region.child_names:
 
 # %%
 # .. image:: ../../images/TrapezoidalDuct1.png
+#     :width: 300pt
 
 # %%
-# Load in Adaptive Templates Script if required
+# Load in Adaptive Templates script if required
 # ---------------------------------------------
-# When this script is run externally, the following is executed:
+# When this script is run externally, the script executes the following:
 #
-# * Set Geometry type to "Adaptive"
+# * Set **Geometry type** to **Adaptive**.
 #
-# * Load the script into the Adaptive Templates tab
+# * Load the script into the **Adaptive Templates** tab.
 #
-# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
-#   geometry
+# * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
+#   geometry.
 
 # %%
 # .. note::
-#    When running in a Jupyter Notebook, the path for the Adaptive Templates script (PY file) must
-#    be given instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
+#    When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+#    (PY file) instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
