@@ -9,6 +9,7 @@ import pytest
 from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
+    GEOM_TOLERANCE,
     Arc,
     Coordinate,
     Line,
@@ -539,6 +540,23 @@ def test_arc_get_coordinate_from_percentage_distance():
     assert isclose(coord.x, 0, abs_tol=1e-12)
     assert isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test an arc that failed with the old definition of get_coordinate_from_percentage_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_percentage_distance(arc_2.end, 1e-13)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
+    coord_3 = arc_2.get_coordinate_from_percentage_distance(arc_2.start, 1e-13)
+    assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
+    # test arc drawn clockwise
+    arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
+    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-13)
+    assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
+    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-13)
+    assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+
 
 def test_arc_get_coordinate_from_distance():
     arc = geometry.Arc(
@@ -549,6 +567,26 @@ def test_arc_get_coordinate_from_distance():
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test an arc that failed with the old definition of get_coordinate_from_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_distance(arc_2.end, 1e-15)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
+    coord_3 = arc_2.get_coordinate_from_distance(arc_2.start, 1e-15)
+    assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
+    # test arc drawn clockwise
+    arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
+    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-15)
+    assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
+    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-15)
+    assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    coord_6 = arc_2.get_coordinate_from_distance(arc_2.start, 5)
+    assert math.isclose(60.389142028418, coord_6.x, abs_tol=1e-12)
+    assert math.isclose(24.730689908764, coord_6.y, abs_tol=1e-12)
+
 
 def test_arc_length():
     arc = geometry.Arc(
@@ -556,6 +594,11 @@ def test_arc_length():
     )
 
     assert arc.length == math.pi
+
+    radius = 45
+    line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
+    arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
+    assert arc_2.length > line_1.length
 
 
 def test_convert_entities_to_json():
@@ -1749,6 +1792,16 @@ def test_arc_new_init():
     a3 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(0, 0))
     assert a3.radius == -10
     assert a3.centre == Coordinate(0, 0)
+
+    # Check tolerances
+    with pytest.raises(Exception):
+        _ = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=4)
+
+    original_radius = -5 + (GEOM_TOLERANCE * 0.95)
+    a5 = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=original_radius)
+    # Arc creation will bump radius to a value that is physically possible since within tolerance
+    # check sign is preserved
+    assert (a5.radius - original_radius) < GEOM_TOLERANCE
 
 
 def test_region_rotate():
