@@ -1,5 +1,4 @@
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-
 from os import environ, path
 import re
 import socket
@@ -313,7 +312,11 @@ class _MotorCADConnection:
         ):
             # Local Motor-CAD has been launched by Python
             if self.keep_instance_open:
-                return False
+                if "PYMOTORCAD_DOCS_BUILD" in environ:
+                    # Building PyMotorCAD docs so don't keep open
+                    return True
+                else:
+                    return False
             else:
                 return True
                 # keep the instance open if specified
@@ -439,7 +442,7 @@ class _MotorCADConnection:
         if DONT_CHECK_MOTORCAD_VERSION:
             return True
         else:
-            return version.parse(self.program_version) > version.parse(required_version)
+            return version.parse(self.program_version) >= version.parse(required_version)
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
