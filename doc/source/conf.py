@@ -129,3 +129,7 @@ sys.path.insert(0, "./methods")
 from autofill_function_names import generate_method_docs
 
 generate_method_docs()
+
+import os
+
+os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
