@@ -7,6 +7,7 @@ import grpc
 from psutil import pid_exists
 import pytest
 
+import ansys.motorcad.core as pym
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
@@ -130,7 +131,7 @@ def test_set_busy(mc):
 
 
 # test keeping an instance open
-def test_keeping_instance_open():
+def test_keeping_instance_open(monkeypatch):
     # This should connect to mc test instance
     mc2 = MotorCAD(keep_instance_open=True)
 
@@ -148,6 +149,18 @@ def test_keeping_instance_open():
     mc3.quit()
 
     del mc3
+
+    # Check keep_instance_open ignored when building docs
+    monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
+
+    mc2 = MotorCAD(keep_instance_open=True)
+
+    original_port = mc2.connection._port
+
+    del mc2
+
+    with pytest.raises(Exception):
+        _ = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
 
 
 # Check that Motor-CAD closes when Motor-CAD object is freed
@@ -175,6 +188,15 @@ def test_ensure_version_later_than():
     mock_motorcad_connection = _MotorCADConnection.__new__(_MotorCADConnection)
     mock_motorcad_connection._connected = True
 
+    save_DONT_CHECK_MOTORCAD_VERSION = pym.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION
+
+    # Check global flag is working
+    pym.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
+    mock_motorcad_connection.program_version = "2023.1.2"
+    mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+
+    pym.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = False
+
     # Tests will fail if ensure_version_at_least() raises MotorCADError
     mock_motorcad_connection.program_version = "2023.2.0"
     mock_motorcad_connection.ensure_version_at_least("2023.1.2")
@@ -188,10 +210,14 @@ def test_ensure_version_later_than():
     mock_motorcad_connection.program_version = "2023.1.2.0"
     mock_motorcad_connection.ensure_version_at_least("2023.1.2")
 
-    # Works on local machine but not test server currently.
-    # with pytest.raises(MotorCADError):
-    #     mock_motorcad_connection.program_version = "2023.1.2"
-    #     mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+    mock_motorcad_connection.program_version = "2025.0.0.0"
+    mock_motorcad_connection.ensure_version_at_least("2025")
+
+    with pytest.raises(MotorCADError):
+        mock_motorcad_connection.program_version = "2023.1.2"
+        mock_motorcad_connection.ensure_version_at_least("2023.2.0")
+
+    pym.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = save_DONT_CHECK_MOTORCAD_VERSION
 
 
 def test_ansys_labs_connection(mc, monkeypatch):

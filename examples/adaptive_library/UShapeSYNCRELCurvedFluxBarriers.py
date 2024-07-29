@@ -51,6 +51,8 @@ use curved rotor pockets.
 # to define the adaptive template geometry.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
@@ -211,7 +213,7 @@ def get_coordinates(pocket, coordinate_indices, mirror_line=None):
 
 # %%
 # Get list of coordinates for ``pocket`` arcs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define functions to get a list of coordinates
 # to use to generate the top and bottom arcs for ``pocket``.
 #
@@ -434,22 +436,25 @@ for layer in range(number_layers):
             mc.set_region(pocket_right)
 
 # %%
-# Load in Adaptive Templates Script if required
+# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
+
+# %%
+# Load in Adaptive Templates script if required
 # ---------------------------------------------
-# When this script is run externally, the following is executed:
+# When this script is run externally, the script executes the following:
 #
-# * Set Geometry type to "Adaptive"
+# * Set **Geometry type** to **Adaptive**.
 #
-# * Load the script into the Adaptive Templates tab
+# * Load the script into the **Adaptive Templates** tab.
 #
-# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
-#   geometry
+# * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
+#   geometry.
 
-
+# %%
+# .. note::
+#    When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+#    (PY file) instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
-# %%
-# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
