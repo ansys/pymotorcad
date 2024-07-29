@@ -1,5 +1,4 @@
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-
 from os import environ, path
 import re
 import socket
@@ -330,7 +329,11 @@ class _MotorCADConnection:
         ):
             # Local Motor-CAD has been launched by Python
             if self.keep_instance_open:
-                return False
+                if "PYMOTORCAD_DOCS_BUILD" in environ:
+                    # Building PyMotorCAD docs so don't keep open
+                    return True
+                else:
+                    return False
             else:
                 return True
                 # keep the instance open if specified
@@ -445,12 +448,18 @@ class _MotorCADConnection:
                 )
 
     def ensure_version_at_least(self, required_version):
-        """Check that the Motor-CAD version is later or equal to required version."""
-        if DONT_CHECK_MOTORCAD_VERSION is False:
-            if version.parse(self.program_version) < version.parse(required_version):
-                raise MotorCADError(
-                    "This function requires Motor-CAD version: " + required_version + " or later"
-                )
+        """Ensure if the Motor-CAD version is later or equal to required version."""
+        if not self.check_version_at_least(required_version):
+            raise MotorCADError(
+                "This function requires Motor-CAD version: " + required_version + " or later"
+            )
+
+    def check_version_at_least(self, required_version):
+        """Check if the Motor-CAD version is later or equal to required version."""
+        if DONT_CHECK_MOTORCAD_VERSION:
+            return True
+        else:
+            return version.parse(self.program_version) >= version.parse(required_version)
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0

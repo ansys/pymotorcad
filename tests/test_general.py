@@ -6,13 +6,10 @@ from RPC_Test_Common import (
     get_dir_path,
     get_temp_files_dir_path,
     get_test_files_dir_path,
+    reset_to_default_file,
 )
 import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 # Allows us to add a new api method to testing before the next Motor-CAD release is available
 # Dev release will have a lower version number than actual release so don't want to check this
@@ -23,7 +20,7 @@ def kh_to_ms(kh):
     return kh * 0.2777778
 
 
-def test_save_load_clear_duty_cycle():
+def test_save_load_clear_duty_cycle(mc):
     # thermal transient calc
     mc.set_variable("ThermalCalcType", 1)
 
@@ -49,7 +46,7 @@ def test_save_load_clear_duty_cycle():
     reset_to_default_file(mc)
 
 
-def test_export_matrices():
+def test_export_matrices(mc):
     mc.do_steady_state_analysis()
 
     mc.export_matrices(get_temp_files_dir_path())
@@ -60,7 +57,7 @@ def test_export_matrices():
     assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.tmf")
 
 
-def test_load_fea_result():
+def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
     mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
@@ -70,7 +67,7 @@ def test_load_fea_result():
     assert unit == "T"
 
 
-def test_export_results():
+def test_export_results(mc):
     mc.do_steady_state_analysis()
 
     file_path = get_temp_files_dir_path() + r"\steady_state_result.csv"
@@ -85,43 +82,46 @@ def test_load_dxf_file():
     # this test will work
     # see issue #41
     mc2 = MotorCAD()
+    try:
+        mc2.set_variable("MessageDisplayState", 2)
 
-    mc2.set_variable("MessageDisplayState", 2)
+        x = 53
+        y = 19
 
-    x = 53
-    y = 19
+        reset_to_default_file(mc2)
+        mc2.show_magnetic_context()
 
-    reset_to_default_file(mc2)
-    mc2.show_magnetic_context()
+        mc2.clear_all_data()
+        mc2.initiate_geometry_from_script()
 
-    mc2.clear_all_data()
-    mc2.initiate_geometry_from_script()
+        mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-    mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        mc2.add_region_xy(x, y, "test_region")
 
-    mc2.add_region_xy(x, y, "test_region")
+        mc2.create_optimised_mesh()
 
-    mc2.create_optimised_mesh()
+        # Not currently working - needs fixing in Motor-CAD
 
-    # Not currently working - needs fixing in Motor-CAD
+        # region = mc2._get_region_properties_xy(x, y)
+        #
+        # # Can't currently access magnet properties except for material name
+        # # This needs improving in the future
+        # assert almost_equal(region["Area"], 129.3)
 
-    # region = mc2._get_region_properties_xy(x, y)
-    #
-    # # Can't currently access magnet properties except for material name
-    # # This needs improving in the future
-    # assert almost_equal(region["Area"], 129.3)
-
-    mc2.quit()
+    except Exception as e:
+        raise e
+    finally:
+        mc2.quit()
 
 
-def test_export_force_animation():
+def test_export_force_animation(mc):
     mc.do_multi_force_calculation()
 
     file_path = get_temp_files_dir_path() + r"\test_animation.gif"
     mc.export_force_animation("Radial", file_path)
 
 
-def test_load_template():
+def test_load_template(mc):
     mc.load_template("e5")
 
     # Check we have loaded IM motor
@@ -130,7 +130,7 @@ def test_load_template():
     reset_to_default_file(mc)
 
 
-def test_export_multi_force_data():
+def test_export_multi_force_data(mc):
     mc.do_multi_force_calculation()
 
     file_path = get_temp_files_dir_path() + r"\force_data.json"
@@ -139,7 +139,7 @@ def test_export_multi_force_data():
     assert os.path.exists(file_path)
 
 
-def test_geometry_export():
+def test_geometry_export(mc):
     file_path = get_temp_files_dir_path() + r"\dxf_export_file.dxf"
     mc.set_variable("DXFFileName", file_path)
     mc.geometry_export()
@@ -147,7 +147,7 @@ def test_geometry_export():
     assert os.path.exists(file_path)
 
 
-def test_save_load_magnetisation_curves():
+def test_save_load_magnetisation_curves(mc):
     mc.load_from_file(get_dir_path() + r"\test_files\SRM_test_file.mot")
     mc.do_magnetic_calculation()
 
@@ -183,7 +183,7 @@ def test_save_load_results():
     # reset_to_default_file(mc)
 
 
-def test_get_message():
+def test_get_message(mc):
     mc.show_message("test1")
     mc.show_message("test2")
     mc.show_message("test3")
@@ -215,7 +215,7 @@ def file_line_differences(file_1, file_2):
     return number_differences
 
 
-def test_download_mot_file():
+def test_download_mot_file(mc):
     # Load and save base file so that contents are updated for this version of Motor-CAD
     mc.load_from_file(get_base_test_file_path())
     save_file_path = get_temp_files_dir_path() + r"\base_test_file_copy.mot"
@@ -229,7 +229,7 @@ def test_download_mot_file():
     reset_to_default_file(mc)
 
 
-def test_upload_mot_file():
+def test_upload_mot_file(mc):
     # Load and save base file so that contents are updated for this version of Motor-CAD
     mc.load_from_file(get_test_files_dir_path() + r"\IM_test_file.mot")
     save_file_path = get_temp_files_dir_path() + r"\IM_test_file_copy.mot"

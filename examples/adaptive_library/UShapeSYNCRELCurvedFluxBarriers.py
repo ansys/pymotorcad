@@ -3,8 +3,8 @@
 
 Curved Rotor Flux Barriers for SYNCREL U-Shape
 ==============================================
-Adaptive Templates script to alter SYNCREL U-Shape rotor template to use curved rotor pockets.
-This script is designed to be run from Motor-CAD template "i3".
+This script applies the adaptive templates functionality to alter SYNCREL U-Shape rotor template to
+use curved rotor pockets.
 """
 # %%
 # .. note::
@@ -46,11 +46,13 @@ This script is designed to be run from Motor-CAD template "i3".
 #
 # Perform required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD.
-# Import Arc, Coordinate, Line, Region and rt_to_xy
+# Import ``pymotorcad`` to access Motor-CAD.
+# Import ``Arc``, ``Coordinate``, ``Line``, ``Region`` and ``rt_to_xy``
 # to define the adaptive template geometry.
-# Import os, tempfile and shutil
+# Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
@@ -63,13 +65,13 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
-# template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the i3 SYNC motor template is loaded, and the file is saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, use the
+# ``MotorCAD(keep_instance_open=True)``  option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -211,7 +213,7 @@ def get_coordinates(pocket, coordinate_indices, mirror_line=None):
 
 # %%
 # Get list of coordinates for ``pocket`` arcs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define functions to get a list of coordinates
 # to use to generate the top and bottom arcs for ``pocket``.
 #
@@ -434,22 +436,25 @@ for layer in range(number_layers):
             mc.set_region(pocket_right)
 
 # %%
-# Load in Adaptive Templates Script if required
+# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png
+
+# %%
+# Load in Adaptive Templates script if required
 # ---------------------------------------------
-# When the script is run externally:
+# When this script is run externally, the script executes the following:
 #
-# * Set Geometry type to "Adaptive"
+# * Set **Geometry type** to **Adaptive**.
 #
-# * Load the script into the Adaptive Templates tab
+# * Load the script into the **Adaptive Templates** tab.
 #
-# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
-#   geometry
+# * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
+#   geometry.
 
-
+# %%
+# .. note::
+#    When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+#    (PY file) instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
-# %%
-# .. image:: ../../images/UShapeSYNCRELCurvedFluxBarriers.png

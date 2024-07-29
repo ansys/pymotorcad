@@ -1,13 +1,9 @@
 import os
 
 from RPC_Test_Common import get_dir_path, get_temp_files_dir_path
-from setup_test import setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
 
 
-def test_load_run_script():
+def test_load_run_script(mc):
     save_tooth_width = mc.get_variable("tooth_width")
 
     # script in test file changes tooth width
@@ -21,7 +17,7 @@ def test_load_run_script():
     mc.set_variable("tooth_width", save_tooth_width)
 
 
-def test_save_script():
+def test_save_script(mc):
     file_path = get_temp_files_dir_path() + r"\test_internal_script.py"
 
     mc.save_script(file_path)

@@ -23,6 +23,7 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
+        self._region_type = RegionType.adaptive
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -103,30 +104,68 @@ class Region(object):
                     ):
                         self.entities.remove(entity)
 
+    def replace(self, replacement_region):
+        """Replace self with another region.
+
+        This method replaces region entities with entities from the replacement region object,
+        such as an imported DXF region.
+
+        Parameters
+        ----------
+        replacement_region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object whose entities are to replace those of the
+            existing region.
+        """
+        # Remove existing entities from the region object
+        self.entities.clear()
+
+        # Set the region object entities to be the list of replacement region entities
+        self.entities = deepcopy(replacement_region.entities)
+
     # method to receive region from Motor-CAD and create python object
-    def _from_json(self, json):
-        """Convert class from json object.
+    @classmethod
+    def _from_json(cls, json, motorcad_instance=None):
+        """Convert the class from a JSON object.
 
         Parameters
         ----------
         json: dict
-            Represents geometry region
+            Dictionary representing the geometry region.
+        motorcad_instance : ansys.motorcad.core.MotorCAD
+            Motor-CAD instance to connect to. The default is ``None``.
         """
+        has_region_type = "region_type" in json
+        is_magnet = has_region_type and (json["region_type"] == RegionType.magnet.value)
+
+        if is_magnet:
+            new_region = RegionMagnet(motorcad_instance)
+            new_region._magnet_angle = json["magnet_angle"]
+            new_region._br_multiplier = json["magnet_magfactor"]
+            new_region._magnet_polarity = json["magnet_polarity"]
+            new_region._br_magnet = json["magnet_br_value"]
+        else:
+            new_region = cls(motorcad_instance)
+
+        if has_region_type:
+            new_region._region_type = RegionType(json["region_type"])
+
         # self.Entities = json.Entities
-        self.name = json["name"]
-        self.material = json["material"]
+        new_region.name = json["name"]
+        new_region.material = json["material"]
 
-        self.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
-        self.area = json["area"]
+        new_region.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        new_region.area = json["area"]
 
-        self.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
-        self.region_coordinate = Coordinate(
+        new_region.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        new_region.region_coordinate = Coordinate(
             json["region_coordinate"]["x"], json["region_coordinate"]["y"]
         )
-        self.duplications = json["duplications"]
-        self.entities = _convert_entities_from_json(json["entities"])
-        self.parent_name = json["parent_name"]
-        self._child_names = json["child_names"]
+        new_region.duplications = json["duplications"]
+        new_region.entities = _convert_entities_from_json(json["entities"])
+        new_region.parent_name = json["parent_name"]
+        new_region._child_names = json["child_names"]
+
+        return new_region
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -147,6 +186,7 @@ class Region(object):
             "duplications": self.duplications,
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
+            "region_type": self._region_type.value,
         }
 
         return region_dict
@@ -186,7 +226,6 @@ class Region(object):
 
     @parent_name.setter
     def parent_name(self, name):
-        """Set region parent name."""
         self._parent_name = name
 
     @property
@@ -201,13 +240,22 @@ class Region(object):
         return self._child_names
 
     @property
+    def region_type(self):
+        """Get region type.
+
+        Returns
+        -------
+        string
+        """
+        return self._region_type
+
+    @property
     def motorcad_instance(self):
         """Get linked Motor-CAD instance."""
         return self._motorcad_instance
 
     @motorcad_instance.setter
     def motorcad_instance(self, mc):
-        """Set linked Motor-CAD instance."""
         # if isinstance(mc, _MotorCADConnection):
         #     raise Exception("Unable to set self.motorcad_instance,
         #                      mc is not a Motor-CAD connection")
@@ -239,7 +287,6 @@ class Region(object):
 
     @parent.setter
     def parent(self, region):
-        """Set parent region."""
         self._parent_name = region.name
 
     def subtract(self, region):
@@ -325,6 +372,32 @@ class Region(object):
         else:
             raise Exception("Region can only be mirrored about Line()")
 
+    def rotate(self, centre_point, angle):
+        """Rotate Region around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            point to rotate Coordinate around.
+        angle : float
+            Angle of rotation in degrees. Anticlockwise direction is positive.
+        """
+        for entity in self.entities:
+            entity.rotate(centre_point, angle)
+
+    def translate(self, x, y):
+        """Translate Region by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        for entity in self.entities:
+            entity.translate(x, y)
+
     def update(self, region):
         """Update class fields from another region.
 
@@ -409,37 +482,13 @@ class Region(object):
             Position to move the point to
         """
         for entity in self.entities:
-            edited = False
-
             if entity.start == old_coordinates:
                 entity.start = deepcopy(new_coordinates)
-                edited = True
             if entity.end == old_coordinates:
                 entity.end = deepcopy(new_coordinates)
-                edited = True
-
-            if edited and isinstance(entity, Arc):
-                # Draw line between arc start/end
-                # get centre point of that line
-                p_centre = (entity.end + entity.start) / 2
-                # Get vector of that line
-                v_1 = entity.end - entity.start
-                # Get length div 2
-                d1 = abs(v_1) / 2
-
-                # Draw perpendicular line from centre point
-                radius, angle = v_1.get_polar_coords_deg()
-                perpendicular_angle = angle + 90 * (entity.radius / abs(entity.radius))
-
-                if entity.radius < d1:
-                    raise Exception("It is not possible to draw an arc with this geometry")
-
-                # Get vector from p_centre to centre point of arc
-                d_adjacent = sqrt(entity.radius**2 - d1**2)
-                l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
-
-                # Apply vector to centre point of arc
-                entity.centre = p_centre + Coordinate(l_x, l_y)
+            if isinstance(entity, Arc):
+                # Check Arc is still valid
+                _ = entity.centre
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
@@ -464,8 +513,114 @@ class Region(object):
         return None
 
 
+class RegionMagnet(Region):
+    """Provides the Python representation of a Motor-CAD magnet geometry region."""
+
+    def __init__(self, motorcad_instance=None):
+        """Initialise a ``RegionMagnet`` instance."""
+        super().__init__(motorcad_instance)
+        self._magnet_angle = 0.0
+        self._br_multiplier = 0.0
+        self._br_magnet = 0.0
+        self._magnet_polarity = ""
+        self._region_type = RegionType.magnet
+
+    def _to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        dict
+            Dictionary of the geometry region represented as JSON.
+        """
+        region_dict = super()._to_json()
+
+        region_dict["magnet_magfactor"] = self._br_multiplier
+        region_dict["magnet_angle"] = self._magnet_angle
+
+        return region_dict
+
+    @property
+    def br_multiplier(self):
+        """Br multiplier.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_multiplier
+
+    @br_multiplier.setter
+    def br_multiplier(self, br_multiplier):
+        self._br_multiplier = br_multiplier
+
+    @property
+    def br_value(self):
+        """Br value of magnet before Br multiplier applied.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_magnet
+
+    @property
+    def magnet_angle(self):
+        """Angle of the magnet in degrees.
+
+        Returns
+        -------
+        float
+        """
+        return self._magnet_angle
+
+    @magnet_angle.setter
+    def magnet_angle(self, magnet_angle):
+        self._magnet_angle = magnet_angle
+
+    @property
+    def br_x(self):
+        """X-axis component of br value.
+
+        Returns
+        -------
+        float
+        """
+        return cos(radians(self.magnet_angle)) * self.br_used
+
+    @property
+    def br_y(self):
+        """Y-axis component of the br value.
+
+        Returns
+        -------
+        float
+        """
+        return sin(radians(self.magnet_angle)) * self.br_used
+
+    @property
+    def br_used(self):
+        """Br used after applying Br multiplier.
+
+        Returns
+        -------
+        float
+        """
+        return self._br_magnet * self.br_multiplier
+
+    @property
+    def magnet_polarity(self):
+        """Polarity of the magnet.
+
+        Returns
+        -------
+        string
+        """
+        return self._magnet_polarity
+
+
 class Coordinate(object):
-    """Python representation of coordinate in two-dimensional space.
+    """Provides the Python representation of a coordinate in two-dimensional space.
 
     Parameters
     ----------
@@ -550,13 +705,9 @@ class Coordinate(object):
         Parameters
         ----------
         centre_point : Coordinate
-            point to rotate Coordinate around.
+            Point to rotate Coordinate around.
         angle : float
-            Angle of rotation in degrees.
-
-        Returns
-        -------
-        Coordinate
+            Angle of rotation in degrees. Anticlockwise direction is positive.
         """
         angle_r = radians(angle)
         x_new = centre_point.x + (
@@ -565,8 +716,21 @@ class Coordinate(object):
         y_new = centre_point.y + (
             (sin(angle_r) * (self.x - centre_point.x)) + (cos(angle_r) * (self.y - centre_point.y))
         )
+        self.x = x_new
+        self.y = y_new
 
-        return Coordinate(x_new, y_new)
+    def translate(self, x, y):
+        """Translate Coordinate by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        self.x += x
+        self.y += y
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
@@ -629,6 +793,32 @@ class Entity(object):
             return Entity(self.start.mirror(mirror_line), self.end.mirror(mirror_line))
         else:
             raise Exception("Entity can only be mirrored about Line()")
+
+    def rotate(self, centre_point, angle):
+        """Rotate entity around a point for a given angle.
+
+        Parameters
+        ----------
+        centre_point : Coordinate
+            Coordinate to rotate line around.
+        angle : float
+            Angle of rotation in degrees. Anticlockwise direction is positive.
+        """
+        self.start.rotate(centre_point, angle)
+        self.end.rotate(centre_point, angle)
+
+    def translate(self, x, y):
+        """Translate Entity by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        self.start.translate(x, y)
+        self.end.translate(x, y)
 
 
 class Line(Entity):
@@ -823,22 +1013,6 @@ class Line(Entity):
 
         return isclose(abs(v1) + abs(v2), self.length, abs_tol=GEOM_TOLERANCE)
 
-    def rotate(self, centre_point, angle):
-        """Rotate line around a point for a given angle.
-
-        Parameters
-        ----------
-        centre_point : Coordinate
-            Coordinate to rotate line around.
-        angle : float
-            Angle of rotation in degrees.
-
-        Returns
-        -------
-        Line
-        """
-        return Line(self.start.rotate(centre_point, angle), self.end.rotate(centre_point, angle))
-
     def _line_equation(self):
         """Get value of coefficients of line in format A*x + B*y = C."""
         a = self.start.y - self.end.y
@@ -876,29 +1050,14 @@ class Line(Entity):
             return None
 
 
-class Arc(Entity):
-    """Python representation of Motor-CAD arc entity based upon start, end, centre and radius.
-
-    Parameters
-    ----------
-    start : Coordinate
-        Start coordinate.
-
-    end : Coordinate
-        End coordinate.
-
-    centre :Coordinate
-       Centre coordinate.
-
-    radius : float
-        Arc radius
-    """
+class _BaseArc(Entity):
+    """Internal class to allow creation of Arcs."""
 
     def __init__(self, start, end, centre, radius):
-        """Initialise Arc."""
+        """Initialise base Arc object."""
         super().__init__(start, end)
-        self.radius = deepcopy(radius)
         self.centre = deepcopy(centre)
+        self.radius = radius
 
     def __eq__(self, other):
         """Override the default equals implementation for Arc."""
@@ -959,20 +1118,17 @@ class Arc(Entity):
         Coordinate
             Coordinate at distance along Arc.
         """
+        ref_coordinate_angle = atan2(
+            (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
+        )
         if ref_coordinate == self.end:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
+            e = -1
         else:
-            if self.radius >= 0:
-                # anticlockwise
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) + (distance / self.radius)
-            else:
-                angle = atan2(ref_coordinate.y, ref_coordinate.x) - (distance / self.radius)
-
-        return self.centre + Coordinate(*rt_to_xy(self.radius, degrees(angle)))
+            e = 1
+        angle = ref_coordinate_angle + e * (
+            distance / self.radius
+        )  # sign of the radius accounts for clockwise/anticlockwise arcs
+        return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
@@ -1005,19 +1161,7 @@ class Arc(Entity):
         float
             Length of arc
         """
-        radius, angle_1 = xy_to_rt(self.start.x, self.start.y)
-        radius, angle_2 = xy_to_rt(self.end.x, self.end.y)
-
-        if self.radius == 0:
-            arc_angle = 0
-        elif ((self.radius > 0) and (angle_1 > angle_2)) or (
-            (self.radius < 0) and angle_2 < angle_1
-        ):
-            arc_angle = angle_2 - (angle_1 - 360)
-        else:
-            arc_angle = angle_2 - angle_1
-
-        return self.radius * radians(arc_angle)
+        return abs(self.radius * radians(self.total_angle))
 
     def reverse(self):
         """Reverse Arc entity."""
@@ -1129,8 +1273,10 @@ class Arc(Entity):
         #  |___________________________
 
         # Work out perpendicular lines
-        l1_p = l1.rotate(l1.midpoint, 90)
-        l2_p = l2.rotate(l2.midpoint, 90)
+        l1_p = deepcopy(l1)
+        l1_p.rotate(l1.midpoint, 90)
+        l2_p = deepcopy(l2)
+        l2_p.rotate(l2.midpoint, 90)
 
         # Get intersection of perpendicular lines
         intersection = l1_p.get_line_intersection(l2_p)
@@ -1147,6 +1293,102 @@ class Arc(Entity):
         arc_centre = Coordinate(intersection.x, intersection.y)
 
         return cls(start_point, end_point, arc_centre, radius)
+
+
+class Arc(_BaseArc):
+    """Python representation of Motor-CAD arc entity based upon start, end, (centre or radius).
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+
+    centre : Coordinate, optional
+       Centre coordinate.
+
+    radius : float, optional
+        Arc radius
+    """
+
+    def __init__(self, start, end, centre=None, radius=None):
+        """Initialise Arc."""
+        self.start = deepcopy(start)
+        self.end = deepcopy(end)
+
+        # Centre point of arc is valid in 2 different locations depending on angle smaller or
+        # greater than 180 deg
+        # Assume angle is <180 deg unless centre and radius are specified and prove otherwise
+        self._centre_point_pos = 1
+
+        if radius and centre:
+            # User has defined both radius and centre - normally assume angle is acute but need to
+            # check for this case
+            test_arc = _BaseArc(start, end, centre, radius)
+            test = test_arc.total_angle
+            if test > 180:
+                # Use second location of arc centre point since arc defined as >180 deg
+                self._centre_point_pos = 2
+
+        if radius is not None:
+            # Always calculate radius
+            self.radius = radius
+            # Check we can get a valid centre for this geometry
+            _ = self.centre
+        elif centre is not None:
+            # Calc radius from centre point
+            r1 = abs(self.start - centre)
+            r2 = abs(self.end - centre)
+            if not isclose(r1, r2, abs_tol=1e-6):
+                raise Exception("It is not possible to draw an arc with this geometry")
+            else:
+                self.radius = r1
+
+            if _orientation_of_three_points(centre, self.start, self.end) is _Orientation.clockwise:
+                self.radius *= -1
+        else:
+            raise ValueError("You must specify either a centre point or radius for Arc object.")
+
+    @property
+    def centre(self):
+        """Get centre point of circle defining arc.
+
+        Returns
+        -------
+            Coordinate
+        """
+        # Draw line between arc start/end
+        # get centre point of that line
+        p_centre = (self.end + self.start) / 2
+        # Get vector of that line
+        v_1 = self.end - self.start
+        # Get length div 2
+        d1 = abs(v_1) / 2
+
+        # Draw perpendicular line from centre point
+        radius, angle = v_1.get_polar_coords_deg()
+        perpendicular_angle = angle + 90 * (self.radius / abs(self.radius))
+
+        if abs(self.radius) < d1:
+            if (d1 - abs(self.radius)) < GEOM_TOLERANCE:
+                # Radius is smaller than possible but within tolerance
+                # Bump it to minimum viable radius and preserve sign
+                self.radius = d1 * (self.radius / abs(self.radius))
+            else:
+                raise Exception("It is not possible to draw an arc with this geometry")
+
+        # Get vector from p_centre to centre point of arc
+        d_adjacent = sqrt(self.radius**2 - d1**2)
+        l_x, l_y = rt_to_xy(d_adjacent, perpendicular_angle)
+
+        # Apply vector to centre point of arc
+        if self._centre_point_pos == 1:
+            return p_centre + Coordinate(l_x, l_y)
+        else:
+            # Arc had an angle defined as greater than 180 deg
+            return p_centre - Coordinate(l_x, l_y)
 
 
 class EntityList(list):
@@ -1408,3 +1650,63 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
+
+
+class RegionType(Enum):
+    """Provides an enumeration for storing Motor-CAD region types."""
+
+    stator = "Stator"
+    rotor = "Rotor"
+    slot_area_stator = "Stator Slot"
+    slot_area_rotor = "Rotor Slot"
+    slot_split = "Split Slot"
+    stator_liner = "Stator Liner"
+    rotor_liner = "Rotor Liner"
+    wedge = "Wedge"
+    stator_duct = "Stator Duct"
+    housing = "Housing"
+    housing_magnetic = "Magnetic Housing"
+    stator_impreg = "Stator Impreg"
+    impreg_gap = "Impreg Gap"
+    stator_copper = "Stator Copper"
+    stator_copper_ins = "Stator Copper Insulation"
+    stator_divider = "Stator Divider"
+    stator_slot_spacer = "Stator Slot Spacer"
+    stator_separator = "Stator slot separator"
+    coil_insulation = "Coil Insulation"
+    stator_air = "Stator Air"
+    rotor_hub = "Rotor hub"
+    rotor_air = "Rotor Air"
+    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
+    rotor_pocket = "Rotor Pocket"
+    pole_spacer = "Pole Spacer"
+    rotor_slot = "Rotor Slot"
+    coil_separator = "Coil Separator"
+    damper_bar = "Damper Bar"
+    wedge_rotor = "Rotor Wedge"
+    rotor_divider = "Rotor Divider"
+    rotor_copper_ins = "Rotor Copper Insulation"
+    rotor_copper = "Rotor Copper"
+    rotor_impreg = "Rotor Impreg"
+    shaft = "Shaft"
+    axle = "Axle"
+    rotor_duct = "Rotor Duct"
+    magnet = "Magnet"
+    barrier = "Barrier"
+    mounting_base = "Base Mount"
+    mounting_plate = "Plate Mount"
+    banding = "Banding"
+    sleeve = "Sleeve"
+    rotor_cover = "Rotor Cover"
+    slot_wj_insulation = "Slot Water Jacket Insulation"
+    slot_wj_wall = "Slot Water Jacket Wall"
+    slot_wj_duct = "Slot Water Jacket Duct"
+    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
+    cowling = "Cowling"
+    cowling_gril = "Cowling Grill"
+    brush = "Brush"
+    commutator = "Commutator"
+    airgap = "Airgap"
+    dxf_import = "DXF Import"
+    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    adaptive = "Adaptive Region"
