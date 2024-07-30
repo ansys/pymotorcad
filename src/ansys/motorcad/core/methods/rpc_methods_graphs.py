@@ -178,10 +178,15 @@ class _RpcMethodsGraphs:
         y_values : list
             Value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_magnetic_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "MagneticDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            loop = 0
+            x_array = []
+            y_array = []
+            return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
@@ -198,10 +203,15 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_temperature_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "TransientDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            loop = 0
+            x_array = []
+            y_array = []
+            return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient power loss graph.
@@ -218,4 +228,53 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        return self._get_graph(self.get_power_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "PowerDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_power_graph_point, graph_name)
+
+    def get_heatflow_graph(self, graph_name):
+        """Get graph points from a Motor-CAD heat flow graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
+        return self.connection.send_and_receive(method, params)
+
+    def get_fea_graph(self, graph_name, slice_number=-1, point_number=-1):
+        """Get graph points from a Motor-CAD FEA graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number
+
+        point_number : int
+            Point number to get x and y coordinate arrays from.
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "FEAPathDataSource", slice_number, point_number]
+        return self.connection.send_and_receive(method, params)
