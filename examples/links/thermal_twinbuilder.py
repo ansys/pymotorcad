@@ -769,11 +769,20 @@ def temperaturesHousingAmbient():
 
 
 # %%
-# Specify the input .mot file and the directory to save the output data to.
+# Specify the input .mot file and the directory to save the output data to. For this example, the
+# e8 template model will be used
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder", mcad_name + "_TwinOutput")
+
+# %%
+# Create the e8 input file if it does not exist already
+if Path(inputMotFilePath).exists() == False:
+    motorcad = pymotorcad.MotorCAD()
+    motorcad.load_template("e8")
+    motorcad.save_to_file(inputMotFilePath)
+    motorcad.quit()
 
 # %%
 # Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
