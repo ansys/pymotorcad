@@ -12,7 +12,7 @@ version that comes with the Motor-CAD installation.
 Create a local Python virtual environment
 *****************************************
 .. note::
-    If you are using a Python IDE, this will usually create a virtual environment for you when you 
+    If you are using a Python IDE, this often creates a virtual environment for you when you
     start a new project. In this case, you can skip the section below, which describes how to create
     a virtual environment from the command line.
 
@@ -58,9 +58,9 @@ In the terminal window, the preceding commands might look like this:
     :width: 500pt
 
 
-Change the Python EXE file path in the Motor-CAD UI
+Change the Python exe path in the Motor-CAD UI
 ***************************************************
-Proceed to change the path for the Python EXE in **Defaults -> Default File Locations**. This should
+Proceed to change the path for the Python exe in **Defaults -> Default File Locations**. This should
 point to the :code:`pythonw.exe` file in the :code:`Scripts` folder of the virtual environment:
 
 .. figure:: ../images/change_python_location.png
@@ -68,7 +68,7 @@ point to the :code:`pythonw.exe` file in the :code:`Scripts` folder of the virtu
 
 
 
-The Python file path is updated accordingly, and the Python version is recognised by the Motor-CAD
+The Python path is updated accordingly, and the Python version is recognised by the Motor-CAD
 UI.
 
 .. figure:: ../images/changed_python_location.png

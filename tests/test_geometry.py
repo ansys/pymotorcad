@@ -584,6 +584,9 @@ def test_arc_get_coordinate_from_distance():
     coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-15)
     assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
     assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    coord_6 = arc_2.get_coordinate_from_distance(arc_2.start, 5)
+    assert math.isclose(60.389142028418, coord_6.x, abs_tol=1e-12)
+    assert math.isclose(24.730689908764, coord_6.y, abs_tol=1e-12)
 
 
 def test_arc_length():
@@ -592,6 +595,11 @@ def test_arc_length():
     )
 
     assert arc.length == math.pi
+
+    radius = 45
+    line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
+    arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
+    assert arc_2.length > line_1.length
 
 
 def test_convert_entities_to_json():

@@ -1339,19 +1339,7 @@ class _BaseArc(Entity):
         float
             Length of arc
         """
-        radius, angle_1 = xy_to_rt(self.start.x, self.start.y)
-        radius, angle_2 = xy_to_rt(self.end.x, self.end.y)
-
-        if self.radius == 0:
-            arc_angle = 0
-        elif ((self.radius > 0) and (angle_1 > angle_2)) or (
-            (self.radius < 0) and angle_2 < angle_1
-        ):
-            arc_angle = angle_2 - (angle_1 - 360)
-        else:
-            arc_angle = angle_2 - angle_1
-
-        return self.radius * radians(arc_angle)
+        return abs(self.radius * radians(self.total_angle))
 
     def reverse(self):
         """Reverse Arc entity."""
