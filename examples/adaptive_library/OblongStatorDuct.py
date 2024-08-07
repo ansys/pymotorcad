@@ -8,20 +8,21 @@ into oblong ducts.
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
-# Import ``Arc``, ``Line``, ``Coordinate``, ``rt_to_xy``, ``xy_to_rt``, ``math`` 
+# Import ``Arc``, ``Line``, ``Coordinate``, ``rt_to_xy``, ``xy_to_rt``, ``math``
 # to define the adaptive template geometry.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+
+import math
 
 # sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
 import tempfile
-import math
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Line, Coordinate, rt_to_xy, xy_to_rt
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
 
 # %%
 # Connect to Motor-CAD
@@ -106,10 +107,11 @@ def check_line_origin_distance(i, duct_region):
     else:
         return False
 
+
 # %%
 # Generate arc associated with oblong duct
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Two separate functions are needed depending  on full duct or half duct (due to symmetry) 
+# Two separate functions are needed depending  on full duct or half duct (due to symmetry)
 def get_arc_radius_center(entity_start, entity_end, height, Line_origin):
     # Generate arc radius and center based on
     # line and arc height
@@ -174,6 +176,8 @@ def get_arc_radius_center_halfduct(entity_start, entity_end, height, Line_origin
     new_start_point = Coordinate(new_start_x, new_start_y)
     new_end_point = Coordinate(new_end_x, new_end_y)
     return r, center, new_start_point, new_end_point
+
+
 # %%
 # Get required parameters and objects
 # -----------------------------------
@@ -185,7 +189,8 @@ set_default_parameter("Duct Arc Height", 0.7)
 
 
 # %%
-# Set required parameters for the oblong: height of arc ``Duct Arc Height``, duct width and duct height.
+# Set required parameters for the oblong: height of arc ``Duct Arc Height``, duct width and duct
+# height.
 duct_arc_height = mc.get_adaptive_parameter_value("Duct Arc Height")
 duct_height = mc.get_variable("CircularDuctL1ChannelHeight")
 duct_width = mc.get_variable("CircularDuctL1ChannelWidth")
@@ -278,7 +283,6 @@ for child_name in st_region.child_names:
                         end_point = Coordinate(new_end_x, new_end_y)
                         print("entity added")
                         duct_region.entities[i] = Line(start_point, end_point)
- 
 
         mc.set_region(duct_region)
 
