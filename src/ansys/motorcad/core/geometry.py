@@ -493,6 +493,10 @@ class Region(object):
     def round_corner(self, corner_coordinate, radius):
         """Round the corner of a region.
 
+        The corner coordinate must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner will be shortened and an arc will be created between
+        them.
+
         Parameters
         ----------
         corner_coordinate : ansys.motorcad.core.geometry.Coordinate
@@ -520,11 +524,11 @@ class Region(object):
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
-        # if first and last entities, swap the positions
+        # if the adjacent entities are the first and last entities of the region, swap the positions
         if entity_indicies[0] == 0 and entity_indicies[1] == len(self.entities) - 1:
             entity_indicies[0], entity_indicies[1] = entity_indicies[1], entity_indicies[0]
             adj_entities[0], adj_entities[1] = adj_entities[1], adj_entities[0]
-        # Calculate distances for adjacent entities
+        # Calculate distances by which the adjacent entities will be shortened
         if type(adj_entities[0]) == Line:
             angle_1 = degrees(
                 atan2(
@@ -561,16 +565,42 @@ class Region(object):
         half_chord = radius * sin(radians(arc_angle) / 2)
         distance = abs(half_chord / (sin(radians(corner_angle) / 2)))
 
+        # check that distances by which the adjacent entities will be shortened are less than  the
+        # lengths of the adjacent entities.
         for index in range(len(adj_entities)):
             j = adj_entities[index]
+            if j.length < distance:
+                raise Exception(
+                    "Corner radius too large for these entities. "
+                    "You must specify a smaller radius."
+                )
+            # get and set the new start and end coordinates for the adjacent entities
             coordinates.append(j.get_coordinate_from_distance(corner_coordinate, distance))
             if j.start == corner_coordinate:
                 j.start = coordinates[index]
             elif j.end == corner_coordinate:
                 j.end = coordinates[index]
 
+        # create the new corner arc and insert it between the adjacent entities
         corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
         self.insert_entity(entity_indicies[0] + 1, corner_arc)
+
+    def round_corners(self, corner_coordinates, radius):
+        """Round multiple corners of a region.
+
+        Each corner coordinate must already exist on two entities belonging to the region.
+        The two entities adjacent to each corner will be shortened and an arc will be created
+        between them.
+
+        Parameters
+        ----------
+        corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
+            List of coordinates of the corners to be rounded.
+        radius : float
+            Radius by which the corners will be rounded.
+        """
+        for corner in corner_coordinates:
+            self.round_corner(corner, radius)
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
