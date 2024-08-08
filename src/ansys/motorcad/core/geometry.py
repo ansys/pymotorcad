@@ -565,7 +565,7 @@ class Region(object):
         half_chord = radius * sin(radians(arc_angle) / 2)
         distance = abs(half_chord / (sin(radians(corner_angle) / 2)))
 
-        # check that distances by which the adjacent entities will be shortened are less than  the
+        # check that the  distances by which the adjacent entities are shortened are less than the
         # lengths of the adjacent entities.
         for index in range(len(adj_entities)):
             j = adj_entities[index]
