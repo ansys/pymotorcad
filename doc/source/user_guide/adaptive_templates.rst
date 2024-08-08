@@ -407,7 +407,7 @@ Templates.
 
 Use the ``get_region_dxf()`` method in an adaptive templates script to access an imported region.
 You can then modify and interact with the region in the same way as for any other region object.
-The name, properties and parent regions of the imported region can be defined.
+The name, properties, and parent regions of the imported region can be defined.
 
 To replace an existing region with an imported DXF region, use the ``Region.replace()`` method.
 
