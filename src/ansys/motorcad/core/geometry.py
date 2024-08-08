@@ -571,7 +571,7 @@ class Region(object):
             j = adj_entities[index]
             if j.length < distance:
                 raise Exception(
-                    "Corner radius too large for these entities. "
+                    "Corner radius is too large for these entities. "
                     "You must specify a smaller radius."
                 )
             # get and set the new start and end coordinates for the adjacent entities
