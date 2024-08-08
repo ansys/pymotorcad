@@ -1,0 +1,6 @@
+child\_names
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.child_names
