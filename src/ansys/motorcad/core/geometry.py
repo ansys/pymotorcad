@@ -528,7 +528,7 @@ class Region(object):
         if entity_indicies[0] == 0 and entity_indicies[1] == len(self.entities) - 1:
             entity_indicies[0], entity_indicies[1] = entity_indicies[1], entity_indicies[0]
             adj_entities[0], adj_entities[1] = adj_entities[1], adj_entities[0]
-        # Calculate distances by which the adjacent entities will be shortened
+        # Calculate distances by which the adjacent entities are shortened
         if type(adj_entities[0]) == Line:
             angle_1 = degrees(
                 atan2(
