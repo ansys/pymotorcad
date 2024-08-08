@@ -493,8 +493,8 @@ class Region(object):
     def round_corner(self, corner_coordinate, radius):
         """Round the corner of a region.
 
-        The corner coordinate must already exist on two entities belonging to the region.
-        The two entities adjacent to the corner will be shortened and an arc will be created between
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and an arc is created between
         them.
 
         Parameters
