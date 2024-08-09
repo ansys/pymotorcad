@@ -51,6 +51,8 @@ else:
     mc.set_variable("CircularDuctL1RadialDiameter", 180)  # set number of duct radial diameter
     mc.set_variable("CircularDuctL1ChannelWidth", 2)  # set duct width
     mc.set_variable("CircularDuctL1ChannelHeight", 3)  # set duct height
+    mc.set_variable("CircularDuctL1Channels", 48)  # set number of duct channels
+    mc.set_variable("HousingType", 0)  # set housing type to 'Round'
 
     # Open relevant file
     working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
@@ -237,7 +239,6 @@ for child_name in st_region.child_names:
                             entity.start, entity.end, duct_arc_height, Line_origin
                         )
                         Duct_Arc = Arc(entity.start, entity.end, center, radius)
-                        print("entity added")
                         duct_region.entities[i] = Duct_Arc
 
         elif round(duct_region.area / duct_area, 2) == 0.5:  # if the half duct is drawn
@@ -259,7 +260,6 @@ for child_name in st_region.child_names:
                             entity.start, entity.end, duct_arc_height, Line_origin, Symm_angle
                         )
                         Duct_Arc = Arc(start_point, end_point, center, radius)
-                        print("entity added")
                         duct_region.entities[i] = Duct_Arc
                 elif round(entity.length / duct_height, 2) == 1:
                     # modify the line on symmetry planes
@@ -281,14 +281,73 @@ for child_name in st_region.child_names:
                         new_end_x, new_end_y = rt_to_xy(rad_end_point, angle_end_point)
                         start_point = Coordinate(new_start_x, new_start_y)
                         end_point = Coordinate(new_end_x, new_end_y)
-                        print("entity added")
                         duct_region.entities[i] = Line(start_point, end_point)
 
         mc.set_region(duct_region)
 
 # %%
-# .. image:: ../../images/OblongDuct.png
-#     :width: 300pt
+# .. image:: ../../images/adaptive_templates/OblongDuct.png
+#     :width: 600pt
+
+# %%
+# Apply surface area correction in Motor-CAD Thermal
+# --------------------------------------------------
+# The oblong stator ducts can be used in the Motor-CAD Thermal model as channels for water jacket
+# cooling. The **Housing Water Jacket** cooling model in Motor-CAD can be set up to use stator duct
+# channels when a housing type without channels is selected in the **Geometry** tab.
+#
+# As of Motor-CAD v2024R2, the **Housing Water Jacket** calculations will use duct areas from the
+# Motor-CAD Standard Template geometry - not the custom Adaptive Templates geometry. For example,
+# when the stator duct geometry has been updated from rectangular to oblong shapes, the duct area
+# has increased. For this example, the area increases from 6 mm\ :sup:`2` to 8.03852\ :sup:`2`. This
+# can be seen in the **Geometry -> Editor -> Geometry** tab, or by using the ``area`` method for the
+# duct region.
+
+# %%
+# .. image:: ../../images/adaptive_templates/OblongDuct_area.png
+#     :width: 600pt
+
+# %%
+# To account for this in the **Housing Water Jacket** cooling model, you can apply a cross section
+# area adjustment. By default, this is set to 0. To see this in the Motor-CAD interface, go to the
+# **Input Data -> Housing Water Jacket -> Fluid FLow** tab in the **Thermal** context.
+
+# %%
+# .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_before.png
+#     :width: 600pt
+
+# %%
+# The appropriate area adjustment is calculated and applied within the Adaptive Templates script.
+# To calculate the area adjustment, get the area of the stator duct regions using the ``area``
+# method. For the case where there are two half-ducts, it is necessary to get the area for all duct
+# regions and to calculate the sum of the areas.
+
+oblong_duct_areas = []
+num_slots = mc.get_variable("Slot_Number")
+num_ducts = mc.get_variable("CircularDuctL1Channels")
+ducts_per_slot = num_ducts / num_slots
+for child_name in st_region.child_names:
+    if "StatorDuctFluidRegion" in child_name:
+        oblong_duct_areas.append(mc.get_region(child_name).area)
+oblong_duct_area = sum(oblong_duct_areas) / ducts_per_slot
+
+# %%
+# The area of the original rectangular duct was already calculated earlier (``duct_area``). The area
+# adjustment is calculated by subtracting the rectangular duct area from the oblong duct area.
+
+area_adjustment = oblong_duct_area - duct_area
+
+# %%
+# Set the area adjustment value in Motor-CAD.
+mc.set_array_variable("HousingWJ_Channel_CSArea_L1_A_Adjustment", 0, area_adjustment)
+
+# %%
+# The area adjustment is applied by the Adaptive Templates script and is updated any time the
+# geometry is changed.
+
+# %%
+# .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_after.png
+#     :width: 600pt
 
 # %%
 # Load in Adaptive Templates script if required
