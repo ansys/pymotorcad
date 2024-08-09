@@ -13,9 +13,8 @@ into oblong ducts.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/OblongDuct.png'
 import math
-
-# sphinx_gallery_thumbnail_number = -1
 import os
 import shutil
 import sys
