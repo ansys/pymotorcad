@@ -589,7 +589,7 @@ class Region(object):
         """Round multiple corners of a region.
 
         Each corner coordinate must already exist on two entities belonging to the region.
-        The two entities adjacent to each corner will be shortened and an arc will be created
+        The two entities adjacent to each corner are shortened, and an arc is created
         between them.
 
         Parameters
