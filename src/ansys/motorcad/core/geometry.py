@@ -597,7 +597,7 @@ class Region(object):
         corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
             List of coordinates of the corners to be rounded.
         radius : float
-            Radius by which the corners will be rounded.
+            Radius to round the corners by.
         """
         for corner in corner_coordinates:
             self.round_corner(corner, radius)
