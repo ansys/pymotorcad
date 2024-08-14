@@ -1,8 +1,9 @@
 """
-Oblong ducts
+Oblong stator ducts with thermal calibration
 =================
 This script applies the adaptive templates functionality to modify rectangular ducts
-into oblong ducts.
+into oblong ducts. Further, the thermal effect of modified duct is taken into account by modifying
+the area adjustment under housing water jacket in thermal module.
 """
 # %%
 # Perform required imports
@@ -112,7 +113,8 @@ def check_line_origin_distance(i, duct_region):
 # %%
 # Generate arc associated with oblong duct
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Two separate functions are needed depending  on full duct or half duct (due to symmetry)
+# Two separate functions are needed depending  on full duct or half duct (due to symmetry) is
+# present under Geometry Editor
 def get_arc_radius_center(entity_start, entity_end, height, Line_origin):
     # Generate arc radius and center based on
     # line and arc height
