@@ -3,6 +3,7 @@ from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from warnings import warn
 
 GEOM_TOLERANCE = 1e-6
 
@@ -938,6 +939,12 @@ class Line(Entity):
         Coordinate
             Coordinate at fractional distance along Arc.
         """
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
         return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
     def get_coordinate_from_distance(
@@ -1114,6 +1121,12 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at fractional distance along Arc.
         """
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
         return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
     def get_coordinate_from_distance(
