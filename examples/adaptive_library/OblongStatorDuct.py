@@ -1,5 +1,5 @@
 """
-Oblong stator ducts with thermal calibration
+Oblong stator ducts with thermal adjustment
 =================
 This script applies the adaptive templates functionality to modify rectangular ducts
 into oblong ducts. Further, the thermal effect of modified duct is taken into account by modifying
