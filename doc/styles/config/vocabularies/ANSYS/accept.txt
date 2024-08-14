@@ -21,3 +21,6 @@ centre
 VSCode
 PyCharm
 Powershell
+recognised
+exe
+UI
