@@ -610,6 +610,14 @@ def test_arc_get_coordinate_from_distance():
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test for an arc with negative radius using the 'distance' argument
+    arc_1 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_1 = arc_1.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
+    assert math.isclose(coord_1.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_1.y, 1, abs_tol=1e-12)
+
     # test an arc that failed with the old definition of get_coordinate_from_distance() using the
     # 'distance' argument
     arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
