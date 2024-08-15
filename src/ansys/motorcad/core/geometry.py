@@ -971,16 +971,21 @@ class Line(Entity):
         Coordinate
             Coordinate at distance along Line.
         """
+        if not distance and not fraction and not percentage:
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if distance and fraction:
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if distance and percentage:
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
         if not distance:
+            if fraction and percentage:
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
             if fraction:
                 distance = self.length * fraction
-                if percentage:
-                    if percentage != fraction * 100:
-                        print("Both fraction and percentage provided. Using fraction.")
             elif percentage:
                 distance = self.length * (percentage / 100)
-            else:
-                raise Exception("You must provide either a distance, fraction or percentage.")
 
         if ref_coordinate == self.end:
             coordinate_1 = self.end
@@ -1153,16 +1158,21 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at distance along Arc.
         """
+        if not distance and not fraction and not percentage:
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if distance and fraction:
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if distance and percentage:
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
         if not distance:
+            if fraction and percentage:
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
             if fraction:
                 distance = self.length * fraction
-                if percentage:
-                    if percentage != fraction * 100:
-                        print("Both fraction and percentage provided. Using fraction.")
             elif percentage:
                 distance = self.length * (percentage / 100)
-            else:
-                raise Exception("You must provide either a distance, fraction or percentage.")
 
         ref_coordinate_angle = atan2(
             (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
