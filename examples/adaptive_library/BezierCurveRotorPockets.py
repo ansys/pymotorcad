@@ -40,7 +40,7 @@ with a custom curve defined using a Bezier function.
 # Import the ``os``, ``shutil``, ``sys`` and ``tempfile`` packages
 # to open and save a temporary MOT file if none is open.
 
-# sphinx_gallery_thumbnail_number = -1
+# sphinx_gallery_thumbnail_path = 'images/Adaptive_Geometry_Bezier_e4a_3.png'
 import os
 import shutil
 import sys
