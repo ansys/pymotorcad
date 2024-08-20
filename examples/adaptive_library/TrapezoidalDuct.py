@@ -13,7 +13,7 @@ into trapezoidal ducts.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 
-# sphinx_gallery_thumbnail_number = -1
+# sphinx_gallery_thumbnail_path = 'images/TrapezoidalDuct1.png'
 import os
 import shutil
 import sys
