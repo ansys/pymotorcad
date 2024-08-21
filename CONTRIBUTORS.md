@@ -6,4 +6,7 @@
 
 ## Individual Contributors
 
-* [First Last](https://github.com/ghusername)
+* [Matthew Jones](https://github.com/matthewAnsys)
+* [Jack Beane](https://github.com/JackB-Ansys)
+* [Ravi Sundaria](https://github.com/ravi-ansys)
+* [Kathy Pippert](https://github.com/PipKat)
