@@ -2,7 +2,7 @@
 
 ## Project Lead or Owner
 
-* [First Last](https://github.com/ghusername)
+* [Jack Davies](https://github.com/jgsdavies)
 
 ## Individual Contributors
 
