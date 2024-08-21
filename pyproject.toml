@@ -10,10 +10,10 @@ readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Ansys, Inc.", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 maintainers = [
-    {name = "PyAnsys developers", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
