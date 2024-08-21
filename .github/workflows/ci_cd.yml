@@ -62,7 +62,7 @@ jobs:
   tests:
     name: Tests and coverage
     needs: smoke-tests
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, tests]
     steps:
       - uses: actions/checkout@v4
 
@@ -85,7 +85,7 @@ jobs:
 
   doc-build:
     name: "Building library documentation"
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, docs]
     needs: doc-style
     steps:
       - uses: actions/checkout@v4

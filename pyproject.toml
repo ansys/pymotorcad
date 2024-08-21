@@ -45,11 +45,12 @@ doc = [
     "numpydoc==1.7.0",
     "ansys-sphinx-theme==0.16.6",
     "sphinx-copybutton==0.5.2",
-    "sphinx-gallery==0.17.0",
+    "sphinx-gallery==0.17.1",
     "matplotlib",
     "scipy",
     "pypandoc==1.13",
-    "bezier>=2023.7.28"
+    "bezier>=2023.7.28",
+    "networkx"
 ]
 
 [project.urls]
