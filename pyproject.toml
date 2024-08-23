@@ -49,7 +49,8 @@ doc = [
     "matplotlib",
     "scipy",
     "pypandoc==1.13",
-    "bezier>=2023.7.28"
+    "bezier>=2023.7.28",
+    "networkx"
 ]
 
 [project.urls]
