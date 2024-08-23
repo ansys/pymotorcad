@@ -27,7 +27,7 @@ def add_internal_custom_loss(name, function, type, thermal_node):
     mc.set_array_variable("CustomLoss_Function_Internal_Lab", no_losses, function)
     mc.set_array_variable("CustomLoss_Type_Internal_Lab", no_losses, type)
     mc.set_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_losses, thermal_node)
-    pass
+
 
 def remove_internal_custom_loss(index):
     # Find number of losses
@@ -46,5 +46,13 @@ def remove_internal_custom_loss(index):
 # Define get index from name function?
 
 def remove_internal_custom_loss_name(name):
-    pass
+    no_losses = mc.get_variable("NumCustomLossesInternal_Lab")
+    for i in range(no_losses):
+        if name == mc.get_array_variable("CustomLoss_name_internal_lab", i):
+            remove_internal_custom_loss(i)
+            break
 
+add_internal_custom_loss("name","Idc", "Mech", "four")
+
+# Can set Custom Loss Type to something other than ELectrical/Mechanical
+# If thermal node is set incorrectly, returns error
