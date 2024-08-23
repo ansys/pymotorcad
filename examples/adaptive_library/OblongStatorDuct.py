@@ -115,7 +115,7 @@ def check_line_origin_distance(i, duct_region):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Two separate functions are needed depending  on full duct or half duct (due to symmetry) is
 # present under Geometry Editor
-def get_arc_radius_center(entity_start, entity_end, height, Line_origin):
+def get_arc_radius(entity_start, entity_end, height):
     # Generate arc radius and center based on
     # line and arc height
     start_point_xy = [entity_start.x, entity_start.y]
@@ -126,17 +126,10 @@ def get_arc_radius_center(entity_start, entity_end, height, Line_origin):
     start_point_r, start_point_t = xy_to_rt(entity_start.x, entity_start.y)
     end_point_r, end_piont_t = xy_to_rt(entity_end.x, entity_end.y)
     r = (x**2 + y**2) / (2 * y)  # radius
-    if Line_origin == True:
-        center_r = (start_point_r + end_point_r) / 2 + (r - y)
-    else:
-        center_r = (start_point_r + end_point_r) / 2 - (r - y)
-    center_t = (start_point_t + end_piont_t) / 2
-    center_x, center_y = rt_to_xy(center_r, center_t)
-    center = Coordinate(center_x, center_y)  # center point
-    return r, center
+    return r
 
 
-def get_arc_radius_center_halfduct(entity_start, entity_end, height, Line_origin, Symm_angle):
+def get_arc_radius_halfduct(entity_start, entity_end, height, Line_origin, Symm_angle):
     # Generate arc radius, center, start and  end point based on for half duct
     # line and arc height
     start_point_xy = [entity_start.x, entity_start.y]
@@ -149,36 +142,27 @@ def get_arc_radius_center_halfduct(entity_start, entity_end, height, Line_origin
     r = (x**2 + y**2) / (2 * y)  # radius
     if Line_origin == True:
         # line is closer to origin
-        center_r = (start_point_r + end_point_r) / 2 + (r - y)
         if start_point_t == 0 or round(start_point_t / Symm_angle, 2) == 1:
             # start point is on symmetry boundary of geometry
-            center_t = start_point_t
             new_start_x, new_start_y = rt_to_xy(start_point_r - height, start_point_t)
             new_end_x, new_end_y = entity_end.x, entity_end.y
         elif end_piont_t == 0 or round(end_piont_t / Symm_angle, 2) == 1:
             # end  point is on symmetry boundary of geometry
-            center_t = end_piont_t
             new_start_x, new_start_y = entity_start.x, entity_start.y
             new_end_x, new_end_y = rt_to_xy(end_point_r - height, end_piont_t)
     else:
         # Line is far from origin
-        center_r = (start_point_r + end_point_r) / 2 - (r - y)
         if start_point_t == 0 or round(start_point_t / Symm_angle, 2) == 1:
             # start point is on symmetry boundary of geometry
-            center_t = start_point_t
             new_start_x, new_start_y = rt_to_xy(start_point_r + height, start_point_t)
             new_end_x, new_end_y = entity_end.x, entity_end.y
         elif end_piont_t == 0 or round(end_piont_t / Symm_angle, 2) == 1:
             # end point is on symmetry boundary of geometry
-            center_t = end_piont_t
             new_start_x, new_start_y = entity_start.x, entity_start.y
             new_end_x, new_end_y = rt_to_xy(end_point_r + height, end_piont_t)
-
-    center_x, center_y = rt_to_xy(center_r, center_t)
-    center = Coordinate(center_x, center_y)  # center point
     new_start_point = Coordinate(new_start_x, new_start_y)
     new_end_point = Coordinate(new_end_x, new_end_y)
-    return r, center, new_start_point, new_end_point
+    return r, new_start_point, new_end_point
 
 
 # %%
@@ -236,10 +220,8 @@ for child_name in st_region.child_names:
                         Line_origin = check_line_origin_distance(
                             i, duct_region
                         )  # line near of far from origin
-                        radius, center = get_arc_radius_center(
-                            entity.start, entity.end, duct_arc_height, Line_origin
-                        )
-                        Duct_Arc = Arc(entity.start, entity.end, center, radius)
+                        radius = get_arc_radius(entity.start, entity.end, duct_arc_height)
+                        Duct_Arc = Arc(entity.start, entity.end, radius=radius)
                         duct_region.entities[i] = Duct_Arc
 
         elif round(duct_region.area / duct_area, 2) == 0.5:  # if the half duct is drawn
@@ -257,10 +239,10 @@ for child_name in st_region.child_names:
                         # get radius and center
                         # convert this line segment to Arc
                         Line_origin = check_line_origin_distance(i, duct_region)
-                        radius, center, start_point, end_point = get_arc_radius_center_halfduct(
+                        radius, start_point, end_point = get_arc_radius_halfduct(
                             entity.start, entity.end, duct_arc_height, Line_origin, Symm_angle
                         )
-                        Duct_Arc = Arc(start_point, end_point, center, radius)
+                        Duct_Arc = Arc(start_point, end_point, radius=radius)
                         duct_region.entities[i] = Duct_Arc
                 elif round(entity.length / duct_height, 2) == 1:
                     # modify the line on symmetry planes
