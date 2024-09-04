@@ -1,5 +1,5 @@
 """RPC methods for Motor-CAD Lab."""
-
+# from shreya_custom_loss_test import add_external_custom_loss
 
 
 class _RpcMethodsLab:
@@ -130,12 +130,15 @@ class _RpcMethodsLab:
         -------
 
         """
-        no_internal_losses = self.get_variable("NumCustomLossesInternal_Lab")
-        self.set_variable("NumCustomLossesInternal_Lab", no_internal_losses + 1)
-        self.set_array_variable("CustomLoss_name_internal_lab", no_internal_losses, name)
-        self.set_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses, function)
-        self.set_array_variable("CustomLoss_Type_Internal_Lab", no_internal_losses, type)
-        self.set_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses, thermal_node)
+        if type not in ["Electrical", "Mechanical"]:
+            raise ValueError("Thermal Loss Type must be Electrical or Mechanical")
+        else:
+            no_internal_losses = self.get_variable("NumCustomLossesInternal_Lab")
+            self.set_variable("NumCustomLossesInternal_Lab", no_internal_losses + 1)
+            self.set_array_variable("CustomLoss_name_internal_lab", no_internal_losses, name)
+            self.set_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses, function)
+            self.set_array_variable("CustomLoss_Type_Internal_Lab", no_internal_losses, type)
+            self.set_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses, thermal_node)
 
     def add_external_custom_loss(self, name, power_function, voltage_function):
         """ Add External Custom Loss.
