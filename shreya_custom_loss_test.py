@@ -42,44 +42,33 @@ def add_external_custom_loss(name, power_function, voltage_function):
     mc.set_array_variable(kCustomLoss_PowerFunction_External_Lab, no_external_losses, power_function)
     mc.set_array_variable(kCustomLoss_VoltageFunction_External_Lab, no_external_losses, voltage_function)
 
-def remove_internal_custom_loss(index):
-    # Find number of losses
-    no_internal_losses = mc.get_variable(kNumCustomLossesInternal_Lab)
-
-    # Collapse variables upwards at location of index
-    for i in range(index+1,no_internal_losses):
-        mc.set_array_variable(kCustomLoss_name_internal_lab,i-1,mc.get_array_variable(kCustomLoss_name_internal_lab, i))
-        mc.set_array_variable(kCustomLoss_Function_Internal_Lab,i-1,mc.get_array_variable(kCustomLoss_Function_Internal_Lab, i))
-        mc.set_array_variable(kCustomLoss_Type_Internal_Lab,i-1,mc.get_array_variable(kCustomLoss_Type_Internal_Lab, i))
-        mc.set_array_variable(kCustomLoss_ThermalNode_Internal_Lab,i-1,mc.get_array_variable(kCustomLoss_ThermalNode_Internal_Lab, i))
-
-        # Decrease array length by 1
-    mc.set_variable(kNumCustomLossesInternal_Lab, no_internal_losses - 1)
-
-def remove_internal_custom_loss_name(name):
+def remove_internal_custom_loss(name):
     no_internal_losses = mc.get_variable(kNumCustomLossesInternal_Lab)
     for i in range(no_internal_losses):
         if name == mc.get_array_variable(kCustomLoss_name_internal_lab, i):
-            remove_internal_custom_loss(i)
+            _motorcad_array_pop(i, kNumCustomLossesInternal_Lab, [kCustomLoss_name_internal_lab, kCustomLoss_Function_Internal_Lab,
+                                                                                kCustomLoss_Type_Internal_Lab, kCustomLoss_ThermalNode_Internal_Lab])
             break
 
-def remove_external_custom_loss(index):
-    no_external_losses = mc.get_variable(kNumCustomLossesExternal_Lab)
-    for i in range(index+1, no_external_losses):
-        mc.set_array_variable(kCustomLoss_Name_External_Lab,i-1,mc.get_array_variable(kCustomLoss_Name_External_Lab, i))
-        mc.set_array_variable(kCustomLoss_PowerFunction_External_Lab,i-1,mc.get_array_variable(kCustomLoss_PowerFunction_External_Lab, i))
-        mc.set_array_variable(kCustomLoss_VoltageFunction_External_Lab,i-1,mc.get_array_variable(kCustomLoss_VoltageFunction_External_Lab, i))
-
-    mc.set_variable(kNumCustomLossesExternal_Lab, no_external_losses - 1)
-
-
-def remove_external_custom_loss_name(name):
+def remove_external_custom_loss(name):
     no_external_losses = mc.get_variable(kNumCustomLossesExternal_Lab)
     for i in range(no_external_losses):
         if name == mc.get_array_variable(kCustomLoss_Name_External_Lab, i):
-            remove_external_custom_loss(i)
+            _motorcad_array_pop(i, kNumCustomLossesExternal_Lab,[kCustomLoss_Name_External_Lab, kCustomLoss_PowerFunction_External_Lab,
+                                                                                 kCustomLoss_VoltageFunction_External_Lab])
             break
     pass
 
-# Code repetition:
-# Finding Number of External/Internal Losses
+def _motorcad_array_pop(index, var_length_array, list_of_var_names):
+    array_length = mc.get_variable(var_length_array)
+
+    for i in range(index+1, array_length):
+        # Loop through each item in list_of_var_names and remove from array
+        for j in range(len(list_of_var_names)):
+            # Do the popping here
+            mc.set_array_variable(list_of_var_names[j], i-1, mc.get_array_variable(list_of_var_names[j], i))
+            pass
+
+    mc.set_variable(var_length_array, array_length - 1)
+
+
