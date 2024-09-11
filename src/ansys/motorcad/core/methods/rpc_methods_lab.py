@@ -115,49 +115,7 @@ class _RpcMethodsLab:
         method = "CalculateDutyCycle_Lab"
         return self.connection.send_and_receive(method)
 
-    def add_internal_custom_loss(self, name, function, type, thermal_node):
-        """ Add Internal Custom Loss.
 
-        Parameters
-        ----------
-        name : str
-        function : str
-        type : str
-            Thermal loss type. Options are ``"Electrical"`` and ``"Mechanical"``,
-        thermal_node : int
-
-        Returns
-        -------
-
-        """
-        if type not in ["Electrical", "Mechanical"]:
-            raise ValueError("Thermal Loss Type must be Electrical or Mechanical")
-        else:
-            no_internal_losses = self.get_variable("NumCustomLossesInternal_Lab")
-            self.set_variable("NumCustomLossesInternal_Lab", no_internal_losses + 1)
-            self.set_array_variable("CustomLoss_name_internal_lab", no_internal_losses, name)
-            self.set_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses, function)
-            self.set_array_variable("CustomLoss_Type_Internal_Lab", no_internal_losses, type)
-            self.set_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses, thermal_node)
-
-    def add_external_custom_loss(self, name, power_function, voltage_function):
-        """ Add External Custom Loss.
-
-        Parameters
-        ----------
-        name : str
-        power_function : str
-        voltage_function : str
-
-        Returns
-        -------
-
-        """
-        no_external_losses = self.get_variable("NumCustomLossesExternal_Lab")
-        self.set_variable("NumCustomLossesExternal_Lab", no_external_losses + 1)
-        self.set_array_variable('CustomLoss_Name_External_Lab', no_external_losses, name)
-        self.set_array_variable('CustomLoss_PowerFunction_External_Lab', no_external_losses, power_function)
-        self.set_array_variable('CustomLoss_VoltageFunction_External_Lab', no_external_losses, voltage_function)
 
 
 
