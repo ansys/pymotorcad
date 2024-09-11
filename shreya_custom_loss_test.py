@@ -76,7 +76,3 @@ def _get_index_from_name(name, var_length_array, variable_name):
         raise NameError("Provided name is not listed")
     return index
 
-
-
-
-
