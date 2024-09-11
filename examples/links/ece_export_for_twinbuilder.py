@@ -30,6 +30,13 @@ Twin Builder.
 """
 
 # %%
+# .. note::
+#    This example requires the use of a JSON configuration file. The ``ece_config.json`` file should
+#    be saved to the same directory as this example Python script. You can download the
+#    ``ece_config.json`` file from:
+#    https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
+
+# %%
 # Set up example
 # --------------
 # Setting up this example consists of performing imports, launching
@@ -44,6 +51,8 @@ Twin Builder.
 import json
 import math
 import os
+import shutil
+import tempfile
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,28 +60,28 @@ from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
-if "QT_API" in os.environ:
-    os.environ["QT_API"] = "pyqt"
+# if "QT_API" in os.environ:
+#     os.environ["QT_API"] = "pyqt"
 
 # %%
 # Launch Motor-CAD
 # ~~~~~~~~~~~~~~~~
-# Initialize ActiveX automation and launch Motor-CAD.
-print("Starting initialization.")
-mcad = pymotorcad.MotorCAD()
+# Initialise automation and launch Motor-CAD.
+print("Starting initialisation.")
+mc = pymotorcad.MotorCAD()
 
 # %%
 # Disable popup messages
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Disable all popup messages from Motor-CAD.
-mcad.set_variable("MessageDisplayState", 2)
+mc.set_variable("MessageDisplayState", 2)
 
 
 # %%
 # Import and save initial settings
 # --------------------------------
-# You use the ``read_parameters`` method to import initial settings
-# from a JSON file:
+# Define the ``read_parameters`` function to import initial settings from a JSON file and return a
+# dictionary:
 def read_parameters(json_file):
     """Read input parameters."""
     with open(json_file, "r") as f:
@@ -81,69 +90,121 @@ def read_parameters(json_file):
 
 
 # %%
-# Specify the working directory.
-working_folder = os.getcwd()
+# Specify the working directory. The Motor-CAD file and results are saved to a temporary folder.
+# Alternatively, you can set the working directory to an appropriate file location on your computer.
+working_folder = os.path.join(tempfile.gettempdir(), "twinbuilder_export")
+try:
+    shutil.rmtree(working_folder)
+except:
+    pass
+os.mkdir(working_folder)
 
 # %%
-# Open the JSON file and import the initial settings.
-json_file = os.path.join(working_folder, "ece_config.json")
+# Use the ``read_parameters`` function to open the ``ece_config.json`` configuration file and import
+# the data as the ``in_data`` dictionary.
+#
+# The JSON configuration file must be saved to the same directory as this  Python script. The
+# ``ece_config.json`` file can be downloaded from the PyMotorCAD GitHub repository:
+# https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
+
+json_file = os.path.join(os.getcwd(), "ece_config.json")
 in_data = read_parameters(json_file)
-mot_file = in_data["mot_file"]
+
+# %%
+# The necessary data is extracted from the ``in_data`` dictionary. The JSON configuration file
+# contains:
+#
+# * The filename to be used for the Motor-CAD MOT file.
+#
+# * Operating parameters for the electric machine (shaft speed, DC bus voltage, temperature, maximum
+#   current, current resolution).
+#
+# * The filenames to be used for the results files that are exported (map, text file and SML file).
+#   Exported files are saved to the working directory, in a subfolder named ``Results``.
+
+mot_file = os.path.join(working_folder, in_data["mot_file"])
+
 shaft_speed = in_data["shaft_speed"]
 dc_bus_voltage = float(in_data["dc_bus_voltage"])
 machine_temp = float(in_data["machine_temp"])
 Id_max = float(in_data["Id_max"])
 current_step = float(in_data["current_step"])
-map_name = in_data["map_name"]
-txt_file = in_data["txt_file"]
-sml_file = in_data["sml_file"]
+
+map_name = os.path.join(working_folder, in_data["map_name"])
+txt_file = os.path.join(working_folder, in_data["txt_file"])
+sml_file = os.path.join(working_folder, in_data["sml_file"])
 
 # %%
-# Save input settings to a MCAD file.
-mcad.load_template("e8")
-mcad_name = "e8_mobility"
-mcad.save_to_file(os.path.join(working_folder, mcad_name))
+# Load the e8 IPM motor template and save the file to the working directory. Use the ``mot_file``
+# filename that was taken from the JSON configuration file.
+# Save input settings to a Motor-CAD MOT file.
+mc.load_template("e8")
+mc.save_to_file(mot_file)
+
+# %%
+# Set up the Motor-CAD E-Magnetic calculation. Define the calculation settings as defined in the
+# JSON configuration file.
+#
+# * Define the number of points per cycle for the torque calculation as 30 and set this in
+#   Motor-CAD.
+points_per_cycle = 30
+mc.set_variable("TorquePointsPerCycle", points_per_cycle)
+
+# %%
+# * Set the shaft speed for the calculation.
+mc.set_variable("ShaftSpeed", shaft_speed)
+
+# %%
+# * Set the **Line Current Definition** option to **Peak** and set the peak current to zero.
+mc.set_variable("CurrentDefinition", 0)
+mc.set_variable("PeakCurrent", 0)
+
+# %%
+# * Set the DC bus voltage.
+mc.set_variable("DCBusVoltage", dc_bus_voltage)
+
+# %%
+# * Set the armature winding, magnet and shaft temperatures.
+mc.set_variable("ArmatureConductor_Temperature", machine_temp)
+mc.set_variable("Magnet_Temperature", machine_temp)
+mc.set_variable("Shaft_Temperature", machine_temp)
+
+# %%
+# * Set the **E-Magnetic <-> Thermal Coupling** option to **No Coupling**.
+mc.set_variable("MagneticThermalCoupling", 0)
+
+# %%
+# * Select the **Back EMF** and deselect the **Cogging Torque** open circuit calculations. Deselect
+#   the **On Load Torque** and **Torque Speed Curve** calculations.
+mc.set_variable("BackEMFCalculation", True)
+mc.set_variable("CoggingTorqueCalculation", False)
+mc.set_variable("TorqueCalculation", False)
+mc.set_variable("TorqueSpeedCalculation", False)
 
 # %%
 # Run simulation
 # --------------
-# Detect alignment angles and run the simulation.
-
-points_per_cycle = 30
-mcad.set_variable("DCBusVoltage", dc_bus_voltage)
-mcad.set_variable("ArmatureConductor_Temperature", machine_temp)
-mcad.set_variable("Magnet_Temperature", machine_temp)
-mcad.set_variable("Shaft_Temperature", machine_temp)
-mcad.set_variable("CurrentDefinition", 0)
-mcad.set_variable("MagneticThermalCoupling", 0)
-mcad.set_variable("BackEMFCalculation", True)
-mcad.set_variable("TorquePointsPerCycle", points_per_cycle)
-mcad.set_variable("ShaftSpeed", shaft_speed)
-mcad.set_variable("PeakCurrent", 0)
-mcad.set_variable("CoggingTorqueCalculation", False)
-mcad.set_variable("TorqueCalculation", False)
-mcad.set_variable("TorqueSpeedCalculation", False)
+# Run the Motor-CAD E-Magnetic simulation and obtain the results.
+#
+# Save the Motor-CAD file with the updated calculation settings and run the E-Magnetic calculation.
+# Use a ``try`` statement to print an error message if the calculation is not successful.
 try:
-    mcad.do_magnetic_calculation()
+    mc.do_magnetic_calculation()
 except pymotorcad.MotorCADError:
     print("Calculation failed.")
 
 # %%
-# Plot the flux linkage for the A phase.
+# Get the graph results for flux linkage versus angle (in electric degrees) for the A phase.
 e_deg = []
 flux_a = []
-indexf = points_per_cycle
-for n in range(indexf + 1):
-    xa, ya = mcad.get_magnetic_graph_point("FluxLinkageOCPh1", n)
-    e_deg.append(xa)
-    flux_a.append(ya)
+e_deg, flux_a = mc.get_magnetic_graph("FluxLinkageOCPh1")
 
 # %%
 # Calculate the torque points per cycle.
-p = mcad.get_variable("Pole_Number")
-drive = mcad.get_variable("DriveOffsetAngleLoad")
-phase_res = mcad.get_variable("ArmatureWindingResistancePh")
-phase_l = mcad.get_variable("EndWdgInductance_Used")
+p = mc.get_variable("Pole_Number")
+drive = mc.get_variable("DriveOffsetAngleLoad")
+phase_res = mc.get_variable("ArmatureWindingResistancePh")
+phase_l = mc.get_variable("EndWdgInductance_Used")
 drive_offset = 90 + drive
 p = p / 2
 max_elec_degree = 120
@@ -172,22 +233,22 @@ points_per_cycle = 360 / elec_deg
 
 # %%
 # Calculate the saturation map.
-mcad.set_variable("TorquePointsPerCycle", points_per_cycle)
-mcad.set_variable("SaturationMap_ExportFile", map_name)
-mcad.set_variable("SaturationMap_InputDefinition", 1)
-mcad.set_variable("SaturationMap_CalculationMethod", 1)
-mcad.set_variable("SaturationMap_FEACalculationType", 1)
-mcad.set_variable("SaturationMap_ResultType", 1)
-mcad.set_variable("LossMap_Export", False)
-mcad.set_variable("SaturationMap_Current_D_Max", Id_max)
-mcad.set_variable("SaturationMap_Current_D_Step", current_step)
-mcad.set_variable("SaturationMap_Current_D_Min", -Id_max)
-mcad.set_variable("SaturationMap_Current_Q_Max", Id_max)
-mcad.set_variable("SaturationMap_Current_Q_Step", current_step)
-mcad.set_variable("SaturationMap_Current_Q_Min", -Id_max)
+mc.set_variable("TorquePointsPerCycle", points_per_cycle)
+mc.set_variable("SaturationMap_ExportFile", map_name)
+mc.set_variable("SaturationMap_InputDefinition", 1)
+mc.set_variable("SaturationMap_CalculationMethod", 1)
+mc.set_variable("SaturationMap_FEACalculationType", 1)
+mc.set_variable("SaturationMap_ResultType", 1)
+mc.set_variable("LossMap_Export", False)
+mc.set_variable("SaturationMap_Current_D_Max", Id_max)
+mc.set_variable("SaturationMap_Current_D_Step", current_step)
+mc.set_variable("SaturationMap_Current_D_Min", -Id_max)
+mc.set_variable("SaturationMap_Current_Q_Max", Id_max)
+mc.set_variable("SaturationMap_Current_Q_Step", current_step)
+mc.set_variable("SaturationMap_Current_Q_Min", -Id_max)
 
 try:
-    mcad.calculate_saturation_map()
+    mc.calculate_saturation_map()
 except pymotorcad.MotorCADError:
     print("Map calculation failed.")
 
@@ -611,4 +672,4 @@ file_id.close()
 # Exit Motor-CAD
 # --------------
 # Exit Motor-CAD.
-mcad.quit()
+mc.quit()
