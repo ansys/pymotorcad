@@ -135,7 +135,7 @@ class _RpcMethodsLab:
         function : str
             Function of lab internal custom loss
         type : str
-            Type of lab internal custom loss. Options are Electrical or Mechanical
+            Type of lab internal custom loss. Options are ``Electrical`` or ``Mechanical``
         thermal_node : int
             Thermal node of lab internal custom loss
 
