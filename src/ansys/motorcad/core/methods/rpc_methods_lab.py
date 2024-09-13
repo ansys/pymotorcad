@@ -1,6 +1,4 @@
 """RPC methods for Motor-CAD Lab."""
-# from shreya_custom_loss_test import add_external_custom_loss
-# Global variables
 k_num_custom_losses_internal_lab = "NumCustomLossesInternal_Lab"
 k_custom_loss_name_internal_lab = "CustomLoss_name_internal_lab"
 k_custom_loss_function_internal_lab = "CustomLoss_Function_Internal_Lab"
@@ -10,7 +8,6 @@ k_num_custom_losses_external_lab = "NumCustomLossesExternal_Lab"
 k_custom_loss_name_external_lab = "CustomLoss_Name_External_Lab"
 k_custom_loss_power_function_external_lab = "CustomLoss_PowerFunction_External_Lab"
 k_custom_loss_voltage_function_external_lab = "CustomLoss_VoltageFunction_External_Lab"
-
 
 class _RpcMethodsLab:
     def __init__(self, mc_connection):

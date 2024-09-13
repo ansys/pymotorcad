@@ -47,3 +47,39 @@ def test_calculate_magnetic_lab(mc):
 def test_calculate_thermal_lab(mc):
     mc.calculate_thermal_lab()
     # Not sure how to test this has run successfully other than checking for exception
+
+def test_add_internal_custom_loss(mc):
+    name = "Stator iron Loss Connection"
+    power_loss_function = "Speed**2 * (5.4E-9 * Iron_Loss_Stator - 1.7E-5 * Iron_Loss_Stator**2 + 1.43)"
+    type = "Electrical"
+    thermal_node = 2
+    no_internal_losses = mc.get_variable("NumCustomLossesInternal_Lab")
+
+    mc.add_internal_custom_loss(name,power_loss_function,type,thermal_node)
+
+    assert mc.get_variable("NumCustomLossesInternal_Lab") == no_internal_losses + 1
+    assert mc.get_array_variable("CustomLoss_name_internal_lab", no_internal_losses) == name
+    assert mc.get_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses) == power_loss_function
+    assert mc.get_array_variable("CustomLoss_Type_Internal_Lab", no_internal_losses) == type
+    assert mc.get_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses) == thermal_node
+
+
+def test_add_external_custom_loss(mc):
+    name = "Battery Loss"
+    power_loss_function = "(1E-2 * Mechanical_Loss**2) * Speed/10000 + min(5, Speed)"
+    voltage_drop_function = "Idc * 2.5E-2"
+    no_external_losses = mc.get_variable("NumCustomLossesExternal_Lab")
+
+    mc.add_external_custom_loss(name, power_loss_function, voltage_drop_function)
+
+    assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
+    assert mc.get_array_variable("CustomLoss_Name_External_Lab", no_external_losses) == name
+    assert mc.get_array_variable("CustomLoss_PowerFunction_External_Lab", no_external_losses) == power_loss_function
+    assert mc.get_array_variable("CustomLoss_VoltageFunction_External_Lab", no_external_losses) == voltage_drop_function
+
+def test_remove_internal_custom_loss(mc):
+    pass
+
+def test_remove_external_custom_loss(mc):
+    pass
+
