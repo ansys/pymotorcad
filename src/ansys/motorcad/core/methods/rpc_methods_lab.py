@@ -9,6 +9,7 @@ k_custom_loss_name_external_lab = "CustomLoss_Name_External_Lab"
 k_custom_loss_power_function_external_lab = "CustomLoss_PowerFunction_External_Lab"
 k_custom_loss_voltage_function_external_lab = "CustomLoss_VoltageFunction_External_Lab"
 
+
 class _RpcMethodsLab:
     def __init__(self, mc_connection):
         self.connection = mc_connection
