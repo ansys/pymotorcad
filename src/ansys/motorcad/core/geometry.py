@@ -527,7 +527,7 @@ class Region(object):
             Radius by which the corner will be rounded.
         """
         adj_entities = []
-        entity_indicies = []
+        entity_indices = []
         coordinates = []
         # Get entities at corner
         for index in range(len(self.entities)):
@@ -535,7 +535,7 @@ class Region(object):
             if i.coordinate_on_entity(corner_coordinate):
                 # coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
                 adj_entities.append(i)
-                entity_indicies.append(index)
+                entity_indices.append(index)
         if not adj_entities:
             raise Exception(
                 "Failed to find point on entity in region. "
@@ -546,10 +546,6 @@ class Region(object):
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
-        # if the adjacent entities are the first and last entities of the region, swap the positions
-        if entity_indicies[0] == 0 and entity_indicies[1] == len(self.entities) - 1:
-            entity_indicies[0], entity_indicies[1] = entity_indicies[1], entity_indicies[0]
-            adj_entities[0], adj_entities[1] = adj_entities[1], adj_entities[0]
         # Calculate distances by which the adjacent entities are shortened
         if type(adj_entities[0]) == Line:
             angle_1 = degrees(
@@ -559,11 +555,15 @@ class Region(object):
                 )
             )
         else:  # Arc
+            # in the case of an arc, this is approximated by a 0.01 mm line, and the angle
+            # between this short line and the other entity is calculated
             point_on_curve = adj_entities[0].get_coordinate_from_distance(corner_coordinate, 0.01)
             angle_1 = degrees(
                 atan2(
-                    point_on_curve.y - adj_entities[0].end.y,
-                    point_on_curve.x - adj_entities[0].end.x,
+                    # point_on_curve.y - adj_entities[0].end.y,
+                    # point_on_curve.x - adj_entities[0].end.x,
+                    point_on_curve.y - corner_coordinate.y,
+                    point_on_curve.x - corner_coordinate.x,
                 )
             )
         if type(adj_entities[1]) == Line:
@@ -574,11 +574,15 @@ class Region(object):
                 )
             )
         else:  # Arc
+            # if the second entity is an arc, it is approximated by a 0.01 mm line when calculating
+            # the angle between two entities
             point_on_curve = adj_entities[1].get_coordinate_from_distance(corner_coordinate, 0.01)
             angle_2 = degrees(
                 atan2(
-                    point_on_curve.y - adj_entities[1].start.y,
-                    point_on_curve.x - adj_entities[1].start.x,
+                    #     point_on_curve.y - adj_entities[1].start.y,
+                    #     point_on_curve.x - adj_entities[1].start.x,
+                    point_on_curve.y - corner_coordinate.y,
+                    point_on_curve.x - corner_coordinate.x,
                 )
             )
 
@@ -604,8 +608,26 @@ class Region(object):
                 j.end = coordinates[index]
 
         # create the new corner arc and insert it between the adjacent entities
-        corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
-        self.insert_entity(entity_indicies[0] + 1, corner_arc)
+        if len(self.entities) > 2:
+            # For regions with more than 2 entities: if the adjacent entities are the first and last
+            # entities of the region, add the corner arc as the last entity. Otherwise, insert after
+            # the first adjacent entity.
+            if entity_indices[0] == 0 and entity_indices[1] == len(self.entities) - 1:
+                corner_arc = Arc(coordinates[1], coordinates[0], radius=radius)
+                self.add_entity(corner_arc)
+            else:
+                corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
+                self.insert_entity(entity_indices[0] + 1, corner_arc)
+        else:
+            # For regions with only 2 entities: if the corner is the end point of the first entity,
+            # insert the corner arc after the first adjacent entity. Otherwise, add the corner arc
+            # as the last entity.
+            if adj_entities[0].end == coordinates[0]:
+                corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
+                self.insert_entity(entity_indices[0] + 1, corner_arc)
+            else:
+                corner_arc = Arc(coordinates[1], coordinates[0], radius=radius)
+                self.add_entity(corner_arc)
 
     def round_corners(self, corner_coordinates, radius):
         """Round multiple corners of a region.
