@@ -160,8 +160,8 @@ standard_regions = [
     mc.get_region("Rotor Pocket_2"),
     mc.get_region("Rotor Pocket_4"),
     mc.get_region("Rotor Pocket_5"),
+    mc.get_region("RotorDuctFluidRegion_1"),
     mc.get_region("RotorDuctFluidRegion_2"),
-    mc.get_region("RotorDuctFluidRegion_3"),
 ]
 
 # %%
