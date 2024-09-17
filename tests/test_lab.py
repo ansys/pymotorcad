@@ -70,9 +70,8 @@ def test_internal_custom_loss_functions(mc):
     mc.add_internal_custom_loss(
         removed_name, removed_power_loss_function, removed_type, removed_thermal_node
     )
-    mc.remove_internal_custom_loss(removed_name)
 
-    assert mc.get_variable("NumCustomLossesInternal_Lab") == no_internal_losses + 1
+    assert mc.get_variable("NumCustomLossesInternal_Lab") == no_internal_losses + 2
     assert mc.get_array_variable("CustomLoss_name_internal_lab", no_internal_losses) == name
     assert (
         mc.get_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses)
@@ -83,6 +82,25 @@ def test_internal_custom_loss_functions(mc):
         mc.get_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses)
         == thermal_node
     )
+    assert (
+        mc.get_array_variable("CustomLoss_name_internal_lab", no_internal_losses + 1)
+        == removed_name
+    )
+    assert (
+        mc.get_array_variable("CustomLoss_Function_Internal_Lab", no_internal_losses + 1)
+        == removed_power_loss_function
+    )
+    assert (
+        mc.get_array_variable("CustomLoss_Type_Internal_Lab", no_internal_losses + 1)
+        == removed_type
+    )
+    assert (
+        mc.get_array_variable("CustomLoss_ThermalNode_Internal_Lab", no_internal_losses + 1)
+        == removed_thermal_node
+    )
+
+    mc.remove_internal_custom_loss(removed_name)
+    assert mc.get_variable("NumCustomLossesInternal_Lab") == no_internal_losses + 1
 
     with pytest.raises(ValueError):
         mc.add_internal_custom_loss(name, power_loss_function, incorrect_type, thermal_node)
@@ -104,15 +122,26 @@ def test_external_custom_loss_functions(mc):
         removed_name, removed_power_loss_function, removed_voltage_drop_function
     )
     mc.add_external_custom_loss(name, power_loss_function, voltage_drop_function)
-    mc.remove_external_custom_loss(removed_name)
 
-    assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
-    assert mc.get_array_variable("CustomLoss_Name_External_Lab", no_external_losses) == name
+    assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 2
+    assert mc.get_array_variable("CustomLoss_Name_External_Lab", no_external_losses) == removed_name
     assert (
         mc.get_array_variable("CustomLoss_PowerFunction_External_Lab", no_external_losses)
-        == power_loss_function
+        == removed_power_loss_function
     )
     assert (
         mc.get_array_variable("CustomLoss_VoltageFunction_External_Lab", no_external_losses)
+        == removed_voltage_drop_function
+    )
+    assert mc.get_array_variable("CustomLoss_Name_External_Lab", no_external_losses + 1) == name
+    assert (
+        mc.get_array_variable("CustomLoss_PowerFunction_External_Lab", no_external_losses + 1)
+        == power_loss_function
+    )
+    assert (
+        mc.get_array_variable("CustomLoss_VoltageFunction_External_Lab", no_external_losses + 1)
         == voltage_drop_function
     )
+
+    mc.remove_external_custom_loss(removed_name)
+    assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
