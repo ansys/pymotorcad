@@ -592,6 +592,10 @@ class Region(object):
 
         corner_angle = abs(angle_1 - angle_2)
         arc_angle = 90 + (90 - corner_angle)
+        # account for angle of 0. This can occur if a point between two parallel lines has been
+        # provided as the corner coordinate (not a real corner).
+        if isclose(arc_angle, 0, abs_tol=1e-6):
+            return
         half_chord = radius * sin(radians(arc_angle) / 2)
         distance = abs(half_chord / (sin(radians(corner_angle) / 2)))
 

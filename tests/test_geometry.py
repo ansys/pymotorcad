@@ -1527,6 +1527,30 @@ def test_do_not_round_corner():
         # check that the entities making up the triangle are unchanged
         assert triangle_1.entities[i] == triangle_2.entities[i]
 
+    # draw a new triangle where the 3rd side is made up of 2 parallel lines. The region will have a
+    # point here, but it is not a corner because the two lines are parallel and have an angle of
+    # zero between them.
+    triangle_3 = deepcopy(triangle_2)
+    new_line_1 = Line(triangle_3.entities[2].start, triangle_3.entities[2].midpoint)
+    new_line_2 = Line(triangle_3.entities[2].midpoint, triangle_3.entities[2].end)
+
+    triangle_3.remove_entity(triangle_3.entities[2])
+    triangle_3.add_entity(new_line_1)
+    triangle_3.add_entity(new_line_2)
+    # draw_objects([triangle_3, triangle_3.points[3]])
+    radius_2 = 0.5
+
+    triangle_3.round_corner(triangle_3.points[3], radius_2)
+
+    # check that the entities making up the triangle are unchanged
+    assert triangle_3.is_closed()
+    for i in range(2):
+        assert triangle_3.entities[i] == triangle_2.entities[i]
+    assert triangle_3.entities[2].start == triangle_2.entities[2].start
+    assert triangle_3.entities[2].end == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].start == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].end == triangle_2.entities[2].end
+
 
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
