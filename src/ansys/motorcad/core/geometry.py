@@ -526,6 +526,10 @@ class Region(object):
         radius : float
             Radius by which the corner will be rounded.
         """
+        # If radius is 0, do nothing
+        if radius == 0:
+            return
+
         adj_entities = []
         entity_indices = []
         coordinates = []
