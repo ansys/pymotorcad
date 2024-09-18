@@ -1445,6 +1445,16 @@ def test_round_corner_3():
     with pytest.raises(Exception):
         shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
 
+    # check that the corners are rounded correctly when the original entity start coordinates are
+    # set as the corners, instead of the end coordinates
+    for index in reversed(range(2)):
+        shape_2.round_corner(shape_2.entities[index].start, corner_radius)
+
+    assert shape_2.entities[0] == shape_1.entities[0]
+    assert shape_1.entities[1] == shape_2.entities[1]
+    assert shape_1.entities[2] == shape_2.entities[2]
+    assert shape_1.entities[3] == shape_2.entities[3]
+
 
 def test_round_corners_3():
     # test for rounding corners between two arcs
