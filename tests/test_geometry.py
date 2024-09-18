@@ -1513,6 +1513,21 @@ def test_round_corners_3():
         shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
 
 
+def test_do_not_round_corner():
+    # test for when round_corner method is given a radius of zero
+    radius = 0
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
