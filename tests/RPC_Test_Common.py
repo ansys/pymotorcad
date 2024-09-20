@@ -22,6 +22,8 @@
 
 import os
 import shutil
+import pytest
+from ansys.motorcad.core import MotorCADError, MotorCAD
 
 
 def get_dir_path():
@@ -63,3 +65,13 @@ def reset_temp_file_folder():
         shutil.rmtree(dir_path)
 
     os.mkdir(dir_path)
+
+def test_get_file_name():
+    mc = MotorCAD()
+    with pytest.warns():
+        mc.get_file_name()
+
+    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+    mc.save_to_file(file_path)
+    assert mc.get_file_name() == get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+    pass
