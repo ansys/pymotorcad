@@ -24,6 +24,7 @@
 from logging import raiseExceptions
 from warnings import warn
 
+
 class _RpcMethodsVariables:
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -152,6 +153,3 @@ class _RpcMethodsVariables:
             return None
         else:
             return self.connection.send_and_receive(method)
-
-
-

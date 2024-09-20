@@ -23,8 +23,6 @@
 import os
 import shutil
 import pytest
-from ansys.motorcad.core import MotorCADError, MotorCAD
-
 
 def get_dir_path():
     return os.path.dirname(os.path.realpath(__file__))
@@ -65,6 +63,7 @@ def reset_temp_file_folder():
         shutil.rmtree(dir_path)
 
     os.mkdir(dir_path)
+
 
 def test_get_file_name():
     mc = MotorCAD()
