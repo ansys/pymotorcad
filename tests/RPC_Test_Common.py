@@ -22,7 +22,11 @@
 
 import os
 import shutil
+
 import pytest
+
+from ansys.motorcad.core import MotorCAD
+
 
 def get_dir_path():
     return os.path.dirname(os.path.realpath(__file__))

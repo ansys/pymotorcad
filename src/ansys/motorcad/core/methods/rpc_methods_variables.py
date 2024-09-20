@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
-from logging import raiseExceptions
 from warnings import warn
 
 
