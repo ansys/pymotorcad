@@ -266,6 +266,7 @@ class Region(object):
     @linked_region.setter
     def linked_region(self, region):
         self._linked_region = region
+        region._linked_region = self
 
     @property
     def singular(self):
