@@ -19,12 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import os
+
 from os import path, remove
+import time
 
 import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
+from ansys.motorcad.core import MotorCAD
 
 
 def test_model_build_lab(mc):
@@ -171,7 +173,10 @@ def test_external_custom_loss_functions(mc):
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
 
 
-def test_lab_model_export(mc):
+def test_lab_model_export():
+    mc = MotorCAD(open_new_instance=False)
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e8")
     file_path = get_dir_path() + r"\test_files\temp_files\lab_model_export.lab"
 
     if path.exists(file_path):
@@ -181,6 +186,17 @@ def test_lab_model_export(mc):
 
     mc.export_lab_model(file_path)
 
+    # Exporting the lab model takes a few seconds and so a delay is required before
+    # asserting the .lab file is present.
+    checks = 0
+
+    while checks < 20:
+        time.sleep(1)
+        if path.exists(file_path) is False:
+            checks += 1
+        else:
+            break
+
     assert path.exists(file_path) is True
 
-    os.remove(file_path)
+    remove(file_path)
