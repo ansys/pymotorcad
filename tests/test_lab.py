@@ -19,9 +19,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import os
+from os import path, remove
+
 import pytest
 
-from RPC_Test_Common import reset_to_default_file
+from RPC_Test_Common import get_dir_path, reset_to_default_file
 
 
 def test_model_build_lab(mc):
@@ -166,3 +169,18 @@ def test_external_custom_loss_functions(mc):
 
     mc.remove_external_custom_loss(removed_name)
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
+
+
+def test_lab_model_export(mc):
+    file_path = get_dir_path() + r"\test_files\temp_files\lab_model_export.lab"
+
+    if path.exists(file_path):
+        remove(file_path)
+
+    assert path.exists(file_path) is False
+
+    mc.export_lab_model(file_path)
+
+    assert path.exists(file_path) is True
+
+    os.remove(file_path)
