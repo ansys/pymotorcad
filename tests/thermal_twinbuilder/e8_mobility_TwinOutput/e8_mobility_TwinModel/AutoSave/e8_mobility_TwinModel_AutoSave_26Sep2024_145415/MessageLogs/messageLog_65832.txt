@@ -1,5 +1,0 @@
-26/09/2024 14:54:15 : Created file: C:\Workspace\pymotorcad\tests\thermal_twinbuilder\e8_mobility_TwinOutput\e8_mobility_TwinModel\AutoSave\e8_mobility_TwinModel_AutoSave_26Sep2024_145415\MessageLogs\messageLog_65832.txt
-26/09/2024 14:54:15 : Encrypted and non-encrypted file history are different.
-See File -> Properties for the two histories.
-26/09/2024 14:54:15 : Loaded file: C:\Workspace\pymotorcad\tests\thermal_twinbuilder\e8_mobility_TwinOutput\e8_mobility_TwinModel\AutoSave\e8_mobility_TwinModel_AutoSave_26Sep2024_145415.mot
-26/09/2024 14:54:16 : Steady State calculation completed after 2 iterations
