@@ -26,7 +26,6 @@ import time
 import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
-from ansys.motorcad.core import MotorCAD
 
 
 def test_model_build_lab(mc):
@@ -173,11 +172,11 @@ def test_external_custom_loss_functions(mc):
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
 
 
-def test_lab_model_export():
-    mc = MotorCAD(open_new_instance=False)
+def test_lab_model_export(mc):
     mc.set_variable("MessageDisplayState", 2)
-    mc.load_template("e8")
     file_path = get_dir_path() + r"\test_files\temp_files\lab_model_export.lab"
+
+    mc.load_template("e3")
 
     if path.exists(file_path):
         remove(file_path)
@@ -200,3 +199,19 @@ def test_lab_model_export():
     assert path.exists(file_path) is True
 
     remove(file_path)
+
+    # Checks that a warning is raised if the model build speed has changed
+    mc.set_variable("LabModel_Saturation_StatorCurrent_Peak", 750)
+
+    with pytest.raises(Exception) as stator_current_changed_error:
+        mc.export_lab_model(file_path)
+
+    assert "maximum current has changed" in str(stator_current_changed_error)
+
+    # Clears lab model and checks a warning has been raised
+    mc.clear_model_build_lab()
+
+    with pytest.raises(Exception) as model_not_built_error:
+        mc.export_lab_model(file_path)
+
+    assert "model has not been built" in str(model_not_built_error)
