@@ -35,6 +35,8 @@ into trapezoidal ducts.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 
+from math import isclose
+
 # sphinx_gallery_thumbnail_path = 'images/TrapezoidalDuct1.png'
 import os
 import shutil
@@ -129,14 +131,15 @@ def check_line_origin_distance(i, duct_region):
 # -----------------------------------
 # From Motor-CAD, get the adaptive parameters and their values.
 #
-# Use the ``set_default_parameter()`` method to set the required ``Trapezoid_base_ratio`` parameter
-# if undefined.
-set_default_parameter("Trapezoid_base_ratio", 0.7)
+# Use the ``set_default_parameter()`` method to set the required ``L1 RDuct Trapezoid Base Ratio``
+# and ``L1 Trapezoid Duct Corner Rad`` parameters if undefined.
+set_default_parameter("L1 RDuct Trapezoid Base Ratio", 0.7)
+set_default_parameter("L1 Trapezoid Duct Corner Rad", 0.5)
 
 # %%
 # Set required parameters for the trapezoid: ratio of top width / base width
-# (``Trapezoid_base_ratio``), trapezoid width and trapezoid height.
-Trap_ratio = mc.get_adaptive_parameter_value("Trapezoid_base_ratio")
+# (``L1 RDuct Trapezoid Base Ratio``), trapezoid width and trapezoid height.
+Trap_ratio = mc.get_adaptive_parameter_value("L1 RDuct Trapezoid Base Ratio")
 Trap_W = mc.get_array_variable(
     "RotorCircularDuctLayer_ChannelWidth",
     0,
@@ -145,6 +148,9 @@ Trap_H = mc.get_array_variable(
     "RotorCircularDuctLayer_ChannelHeight",
     0,
 )
+# %%
+# Get the radius for corner rounding of the trapezoidal duct.
+Trap_corner_rad = mc.get_adaptive_parameter_value("L1 Trapezoid Duct Corner Rad")
 
 # %%
 # Get the standard template rotor region. This can be drawn for debugging if required.
@@ -192,6 +198,8 @@ for child_name in rt_region.child_names:
                             new_end_point = Coordinate(new_end_x, new_end_y)
                             duct_region.edit_point(entity.start, new_start_point)
                             duct_region.edit_point(entity.end, new_end_point)
+                            # round the corners of the duct
+                            duct_region.round_corners(duct_region.points, Trap_corner_rad)
                             mc.set_region(duct_region)
 
         elif round(duct_region.area / duct_area, 2) == 0.5:  # half duct
@@ -228,6 +236,13 @@ for child_name in rt_region.child_names:
                                 new_start_point = Coordinate(new_start_x, new_start_y)
                                 duct_region.edit_point(entity.start, new_start_point)
 
+                            # # round the corners of the duct
+                            for point in duct_region.points:
+                                _, angle = point.get_polar_coords_deg()
+                                if not isclose(angle, 0, abs_tol=1e-6) and not isclose(
+                                    angle, Symm_angle, abs_tol=1e-6
+                                ):
+                                    duct_region.round_corner(point, Trap_corner_rad)
                             mc.set_region(duct_region)
 
 # %%
