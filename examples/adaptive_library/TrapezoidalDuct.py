@@ -27,6 +27,12 @@ This script applies the adaptive templates functionality to modify rectangular d
 into trapezoidal ducts.
 """
 # %%
+# The trapezoidal rotor duct geometry is defined by modifying rectangular ducts that are set up
+# with the Motor-CAD standard template geometry. The rectangular ducts should not have any corner
+# rounding applied (**L1 RDuct Corner Rad** should be set to **0**). This ensures that the geometry
+# modifications necessary to form the trapezoidal duct geometry are as simple as possible. First,
+# the rectangular ducts are modified to be made trapezoidal. Then, corner rounding is applied.
+#
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
@@ -37,7 +43,7 @@ into trapezoidal ducts.
 
 from math import isclose
 
-# sphinx_gallery_thumbnail_path = 'images/TrapezoidalDuct1.png'
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/TrapezoidalDuct1.png'
 import os
 import shutil
 import sys
@@ -167,6 +173,9 @@ rt_region = mc.get_region("Rotor")  # get the rotor region
 #
 # * Modify the start and end points of the line.
 #
+# * Apply corner rounding to the duct region using the ``Region.round_corners`` or
+#   ``Region.round_corner`` method.
+#
 # * Set the region in Motor-CAD.
 #
 # The script accounts for whether ducts are full ducts or half ducts (the case when a duct spans the
@@ -246,8 +255,8 @@ for child_name in rt_region.child_names:
                             mc.set_region(duct_region)
 
 # %%
-# .. image:: ../../images/TrapezoidalDuct1.png
-#     :width: 300pt
+# .. image:: ../../images/adaptive_templates/TrapezoidalDuct1.png
+#     :width: 500pt
 
 # %%
 # Load in Adaptive Templates script if required
