@@ -46,8 +46,6 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
-        self._linked_region = None
-        self._singular = False
 
         # expect other properties to be implemented here including number duplications, material etc
 
@@ -189,9 +187,6 @@ class Region(object):
         new_region.parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
-        if "singular" in json:
-            new_region._singular = json["singular"]
-
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -214,8 +209,6 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
             "region_type": self._region_type.value,
-            "on_boundary": False if self._linked_region is None else True,
-            "singular": self._singular,
         }
 
         return region_dict
@@ -256,27 +249,6 @@ class Region(object):
     @parent_name.setter
     def parent_name(self, name):
         self._parent_name = name
-
-    @property
-    def linked_region(self):
-        """Get linked duplication/unite region
-        """
-        return self._linked_region
-
-    @linked_region.setter
-    def linked_region(self, region):
-        self._linked_region = region
-        region._linked_region = self
-
-    @property
-    def singular(self):
-        """Get linked duplication/unite region
-        """
-        return self._singular
-
-    @singular.setter
-    def singular(self, singular):
-        self._singular = singular
 
     @property
     def child_names(self):
