@@ -4,16 +4,16 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name="ansys-motorcad-core"
-version = "0.6.dev0"
+version = "0.7.dev0"
 description = "Pythonic interface to Ansys Motor-CAD."
 readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Ansys, Inc.", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 maintainers = [
-    {name = "PyAnsys developers", email = "pyansys.core@ansys.com"},
+    {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -35,7 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==8.3.2",
+    "pytest==8.3.3",
     "pytest-cov==5.0.0",
     "ansys.platform.instancemanagement>=1.0.2",
     "matplotlib>=3.6.3"
@@ -43,7 +43,7 @@ tests = [
 doc = [
     "Sphinx==8.0.2",
     "numpydoc==1.8.0",
-    "ansys-sphinx-theme==0.16.6",
+    "ansys-sphinx-theme==1.1.2",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.17.1",
     "matplotlib",

@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import builtins
 from copy import deepcopy
 import math
@@ -20,6 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -329,6 +352,7 @@ def test_region_from_json():
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
         "region type": "Adaptive Region",
+        "mesh_length": 0.035,
     }
 
     test_region = geometry.Region()
@@ -342,6 +366,7 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
+    test_region.mesh_length = 0.035
 
     region = geometry.Region._from_json(raw_region)
 
@@ -360,6 +385,7 @@ def test_region_to_json():
         "entities": [],
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
+        "mesh_length": 0.035,
     }
 
     test_region = geometry.Region()
@@ -372,6 +398,7 @@ def test_region_to_json():
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
+    test_region.mesh_length = 0.035
 
     assert test_region._to_json() == raw_region
 
@@ -1884,3 +1911,18 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
     assert magnet.region_type == RegionType.magnet
+
+
+def test_get_set_region_compatibility(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2024.1")
+    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
+    test_region = RegionMagnet()
+    test_region.br_multiplier = 2
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+    test_region = Region()
+    test_region.mesh_length = 0.1
+
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)

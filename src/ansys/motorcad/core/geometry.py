@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
@@ -24,8 +46,7 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
-
-        # expect other properties to be implemented here including number duplications, material etc
+        self.mesh_length = 0
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
@@ -165,6 +186,9 @@ class Region(object):
         new_region.parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
+        if "mesh_length" in json:
+            new_region.mesh_length = json["mesh_length"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -187,6 +211,7 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
             "region_type": self._region_type.value,
+            "mesh_length": self.mesh_length,
         }
 
         return region_dict
