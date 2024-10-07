@@ -42,6 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -351,6 +352,7 @@ def test_region_from_json():
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
         "region type": "Adaptive Region",
+        "mesh_length": 0.035,
     }
 
     test_region = geometry.Region()
@@ -364,6 +366,7 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
+    test_region.mesh_length = 0.035
 
     region = geometry.Region._from_json(raw_region)
 
@@ -382,6 +385,7 @@ def test_region_to_json():
         "entities": [],
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
+        "mesh_length": 0.035,
     }
 
     test_region = geometry.Region()
@@ -394,6 +398,7 @@ def test_region_to_json():
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
+    test_region.mesh_length = 0.035
 
     assert test_region._to_json() == raw_region
 
@@ -1996,3 +2001,18 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
     assert magnet.region_type == RegionType.magnet
+
+
+def test_get_set_region_compatibility(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2024.1")
+    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
+    test_region = RegionMagnet()
+    test_region.br_multiplier = 2
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+    test_region = Region()
+    test_region.mesh_length = 0.1
+
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
