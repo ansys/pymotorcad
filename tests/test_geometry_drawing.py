@@ -19,12 +19,13 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from matplotlib import pyplot as plt
+import pytest
 
-# from matplotlib import pyplot as plt
-# import pytest
-#
-# from ansys.motorcad.core.geometry import Arc, Coordinate, Line
-# from ansys.motorcad.core.geometry_drawing import draw_objects, draw_objects_debug
+from ansys.motorcad.core.geometry import Coordinate, Line, Region
+import ansys.motorcad.core.geometry_drawing
+from ansys.motorcad.core.geometry_drawing import draw_objects
+
 # from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 drawing_flag = False
@@ -33,6 +34,36 @@ drawing_flag = False
 def set_drawing_flag(*args, **kwargs):
     global drawing_flag
     drawing_flag = True
+
+
+def create_triangle_reg(bottom_left_coord):
+    region = Region()
+    region.name = "region " + str(bottom_left_coord)
+    c1 = bottom_left_coord
+    c2 = bottom_left_coord + Coordinate(10, 0)
+    c3 = bottom_left_coord + Coordinate(5, 5)
+    region.add_entity(Line(c1, c2))
+    region.add_entity(Line(c2, c3))
+    region.add_entity(Line(c3, c1))
+    return region
+
+
+def test_label_recursion(monkeypatch):
+    # Stop plt.show() blocking tests
+    global drawing_flag
+    drawing_flag = False
+    monkeypatch.setattr(plt, "show", set_drawing_flag)
+
+    # add your geometry template here using PyMotorCAD
+    r1 = create_triangle_reg(Coordinate(0, 0))
+    r2 = create_triangle_reg(Coordinate(0, 0.2))
+    r3 = create_triangle_reg(Coordinate(0, 0.1))
+
+    draw_objects([r1, r2, r3])
+
+    monkeypatch.setattr(ansys.motorcad.core.geometry_drawing, "_MAX_RECURSION", 1)
+    with pytest.warns():
+        draw_objects([r1, r2, r3])
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
