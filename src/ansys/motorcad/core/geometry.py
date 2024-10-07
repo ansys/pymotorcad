@@ -46,8 +46,7 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
-
-        # expect other properties to be implemented here including number duplications, material etc
+        self.mesh_length = 0
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
@@ -187,6 +186,9 @@ class Region(object):
         new_region.parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
+        if "mesh_length" in json:
+            new_region.mesh_length = json["mesh_length"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -209,6 +211,7 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
             "region_type": self._region_type.value,
+            "mesh_length": self.mesh_length,
         }
 
         return region_dict
