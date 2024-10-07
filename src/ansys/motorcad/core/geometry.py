@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from math import atan2, cos, degrees, inf, isclose, pi, radians, sin, sqrt
 
 GEOM_TOLERANCE = 1e-6
 
@@ -349,6 +349,74 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
+    def boundary_split(self, region=None):
+        """Split and repeat a region that overhangs the boundary.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object whose boundary self overhangs
+        """
+        if not region:
+            try:
+                region = self.parent
+            except:
+                raise Exception(
+                    "You must set the parent region of "
+                    + str(self.name)
+                    + "or provide a region whose boundary "
+                    + str(self.name)
+                    + " overhangs."
+                )
+
+        duplication_number = region.duplications
+        mc = self.motorcad_instance
+
+        # get the portion of self that overhangs the region boundary
+        self_overhang = deepcopy(self)
+        try:
+            self_overhang.subtract(region)
+        except Exception as e:
+            if "Unable to subtract" in str(e):
+                raise Exception(
+                    str(self.name) + " does not overhang the boundary of " + str(region.name)
+                )
+
+        # get the portion of self that is within the region boundary
+        self_within = deepcopy(self)
+        self_within.subtract(self_overhang)
+
+        # check whether self crosses the upper or lower boundary
+        # if it crosses the lower boundary, set e = 1 so that we rotate by a positive angle
+        # if it doesn't cross the lower boundary, it must cross the upper boundary so rotate by
+        # a negative angle
+        e = -1
+        self_name = self.name
+        self_within.name = self_name
+        self_number = int("".join(filter(str.isdigit, self_name)))
+        string_1 = "_" + str(self_number)
+        string_2 = "_" + str(self_number + 1)
+
+        if string_1 in self_name:
+            self_overhang.name = self_name.replace(string_1, string_2)
+        else:
+            self_overhang.name = self_name + "_boundary_split"
+
+        for entity in self.entities:
+            if entity.start.y < 0 or entity.end.y < 0:
+                e = 1
+                if string_1 in self_name:
+                    self_within.name = self_name.replace(string_1, string_2)
+                else:
+                    self_within.name = self_name + "_boundary_split"
+                self_overhang.name = self_name
+
+        # rotate the portion of self that overhangs the region boundary to the opposite boundary
+        self_overhang.rotate(Coordinate(0, 0), e * 360 / duplication_number)
+
+        self.update(self_within)
+        return self_overhang
+
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
 
@@ -514,6 +582,88 @@ class Region(object):
             if isinstance(entity, Arc):
                 # Check Arc is still valid
                 _ = entity.centre
+
+    def round_corner(self, corner_coordinate, radius):
+        """Round the corner of a region.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to be rounded.
+        radius : float
+            Radius by which the corner will be rounded.
+        """
+        adj_entities = []
+        entity_indicies = []
+        coordinates = []
+        # Get entities at corner
+        for index in range(len(self.entities)):
+            i = self.entities[index]
+            if i.coordinate_on_entity(corner_coordinate):
+                # coordinates.append(i.get_coordinate_from_distance(corner_coordinate, distance))
+                adj_entities.append(i)
+                entity_indicies.append(index)
+        if not adj_entities:
+            raise Exception(
+                "Failed to find point on entity in region. "
+                "You must specify a corner in this region."
+            )
+        if len(adj_entities) == 1:
+            raise Exception(
+                "Point found on only one entity in region. "
+                "You must specify a corner in this region."
+            )
+        # if first and last entities, swap the positions
+        if entity_indicies[0] == 0 and entity_indicies[1] == len(self.entities) - 1:
+            entity_indicies[0], entity_indicies[1] = entity_indicies[1], entity_indicies[0]
+            adj_entities[0], adj_entities[1] = adj_entities[1], adj_entities[0]
+        # Calculate distances for adjacent entities
+        if type(adj_entities[0]) == Line:
+            angle_1 = degrees(
+                atan2(
+                    adj_entities[0].start.y - adj_entities[0].end.y,
+                    adj_entities[0].start.x - adj_entities[0].end.x,
+                )
+            )
+        else:  # Arc
+            point_on_curve = adj_entities[0].get_coordinate_from_distance(corner_coordinate, 0.01)
+            angle_1 = degrees(
+                atan2(
+                    point_on_curve.y - adj_entities[0].end.y,
+                    point_on_curve.x - adj_entities[0].end.x,
+                )
+            )
+        if type(adj_entities[1]) == Line:
+            angle_2 = degrees(
+                atan2(
+                    adj_entities[1].end.y - adj_entities[1].start.y,
+                    adj_entities[1].end.x - adj_entities[1].start.x,
+                )
+            )
+        else:  # Arc
+            point_on_curve = adj_entities[1].get_coordinate_from_distance(corner_coordinate, 0.01)
+            angle_2 = degrees(
+                atan2(
+                    point_on_curve.y - adj_entities[1].start.y,
+                    point_on_curve.x - adj_entities[1].start.x,
+                )
+            )
+
+        corner_angle = abs(angle_1 - angle_2)
+        arc_angle = 90 + (90 - corner_angle)
+        half_chord = radius * sin(radians(arc_angle) / 2)
+        distance = abs(half_chord / (sin(radians(corner_angle) / 2)))
+
+        for index in range(len(adj_entities)):
+            j = adj_entities[index]
+            coordinates.append(j.get_coordinate_from_distance(corner_coordinate, distance))
+            if j.start == corner_coordinate:
+                j.start = coordinates[index]
+            elif j.end == corner_coordinate:
+                j.end = coordinates[index]
+
+        corner_arc = Arc(coordinates[0], coordinates[1], radius=radius)
+        self.insert_entity(entity_indicies[0] + 1, corner_arc)
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
@@ -1154,6 +1304,34 @@ class _BaseArc(Entity):
             distance / self.radius
         )  # sign of the radius accounts for clockwise/anticlockwise arcs
         return self.centre + Coordinate(*rt_to_xy(abs(self.radius), degrees(angle)))
+
+    def get_intersects_with_line(self, line, tolerance=0.0001):
+        """Get if a line intersects with this arc.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+            Check if this Line entity intersects with self
+
+        Returns
+        -------
+        bool
+        """
+        start = self.start
+        end = self.end
+        points = 1 / tolerance  # 10000
+        length = 2 * pi * self.radius * (abs(self.total_angle) / 360)
+        line_crossed = False
+        for i in range(int(points)):
+            point_1 = self.get_coordinate_from_distance(start, (i * (length / points)))
+            point_2 = self.get_coordinate_from_distance(point_1, length / points)
+            tangent = Line(point_1, point_2)
+            intersection = tangent.get_line_intersection(line)
+            if intersection == None:
+                pass
+            elif tangent.coordinate_on_entity(intersection):
+                line_crossed = True
+        return line_crossed
 
     def mirror(self, mirror_line):
         """Mirror arc about a line.
