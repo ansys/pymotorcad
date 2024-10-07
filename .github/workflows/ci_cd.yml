@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys code style checks
-        uses: ansys/actions/code-style@v6
+        uses: ansys/actions/code-style@v7
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys documentation style checks
-        uses: ansys/actions/doc-style@v6
+        uses: ansys/actions/doc-style@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11'] 
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v6
+        uses: ansys/actions/build-wheelhouse@v7
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           library-namespace: ${{ env.LIBRARY_NAMESPACE }}
@@ -116,7 +116,7 @@ jobs:
     needs: package
     steps:
       - name: "Deploy development documentation"
-        uses: ansys/actions/doc-deploy-dev@v6
+        uses: ansys/actions/doc-deploy-dev@v7
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
     needs: release
     steps:
       - name: "Deploy stable documentation"
-        uses: ansys/actions/doc-deploy-stable@v6
+        uses: ansys/actions/doc-deploy-stable@v7
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -140,7 +140,7 @@ jobs:
     needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@v6
+        uses: ansys/actions/build-library@v7
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to PyPI repository
-        uses: ansys/actions/release-pypi-public@v6
+        uses: ansys/actions/release-pypi-public@v7
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           twine-username: __token__
