@@ -46,10 +46,9 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
+        self.mesh_length = 0
         self._linked_region = None
         self._singular = False
-
-        # expect other properties to be implemented here including number duplications, material etc
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
@@ -189,6 +188,9 @@ class Region(object):
         new_region.parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
+        if "mesh_length" in json:
+            new_region.mesh_length = json["mesh_length"]
+
         if "singular" in json:
             new_region._singular = json["singular"]
 
@@ -214,6 +216,7 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
             "region_type": self._region_type.value,
+            "mesh_length": self.mesh_length,
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
         }
@@ -259,8 +262,7 @@ class Region(object):
 
     @property
     def linked_region(self):
-        """Get linked duplication/unite region
-        """
+        """Get linked duplication/unite region."""
         return self._linked_region
 
     @linked_region.setter
@@ -270,8 +272,7 @@ class Region(object):
 
     @property
     def singular(self):
-        """Get linked duplication/unite region
-        """
+        """Get linked duplication/unite region."""
         return self._singular
 
     @singular.setter
