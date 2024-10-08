@@ -240,24 +240,3 @@ class _RpcMethodsInternal:
         method = "AddPoint_Magnetic_XY"
         params = [x, y, mag_name, br_angle, br_mult, polarity]
         return self.connection.send_and_receive(method, params)
-
-    def run_regression_tests(self, test_categories, calculation_method, decimal_separator):
-        """Run regression tests.
-
-        Parameters
-        ----------
-        test_categories : str
-            Regression test categories. If running specific sets of tests, the following format
-            is used: "Test_Category1|Test_Category2|etc"
-        calculation_method : int
-            Type of calculation method. Options are "0" or "1" referring to "New Methods" or
-            "Compatibility Methods" consecutively.
-        decimal_separator : int
-            Type of decimal separator. Options are "0", "1" or "2" referring to "Standard",
-            "Alternate" or "Standard + Alternate" consecutively.
-        -------
-
-        """
-        method = "RunRegressionTests"
-        params = [test_categories, calculation_method, decimal_separator]
-        return self.connection.send_and_receive(method, params)
