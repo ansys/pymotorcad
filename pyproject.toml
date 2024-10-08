@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name="ansys-motorcad-core"
-version = "0.6.dev0"
+version = "0.7.dev0"
 description = "Pythonic interface to Ansys Motor-CAD."
 readme = "README.rst"
 requires-python = ">=3.8"
@@ -43,7 +43,7 @@ tests = [
 doc = [
     "Sphinx==8.0.2",
     "numpydoc==1.8.0",
-    "ansys-sphinx-theme==1.0.9",
+    "ansys-sphinx-theme==1.1.2",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.17.1",
     "matplotlib",
