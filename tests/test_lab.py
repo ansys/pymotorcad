@@ -215,3 +215,5 @@ def test_lab_model_export(mc):
         mc.export_lab_model(file_path)
 
     assert "model has not been built" in str(model_not_built_error)
+
+    reset_to_default_file(mc)
