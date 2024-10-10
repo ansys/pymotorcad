@@ -353,6 +353,7 @@ def test_region_from_json():
         "child_names": ["Duct", "Duct_1"],
         "region type": "Adaptive Region",
         "mesh_length": 0.035,
+        "singular": False,
     }
 
     test_region = geometry.Region()
@@ -366,7 +367,8 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
-    test_region.mesh_length = 0.035
+    test_region.mesh_length = (0.035,)
+    test_region.singular = (False,)
 
     region = geometry.Region._from_json(raw_region)
 
@@ -386,6 +388,8 @@ def test_region_to_json():
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
         "mesh_length": 0.035,
+        "singular": True,
+        "on_boundary": False,
     }
 
     test_region = geometry.Region()
@@ -399,6 +403,8 @@ def test_region_to_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
+    test_region.singular = True
+    test_region.linked_region = None
 
     assert test_region._to_json() == raw_region
 
