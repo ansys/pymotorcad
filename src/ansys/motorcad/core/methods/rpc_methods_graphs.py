@@ -205,9 +205,6 @@ class _RpcMethodsGraphs:
             params = [{"variant": graph_name}, "MagneticDataSource", -1, -1]
             return self.connection.send_and_receive(method, params)
         else:
-            loop = 0
-            x_array = []
-            y_array = []
             return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
     def get_temperature_graph(self, graph_name):
@@ -230,9 +227,6 @@ class _RpcMethodsGraphs:
             params = [{"variant": graph_name}, "TransientDataSource", -1, -1]
             return self.connection.send_and_receive(method, params)
         else:
-            loop = 0
-            x_array = []
-            y_array = []
             return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
@@ -301,8 +295,8 @@ class _RpcMethodsGraphs:
         params = [{"variant": graph_name}, "FEAPathDataSource", slice_number, point_number]
         return self.connection.send_and_receive(method, params)
 
-    def get_magnetic_3d_graph(self, graph_name, slice_number=-1, point_number=-1):
-        """Get graph points from a Motor-CAD Magnetic 3d graph.
+    def get_magnetic_3d_graph_points(self, graph_name, slice_number=-1, point_number=-1):
+        """Get graph points from a Motor-CAD Magnetic 3d graph for a single point.
 
         Parameters
         ----------
@@ -324,3 +318,20 @@ class _RpcMethodsGraphs:
         method = "GetGenericGraph"
         params = [{"variant": graph_name}, "Magnetic3DDataSource", slice_number, point_number]
         return self.connection.send_and_receive(method, params)
+
+    def get_magnetic_3d_graph(self, graph_name, slice_number=-1):
+        """Get graph points from a Motor-CAD Magnetic 3d graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        x_values : list of list
+            Value of x coordinates from graph
+        y_values : list of list
+            Value of y coordinates from graph
+        """
+        return self._get_graph(self.get_magnetic_3d_graph_points, graph_name, slice_number)
