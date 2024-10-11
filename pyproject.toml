@@ -41,7 +41,7 @@ tests = [
     "matplotlib>=3.6.3"
 ]
 doc = [
-    "Sphinx==8.0.2",
+    "Sphinx==8.1.0",
     "numpydoc==1.8.0",
     "ansys-sphinx-theme==1.1.2",
     "sphinx-copybutton==0.5.2",
