@@ -40,6 +40,20 @@ Geometry shapes functions are used for
 defining and modifying Adaptive Templates geometries in Python.
 For descriptions of the functions, see :ref:`ref_geometry_shapes`.
 
+Utility functions
+------------------
+
+A number of utility functions are available.
+For more information, see
+:ref:`ref_utility_functions`.
+
+Motor-CAD errors
+----------------
+
+A class/exception type used for obtaining and handling errors from Motor-CAD.
+For descriptions, see
+:ref:`MotorCAD_errors`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -47,4 +61,6 @@ For descriptions of the functions, see :ref:`ref_geometry_shapes`.
    MotorCAD_object
    MotorCADCompatibility_object
    geometry_functions
+   utility_functions
+   MotorCAD_errors
    geometry_shapes
