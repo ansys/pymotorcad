@@ -1912,7 +1912,6 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_used == 1.31 * 2
     assert magnet.region_type == RegionType.magnet
 
-    
 def test_get_set_region_compatibility(mc, monkeypatch):
     monkeypatch.setattr(mc.connection, "program_version", "2024.1")
     monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
