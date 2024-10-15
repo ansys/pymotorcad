@@ -1,0 +1,6 @@
+magnet\_angle
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.magnet_angle
