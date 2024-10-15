@@ -21,7 +21,9 @@
 # SOFTWARE.
 
 """Methods for adaptive geometry."""
-from ansys.motorcad.core.geometry import Region
+from warnings import warn
+
+from ansys.motorcad.core.geometry import Region, RegionMagnet
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 
@@ -118,6 +120,17 @@ class _RpcMethodsAdaptiveGeometry:
             Motor-CAD region object.
         """
         self.connection.ensure_version_at_least("2024.0")
+
+        if isinstance(region, RegionMagnet):
+            if (region._br_multiplier != 0.0) or (region._magnet_angle != 0.0):
+                # User has changed magnet properties that do not exist in older Motor-CAD API
+                if not self.connection.check_version_at_least("2024.2"):
+                    warn("Setting magnet properties is only available in Motor-CAD 2024R2 or later")
+
+        if region.mesh_length != 0:
+            if not self.connection.check_version_at_least("2025"):
+                warn("Setting region mesh length is only available in Motor-CAD 2025R1 or later")
+
         raw_region = region._to_json()
 
         method = "SetRegion"
