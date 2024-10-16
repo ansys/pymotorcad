@@ -143,7 +143,8 @@ class _RpcMethodsGraphs:
         graph_name : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -168,7 +169,8 @@ class _RpcMethodsGraphs:
         graph_id : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -271,7 +273,7 @@ class _RpcMethodsGraphs:
         params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
         return self.connection.send_and_receive(method, params)
 
-    def get_fea_graph(self, graph_name, slice_number=-1, point_number=-1):
+    def get_fea_graph(self, graph_name, slice_number, point_number):
         """Get graph points from a Motor-CAD FEA graph.
 
         Parameters
@@ -279,10 +281,11 @@ class _RpcMethodsGraphs:
         graph_name : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
-
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
         point_number : int
             Point number to get x and y coordinate arrays from.
+
         Returns
         -------
         x_values : list
@@ -295,7 +298,7 @@ class _RpcMethodsGraphs:
         params = [{"variant": graph_name}, "FEAPathDataSource", slice_number, point_number]
         return self.connection.send_and_receive(method, params)
 
-    def get_magnetic_3d_graph(self, graph_name, slice_number=-1):
+    def get_magnetic_3d_graph(self, graph_name, slice_number):
         """Get graph points from a Motor-CAD Magnetic 3d graph.
 
         Parameters
@@ -304,6 +307,7 @@ class _RpcMethodsGraphs:
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         Returns
         -------
