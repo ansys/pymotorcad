@@ -273,7 +273,7 @@ class _RpcMethodsGraphs:
         params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
         return self.connection.send_and_receive(method, params)
 
-    def get_fea_graph(self, graph_name, slice_number, point_number):
+    def get_fea_graph(self, graph_name, slice_number, point_number=0):
         """Get graph points from a Motor-CAD FEA graph.
 
         Parameters
@@ -284,7 +284,8 @@ class _RpcMethodsGraphs:
         slice_number : int
             Which skew slice to get results from. Slice 1 is the first.
         point_number : int
-            Point number to get x and y coordinate arrays from.
+            Point number to get x and y coordinate arrays from for
+            transient graphs.
 
         Returns
         -------
