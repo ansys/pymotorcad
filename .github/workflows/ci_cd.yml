@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11'] 
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@8
+        uses: ansys/actions/build-wheelhouse@v8
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           library-namespace: ${{ env.LIBRARY_NAMESPACE }}
