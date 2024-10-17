@@ -360,9 +360,11 @@ class MotorCADTwinModel:
             heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
             if heatFlowMethod == 1:
                 # Revert model to use the old fluid heat flow method
-                print("Warning - The Improved Fluid Heat Flow Method setting in this .mot file " + 
-                      "is incompatible with the Twin Builder Thermal ROM. The setting has been " + 
-                      "changed from Improved to Original.")
+                print(
+                    "Warning - The Improved Fluid Heat Flow Method setting in this .mot file is "
+                    + "incompatible with the Twin Builder Thermal ROM. The setting has been "
+                    + "changed from Improved to Original."
+                )
                 self.mcad.set_variable("FluidHeatFlowMethod", 0)
         except:
             # variable does not exist due to using older version of Motor-CAD
