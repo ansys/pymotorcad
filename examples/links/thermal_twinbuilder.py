@@ -440,12 +440,10 @@ class MotorCADTwinModel:
                 connectedNodes = self.returnConnectedNodes(
                     node, self.nodeNumbers_fluid, resistanceMatrix
                 )
-                if len(connectedNodes) > 0:
-                    # non isolated node
-                    if node not in graphNodes:
-                        graphNodes.append(node)
-                    for connectedNode in connectedNodes:
-                        graphEdges.append([node, connectedNode])
+                if node not in graphNodes:
+                    graphNodes.append(node)
+                for connectedNode in connectedNodes:
+                    graphEdges.append([node, connectedNode])
 
             G = nx.DiGraph()
             G.add_nodes_from(graphNodes)
