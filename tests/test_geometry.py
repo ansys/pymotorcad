@@ -1249,6 +1249,26 @@ def test_round_corner():
     with pytest.raises(Exception):
         triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
 
+    # check the case when corner internal angle is negative
+    corner_1 = Coordinate(0, 0)
+    corner_2 = Coordinate(-3, 2)
+    corner_3 = Coordinate(-3, 0)
+    line_1 = Line(corner_1, corner_3)
+    line_2 = Line(corner_3, corner_2)
+    line_3 = Line(corner_2, corner_1)
+    region = Region()
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region.add_entity(line_3)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(corner_1, 0.1)
+    # draw_objects_debug([region, region_rounded])
+    assert corner_1 not in region_rounded.points
+    assert len(region_rounded.entities) == 4
+    assert type(region_rounded.entities[3]) == Arc
+    print(region_rounded.entities[3].midpoint.x)
+    assert region_rounded.entities[3].midpoint.x < corner_1.x
+
 
 def test_round_corners():
     # test for rounding corners of a triangle (3 lines)
