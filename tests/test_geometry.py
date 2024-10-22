@@ -1269,6 +1269,31 @@ def test_round_corner():
     print(region_rounded.entities[3].midpoint.x)
     assert region_rounded.entities[3].midpoint.x < corner_1.x
 
+    # test the case when corner internal angle is more than 180 degrees
+    radius = 5
+    centre = Coordinate(0, 0)
+    start_angle = -15
+    end_angle = 195
+    coord_1 = Coordinate(*rt_to_xy(radius, start_angle))
+    coord_2 = Coordinate(*rt_to_xy(radius, start_angle + 180))
+    arc_1 = Arc(coord_1, coord_2, centre=centre)
+    arc_2 = Arc(arc_1.end, Coordinate(*rt_to_xy(radius, end_angle)), centre=centre)
+    line_1 = Line(arc_2.end, centre)
+    line_2 = Line(centre, arc_1.start)
+    region = Region()
+    region.add_entity(arc_1)
+    region.add_entity(arc_2)
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(centre, 2)
+    # draw_objects_debug([region, region_rounded])
+    assert centre not in region_rounded.points
+    assert len(region_rounded.entities) == len(region.entities) + 1
+    assert type(region_rounded.entities[3]) == Arc
+    # print(region_rounded.entities[3].midpoint.y)
+    assert region_rounded.entities[3].midpoint.y < centre.y
+
 
 def test_round_corners():
     # test for rounding corners of a triangle (3 lines)
