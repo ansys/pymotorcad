@@ -593,6 +593,11 @@ def test_line_get_coordinate_from_distance():
     # check that distance is used
     assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
 
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = line.get_coordinate_from_distance(line.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
+
 
 def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
@@ -710,6 +715,10 @@ def test_arc_get_coordinate_from_distance():
     assert "Both distance and percentage provided" in record[1].message.args[0]
     # check that distance is used
     assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = arc.get_coordinate_from_distance(arc.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
 
 
 def test_arc_length():
