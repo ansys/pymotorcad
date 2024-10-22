@@ -45,6 +45,10 @@ def almost_equal(a, b, decimal_places=1):
     return round(a - b, decimal_places) == 0
 
 
+def almost_equal_percentage(a, b, percentage):
+    return abs(a - b) < abs(a * (percentage / 100))
+
+
 def almost_equal_fixed(a, b, allowed_difference=0):
     return abs(a - b) < +allowed_difference
 
