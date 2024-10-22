@@ -625,6 +625,13 @@ def test_arc_get_coordinate_from_fractional_distance():
     coord_5 = arc_4.get_coordinate_from_percentage_distance(arc_4.start, 1e-13)
     assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
     assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    # test arc with negative radius
+    arc_6 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_6 = arc_6.get_coordinate_from_percentage_distance(Coordinate(-1, 0), 0.5)
+    assert math.isclose(coord_6.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_6.y, 1, abs_tol=1e-12)
 
 
 def test_arc_get_coordinate_from_distance():
