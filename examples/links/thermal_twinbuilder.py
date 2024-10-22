@@ -354,6 +354,23 @@ class MotorCADTwinModel:
         ## TB model will not include this logic
         self.mcad.set_variable("BearingLossSource", 0)
 
+        # 9 Workaround for models created in Motor-CAD 2025R1 - ensure the old fluid heat flow
+        # method is used
+        try:
+            heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
+            if heatFlowMethod == 1:
+                # Revert model to use the old fluid heat flow method
+                warnings.warn(
+                    "The Improved Fluid Heat Flow Method setting in this .mot file is incompatible "
+                    + "with the Twin Builder Thermal ROM. The setting has been changed from "
+                    + "Improved to Original."
+                )
+                self.mcad.set_variable("FluidHeatFlowMethod", 0)
+        except:
+            # variable does not exist due to using older version of Motor-CAD
+            # no need to perform any action
+            pass
+
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
@@ -423,12 +440,10 @@ class MotorCADTwinModel:
                 connectedNodes = self.returnConnectedNodes(
                     node, self.nodeNumbers_fluid, resistanceMatrix
                 )
-                if len(connectedNodes) > 0:
-                    # non isolated node
-                    if node not in graphNodes:
-                        graphNodes.append(node)
-                    for connectedNode in connectedNodes:
-                        graphEdges.append([node, connectedNode])
+                if node not in graphNodes:
+                    graphNodes.append(node)
+                for connectedNode in connectedNodes:
+                    graphEdges.append([node, connectedNode])
 
             G = nx.DiGraph()
             G.add_nodes_from(graphNodes)
