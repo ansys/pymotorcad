@@ -15,3 +15,4 @@ coverage:
   ignore:
     - "src/ansys/motorcad/core/rpc_methods_core_old.py"   # Just contains layer to run old scripts - deprecated
     - "src/ansys/motorcad/core/methods/rpc_methods_internal.py"   # Internal methods - users are warned that these are undocumented/untested/deprecated
+    - "src/ansys/motorcad/core/methods/rpc_methods_testing.py" # regression testing methods - not for users
