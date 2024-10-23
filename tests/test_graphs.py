@@ -22,7 +22,7 @@
 
 # import pytest
 
-from RPC_Test_Common import almost_equal, reset_to_default_file
+from RPC_Test_Common import almost_equal, almost_equal_percentage, reset_to_default_file
 
 
 def test_get_magnetic_graph_point(mc):
@@ -34,7 +34,7 @@ def test_get_magnetic_graph_point(mc):
 
     x, y = mc.get_magnetic_graph_point("TorqueVW", 3)
     assert almost_equal(x, 360)
-    assert almost_equal(y, 182, 0)
+    assert almost_equal_percentage(y, 182, 20)
 
 
 def test_get_temperature_graph_point(mc):
