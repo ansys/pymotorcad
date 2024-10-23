@@ -21,7 +21,18 @@
 # SOFTWARE.
 
 """RPC methods for graphs."""
+from dataclasses import dataclass
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
+
+
+@dataclass
+class Magnetic3dGraph:
+    """Class for x, y and data from a magnetic 3d graph."""
+
+    x: list
+    y: list
+    data: list
 
 
 class _RpcMethodsGraphs:
@@ -312,10 +323,11 @@ class _RpcMethodsGraphs:
 
         Returns
         -------
-        dict
-            Dictionary of x, y and data
+        Magnetic3dGraph
+            Class containing x, y and data as lists
         """
         self.connection.ensure_version_at_least("2025.0")
         method = "GetMagnetic3DGraph"
         params = [{"variant": graph_name}, slice_number]
-        return self.connection.send_and_receive(method, params)
+        graph_3d_dict = self.connection.send_and_receive(method, params)
+        return Magnetic3dGraph(**graph_3d_dict)
