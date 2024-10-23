@@ -22,6 +22,16 @@
 
 """RPC methods for Motor-CAD Lab."""
 
+k_num_custom_losses_internal_lab = "NumCustomLossesInternal_Lab"
+k_custom_loss_name_internal_lab = "CustomLoss_name_internal_lab"
+k_custom_loss_function_internal_lab = "CustomLoss_Function_Internal_Lab"
+k_custom_loss_type_internal_lab = "CustomLoss_Type_Internal_Lab"
+k_custom_loss_thermal_node_internal_lab = "CustomLoss_ThermalNode_Internal_Lab"
+k_num_custom_losses_external_lab = "NumCustomLossesExternal_Lab"
+k_custom_loss_name_external_lab = "CustomLoss_Name_External_Lab"
+k_custom_loss_power_function_external_lab = "CustomLoss_PowerFunction_External_Lab"
+k_custom_loss_voltage_function_external_lab = "CustomLoss_VoltageFunction_External_Lab"
+
 
 class _RpcMethodsLab:
     def __init__(self, mc_connection):
@@ -135,3 +145,162 @@ class _RpcMethodsLab:
         """Run the Lab duty cycle."""
         method = "CalculateDutyCycle_Lab"
         return self.connection.send_and_receive(method)
+
+    def add_internal_custom_loss(self, name, function, type, thermal_node):
+        """Add an internal custom loss.
+
+        Parameters
+        ----------
+        name : str
+            Name of lab internal custom loss
+        function : str
+            Function of lab internal custom loss
+        type : str
+            Type of lab internal custom loss. Options are ``Electrical`` or ``Mechanical``
+        thermal_node : int
+            Thermal node of lab internal custom loss
+
+        """
+        type = type.capitalize()
+        # Internal Custom Loss Type is case-sensitive in MotorCAD.
+        # Added a line to match the required format.
+        if type not in ["Electrical", "Mechanical"]:
+            raise ValueError("Thermal Loss Type must be Electrical or Mechanical")
+        if not self.get_node_exists(thermal_node):
+            raise ValueError("Thermal node does not exist")
+        else:
+            no_internal_losses = self.get_variable(k_num_custom_losses_internal_lab)
+            self.set_variable(k_num_custom_losses_internal_lab, no_internal_losses + 1)
+            self.set_array_variable(k_custom_loss_name_internal_lab, no_internal_losses, name)
+            self.set_array_variable(
+                k_custom_loss_function_internal_lab, no_internal_losses, function
+            )
+            self.set_array_variable(k_custom_loss_type_internal_lab, no_internal_losses, type)
+            self.set_array_variable(
+                k_custom_loss_thermal_node_internal_lab, no_internal_losses, thermal_node
+            )
+
+    def add_external_custom_loss(self, name, power_function, voltage_function):
+        """Add an external custom loss.
+
+        Parameters
+        ----------
+        name : str
+            Name of lab external custom loss
+        power_function : str
+            Power function for lab external custom loss
+        voltage_function : str
+            Function for voltage drop for lab external custom loss
+
+        """
+        no_external_losses = self.get_variable(k_num_custom_losses_external_lab)
+        self.set_variable(k_num_custom_losses_external_lab, no_external_losses + 1)
+        self.set_array_variable(k_custom_loss_name_external_lab, no_external_losses, name)
+        self.set_array_variable(
+            k_custom_loss_power_function_external_lab, no_external_losses, power_function
+        )
+        self.set_array_variable(
+            k_custom_loss_voltage_function_external_lab, no_external_losses, voltage_function
+        )
+
+    def remove_internal_custom_loss(self, name):
+        """Remove an internal custom loss by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of lab internal custom loss
+
+        """
+        index = self._get_index_from_name(
+            name, k_num_custom_losses_internal_lab, k_custom_loss_name_internal_lab
+        )
+        self._motorcad_array_pop(
+            index,
+            k_num_custom_losses_internal_lab,
+            [
+                k_custom_loss_name_internal_lab,
+                k_custom_loss_function_internal_lab,
+                k_custom_loss_type_internal_lab,
+                k_custom_loss_thermal_node_internal_lab,
+            ],
+        )
+
+    def remove_external_custom_loss(self, name):
+        """Remove an external custom loss by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of lab external custom loss
+
+        """
+        index = self._get_index_from_name(
+            name, k_num_custom_losses_external_lab, k_custom_loss_name_external_lab
+        )
+        self._motorcad_array_pop(
+            index,
+            k_num_custom_losses_external_lab,
+            [
+                k_custom_loss_name_external_lab,
+                k_custom_loss_power_function_external_lab,
+                k_custom_loss_voltage_function_external_lab,
+            ],
+        )
+
+    def _motorcad_array_pop(self, index, var_length_array, list_of_var_names):
+        """Remove variables at a specified location within an array.
+
+        Parameters
+        ----------
+        index : int
+            Index of array to remove
+        var_length_array : str
+            Variable which specifies the length of the array
+        list_of_var_names : list
+            List of variables to pop
+
+        """
+        array_length = self.get_variable(var_length_array)
+
+        for i in range(index + 1, array_length):
+            for j in range(len(list_of_var_names)):
+                self.set_array_variable(
+                    list_of_var_names[j], i - 1, self.get_array_variable(list_of_var_names[j], i)
+                )
+
+        self.set_variable(var_length_array, array_length - 1)
+
+    def _get_index_from_name(self, name, var_length_array, variable_name):
+        """Retrieve index of a specified variable name within an array.
+
+        Parameters
+        ----------
+        name : str
+            Specified name to find
+        var_length_array : str
+            Variable which specifies the length of the array
+        variable_name : str
+            Variable that holds the list of names
+
+        """
+        array_length = self.get_variable(var_length_array)
+        for i in range(array_length):
+            if name == self.get_array_variable(variable_name, i):
+                index = i
+                break
+        else:
+            raise NameError("Provided name is not listed")
+        return index
+
+    def export_lab_model(self, file_path):
+        """Export lab model.
+
+        Parameters
+        ----------
+        file_path : str
+            File path including lab model file name and file extension (.lab)
+        """
+        method = "ExportLabModel"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)

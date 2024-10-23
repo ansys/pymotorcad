@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """
-Motor-CAD Twin Builder export
+Motor-CAD EMag Twin Builder ECE
 =============================
 This example provides a Motor-CAD script for exporting
 an equivalent circuit extraction (ECE) model for permanent

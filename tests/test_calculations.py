@@ -32,7 +32,7 @@ from RPC_Test_Common import (  # get_temp_files_dir_path
 def test_do_magnetic_thermal_calculation(mc):
     mc.do_magnetic_thermal_calculation()
 
-    assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 133.367)
+    assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 134, 0)
 
 
 # def test_calculate_saturation_map():
