@@ -21,7 +21,18 @@
 # SOFTWARE.
 
 """RPC methods for graphs."""
+from dataclasses import dataclass
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
+
+
+@dataclass
+class Magnetic3dGraph:
+    """Class for x, y and data from a magnetic 3d graph."""
+
+    x: list
+    y: list
+    data: list
 
 
 class _RpcMethodsGraphs:
@@ -143,7 +154,8 @@ class _RpcMethodsGraphs:
         graph_name : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -168,7 +180,8 @@ class _RpcMethodsGraphs:
         graph_id : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -200,10 +213,12 @@ class _RpcMethodsGraphs:
         y_values : list
             Value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_magnetic_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "MagneticDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_magnetic_graph_point, graph_name)
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
@@ -220,10 +235,12 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_temperature_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "TransientDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient power loss graph.
@@ -240,4 +257,77 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        return self._get_graph(self.get_power_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "PowerDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_power_graph_point, graph_name)
+
+    def get_heatflow_graph(self, graph_name):
+        """Get graph points from a Motor-CAD heat flow graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
+        return self.connection.send_and_receive(method, params)
+
+    def get_fea_graph(self, graph_name, slice_number, point_number=0):
+        """Get graph points from a Motor-CAD FEA graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
+        point_number : int
+            Point number to get x and y coordinate arrays from for
+            transient graphs.
+
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "FEAPathDataSource", slice_number, point_number]
+        return self.connection.send_and_receive(method, params)
+
+    def get_magnetic_3d_graph(self, graph_name, slice_number):
+        """Get graph points from a Motor-CAD Magnetic 3d graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
+
+        Returns
+        -------
+        Magnetic3dGraph
+            Class containing x, y and data as lists
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetMagnetic3DGraph"
+        params = [{"variant": graph_name}, slice_number]
+        graph_3d_dict = self.connection.send_and_receive(method, params)
+        return Magnetic3dGraph(**graph_3d_dict)
