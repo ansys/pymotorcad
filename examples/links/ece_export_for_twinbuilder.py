@@ -142,8 +142,13 @@ mc.load_template("e8")
 mc.save_to_file(mot_file)
 
 # %%
-# Set up the Motor-CAD E-Magnetic calculation. Define the calculation settings as defined in the
-# JSON configuration file.
+# Determine alignment angle
+# -------------------------
+# Set up calculation
+# ~~~~~~~~~~~~~~~~~~
+# Set up the Motor-CAD E-Magnetic calculation to run the open circuit back EMF calculation, so that
+# the drive offset angle can be determined. Define the calculation settings as taken from the JSON
+# configuration file.
 #
 # * Define the number of points per cycle for the torque calculation as 30 and set this in
 #   Motor-CAD.
@@ -183,11 +188,12 @@ mc.set_variable("TorqueSpeedCalculation", False)
 
 # %%
 # Run simulation
-# --------------
-# Run the Motor-CAD E-Magnetic simulation and obtain the results.
+# ~~~~~~~~~~~~~~
+# Run the Motor-CAD E-Magnetic open circuit back EMF calculation and obtain the results.
 #
 # Save the Motor-CAD file with the updated calculation settings and run the E-Magnetic calculation.
 # Use a ``try`` statement to print an error message if the calculation is not successful.
+mc.save_to_file(mot_file)
 try:
     mc.do_magnetic_calculation()
 except pymotorcad.MotorCADError:
@@ -195,51 +201,102 @@ except pymotorcad.MotorCADError:
 
 # %%
 # Get the graph results for flux linkage versus angle (in electric degrees) for the A phase.
-e_deg = []
-flux_a = []
 e_deg, flux_a = mc.get_magnetic_graph("FluxLinkageOCPh1")
 
 # %%
-# Calculate the torque points per cycle.
-p = mc.get_variable("Pole_Number")
-drive = mc.get_variable("DriveOffsetAngleLoad")
-phase_res = mc.get_variable("ArmatureWindingResistancePh")
-phase_l = mc.get_variable("EndWdgInductance_Used")
-drive_offset = 90 + drive
-p = p / 2
-max_elec_degree = 120
+# Plot results
+# ~~~~~~~~~~~~
+# Plot flux linkage in the A phase.
+plt.figure(1)
+plt.plot(e_deg, flux_a)
+plt.xlabel("Position [EDeg]")
+plt.ylabel("FluxLinkageA")
+plt.title("A_Phase Flux Linkage")
+plt.show()
 
 # %%
-# Define the factor function.
+# Calculate the alignment angle
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Get the drive offset angle (the angle used to align the south pole axis of the rotor with the
+# magnetic axis of the first phase).
+drive_offset = mc.get_variable("DriveOffsetAngleLoad")
+print("Drive Offset Angle = " + str(drive_offset) + " °")
+# %%
+# Calculate the alignment angle from the drive_offset offset angle.
+alignment_angle = 90 + drive_offset
+
+# %%
+# This correlation can be confirmed by the open circuit calculation results: the negative peak of
+# the flux linkage for the first phase is at 90 electric degrees, and the drive offset angle is 0.
+
+# %%
+# Calculate the number of rotor positions
+# ---------------------------------------
+# The number of rotor positions (or torque points per cycle) is calculated. The number of points
+# is determined such that the look-up tables are generated starting from the alignment angle.
+#
+# Get the required parameter values:
+#
+# * Number of pole pairs.
+#
+# * Phase resistance.
+#
+# * End winding inductance.
+p = mc.get_variable("Pole_Number") / 2
+phase_res = mc.get_variable("ArmatureWindingResistancePh")
+phase_l = mc.get_variable("EndWdgInductance_Used")
+
+# %%
+# Calculate the number of rotor positions based on the alignment angle and a specified angular
+# interval (120 electric degrees). Only values for 120 electric degree intervals are used to
+# generate the look-up tables. The minimum number of rotor positions is set to 30.
+max_elec_degree = 120
 fac = []
 d = 2
-n = drive_offset
+n = alignment_angle
 while n >= d:
     if n % d == 0:
         fac.append(d)
         n /= d
     else:
         d = d + 1
-
-fac_size = len(fac)
-elec_deg = fac[fac_size - 1]
+elec_deg = fac[len(fac) - 1]
 i = 1
 while (max_elec_degree / elec_deg) < 30:
-    elec_deg = fac[fac_size - 1 - i]
-    i = i + 1
+    elec_deg = fac[len(fac) - 1 - i]
+    i += 1
 m_period = max_elec_degree / p
 mec_deg = float(float(elec_deg) / float(p))
 points_per_cycle = 360 / elec_deg
 
 # %%
-# Calculate the saturation map.
+# Calculate the saturation map
+# ----------------------------
+# Use the **Saturation and Loss Map Export** tool in Motor-CAD to calculate and export the
+# saturation map.
+#
+# Set up calculation
+# ~~~~~~~~~~~~~~~~~~
+# Define the Motor-CAD calculation settings:
+#
+# * Set the number of torque points per cycle (rotor positions)
 mc.set_variable("TorquePointsPerCycle", points_per_cycle)
+# %%
+#  * Set the filename and path for the saturation map to be exported to
 mc.set_variable("SaturationMap_ExportFile", map_name)
+# %%
+# * Set the calculation **Input Definition** to **D/Q Axis Currents**, **Calculation Method** to
+#   **FEA Calculations**, **FEA Calculation Type** to **Full Cycle (default)** and **Results** to
+#   **Varying with rotor position**.
 mc.set_variable("SaturationMap_InputDefinition", 1)
 mc.set_variable("SaturationMap_CalculationMethod", 1)
 mc.set_variable("SaturationMap_FEACalculationType", 1)
 mc.set_variable("SaturationMap_ResultType", 1)
+# %%
+# Do not export the loss map.
 mc.set_variable("LossMap_Export", False)
+# %%
+# Set the **D Axis Current** and **Q Axis Current** parameters (maximum, step size and minimum).
 mc.set_variable("SaturationMap_Current_D_Max", Id_max)
 mc.set_variable("SaturationMap_Current_D_Step", current_step)
 mc.set_variable("SaturationMap_Current_D_Min", -Id_max)
@@ -247,16 +304,37 @@ mc.set_variable("SaturationMap_Current_Q_Max", Id_max)
 mc.set_variable("SaturationMap_Current_Q_Step", current_step)
 mc.set_variable("SaturationMap_Current_Q_Min", -Id_max)
 
+# %%
+# Run simulation
+# ~~~~~~~~~~~~~~
+# Save the Motor-CAD file with the updated calculation settings and run the Motor-CAD E-Magnetic
+# saturation map calculation. Use a ``try`` statement to print an error message if the calculation
+# is not successful.
+mc.save_to_file(mot_file)
 try:
     mc.calculate_saturation_map()
 except pymotorcad.MotorCADError:
     print("Map calculation failed.")
 
 # %%
-# Load the saturation map.
-
+# Load the saturation map
+# -----------------------
+# Import the saturation map data that was calculated and exported from Motor-CAD as the
+# ``mat_file_data`` dictionary.
 mat_file_data = io.loadmat(map_name)
 
+# %%
+# Extract data from the ``mat_file_data`` dictionary:
+#
+# * The D and Q peak current.
+#
+# * The flux linkages for D and Q axes and the 3 phases.
+#
+# * The rotor position.
+#
+# * The electromagnetic torque.
+#
+# * The phase advance.
 id_peak = mat_file_data["Id_Peak"]
 iq_peak = mat_file_data["Iq_Peak"]
 angular_flux_linkage_d = mat_file_data["Angular_Flux_Linkage_D"]
@@ -267,6 +345,15 @@ angular_flux_linkage_3 = mat_file_data["Angular_Flux_Linkage_Phase_3"]
 angular_rotor_position = mat_file_data["Angular_Rotor_Position"]
 angular_electromagnetic_torque = mat_file_data["Angular_Electromagnetic_Torque"]
 phase_advance = mat_file_data["Phase_Advance"]
+
+
+# %%
+# Generate the look-up table
+# --------------------------
+# For each input current combination and rotor position, the D and Q axis flux linkages, the
+# homopolar component of the flux (approximated to zero) and the torque values are stored in the
+# ``final_table`` numpy array (look-up table).
+
 d_values = len(id_peak)
 q_values = len(id_peak[0])
 comb = d_values * q_values
@@ -283,10 +370,7 @@ iq_7 = []
 phase_ad_8 = []
 rotor_pos_9 = []
 final_table = []
-skip = math.ceil(drive_offset / elec_deg)
-
-# %%
-# Implement the final table.
+skip = math.ceil(alignment_angle / elec_deg)
 
 for i in range(d_values):
     for j in range(q_values):
@@ -321,14 +405,6 @@ final_table = np.array(
 # %%
 # Plot results
 # ------------
-# Plot flux linkage in the A phase.
-plt.figure(1)
-plt.plot(e_deg, flux_a)
-plt.xlabel("Position [EDeg]")
-plt.ylabel("FluxLinkageA")
-plt.title("A_Phase Flux Linkage")
-plt.show()
-
 # Plot the D-Q flux.
 plt.figure(2)
 plt.plot(index_1, flux_d_2, "r", index_1, flux_q_3, "b", linewidth=1.0)
@@ -339,7 +415,7 @@ plt.title("D-Q Flux")
 plt.show()
 
 # %%
-# Plot torque.
+# Plot the torque.
 plt.figure(3)
 plt.plot(index_1, torque_5, "r", linewidth=2.0)
 plt.ylabel("Torque [Nm]")
@@ -360,6 +436,7 @@ plt.legend(fontsize=8, loc="lower right")
 plt.title("D-Flux vs Iq")
 plt.show()
 
+# %%
 # Plot Q-flux linkages versus the q-axis current.
 plt.figure(4)
 for i in range(d_values):
