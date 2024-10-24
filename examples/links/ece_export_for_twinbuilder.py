@@ -37,6 +37,9 @@ Twin Builder.
 #    https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
 
 # %%
+#
+# .. image:: ../../images/EMag_TwinBuilder_ECE.png
+#
 # Set up example
 # --------------
 # Setting up this example consists of performing imports, launching
@@ -48,6 +51,7 @@ Twin Builder.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the required packages.
 
+# sphinx_gallery_thumbnail_path = 'images/EMag_TwinBuilder_ECE_thumbnail_2.png'
 import json
 import math
 import os
@@ -235,16 +239,8 @@ alignment_angle = 90 + drive_offset
 # The number of rotor positions (or torque points per cycle) is calculated. The number of points
 # is determined such that the look-up tables are generated starting from the alignment angle.
 #
-# Get the required parameter values:
-#
-# * Number of pole pairs.
-#
-# * Phase resistance.
-#
-# * End winding inductance.
+# Get the number of pole pairs, used to calculate the rotor positions.
 p = mc.get_variable("Pole_Number") / 2
-phase_res = mc.get_variable("ArmatureWindingResistancePh")
-phase_l = mc.get_variable("EndWdgInductance_Used")
 
 # %%
 # Calculate the number of rotor positions based on the alignment angle and a specified angular
@@ -277,6 +273,12 @@ points_per_cycle = 360 / elec_deg
 #
 # Set up calculation
 # ~~~~~~~~~~~~~~~~~~
+# Get the phase resistance and end winding inductance output parameter values from Motor-CAD. These
+# will be used when generating the TXT and SML files for the ECE export.
+phase_res = mc.get_variable("ArmatureWindingResistancePh")
+phase_l = mc.get_variable("EndWdgInductance_Used")
+
+# %%
 # Define the Motor-CAD calculation settings:
 #
 # * Set the number of torque points per cycle (rotor positions)
@@ -345,7 +347,6 @@ angular_flux_linkage_3 = mat_file_data["Angular_Flux_Linkage_Phase_3"]
 angular_rotor_position = mat_file_data["Angular_Rotor_Position"]
 angular_electromagnetic_torque = mat_file_data["Angular_Electromagnetic_Torque"]
 phase_advance = mat_file_data["Phase_Advance"]
-
 
 # %%
 # Generate the look-up table
@@ -452,21 +453,34 @@ plt.show()
 # %%
 # Write TXT and SML files
 # -----------------------
-# Write the TXT text.
+# To create the ECE model in Ansys Twin Builder, a SML file is generated from the exported Motor-CAD
+# data. A TXT file is also generated.
+#
+# Write the TXT text
+# ~~~~~~~~~~~~~~~~~~
+# Generate the TXT file, using the path and filename that was taken from the ``ece_config.json``
+# configuration file.
 rows = len(index_1)
 
 file_id = open(txt_file, "w")
+
+# %%
+# Write the number of poles to the TXT file.
 file_id.write("%6s\r\n" % "B_BasicData")
 file_id.write("%6s\r\n" % "  Version   1.0")
 file_id.write("%6s %i\r\n" % ("  Poles", p * 2))
-file_id.write("%6s\r\n\n" % "E_BasicData")
+_ = file_id.write("%6s\r\n\n" % "E_BasicData")
 
+# %%
+# Write the phase resistance and end winding inductances for each phase to the TXT file.
 file_id.write("%6s\r\n" % "B_PhaseImp 3")
 file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph1", phase_res, "    ", phase_l))
 file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph2", phase_res, "    ", phase_l))
 file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph3", phase_res, "    ", phase_l))
-file_id.write("%6s\r\n\n" % "E_PhaseImp")
+_ = file_id.write("%6s\r\n\n" % "E_PhaseImp")
 
+# %%
+# Write the D and Q axis current values to the TXT file.
 file_id.write("%6s\r\n\n" % "B_Sweepings")
 file_id.write("%s %i %s" % ("  Id_Iq     (", d_values, ":"))
 for i in range(d_values):
@@ -476,15 +490,19 @@ file_id.write("%s\n" % ")")
 file_id.write("%s %i %s" % ("            (", q_values, ":"))
 for i in range(q_values):
     file_id.write("%s %i" % (" ", iq_peak[0, i]))
-file_id.write("%s\n" % ")")
+_ = file_id.write("%s\n" % ")")
 
+# %%
+# Write the rotor positions to the TXT file.
 file_id.write("%s %i %s" % ("  Rotate    (", map_points, ":"))
 
 for i in range(map_points):
     file_id.write("%s %6.3f" % (" ", i * mec_deg))
 file_id.write("%s\n" % ")")
-file_id.write("%s\n\n" % "E_Sweepings")
+_ = file_id.write("%s\n\n" % "E_Sweepings")
 
+# %%
+# Write the D and Q axis flux and torque values and then close the TXT file.
 file_id.write("%s\n" % "B_OutputMatrix DQ0")
 
 for i in range(rows):
@@ -497,7 +515,12 @@ file_id.write("%s\n" % "E_OutputMatrix")
 file_id.close()
 
 # %%
-# Write the SML file.
+# Write the SML file
+# ~~~~~~~~~~~~~~~~~~
+# Generate the SML that will be loaded into Ansys Twin Builder to generate the ECE model. The SML
+# file uses the phase resistance and end winding inductance and data from the look-up table. The
+# SML file is saved using the path and filename taken from the ``ece_config.json`` configuration
+# file.
 file_id = open(sml_file, "w")
 file_id.write("%6s\r\n" % "MODELDEF ECER_Model1")
 file_id.write("%s\r\n" % "{")
@@ -746,7 +769,11 @@ for r in range(d_values):
 file_id.close()
 
 # %%
-# Exit Motor-CAD
-# --------------
-# Exit Motor-CAD.
-mc.quit()
+# Generating the ECE component
+# ----------------------------
+# To generate the component, within Ansys Electronics Desktop, go to the menu bar and select
+# **Tools -> Project Tools -> Import Twin Builder Models**. Select the SML file and click **Open**.
+# Click **OK** in the **Import Components** window.
+#
+# A new project component **ECER_Model1** is added to **Component Libraries / Project Components**.
+# Drag the ECE component into the **Schematic Capture** window.
