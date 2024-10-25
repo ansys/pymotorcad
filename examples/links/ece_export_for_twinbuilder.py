@@ -64,9 +64,6 @@ from scipy import io
 
 import ansys.motorcad.core as pymotorcad
 
-# if "QT_API" in os.environ:
-#     os.environ["QT_API"] = "pyqt"
-
 # %%
 # Launch Motor-CAD
 # ~~~~~~~~~~~~~~~~
