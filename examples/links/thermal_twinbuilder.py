@@ -573,7 +573,7 @@ class MotorCADTwinModel:
                 + self.lossNames[lossIndex]
             )
 
-            exportDirectory = os.path.join(self.outputDirectory, "dpDis" + str(lossIndex))
+            exportDirectory = os.path.join(self.outputDirectory, "tmp", "dpDis" + str(lossIndex))
 
             lossVector = np.zeros(numLossParameters)
             lossVector[lossIndex] = inputLoss
