@@ -811,7 +811,7 @@ def temperaturesHousingAmbient():
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
-outputDir = os.path.join(working_folder, "thermal_twinbuilder", mcad_name + "_TwinOutput")
+outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
 # %%
 # Create the e8 input file if it does not exist already
