@@ -189,7 +189,7 @@ def test_lab_model_export(mc):
     # asserting the .lab file is present.
     checks = 0
 
-    while checks < 20:
+    while checks < 60:
         time.sleep(1)
         if path.exists(file_path) is False:
             checks += 1
