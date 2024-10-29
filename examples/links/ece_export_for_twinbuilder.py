@@ -38,7 +38,7 @@ Twin Builder.
 
 # %%
 #
-# .. image:: ../../images/EMag_TwinBuilder_ECE.png
+# .. image:: ../../images/twinbuilder_ECE/EMag_TwinBuilder_ECE.png
 #
 # Set up example
 # --------------
@@ -51,7 +51,7 @@ Twin Builder.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the required packages.
 
-# sphinx_gallery_thumbnail_path = 'images/EMag_TwinBuilder_ECE_thumbnail_2.png'
+# sphinx_gallery_thumbnail_path = 'images/twinbuilder_ECE/EMag_TwinBuilder_ECE_thumbnail_2.png'
 import json
 import math
 import os
@@ -519,7 +519,7 @@ file_id.close()
 # SML file is saved using the path and filename taken from the ``ece_config.json`` configuration
 # file.
 file_id = open(sml_file, "w")
-file_id.write("%6s\r\n" % "MODELDEF ECER_Model1")
+file_id.write("%6s\r\n" % "MODELDEF ECE_e8")
 file_id.write("%s\r\n" % "{")
 file_id.write("%6s\r\n" % "PORT electrical: A0;")
 file_id.write("%6s\r\n" % "PORT electrical: X0;")
@@ -712,7 +712,7 @@ file_id.write("%6s\r\n\n" % "INTERN  VM" "" "       VM_Erad  N1:=N_26, N2:=GND  
 file_id.write(
     "%6s\r\n"
     % (
-        "INTERN  NDSRC    PECER_Model1  N0:=GND,"
+        "INTERN  NDSRC    PECE_e8  N0:=GND,"
         " N1:=N_16, N2:=GND, N3:=N_17,"
         " N4:=GND, N5:=N_18, N6:=N_22, N7:=N_23 \ "
     )
@@ -721,7 +721,7 @@ file_id.write(
     "%6s\r\n" % " ( QUANT:={ AM0.I, AM1.I, AM2.I },"
     ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\ '
 )
-file_id.write("%6s" % ".MODEL ECER_Model1_table pwl TABLE=(")
+file_id.write("%6s" % ".MODEL ECE_e8_table pwl TABLE=(")
 file_id.write("%s%u%s" % (" ", d_values, ","))
 
 index = 0
@@ -772,5 +772,29 @@ file_id.close()
 # **Tools -> Project Tools -> Import Twin Builder Models**. Select the SML file and click **Open**.
 # Click **OK** in the **Import Components** window.
 #
-# A new project component **ECER_Model1** is added to **Component Libraries / Project Components**.
+# .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_1.png
+
+# %%
+# A new project component **ECE_e8** is added to **Component Libraries / Project Components**.
 # Drag the ECE component into the **Schematic Capture** window.
+#
+# .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_2.png
+
+# %%
+# Right-click on the ECE component and select **Edit Symbol -> Edit Pin Locations...** to open the
+# **Pin Location Editor** window. Rearrange the pins such that **A0**, **B0**, **C0** and **ROT2**
+# are on the left and **X0**, **Y0**, **Z0** and **ROT1** are on the right. Click **OK** to close
+# the window.
+#
+# .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_3.png
+
+# %%
+# To open the **Parameters** tab, double-click on the ECE component. The phase resistance (**ra0**)
+# (at the armature conductor temperature) and armature end winding inductance (**la0**) imported
+# from the Motor-CAD model.
+#
+# .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_4.png
+
+# %%
+# For more information on using the ECE component in Twin Builder, see the tutorial supplied with
+# Motor-CAD (**TwinBuilder_ECE_Tutorial**).
