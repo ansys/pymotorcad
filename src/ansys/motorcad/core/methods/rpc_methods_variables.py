@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
+from warnings import warn
 
 
 class _RpcMethodsVariables:
@@ -136,3 +137,18 @@ class _RpcMethodsVariables:
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
+
+    def get_file_name(self):
+        """Get current .mot file name and path.
+
+        Returns
+        -------
+        str
+            Current .mot file path and name
+        """
+        method = "GetMotorCADFileName"
+        if self.connection.send_and_receive(method) == "":
+            warn("No file has been loaded in this MotorCAD instance")
+            return None
+        else:
+            return self.connection.send_and_receive(method)

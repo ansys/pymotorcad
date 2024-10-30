@@ -1958,3 +1958,12 @@ def test_get_set_region_compatibility(mc, monkeypatch):
 
     with pytest.warns(UserWarning):
         mc.set_region(test_region)
+
+
+def test_region_material_assignment(mc):
+    rotor = mc.get_region("Rotor")
+    rotor.material = "M470-50A"
+
+    mc.set_region(rotor)
+
+    assert rotor == mc.get_region("Rotor")
