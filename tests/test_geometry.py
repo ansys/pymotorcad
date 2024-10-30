@@ -404,7 +404,6 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
-    test_region.linked_region = None
 
     assert test_region._to_json() == raw_region
 
