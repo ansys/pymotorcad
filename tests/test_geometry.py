@@ -418,8 +418,8 @@ def test_set_linked_region():
     region = generate_constant_region()
 
     region_linked = Region()
-    region_linked.name = 'linked_region_test'
-
+    region_linked.name = "linked_region_test"
+    # set linked region
     region.linked_region = region_linked
 
     assert region._linked_region.name == region_linked.name
