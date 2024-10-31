@@ -414,6 +414,26 @@ def test_region_is_closed():
     assert region.is_closed()
 
 
+def test_set_linked_region():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = 'linked_region_test'
+
+    region.linked_region = region_linked
+
+    assert region._linked_region.name == region_linked.name
+    assert region_linked._linked_region.name == region.name
+
+
+def test_set_singular_region():
+    region = generate_constant_region()
+    region.singular = True
+
+    assert region._singular is True
+    assert region.singular is True
+
+
 def test_region_contains_same_entities():
     region = generate_constant_region()
 
