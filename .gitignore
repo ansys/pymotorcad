@@ -187,5 +187,5 @@ doc/source/examples/gallery_examples/*
 /tests/test_files/base_test_file/*
 /tests/test_files/SaveLoadFiles/*
 /tests/test_files/SaveLoadFiles.mot
-/tests/test_files/adaptive_template_testing_lam_rotor_region/
-/tests/test_files/adaptive_template_testing_solid_rotor_region/
+/tests/test_files/adaptive_template_testing_lam_rotor_region/*
+/tests/test_files/adaptive_template_testing_solid_rotor_region/*
