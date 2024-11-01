@@ -1929,6 +1929,15 @@ def test_get_set_region_compatibility(mc, monkeypatch):
         mc.set_region(test_region)
 
 
+def test_region_material_assignment(mc):
+    rotor = mc.get_region("Rotor")
+    rotor.material = "M470-50A"
+
+    mc.set_region(rotor)
+
+    assert rotor == mc.get_region("Rotor")
+
+
 def test_set_lamination_type(mc):
     solid_rotor_section_file = (
         get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
