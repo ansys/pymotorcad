@@ -423,7 +423,7 @@ def test_set_linked_region():
     region.linked_region = region_linked
 
     assert region._linked_region.name == region_linked.name
-    assert region_linked._linked_region.name == region.name
+    assert region_linked.linked_region.name == region.name
 
 
 def test_set_singular_region():
