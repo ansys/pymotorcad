@@ -383,7 +383,7 @@ def test_region_to_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
-        "_lamination_type": "",
+        "lamination_type": "",
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
         "mesh_length": 0.035,
