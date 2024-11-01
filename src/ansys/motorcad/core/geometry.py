@@ -190,8 +190,8 @@ class Region(object):
         if "mesh_length" in json:
             new_region.mesh_length = json["mesh_length"]
 
-        if "_lamination_type" in json:
-            new_region._lamination_type = json["_lamination_type"]
+        if "lamination_type" in json:
+            new_region._lamination_type = json["lamination_type"]
 
         return new_region
 
