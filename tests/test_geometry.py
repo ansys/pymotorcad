@@ -354,6 +354,7 @@ def test_region_from_json():
         "child_names": ["Duct", "Duct_1"],
         "region type": "Adaptive Region",
         "mesh_length": 0.035,
+        "singular": False,
     }
 
     test_region = geometry.Region()
@@ -367,7 +368,8 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
-    test_region.mesh_length = 0.035
+    test_region.mesh_length = (0.035,)
+    test_region.singular = (False,)
 
     region = geometry.Region._from_json(raw_region)
 
@@ -387,6 +389,8 @@ def test_region_to_json():
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
         "mesh_length": 0.035,
+        "singular": True,
+        "on_boundary": False,
     }
 
     test_region = geometry.Region()
@@ -400,6 +404,7 @@ def test_region_to_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
+    test_region.singular = True
 
     assert test_region._to_json() == raw_region
 
@@ -408,6 +413,26 @@ def test_region_is_closed():
     region = generate_constant_region()
 
     assert region.is_closed()
+
+
+def test_set_linked_region():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_region = region_linked
+
+    assert region._linked_region.name == region_linked.name
+    assert region_linked.linked_region.name == region.name
+
+
+def test_set_singular_region():
+    region = generate_constant_region()
+    region.singular = True
+
+    assert region._singular is True
+    assert region.singular is True
 
 
 def test_region_contains_same_entities():
