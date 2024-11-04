@@ -93,7 +93,7 @@ def read_parameters(json_file):
 # %%
 # Specify the working directory. The Motor-CAD file and results are saved to a temporary folder.
 # Alternatively, you can set the working directory to an appropriate file location on your computer.
-working_folder = os.path.join(tempfile.gettempdir(), "twinbuilder_export")
+working_folder = os.path.join(tempfile.gettempdir(), "twinbuilder_ECE_export")
 try:
     shutil.rmtree(working_folder)
 except:
