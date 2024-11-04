@@ -867,14 +867,18 @@ class Entity(object):
                 raise Exception("Entity type is not Arc or Line")
         else:
             if isinstance(entity, Line):
-                points = entity.get_line_intersection(self)
+                points = self.get_line_intersection(entity)
             elif isinstance(entity, Arc):
                 points = self.get_arc_intersection(entity)
         if points:
             intersections = []
-            for point in points:
-                if self.coordinate_on_entity(point):
-                    intersections.append(point)
+            if type(points) == list:
+                for point in points:
+                    if self.coordinate_on_entity(point):
+                        intersections.append(point)
+            else:
+                if self.coordinate_on_entity(points):
+                    intersections.append(points)
             if intersections:
                 return intersections
             else:
@@ -1341,12 +1345,12 @@ class _BaseArc(Entity):
         # circle of self
         a1 = self.centre.x
         b1 = self.centre.y
-        r1 = self.radius
+        r1 = abs(self.radius)
 
         # circle of other arc
         a2 = arc.centre.x
         b2 = arc.centre.y
-        r2 = arc.radius
+        r2 = abs(arc.radius)
 
         d = sqrt((a2 - a1) ** 2 + (b2 - b1) ** 2)
 

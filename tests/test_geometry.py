@@ -1659,6 +1659,69 @@ def test_get_line_intersection():
     assert l1.get_line_intersection(l2) is None
 
 
+def test_get_intersection():
+    arc_1 = Arc(Coordinate(0, 0), Coordinate(5, 5), radius=15)
+    arc_2 = Arc(Coordinate(0, 6), Coordinate(5, 1), radius=-21)
+
+    # test get_intersection
+
+    # 2 arcs, 1 intersection
+    intersection_1_2 = arc_1.get_intersection(arc_2)
+    intersection_2_1 = arc_2.get_intersection(arc_1)
+    assert len(intersection_1_2) == 1
+    assert len(intersection_2_1) == 1
+    assert intersection_1_2[0] == intersection_2_1[0]
+    assert arc_1.coordinate_on_entity(intersection_1_2[0])
+    assert arc_2.coordinate_on_entity(intersection_1_2[0])
+    # draw_objects_debug([arc_1, arc_2, intersection_1_2[0]])
+
+    # 2 arcs, 2 intersections
+    arc_3 = Arc(Coordinate(1, 0), Coordinate(5, 4), radius=-5)
+    intersection_1_3 = arc_1.get_arc_intersection(arc_3)
+    intersection_3_1 = arc_3.get_arc_intersection(arc_1)
+    assert len(intersection_1_3) == 2
+    assert len(intersection_3_1) == 2
+    for point in intersection_1_3:
+        assert arc_1.coordinate_on_entity(point)
+        assert arc_3.coordinate_on_entity(point)
+        assert point in intersection_3_1
+    # draw_objects_debug([arc_1, arc_3, intersection_1_3[0], intersection_1_3[1]])
+
+    # 1 arc, 1 line, 1 intersection
+    line_4 = Line(Coordinate(0, 6), Coordinate(5, 1))
+    intersection_1_4 = arc_1.get_intersection(line_4)
+    intersection_4_1 = line_4.get_intersection(arc_1)
+    assert len(intersection_1_4) == 1
+    assert len(intersection_4_1) == 1
+    assert intersection_1_4[0] == intersection_4_1[0]
+    assert arc_1.coordinate_on_entity(intersection_1_4[0])
+    assert line_4.coordinate_on_entity(intersection_1_4[0])
+    # draw_objects_debug([arc_1, line_4, intersection_1_4[0]])
+
+    # 1 arc, 1 line, 2 intersections
+    line_5 = Line(Coordinate(1, 0), Coordinate(5, 4))
+    arc_6 = Arc(Coordinate(0, 0), Coordinate(5, 5), radius=8)
+    intersection_5_6 = line_5.get_intersection(arc_6)
+    intersection_6_5 = arc_6.get_intersection(line_5)
+    assert len(intersection_5_6) == 2
+    assert len(intersection_6_5) == 2
+    for point in intersection_5_6:
+        assert line_5.coordinate_on_entity(point)
+        assert arc_6.coordinate_on_entity(point)
+        assert point in intersection_6_5
+    # draw_objects_debug([arc_6, line_5, intersection_5_6[0], intersection_5_6[1]])
+
+    # 2 lines, 1 intersection
+    intersection_4_5 = line_4.get_intersection(line_5)
+    intersection_5_4 = line_5.get_intersection(line_4)
+    assert len(intersection_4_5) == 1
+    assert len(intersection_5_4) == 1
+    assert intersection_4_5[0] == intersection_5_4[0]
+    assert line_4.coordinate_on_entity(intersection_4_5[0])
+    assert line_5.coordinate_on_entity(intersection_4_5[0])
+    # draw_objects_debug([line_4, line_5, intersection_4_5[0]])
+
+
 def test_arc_from_coordinates():
     c1 = Coordinate(1, 0)
     c2 = Coordinate(sin(pi / 4), sin(pi / 4))
