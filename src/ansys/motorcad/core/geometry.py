@@ -551,9 +551,9 @@ class Region(object):
         Parameters
         ----------
         corner_coordinate : ansys.motorcad.core.geometry.Coordinate
-            Coordinate of the corner to be rounded.
+            Coordinate of the corner to round.
         radius : float
-            Radius by which the corner will be rounded.
+            Radius to round the corner by.
         """
         # If radius is 0, do nothing
         if radius == 0:
