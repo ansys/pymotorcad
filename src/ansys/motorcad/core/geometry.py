@@ -667,7 +667,7 @@ class Region(object):
         Parameters
         ----------
         corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
-            List of coordinates of the corners to be rounded.
+            List of coordinates of the corners to round.
         radius : float
             Radius to round the corners by.
         """
