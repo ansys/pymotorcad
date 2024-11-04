@@ -559,10 +559,9 @@ class Region(object):
         if radius == 0:
             return
 
-        # find adjacent entities. There should be 2 entities adjacent to the corner. Going
+        # Find adjacent entities. There should be 2 entities adjacent to the corner. Going
         # anti-clockwise around the region, the entities before and after the corner will be
         # adj_entity[0] and adj_entity[1] respectively.
-        # the entity
         adj_entities = []
         adj_entity_indices = []
         for index in range(len(self.entities)):
