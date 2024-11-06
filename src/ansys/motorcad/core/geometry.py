@@ -49,6 +49,7 @@ class Region(object):
         self.mesh_length = 0
         self._linked_region = None
         self._singular = False
+        self._lamination_type = ""
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
@@ -194,6 +195,9 @@ class Region(object):
         if "singular" in json:
             new_region._singular = json["singular"]
 
+        if "lamination_type" in json:
+            new_region._lamination_type = json["lamination_type"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -219,6 +223,7 @@ class Region(object):
             "mesh_length": self.mesh_length,
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
+            "lamination_type": self._lamination_type,
         }
 
         return region_dict
@@ -339,6 +344,25 @@ class Region(object):
     @parent.setter
     def parent(self, region):
         self._parent_name = region.name
+
+    @property
+    def lamination_type(self):
+        """Return lamination type of region from Motor-CAD.
+
+        Returns
+        -------
+            string
+        """
+        return self._lamination_type
+
+    @lamination_type.setter
+    def lamination_type(self, lamination_type):
+        if self.region_type == RegionType.adaptive:
+            self._lamination_type = lamination_type
+        else:
+            raise Exception(
+                "It is currently only possible to set lamination type for adaptive regions"
+            )
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
