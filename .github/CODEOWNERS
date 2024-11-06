@@ -1,7 +1,1 @@
 * @jgsdavies @ravi-ansys @JackB-Ansys @MatthewAnsys @james-packer
-
-# Geometry
-/doc/source/methods/geometry_functions.rst @MatthewAnsys @jgsdavies
-/src/ansys/motorcad/core/geometry.py @MatthewAnsys @jgsdavies
-/tests/test_geometry.py @MatthewAnsys @jgsdavies
-/src/ansys/motorcad/core/methods/rpc_methods_geometry.py @MatthewAnsys @jgsdavies
