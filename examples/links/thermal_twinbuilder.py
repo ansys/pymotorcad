@@ -102,7 +102,7 @@ import ansys.motorcad.core as pymotorcad
 # 3. The cooling system nodes and flow path are identified and saved to the ``CoolingSystems.csv``
 #    file
 # 4. For each desired speed, the thermal model is solved and thermal matrices exported and saved to
-#    the ``dpx`` folders
+#    the ``dpxxx`` folders
 # 5. The distribution of the losses onto the individual nodes is determined and saved to the
 #    ``LossDistribution.csv`` file
 # 6. Natural convection cooling of the Housing is characterized and saved to the
@@ -535,7 +535,7 @@ class MotorCADTwinModel:
 
         for index, rpm in enumerate(rpmSamples):
             print("DoE : computing sample point rpm = " + str(rpm))
-            exportDirectory = os.path.join(self.outputDirectory, "dp" + str(index))
+            exportDirectory = os.path.join(self.outputDirectory, "dp" + str(index).zfill(3))
             self.computeMatrices(exportDirectory, rpm=rpm)
 
         # write doe file
@@ -548,7 +548,7 @@ class MotorCADTwinModel:
                 cf.write(", " + str(parameterName))
             cf.write("\n")
             for i in range(0, nbDPs):
-                cf.write("dp" + str(i))
+                cf.write("dp" + str(i).zfill(3))
                 for j in range(0, len(parameterNames)):
                     cf.write(", " + str(parameterValues[j][i]))
                 cf.write("\n")
