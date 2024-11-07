@@ -82,21 +82,13 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
-        """Save transient power results to a text file.
-
-        Text file separator defined using the
-        ``"ExportTextSeparator"`` parameter (default is semicolon).
-        """
+        """Save transient power results to a CSV file."""
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
-        """Save transient temperature results to a text file.
-
-        Text file separator defined using the
-        ``"ExportTextSeparator"`` parameter (default is semicolon).
-        """
+        """Save transient temperature results to a CSV file."""
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
