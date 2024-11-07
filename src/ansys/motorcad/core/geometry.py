@@ -209,6 +209,11 @@ class Region(object):
         dict
             Geometry region json representation
         """
+        if self._region_type == RegionType.adaptive:
+            lamination_type = self.lamination_type
+        else:
+            lamination_type = ""
+
         region_dict = {
             "name": self.name,
             "material": self.material,
@@ -223,7 +228,7 @@ class Region(object):
             "mesh_length": self.mesh_length,
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
-            "lamination_type": self._lamination_type,
+            "lamination_type": lamination_type,
         }
 
         return region_dict
