@@ -111,12 +111,15 @@ def test_get_heatflow_graph(mc):
     mc.set_variable("TransientCalculationType", 0)
     mc.do_transient_analysis()
 
-    x, y = mc.get_heatflow_graph("Housing OH [Rear] to Ambient")
+    x, y = mc.get_heatflow_graph("TVent Airgap to Rotor Surface")
+    # This should be the same grap series
     x1, y1 = mc.get_heatflow_graph(400524)
 
-    assert len(x) == len(y) == 9
+    assert len(x) == len(y) == 11
     assert len(x1) == len(y1) == 11
-    assert almost_equal(y1[3], 12.45)
+    assert almost_equal(y1[3], y[3])
+    # Expect heat flow to increase with time for this model
+    assert y[4] > y[3]
 
 
 def test_get_fea_graph(mc):
