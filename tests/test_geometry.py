@@ -385,6 +385,7 @@ def test_region_to_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
+        "lamination_type": "",
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
         "mesh_length": 0.035,
@@ -2066,3 +2067,49 @@ def test_region_material_assignment(mc):
     mc.set_region(rotor)
 
     assert rotor == mc.get_region("Rotor")
+
+
+def test_set_lamination_type(mc):
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Laminated"
+
+    rotor._region_type = RegionType.adaptive
+    # We don't get lamination type for normal regions yet
+    rotor.lamination_type = "Solid"
+    mc.set_region(rotor)
+
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Solid"
+
+    solid_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    )
+    lam_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    )
+
+    solid_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+    lam_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+
+    # load file into Motor-CAD
+    mc.load_from_file(solid_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(solid_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is solid
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res != 0
+
+    mc.load_from_file(lam_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(lam_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is laminated
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res == 0
+
+    reset_to_default_file(mc)
