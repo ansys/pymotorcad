@@ -46,8 +46,10 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
-
-        # expect other properties to be implemented here including number duplications, material etc
+        self.mesh_length = 0
+        self._linked_region = None
+        self._singular = False
+        self._lamination_type = ""
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
@@ -187,6 +189,15 @@ class Region(object):
         new_region.parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
+        if "mesh_length" in json:
+            new_region.mesh_length = json["mesh_length"]
+
+        if "singular" in json:
+            new_region._singular = json["singular"]
+
+        if "lamination_type" in json:
+            new_region._lamination_type = json["lamination_type"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -198,6 +209,11 @@ class Region(object):
         dict
             Geometry region json representation
         """
+        if self._region_type == RegionType.adaptive:
+            lamination_type = self.lamination_type
+        else:
+            lamination_type = ""
+
         region_dict = {
             "name": self.name,
             "material": self.material,
@@ -209,6 +225,10 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self.parent_name,
             "region_type": self._region_type.value,
+            "mesh_length": self.mesh_length,
+            "on_boundary": False if self._linked_region is None else True,
+            "singular": self._singular,
+            "lamination_type": lamination_type,
         }
 
         return region_dict
@@ -249,6 +269,25 @@ class Region(object):
     @parent_name.setter
     def parent_name(self, name):
         self._parent_name = name
+
+    @property
+    def linked_region(self):
+        """Get linked duplication/unite region."""
+        return self._linked_region
+
+    @linked_region.setter
+    def linked_region(self, region):
+        self._linked_region = region
+        region._linked_region = self
+
+    @property
+    def singular(self):
+        """Get linked duplication/unite region."""
+        return self._singular
+
+    @singular.setter
+    def singular(self, singular):
+        self._singular = singular
 
     @property
     def child_names(self):
@@ -310,6 +349,25 @@ class Region(object):
     @parent.setter
     def parent(self, region):
         self._parent_name = region.name
+
+    @property
+    def lamination_type(self):
+        """Return lamination type of region from Motor-CAD.
+
+        Returns
+        -------
+            string
+        """
+        return self._lamination_type
+
+    @lamination_type.setter
+    def lamination_type(self, lamination_type):
+        if self.region_type == RegionType.adaptive:
+            self._lamination_type = lamination_type
+        else:
+            raise Exception(
+                "It is currently only possible to set lamination type for adaptive regions"
+            )
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.

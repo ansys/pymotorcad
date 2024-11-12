@@ -102,7 +102,7 @@ import ansys.motorcad.core as pymotorcad
 # 3. The cooling system nodes and flow path are identified and saved to the ``CoolingSystems.csv``
 #    file
 # 4. For each desired speed, the thermal model is solved and thermal matrices exported and saved to
-#    the ``dpx`` folders
+#    the ``dpxxxxxx`` folders
 # 5. The distribution of the losses onto the individual nodes is determined and saved to the
 #    ``LossDistribution.csv`` file
 # 6. Natural convection cooling of the Housing is characterized and saved to the
@@ -354,6 +354,23 @@ class MotorCADTwinModel:
         ## TB model will not include this logic
         self.mcad.set_variable("BearingLossSource", 0)
 
+        # 9 Workaround for models created in Motor-CAD 2025R1 - ensure the old fluid heat flow
+        # method is used
+        try:
+            heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
+            if heatFlowMethod == 1:
+                # Revert model to use the old fluid heat flow method
+                warnings.warn(
+                    "The Improved Fluid Heat Flow Method setting in this .mot file is incompatible "
+                    + "with the Twin Builder Thermal ROM. The setting has been changed from "
+                    + "Improved to Original."
+                )
+                self.mcad.set_variable("FluidHeatFlowMethod", 0)
+        except:
+            # variable does not exist due to using older version of Motor-CAD
+            # no need to perform any action
+            pass
+
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
@@ -423,12 +440,10 @@ class MotorCADTwinModel:
                 connectedNodes = self.returnConnectedNodes(
                     node, self.nodeNumbers_fluid, resistanceMatrix
                 )
-                if len(connectedNodes) > 0:
-                    # non isolated node
-                    if node not in graphNodes:
-                        graphNodes.append(node)
-                    for connectedNode in connectedNodes:
-                        graphEdges.append([node, connectedNode])
+                if node not in graphNodes:
+                    graphNodes.append(node)
+                for connectedNode in connectedNodes:
+                    graphEdges.append([node, connectedNode])
 
             G = nx.DiGraph()
             G.add_nodes_from(graphNodes)
@@ -520,7 +535,7 @@ class MotorCADTwinModel:
 
         for index, rpm in enumerate(rpmSamples):
             print("DoE : computing sample point rpm = " + str(rpm))
-            exportDirectory = os.path.join(self.outputDirectory, "dp" + str(index))
+            exportDirectory = os.path.join(self.outputDirectory, "dp" + str(index).zfill(6))
             self.computeMatrices(exportDirectory, rpm=rpm)
 
         # write doe file
@@ -533,7 +548,7 @@ class MotorCADTwinModel:
                 cf.write(", " + str(parameterName))
             cf.write("\n")
             for i in range(0, nbDPs):
-                cf.write("dp" + str(i))
+                cf.write("dp" + str(i).zfill(6))
                 for j in range(0, len(parameterNames)):
                     cf.write(", " + str(parameterValues[j][i]))
                 cf.write("\n")
@@ -558,7 +573,7 @@ class MotorCADTwinModel:
                 + self.lossNames[lossIndex]
             )
 
-            exportDirectory = os.path.join(self.outputDirectory, "dpDis" + str(lossIndex))
+            exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis" + str(lossIndex))
 
             lossVector = np.zeros(numLossParameters)
             lossVector[lossIndex] = inputLoss
@@ -796,7 +811,7 @@ def temperaturesHousingAmbient():
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
-outputDir = os.path.join(working_folder, "thermal_twinbuilder", mcad_name + "_TwinOutput")
+outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
 # %%
 # Create the e8 input file if it does not exist already
