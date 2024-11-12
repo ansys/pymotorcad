@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """RPC methods for UI."""
 from packaging import version
 
@@ -118,12 +140,12 @@ class _RpcMethodsUI:
         ----------
         screen_name : str
             Name of the screen.
-        file_name : str
+        file_name : string or pathlib.Path
             Full path for the image file, including the file name and file extension. The
             extensions supported are BMP, JPG, and PNG.
         """
         method = "SaveScreenToFile"
-        params = [screen_name, file_name]
+        params = [screen_name, str(file_name)]
         return self.connection.send_and_receive(method, params)
 
     def set_3d_component_visibility(self, group_name, component_name, visibility):
@@ -144,4 +166,11 @@ class _RpcMethodsUI:
         """
         method = "Set3DComponentVisibility"
         params = [group_name, component_name, visibility]
+        return self.connection.send_and_receive(method, params)
+
+    def clear_messages(self):
+        """Clear messages in the message display window."""
+        self.connection.ensure_version_at_least("2024.2")
+        method = "ClearMessages"
+        params = []
         return self.connection.send_and_receive(method, params)

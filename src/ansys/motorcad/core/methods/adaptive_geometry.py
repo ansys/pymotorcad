@@ -1,5 +1,30 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Methods for adaptive geometry."""
-from ansys.motorcad.core.geometry import Region
+from warnings import warn
+
+from ansys.motorcad.core.geometry import Region, RegionMagnet
+from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -49,7 +74,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         Returns
         -------
-        ansys.motorcad.core.geometry.Region
+        ansys.motorcad.core.geometry.Region or ansys.motorcad.core.geometry.RegionMagnet
             Motor-CAD region object.
 
         """
@@ -58,8 +83,31 @@ class _RpcMethodsAdaptiveGeometry:
         params = [name]
         raw_region = self.connection.send_and_receive(method, params)
 
-        region = Region(motorcad_instance=self)
-        region._from_json(raw_region)
+        region = Region._from_json(raw_region, motorcad_instance=self)
+
+        return region
+
+    def get_region_dxf(self, name):
+        """Get Motor-CAD dxf geometry region.
+
+        Parameters
+        ----------
+        name : string
+            Name of the region.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region or ansys.motorcad.core.geometry.RegionMagnet
+            Motor-CAD region object.
+
+        """
+        self.connection.ensure_version_at_least("2024.2.0")
+        method = "GetRegion_DXF"
+        params = [name]
+        raw_region = self.connection.send_and_receive(method, params)
+
+        region = Region._from_json(raw_region)
+        region.motorcad_instance = self
 
         return region
 
@@ -72,6 +120,17 @@ class _RpcMethodsAdaptiveGeometry:
             Motor-CAD region object.
         """
         self.connection.ensure_version_at_least("2024.0")
+
+        if isinstance(region, RegionMagnet):
+            if (region._br_multiplier != 0.0) or (region._magnet_angle != 0.0):
+                # User has changed magnet properties that do not exist in older Motor-CAD API
+                if not self.connection.check_version_at_least("2024.2"):
+                    warn("Setting magnet properties is only available in Motor-CAD 2024R2 or later")
+
+        if region.mesh_length != 0:
+            if not self.connection.check_version_at_least("2025"):
+                warn("Setting region mesh length is only available in Motor-CAD 2025R1 or later")
+
         raw_region = region._to_json()
 
         method = "SetRegion"
@@ -102,7 +161,7 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
         raw_region = region._to_json()
-        raw_regions = [region_to_Check._to_json() for region_to_Check in regions_to_check]
+        raw_regions = [region_to_check._to_json() for region_to_check in regions_to_check]
 
         method = "Check_Collisions"
         params = [raw_region, raw_regions]
@@ -112,8 +171,7 @@ class _RpcMethodsAdaptiveGeometry:
         collision_regions = []
 
         for raw_collision_region in raw_collision_regions:
-            collision_region = Region(motorcad_instance=self)
-            collision_region._from_json(raw_collision_region)
+            collision_region = Region._from_json(raw_collision_region, motorcad_instance=self)
             collision_regions.append(collision_region)
 
         return collision_regions
@@ -136,12 +194,12 @@ class _RpcMethodsAdaptiveGeometry:
 
         Parameters
         ----------
-        filepath : string
+        filepath : string or pathlib.Path
             full file path of script
         """
         self.connection.ensure_version_at_least("2024.0")
         method = "LoadAdaptiveScript"
-        params = [filepath]
+        params = [str(filepath)]
         return self.connection.send_and_receive(method, params)
 
     def unite_regions(self, region, regions):
@@ -169,8 +227,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region, raw_regions]
         united_raw = self.connection.send_and_receive(method, params)
 
-        region = Region(motorcad_instance=self)
-        region._from_json(united_raw)
+        region = Region._from_json(united_raw, motorcad_instance=self)
 
         return region
 
@@ -220,8 +277,14 @@ class _RpcMethodsAdaptiveGeometry:
 
         regions = []
         for subtracted_raw in subtracted_raw_regions:
-            returned_region = Region(motorcad_instance=self)
-            returned_region._from_json(subtracted_raw)
+            returned_region = Region._from_json(subtracted_raw, motorcad_instance=self)
             regions.append(returned_region)
 
         return regions
+
+    def reset_adaptive_geometry(self):
+        """Reset geometry to default."""
+        method = "ResetGeometry"
+        # No need to do this if running internally
+        if not is_running_in_internal_scripting():
+            return self.connection.send_and_receive(method)

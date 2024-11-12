@@ -1,5 +1,26 @@
-"""Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
+"""Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 from os import environ, path
 import re
 import socket
@@ -38,6 +59,11 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 DONT_CHECK_MOTORCAD_VERSION = False
 
 
+def is_running_in_internal_scripting():
+    """Whether the script is running internally in Motor-CAD."""
+    return DEFAULT_INSTANCE != -1
+
+
 def set_server_ip(ip):
     """IP address of the machine that Motor-CAD is running on."""
     global SERVER_IP
@@ -45,7 +71,10 @@ def set_server_ip(ip):
 
 
 def set_default_instance(port):
-    """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD."""
+    """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD.
+
+    For Motor-CAD internal use only. Do not use this function.
+    """
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
@@ -149,6 +178,7 @@ class _MotorCADConnection:
         enable_exceptions,
         enable_success_variable,
         reuse_parallel_instances,
+        keep_instance_open,
         url="",
         timeout=2,
         compatibility_mode=False,
@@ -168,6 +198,8 @@ class _MotorCADConnection:
         reuse_parallel_instances: Boolean
             Whether to reuse MotorCAD instances when running in parallel. You must free
             instances after use.
+        keep_instance_open : Boolean, default: False
+            Whether to keep the Motor-CAD instance open after the instance becomes free.
         compatibility_mode: Boolean, default: False
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
@@ -185,6 +217,8 @@ class _MotorCADConnection:
 
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
+
+        self.keep_instance_open = keep_instance_open
 
         self._open_new_instance = open_new_instance
 
@@ -219,7 +253,7 @@ class _MotorCADConnection:
 
         if (SERVER_IP == LOCALHOST_ADDRESS) and TRY_RESOLVE_LOCALHOST:
             # Try to resolve localhost at same time as checking for connection
-            # to decrease connection times
+            # to decrease connection _start_times
             self._connected = self._try_resolve_wait_for_response(self._timeout)
         else:
             # Check for response
@@ -299,7 +333,15 @@ class _MotorCADConnection:
             and (self._compatibility_mode is False)
         ):
             # Local Motor-CAD has been launched by Python
-            return True
+            if self.keep_instance_open:
+                if "PYMOTORCAD_DOCS_BUILD" in environ:
+                    # Building PyMotorCAD docs so don't keep open
+                    return True
+                else:
+                    return False
+            else:
+                return True
+                # keep the instance open if specified
         elif _HAS_PIM and pypim.is_configured():
             # Always try to close Ansys Lab instance
             return True
@@ -411,12 +453,18 @@ class _MotorCADConnection:
                 )
 
     def ensure_version_at_least(self, required_version):
-        """Check that the Motor-CAD version is later or equal to required version."""
-        if DONT_CHECK_MOTORCAD_VERSION is False:
-            if version.parse(self.program_version) < version.parse(required_version):
-                raise MotorCADError(
-                    "This function requires Motor-CAD version: " + required_version + " or later"
-                )
+        """Ensure if the Motor-CAD version is later or equal to required version."""
+        if not self.check_version_at_least(required_version):
+            raise MotorCADError(
+                "This function requires Motor-CAD version: " + required_version + " or later"
+            )
+
+    def check_version_at_least(self, required_version):
+        """Check if the Motor-CAD version is later or equal to required version."""
+        if DONT_CHECK_MOTORCAD_VERSION:
+            return True
+        else:
+            return version.parse(self.program_version) >= version.parse(required_version)
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0

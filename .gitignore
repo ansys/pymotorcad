@@ -159,4 +159,33 @@ _autosummary/
 #vscode
 .vscode
 
+#docs
 doc/source/examples/gallery_examples/*
+/doc/source/methods/_autogen_*
+**/sg_execution_times.rst
+/doc/source/methods/_autosummary_*
+/doc/source/examples/
+
+# examples
+/examples/basics/ActiveX_Scripting_EMagnetic/*
+/examples/basics/e8_mobility/*
+/examples/ActiveX_Scripting_EMagnetic.mot
+/examples/basics/e8_mobility.mot
+/examples/links/e8_mobility.mot
+/examples/links/e8_mobility/*
+/examples/Export_EMag_Results.csv
+/examples/basics/MotorCAD_Thermal_Python/*
+/examples/Maximum Torque VS Speed Curve.png
+/examples/MotorCAD_Thermal_Python.mot
+/examples/internal_scripting/temp_example_file.py
+
+# tests
+/tests/test_files/SRM_test_file/*
+/tests/test_files/IM_test_file/*
+/tests/test_files/temp_files/*
+/tests/test_files/external_circuit.ecf
+/tests/test_files/base_test_file/*
+/tests/test_files/SaveLoadFiles/*
+/tests/test_files/SaveLoadFiles.mot
+/tests/test_files/adaptive_template_testing_lam_rotor_region/*
+/tests/test_files/adaptive_template_testing_solid_rotor_region/*

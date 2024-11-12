@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """RPC methods (general)."""
 
 
@@ -112,11 +134,12 @@ class _RpcMethodsGeneral:
         Parameters
         ----------
         solution_type : str
-            Type of the solution. Options are ``'SteadyState'``, ``'Transient'``,
-            ``'EMagnetic'``, and ``'Lab'``.
+            Type of the solution. Options are ``'EMagnetic'`` (E-Magnetic Solution),
+            ``'Lab'`` (Lab Operating Point Solution), ``'SteadyState'`` (Steady State
+            Thermal Solution), and ``'Transient'`` (Transient Thermal Solution).
         file_path : str
-            Absolute filepath for the CSV file. The default is the Windows
-            directory on the C: drive. The filepath must include the name
+            Absolute path for the CSV file. The default is the Windows
+            directory on the C: drive. The file path must include the name
             of the file, with a CSV extension. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
@@ -349,6 +372,8 @@ class _RpcMethodsGeneral:
             syntax to force Python to ignore special characters.
         """
         method = "SaveToFile"
+        if not isinstance(mot_file, str):
+            mot_file = str(mot_file)
         params = [mot_file]
         return self.connection.send_and_receive(method, params)
 
@@ -421,13 +446,13 @@ class _RpcMethodsGeneral:
 
         Returns
         -------
-        list
-            List of messages. The most recent message is first. A
-            semicolon (;) separates the messages in the list.
+        List
+            List of messages.
         """
         method = "GetMessages"
         params = [num_messages]
-        return self.connection.send_and_receive(method, params)
+        messages = self.connection.send_and_receive(method, params)
+        return messages.split(";")
 
     def get_licence(self):
         """Check if a license is available for the current context and machine type.

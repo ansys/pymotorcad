@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Module containing the ``MotorCAD`` class for connecting to the Motor-CAD exe."""
 
 from warnings import warn
@@ -17,6 +39,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
         url="",
         timeout=2,
     ):
@@ -26,6 +49,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             enable_exceptions,
             enable_success_variable,
             reuse_parallel_instances,
+            keep_instance_open,
             url=url,
             timeout=timeout,
         )
@@ -48,8 +72,10 @@ class MotorCAD(_MotorCADCore):
     enable_success_variable : Boolean, default: False
         Whether Motor-CAD methods return a success variable (first object in tuple).
     reuse_parallel_instances : Boolean, default: False
-        Whether to reuse MotorCAD instances when running in parallel. You must
+        Whether to reuse Motor-CAD instances when running in parallel. You must
         free instances after use.
+    keep_instance_open : Boolean, default: False
+        Whether to keep the Motor-CAD instance open after the instance becomes free.
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
     Returns
@@ -64,6 +90,7 @@ class MotorCAD(_MotorCADCore):
         enable_exceptions=True,
         enable_success_variable=False,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
         url="",
     ):
         """Initiate MotorCAD object."""
@@ -74,6 +101,7 @@ class MotorCAD(_MotorCADCore):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            keep_instance_open=keep_instance_open,
             url=url,
         )
 
@@ -98,6 +126,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
         enable_exceptions=False,
         enable_success_variable=True,
         reuse_parallel_instances=False,
+        keep_instance_open=False,
     ):
         """Create MotorCADCompatibility object."""
         self.connection = _MotorCADConnection(
@@ -106,6 +135,7 @@ class MotorCADCompatibility(_RpcMethodsCoreOld):
             enable_exceptions=enable_exceptions,
             enable_success_variable=enable_success_variable,
             reuse_parallel_instances=reuse_parallel_instances,
+            keep_instance_open=keep_instance_open,
             compatibility_mode=True,
         )
 

@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys code style checks
-        uses: ansys/actions/code-style@v5
+        uses: ansys/actions/code-style@v8
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys documentation style checks
-        uses: ansys/actions/doc-style@v5
+        uses: ansys/actions/doc-style@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11'] 
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v5
+        uses: ansys/actions/build-wheelhouse@v8
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           library-namespace: ${{ env.LIBRARY_NAMESPACE }}
@@ -62,17 +62,12 @@ jobs:
   tests:
     name: Tests and coverage
     needs: smoke-tests
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, tests]
     steps:
-      - name: Ensure Motor-CAD not open
-        run: |
-          taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
-          taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
-
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           
@@ -84,24 +79,19 @@ jobs:
         # Only the tox environment specified in the tox.ini gh-actions is run
         run: tox -e py310-coverage  
         
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
 
 
   doc-build:
     name: "Building library documentation"
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, docs]
     needs: doc-style
     steps:
-      - name: Ensure Motor-CAD not open
-        run: |
-          taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
-          taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
-
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -126,10 +116,12 @@ jobs:
     needs: package
     steps:
       - name: "Deploy development documentation"
-        uses: ansys/actions/doc-deploy-dev@v5
+        uses: ansys/actions/doc-deploy-dev@v8
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
   
   doc-deploy-stable:
     name: Doc stable version deploy
@@ -138,11 +130,12 @@ jobs:
     needs: release
     steps:
       - name: "Deploy stable documentation"
-        uses: ansys/actions/doc-deploy-stable@v5
+        uses: ansys/actions/doc-deploy-stable@v8
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
 
   package:
     name: Package library
@@ -150,7 +143,7 @@ jobs:
     needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@v5
+        uses: ansys/actions/build-library@v8
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -162,7 +155,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to PyPI repository
-        uses: ansys/actions/release-pypi-public@v5
+        uses: ansys/actions/release-pypi-public@v8
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           twine-username: __token__
@@ -175,7 +168,7 @@ jobs:
         run: ls -R
 
       - name: "Release to GitHub"
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             ./**/*.whl

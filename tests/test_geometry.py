@@ -1,18 +1,49 @@
+# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import builtins
 from copy import deepcopy
 import math
-from math import cos, degrees, inf, isclose, radians, sin, sqrt
+from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path
+from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCADError, geometry
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy
-from setup_test import reset_to_default_file, setup_test_env
-
-# Get Motor-CAD exe
-mc = setup_test_env()
+from ansys.motorcad.core.geometry import (
+    GEOM_TOLERANCE,
+    Arc,
+    Coordinate,
+    Line,
+    Region,
+    RegionMagnet,
+    RegionType,
+    _Orientation,
+    _orientation_of_three_points,
+    rt_to_xy,
+)
+import ansys.motorcad.core.rpc_client_core as rpc_client_core
+from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
 def generate_constant_region():
@@ -77,7 +108,7 @@ def create_lines_from_points(points):
     return lines
 
 
-def test_set_get_winding_coil():
+def test_set_get_winding_coil(mc):
     phase = 1
     path = 1
     coil = 1
@@ -107,7 +138,7 @@ def test_set_get_winding_coil():
     assert turns == turns_test
 
 
-def test_check_if_geometry_is_valid():
+def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
     mc.check_if_geometry_is_valid(0)
 
@@ -123,7 +154,7 @@ def test_check_if_geometry_is_valid():
     mc.set_variable("Slot_Depth", save_slot_depth)
 
 
-def test_set_adaptive_parameter_value():
+def test_set_adaptive_parameter_value(mc):
     parameter_name = "test_parameter"
     parameter_value = 100
 
@@ -138,26 +169,26 @@ def test_set_adaptive_parameter_value():
     assert mc.get_array_variable("AdaptiveTemplates_Parameters_Value", 0) == parameter_value
 
 
-def test_set_adaptive_parameter_value_incorrect_type():
+def test_set_adaptive_parameter_value_incorrect_type(mc):
     with pytest.raises(MotorCADError):
         mc.set_adaptive_parameter_value("incorrect_type", "test_string")
 
 
-def test_get_adaptive_parameter_value():
+def test_get_adaptive_parameter_value(mc):
     mc.set_adaptive_parameter_value("test_parameter_1", 100)
 
     value = mc.get_adaptive_parameter_value("test_parameter_1")
     assert value == 100
 
 
-def test_get_adaptive_parameter_value_does_not_exist():
+def test_get_adaptive_parameter_value_does_not_exist(mc):
     with pytest.raises(Exception) as e_info:
         mc.get_adaptive_parameter_value("testing_parameter")
 
     assert "No adaptive parameter found with name" in str(e_info.value)
 
 
-def test_get_region():
+def test_get_region(mc):
     expected_region = generate_constant_region()
     mc.set_region(expected_region)
 
@@ -170,14 +201,46 @@ def test_get_region():
     assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
 
 
-def test_set_region():
+def test_get_region_dxf(mc):
+    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    expected_region = geometry.Region()
+    expected_region.name = "DXFRegion_Rotor"
+    expected_region.colour = (192, 192, 192)
+    expected_region.duplications = 8
+    expected_region.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(27.5, 0),
+            geometry.Coordinate(19.4454364826301, 19.4454364826301),
+            geometry.Coordinate(0, 0),
+            27.5,
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(
+            geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0)
+        )
+    )
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
+    )
+
+    region = mc.get_region_dxf("DXFRegion_Rotor")
+    assert region == expected_region
+
+    with pytest.raises(Exception) as e_info:
+        mc.get_region_dxf("Hello_World")
+
+    assert ("region" in str(e_info.value)) and ("name" in str(e_info.value))
+
+
+def test_set_region(mc):
     region = generate_constant_region()
     mc.set_region(region)
     returned_region = mc.get_region("testing_region")
     assert returned_region == region
 
 
-def test_load_adaptive_script():
+def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
     # load file into Motor-CAD
@@ -191,7 +254,7 @@ def test_load_adaptive_script():
     assert num_lines == num_lines_file
 
 
-def test_save_adaptive_script():
+def test_save_adaptive_script(mc):
     """Test save adaptive template script from Motor-CAD to specified file path."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
     mc.load_adaptive_script(filepath)
@@ -288,6 +351,9 @@ def test_region_from_json():
         "entities": [],
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
+        "region type": "Adaptive Region",
+        "mesh_length": 0.035,
+        "singular": False,
     }
 
     test_region = geometry.Region()
@@ -301,9 +367,10 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
+    test_region.mesh_length = (0.035,)
+    test_region.singular = (False,)
 
-    region = geometry.Region()
-    region._from_json(raw_region)
+    region = geometry.Region._from_json(raw_region)
 
     assert region == test_region
 
@@ -318,7 +385,12 @@ def test_region_to_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
+        "lamination_type": "",
         "parent_name": "Insulation",
+        "region_type": "Adaptive Region",
+        "mesh_length": 0.035,
+        "singular": True,
+        "on_boundary": False,
     }
 
     test_region = geometry.Region()
@@ -331,6 +403,8 @@ def test_region_to_json():
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
+    test_region.mesh_length = 0.035
+    test_region.singular = True
 
     assert test_region._to_json() == raw_region
 
@@ -339,6 +413,26 @@ def test_region_is_closed():
     region = generate_constant_region()
 
     assert region.is_closed()
+
+
+def test_set_linked_region():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_region = region_linked
+
+    assert region._linked_region.name == region_linked.name
+    assert region_linked.linked_region.name == region.name
+
+
+def test_set_singular_region():
+    region = generate_constant_region()
+    region.singular = True
+
+    assert region._singular is True
+    assert region.singular is True
 
 
 def test_region_contains_same_entities():
@@ -350,14 +444,14 @@ def test_region_contains_same_entities():
     assert region == expected_region
 
 
-def test_region_get_parent():
+def test_region_get_parent(mc):
     pocket = mc.get_region("rotor pocket")
     expected_region = mc.get_region("rotor")
 
     assert pocket.parent == expected_region
 
 
-def test_region_set_parent():
+def test_region_set_parent(mc):
     shaft = mc.get_region("Shaft")
     square = create_square()
     square.name = "square"
@@ -368,7 +462,7 @@ def test_region_set_parent():
     assert square.name in shaft_expected._child_names
 
 
-def test_region_children():
+def test_region_children(mc):
     rotor = mc.get_region("rotor")
     children = rotor.children
 
@@ -499,6 +593,23 @@ def test_arc_get_coordinate_from_percentage_distance():
     assert isclose(coord.x, 0, abs_tol=1e-12)
     assert isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test an arc that failed with the old definition of get_coordinate_from_percentage_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_percentage_distance(arc_2.end, 1e-13)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
+    coord_3 = arc_2.get_coordinate_from_percentage_distance(arc_2.start, 1e-13)
+    assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
+    # test arc drawn clockwise
+    arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
+    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-13)
+    assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
+    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-13)
+    assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+
 
 def test_arc_get_coordinate_from_distance():
     arc = geometry.Arc(
@@ -509,6 +620,26 @@ def test_arc_get_coordinate_from_distance():
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
+    # test an arc that failed with the old definition of get_coordinate_from_distance()
+    arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
+    coord_2 = arc_2.get_coordinate_from_distance(arc_2.end, 1e-15)
+    assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.end.y, coord_2.y, abs_tol=1e-12)
+    coord_3 = arc_2.get_coordinate_from_distance(arc_2.start, 1e-15)
+    assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
+    assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
+    # test arc drawn clockwise
+    arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
+    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-15)
+    assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
+    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-15)
+    assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
+    assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    coord_6 = arc_2.get_coordinate_from_distance(arc_2.start, 5)
+    assert math.isclose(60.389142028418, coord_6.x, abs_tol=1e-12)
+    assert math.isclose(24.730689908764, coord_6.y, abs_tol=1e-12)
+
 
 def test_arc_length():
     arc = geometry.Arc(
@@ -516,6 +647,11 @@ def test_arc_length():
     )
 
     assert arc.length == math.pi
+
+    radius = 45
+    line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
+    arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
+    assert arc_2.length > line_1.length
 
 
 def test_convert_entities_to_json():
@@ -580,7 +716,7 @@ def test_get_entities_have_common_coordinate():
     assert geometry.get_entities_have_common_coordinate(entity_1, entity_2)
 
 
-def test_unite_regions():
+def test_unite_regions(mc):
     """Test unite two regions into a single region."""
     #   Before         After
     # |--------|    |--------|
@@ -629,7 +765,7 @@ def test_unite_regions():
     assert united_region == expected_region
 
 
-def test_unite_regions_1():
+def test_unite_regions_1(mc):
     """Testing two regions not touching cannot be united."""
     #          Before                         After
     # |--------|
@@ -656,7 +792,7 @@ def test_unite_regions_1():
     assert "Unable to unite regions" in str(e_info.value)
 
 
-def test_unite_regions_2():
+def test_unite_regions_2(mc):
     """Test unite two regions into a single region. No vertices from either region are within
     the other region."""
     #     Before                    After
@@ -695,7 +831,45 @@ def test_unite_regions_2():
     assert expected_region == union
 
 
-def test_check_collisions():
+def test_replace_region(mc):
+    """Test replace region entities with entities from another region."""
+    region_a = geometry.Region()
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_b = geometry.Region()
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 8)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(5, 8), geometry.Coordinate(7, 10), geometry.Coordinate(7, 8), -2
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(7, 10), geometry.Coordinate(7.5, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(7.5, 10),
+            geometry.Coordinate(8.5, 10),
+            geometry.Coordinate(8, 10),
+            -0.5,
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(8.5, 10), geometry.Coordinate(9, 10)))
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(9, 10), geometry.Coordinate(10, 9), geometry.Coordinate(9, 9), -1
+        )
+    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 9), geometry.Coordinate(10, 5)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
+
+    region_a.replace(region_b)
+
+    assert region_a.entities == region_b.entities
+
+
+def test_check_collisions(mc):
     """Collision Type : Collision detected.
     No vertices from the other region within the other region."""
     #      Before                          After
@@ -723,7 +897,7 @@ def test_check_collisions():
     assert collisions[0] == region_b
 
 
-def test_check_collisions_1():
+def test_check_collisions_1(mc):
     """Collision Type : Collision Detected.
     Two vertices from the other region within the other region."""
     #      Before                          After
@@ -754,7 +928,7 @@ def test_check_collisions_1():
     assert collisions[0] == region_b
 
 
-def test_check_collisions_2():
+def test_check_collisions_2(mc):
     """Collision Type : No collision.
     Regions touching on single entity"""
     #      Before                          After
@@ -780,7 +954,7 @@ def test_check_collisions_2():
     assert num_collisions == 0
 
 
-def test_check_collisions_3():
+def test_check_collisions_3(mc):
     """Collision Type : Collision detected.
     No vertices from the other region within the other region.
     Square region drawn clockwise."""
@@ -826,7 +1000,7 @@ def test_check_collisions_3():
     assert collisions[0] == triangle
 
 
-def test_delete_region():
+def test_delete_region(mc):
     stator = mc.get_region("Stator")
 
     mc.delete_region(stator)
@@ -878,6 +1052,7 @@ def test_arc_start_end_angle():
     radius = -2
 
     a0 = Arc(p_start, p_end, p_centre, radius)
+
     assert a0.start_angle == -90
     assert a0.end_angle == 0
 
@@ -908,17 +1083,18 @@ def test_arc_coordinate_on_entity():
 
     p0 = Coordinate(1, 1)
     p1 = Coordinate(1, -1)
-    radius = abs(cos(degrees(45)))
+    radius = sqrt(2)
 
     a1 = Arc(p0, p1, p_c, -radius)
+
     p_test1 = Coordinate(radius, 0)
     p_test2 = Coordinate(-radius, 0)
     assert a1.coordinate_on_entity(p_test1) is True
     assert a1.coordinate_on_entity(p_test2) is False
 
-    a1 = Arc(p0, p1, p_c, radius)
-    assert a1.coordinate_on_entity(p_test2) is True
-    assert a1.coordinate_on_entity(p_test1) is False
+    a2 = Arc(p0, p1, p_c, radius)
+    assert a2.coordinate_on_entity(p_test1) is False
+    assert a2.coordinate_on_entity(p_test2) is True
 
 
 def test_midpoints():
@@ -1056,7 +1232,7 @@ def test_edit_point():
     assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
-def test_subtract_regions():
+def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
     # |--------|    |--------|
@@ -1106,7 +1282,7 @@ def test_subtract_regions():
     assert subtracted_regions[0] == expected_region
 
 
-def test_subtract_region_1():
+def test_subtract_region_1(mc):
     """Test subtracting long rectangle from square to generate two rectangles as shown below."""
     #      Before           After
     #      |---|
@@ -1157,7 +1333,7 @@ def test_subtract_region_1():
     assert regions[0] == expected_region_2
 
 
-def test_subtract_region_2():
+def test_subtract_region_2(mc):
     """Test subtracting triangle from square. No vertices from either region are within
     the other region."""
     #     Before             After
@@ -1188,7 +1364,7 @@ def test_subtract_region_2():
     assert square == expected_region
 
 
-def test_subtract_region_3():
+def test_subtract_region_3(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
     # |--------|    |--------|
@@ -1226,7 +1402,7 @@ def test_subtract_region_3():
     assert subtracted_regions[0] == expected_region
 
 
-def test_subtract_region_4():
+def test_subtract_region_4(mc):
     """Test subtract rectangle from rectangle, where one rectangle is a sub region of the other."""
     #   Before         After
     # |--------|    |--------|
@@ -1286,7 +1462,7 @@ def test_region_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        square.mirror(mirror_line, unique_name=False)
+        square.mirror(mirror_line, unique_name=False)  # noqa
 
     assert "Region can only be mirrored about Line()" in str(e_info.value)
 
@@ -1311,7 +1487,7 @@ def test_entity_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        entity.mirror(mirror_line)
+        entity.mirror(mirror_line)  # noqa
 
     assert "Entity can only be mirrored about Line()" in str(e_info.value)
 
@@ -1340,7 +1516,7 @@ def test_line_mirror_1():
     )
 
     with pytest.raises(Exception) as e_info:
-        entity.mirror(mirror_line)
+        entity.mirror(mirror_line)  # noqa
 
     assert "Line can only be mirrored about Line()" in str(e_info.value)
 
@@ -1408,7 +1584,7 @@ def test_arc_mirror_1():
     mirror_line = geometry.Entity(geometry.Coordinate(0, -1), geometry.Coordinate(10, -1))
 
     with pytest.raises(Exception) as e_info:
-        arc.mirror(mirror_line)
+        arc.mirror(mirror_line)  # noqa
 
     assert "Arc can only be mirrored about Line()" in str(e_info.value)
 
@@ -1432,6 +1608,402 @@ def test_coordinate_mirror_1():
     mirror_line = geometry.Entity(geometry.Coordinate(-2, -2), geometry.Coordinate(-2, 10))
 
     with pytest.raises(Exception) as e_info:
-        coord.mirror(mirror_line)
+        coord.mirror(mirror_line)  # noqa
 
-    assert "Coordinate can only be mirrored about Line()" in str(e_info.value)
+    assert "Coordinate can only be mirrored about Line" in str(e_info.value)
+
+
+def test_coordinate_rotation():
+    centre = Coordinate(0, 0)
+
+    c1 = Coordinate(10, 0)
+    c1.rotate(centre, 90)
+    assert c1 == Coordinate(0, 10)
+
+    c1 = Coordinate(10, 0)
+    c1.rotate(centre, -90)
+    assert c1 == Coordinate(0, -10)
+
+    centre = Coordinate(9, 0)
+    c1 = Coordinate(10, 0)
+    c1.rotate(centre, 90)
+    assert c1 == Coordinate(9, 1)
+
+
+def test_line_rotation():
+    centre = Coordinate(0, 0)
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 0)
+
+    l1 = Line(c1, c2)
+    l1.rotate(centre, 90)
+    assert l1 == Line(Coordinate(0, 0), Coordinate(0, 10))
+
+    l1 = Line(c1, c2)
+    old_mid = l1.midpoint
+    l1.rotate(l1.midpoint, 90)
+    assert l1 == Line(Coordinate(5, -5), Coordinate(5, 5))
+    assert l1.midpoint == old_mid
+
+
+def test_arc_rotation():
+    centre = Coordinate(0, 0)
+    radius = 10
+    c1 = Coordinate(radius, 0)
+    c2 = Coordinate(0, 10)
+
+    a1 = Arc(c1, c2, centre, radius)
+
+    c3 = Coordinate(-radius, 0)
+    a2 = Arc(c2, c3, centre, radius)
+
+    a1.rotate(centre, 90)
+
+    assert a1 == a2
+
+
+def test_get_line_intersection():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 10)
+    l1 = Line(c1, c2)
+
+    c3 = Coordinate(0, 10)
+    c4 = Coordinate(10, 0)
+    l2 = Line(c3, c4)
+
+    assert l1.get_line_intersection(l2) == Coordinate(5, 5)
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(10, 0)
+    l1 = Line(c1, c2)
+
+    c3 = Coordinate(0, 5)
+    c4 = Coordinate(10, 5)
+    l2 = Line(c3, c4)
+
+    assert l1.get_line_intersection(l2) is None
+
+
+def test_arc_from_coordinates():
+    c1 = Coordinate(1, 0)
+    c2 = Coordinate(sin(pi / 4), sin(pi / 4))
+    c3 = Coordinate(0, 1)
+
+    a1 = Arc.from_coordinates(c1, c2, c3)
+    assert a1 == Arc(c1, c3, Coordinate(0, 0), 1)
+
+    c1 = Coordinate(7, 11)
+    c2 = Coordinate(20, 10)
+    c3 = Coordinate(24, 7)
+
+    a1 = Arc.from_coordinates(c1, c2, c3)
+    assert a1 == Arc(
+        Coordinate(7, 11),
+        Coordinate(24, 7),
+        Coordinate(12.357142857142858, -4.357142857142857),
+        -16.264710766765287,
+    )
+
+
+def test_coordinate_from_polar_coords():
+    c1 = Coordinate.from_polar_coords(2 ** (1 / 2), 45)
+    assert c1 == Coordinate(1, 1)
+
+
+def test_line_angle():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 1)
+    l1 = Line(c1, c2)
+    assert l1.angle == 45
+
+    # negative
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(-1, -1)
+    l1 = Line(c1, c2)
+    assert l1.angle == -135
+
+    # vertical
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(0, 1)
+    l1 = Line(c1, c2)
+    assert l1.angle == 90
+
+    # vertical
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 0)
+    l1 = Line(c1, c2)
+    assert l1.angle == 0
+
+
+def test__orientation():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(1, 1)
+    c3 = Coordinate(2, 2)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.collinear
+
+    c1 = Coordinate(0, 3)
+    c2 = Coordinate(4, 2)
+    c3 = Coordinate(3, 1)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.clockwise
+
+    c1 = Coordinate(0, 3)
+    c2 = Coordinate(1, 2)
+    c3 = Coordinate(9, 5)
+    assert _orientation_of_three_points(c1, c2, c3) == _Orientation.anticlockwise
+
+
+def test_line_is_horizontal():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert l1.is_horizontal
+
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 1)
+    l1 = Line(c1, c2)
+    assert not l1.is_horizontal
+
+
+def test_line_overrides():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(5, 0)
+    l1 = Line(c1, c2)
+    assert abs(l1) == 5
+
+
+def test_region_find_entity_from_coordinates():
+    c1 = create_square()
+
+    assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
+
+    assert (
+        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+    )
+
+
+def test_reset_geometry(mc):
+    stator = mc.get_region("stator")
+
+    # When the new regions go out of scope they close Motor-CAD
+    # Do we need to fix this?
+    stator.motorcad_instance = None
+
+    stator_copy = deepcopy(stator)
+    stator_edited = deepcopy(stator)
+
+    stator_edited.edit_point(stator_edited.points[1], stator_edited.points[1] + Coordinate(5, 5))
+    assert stator_edited.entities != stator_copy.entities
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities == stator_copy.entities
+
+    save_default_instance = DEFAULT_INSTANCE
+    set_default_instance(mc.connection._port)
+
+    mc.set_region(stator_edited)
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    mc.reset_adaptive_geometry()
+    stator = mc.get_region("stator")
+    assert stator.entities != stator_copy.entities
+
+    set_default_instance(save_default_instance)
+
+
+def test_translation_coord():
+    c1 = Coordinate(0, 0)
+    c2 = Coordinate(2, 2)
+    c1.translate(2, 2)
+    assert c1 == c2
+
+    c1 = Coordinate(1, 2)
+    c2 = Coordinate(-1.5, 1)
+    c1.translate(-2.5, -1)
+    assert c1 == c2
+
+
+def test_arc_new_init():
+    a1 = Arc(Coordinate(10, 0), Coordinate(0, 10), radius=10)
+    assert a1.centre == Coordinate(0, 0)
+
+    with pytest.raises(Exception):
+        _ = Arc(Coordinate(10, 0), Coordinate(0, 10), radius=6)
+
+    a1 = Arc(Coordinate(10, 0), Coordinate(0, 10), centre=Coordinate(0, 0))
+    assert a1.radius == 10
+
+    a2 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(10, 10))
+    assert a2.radius == 10
+
+    a3 = Arc(Coordinate(0, 10), Coordinate(10, 0), centre=Coordinate(0, 0))
+    assert a3.radius == -10
+    assert a3.centre == Coordinate(0, 0)
+
+    # Check tolerances
+    with pytest.raises(Exception):
+        _ = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=4)
+
+    original_radius = -5 + (GEOM_TOLERANCE * 0.95)
+    a5 = Arc(Coordinate(0, 0), Coordinate(10, 0), radius=original_radius)
+    # Arc creation will bump radius to a value that is physically possible since within tolerance
+    # check sign is preserved
+    assert (a5.radius - original_radius) < GEOM_TOLERANCE
+
+
+def test_region_rotate():
+    p1 = Coordinate(0, 0)
+    p2 = Coordinate(5, 0)
+    p3 = Coordinate(0, 5)
+
+    r1 = Region()
+    r1.add_entity(Line(p1, p2))
+    r1.add_entity(Arc(p2, p3, radius=10))
+    r1.add_entity(Line(p3, p1))
+
+    p4 = Coordinate(10, 5)
+    p5 = Coordinate(5, 5)
+    r2 = Region()
+    r2.add_entity(Arc(p2, p4, radius=10))
+    r2.add_entity(Line(p4, p5))
+    r2.add_entity(Line(p5, p2))
+
+    assert r1 != r2
+
+    r1.rotate(p2, -90)
+    assert r1 == r2
+
+
+def test_region_translate():
+    p1 = Coordinate(0, 0)
+    p2 = Coordinate(5, 0)
+    p3 = Coordinate(0, 5)
+    r1 = Region()
+    r1.add_entity(Line(p1, p2))
+    r1.add_entity(Arc(p2, p3, radius=10))
+    r1.add_entity(Line(p3, p1))
+
+    p4 = Coordinate(3, -2)
+    p5 = Coordinate(8, -2)
+    p6 = Coordinate(3, 3)
+    r2 = Region()
+    r2.add_entity(Line(p4, p5))
+    r2.add_entity(Arc(p5, p6, radius=10))
+    r2.add_entity(Line(p6, p4))
+
+    assert r1 != r2
+
+    r1.translate(3, -2)
+    assert r1 == r2
+
+
+def test_get_set_region_magnet(mc):
+    mc.set_variable("GeometryTemplateType", 1)
+    mc.reset_adaptive_geometry()
+    magnet = mc.get_region("L1_1Magnet2")
+    assert isinstance(magnet, RegionMagnet)
+
+    assert magnet.br_multiplier == 1
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31
+    assert magnet.magnet_angle == 22.5
+    assert magnet.magnet_polarity == "N"
+    assert magnet.region_type == RegionType.magnet
+
+    assert isclose(magnet.br_x, 1.21028, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0.50131, abs_tol=1e-3)
+
+    magnet.magnet_angle = 0
+    assert isclose(magnet.br_x, 1.31, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0, abs_tol=1e-3)
+
+    magnet.br_multiplier = 2
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31 * 2
+
+    mc.set_region(magnet)
+    magnet = mc.get_region("L1_1Magnet2")
+    assert magnet.br_multiplier == 2
+    assert magnet.magnet_angle == 0
+    assert magnet.magnet_polarity == "N"
+    assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
+    assert isclose(magnet.br_y, 0, abs_tol=1e-3)
+    assert magnet.br_value == 1.31
+    assert magnet.br_used == 1.31 * 2
+    assert magnet.region_type == RegionType.magnet
+
+
+def test_get_set_region_compatibility(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2024.1")
+    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
+    test_region = RegionMagnet()
+    test_region.br_multiplier = 2
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+    test_region = Region()
+    test_region.mesh_length = 0.1
+
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+
+def test_region_material_assignment(mc):
+    rotor = mc.get_region("Rotor")
+    rotor.material = "M470-50A"
+
+    mc.set_region(rotor)
+
+    assert rotor == mc.get_region("Rotor")
+
+
+def test_set_lamination_type(mc):
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Laminated"
+
+    rotor._region_type = RegionType.adaptive
+    # We don't get lamination type for normal regions yet
+    rotor.lamination_type = "Solid"
+    mc.set_region(rotor)
+
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Solid"
+
+    solid_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    )
+    lam_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    )
+
+    solid_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+    lam_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+
+    # load file into Motor-CAD
+    mc.load_from_file(solid_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(solid_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is solid
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res != 0
+
+    mc.load_from_file(lam_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(lam_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is laminated
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res == 0
+
+    reset_to_default_file(mc)
