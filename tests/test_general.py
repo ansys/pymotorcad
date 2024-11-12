@@ -22,6 +22,8 @@
 
 import os
 
+import pytest
+
 from RPC_Test_Common import (
     almost_equal,
     get_base_test_file_path,
@@ -31,7 +33,7 @@ from RPC_Test_Common import (
     reset_to_default_file,
 )
 import ansys.motorcad.core
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADError
 
 # Allows us to add a new api method to testing before the next Motor-CAD release is available
 # Dev release will have a lower version number than actual release so don't want to check this
@@ -215,6 +217,11 @@ def test_save_load_results(mc):
     mc.load_results("TheRmal")
     assert mc.get_power_graph_point("Armature Copper(Total)", 5) != 0
 
+    with pytest.raises(MotorCADError):
+        mc.load_results("wrong_type")
+
+    with pytest.raises(MotorCADError):
+        mc.save_results("wrong_type")
     reset_to_default_file(mc)
 
 
