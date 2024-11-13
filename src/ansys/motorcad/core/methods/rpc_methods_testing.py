@@ -36,7 +36,7 @@ class _RpcMethodsTesting:
         Parameters
         ----------
         test_categories : str
-            Regression test categories. If running specific sets of tests, the following format
+            If running specific sets of tests, the following format
             is used: "Test_Category1|Test_Category2|etc"
             Test category options are: "Regression_EMag_Full_Original",
             "Regression_EMag_NoFEA_Original", "Regression_FEA_Emag", "Regression_FEA_Mech",
