@@ -38,6 +38,13 @@ class _RpcMethodsTesting:
         test_categories : str
             Regression test categories. If running specific sets of tests, the following format
             is used: "Test_Category1|Test_Category2|etc"
+            Test category options are: "Regression_EMag_Full_Original",
+            "Regression_EMag_NoFEA_Original", "Regression_FEA_Emag", "Regression_FEA_Mech",
+            "Regression_FEA_Thermal", "Regression_Thermal_Steady", "Regression_Thermal_Transient",
+            "Regression_Lab_OperatingPoints", "Regression_Lab_ModelBuild",
+            "Regression_Lab_Emag", "Regression_Lab_Thermal",
+            "Regression_Lab_DutyCycle", "Regression_Lab_GenerationOrCalibration",
+            and "Regression_Geometry"
         calculation_method : int
             Type of calculation method. Options are "0" or "1" referring to "New Methods" or
             "Compatibility Methods" consecutively.
@@ -47,7 +54,7 @@ class _RpcMethodsTesting:
 
         Returns
         -------
-        str
+        dict
             Test results including name, test case, diff type, and major and minor differences.
         """
         method = "RunRegressionTests"
