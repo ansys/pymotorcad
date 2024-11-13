@@ -131,9 +131,15 @@ machine_temp = float(in_data["machine_temp"])
 Id_max = float(in_data["Id_max"])
 current_step = float(in_data["current_step"])
 
-map_name = os.path.join(working_folder, in_data["map_name"])
-txt_file = os.path.join(working_folder, in_data["txt_file"])
-sml_file = os.path.join(working_folder, in_data["sml_file"])
+results_folder = os.path.join(working_folder, "Results")
+try:
+    shutil.rmtree(results_folder)
+except:
+    pass
+os.mkdir(results_folder)
+map_name = os.path.join(results_folder, in_data["map_name"])
+txt_file = os.path.join(results_folder, in_data["txt_file"])
+sml_file = os.path.join(results_folder, in_data["sml_file"])
 
 # %%
 # Load the e8 IPM motor template and save the file to the working directory. Use the ``mot_file``
