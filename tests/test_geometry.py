@@ -42,6 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -351,6 +352,8 @@ def test_region_from_json():
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
         "region type": "Adaptive Region",
+        "mesh_length": 0.035,
+        "singular": False,
     }
 
     test_region = geometry.Region()
@@ -364,6 +367,8 @@ def test_region_from_json():
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
+    test_region.mesh_length = (0.035,)
+    test_region.singular = (False,)
 
     region = geometry.Region._from_json(raw_region)
 
@@ -380,8 +385,12 @@ def test_region_to_json():
         "region_coordinate": {"x": 0.0, "y": 1.1},
         "duplications": 10,
         "entities": [],
+        "lamination_type": "",
         "parent_name": "Insulation",
         "region_type": "Adaptive Region",
+        "mesh_length": 0.035,
+        "singular": True,
+        "on_boundary": False,
     }
 
     test_region = geometry.Region()
@@ -394,6 +403,8 @@ def test_region_to_json():
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
+    test_region.mesh_length = 0.035
+    test_region.singular = True
 
     assert test_region._to_json() == raw_region
 
@@ -402,6 +413,26 @@ def test_region_is_closed():
     region = generate_constant_region()
 
     assert region.is_closed()
+
+
+def test_set_linked_region():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_region = region_linked
+
+    assert region._linked_region.name == region_linked.name
+    assert region_linked.linked_region.name == region.name
+
+
+def test_set_singular_region():
+    region = generate_constant_region()
+    region.singular = True
+
+    assert region._singular is True
+    assert region.singular is True
 
 
 def test_region_contains_same_entities():
@@ -1906,3 +1937,73 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
     assert magnet.region_type == RegionType.magnet
+
+
+def test_get_set_region_compatibility(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2024.1")
+    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
+    test_region = RegionMagnet()
+    test_region.br_multiplier = 2
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+    test_region = Region()
+    test_region.mesh_length = 0.1
+
+    with pytest.warns(UserWarning):
+        mc.set_region(test_region)
+
+
+def test_region_material_assignment(mc):
+    rotor = mc.get_region("Rotor")
+    rotor.material = "M470-50A"
+
+    mc.set_region(rotor)
+
+    assert rotor == mc.get_region("Rotor")
+
+
+def test_set_lamination_type(mc):
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Laminated"
+
+    rotor._region_type = RegionType.adaptive
+    # We don't get lamination type for normal regions yet
+    rotor.lamination_type = "Solid"
+    mc.set_region(rotor)
+
+    rotor = mc.get_region("Rotor")
+    assert rotor.lamination_type == "Solid"
+
+    solid_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    )
+    lam_rotor_section_file = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    )
+
+    solid_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+    lam_rotor_section_result = (
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    )
+
+    # load file into Motor-CAD
+    mc.load_from_file(solid_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(solid_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is solid
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res != 0
+
+    mc.load_from_file(lam_rotor_section_file)
+    mc.do_magnetic_calculation()
+    mc.load_fea_result(lam_rotor_section_result, 1)
+    # Check eddy current to make sure rotor is laminated
+    res, units = mc.get_point_value("Je", -9, -20)
+    assert res == 0
+
+    reset_to_default_file(mc)
