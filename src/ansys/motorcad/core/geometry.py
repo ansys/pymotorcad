@@ -619,45 +619,62 @@ class Region(object):
             adj_entity_indices[0] = len(self.entities) - 1
             adj_entity_indices[1] = 0
 
-        # get the angles of the adjacent entities. For a line, this is a property of the entity
-        # object. For an arc, approximate the arc by a straight line from the arc start or end
-        # (whichever is the corner coordinate) to a point 0.0001 mm along the arc.
-        adj_entity_angles = []
-        for entity in adj_entities:
-            if type(entity) == Arc:
-                if corner_coordinate == entity.start:
-                    point_on_arc = entity.get_coordinate_from_distance(entity.start, 0.0001)
-                    line_on_arc = Line(entity.start, point_on_arc)
+        # If we have arc rounding, we need to find the angle at the intersection of the arc and the
+        # rounding arc. We don't know this position in advance, so iterate up to 10 times to find
+        # the correct distance.
+        distance = 0
+        for iteration in range(10):
+            # get the angles of the adjacent entities. For a line, this is a property of the entity
+            # object. For an arc, approximate the arc by a straight line from the arc start or end
+            # (whichever is the corner coordinate) to a point 0.0001 mm along the arc.
+            adj_entity_angles = []
+            for entity in adj_entities:
+                if isinstance(entity, Arc):
+                    if corner_coordinate == entity.start:
+                        point_on_arc1 = entity.get_coordinate_from_distance(entity.start, distance)
+                        point_on_arc2 = entity.get_coordinate_from_distance(
+                            entity.start, distance + 0.0001
+                        )
+                    else:
+                        point_on_arc1 = entity.get_coordinate_from_distance(
+                            entity.end, distance + 0.0001
+                        )
+                        point_on_arc2 = entity.get_coordinate_from_distance(entity.end, distance)
+                    line_on_arc = Line(point_on_arc1, point_on_arc2)
+                    adj_entity_angles.append(line_on_arc.angle)
                 else:
-                    point_on_arc = entity.get_coordinate_from_distance(entity.end, 0.0001)
-                    line_on_arc = Line(point_on_arc, entity.end)
-                adj_entity_angles.append(line_on_arc.angle)
-            else:
-                adj_entity_angles.append(entity.angle)
+                    adj_entity_angles.append(entity.angle)
 
-        # calculate the internal angle of the corner.
-        corner_internal_angle = 180 + (adj_entity_angles[0] - adj_entity_angles[1])
-        # If this is more than 360, subtract 360.
-        if corner_internal_angle > 360:
-            corner_internal_angle = corner_internal_angle - 360
-        # If it is less than zero, add 360.
-        elif corner_internal_angle < 0:
-            corner_internal_angle = corner_internal_angle + 360
+            # calculate the internal angle of the corner.
+            corner_internal_angle = 180 + (adj_entity_angles[0] - adj_entity_angles[1])
+            # If this is more than 360, subtract 360.
+            if corner_internal_angle > 360:
+                corner_internal_angle = corner_internal_angle - 360
+            # If it is less than zero, add 360.
+            elif corner_internal_angle < 0:
+                corner_internal_angle = corner_internal_angle + 360
 
-        # calculate the arc angle
-        corner_arc_angle = 180 - corner_internal_angle
+            # calculate the arc angle
+            corner_arc_angle = 180 - corner_internal_angle
 
-        # If the arc angle is zero, the point provided is not a corner.
-        if (
-            isclose(corner_arc_angle, 0, abs_tol=1e-3)
-            or isclose(corner_arc_angle, 360, abs_tol=1e-3)
-            or isclose(corner_arc_angle, -360, abs_tol=1e-3)
-        ):
-            return
+            # If the arc angle is zero, the point provided is not a corner.
+            if (
+                isclose(corner_arc_angle, 0, abs_tol=1e-3)
+                or isclose(corner_arc_angle, 360, abs_tol=1e-3)
+                or isclose(corner_arc_angle, -360, abs_tol=1e-3)
+            ):
+                return
 
-        # Calculate distances by which the adjacent entities are shortened
-        half_chord = radius * sin(radians(corner_arc_angle) / 2)
-        distance = abs(half_chord / (sin(radians(corner_internal_angle) / 2)))
+            # Calculate distances by which the adjacent entities are shortened
+            previous_distance = distance
+            half_chord = radius * sin(radians(corner_arc_angle) / 2)
+            distance = abs(half_chord / (sin(radians(corner_internal_angle) / 2)))
+
+            # Check if distance has converged, or if iterative convergence not needed
+            if (isinstance(adj_entities[0], Line) and isinstance(adj_entities[1], Line)) or isclose(
+                previous_distance, distance, abs_tol=1e-3
+            ):
+                break
 
         # check that the  distances by which the adjacent entities are shortened are less than the
         # lengths of the adjacent entities.
