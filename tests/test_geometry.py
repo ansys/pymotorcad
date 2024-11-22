@@ -1468,7 +1468,7 @@ def test_round_corner_3():
     # test for rounding corners between two arcs
 
     corner_radius = 0.5
-    point_1 = Coordinate(0, 10)
+    point_1 = Coordinate(0, 15)
     point_2 = Coordinate(0, 0)
     shape_radius = 10
     arc_1 = Arc(point_1, point_2, radius=shape_radius)
@@ -1536,7 +1536,7 @@ def test_round_corners_3():
     # test for rounding corners between two arcs
 
     corner_radius = 0.5
-    point_1 = Coordinate(0, 10)
+    point_1 = Coordinate(0, 15)
     point_2 = Coordinate(0, 0)
     shape_radius = 10
     arc_1 = Arc(point_1, point_2, radius=shape_radius)

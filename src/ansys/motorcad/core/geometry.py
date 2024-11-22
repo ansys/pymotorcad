@@ -620,10 +620,11 @@ class Region(object):
             adj_entity_indices[1] = 0
 
         # If we have arc rounding, we need to find the angle at the intersection of the arc and the
-        # rounding arc. We don't know this position in advance, so iterate up to 10 times to find
+        # rounding arc. We don't know this position in advance, so iterate up to 100 times to find
         # the correct distance.
         distance = 0
-        for iteration in range(10):
+        converged = False
+        for iteration in range(100):
             # get the angles of the adjacent entities. For a line, this is a property of the entity
             # object. For an arc, approximate the arc by a straight line from the arc start or end
             # (whichever is the corner coordinate) to a point 0.0001 mm along the arc.
@@ -674,7 +675,12 @@ class Region(object):
             if (isinstance(adj_entities[0], Line) and isinstance(adj_entities[1], Line)) or isclose(
                 previous_distance, distance, abs_tol=1e-3
             ):
+                converged = True
                 break
+
+        # Raise assertion if not converged, as radius probably not valid
+        if converged == False:
+            raise Exception("Cannot find intersection. Check if radius is too large")
 
         # check that the  distances by which the adjacent entities are shortened are less than the
         # lengths of the adjacent entities.
