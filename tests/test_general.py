@@ -22,6 +22,8 @@
 
 import os
 
+import pytest
+
 from RPC_Test_Common import (
     almost_equal,
     get_base_test_file_path,
@@ -31,7 +33,7 @@ from RPC_Test_Common import (
     reset_to_default_file,
 )
 import ansys.motorcad.core
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADError
 
 # Allows us to add a new api method to testing before the next Motor-CAD release is available
 # Dev release will have a lower version number than actual release so don't want to check this
@@ -188,21 +190,39 @@ def test_save_load_magnetisation_curves(mc):
     reset_to_default_file(mc)
 
 
-def test_save_load_results():
+def test_save_load_results(mc):
     # Currently not working as part of full tests
     # Works individually - need to look into this
-    pass
-    # mc.do_magnetic_calculation()
-    # mc.save_results("EMagnetic")
-    # assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
-    # assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
-    #
-    # mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
-    #
-    # mc.load_results("EMagnetic")
-    # assert mc.get_variable("MaxTorque") != 0
-    #
-    # reset_to_default_file(mc)
+
+    # EMag test
+    mc.do_magnetic_calculation()
+    mc.save_results("EMagnetic")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
+
+    mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
+
+    mc.load_results("EMagnetic")
+    assert mc.get_variable("MaxTorque") != 0
+
+    reset_to_default_file(mc)
+
+    # Thermal test - transient graphs only
+    mc.do_transient_analysis()
+    mc.save_results("Thermal")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\Thermal\GraphResults.ini")
+
+    mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
+
+    mc.load_results("TheRmal")
+    assert mc.get_power_graph_point("Armature Copper(Total)", 5) != 0
+
+    with pytest.raises(MotorCADError):
+        mc.load_results("wrong_type")
+
+    with pytest.raises(MotorCADError):
+        mc.save_results("wrong_type")
+    reset_to_default_file(mc)
 
 
 def test_get_message(mc):
