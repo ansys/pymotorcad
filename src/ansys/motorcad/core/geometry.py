@@ -1003,7 +1003,7 @@ class Line(Entity):
         """Get the coordinate at a fractional distance along the line from the reference coord.
 
         .. note::
-           This method is deprecated. Use the :func:`Arc.get_coordinate_from_distance`
+           This method is deprecated. Use the :func:`Line.get_coordinate_from_distance`
            method with the `fraction = ` or `percentage =` argument.
 
         Parameters
