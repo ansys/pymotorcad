@@ -1177,7 +1177,7 @@ class Line(Entity):
 
         Parameters
         ----------
-        arc : ansys.motorcad.core.geometry.Line
+        arc : ansys.motorcad.core.geometry.Arc
 
         Returns
         -------
@@ -1411,7 +1411,7 @@ class _BaseArc(Entity):
 
         Parameters
         ----------
-        line : ansys.motorcad.core.geometry.Line
+        line : ansys.motorcad.core.geometry.Arc
 
         Returns
         -------
