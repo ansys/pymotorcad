@@ -1411,7 +1411,7 @@ class _BaseArc(Entity):
 
         Parameters
         ----------
-        line : ansys.motorcad.core.geometry.Arc
+        arc : ansys.motorcad.core.geometry.Arc
 
         Returns
         -------
