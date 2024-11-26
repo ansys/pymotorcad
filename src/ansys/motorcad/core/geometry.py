@@ -1231,7 +1231,7 @@ class _BaseArc(Entity):
             Fractional distance along Arc.
 
         percentage : float, optional
-            Percentage distance along Line.
+            Percentage distance along Arc.
 
         Returns
         -------
