@@ -1371,14 +1371,16 @@ class _BaseArc(Entity):
             D = B**2 - 4 * A * C
 
             if D < 0:
+                # line and circle do not intersect
                 return None
             elif D == 0:
+                # line and circle intersect at 1 point
                 y = -B / (2 * A)
                 return Coordinate(x, y)
             else:
-                sqrt_D = sqrt(D)
-                y1 = (-B + sqrt_D) / (2 * A)
-                y2 = (-B - sqrt_D) / (2 * A)
+                # line and circle intersect at 2 points
+                y1 = (-B + sqrt(D)) / (2 * A)
+                y2 = (-B - sqrt(D)) / (2 * A)
                 return [Coordinate(x, y1), Coordinate(x, y2)]
         else:
             # Normal case, line y is a function of x
@@ -1391,15 +1393,17 @@ class _BaseArc(Entity):
 
             D = B**2 - 4 * A * C
             if D < 0:
+                # line and circle do not intersect
                 return None
             elif D == 0:
+                # line and circle intersect at 1 point
                 x = -B / (2 * A)
                 y = m * x + c
                 return Coordinate(x, y)
             else:
-                sqrt_D = sqrt(D)
-                x1 = (-B + sqrt_D) / (2 * A)
-                x2 = (-B - sqrt_D) / (2 * A)
+                # line and circle intersect at 2 points
+                x1 = (-B + sqrt(D)) / (2 * A)
+                x2 = (-B - sqrt(D)) / (2 * A)
                 y1 = m * x1 + c
                 y2 = m * x2 + c
                 return [Coordinate(x1, y1), Coordinate(x2, y2)]
@@ -1429,14 +1433,14 @@ class _BaseArc(Entity):
 
         d = sqrt((a2 - a1) ** 2 + (b2 - b1) ** 2)
 
-        # if they don't intersect
         if d > (r1 + r2):
+            # if they don't intersect
             return None
-        # if one circle is inside the other
         if d < abs(r1 - r2):
+            # if one circle is inside the other
             return None
-        # coincident circles
         if d == 0 and r1 == r2:
+            # coincident circles
             return None
         else:
             a = (r1**2 - r2**2 + d**2) / (2 * d)
