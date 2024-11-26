@@ -1017,7 +1017,7 @@ class Line(Entity):
         Returns
         -------
         Coordinate
-            Coordinate at fractional distance along Arc.
+            Coordinate at fractional distance along Line.
         """
         warn(
             "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
