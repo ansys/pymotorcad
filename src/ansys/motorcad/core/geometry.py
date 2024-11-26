@@ -1361,28 +1361,48 @@ class _BaseArc(Entity):
         b = self.centre.y
         r = self.radius
 
-        # line
-        m = line.gradient
-        c = line.y_intercept
+        if line.is_vertical:
+            # line x coordinate is constant
+            x = line.start.x
 
-        A = 1 + m**2
-        B = 2 * (m * (c - b) - a)
-        C = a**2 + (c - b) ** 2 - r**2
+            A = 1
+            B = -2 * b
+            C = x**2 - 2 * x * a + a**2 + b**2 - r**2
+            D = B**2 - 4 * A * C
 
-        D = B**2 - 4 * A * C
-        if D < 0:
-            return None
-        elif D == 0:
-            x = -B / (2 * A)
-            y = m * x + c
-            return Coordinate(x, y)
+            if D < 0:
+                return None
+            elif D == 0:
+                y = -B / (2 * A)
+                return Coordinate(x, y)
+            else:
+                sqrt_D = sqrt(D)
+                y1 = (-B + sqrt_D) / (2 * A)
+                y2 = (-B - sqrt_D) / (2 * A)
+                return [Coordinate(x, y1), Coordinate(x, y2)]
         else:
-            sqrt_D = sqrt(D)
-            x1 = (-B + sqrt_D) / (2 * A)
-            x2 = (-B - sqrt_D) / (2 * A)
-            y1 = m * x1 + c
-            y2 = m * x2 + c
-            return [Coordinate(x1, y1), Coordinate(x2, y2)]
+            # Normal case, line y is a function of x
+            m = line.gradient
+            c = line.y_intercept
+
+            A = 1 + m**2
+            B = 2 * (m * (c - b) - a)
+            C = a**2 + (c - b) ** 2 - r**2
+
+            D = B**2 - 4 * A * C
+            if D < 0:
+                return None
+            elif D == 0:
+                x = -B / (2 * A)
+                y = m * x + c
+                return Coordinate(x, y)
+            else:
+                sqrt_D = sqrt(D)
+                x1 = (-B + sqrt_D) / (2 * A)
+                x2 = (-B - sqrt_D) / (2 * A)
+                y1 = m * x1 + c
+                y2 = m * x2 + c
+                return [Coordinate(x1, y1), Coordinate(x2, y2)]
 
     def get_arc_intersection(self, arc):
         """Get intersection Coordinates of arc with another arc.
