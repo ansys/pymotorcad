@@ -1012,7 +1012,7 @@ class Line(Entity):
             Entity reference coordinate.
 
         fraction : float
-            Fractional distance along Arc.
+            Fractional distance along Line.
 
         Returns
         -------
