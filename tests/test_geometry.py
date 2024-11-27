@@ -574,9 +574,56 @@ def test_line_get_coordinate_from_percentage_distance():
 def test_line_get_coordinate_from_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
+    # test using the 'distance' argument
     assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(
         1, 0
     )
+    # test using the 'fraction' argument
+    assert line.get_coordinate_from_distance(
+        geometry.Coordinate(0, 0), fraction=0.5
+    ) == geometry.Coordinate(1, 0)
+    # test using the 'percentage' argument
+    assert line.get_coordinate_from_distance(
+        geometry.Coordinate(0, 0), percentage=50
+    ) == geometry.Coordinate(1, 0)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, fraction=0.6)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # distance and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, percentage=40)
+    assert "Both distance and percentage provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(
+            geometry.Coordinate(0, 0), fraction=0.6, percentage=40
+        )
+    assert "Both fraction and percentage provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6)
+
+    # distance, fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, 0.6, 40)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that both warnings are given
+    assert "Both distance and percentage provided" in record[1].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = line.get_coordinate_from_distance(line.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
 
 
 def test_line_length():
@@ -585,14 +632,14 @@ def test_line_length():
     assert line.length == sqrt(2)
 
 
-def test_arc_get_coordinate_from_percentage_distance():
+def test_arc_get_coordinate_from_fractional_distance():
     arc = geometry.Arc(
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
     )
 
-    coord = arc.get_coordinate_from_percentage_distance(geometry.Coordinate(-1, 0), 0.5)
-    assert isclose(coord.x, 0, abs_tol=1e-12)
-    assert isclose(coord.y, -1, abs_tol=1e-12)
+    coord_1 = arc.get_coordinate_from_percentage_distance(geometry.Coordinate(-1, 0), 0.5)
+    assert isclose(coord_1.x, 0, abs_tol=1e-12)
+    assert isclose(coord_1.y, -1, abs_tol=1e-12)
 
     # test an arc that failed with the old definition of get_coordinate_from_percentage_distance()
     arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
@@ -604,12 +651,19 @@ def test_arc_get_coordinate_from_percentage_distance():
     assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
     # test arc drawn clockwise
     arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
-    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-13)
+    coord_4 = arc_4.get_coordinate_from_percentage_distance(arc_4.end, 1e-13)
     assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
     assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
-    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-13)
+    coord_5 = arc_4.get_coordinate_from_percentage_distance(arc_4.start, 1e-13)
     assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
     assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    # test arc with negative radius
+    arc_6 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_6 = arc_6.get_coordinate_from_percentage_distance(Coordinate(-1, 0), 0.5)
+    assert math.isclose(coord_6.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_6.y, 1, abs_tol=1e-12)
 
 
 def test_arc_get_coordinate_from_distance():
@@ -617,11 +671,21 @@ def test_arc_get_coordinate_from_distance():
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
     )
 
+    # test using the 'distance' argument
     coord = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
-    # test an arc that failed with the old definition of get_coordinate_from_distance()
+    # test for an arc with negative radius using the 'distance' argument
+    arc_1 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_1 = arc_1.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
+    assert math.isclose(coord_1.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_1.y, 1, abs_tol=1e-12)
+
+    # test an arc that failed with the old definition of get_coordinate_from_distance() using the
+    # 'distance' argument
     arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
     coord_2 = arc_2.get_coordinate_from_distance(arc_2.end, 1e-15)
     assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
@@ -629,7 +693,7 @@ def test_arc_get_coordinate_from_distance():
     coord_3 = arc_2.get_coordinate_from_distance(arc_2.start, 1e-15)
     assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
     assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
-    # test arc drawn clockwise
+    # test arc drawn clockwise using the 'distance' argument
     arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
     coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-15)
     assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
@@ -640,6 +704,48 @@ def test_arc_get_coordinate_from_distance():
     coord_6 = arc_2.get_coordinate_from_distance(arc_2.start, 5)
     assert math.isclose(60.389142028418, coord_6.x, abs_tol=1e-12)
     assert math.isclose(24.730689908764, coord_6.y, abs_tol=1e-12)
+
+    # test using the 'fraction' argument
+    coord_7 = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), fraction=0.5)
+    assert isclose(coord_7.x, 0, abs_tol=1e-12)
+    assert isclose(coord_7.y, -1, abs_tol=1e-12)
+
+    # test using the 'percentage' argument
+    coord_8 = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), percentage=50)
+    assert isclose(coord_8.x, 0, abs_tol=1e-12)
+    assert isclose(coord_8.y, -1, abs_tol=1e-12)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, fraction=0.6)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # distance and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, percentage=40)
+    assert "Both distance and percentage provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, fraction=0.6, percentage=40)
+    assert "Both fraction and percentage provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, fraction=0.6)
+    # distance, fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, 0.6, 40)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that both warnings are given
+    assert "Both distance and percentage provided" in record[1].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = arc.get_coordinate_from_distance(arc.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
 
 
 def test_arc_length():
