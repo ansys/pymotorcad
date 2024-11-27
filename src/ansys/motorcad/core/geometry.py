@@ -1248,20 +1248,20 @@ class Line(Entity):
         Coordinate
             Coordinate at distance along Line.
         """
-        if not distance and not fraction and not percentage:
+        if (distance is None) and (fraction is None) and (percentage is None):
             raise Exception("You must provide either a distance, fraction or percentage.")
 
-        if distance and fraction:
+        if (distance is not None) and (fraction is not None):
             warn("Both distance and fraction provided. Using distance.", UserWarning)
-        if distance and percentage:
+        if (distance is not None) and (percentage is not None):
             warn("Both distance and percentage provided. Using distance.", UserWarning)
 
-        if not distance:
-            if fraction and percentage:
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
                 warn("Both fraction and percentage provided. Using fraction.", UserWarning)
-            if fraction:
+            if fraction is not None:
                 distance = self.length * fraction
-            elif percentage:
+            elif percentage is not None:
                 distance = self.length * (percentage / 100)
 
         if ref_coordinate == self.end:
@@ -1450,20 +1450,20 @@ class _BaseArc(Entity):
         Coordinate
             Coordinate at distance along Arc.
         """
-        if not distance and not fraction and not percentage:
+        if (distance is None) and (fraction is None) and (percentage is None):
             raise Exception("You must provide either a distance, fraction or percentage.")
 
-        if distance and fraction:
+        if (distance is not None) and (fraction is not None):
             warn("Both distance and fraction provided. Using distance.", UserWarning)
-        if distance and percentage:
+        if (distance is not None) and (percentage is not None):
             warn("Both distance and percentage provided. Using distance.", UserWarning)
 
-        if not distance:
-            if fraction and percentage:
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
                 warn("Both fraction and percentage provided. Using fraction.", UserWarning)
-            if fraction:
+            if fraction is not None:
                 distance = self.length * fraction
-            elif percentage:
+            elif percentage is not None:
                 distance = self.length * (percentage / 100)
 
         ref_coordinate_angle = atan2(
