@@ -900,6 +900,47 @@ class Entity(object):
         self.start.translate(x, y)
         self.end.translate(x, y)
 
+    def get_intersection(self, entity):
+        """Get intersection Coordinate of entity with another entity.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        entity : ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        if isinstance(self, Line):
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = entity.get_line_intersection(self)
+            else:
+                raise Exception("Entity type is not Arc or Line")
+        else:
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = self.get_arc_intersection(entity)
+        if points:
+            intersections = []
+            if type(points) == list:
+                for point in points:
+                    if self.coordinate_on_entity(point):
+                        intersections.append(point)
+            else:
+                if self.coordinate_on_entity(points):
+                    intersections.append(points)
+            if intersections:
+                return intersections
+            else:
+                return None
+        else:
+            return None
+
 
 class Line(Entity):
     """Python representation of Motor-CAD line entity based upon start and end coordinates.
@@ -1129,6 +1170,21 @@ class Line(Entity):
             # Lines don't intersect
             return None
 
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of line with an arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        return arc.get_line_intersection(self)
+
 
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
@@ -1286,6 +1342,119 @@ class _BaseArc(Entity):
         return self.coordinate_within_arc_radius(coordinate) and isclose(
             abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
         )
+
+    def get_line_intersection(self, line):
+        """Get intersection Coordinates of arc with a line.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        # circle of the arc
+        a = self.centre.x
+        b = self.centre.y
+        r = self.radius
+
+        if line.is_vertical:
+            # line x coordinate is constant
+            x = line.start.x
+
+            A = 1
+            B = -2 * b
+            C = x**2 - 2 * x * a + a**2 + b**2 - r**2
+            D = B**2 - 4 * A * C
+
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                y = -B / (2 * A)
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                y1 = (-B + sqrt(D)) / (2 * A)
+                y2 = (-B - sqrt(D)) / (2 * A)
+                return [Coordinate(x, y1), Coordinate(x, y2)]
+        else:
+            # Normal case, line y is a function of x
+            m = line.gradient
+            c = line.y_intercept
+
+            A = 1 + m**2
+            B = 2 * (m * (c - b) - a)
+            C = a**2 + (c - b) ** 2 - r**2
+
+            D = B**2 - 4 * A * C
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                x = -B / (2 * A)
+                y = m * x + c
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                x1 = (-B + sqrt(D)) / (2 * A)
+                x2 = (-B - sqrt(D)) / (2 * A)
+                y1 = m * x1 + c
+                y2 = m * x2 + c
+                return [Coordinate(x1, y1), Coordinate(x2, y2)]
+
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of arc with another arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of Coordinate or None
+        """
+        # circle of self
+        a1 = self.centre.x
+        b1 = self.centre.y
+        r1 = abs(self.radius)
+
+        # circle of other arc
+        a2 = arc.centre.x
+        b2 = arc.centre.y
+        r2 = abs(arc.radius)
+
+        d = sqrt((a2 - a1) ** 2 + (b2 - b1) ** 2)
+
+        if d > (r1 + r2):
+            # if they don't intersect
+            return None
+        if d < abs(r1 - r2):
+            # if one circle is inside the other
+            return None
+        if d == 0 and r1 == r2:
+            # coincident circles
+            return None
+        else:
+            a = (r1**2 - r2**2 + d**2) / (2 * d)
+            h = sqrt(r1**2 - a**2)
+
+            x = a1 + a * (a2 - a1) / d
+            y = b1 + a * (b2 - b1) / d
+            x1 = x + h * (b2 - b1) / d
+            y1 = y - h * (a2 - a1) / d
+
+            x2 = x - h * (b2 - b1) / d
+            y2 = y + h * (a2 - a1) / d
+
+            return [Coordinate(x1, y1), Coordinate(x2, y2)]
 
     @property
     def start_angle(self):
