@@ -42,6 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
@@ -1230,6 +1231,401 @@ def test_edit_point():
     assert region.entities[1].start == ref_region.entities[1].start + translate
     assert region.entities[1].end == ref_region.entities[1].end + translate  #
     assert region.entities[2].start == ref_region.entities[2].start + translate
+
+
+def test_round_corner():
+    # test for rounding corners of a triangle (3 lines)
+    radius = 0.5
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the rounded triangle are of the expected types
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        # check that the midpoints of the shortened lines are the same as the original lines
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
+        )
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.y, triangle_2.entities[i].midpoint.y, abs_tol=1e-6
+        )
+
+    # check that the original corner coordinates are not on any of the rounded triangle's entities
+    corners = []
+    for i in range(3):
+        corners.append(triangle_2.entities[i].end)
+    for entity in triangle_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        triangle_1.round_corner(corners[0], radius)
+    with pytest.raises(Exception):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+
+    # check the case when corner internal angle is negative
+    corner_1 = Coordinate(0, 0)
+    corner_2 = Coordinate(-3, 2)
+    corner_3 = Coordinate(-3, 0)
+    line_1 = Line(corner_1, corner_3)
+    line_2 = Line(corner_3, corner_2)
+    line_3 = Line(corner_2, corner_1)
+    region = Region()
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region.add_entity(line_3)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(corner_1, 0.1)
+    # draw_objects_debug([region, region_rounded])
+    assert corner_1 not in region_rounded.points
+    assert len(region_rounded.entities) == 4
+    assert type(region_rounded.entities[3]) == Arc
+    print(region_rounded.entities[3].midpoint.x)
+    assert region_rounded.entities[3].midpoint.x < corner_1.x
+
+    # test the case when corner internal angle is more than 180 degrees
+    radius = 5
+    centre = Coordinate(0, 0)
+    start_angle = -15
+    end_angle = 195
+    coord_1 = Coordinate(*rt_to_xy(radius, start_angle))
+    coord_2 = Coordinate(*rt_to_xy(radius, start_angle + 180))
+    arc_1 = Arc(coord_1, coord_2, centre=centre)
+    arc_2 = Arc(arc_1.end, Coordinate(*rt_to_xy(radius, end_angle)), centre=centre)
+    line_1 = Line(arc_2.end, centre)
+    line_2 = Line(centre, arc_1.start)
+    region = Region()
+    region.add_entity(arc_1)
+    region.add_entity(arc_2)
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(centre, 2)
+    # draw_objects_debug([region, region_rounded])
+    assert centre not in region_rounded.points
+    assert len(region_rounded.entities) == len(region.entities) + 1
+    assert type(region_rounded.entities[3]) == Arc
+    # print(region_rounded.entities[3].midpoint.y)
+    assert region_rounded.entities[3].midpoint.y < centre.y
+
+
+def test_round_corners():
+    # test for rounding corners of a triangle (3 lines)
+    corner_radius = 0.5
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    triangle_1.round_corners(triangle_1.points, corner_radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the rounded triangle are of the expected types
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        # check that the midpoints of the shortened lines are the same as the original lines
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
+        )
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.y, triangle_2.entities[i].midpoint.y, abs_tol=1e-6
+        )
+
+    # check that the original corner coordinates are not on any of the rounded triangle's entities
+    corners = []
+    for i in range(3):
+        corners.append(triangle_2.entities[i].end)
+    for entity in triangle_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        triangle_1.round_corner(corners[0], radius)
+    with pytest.raises(Exception):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+
+
+def test_round_corner_2():
+    # test for rounding corner between an arc and a line
+
+    corner_radius = 0.5
+    notch_radius = 50
+    notch_sweep = 22.5
+    notch_depth = 20
+    notch_angle = 45
+    notch_1 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+    notch_2 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+
+    for index in reversed(range(3)):
+        notch_1.round_corner(notch_1.entities[index].end, corner_radius)
+    # draw_objects([notch_1, notch_2])
+
+    assert notch_1.is_closed()
+    # check that the entities making up the rounded notch are of the expected types
+    assert type(notch_1.entities[0]) == Line
+    assert type(notch_1.entities[1]) == Arc
+    assert type(notch_1.entities[2]) == Line
+    assert type(notch_1.entities[3]) == Arc
+    assert type(notch_1.entities[4]) == Arc
+    assert type(notch_1.entities[5]) == Arc
+    # check that the gradients of the shortened lines are the same as the original lines
+    assert isclose(notch_1.entities[0].gradient, notch_2.entities[0].gradient, abs_tol=1e-6)
+    assert isclose(notch_1.entities[2].gradient, notch_2.entities[1].gradient, abs_tol=1e-6)
+    # check that the centre of the shortened arc is the same as that of the original arc
+    assert isclose(notch_1.entities[4].centre.x, notch_2.entities[2].centre.x, abs_tol=1e-6)
+    assert isclose(notch_1.entities[4].centre.y, notch_2.entities[2].centre.y, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded notch's entities
+    corners = []
+    for i in range(3):
+        corners.append(notch_2.entities[i].end)
+    for entity in notch_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        notch_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(Exception):
+        notch_1.round_corner(notch_1.entities[0].midpoint, corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+
+
+def test_round_corners_2():
+    # test for rounding corner between an arc and a line
+
+    corner_radius = 0.5
+    notch_radius = 50
+    notch_sweep = 22.5
+    notch_depth = 20
+    notch_angle = 45
+    notch_1 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+    notch_2 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+
+    notch_1.round_corners(notch_1.points, corner_radius)
+    # draw_objects([notch_1, notch_2])
+
+    assert notch_1.is_closed()
+    # check that the entities making up the rounded notch are of the expected types
+    assert type(notch_1.entities[0]) == Line
+    assert type(notch_1.entities[1]) == Arc
+    assert type(notch_1.entities[2]) == Line
+    assert type(notch_1.entities[3]) == Arc
+    assert type(notch_1.entities[4]) == Arc
+    assert type(notch_1.entities[5]) == Arc
+    # check that the gradients of the shortened lines are the same as the original lines
+    assert isclose(notch_1.entities[0].gradient, notch_2.entities[0].gradient, abs_tol=1e-6)
+    assert isclose(notch_1.entities[2].gradient, notch_2.entities[1].gradient, abs_tol=1e-6)
+    # check that the centre of the shortened arc is the same as that of the original arc
+    assert isclose(notch_1.entities[4].centre.x, notch_2.entities[2].centre.x, abs_tol=1e-6)
+    assert isclose(notch_1.entities[4].centre.y, notch_2.entities[2].centre.y, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded notch's entities
+    corners = []
+    for i in range(3):
+        corners.append(notch_2.entities[i].end)
+    for entity in notch_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        notch_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(Exception):
+        notch_1.round_corner(notch_1.entities[0].midpoint, corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+
+
+def test_round_corner_3():
+    # test for rounding corners between two arcs
+
+    corner_radius = 0.5
+    point_1 = Coordinate(0, 15)
+    point_2 = Coordinate(0, 0)
+    shape_radius = 10
+    arc_1 = Arc(point_1, point_2, radius=shape_radius)
+    arc_2 = Arc(point_2, point_1, radius=shape_radius)
+    shape_1 = Region()
+    shape_1.add_entity(arc_1)
+    shape_1.add_entity(arc_2)
+
+    shape_2 = deepcopy(shape_1)
+
+    for index in reversed(range(2)):
+        shape_1.round_corner(shape_1.entities[index].end, corner_radius)
+    # draw_objects([shape_1, shape_2])
+
+    assert shape_1.is_closed()
+    # check that the entities making up the rounded shape are of the expected types
+    assert type(shape_1.entities[0]) == Arc
+    assert type(shape_1.entities[1]) == Arc
+    assert type(shape_1.entities[2]) == Arc
+    assert type(shape_1.entities[3]) == Arc
+    # check that the centres of the shortened arcs are the same as those of the original arcs
+    assert isclose(shape_1.entities[0].centre.x, shape_2.entities[0].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[0].centre.y, shape_2.entities[0].centre.y, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.x, shape_2.entities[1].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.y, shape_2.entities[1].centre.y, abs_tol=1e-6)
+
+    # check that the arc radii are correct for each arc
+    assert isclose(shape_1.entities[0].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[1].radius, corner_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[3].radius, corner_radius, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded shape's entities
+    corners = []
+    for i in range(2):
+        corners.append(shape_2.entities[i].end)
+    for entity in shape_1.entities:
+        for i in range(2):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        shape_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(Exception):
+        shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
+
+    # check that the corners are rounded correctly when the original entity start coordinates are
+    # set as the corners, instead of the end coordinates
+    for index in reversed(range(2)):
+        shape_2.round_corner(shape_2.entities[index].start, corner_radius)
+
+    assert shape_2.entities[0] == shape_1.entities[0]
+    assert shape_1.entities[1] == shape_2.entities[1]
+    assert shape_1.entities[2] == shape_2.entities[2]
+    assert shape_1.entities[3] == shape_2.entities[3]
+
+
+def test_round_corners_3():
+    # test for rounding corners between two arcs
+
+    corner_radius = 0.5
+    point_1 = Coordinate(0, 15)
+    point_2 = Coordinate(0, 0)
+    shape_radius = 10
+    arc_1 = Arc(point_1, point_2, radius=shape_radius)
+    arc_2 = Arc(point_2, point_1, radius=shape_radius)
+    shape_1 = Region()
+    shape_1.add_entity(arc_1)
+    shape_1.add_entity(arc_2)
+
+    shape_2 = deepcopy(shape_1)
+
+    shape_1.round_corners(shape_1.points, corner_radius)
+    # draw_objects([shape_1, shape_2])
+
+    assert shape_1.is_closed()
+    # check that the entities making up the rounded shape are of the expected types
+    assert type(shape_1.entities[0]) == Arc
+    assert type(shape_1.entities[1]) == Arc
+    assert type(shape_1.entities[2]) == Arc
+    assert type(shape_1.entities[3]) == Arc
+    # check that the centres of the shortened arcs are the same as those of the original arcs
+    assert isclose(shape_1.entities[0].centre.x, shape_2.entities[0].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[0].centre.y, shape_2.entities[0].centre.y, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.x, shape_2.entities[1].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.y, shape_2.entities[1].centre.y, abs_tol=1e-6)
+
+    # check that the arc radii are correct for each arc
+    assert isclose(shape_1.entities[0].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[1].radius, corner_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[3].radius, corner_radius, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded shape's entities
+    corners = []
+    for i in range(2):
+        corners.append(shape_2.entities[i].end)
+    for entity in shape_1.entities:
+        for i in range(2):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
+        shape_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(Exception):
+        shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
+
+
+def test_do_not_round_corner():
+    # test for when round_corner method is given a radius of zero
+    radius = 0
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+    # draw a new triangle where the 3rd side is made up of 2 parallel lines. The region will have a
+    # point here, but it is not a corner because the two lines are parallel and have an angle of
+    # zero between them.
+    triangle_3 = deepcopy(triangle_2)
+    new_line_1 = Line(triangle_3.entities[2].start, triangle_3.entities[2].midpoint)
+    new_line_2 = Line(triangle_3.entities[2].midpoint, triangle_3.entities[2].end)
+
+    triangle_3.remove_entity(triangle_3.entities[2])
+    triangle_3.add_entity(new_line_1)
+    triangle_3.add_entity(new_line_2)
+    # draw_objects([triangle_3, triangle_3.points[3]])
+    radius_2 = 0.5
+
+    triangle_3.round_corner(triangle_3.points[3], radius_2)
+
+    # check that the entities making up the triangle are unchanged
+    assert triangle_3.is_closed()
+    for i in range(2):
+        assert triangle_3.entities[i] == triangle_2.entities[i]
+    assert triangle_3.entities[2].start == triangle_2.entities[2].start
+    assert triangle_3.entities[2].end == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].start == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].end == triangle_2.entities[2].end
 
 
 def test_subtract_regions(mc):
