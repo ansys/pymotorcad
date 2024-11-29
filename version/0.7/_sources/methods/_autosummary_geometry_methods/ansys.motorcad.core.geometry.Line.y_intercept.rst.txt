@@ -1,0 +1,6 @@
+y\_intercept
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.y_intercept
