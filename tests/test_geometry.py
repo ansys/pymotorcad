@@ -343,6 +343,7 @@ def test_region_remove_entity():
 def test_region_from_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -359,6 +360,7 @@ def test_region_from_json():
 
     test_region = geometry.Region()
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region.area = 5.1
@@ -379,6 +381,7 @@ def test_region_from_json():
 def test_region_to_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -396,6 +399,7 @@ def test_region_to_json():
 
     test_region = geometry.Region()
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region.area = 5.1
