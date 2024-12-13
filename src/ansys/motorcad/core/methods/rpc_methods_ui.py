@@ -54,7 +54,7 @@ class _RpcMethodsUI:
     def save_motorcad_screen_to_file(self, screen_name, file_name):
         """Save the entire Motor-CAD screen of a tab to an image file.
 
-        Call the ``initialise_tab_names`` method before called this method. The
+        Call the ``initialise_tab_names`` method before you call this method. The
         Motor-CAD UI must be visible.
 
         Parameters
