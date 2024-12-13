@@ -22,6 +22,9 @@
 
 """RPC methods for graphs."""
 from dataclasses import dataclass
+import math
+
+import numpy
 
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
@@ -219,6 +222,66 @@ class _RpcMethodsGraphs:
             return self.connection.send_and_receive(method, params)
         else:
             return self._get_graph(self.get_magnetic_graph_point, graph_name)
+
+    def get_magnetic_graph_harmonics(self, graph_name):
+        """Get harmonic analysis from Motor-CAD magnetic graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        order_values : list
+            Value of harmonic orders from graph
+        amplitude_values : list
+            Value of harmonic amplitudes from graph
+        angle_values : list
+            Value of harmonic angles from graph in degrees
+        """
+        x, y = self.get_magnetic_graph(graph_name)
+        # Find x-axis limits and range, as this is needed to find the phase information
+        min_x = min(x)
+        cycles = (max(x) - min(x)) / 360
+
+        # y normally contains a duplicated final point (360deg=0deg), so discard this point.
+        y_no_duplicate = y[: len(y) - 1]
+
+        # Carry out FFT only get up to the Nyquist limit, using real valued inputs
+        y_fft = numpy.fft.rfft(y_no_duplicate, norm="forward")
+
+        # Apply normalisation.
+        for i in range(len(y_fft)):
+            if i > 0:
+                # Multiply by 2 to account for the positive and negative frequency component
+                y_fft[i] = 2 * y_fft[i]
+            else:
+                # 0th component does not need to be doubled
+                y_fft[i] = y_fft[i]
+
+        # Get amplitude and angle:
+        y_mag = numpy.absolute(y_fft)
+        y_ang = numpy.angle(y_fft, deg=True)
+
+        # Motor-CAD harmonic plot convention shifts the angles by 90 degrees.
+        # Also consider the phase angle of the first point:
+        for i in range(len(y_ang)):
+            y_ang[i] = y_ang[i] + 90 - (min_x * i / cycles)
+            if y_ang[i] > 180:
+                y_ang[i] = y_ang[i] - 360
+            if y_ang[i] < -180:
+                y_ang[i] = y_ang[i] + 360
+
+        # For very small magnitudes, the angle information is not meaningful, so set to zero
+        for i in range(len(y_ang)):
+            if math.isclose(y_mag[i], 0, abs_tol=1e-8):
+                y_ang[i] = 0
+
+        # Generate an index list for plotting
+        y_index = numpy.linspace(start=0, stop=len(y_fft) / cycles, num=len(y_fft), endpoint=False)
+
+        return [y_index.tolist(), y_mag.tolist(), y_ang.tolist()]
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
