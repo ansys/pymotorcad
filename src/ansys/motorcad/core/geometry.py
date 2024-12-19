@@ -25,6 +25,7 @@ from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from warnings import warn
 
 GEOM_TOLERANCE = 1e-6
 
@@ -570,6 +571,162 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
+    def round_corner(self, corner_coordinate, radius):
+        """Round the corner of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and an arc is created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to round.
+        radius : float
+            Radius to round the corner by.
+        """
+        # If radius is 0, do nothing
+        if radius == 0:
+            return
+
+        # Find adjacent entities. There should be 2 entities adjacent to the corner. Going
+        # anti-clockwise around the region, the entities before and after the corner will be
+        # adj_entity[0] and adj_entity[1] respectively.
+        adj_entities = []
+        adj_entity_indices = []
+        for index in range(len(self.entities)):
+            entity = self.entities[index]
+            if entity.coordinate_on_entity(corner_coordinate):
+                adj_entities.append(entity)
+                adj_entity_indices.append(index)
+        # If no adjacent entities are found, the point provided is not a corner
+        if not adj_entities:
+            raise Exception(
+                "Failed to find point on entity in region. "
+                "You must specify a corner in this region."
+            )
+        # If only one adjacent entity is found, the point provided is not a corner
+        if len(adj_entities) == 1:
+            raise Exception(
+                "Point found on only one entity in region. "
+                "You must specify a corner in this region."
+            )
+        # If the adj_entities are the first and last entities of the region, then the entity after
+        # the corner will be found first (entity 0). In this case, swap the entities around so that
+        # adj_entity[0] is always the entity before the corner (corner is adj_entity[0].end).
+        if corner_coordinate == self.entities[len(self.entities) - 1].end:
+            adj_entities[0] = self.entities[len(self.entities) - 1]
+            adj_entities[1] = self.entities[0]
+            adj_entity_indices[0] = len(self.entities) - 1
+            adj_entity_indices[1] = 0
+
+        # If we have arc rounding, we need to find the angle at the intersection of the arc and the
+        # rounding arc. We don't know this position in advance, so iterate up to 100 times to find
+        # the correct distance.
+        distance = 0
+        converged = False
+        for iteration in range(100):
+            # get the angles of the adjacent entities. For a line, this is a property of the entity
+            # object. For an arc, approximate the arc by a straight line from the arc start or end
+            # (whichever is the corner coordinate) to a point 0.0001 mm along the arc.
+            adj_entity_angles = []
+            for entity in adj_entities:
+                if isinstance(entity, Arc):
+                    if corner_coordinate == entity.start:
+                        point_on_arc1 = entity.get_coordinate_from_distance(entity.start, distance)
+                        point_on_arc2 = entity.get_coordinate_from_distance(
+                            entity.start, distance + 0.0001
+                        )
+                    else:
+                        point_on_arc1 = entity.get_coordinate_from_distance(
+                            entity.end, distance + 0.0001
+                        )
+                        point_on_arc2 = entity.get_coordinate_from_distance(entity.end, distance)
+                    line_on_arc = Line(point_on_arc1, point_on_arc2)
+                    adj_entity_angles.append(line_on_arc.angle)
+                else:
+                    adj_entity_angles.append(entity.angle)
+
+            # calculate the internal angle of the corner.
+            corner_internal_angle = 180 + (adj_entity_angles[0] - adj_entity_angles[1])
+            # If this is more than 360, subtract 360.
+            if corner_internal_angle > 360:
+                corner_internal_angle = corner_internal_angle - 360
+            # If it is less than zero, add 360.
+            elif corner_internal_angle < 0:
+                corner_internal_angle = corner_internal_angle + 360
+
+            # calculate the arc angle
+            corner_arc_angle = 180 - corner_internal_angle
+
+            # If the arc angle is zero, the point provided is not a corner.
+            if (
+                isclose(corner_arc_angle, 0, abs_tol=1e-3)
+                or isclose(corner_arc_angle, 360, abs_tol=1e-3)
+                or isclose(corner_arc_angle, -360, abs_tol=1e-3)
+            ):
+                return
+
+            # Calculate distances by which the adjacent entities are shortened
+            previous_distance = distance
+            half_chord = radius * sin(radians(corner_arc_angle) / 2)
+            distance = abs(half_chord / (sin(radians(corner_internal_angle) / 2)))
+
+            # Check if distance has converged, or if iterative convergence not needed
+            if (isinstance(adj_entities[0], Line) and isinstance(adj_entities[1], Line)) or isclose(
+                previous_distance, distance, abs_tol=1e-3
+            ):
+                converged = True
+                break
+
+        # Raise assertion if not converged, as radius probably not valid
+        if converged == False:
+            raise Exception("Cannot find intersection. Check if radius is too large")
+
+        # check that the  distances by which the adjacent entities are shortened are less than the
+        # lengths of the adjacent entities.
+        for index in range(len(adj_entities)):
+            j = adj_entities[index]
+            if j.length < distance:
+                raise Exception(
+                    "Corner radius is too large for these entities. "
+                    "You must specify a smaller radius."
+                )
+        # get and set the new start and end coordinates for the adjacent entities
+        adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
+        adj_entities[1].start = adj_entities[1].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
+
+        # if the internal angle of the corner is more than 180, a negative radius must be applied
+        if corner_internal_angle > 180:
+            e = -1
+        else:
+            e = 1
+
+        # create the round corner arc and insert at the index after the first adjacent entity.
+        corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
+        self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
+
+    def round_corners(self, corner_coordinates, radius):
+        """Round multiple corners of a region.
+
+        Each corner coordinate must already exist on two entities belonging to the region.
+        The two entities adjacent to each corner are shortened, and an arc is created
+        between them.
+
+        Parameters
+        ----------
+        corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
+            List of coordinates of the corners to round.
+        radius : float
+            Radius to round the corners by.
+        """
+        for corner in corner_coordinates:
+            self.round_corner(corner, radius)
+
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
 
@@ -900,6 +1057,47 @@ class Entity(object):
         self.start.translate(x, y)
         self.end.translate(x, y)
 
+    def get_intersection(self, entity):
+        """Get intersection Coordinate of entity with another entity.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        entity : ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        if isinstance(self, Line):
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = entity.get_line_intersection(self)
+            else:
+                raise Exception("Entity type is not Arc or Line")
+        else:
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = self.get_arc_intersection(entity)
+        if points:
+            intersections = []
+            if type(points) == list:
+                for point in points:
+                    if self.coordinate_on_entity(point):
+                        intersections.append(point)
+            else:
+                if self.coordinate_on_entity(points):
+                    intersections.append(points)
+            if intersections:
+                return intersections
+            else:
+                return None
+        else:
+            return None
+
 
 class Line(Entity):
     """Python representation of Motor-CAD line entity based upon start and end coordinates.
@@ -998,36 +1196,37 @@ class Line(Entity):
         else:
             raise Exception("Line can only be mirrored about Line()")
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the line from the reference.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the line from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Line.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Line.
+        fraction : float
+            Fractional distance along Line.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Line.
+            Coordinate at fractional distance along Line.
         """
-        if ref_coordinate == self.end:
-            coordinate_1 = self.end
-            coordinate_2 = self.start
-        else:
-            coordinate_1 = self.start
-            coordinate_2 = self.end
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        t = (self.length * percentage) / self.length
-        x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
-        y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
-
-        return Coordinate(x, y)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the line from the reference.
 
         Parameters
@@ -1035,14 +1234,36 @@ class Line(Entity):
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along Line.
+
+        fraction : float, optional
+            Fractional distance along Line.
+
+        percentage : float, optional
+            Percentage distance along Line.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Line.
         """
+        if (distance is None) and (fraction is None) and (percentage is None):
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if (distance is not None) and (fraction is not None):
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if (distance is not None) and (percentage is not None):
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
+            if fraction is not None:
+                distance = self.length * fraction
+            elif percentage is not None:
+                distance = self.length * (percentage / 100)
+
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
@@ -1129,6 +1350,21 @@ class Line(Entity):
             # Lines don't intersect
             return None
 
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of line with an arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        return arc.get_line_intersection(self)
+
 
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
@@ -1162,27 +1398,37 @@ class _BaseArc(Entity):
         x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
         return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the arc from the reference coord.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the arc from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Arc.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Arc.
+        fraction : float
+            Fractional distance along Arc.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Arc.
+            Coordinate at fractional distance along Arc.
         """
-        length = self.length * percentage
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        return self.get_coordinate_from_distance(ref_coordinate, length)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the arc from the reference coordinate.
 
         Parameters
@@ -1190,14 +1436,36 @@ class _BaseArc(Entity):
         ref_coordinate : Coordinate
            Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along arc.
+
+        fraction : float, optional
+            Fractional distance along Arc.
+
+        percentage : float, optional
+            Percentage distance along Arc.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Arc.
         """
+        if (distance is None) and (fraction is None) and (percentage is None):
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if (distance is not None) and (fraction is not None):
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if (distance is not None) and (percentage is not None):
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
+            if fraction is not None:
+                distance = self.length * fraction
+            elif percentage is not None:
+                distance = self.length * (percentage / 100)
+
         ref_coordinate_angle = atan2(
             (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
         )
@@ -1286,6 +1554,119 @@ class _BaseArc(Entity):
         return self.coordinate_within_arc_radius(coordinate) and isclose(
             abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
         )
+
+    def get_line_intersection(self, line):
+        """Get intersection Coordinates of arc with a line.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        # circle of the arc
+        a = self.centre.x
+        b = self.centre.y
+        r = self.radius
+
+        if line.is_vertical:
+            # line x coordinate is constant
+            x = line.start.x
+
+            A = 1
+            B = -2 * b
+            C = x**2 - 2 * x * a + a**2 + b**2 - r**2
+            D = B**2 - 4 * A * C
+
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                y = -B / (2 * A)
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                y1 = (-B + sqrt(D)) / (2 * A)
+                y2 = (-B - sqrt(D)) / (2 * A)
+                return [Coordinate(x, y1), Coordinate(x, y2)]
+        else:
+            # Normal case, line y is a function of x
+            m = line.gradient
+            c = line.y_intercept
+
+            A = 1 + m**2
+            B = 2 * (m * (c - b) - a)
+            C = a**2 + (c - b) ** 2 - r**2
+
+            D = B**2 - 4 * A * C
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                x = -B / (2 * A)
+                y = m * x + c
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                x1 = (-B + sqrt(D)) / (2 * A)
+                x2 = (-B - sqrt(D)) / (2 * A)
+                y1 = m * x1 + c
+                y2 = m * x2 + c
+                return [Coordinate(x1, y1), Coordinate(x2, y2)]
+
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of arc with another arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of Coordinate or None
+        """
+        # circle of self
+        a1 = self.centre.x
+        b1 = self.centre.y
+        r1 = abs(self.radius)
+
+        # circle of other arc
+        a2 = arc.centre.x
+        b2 = arc.centre.y
+        r2 = abs(arc.radius)
+
+        d = sqrt((a2 - a1) ** 2 + (b2 - b1) ** 2)
+
+        if d > (r1 + r2):
+            # if they don't intersect
+            return None
+        if d < abs(r1 - r2):
+            # if one circle is inside the other
+            return None
+        if d == 0 and r1 == r2:
+            # coincident circles
+            return None
+        else:
+            a = (r1**2 - r2**2 + d**2) / (2 * d)
+            h = sqrt(r1**2 - a**2)
+
+            x = a1 + a * (a2 - a1) / d
+            y = b1 + a * (b2 - b1) / d
+            x1 = x + h * (b2 - b1) / d
+            y1 = y - h * (a2 - a1) / d
+
+            x2 = x - h * (b2 - b1) / d
+            y2 = y + h * (a2 - a1) / d
+
+            return [Coordinate(x1, y1), Coordinate(x2, y2)]
 
     @property
     def start_angle(self):
