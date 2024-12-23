@@ -42,7 +42,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Coordinate, rt_to_xy, xy_to_rt
+from ansys.motorcad.core.geometry import xy_to_rt
 
 # %%
 # Connect to Motor-CAD
@@ -179,17 +179,13 @@ for child_name in rt_region.child_names:
                         # check if the line located at top or bottom
                         Line_origin = check_line_origin_distance(i, duct_region)
                         if not Line_origin:
-                            del_trap_angle = (
-                                (angle_end_point - angle_start_point) * (1 - Trap_ratio) / 2
+                            distance = entity.length * (1 - Trap_ratio)
+                            new_start_point = entity.get_coordinate_from_distance(
+                                entity.start, fraction=(1 - Trap_ratio) / 2
                             )
-                            new_angle_start_point = angle_start_point + del_trap_angle
-                            new_angle_end_point = angle_end_point - del_trap_angle
-                            new_start_x, new_start_y = rt_to_xy(
-                                r_start_point, new_angle_start_point
+                            new_end_point = entity.get_coordinate_from_distance(
+                                entity.end, fraction=(1 - Trap_ratio) / 2
                             )
-                            new_end_x, new_end_y = rt_to_xy(r_end_point, new_angle_end_point)
-                            new_start_point = Coordinate(new_start_x, new_start_y)
-                            new_end_point = Coordinate(new_end_x, new_end_y)
                             duct_region.edit_point(entity.start, new_start_point)
                             duct_region.edit_point(entity.end, new_end_point)
                             mc.set_region(duct_region)
@@ -205,27 +201,23 @@ for child_name in rt_region.child_names:
                     if abs(angle_end_point - angle_start_point) > 0.05:  # 0.05 degree is tolerance
                         Line_origin = check_line_origin_distance(i, duct_region)
                         if not Line_origin:
-                            del_trap_angle = (angle_end_point - angle_start_point) * (
-                                1 - Trap_ratio
-                            )
+                            distance = entity.length * (1 - Trap_ratio)
                             if (
                                 angle_start_point - 0 < 1e-10
                                 or angle_start_point == 0
                                 or round(angle_start_point / Symm_angle, 2) == 1
                             ):  # on symmetry plane
-                                new_angle_end_point = angle_end_point - del_trap_angle
-                                new_end_x, new_end_y = rt_to_xy(r_end_point, new_angle_end_point)
-                                new_end_point = Coordinate(new_end_x, new_end_y)
+                                new_end_point = entity.get_coordinate_from_distance(
+                                    entity.end, fraction=(1 - Trap_ratio) / 2
+                                )
                                 duct_region.edit_point(entity.end, new_end_point)
                             elif (
                                 angle_end_point - 0 < 1e-10
                                 or round(angle_end_point / Symm_angle, 2) == 1
                             ):  # symmetry plan
-                                new_angle_start_point = angle_start_point + del_trap_angle
-                                new_start_x, new_start_y = rt_to_xy(
-                                    r_start_point, new_angle_start_point
+                                new_start_point = entity.get_coordinate_from_distance(
+                                    entity.start, fraction=(1 - Trap_ratio) / 2
                                 )
-                                new_start_point = Coordinate(new_start_x, new_start_y)
                                 duct_region.edit_point(entity.start, new_start_point)
 
                             mc.set_region(duct_region)
