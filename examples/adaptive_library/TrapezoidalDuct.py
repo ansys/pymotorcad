@@ -159,7 +159,7 @@ rt_region = mc.get_region("Rotor")  # get the rotor region
 #
 # * Find the top line that makes up the duct.
 #
-# * Modify the start and end points of the line.
+# * Modify the start and end points of the line using the get_coordinate_from_distance() method.
 #
 # * Set the region in Motor-CAD.
 #
