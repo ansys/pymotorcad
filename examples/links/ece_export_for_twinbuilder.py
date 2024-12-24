@@ -115,10 +115,13 @@ in_data = read_parameters(json_file)
 # The necessary data is extracted from the ``in_data`` dictionary. The JSON configuration file
 # contains:
 #
-# * The filename to be used for the Motor-CAD MOT file.
+# * The Motor-CAD MOT filename to be used for the ECE export. If the file does not exist in the
+#   ``working_folder`` location, this script opens the e8 Motor-CAD template by default.
 #
 # * Operating parameters for the electric machine (shaft speed, DC bus voltage, temperature, maximum
-#   current, current resolution).
+#   current, current resolution and number of points per cycle for the torque calculation). If using
+#   an input file, the file in the ``working_folder`` will be modified by setting the operating
+#   parameter input settings.
 #
 # * The filenames to be used for the results files that are exported (map, text file and SML file).
 #   Exported files are saved to the working directory, in a subfolder named ``Results``.
@@ -130,6 +133,7 @@ dc_bus_voltage = float(in_data["dc_bus_voltage"])
 machine_temp = float(in_data["machine_temp"])
 Id_max = float(in_data["Id_max"])
 current_step = float(in_data["current_step"])
+points_per_cycle = float(in_data["torque_points_per_cycle"])
 
 results_folder = os.path.join(working_folder, "Results")
 try:
@@ -142,11 +146,20 @@ txt_file = os.path.join(results_folder, in_data["txt_file"])
 sml_file = os.path.join(results_folder, in_data["sml_file"])
 
 # %%
-# Load the e8 IPM motor template and save the file to the working directory. Use the ``mot_file``
-# filename that was taken from the JSON configuration file.
+# Load the Motor-CAD file. If the ``mot_file`` specified in the JSON configuration file exists, open
+# the MOT file. The file in the ``working_folder`` will be modified by setting the operating
+# parameter input settings. Ensure this file is backed up if necessary.
+#
+# If the file does not exist, load the e8 IPM motor template and save the file to the
+# working directory. Use the ``mot_file`` filename that was taken from the JSON configuration file.
 # Save input settings to a Motor-CAD MOT file.
-mc.load_template("e8")
-mc.save_to_file(mot_file)
+if os.path.isfile(mot_file):
+    mc.load_from_file(mot_file)
+    print("Opening " + mot_file)
+else:
+    mc.load_template("e8")
+    mc.save_to_file(mot_file)
+    print("Opening Motor-CAD e8 template and saving to file " + mot_file)
 
 # %%
 # Determine alignment angle
@@ -157,9 +170,7 @@ mc.save_to_file(mot_file)
 # the drive offset angle can be determined. Define the calculation settings as taken from the JSON
 # configuration file.
 #
-# * Define the number of points per cycle for the torque calculation as 30 and set this in
-#   Motor-CAD.
-points_per_cycle = 30
+# * Set the number of points per cycle for the torque calculation in Motor-CAD.
 mc.set_variable("TorquePointsPerCycle", points_per_cycle)
 
 # %%
