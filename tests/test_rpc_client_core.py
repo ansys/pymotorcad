@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -336,3 +336,10 @@ def test__resolve_localhost():
         raise e
     finally:
         mc2.quit()
+
+
+def test_blackbox_licencing():
+    mc2 = MotorCAD(use_blackbox_licence=True)
+    # Not sure it's possible to assert that only a blackbox licence was consumed
+    # Just check it works for now
+    mc2.get_licence()
