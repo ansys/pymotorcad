@@ -783,6 +783,7 @@ class RegionMagnet(Region):
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
+        region_dict["magnet_polarity"] = self._magnet_polarity
 
         return region_dict
 
@@ -863,6 +864,10 @@ class RegionMagnet(Region):
         string
         """
         return self._magnet_polarity
+
+    @magnet_polarity.setter
+    def magnet_polarity(self, value):
+        self._magnet_polarity = value
 
 
 class Coordinate(object):

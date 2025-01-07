@@ -2557,11 +2557,13 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
 
+    magnet.magnet_polarity = "S"
+
     mc.set_region(magnet)
     magnet = mc.get_region("L1_1Magnet2")
     assert magnet.br_multiplier == 2
     assert magnet.magnet_angle == 0
-    assert magnet.magnet_polarity == "N"
+    assert magnet.magnet_polarity == "S"
     assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
     assert magnet.br_value == 1.31
