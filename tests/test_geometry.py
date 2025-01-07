@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -187,6 +187,14 @@ def test_get_adaptive_parameter_value_does_not_exist(mc):
         mc.get_adaptive_parameter_value("testing_parameter")
 
     assert "No adaptive parameter found with name" in str(e_info.value)
+
+
+def test_set_adaptive_parameter_default(mc):
+    mc.set_adaptive_parameter_default("testing_parameter_default", 100)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
+    # As parameter already exists, this should not change the value
+    mc.set_adaptive_parameter_default("testing_parameter_default", 200)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
 
 
 def test_get_region(mc):
