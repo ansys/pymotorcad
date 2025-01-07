@@ -66,7 +66,7 @@ else:
     mc.set_variable("MessageDisplayState", 2)
     mc.set_visible(True)
     mc.load_template("e10")
-    mc.set_variable("RotorDuctType", 4)  # selected rectangular ducts
+    mc.set_variable("RotorDuctType", 4)  # select rectangular ducts
     mc.set_array_variable("RotorCircularDuctLayer_ChannelWidth", 0, 4)  # set duct width
 
     # Open relevant file
@@ -169,14 +169,16 @@ duct_area = Trap_H * Trap_W
 for child_name in rt_region.child_names:
     if "RotorDuctFluidRegion" in child_name:
         duct_region = mc.get_region(child_name)
-        if round(duct_region.area / duct_area, 2) == 1:  # check if  full duct is drawn
+        if round(duct_region.area / duct_area, 2) == 1:  # check if a full duct is drawn
             for i, entity in enumerate(duct_region.entities):
-                if round(entity.length / Trap_W, 2) == 1:  # check if  the line is width
-                    # additional check in case width = height
+                if (
+                    round(entity.length / Trap_W, 2) == 1
+                ):  # check if the line length is the same as the duct width
+                    # additional check in case the duct width = height
                     r_start_point, angle_start_point = xy_to_rt(entity.start.x, entity.start.y)
                     r_end_point, angle_end_point = xy_to_rt(entity.end.x, entity.end.y)
                     if abs(angle_end_point - angle_start_point) > 0.05:  # 0.05 degree is tolerance
-                        # check if the line located at top or bottom
+                        # check if the line is located at top or bottom
                         Line_origin = check_line_origin_distance(i, duct_region)
                         if not Line_origin:
                             distance = entity.length * (1 - Trap_ratio)
@@ -190,12 +192,16 @@ for child_name in rt_region.child_names:
                             duct_region.edit_point(entity.end, new_end_point)
                             mc.set_region(duct_region)
 
-        elif round(duct_region.area / duct_area, 2) == 0.5:  # half duct
+        elif (
+            round(duct_region.area / duct_area, 2) == 0.5
+        ):  # account for the case where we have half ducts
             Symm_angle = 360 / duct_region.duplications  # angle of symmetry
 
             for i, entity in enumerate(duct_region.entities):
-                if round(entity.length / Trap_W, 2) == 0.5:  # check if  the line is width
-                    # additional check in case width = height
+                if (
+                    round(entity.length / Trap_W, 2) == 0.5
+                ):  # check if the line length is the same as the duct width
+                    # additional check in case the duct width = height
                     r_start_point, angle_start_point = xy_to_rt(entity.start.x, entity.start.y)
                     r_end_point, angle_end_point = xy_to_rt(entity.end.x, entity.end.y)
                     if abs(angle_end_point - angle_start_point) > 0.05:  # 0.05 degree is tolerance
@@ -214,7 +220,7 @@ for child_name in rt_region.child_names:
                             elif (
                                 angle_end_point - 0 < 1e-10
                                 or round(angle_end_point / Symm_angle, 2) == 1
-                            ):  # symmetry plan
+                            ):  # symmetry plane
                                 new_start_point = entity.get_coordinate_from_distance(
                                     entity.start, fraction=(1 - Trap_ratio) / 2
                                 )
