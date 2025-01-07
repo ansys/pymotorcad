@@ -127,7 +127,7 @@ mc.reset_adaptive_geometry()
 # If the Adaptive Parameters have already been set in the current Motor-CAD file, their current
 # values will be used. Otherwise, the Adaptive Parameters will be defined and set to default values.
 #
-# Use the ``set_adaptive_parameter_default`` to set the required parameters if undefined
+# Use the ``set_adaptive_parameter_default`` method to set the required parameters if undefined.
 mc.set_adaptive_parameter_default("Notch Angle", -4)
 mc.set_adaptive_parameter_default("Notch Sweep", 5)
 mc.set_adaptive_parameter_default("Notch Depth", 1)
