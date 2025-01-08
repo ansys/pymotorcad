@@ -189,6 +189,14 @@ def test_get_adaptive_parameter_value_does_not_exist(mc):
     assert "No adaptive parameter found with name" in str(e_info.value)
 
 
+def test_set_adaptive_parameter_default(mc):
+    mc.set_adaptive_parameter_default("testing_parameter_default", 100)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
+    # As parameter already exists, this should not change the value
+    mc.set_adaptive_parameter_default("testing_parameter_default", 200)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
+
+
 def test_get_region(mc):
     expected_region = generate_constant_region()
     mc.set_region(expected_region)
