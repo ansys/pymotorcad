@@ -93,18 +93,6 @@ mc.reset_adaptive_geometry()
 # %%
 # Define necessary functions
 # --------------------------
-# Set adaptive parameter if required
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
-# it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
 # Check line distance from origin
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The rectangle consists of two lines of length equal to the rectangle width.
@@ -192,9 +180,9 @@ def get_arc_radius_halfduct(entity_start, entity_end, height, Line_origin, Symm_
 # -----------------------------------
 # From Motor-CAD, get the adaptive parameters and their values.
 #
-# Use the ``set_default_parameter()`` method to set the required ``Duct Arc Height`` parameter
-# if undefined.
-set_default_parameter("Duct Arc Height", 0.7)
+# Use the ``set_adaptive_parameter_default()`` method to set the required ``Duct Arc Height``
+# parameter if undefined.
+mc.set_adaptive_parameter_default("Duct Arc Height", 0.7)
 
 
 # %%
