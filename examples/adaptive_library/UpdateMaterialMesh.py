@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,12 +23,13 @@
 """
 Material and Mesh Properties
 =================
-This script applies the adaptive templates functionality to modify material and mesh properties 
+This script applies the adaptive templates functionality to modify material and mesh properties
 in a turbocharger machine.
 """
-#%%
+# %%
 # .. note::
-#    Adaptive Templates material and mesh properties described in this example require v2025.1.1 (Motor-CAD 2025 R1 Update) or later
+#    Adaptive Templates material and mesh properties described in this example require v2025.1.1
+# (Motor-CAD 2025 R1 Update) or later
 
 
 # %%
@@ -48,7 +49,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc,EntityList, Coordinate, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, Region, rt_to_xy
 
 # %%
 # Connect to Motor-CAD
@@ -87,72 +88,68 @@ mc.reset_adaptive_geometry()
 
 # %%
 # **Geometry -> Editor** tab contains Geometry Tree. Here user can select a region to
-# visualaize relevant information such as entities, material type etc. For example, the Rotor material is defined as 
-# "Laminated" with material "N10 0.1 strip".
+# visualaize relevant information such as entities, material type etc. For example, the Rotor
+# material is defined as "Laminated" with material "N10 0.1 strip".
 # From Motor-CAD version 2025 R1 onwards, a user can define different material as well as lamination
-# type such as "Solid" or "Laminated" as will be demonstrated in this example. 
+# type such as "Solid" or "Laminated" as will be demonstrated in this example.
 
 # %%
 # .. image:: ../../images/Material_E7.png
-#  
+#
 
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
 # Set adaptive parameter if required
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
-# it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-# A new sub region of Rotor (rotor band) will be created along the magnet-rotor boundary. 
-set_default_parameter("Rotor_band_thickness", 0.225) # Adaptive parameter of  rotor band thickness
-set_default_parameter("Rotor_band_mesh_length", 0.05) # Adaptive parameter for mesh density of rotor band
+mc.set_adaptive_parameter_default(
+    "Rotor_band_thickness", 0.225
+)  # Adaptive parameter of  rotor band thickness
+mc.set_adaptive_parameter_default(
+    "Rotor_band_mesh_length", 0.05
+)  # Adaptive parameter for mesh density of rotor band
 
-#%%
+# %%
 # Create points and entities for rotor band
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 rt_region = mc.get_region("Rotor")  # get the rotor region
-st_bore=mc.get_variable("Stator_Bore") # Get the stator inner diameter
-airgap=mc.get_variable("Airgap") # Airgap 
-mag_thickness=mc.get_variable("Magnet_thickness") # Magnet thickness 
-rt_radius=st_bore/2-airgap-mag_thickness # Rotor lamination outer radius
-rt_band_thickness=mc.get_adaptive_parameter_value("Rotor_band_thickness") # Read the adaptive 
+st_bore = mc.get_variable("Stator_Bore")  # Get the stator inner diameter
+airgap = mc.get_variable("Airgap")  # Airgap
+mag_thickness = mc.get_variable("Magnet_thickness")  # Magnet thickness
+rt_radius = st_bore / 2 - airgap - mag_thickness  # Rotor lamination outer radius
+rt_band_thickness = mc.get_adaptive_parameter_value("Rotor_band_thickness")  # Read the adaptive
 # parameter for rotor band thickness
-rt_band_radius=rt_radius-rt_band_thickness 
-symm_angle =360/rt_region.duplications
-p1=Coordinate(rt_to_xy(rt_radius,0)[0],rt_to_xy(rt_radius,0)[1])
-p2=Coordinate(rt_to_xy(rt_radius,symm_angle)[0],rt_to_xy(rt_radius,symm_angle)[1])
-p3=Coordinate(rt_to_xy(rt_band_radius,0)[0],rt_to_xy(rt_band_radius,0)[1])
-p4=Coordinate(rt_to_xy(rt_band_radius,symm_angle)[0],rt_to_xy(rt_band_radius,symm_angle)[1])
+rt_band_radius = rt_radius - rt_band_thickness
+symm_angle = 360 / rt_region.duplications
+p1 = Coordinate(rt_to_xy(rt_radius, 0)[0], rt_to_xy(rt_radius, 0)[1])
+p2 = Coordinate(rt_to_xy(rt_radius, symm_angle)[0], rt_to_xy(rt_radius, symm_angle)[1])
+p3 = Coordinate(rt_to_xy(rt_band_radius, 0)[0], rt_to_xy(rt_band_radius, 0)[1])
+p4 = Coordinate(rt_to_xy(rt_band_radius, symm_angle)[0], rt_to_xy(rt_band_radius, symm_angle)[1])
 line_1 = Line(p3, p1)
 line_2 = Line(p2, p4)
 arc_mag = Arc(p1, p2, centre=None, radius=rt_radius)
 arc_rt = Arc(p4, p3, centre=None, radius=-rt_band_radius)
 
-#%%
+# %%
 # Create rotor band region with material and mesh properties
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-rt_band = Region()                              
-rt_band.name="rotor band"
-rt_band.entities = EntityList([line_1,arc_mag, line_2, arc_rt])
-rt_band.duplications=rt_region.duplications
-rt_band.parent=rt_region
-#%%
-# Change the material using the ``Region.material`` method.                
-rt_band.material="4340 Steel"
-#%%
-# Change the mesh length / density using the ``Region.mesh_length`` method.     
-rt_band.mesh_length=mc.get_adaptive_parameter_value("Rotor_band_mesh_length")
-#%%
+rt_band = Region()
+rt_band.name = "rotor band"
+rt_band.entities = EntityList([line_1, arc_mag, line_2, arc_rt])
+rt_band.duplications = rt_region.duplications
+rt_band.parent = rt_region
+# %%
+# Change the material using the ``Region.material`` method.
+rt_band.material = "4340 Steel"
+# %%
+# Change the mesh length / density using the ``Region.mesh_length`` method.
+rt_band.mesh_length = mc.get_adaptive_parameter_value("Rotor_band_mesh_length")
+# %%
 # Change the lamination type to Solid from Laminated using the ``Region.lamination_type`` method.
-rt_band.lamination_type="Solid"   
-mc.set_region(rt_band)     
+rt_band.lamination_type = "Solid"
+mc.set_region(rt_band)
 
 # %%
 # Load in Adaptive Templates script if required
@@ -166,7 +163,7 @@ mc.set_region(rt_band)
 # * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
 #   geometry.
 
-#%%
+# %%
 #  New rotor band region should be visible in Geometry tab. Also, notice the material and lamination
 # type
 
@@ -174,35 +171,36 @@ mc.set_region(rt_band)
 # .. image:: ../../images/RotorBand.png
 
 # %%
-# Run the Emag (on Load > Torque) calculation 
+# Run the Emag (on Load > Torque) calculation
 # ------------------------------------------
 # Flux density distribution of rotor with rotor band will be visible as shown below
 
-# %% 
+# %%
 # .. image:: ../../images/FluxDensity_rotorband.png
 
-#%%
-# As the rotor band region is defined as "Solid" lamination type, eddy current losses can also be 
+# %%
+# As the rotor band region is defined as "Solid" lamination type, eddy current losses can also be
 # observed
 
-# %%  
+# %%
 # .. image:: ../../images/RotorBand_EddyLosses.png
 
-#%%
-# The eddy current losses are confined in narrow band as shown above. Hence by creating a band 
-# region and controling the mesh length of specific regions user can make an computationally 
+# %%
+# The eddy current losses are confined in narrow band as shown above. Hence by creating a band
+# region and controlling the mesh length of specific regions user can make an computationally
 # efficient model as presented in this example.
-#  
-# Notice the different mesh density of rotor and rotor-band region. As rotor band density is an adaptive paramter user can change it accordingly.
+#
+# Notice the different mesh density of rotor and rotor-band region. As rotor band density is an
+# adaptive parameter user can change it accordingly.
 
-# %% 
+# %%
 # .. image:: ../../images/RotorBandMesh.png
 
-#%%
-# Eddy current losses of the rotor band region created by adaptive template will be reported under 
+# %%
+# Eddy current losses of the rotor band region created by adaptive template will be reported under
 # **Output Data -> Losses** tab as **Additional Custom Materials Loss**
 
-# %% 
+# %%
 # .. image:: ../../images/RotorBand_CustomLoss.png
 
 # %%
@@ -213,4 +211,3 @@ if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
