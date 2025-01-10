@@ -42,14 +42,14 @@ def _dft_real(values):
 
     Parameters
     ----------
-    time_domain : list of real
+    values : list of real
         time domain data
 
     Returns
     -------
-    real_components : list
+    real : list
         Real components of the dft.
-    imaginary_components : list
+    imag : list
         Imaginary components of the dft.
     """
     length_in = len(values)
