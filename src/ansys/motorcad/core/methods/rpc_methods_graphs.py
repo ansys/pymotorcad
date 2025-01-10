@@ -285,10 +285,6 @@ class _RpcMethodsGraphs:
                 # Multiply by 2 to account for the positive and negative frequency component
                 y_fft_real[i] = 2 * y_fft_real[i]
                 y_fft_imag[i] = 2 * y_fft_imag[i]
-            else:
-                # 0th component does not need to be doubled
-                y_fft_real[i] = y_fft_real[i]
-                y_fft_imag[i] = y_fft_imag[i]
 
         # Get amplitude and angle:
         y_mag = []
