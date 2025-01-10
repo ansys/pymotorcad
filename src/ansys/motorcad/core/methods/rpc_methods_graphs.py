@@ -36,7 +36,7 @@ class Magnetic3dGraph:
     data: list
 
 
-def _dft_real(time_domain):
+def _dft_real(values):
     """
     Calculate a discrete fourier transform from a real valued list.
 
@@ -52,26 +52,18 @@ def _dft_real(time_domain):
     imaginary_components : list
         Imaginary components of the dft.
     """
-    real_components = []
-    imaginary_components = []
-    length_input = len(time_domain)
+    length_in = len(values)
     # Discard terms above Nyquist limit
-    length_output = length_input // 2 + 1
-    for i in range(length_output):
-        real_component = 0
-        imag_component = 0
-        for j in range(length_input):
-            real_component = (
-                real_component
-                + time_domain[j] * math.cos(i * j * 2 * math.pi / length_input) / length_input
-            )
-            imag_component = (
-                imag_component
-                - time_domain[j] * math.sin(i * j * 2 * math.pi / length_input) / length_input
-            )
-        real_components.append(real_component)
-        imaginary_components.append(imag_component)
-    return real_components, imaginary_components
+    length_out = length_in // 2 + 1
+
+    real = [0] * length_out
+    imag = [0] * length_out
+
+    for i in range(length_out):
+        for j in range(length_in):
+            real[i] = real[i] + values[j] * math.cos(i * j * 2 * math.pi / length_in) / length_in
+            imag[i] = imag[i] - values[j] * math.sin(i * j * 2 * math.pi / length_in) / length_in
+    return real, imag
 
 
 class _RpcMethodsGraphs:
