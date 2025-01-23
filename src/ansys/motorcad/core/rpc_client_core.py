@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -182,6 +182,7 @@ class _MotorCADConnection:
         url="",
         timeout=2,
         compatibility_mode=False,
+        use_blackbox_licence=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -204,6 +205,8 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+        use_blackbox_licence: Boolean, default: False
+            Ask Motor-CAD to consume blackbox licence.
 
         Returns
         -------
@@ -230,6 +233,9 @@ class _MotorCADConnection:
 
         self._url = url
         self._timeout = timeout
+
+        if use_blackbox_licence:
+            environ["MOTORDES_BLACKBOX"] = "1"
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known

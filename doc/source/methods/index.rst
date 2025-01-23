@@ -36,7 +36,7 @@ Geometry drawing
 ------------------------------
 The ``ansys.motorcad.core.geometry_drawing`` library contains functions for drawing
 geometry objects as static visualisations in Python. Geometry drawing is used for plotting
-objects such as regions, lines, arcs and coordinates within the x-y plane. Drawing Motor-CAD
+objects such as regions, lines, arcs, and coordinates within the x-y plane. Drawing Motor-CAD
 geometry objects can make it easier to test and create Adaptive Templates scripts.
 For descriptions of the geometry drawing functions, see :ref:`ref_geometry_drawing`.
 
