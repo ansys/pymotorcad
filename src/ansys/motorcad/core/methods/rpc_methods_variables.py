@@ -146,6 +146,7 @@ class _RpcMethodsVariables:
         str
             Current .mot file path and name
         """
+        self.connection.ensure_version_at_least("2025.0")
         method = "GetMotorCADFileName"
         if self.connection.send_and_receive(method) == "":
             warn("No file has been loaded in this MotorCAD instance")
