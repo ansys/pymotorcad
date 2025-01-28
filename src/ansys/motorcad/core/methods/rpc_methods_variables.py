@@ -146,10 +146,21 @@ class _RpcMethodsVariables:
         str
             Current .mot file path and name
         """
-        self.connection.ensure_version_at_least("2025.0")
-        method = "GetMotorCADFileName"
-        if self.connection.send_and_receive(method) == "":
-            warn("No file has been loaded in this MotorCAD instance")
-            return None
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetMotorCADFileName"
+            if self.connection.send_and_receive(method) == "":
+                warn("No file has been loaded in this MotorCAD instance")
+                return None
+            else:
+                return self.connection.send_and_receive(method)
         else:
-            return self.connection.send_and_receive(method)
+            warn(
+                "GetMotorCADFileName not available in Motor-CAD "
+                + self.connection.program_version
+                + ". Returning value of CurrentMotFilePath_MotorLAB"
+            )
+            if self.get_variable("CurrentMotFilePath_MotorLAB") == "":
+                warn("No file has been loaded in this MotorCAD instance")
+                return None
+            else:
+                return self.get_variable("CurrentMotFilePath_MotorLAB")
