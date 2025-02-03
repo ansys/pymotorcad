@@ -29,7 +29,7 @@ in a turbocharger machine.
 # %%
 # .. note::
 #    Adaptive Templates material and mesh properties described in this example require v2025.1.1
-# (Motor-CAD 2025 R1 Update) or later
+#    (Motor-CAD 2025 R1 Update) or later
 
 
 # %%
@@ -87,11 +87,11 @@ else:
 mc.reset_adaptive_geometry()
 
 # %%
-# **Geometry -> Editor** tab contains Geometry Tree. Here user can select a region to
-# visualaize relevant information such as entities, material type etc. For example, the Rotor
-# material is defined as "Laminated" with material "N10 0.1 strip".
-# From Motor-CAD version 2025 R1 onwards, a user can define different material as well as lamination
-# type such as "Solid" or "Laminated" as will be demonstrated in this example.
+# The **Geometry -> Editor** tab contains the Geometry Tree. Here the user can select a region to
+# visualise relevant information such as entities, material type etc. For example, the Rotor
+# material is defined as *Laminated* with material *N10 0.1 strip*. From Motor-CAD version 2025 R1
+# onwards, a user can define different materials as well as the lamination type such as *Solid* or
+# *Laminated* as will be demonstrated in this example.
 
 # %%
 # .. image:: ../../images/Material_E7.png
@@ -152,6 +152,46 @@ rt_band.lamination_type = "Solid"
 mc.set_region(rt_band)
 
 # %%
+# The new rotor band region should be visible in the *Geometry* tab, with the updated material and
+# lamination type.
+
+# %%
+# .. image:: ../../images/RotorBand.png
+
+# %%
+# Run the EMag (On Load > Torque) calculation
+# ------------------------------------------
+# The flux density distribution of the rotor with rotor band will be visible as shown below.
+
+# %%
+# .. image:: ../../images/FluxDensity_rotorband.png
+
+# %%
+# As the rotor band region is defined as *Solid* lamination type, eddy current losses can also be
+# observed.
+
+# %%
+# .. image:: ../../images/RotorBand_EddyLosses.png
+
+# %%
+# The eddy current losses are confined to the narrow band, as shown above. Hence, by creating a band
+# region and controlling the mesh length of specific regions, the user can make a computationally
+# efficient model as presented in this example.
+#
+# Notice the different mesh densities of the rotor and rotor-band regions. As rotor band density is
+# an adaptive parameter, the user can change it accordingly.
+
+# %%
+# .. image:: ../../images/RotorBandMesh.png
+
+# %%
+# Eddy current losses of the rotor band region created by the adaptive templates script will be
+# reported under the **Output Data -> Losses** tab as **Additional Custom Materials Loss**.
+
+# %%
+# .. image:: ../../images/RotorBand_CustomLoss.png
+
+# %%
 # Load in Adaptive Templates script if required
 # ---------------------------------------------
 # When this script is run externally, the script executes the following:
@@ -162,46 +202,6 @@ mc.set_region(rt_band)
 #
 # * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
 #   geometry.
-
-# %%
-#  New rotor band region should be visible in Geometry tab. Also, notice the material and lamination
-# type
-
-# %%
-# .. image:: ../../images/RotorBand.png
-
-# %%
-# Run the Emag (on Load > Torque) calculation
-# ------------------------------------------
-# Flux density distribution of rotor with rotor band will be visible as shown below
-
-# %%
-# .. image:: ../../images/FluxDensity_rotorband.png
-
-# %%
-# As the rotor band region is defined as "Solid" lamination type, eddy current losses can also be
-# observed
-
-# %%
-# .. image:: ../../images/RotorBand_EddyLosses.png
-
-# %%
-# The eddy current losses are confined in narrow band as shown above. Hence by creating a band
-# region and controlling the mesh length of specific regions user can make an computationally
-# efficient model as presented in this example.
-#
-# Notice the different mesh density of rotor and rotor-band region. As rotor band density is an
-# adaptive parameter user can change it accordingly.
-
-# %%
-# .. image:: ../../images/RotorBandMesh.png
-
-# %%
-# Eddy current losses of the rotor band region created by adaptive template will be reported under
-# **Output Data -> Losses** tab as **Additional Custom Materials Loss**
-
-# %%
-# .. image:: ../../images/RotorBand_CustomLoss.png
 
 # %%
 # .. note::
