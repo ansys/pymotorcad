@@ -56,6 +56,7 @@ import json
 import math
 import os
 import shutil
+import string
 import tempfile
 
 import matplotlib.pyplot as plt
@@ -126,7 +127,8 @@ in_data = read_parameters(json_file)
 # * The filenames to be used for the results files that are exported (map, text file and SML file).
 #   Exported files are saved to the working directory, in a subfolder named ``Results``.
 
-mot_file = os.path.join(working_folder, in_data["mot_file"])
+file_name = in_data["mot_file"]
+mot_file = os.path.join(working_folder, file_name)
 
 shaft_speed = in_data["shaft_speed"]
 dc_bus_voltage = float(in_data["dc_bus_voltage"])
@@ -474,6 +476,9 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~
 # Generate the TXT file, using the path and filename that was taken from the ``ece_config.json``
 # configuration file.
+file_name = file_name.replace(".mot", "")
+file_name = "".join(i for i in file_name if i in string.ascii_letters + "0123456789")
+
 rows = len(index_1)
 
 file_id = open(txt_file, "w")
@@ -536,7 +541,7 @@ file_id.close()
 # SML file is saved using the path and filename taken from the ``ece_config.json`` configuration
 # file.
 file_id = open(sml_file, "w")
-file_id.write("%6s\r\n" % "MODELDEF ECE_e8")
+file_id.write(f"MODELDEF ECE{file_name}")
 file_id.write("%s\r\n" % "{")
 file_id.write("%6s\r\n" % "PORT electrical: A0;")
 file_id.write("%6s\r\n" % "PORT electrical: X0;")
@@ -738,7 +743,7 @@ file_id.write(
     "%6s\r\n" % " ( QUANT:={ AM0.I, AM1.I, AM2.I },"
     ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\ '
 )
-file_id.write("%6s" % ".MODEL ECE_e8_table pwl TABLE=(")
+file_id.write(f".MODEL ECE{file_name}_table pwl TABLE=(")
 file_id.write("%s%u%s" % (" ", d_values, ","))
 
 index = 0
@@ -792,8 +797,9 @@ file_id.close()
 # .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_1.png
 
 # %%
-# A new project component **ECE_e8** is added to **Component Libraries / Project Components**.
-# Drag the ECE component into the **Schematic Capture** window.
+# A new project component **ECE_e8_eMobility** is added to
+# **Component Libraries / Project Components**. Drag the ECE component into the
+# **Schematic Capture** window.
 #
 # .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_2.png
 
