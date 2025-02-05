@@ -36,18 +36,27 @@ class Region(object):
     def __init__(self, motorcad_instance=None):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
+        """Name of region"""
         self.material = "air"
+        """Material name of region"""
         self.colour = (0, 0, 0)
+        """Colour of region"""
         self.area = 0.0
+        """Area of region"""
         self.centroid = Coordinate(0, 0)
+        """Centroid of region"""
         self.region_coordinate = Coordinate(0, 0)
+        """A coordinate within the region"""
         self.duplications = 1
+        """Number of symmetry duplications of region"""
         self.entities = EntityList()
+        """The list of entities in the region"""
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
         self.mesh_length = 0
+        """The mesh length to use, or 0 for default"""
         self._linked_region = None
         self._singular = False
         self._lamination_type = ""
