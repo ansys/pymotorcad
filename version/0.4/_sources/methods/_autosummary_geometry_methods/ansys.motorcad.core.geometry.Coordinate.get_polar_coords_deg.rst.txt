@@ -1,0 +1,6 @@
+get\_polar\_coords\_deg
+=======================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Coordinate.get_polar_coords_deg

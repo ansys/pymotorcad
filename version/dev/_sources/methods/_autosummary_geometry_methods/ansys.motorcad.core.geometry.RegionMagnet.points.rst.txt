@@ -1,0 +1,6 @@
+points
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.points
