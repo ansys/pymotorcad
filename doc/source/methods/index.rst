@@ -57,3 +57,4 @@ For descriptions of the functions, see :ref:`ref_geometry_shapes`.
    geometry_functions
    geometry_drawing
    geometry_shapes
+   geometry_fitting
