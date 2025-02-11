@@ -485,51 +485,51 @@ file_id = open(txt_file, "w")
 
 # %%
 # Write the number of poles to the TXT file.
-file_id.write("%6s\r\n" % "B_BasicData")
-file_id.write("%6s\r\n" % "  Version   1.0")
-file_id.write("%6s %i\r\n" % ("  Poles", p * 2))
-_ = file_id.write("%6s\r\n\n" % "E_BasicData")
+file_id.write("B_BasicData\r\n")
+file_id.write("\tVersion\t1.1\r\n")
+file_id.write(f"\tPoles\t{p * 2:.0f}\r\n")
+_ = file_id.write("E_BasicData\r\n\n")
 
 # %%
 # Write the phase resistance and end winding inductances for each phase to the TXT file.
-file_id.write("%6s\r\n" % "B_PhaseImp 3")
-file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph1", phase_res, "    ", phase_l))
-file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph2", phase_res, "    ", phase_l))
-file_id.write("%6s %12.10e %s %12.10e\r\n" % ("    WG_Ph3", phase_res, "    ", phase_l))
-_ = file_id.write("%6s\r\n\n" % "E_PhaseImp")
+file_id.write("B_PhaseImp 3\r\n")
+file_id.write(f"\tWG_Ph1\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+file_id.write(f"\tWG_Ph2\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+file_id.write(f"\tWG_Ph3\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+_ = file_id.write("E_PhaseImp\r\n\n")
 
 # %%
 # Write the D and Q axis current values to the TXT file.
-file_id.write("%6s\r\n\n" % "B_Sweepings")
-file_id.write("%s %i %s" % ("  Id_Iq     (", d_values, ":"))
+file_id.write("B_Sweepings\r\n\n")
+file_id.write(f"\tId_Iq\t( {d_values} :")
 for i in range(d_values):
-    file_id.write("%s %i" % (" ", id_peak[i, 0]))
-file_id.write("%s\n" % ")")
+    file_id.write(f"\t{id_peak[i, 0]}")
+file_id.write(")\n")
 
-file_id.write("%s %i %s" % ("            (", q_values, ":"))
+file_id.write(f"\t\t( {q_values} :")
 for i in range(q_values):
-    file_id.write("%s %i" % (" ", iq_peak[0, i]))
-_ = file_id.write("%s\n" % ")")
+    file_id.write(f"\t{iq_peak[0, i]}")
+_ = file_id.write(")\n")
 
 # %%
 # Write the rotor positions to the TXT file.
-file_id.write("%s %i %s" % ("  Rotate    (", map_points, ":"))
+file_id.write(f"\tRotate\t( {map_points} :")
 
 for i in range(map_points):
-    file_id.write("%s %6.3f" % (" ", i * mec_deg))
-file_id.write("%s\n" % ")")
-_ = file_id.write("%s\n\n" % "E_Sweepings")
+    file_id.write(f"\t{i * mec_deg:.3f}")
+file_id.write(")\n")
+_ = file_id.write("E_Sweepings\n\n")
 
 # %%
 # Write the D and Q axis flux and torque values and then close the TXT file.
-file_id.write("%s\n" % "B_OutputMatrix DQ0")
+file_id.write("B_OutputMatrix DQ0\n")
 
 for i in range(rows):
     file_id.write(
-        "%10i %19.10e %19.10e %19.10e %19.10e\r\n"
-        % (index_1[i], flux_d_2[i], flux_q_3[i], flux_0_4[i], torque_5[i])
+        f"\t{index_1[i]}\t{flux_d_2[i]:.10e}\t{flux_q_3[i]:.10e}\t{flux_0_4[i]:.10e}"
+        f"\t{torque_5[i]:.10e}\r\n"
     )
-file_id.write("%s\n" % "E_OutputMatrix")
+file_id.write("E_OutputMatrix\n")
 
 file_id.close()
 
@@ -541,248 +541,194 @@ file_id.close()
 # SML file is saved using the path and filename taken from the ``ece_config.json`` configuration
 # file.
 file_id = open(sml_file, "w")
-file_id.write(f"MODELDEF ECE{file_name}")
-file_id.write("%s\r\n" % "{")
-file_id.write("%6s\r\n" % "PORT electrical: A0;")
-file_id.write("%6s\r\n" % "PORT electrical: X0;")
-file_id.write("%6s\r\n" % "PORT electrical: B0;")
-file_id.write("%6s\r\n" % "PORT electrical: Y0;")
-file_id.write("%6s\r\n" % "PORT electrical: C0;")
-file_id.write("%6s\r\n" % "PORT electrical: Z0;")
-file_id.write("%6s\r\n" % "PORT ROTATIONAL_V: ROT1;")
-file_id.write("%6s\r\n" % "PORT ROTATIONAL_V: ROT2;")
+file_id.write(f"MODELDEF ECE_{file_name}\r\n")
+file_id.write("{\r\n")
+file_id.write("PORT electrical: A0;\r\n")
+file_id.write("PORT electrical: X0;\r\n")
+file_id.write("PORT electrical: B0;\r\n")
+file_id.write("PORT electrical: Y0;\r\n")
+file_id.write("PORT electrical: C0;\r\n")
+file_id.write("PORT electrical: Z0;\r\n")
+file_id.write("PORT ROTATIONAL_V: ROT1;\r\n")
+file_id.write("PORT ROTATIONAL_V: ROT2;\r\n")
 
-file_id.write("%6s%4.3f%s\r\n" % ("PORT REAL IN: ra0 = ", phase_res, ";"))
-file_id.write("%6s%4.0e%s\r\n" % ("PORT REAL IN: la0 = ", phase_l, ";"))
-file_id.write("%6s\r\n" % "PORT REAL IN: IniIa0 = 0;")
-file_id.write("%6s\r\n" % "PORT REAL IN: IniIb0 = 0;")
-file_id.write("%6s\r\n" % "PORT REAL IN: IniIc0 = 0;")
-file_id.write("%6s\r\n" % "PORT REAL OUT: Fluxa0 = AM_Fluxa0.I;")
-file_id.write("%6s\r\n" % "PORT REAL OUT: Fluxb0 = AM_Fluxb0.I;")
-file_id.write("%6s\r\n" % "PORT REAL OUT: Fluxc0 = AM_Fluxc0.I;")
-file_id.write("%6s\r\n" % "PORT REAL OUT: Fluxd0 = AMFd.I;")
-file_id.write("%6s\r\n" % "PORT REAL OUT: Fluxq0 = AMFq.I;")
+file_id.write(f"PORT REAL IN: ra0 = {phase_res:.3f};\r\n")
+file_id.write(f"PORT REAL IN: la0 = {phase_l:.0e};\r\n")
+file_id.write("PORT REAL IN: IniIa0 = 0;\r\n")
+file_id.write("PORT REAL IN: IniIb0 = 0;\r\n")
+file_id.write("PORT REAL IN: IniIc0 = 0;\r\n")
+file_id.write("PORT REAL OUT: Fluxa0 = AM_Fluxa0.I;\r\n")
+file_id.write("PORT REAL OUT: Fluxb0 = AM_Fluxb0.I;\r\n")
+file_id.write("PORT REAL OUT: Fluxc0 = AM_Fluxc0.I;\r\n")
+file_id.write("PORT REAL OUT: Fluxd0 = AMFd.I;\r\n")
+file_id.write("PORT REAL OUT: Fluxq0 = AMFq.I;\r\n")
 
-file_id.write("%6s\r\n" % "PORT REAL IN ANGLE[deg]: IniPos = 0;")
-file_id.write("%6s\r\n\n" % "PORT REAL OUT ANGLE[deg]: Pos = VM_Mdeg.V;")
+file_id.write("PORT REAL IN ANGLE[deg]: IniPos = 0;\r\n")
+file_id.write("PORT REAL OUT ANGLE[deg]: Pos = VM_Mdeg.V;\r\n\n")
 
-file_id.write("%6s\r\n" % "INTERN  R        Ra0  N1:=A0, N2:=N_1  ( R:=ra0 );")
-file_id.write("%6s\r\n" % "INTERN  L        La0  N1:=N_1, N2:=N_2  ( L:=la0, I0:=IniIa0 );")
-file_id.write("%6s\r\n" % "INTERN  AM       AMa0  N1:=N_2, N2:=N_3  ;")
-file_id.write("%6s\r\n" % "INTERN  EV       Ema0  N1:=N_3, N2:=X0  ( QUANT:=VMa0.V, FACT:=-1 ); ")
-file_id.write("%6s\r\n" % "INTERN  L        Lma0  N1:=N_4, N2:=GND  ( L:=1 ); ")
-file_id.write("%6s\r\n" % "INTERN  VM       VMa0  N1:=N_4, N2:=GND  ; ")
-file_id.write("%6s\r\n" % "INTERN  AM       AM_Fluxa0  N1:=N_5, N2:=N_4  ; ")
+file_id.write("INTERN  R        Ra0  N1:=A0, N2:=N_1  ( R:=ra0 );\r\n")
+file_id.write("INTERN  L        La0  N1:=N_1, N2:=N_2  ( L:=la0, I0:=IniIa0 );\r\n")
+file_id.write("INTERN  AM       AMa0  N1:=N_2, N2:=N_3  ;\r\n")
+file_id.write("INTERN  EV       Ema0  N1:=N_3, N2:=X0  ( QUANT:=VMa0.V, FACT:=-1 ); \r\n")
+file_id.write("INTERN  L        Lma0  N1:=N_4, N2:=GND  ( L:=1 ); \r\n")
+file_id.write("INTERN  VM       VMa0  N1:=N_4, N2:=GND  ; \r\n")
+file_id.write("INTERN  AM       AM_Fluxa0  N1:=N_5, N2:=N_4  ; \r\n")
 file_id.write(
-    "%6s\r\n"
-    % "INTERN  II       Fluxad  N1:=GND, N2:=N_5  ( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V) ); "
+    "INTERN  II       Fluxad  N1:=GND, N2:=N_5  ( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V) ); \r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % "INTERN  II       Fluxaq  N1:=GND, N2:=N_5  ( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V) ); "
+    "INTERN  II       Fluxaq  N1:=GND, N2:=N_5  ( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V) ); \r\n"
 )
-file_id.write("%6s\r\n" % "INTERN  II       Fluxao  N1:=GND, N2:=N_5  ( QUANT:=AMFo.I, FACT:=1 ); ")
-file_id.write(
-    "%6s\r\n\n" % "INTERN  II       Fluxa0  N1:=GND, N2:=N_5  ( QUANT:=AMo.I, FACT:=0 ); "
-)
+file_id.write("INTERN  II       Fluxao  N1:=GND, N2:=N_5  ( QUANT:=AMFo.I, FACT:=1 ); \r\n")
+file_id.write("INTERN  II       Fluxa0  N1:=GND, N2:=N_5  ( QUANT:=AMo.I, FACT:=0 ); \r\n\n")
 
-file_id.write("%6s\r\n" % "INTERN  R        Rb0  N1:=B0, N2:=N_6  ( R:=ra0 ); ")
-file_id.write("%6s\r\n" % "INTERN  L        Lb0  N1:=N_6, N2:=N_7  ( L:=la0, I0:=IniIb0 );")
-file_id.write("%6s\r\n" % "INTERN  AM       AMb0  N1:=N_7, N2:=N_8  ; ")
-file_id.write("%6s\r\n" % "INTERN  EV       Emb0  N1:=N_8, N2:=Y0  ( QUANT:=VMb0.V, FACT:=-1 );  ")
-file_id.write("%6s\r\n" % "INTERN  L        Lmb0  N1:=N_9, N2:=GND  ( L:=1 ); ")
-file_id.write("%6s\r\n" % "INTERN  VM       VMb0  N1:=N_9, N2:=GND  ; ")
-file_id.write("%6s\r\n" % "INTERN  AM       AM_Fluxb0  N1:=N_10, N2:=N_9  ; ")
+file_id.write("INTERN  R        Rb0  N1:=B0, N2:=N_6  ( R:=ra0 ); \r\n")
+file_id.write("INTERN  L        Lb0  N1:=N_6, N2:=N_7  ( L:=la0, I0:=IniIb0 );\r\n")
+file_id.write("INTERN  AM       AMb0  N1:=N_7, N2:=N_8  ; \r\n")
+file_id.write("INTERN  EV       Emb0  N1:=N_8, N2:=Y0  ( QUANT:=VMb0.V, FACT:=-1 );  \r\n")
+file_id.write("INTERN  L        Lmb0  N1:=N_9, N2:=GND  ( L:=1 ); \r\n")
+file_id.write("INTERN  VM       VMb0  N1:=N_9, N2:=GND  ; \r\n")
+file_id.write("INTERN  AM       AM_Fluxb0  N1:=N_10, N2:=N_9  ; \r\n")
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Fluxbd  N1:=GND, N2:=N_10  "
-        "( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V-2*PI/3) );"
-    )
+    "INTERN  II       Fluxbd  N1:=GND, N2:=N_10  ( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V-2*PI/3) );"
+    "\r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Fluxbq  N1:=GND, N2:=N_10  "
-        "( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V-2*PI/3) ); "
-    )
+    "INTERN  II       Fluxbq  N1:=GND, N2:=N_10  ( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V-2*PI/3) ); "
+    "\r\n"
 )
-file_id.write(
-    "%6s\r\n" % "INTERN  II       Fluxbo  N1:=GND, N2:=N_10" "  ( QUANT:=AMFo.I, FACT:=1 ); "
-)
-file_id.write(
-    "%6s\r\n\n" % "INTERN  II       Fluxb0  N1:=GND, N2:=N_10" "  ( QUANT:=AMo.I, FACT:=0 ); "
-)
+file_id.write("INTERN  II       Fluxbo  N1:=GND, N2:=N_10" "  ( QUANT:=AMFo.I, FACT:=1 ); \r\n")
+file_id.write("INTERN  II       Fluxb0  N1:=GND, N2:=N_10" "  ( QUANT:=AMo.I, FACT:=0 ); \r\n\n")
 
-file_id.write("%6s\r\n" % "INTERN  R        Rc0  N1:=C0, N2:=N_11  " "( R:=ra0 ); ")
-file_id.write("%6s\r\n" % "INTERN  L        Lc0  N1:=N_11, N2:=N_12" "  ( L:=la0, I0:=IniIc0 ); ")
-file_id.write("%6s\r\n" % "INTERN  AM       AMc0  N1:=N_12, N2:=N_13" "  ;  ")
+file_id.write("INTERN  R        Rc0  N1:=C0, N2:=N_11  " "( R:=ra0 ); \r\n")
+file_id.write("INTERN  L        Lc0  N1:=N_11, N2:=N_12" "  ( L:=la0, I0:=IniIc0 ); \r\n")
+file_id.write("INTERN  AM       AMc0  N1:=N_12, N2:=N_13" "  ;  \r\n")
+file_id.write("INTERN  EV       Emc0  N1:=N_13, N2:=Z0" "  ( QUANT:=VMc0.V, FACT:=-1 ); \r\n")
+file_id.write("INTERN  L        Lmc0  N1:=N_14, N2:=GND" "  ( L:=1 ); \r\n")
+file_id.write("INTERN  VM       VMc0  N1:=N_14, N2:=GND" "  ;\r\n")
+file_id.write("INTERN  AM       AM_Fluxc0  N1:=N_15," " N2:=N_14  ;\r\n")
 file_id.write(
-    "%6s\r\n" % "INTERN  EV       Emc0  N1:=N_13, N2:=Z0" "  ( QUANT:=VMc0.V, FACT:=-1 ); "
-)
-file_id.write("%6s\r\n" % "INTERN  L        Lmc0  N1:=N_14, N2:=GND" "  ( L:=1 ); ")
-file_id.write("%6s\r\n" % "INTERN  VM       VMc0  N1:=N_14, N2:=GND" "  ;")
-file_id.write("%6s\r\n" % "INTERN  AM       AM_Fluxc0  N1:=N_15," " N2:=N_14  ;")
-file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Fluxcd  N1:=GND, N2:=N_15  "
-        "( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V-4*PI/3) ); "
-    )
+    "INTERN  II       Fluxcd  N1:=GND, N2:=N_15  ( QUANT:=AMFd.I, FACT:=cos(VM_Erad.V-4*PI/3) ); "
+    "\r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Fluxcq  N1:=GND, N2:=N_15"
-        "  ( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V-4*PI/3) ); "
-    )
+    "INTERN  II       Fluxcq  N1:=GND, N2:=N_15  ( QUANT:=AMFq.I, FACT:=sin(VM_Erad.V-4*PI/3) ); "
+    "\r\n"
 )
-file_id.write(
-    "%6s\r\n" % "INTERN  II       Fluxco  N1:=GND," " N2:=N_15  ( QUANT:=AMFo.I, FACT:=1 ); "
-)
-file_id.write(
-    "%6s\r\n\n" % "INTERN  II       Fluxc0  N1:=GND," " N2:=N_15  ( QUANT:=AMo.I, FACT:=0 );"
-)
+file_id.write("INTERN  II       Fluxco  N1:=GND," " N2:=N_15  ( QUANT:=AMFo.I, FACT:=1 ); \r\n")
+file_id.write("INTERN  II       Fluxc0  N1:=GND," " N2:=N_15  ( QUANT:=AMo.I, FACT:=0 );\r\n\n")
 
-file_id.write("%6s\r\n" % "INTERN  AM" "       AMFd  N1:=N_16, N2:=GND  ; ")
-file_id.write("%6s\r\n" % "INTERN" "  AM       AMFq  N1:=N_17, N2:=GND  ;")
-file_id.write("%6s\r\n\n" % "INTERN" "  AM       AMFo  N1:=N_18, N2:=GND  ; ")
+file_id.write("INTERN  AM" "       AMFd  N1:=N_16, N2:=GND  ; \r\n")
+file_id.write("INTERN" "  AM       AMFq  N1:=N_17, N2:=GND  ;\r\n")
+file_id.write("INTERN" "  AM       AMFo  N1:=N_18, N2:=GND  ; \r\n\n")
 
 file_id.write(
-    "%6s\r\n" % "INTERN  II       Id0  N1:=GND,"
-    " N2:=N_19  ( QUANT:=AMa0.I, FACT:=2/3*cos(VM_Erad.V) ); "
+    "INTERN  II       Id0  N1:=GND, N2:=N_19  ( QUANT:=AMa0.I, FACT:=2/3*cos(VM_Erad.V) ); \r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Id1  N1:=GND, N2:=N_19"
-        "  ( QUANT:=AMb0.I, FACT:=2/3*cos(VM_Erad.V-2*PI/3) ); "
-    )
+    "INTERN  II       Id1  N1:=GND, N2:=N_19  ( QUANT:=AMb0.I, FACT:=2/3*cos(VM_Erad.V-2*PI/3) ); "
+    "\r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Id2  N1:=GND, N2:=N_19"
-        "  ( QUANT:=AMc0.I, FACT:=2/3*cos(VM_Erad.V-4*PI/3) );"
-    )
+    "INTERN  II       Id2  N1:=GND, N2:=N_19  ( QUANT:=AMc0.I, FACT:=2/3*cos(VM_Erad.V-4*PI/3) );"
+    "\r\n"
 )
-file_id.write("%6s\r\n" % "INTERN  AM       AM0  N1:=N_19," " N2:=GND  ;")
+file_id.write("INTERN  AM       AM0  N1:=N_19," " N2:=GND  ;\r\n")
 file_id.write(
-    "%6s\r\n" % "INTERN  II       Iq0  N1:=GND, N2:=N_20"
+    "INTERN  II       Iq0  N1:=GND, N2:=N_20"
     "  ( QUANT:=AMa0.I, FACT:=2/3*sin(VM_Erad.V) ); "
+    "\r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Iq1  N1:=GND, N2:=N_20"
-        "  ( QUANT:=AMb0.I, FACT:=2/3*sin(VM_Erad.V-2*PI/3) ); "
-    )
+    "INTERN  II       Iq1  N1:=GND, N2:=N_20  ( QUANT:=AMb0.I, FACT:=2/3*sin(VM_Erad.V-2*PI/3) ); "
+    "\r\n"
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  II       Iq2  N1:=GND, N2:=N_20"
-        "  ( QUANT:=AMc0.I, FACT:=2/3*sin(VM_Erad.V-4*PI/3) ); "
-    )
+    "INTERN  II       Iq2  N1:=GND, N2:=N_20  ( QUANT:=AMc0.I, FACT:=2/3*sin(VM_Erad.V-4*PI/3) ); "
+    "\r\n"
 )
-file_id.write("%6s\r\n" % "INTERN  AM       AM1  N1:=N_20," " N2:=GND  ; ")
-file_id.write(
-    "%6s\r\n" % "INTERN  II       I00  N1:=GND," " N2:=N_21  ( QUANT:=AMa0.I, FACT:=1/3 ); "
-)
-file_id.write(
-    "%6s\r\n" % "INTERN  II       I01  N1:=GND," " N2:=N_21  ( QUANT:=AMb0.I, FACT:=1/3 ); "
-)
-file_id.write(
-    "%6s\r\n" % "INTERN  II       I02  N1:=GND," " N2:=N_21  ( QUANT:=AMc0.I, FACT:=1/3 ); "
-)
-file_id.write("%6s\r\n\n" % "INTERN  " "AM       AMo  N1:=N_21, N2:=GND  ; ")
+file_id.write("INTERN  AM       AM1  N1:=N_20," " N2:=GND  ; \r\n")
+file_id.write("INTERN  II       I00  N1:=GND," " N2:=N_21  ( QUANT:=AMa0.I, FACT:=1/3 ); \r\n")
+file_id.write("INTERN  II       I01  N1:=GND," " N2:=N_21  ( QUANT:=AMb0.I, FACT:=1/3 ); \r\n")
+file_id.write("INTERN  II       I02  N1:=GND," " N2:=N_21  ( QUANT:=AMc0.I, FACT:=1/3 ); \r\n")
+file_id.write("INTERN  " "AM       AMo  N1:=N_21, N2:=GND  ; \r\n\n")
 
-file_id.write("%6s\r\n" % "INTERN  " "VM       VM_Speed  N1:=N_23, N2:=N_22  ; ")
+file_id.write("INTERN  " "VM       VM_Speed  N1:=N_23, N2:=N_22  ; \r\n")
 file_id.write(
-    "%6s\r\n"
-    % (
-        "UMODEL  D2D      "
-        'D2D1 N1:=N_23, N2:=ROT1 ( NATURE_1:="electrical",'
-        ' NATURE_2:="Rotational_V" ) SRC: DLL( File:="Domains.dll");'
-    )
+    "UMODEL  D2D      "
+    'D2D1 N1:=N_23, N2:=ROT1 ( NATURE_1:="electrical",'
+    ' NATURE_2:="Rotational_V" ) SRC: DLL( File:="Domains.dll");\r\n'
 )
 file_id.write(
-    "%6s\r\n"
-    % (
-        "UMODEL  D2D      "
-        'D2D2 N1:=N_22, N2:=ROT2 ( NATURE_1:="electrical",'
-        ' NATURE_2:="Rotational_V" ) SRC: DLL( File:="Domains.dll");'
-    )
+    "UMODEL  D2D      "
+    'D2D2 N1:=N_22, N2:=ROT2 ( NATURE_1:="electrical",'
+    ' NATURE_2:="Rotational_V" ) SRC: DLL( File:="Domains.dll");\r\n'
 )
 file_id.write(
-    "%6s\r\n" % "INTERN  IV       "
-    "Gx  N1:=GND,"
-    " N2:=N_24  ( QUANT:=VM_Speed.V, FACT:=57.29578 ); "
+    "INTERN  IV       " "Gx  N1:=GND," " N2:=N_24  ( QUANT:=VM_Speed.V, FACT:=57.29578 ); \r\n"
 )
-file_id.write("%6s\r\n" % "INTERN  C" "        " "Cx  N1:=N_24, N2:=GND  ( C:=1, V0:=IniPos ); ")
-file_id.write("%6s\r\n" % "INTERN  VM" "" "       VM_Mdeg  N1:=N_24, N2:=GND  ; ")
-file_id.write(
-    "%6s\r\n" % "INTERN  IV" "" "       Ipos  N1:=GND, N2:=N_25  ( QUANT:=VM_Mdeg.V, FACT:=1 ); "
-)
-file_id.write("%6s\r\n" % "INTERN  AM" "" "       AM2  N1:=N_25, N2:=N_26  ; ")
-file_id.write(
-    "%6s %8.7f %s\r\n"
-    % ("INTERN  R" "        Rpos  N1:=N_26, N2:=GND  ( R:=", 0.0174533 * p, " ); ")
-)
-file_id.write("%6s\r\n\n" % "INTERN  VM" "" "       VM_Erad  N1:=N_26, N2:=GND  ;")
+file_id.write("INTERN  C" "        " "Cx  N1:=N_24, N2:=GND  ( C:=1, V0:=IniPos ); \r\n")
+file_id.write("INTERN  VM" "" "       VM_Mdeg  N1:=N_24, N2:=GND  ; \r\n")
+file_id.write("INTERN  IV" "" "       Ipos  N1:=GND, N2:=N_25  ( QUANT:=VM_Mdeg.V, FACT:=1 ); \r\n")
+file_id.write("INTERN  AM" "" "       AM2  N1:=N_25, N2:=N_26  ; \r\n")
+file_id.write(f"INTERN  R        Rpos  N1:=N_26, N2:=GND  ( R:={0.0174533 * p:.7f} ); \r\n")
+file_id.write("INTERN  VM" "" "       VM_Erad  N1:=N_26, N2:=GND  ;\r\n\n")
 
 file_id.write(
-    "%6s\r\n"
-    % (
-        "INTERN  NDSRC    PECE_e8  N0:=GND,"
-        " N1:=N_16, N2:=GND, N3:=N_17,"
-        " N4:=GND, N5:=N_18, N6:=N_22, N7:=N_23 \ "
-    )
+    f"INTERN  NDSRC    PECE_{file_name}  N0:=GND,"
+    " N1:=N_16, N2:=GND, N3:=N_17,"
+    " N4:=GND, N5:=N_18, N6:=N_22, N7:=N_23 \ \r\n"
 )
 file_id.write(
-    "%6s\r\n" % " ( QUANT:={ AM0.I, AM1.I, AM2.I },"
-    ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\ '
+    " ( QUANT:={ AM0.I, AM1.I, AM2.I }," ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\ \r\n'
 )
-file_id.write(f".MODEL ECE{file_name}_table pwl TABLE=(")
-file_id.write("%s%u%s" % (" ", d_values, ","))
+file_id.write(f".MODEL ECE_{file_name}_table pwl TABLE=(")
+file_id.write(f" {d_values},")
 
 index = 0
 
 for i in range(d_values):
-    file_id.write("%s%d" % (" ", id_peak[i, 0]))
-    file_id.write("%s" % ",")
+    # file_id.write("%s%d" % (" ", id_peak[i, 0]))
+    file_id.write(f" {id_peak[i, 0]}")
+    # file_id.write("%s" % ",")
+    file_id.write(",")
     if i == (d_values - 1):
-        file_id.write("%s\n" % "\ ")
-        file_id.write("%s" % " 0,")
+        # file_id.write("%s\n" % "\ ")
+        file_id.write("\ \n")
+        # file_id.write("%s" % " 0,")
+        file_id.write(" 0,")
 
 for r in range(d_values):
-    file_id.write("%s%u%s" % (" ", q_values, ","))
+    # file_id.write("%s%u%s" % (" ", q_values, ","))
+    file_id.write(f" {q_values},")
     for i in range(q_values):
-        file_id.write("%s%d" % (" ", iq_peak[0, i]))
-        file_id.write("%s" % ",")
+        file_id.write(f" {iq_peak[0, i]}")
+        file_id.write(",")
         if i == (q_values - 1):
-            file_id.write("%s\n" % "\ ")
-            file_id.write("%s" % " 0,")
+            file_id.write("\ \n")
+            file_id.write(" 0,")
 
     for k in range(q_values):
-        file_id.write("%s%u%s" % (" ", map_points, ","))
+        # file_id.write("%s%u%s" % (" ", map_points, ","))
+        file_id.write(f" {map_points},")
         for i in range(map_points):
-            file_id.write("%s%6.3f" % (" ", i * mec_deg))
-            file_id.write("%s" % (","))
+            file_id.write(f" {i * mec_deg:.3f}")
+            file_id.write(",")
             if i == (map_points - 1):
-                file_id.write("%s\n" % "\ ")
-                file_id.write("%s" % " 4,")
+                file_id.write("\ \n")
+                file_id.write(" 4,")
 
         for j in range(1, 5):
             for i in range(map_points):
-                file_id.write("%s%f" % (" ", final_table[int(j), int(index + i)]))
-                file_id.write("%s" % (","))
+                # file_id.write("%s%f" % (" ", final_table[int(j), int(index + i)]))
+                file_id.write(f" {final_table[int(j), int(index + i)]:.6f}")
+                file_id.write(",")
                 if r == (d_values - 1) and k == (q_values - 1) and j == 4 and i == (map_points - 1):
-                    file_id.write("%s\r\n" % ") LINEAR LINEAR PERIODIC\ ")
-                    file_id.write("%s\r\n" % ' DEEPSPLINE" );')
-                    file_id.write("%s\r\n" % "}")
+                    file_id.write(") LINEAR LINEAR PERIODIC\ \r\n")
+                    file_id.write(' DEEPSPLINE" );\r\n')
+                    file_id.write("}\r\n")
                 elif i == (map_points - 1):
-                    file_id.write("%s\n" % "\ ")
+                    file_id.write("\ \n")
         index = index + map_points
 
 file_id.close()
