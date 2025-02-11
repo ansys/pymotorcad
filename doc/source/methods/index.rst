@@ -48,6 +48,13 @@ Geometry shapes functions are used for
 defining and modifying Adaptive Templates geometries in Python.
 For descriptions of the functions, see :ref:`ref_geometry_shapes`.
 
+Geometry fitting
+------------------------------
+The ``ansys.motorcad.core.geometry_fitting`` library contains functions
+used to find line and arc entities to fit a list of coordinates within a defined
+tolerance.
+For descriptions of the functions, see :ref:`ref_geometry_fitting`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
