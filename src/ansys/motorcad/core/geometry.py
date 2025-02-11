@@ -42,11 +42,11 @@ class Region(object):
         self.colour = (0, 0, 0)
         """Colour of region"""
         self.area = 0.0
-        """Area of region"""
+        """Return the area of region"""
         self.centroid = Coordinate(0, 0)
-        """Centroid of region"""
+        """Return the centroid of region"""
         self.region_coordinate = Coordinate(0, 0)
-        """A coordinate within the region"""
+        """Return the reference coordinate within the region"""
         self.duplications = 1
         """Number of symmetry duplications of region"""
         self.entities = EntityList()
