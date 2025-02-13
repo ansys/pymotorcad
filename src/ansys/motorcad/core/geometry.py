@@ -36,6 +36,7 @@ class Region(object):
     def __init__(self, motorcad_instance=None):
         """Create geometry region and set parameters to defaults."""
         self.name = ""
+        self._base_name = ""
         self.material = "air"
         self.colour = (0, 0, 0)
         self.area = 0.0
@@ -175,7 +176,14 @@ class Region(object):
             new_region._region_type = RegionType(json["region_type"])
 
         # self.Entities = json.Entities
-        new_region.name = json["name"]
+
+        if "name_unique" in json:
+            new_region.name = json["name_unique"]
+        else:
+            new_region.name = json["name"]
+
+        new_region._base_name = json["name"]
+
         new_region.material = json["material"]
 
         new_region.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
@@ -217,6 +225,7 @@ class Region(object):
 
         region_dict = {
             "name": self.name,
+            "name_base": self._base_name,
             "material": self.material,
             "colour": {"r": self.colour[0], "g": self.colour[1], "b": self.colour[2]},
             "area": self.area,
@@ -774,6 +783,7 @@ class RegionMagnet(Region):
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
+        region_dict["magnet_polarity"] = self._magnet_polarity
 
         return region_dict
 
@@ -854,6 +864,10 @@ class RegionMagnet(Region):
         string
         """
         return self._magnet_polarity
+
+    @magnet_polarity.setter
+    def magnet_polarity(self, value):
+        self._magnet_polarity = value
 
 
 class Coordinate(object):
