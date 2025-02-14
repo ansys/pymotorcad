@@ -303,7 +303,7 @@ class Region(object):
 
         Returns
         -------
-        string
+        RegionType
         """
         return self._region_type
 
