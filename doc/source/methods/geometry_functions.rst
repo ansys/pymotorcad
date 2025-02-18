@@ -15,6 +15,7 @@ Geometry objects
 
    Region
    RegionMagnet
+   RegionType
    Coordinate
    Entity
    EntityList

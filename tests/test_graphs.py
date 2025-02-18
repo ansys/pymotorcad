@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -167,6 +167,24 @@ def test_get_magnetic_3d_graph(mc):
     assert len(graph_result.y) == 4
     # Note that graph viewer shows in kN, result is in N
     assert almost_equal(graph_result.data[1][1], y)
+
+
+def test_get_magnetic_graph_harmonics(mc):
+    reset_to_default_file(mc)
+
+    mc.set_variable("TorqueCalculation", True)
+    mc.set_variable("ElectromagneticForcesCalc_Load", True)
+
+    mc.do_magnetic_calculation()
+    orders, amp, ang = mc.get_magnetic_graph_harmonics("PhaseCurrent1")
+    amplitude_expected = mc.get_variable("PeakCurrent")
+    phase_expected = mc.get_variable("PhaseAdvance") - 90
+    assert len(orders) == 2
+    assert len(amp) == 2
+    assert len(ang) == 2
+    assert orders[1] == 1
+    assert almost_equal(amp[1], amplitude_expected)
+    assert almost_equal(ang[1], phase_expected)
 
 
 #   #Not fully ready submitted an issue
