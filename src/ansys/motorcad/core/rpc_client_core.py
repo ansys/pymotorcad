@@ -22,6 +22,7 @@
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 from os import environ, path
+from pathlib import Path
 import re
 import socket
 import subprocess
@@ -413,7 +414,8 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
+            cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
         pid = motor_process.pid

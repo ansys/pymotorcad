@@ -24,8 +24,6 @@
 from dataclasses import dataclass
 import math
 
-import numpy
-
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
@@ -36,6 +34,36 @@ class Magnetic3dGraph:
     x: list
     y: list
     data: list
+
+
+def _dft_real(values):
+    """
+    Calculate a discrete fourier transform from a real valued list.
+
+    Parameters
+    ----------
+    values : list of real
+        time domain data
+
+    Returns
+    -------
+    real : list
+        Real components of the dft.
+    imag : list
+        Imaginary components of the dft.
+    """
+    length_in = len(values)
+    # Discard terms above Nyquist limit
+    length_out = length_in // 2 + 1
+
+    real = [0] * length_out
+    imag = [0] * length_out
+
+    for i in range(length_out):
+        for j in range(length_in):
+            real[i] = real[i] + values[j] * math.cos(i * j * 2 * math.pi / length_in) / length_in
+            imag[i] = imag[i] - values[j] * math.sin(i * j * 2 * math.pi / length_in) / length_in
+    return real, imag
 
 
 class _RpcMethodsGraphs:
@@ -249,20 +277,21 @@ class _RpcMethodsGraphs:
         y_no_duplicate = y[: len(y) - 1]
 
         # Carry out FFT only get up to the Nyquist limit, using real valued inputs
-        y_fft = numpy.fft.rfft(y_no_duplicate, norm="forward")
+        y_fft_real, y_fft_imag = _dft_real(y_no_duplicate)
 
         # Apply normalisation.
-        for i in range(len(y_fft)):
+        for i in range(len(y_fft_real)):
             if i > 0:
                 # Multiply by 2 to account for the positive and negative frequency component
-                y_fft[i] = 2 * y_fft[i]
-            else:
-                # 0th component does not need to be doubled
-                y_fft[i] = y_fft[i]
+                y_fft_real[i] = 2 * y_fft_real[i]
+                y_fft_imag[i] = 2 * y_fft_imag[i]
 
         # Get amplitude and angle:
-        y_mag = numpy.absolute(y_fft)
-        y_ang = numpy.angle(y_fft, deg=True)
+        y_mag = []
+        y_ang = []
+        for i in range(len(y_fft_real)):
+            y_mag.append(math.sqrt(y_fft_real[i] ** 2 + y_fft_imag[i] ** 2))
+            y_ang.append(math.degrees(math.atan2(y_fft_imag[i], y_fft_real[i])))
 
         # Motor-CAD harmonic plot convention shifts the angles by 90 degrees.
         # Also consider the phase angle of the first point:
@@ -279,9 +308,11 @@ class _RpcMethodsGraphs:
                 y_ang[i] = 0
 
         # Generate an index list for plotting
-        y_index = numpy.linspace(start=0, stop=len(y_fft) / cycles, num=len(y_fft), endpoint=False)
+        y_index = []
+        for i in range(len(y_ang)):
+            y_index.append(i / cycles)
 
-        return [y_index.tolist(), y_mag.tolist(), y_ang.tolist()]
+        return [y_index, y_mag, y_ang]
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.

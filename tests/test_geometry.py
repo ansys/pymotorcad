@@ -369,9 +369,9 @@ def test_region_from_json():
     test_region.name = "test_region"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
-    test_region.area = 5.1
-    test_region.centroid = geometry.Coordinate(0.0, 1.0)
-    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
+    test_region._area = 5.1
+    test_region._centroid = geometry.Coordinate(0.0, 1.0)
+    test_region._region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
@@ -406,9 +406,9 @@ def test_region_to_json():
     test_region.name = "test_region"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
-    test_region.area = 5.1
-    test_region.centroid = geometry.Coordinate(0.0, 1.0)
-    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
+    test_region._area = 5.1
+    test_region._centroid = geometry.Coordinate(0.0, 1.0)
+    test_region._region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
@@ -871,8 +871,8 @@ def test_unite_regions(mc):
     region_b.entities += create_lines_from_points(points_b)
     expected_region.entities += create_lines_from_points(points_expected)
 
-    expected_region.centroid = geometry.Coordinate(0, -0.3)
-    expected_region.region_coordinate = geometry.Coordinate(0, -0.3)
+    expected_region._centroid = geometry.Coordinate(0, -0.3)
+    expected_region._region_coordinate = geometry.Coordinate(0, -0.3)
     expected_region.duplications = 1
 
     united_region = mc.unite_regions(region_a, [region_b])
@@ -935,8 +935,8 @@ def test_unite_regions_2(mc):
     ]
 
     expected_region = geometry.Region(RegionType.stator_air)
-    expected_region.centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
-    expected_region.region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+    expected_region._centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+    expected_region._region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
 
     # create and add line entities to region from their respective points
     expected_region.entities += create_lines_from_points(points)
