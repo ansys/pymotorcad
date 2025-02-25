@@ -70,7 +70,7 @@ regions from having sharp corners to round corners.
 
 from copy import deepcopy
 
-# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/RoundParSlotBttm.png'
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/IPM_rounded.png'
 import os
 import shutil
 import sys
