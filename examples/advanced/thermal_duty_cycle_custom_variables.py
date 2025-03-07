@@ -123,8 +123,6 @@ custom_variables_var.append(housing_water_jacket_flow_rate)
 for i in range(len(parameter_names)):
     custom_variable_inputs = []
     for period in range(duty_cycle_periods):
-        print(i)
-        print(period)
         custom_variable_input = float(custom_variables_var[i][period])
         custom_variable_inputs.append(custom_variable_input)
     json_out["parameter_names"].append(parameter_names[i])
@@ -136,3 +134,40 @@ json_path = mot_file.replace(".mot", r"\drive_cycle_custom_variables.json")
 with open(json_path, "w") as outfile:
     outfile.write(json_object)
 mc.show_message("Custom Duty Cycle variables exported to JSON file " + json_path)
+
+# %%
+# This example outputs the following to the JSON file.
+
+# %%
+# .. code-block:: json
+#
+#     {
+#       "_comment": "Configuration file for custom Drive Cycle Variables in Motor-CAD Thermal",
+#       "mot_file": "[working_folder]\\e10_duty_cycle_custom_variable_example.mot",
+#       "duty_cycle_periods": 5,
+#       "duty_cycle_time": [
+#         "20",
+#         "40",
+#         "30",
+#         "40",
+#         "10"
+#       ],
+#       "parameter_names": [
+#         "HousingWJ_Inlet_Temperature",
+#         "WJ_Fluid_Volume_Flow_Rate"
+#       ],
+#       "HousingWJ_Inlet_Temperature": [
+#         65.0,
+#         67.5,
+#         70.0,
+#         68.0,
+#         66.0
+#       ],
+#       "WJ_Fluid_Volume_Flow_Rate": [
+#         8.0,
+#         7.5,
+#         7.0,
+#         6.8,
+#         6.6
+#       ]
+#     }
