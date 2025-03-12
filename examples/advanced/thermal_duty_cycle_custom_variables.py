@@ -28,6 +28,7 @@ Thermal Duty Cycle with Custom Variables
 
 """
 
+import inspect
 import json
 import os
 import shutil
@@ -89,7 +90,13 @@ def define_duty_cycle():
         mc.set_array_variable("Duty_Cycle_Speed_End", i, duty_cycle_speed_end[i])
 
 
+mc.show_thermal_context()
+mc.set_variable("ThermalCalcType", 1)
+mc.set_variable("TransientCalculationType", 1)
+mc.set_variable("TransientPointsToPlot", 1)
+mc.clear_duty_cycle()
 define_duty_cycle()
+mc.save_to_file(working_folder + "\\" + mot_name + ".mot")
 # %%
 # Define Custom Variables
 # -----------------------
@@ -115,7 +122,8 @@ json_out = {
 
 custom_variables_var = []
 housing_water_jacket_inlet_temperature = [65.0, 67.5, 70.0, 68.0, 66.0]
-housing_water_jacket_flow_rate = [8.0, 7.5, 7.0, 6.8, 6.6]
+housing_water_jacket_flow_rate = [8.0, 7.5, 7.0, 6.8, 6.6]  # l/min
+housing_water_jacket_flow_rate = [i * 1.667e-5 for i in housing_water_jacket_flow_rate]  # m^3/s
 custom_variables_var.append(housing_water_jacket_inlet_temperature)
 custom_variables_var.append(housing_water_jacket_flow_rate)
 
@@ -171,3 +179,162 @@ mc.show_message("Custom Duty Cycle variables exported to JSON file " + json_path
 #         6.6
 #       ]
 #     }
+
+
+# %%
+# Set custom variables
+# --------------------
+# This function is designed to be run from the "main" function of the "thermal_transient" class
+# in the "FUNCTIONS RUN DURING CALCULATIONS" section below
+#
+# Get the custom variable parameter names and input values for each duty cycle period from
+# the JSON configuration file.
+# Check the current time in the transient calculation and get the corresponding custom variable
+# input values. Set the variables.
+def set_custom_variables():
+    # set messages to display in linked window
+    original_display_state = mc.get_variable("MessageDisplayState")
+    mc.set_variable("MessageDisplayState", 2)
+
+    time = mc.get_variable("CurrentTime")
+    duty_cycle_time = mc.get_variable("Duty_Cycle_Time")
+    duty_cycle_time = duty_cycle_time.split(" : ")
+    duty_cycle_time = list(map(float, duty_cycle_time))
+    duty_cycle_periods = len(duty_cycle_time)
+
+    duty_cycle_end_time = []
+    end_time = 0
+    for period in range(duty_cycle_periods):
+        end_time += duty_cycle_time[period]
+        duty_cycle_end_time.append(end_time)
+    cycle_time = duty_cycle_end_time[duty_cycle_periods - 1]
+
+    # need to account for multiple duty cycles
+    mult = 0
+    if time >= cycle_time:
+        mult = time // cycle_time
+    time = time - cycle_time * mult
+
+    mc.show_message("time = " + str(time + cycle_time * mult) + " s")
+
+    # find JSON file "drive_cycle_custom_variables.json" located in MOT file folder
+    mot_file = mc.get_variable("CurrentMotFilePath_MotorLAB")
+    json_path = mot_file.replace(".mot", r"\drive_cycle_custom_variables.json")
+
+    # open JSON file
+    with open(json_path, "r") as file:
+        data = json.load(file)
+
+    # Get the parameter names from the JSON data
+    parameter_names = data["parameter_names"]
+    for variable in parameter_names:
+        # get the input values from the JSON data
+        inputs = data[variable]
+        for period in range(duty_cycle_periods):
+            if time < duty_cycle_end_time[period]:
+                # set the custom variables
+                mc.show_message("Set " + variable + " to: " + str(inputs[period]))
+                mc.set_variable(variable, inputs[period])
+                break
+    # return to original message display setting
+    mc.set_variable("MessageDisplayState", original_display_state)
+
+
+# %%
+# Define class containing functions for transient thermal calculations
+# -----------------------------------------------------------------------
+class thermal_transient:
+    def initial(self):
+        # Called before calculation
+        self.step = 0
+        print("Thermal Transient - Initial")
+        # Determine whether the transient calculation is Duty Cycle
+        self.calc_type = mc.get_variable("ThermalCalcType")
+        if self.calc_type == 1:
+            print("Duty Cycle calculation")
+
+    def main(self):
+        # Called before each time step in calculation
+        self.step = self.step + 1
+        print("Step: " + str(self.step) + ". Thermal Transient State - Main")
+        # If the Duty Cycle is being run, set the custom variables
+        if self.calc_type == 1:
+            set_custom_variables()
+
+
+# %%
+# write to .py file
+py_file_path = mot_file.replace(".mot", r"\internal_script.py")
+python_output = []
+python_output.append(
+    """\
+# ---------- INTERNAL SCRIPT - THERMAL DUTY CYCLE CUSTOM VARIABLES ----------
+
+# Need to import pymotorcad to access Motor-CAD
+import ansys.motorcad.core as pymotorcad
+import json
+
+# Connect to Motor-CAD
+mc = pymotorcad.MotorCAD()
+
+
+"""
+)
+
+python_output.append(inspect.getsource(set_custom_variables))
+
+python_output.append(
+    """\
+
+
+# ---------- FUNCTIONS RUN DURING CALCULATIONS ----------
+# These will only run if using "Run During Analysis" selected
+# (Scripting -> Settings -> Run During Analysis)
+
+# If "Run During Analysis" is selected then this script will be imported.
+# This means that anything other than setting up the MotorCAD object should
+# be moved to a function/class to avoid unexpected behaviour
+
+# This class contains functions for thermal transient calculations
+class thermal_transient:
+    def initial(self):
+        # Called before calculation
+        self.step = 0
+        print("Thermal Transient - Initial")
+        # Determine whether the transient calculation is Duty Cycle
+        self.calc_type = mc.get_variable("ThermalCalcType")
+        if self.calc_type == 1:
+            print("Duty Cycle calculation")
+
+    def main(self):
+        # Called before each time step in calculation
+        self.step = self.step + 1
+        print("Step: " + str(self.step) + ". Thermal Transient State - Main")
+        # If the Duty Cycle is being run, set the custom variables
+        if self.calc_type == 1:
+            set_custom_variables()
+"""
+)
+
+# python_output.append(inspect.getsource(thermal_transient))
+
+with open(py_file_path, "w") as outfile:
+    for i in python_output:
+        outfile.write(i)
+
+# %%
+# Setup internal scripting
+# ------------------------
+# Set to **Run During Analysis**
+mc.set_variable("ScriptAutoRun_PythonClasses", 1)
+
+# %%
+# Load this script into Internal **Scripting** tab
+mc.load_script(py_file_path)
+
+# %%
+# Run Steady State Analysis
+# -------------------------
+mc.save_to_file(working_folder + "\\" + mot_name + ".mot")
+
+mc.do_transient_analysis()
