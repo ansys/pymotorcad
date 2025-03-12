@@ -216,7 +216,7 @@ To create a new region to represent the notch, use the Region object from
 
 .. code:: python
 
-    notch = Region()
+    notch = Region(region_type=RegionType.rotor_air)
 
 Defining region properties and parent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
