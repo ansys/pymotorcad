@@ -71,6 +71,7 @@ sphinx_gallery_conf = {
     "doc_module": "ansys-motorcad-core",
     "image_scrapers": "matplotlib",
     "ignore_pattern": "flycheck*|temp_example_file.*",
+    "remove_config_comments": True,
 }
 
 # Intersphinx mapping
@@ -110,6 +111,7 @@ numpydoc_validation_checks = {
 
 # static path
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 html_favicon = ansys_favicon
 
@@ -128,3 +130,7 @@ sys.path.insert(0, "./methods")
 from autofill_function_names import generate_method_docs
 
 generate_method_docs()
+
+import os
+
+os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"

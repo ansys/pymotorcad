@@ -18,7 +18,7 @@ jobs:
 
   tests:
     name: Tests and coverage
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, tests]
     strategy:
       matrix:
         os: [windows-latest]
@@ -28,13 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure Motor-CAD not open
-        run: |
-          taskkill /IM Motor-CAD* /F /FI "STATUS eq RUNNING"
-          taskkill /IM MotorLABruntime.exe /F /FI "STATUS eq RUNNING"
-
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           

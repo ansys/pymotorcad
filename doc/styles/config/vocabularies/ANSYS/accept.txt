@@ -20,3 +20,7 @@ airgap
 centre
 VSCode
 PyCharm
+Powershell
+recognised
+exe
+UI

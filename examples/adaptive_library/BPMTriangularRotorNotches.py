@@ -1,9 +1,32 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 .. _ref_BPM_Triangular_Rotor_Notches:
 
 Triangular Rotor Notches for IPM
 ================================
-Adaptive Template script to create triangular rotor notches to improve NVH performance.
+This script applies the adaptive templates functionality to create triangular rotor notches to
+improve NVH performance.
 """
 # %%
 # .. note::
@@ -46,9 +69,11 @@ Adaptive Template script to create triangular rotor notches to improve NVH perfo
 # %%
 # Perform Required imports
 # ------------------------
-# Import pymotorcad to access Motor-CAD. Import triangular_notch to create the notch geometry region
-# with Adaptive Template geometry. Import os, tempfile and shutil to open and save a temporary .mot
-# file if none is open.
+# Import the ``pymotorcad`` package to access Motor-CAD. Import the ``triangular_notch`` function to
+# create the notch geometry region with Adaptive Templates geometry. Import the ``os``, ``shutil``,
+# ``sys``, and ``tempfile`` packages to open and save a temporary MOT file if none is open.
+
+# sphinx_gallery_thumbnail_path = 'images/BPMTriangularRotorNotches.png'
 import os
 import shutil
 import sys
@@ -61,13 +86,13 @@ from ansys.motorcad.core.geometry_shapes import triangular_notch
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e9 IPM motor
-# template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the e9 IPM motor template is loaded, and the file is saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, use the
+# ``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -102,23 +127,11 @@ mc.reset_adaptive_geometry()
 # If the Adaptive Parameters have already been set in the current Motor-CAD file, their current
 # values will be used. Otherwise, the Adaptive Parameters will be defined and set to default values.
 #
-# The function ``set_default_parameter`` is defined to check if a parameter exists, and if not,
-# create it with a default value.
-
-
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter`` to set the required parameters if undefined
-set_default_parameter("Notch Angle", -4)
-set_default_parameter("Notch Sweep", 5)
-set_default_parameter("Notch Depth", 1)
-set_default_parameter("Notches per Pole", 2)
+# Use the ``set_adaptive_parameter_default`` method to set the required parameters if undefined.
+mc.set_adaptive_parameter_default("Notch Angle", -4)
+mc.set_adaptive_parameter_default("Notch Sweep", 5)
+mc.set_adaptive_parameter_default("Notch Depth", 1)
+mc.set_adaptive_parameter_default("Notches per Pole", 2)
 
 
 # %%
@@ -230,23 +243,26 @@ for notch_loop in range(0, number_notches):
         mc.set_region(notch)
 
 # %%
-# Load in Adaptive Templates Script if required
+# .. image:: ../../images/BPMTriangularRotorNotches.png
+#     :width: 300pt
+
+# %%
+# Load in Adaptive Templates script if required
 # ---------------------------------------------
-# When the script is run externally:
+# When this script is run externally, the script executes the following:
 #
-# * Set Geometry type to "Adaptive"
+# * Set **Geometry type** to **Adaptive**.
 #
-# * Load the script into the Adaptive Templates tab
+# * Load the script into the **Adaptive Templates** tab.
 #
-# * Go to the Geometry -> Radial tab to run the Adaptive Templates Script and display the new
-#   geometry
+# * Go to the **Geometry -> Radial** tab to run the Adaptive Templates script and display the new
+#   geometry.
 
-
+# %%
+# .. note::
+#    When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+#    (PY file) instead of ``sys.argv[0]`` when using the ``load_adaptive_script()`` method.
 if not pymotorcad.is_running_in_internal_scripting():
     mc.set_variable("GeometryTemplateType", 1)
     mc.load_adaptive_script(sys.argv[0])
     mc.display_screen("Geometry;Radial")
-
-# %%
-# .. image:: ../../images/BPMTriangularRotorNotches.png
-#     :width: 300pt
