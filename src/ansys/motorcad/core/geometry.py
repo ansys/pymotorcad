@@ -1967,6 +1967,12 @@ class EntityList(list):
 
     @property
     def points_maxwell_polyline(self):
+        """Get points of shape/region from Entity list for generating AEDT polyline object.
+
+        Returns
+        -------
+        List of Lists of real
+        """
         points = []
         for entity in self:
             points += [[str(entity.start.x), str(entity.start.y), "0"]]
@@ -1979,6 +1985,12 @@ class EntityList(list):
 
     @property
     def entity_types(self):
+        """Get entity types of entities within shape/region from Entity list.
+
+        Returns
+        -------
+        List of string
+        """
         return [entity.__class__.__name__ for entity in self]
 
     def _entities_same(self, entities_to_compare, check_reverse=False):
