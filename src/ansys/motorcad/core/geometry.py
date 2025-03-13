@@ -1966,7 +1966,7 @@ class EntityList(list):
         return points
 
     @property
-    def points_maxwell(self):
+    def points_maxwell_polyline(self):
         points = []
         for entity in self:
             points += [[str(entity.start.x), str(entity.start.y), "0"]]
