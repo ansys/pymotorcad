@@ -48,7 +48,7 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = RegionType.adaptive
         self._mesh_length = 0
-        self.length = 0
+        self._extrusion_length = 0
 
         self._linked_region = None
         self._singular = False
@@ -68,8 +68,8 @@ class Region(object):
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self._duplications == other._duplications
             and self._entities == other._entities
-            and self._singular == other.singular
-            and self.length == other.length
+            and self._singular == other._singular
+            and self._extrusion_length == other._extrusion_length
         )
 
     @classmethod
@@ -203,8 +203,8 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
-        # self.singular = json["singular"]
-        # self.length = json["length"]
+        if "length" in json:
+            new_region._extrusion_length = json["length"]
 
         return new_region
 
@@ -237,7 +237,7 @@ class Region(object):
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
-            "length": self.length,
+            "length": self._extrusion_length,
         }
 
         return region_dict
@@ -426,6 +426,14 @@ class Region(object):
     @mesh_length.setter
     def mesh_length(self, mesh_length):
         self._mesh_length = mesh_length
+
+    @property
+    def extrusion_length(self):
+        return self._extrusion_length
+
+    @extrusion_length.setter
+    def extrusion_length(self, extrusion_length):
+        self._extrusion_length = extrusion_length
 
     @property
     def area(self):
@@ -1956,6 +1964,22 @@ class EntityList(list):
         for entity in self:
             points += [deepcopy(entity.start)]
         return points
+
+    @property
+    def points_maxwell(self):
+        points = []
+        for entity in self:
+            points += [[str(entity.start.x), str(entity.start.y), "0"]]
+            if isinstance(entity, Arc):
+                mid_point = entity.midpoint
+                points += [[str(mid_point.x), str(mid_point.y), "0"]]
+
+        points += [[str(self[0].start.x), str(self[0].start.y), "0"]]
+        return points
+
+    @property
+    def entity_types(self):
+        return [entity.__class__.__name__ for entity in self]
 
     def _entities_same(self, entities_to_compare, check_reverse=False):
         """Check whether entities in region are the same as entities a different region.
