@@ -64,12 +64,7 @@ Adaptive Template script to create triangular stator notches to improve NVH perf
 
 import math
 
-# %%
-# Perform Required imports
-# ------------------------
-# Import pymotorcad to access Motor-CAD. Import triangular_notch to create the notch geometry region
-# with Adaptive Template geometry. Import os, tempfile and shutil to open and save a temporary .mot
-# file if none is open.
+# sphinx_gallery_thumbnail_path = 'images/BPMTriangularStatorNotches.png'
 import os
 import shutil
 import sys
@@ -79,16 +74,23 @@ import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, rt_to_xy
 
 # %%
+# Perform Required imports
+# ------------------------
+# Import pymotorcad to access Motor-CAD. Import os, tempfile and shutil to open and save a
+# temporary .mot file if none is open.
+
+
+# %%
 # Connect to Motor-CAD
 # --------------------
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
-# instance will be used.
+# instance is used.
 #
-# If the script is run externally: a new Motor-CAD instance will be opened, the e10 IPM motor
-# template will be loaded and the file will be saved to a temporary folder.
-# To keep a new Motor-CAD instance open after executing the script, the option
-# ``MotorCAD(keep_instance_open=True)`` is used when opening the new instance.
-# Alternatively, use ``MotorCAD()`` and the Motor-CAD instance will close after the
+# If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+# the e10 IPM motor template is loaded and the file is saved to a temporary folder.
+# To keep a new Motor-CAD instance open after executing the script, use the
+# ``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
+# Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
@@ -114,7 +116,6 @@ else:
 # Reset geometry to default
 mc.reset_adaptive_geometry()
 
-
 # %%
 # Set Adaptive Parameters if required
 # -----------------------------------
@@ -124,21 +125,10 @@ mc.reset_adaptive_geometry()
 # If the Adaptive Parameters have already been set in the current Motor-CAD file, their current
 # values will be used. Otherwise, the Adaptive Parameters will be defined and set to default values.
 #
-# The function ``set_default_parameter`` is defined to check if a parameter exists, and if not,
-# create it with a default value.
+# Use the ``set_adaptive_parameter_default`` method to set the required parameters if undefined.
+mc.set_adaptive_parameter_default("Notch Sweep", 2)
+mc.set_adaptive_parameter_default("Notch Depth", 1)
 
-
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter`` to set the required parameters if undefined
-set_default_parameter("Notch Sweep", 2)
-set_default_parameter("Notch Depth", 1)
 
 # %%
 # Get required parameters and objects
@@ -165,24 +155,13 @@ stator_centre = Coordinate(0, 0)
 # * Calculate the angular position of the notch in mechanical degrees
 #
 #
-# * Create the notch Region using the ``triangular_notch()`` function, imported from
-#   ``ansys.motorcad.core.geometry_shapes``. The arguments for the function are:
-#
-#   * stator_radius
-#
-#   * notch_angular_width
-#
-#   * notch_centre_angle
-#
-#   * notch_depth
-#
-# * Define the properties for the notch region
+# * Create the notch Region and define the properties for the notch region
 #
 #   * name
 #
 #   * colour
 #
-#   * duplication angle
+#   * duplications
 #
 #   * material
 #
