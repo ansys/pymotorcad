@@ -56,8 +56,6 @@ Adaptive Template script to create triangular stator notches to improve NVH perf
 # 'Geometry Templates Type' is set to 'Adaptive', this script is automatically run repeatedly to
 # keep the Adaptive Geometry set in Motor-CAD.
 #
-# .. image:: ../../images/Adaptive_Templates_GUI_Screenshot.png
-#
 # This Python script can also be executed externally. When executed externally, a Motor-CAD instance
 # will be launched and a file based on the "e10" template will be saved to a temporary folder. This
 # script will be loaded into the Adaptive Templates tab.
@@ -71,7 +69,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionType, rt_to_xy
 
 # %%
 # Perform Required imports
@@ -119,7 +117,7 @@ mc.reset_adaptive_geometry()
 # %%
 # Set Adaptive Parameters if required
 # -----------------------------------
-# Four Adaptive Parameters are required for this adaptive template. These are used to define the
+# Two Adaptive Parameters are required for this adaptive template. These are used to define the
 # size of the stator notches to be added.
 #
 # If the Adaptive Parameters have already been set in the current Motor-CAD file, their current
@@ -172,7 +170,7 @@ stator_centre = Coordinate(0, 0)
 
 notch_name = "Stator_Notch"
 
-notch = Region()
+notch = Region(region_type=RegionType.stator_air)
 notch.name = notch_name
 notch.colour = (255, 255, 255)
 notch.duplications = stator_region.duplications
