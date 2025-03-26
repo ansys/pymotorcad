@@ -214,7 +214,7 @@ def test_get_region_dxf(mc):
     mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
     expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
-    expected_region.colour = (0, 0, 0)
+    expected_region.colour = (192, 192, 192)
     expected_region.duplications = 8
     expected_region.add_entity(
         geometry.Arc(
