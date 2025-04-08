@@ -90,7 +90,7 @@ import ansys.motorcad.core as pymotorcad
 # folder. To keep a new Motor-CAD instance open after executing the script, use the
 # ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively, use the
 # ``MotorCAD()`` method, which closes the Motor-CAD instance after the script is executed.
-
+os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
 if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
@@ -208,31 +208,33 @@ def round_magnet_pockets(magnets, full_pocket, rotor_lam_corner_radius):
 # * Round the magnet region corners using the ``Region.round_corners`` method.
 #
 # * Round the rotor pocket region corners using the ``round_magnet_pockets`` function defined above.
-def round_magnet_and_pockets(magnet, rotor, magnet_corner_radius, rotor_lam_corner_radius):
+def round_magnet_and_pockets(
+    magnet_region, rotor_region, magnet_corner_radius, rotor_lam_corner_radius
+):
     # get corresponding pocket regions
     pockets = []
-    for name in rotor.child_names:
-        if "Pocket" in name:
-            pocket_region = mc.get_region(name)
+    for region in rotor_region.children:
+        if "Pocket" in region.name:
+            pocket_region = region
             for point in pocket_region.points:
-                if point in magnet.points:
+                if point in magnet_region.points:
                     pockets.append(pocket_region)
                     break
 
     # get entire pocket
     for index in range(len(pockets)):
-        pockets[index] = get_magnet_cutout(magnet, pockets[index])
+        pockets[index] = get_magnet_cutout(magnet_region, pockets[index])
 
     # round magnet
-    magnet.round_corners(magnet.points, magnet_corner_radius)
-    mc.set_region(magnet)
+    magnet_region.round_corners(magnet_region.points, magnet_corner_radius)
+    mc.set_region(magnet_region)
 
     # round pockets
     for index_1 in range(len(pockets)):
         if index_1 > 0:
             for index_2 in range(index_1):
                 pockets[index_1].subtract(pockets[index_2])
-        round_magnet_pockets(magnet, pockets[index_1], rotor_lam_corner_radius)
+        round_magnet_pockets(magnet_region, pockets[index_1], rotor_lam_corner_radius)
         mc.set_region(pockets[index_1])
 
 
