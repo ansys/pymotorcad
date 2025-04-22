@@ -92,6 +92,7 @@ class RegionType(Enum):
 
 
 class Region(object):
+
     """Create geometry region.
     Parameters
     ----------
