@@ -24,7 +24,7 @@
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Region, RegionMagnet
-from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -63,6 +63,22 @@ class _RpcMethodsAdaptiveGeometry:
         method = "GetAdaptiveParameterValue"
         params = [name]
         return self.connection.send_and_receive(method, params)
+
+    def set_adaptive_parameter_default(self, name, value):
+        """Set default value for an adaptive parameter, if the parameter does not already exist.
+
+        Parameters
+        ----------
+        name : string
+            name of parameter.
+        value : float
+            value of parameter.
+        """
+        self.connection.ensure_version_at_least("2024.0")
+        try:
+            self.get_adaptive_parameter_value(name)
+        except MotorCADError:
+            self.set_adaptive_parameter_value(name, value)
 
     def get_region(self, name):
         """Get Motor-CAD geometry region.

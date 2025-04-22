@@ -81,27 +81,13 @@ mc.reset_adaptive_geometry()
 
 
 # %%
-# Define necessary functions
-# --------------------------
-# Set adaptive parameter if required
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
-# it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
 # Get required parameters and objects
 # -----------------------------------
 # From Motor-CAD, get the adaptive parameters and their values.
 #
-# Use the ``set_default_parameter`` method to set the required ``Slot Bttm Corner Radius``
+# Use the ``set_adaptive_parameter_default`` method to set the required ``Slot Bttm Corner Radius``
 # parameter if undefined.
-set_default_parameter("Slot Bttm Corner Radius", 0.5)
+mc.set_adaptive_parameter_default("Slot Bttm Corner Radius", 0.5)
 
 # %%
 # Get the slot bottom corner radius adaptive parameter value.
