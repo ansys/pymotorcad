@@ -937,7 +937,7 @@ class Region(object):
                 self._round_corner(corner_coordinate, radius, adj_entity_lengths)
             except Exception as e:
                 if "Corner radius is too large for these entities" in str(e):
-                    new_corner_radius = radius
+                    new_corner_radius = round(radius, 1)
                     # iterate 100 times to find a maximum suitable corner radius
                     for iteration in range(100):
                         # subtract 0.1 mm from the previous corner radius that was tried
@@ -1011,7 +1011,7 @@ class Region(object):
                     self._round_corner(corner, radius, adj_entity_lengths)
                 except Exception as e:
                     if "Corner radius is too large for these entities" in str(e):
-                        new_corner_radius = radius
+                        new_corner_radius = round(radius, 1)
                         # iterate 100 times to find a maximum suitable corner radius
                         for iteration in range(100):
                             # subtract 0.1 mm from the previous corner radius that was tried
