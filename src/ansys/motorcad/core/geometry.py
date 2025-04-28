@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,43 +25,132 @@ from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+import warnings
+from warnings import warn
 
 GEOM_TOLERANCE = 1e-6
 
 
-class Region(object):
-    """Python representation of Motor-CAD geometry region."""
+class RegionType(Enum):
+    """Provides an enumeration for storing Motor-CAD region types."""
 
-    def __init__(self, motorcad_instance=None):
-        """Create geometry region and set parameters to defaults."""
-        self.name = ""
-        self.material = "air"
-        self.colour = (0, 0, 0)
-        self.area = 0.0
-        self.centroid = Coordinate(0, 0)
-        self.region_coordinate = Coordinate(0, 0)
-        self.duplications = 1
-        self.entities = EntityList()
+    stator = "Stator"
+    rotor = "Rotor"
+    slot_area_stator = "Stator Slot"
+    slot_area_rotor = "Rotor Slot"
+    slot_split = "Split Slot"
+    stator_liner = "Stator Liner"
+    rotor_liner = "Rotor Liner"
+    wedge = "Wedge"
+    stator_duct = "Stator Duct"
+    housing = "Housing"
+    housing_magnetic = "Magnetic Housing"
+    stator_impreg = "Stator Impreg"
+    impreg_gap = "Impreg Gap"
+    stator_copper = "Stator Copper"
+    stator_copper_ins = "Stator Copper Insulation"
+    stator_divider = "Stator Divider"
+    stator_slot_spacer = "Stator Slot Spacer"
+    stator_separator = "Stator slot separator"
+    coil_insulation = "Coil Insulation"
+    stator_air = "Stator Air"
+    rotor_hub = "Rotor hub"
+    rotor_air = "Rotor Air"
+    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
+    rotor_pocket = "Rotor Pocket"
+    pole_spacer = "Pole Spacer"
+    rotor_slot = "Rotor Slot"
+    coil_separator = "Coil Separator"
+    damper_bar = "Damper Bar"
+    wedge_rotor = "Rotor Wedge"
+    rotor_divider = "Rotor Divider"
+    rotor_copper_ins = "Rotor Copper Insulation"
+    rotor_copper = "Rotor Copper"
+    rotor_impreg = "Rotor Impreg"
+    shaft = "Shaft"
+    axle = "Axle"
+    rotor_duct = "Rotor Duct"
+    magnet = "Magnet"
+    barrier = "Barrier"
+    mounting_base = "Base Mount"
+    mounting_plate = "Plate Mount"
+    banding = "Banding"
+    sleeve = "Sleeve"
+    rotor_cover = "Rotor Cover"
+    slot_wj_insulation = "Slot Water Jacket Insulation"
+    slot_wj_wall = "Slot Water Jacket Wall"
+    slot_wj_duct = "Slot Water Jacket Duct"
+    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
+    cowling = "Cowling"
+    cowling_gril = "Cowling Grill"
+    brush = "Brush"
+    commutator = "Commutator"
+    airgap = "Airgap"
+    dxf_import = "DXF Import"
+    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    adaptive = "Adaptive Region"
+
+
+class Region(object):
+    """Create geometry region.
+
+    Parameters
+    ----------
+    region_type: RegionType
+        Type of region
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
+
+    def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
+        """Initialise Region."""
+        if not isinstance(region_type, RegionType):
+            warnings.warn(
+                "The first parameter of creating a new region has changed to region_type."
+                " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
+                " region type"
+            )
+            # Try and catch case where user has added Motor-CAD instance without using named param
+            motorcad_instance = region_type
+            region_type = None
+
+        elif region_type == RegionType.adaptive:
+            warnings.warn(
+                "It is strongly recommended to set a region_type when creating new regions."
+                " Creating new regions with no type will be deprecated in a future release"
+            )
+
+        self._name = ""
+        self._material = "air"
+        self._colour = (0, 0, 0)
+        self._area = 0.0
+        self._centroid = Coordinate(0, 0)
+        self._region_coordinate = Coordinate(0, 0)
+        self._duplications = 1
+        self._entities = EntityList()
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
-        self._region_type = RegionType.adaptive
-        self.mesh_length = 0
+        self._region_type = region_type
+        self._mesh_length = 0
+        self._linked_region = None
+        self._singular = False
+        self._lamination_type = ""
 
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
         return (
             isinstance(other, Region)
-            and self.name == other.name
-            and self.colour == other.colour
+            and self._name == other._name
+            and self._colour == other._colour
             # and self.area == other.area ->
             # Already check entities - can't expect user to calculate area
             # and self.centroid == other.centroid ->
             # Centroid calculated from entities - can't expect user to calculate
             # and self.region_coordinate == other.region_coordinate ->
             # Region coordinate is an output, cannot guarantee will be same for identical regions
-            and self.duplications == other.duplications
-            and self.entities == other.entities
+            and self._duplications == other._duplications
+            and self._entities == other._entities
         )
 
     @classmethod
@@ -80,7 +169,7 @@ class Region(object):
         entity : Line or Arc
             Line/arc entity class instance
         """
-        self.entities.append(entity)
+        self._entities.append(entity)
 
     def insert_entity(self, index, entity):
         """Insert entity to list of region entities at given index.
@@ -92,7 +181,7 @@ class Region(object):
         entity : Line or Arc
             Line/arc entity class instance
         """
-        self.entities.insert(index, entity)
+        self._entities.insert(index, entity)
 
     def insert_polyline(self, index, polyline):
         """Insert polyline at given index, polyline can be made up of line/arc entities.
@@ -115,15 +204,15 @@ class Region(object):
         entity_remove : Line or Arc
             Line/arc entity class instance
         """
-        for entity in self.entities:
+        for entity in self._entities:
             if (entity.start == entity_remove.start) & (entity.end == entity_remove.end):
                 if type(entity) == Line:
-                    self.entities.remove(entity)
+                    self._entities.remove(entity)
                 elif type(entity) == Arc:
                     if (entity.centre == entity_remove.centre) & (
                         entity.radius == entity_remove.radius
                     ):
-                        self.entities.remove(entity)
+                        self._entities.remove(entity)
 
     def replace(self, replacement_region):
         """Replace self with another region.
@@ -138,10 +227,10 @@ class Region(object):
             existing region.
         """
         # Remove existing entities from the region object
-        self.entities.clear()
+        self._entities.clear()
 
         # Set the region object entities to be the list of replacement region entities
-        self.entities = deepcopy(replacement_region.entities)
+        self._entities = deepcopy(replacement_region.entities)
 
     # method to receive region from Motor-CAD and create python object
     @classmethod
@@ -171,23 +260,29 @@ class Region(object):
             new_region._region_type = RegionType(json["region_type"])
 
         # self.Entities = json.Entities
-        new_region.name = json["name"]
-        new_region.material = json["material"]
+        new_region._name = json["name"]
+        new_region._material = json["material"]
 
-        new_region.colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
-        new_region.area = json["area"]
+        new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        new_region._area = json["area"]
 
-        new_region.centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
-        new_region.region_coordinate = Coordinate(
+        new_region._centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        new_region._region_coordinate = Coordinate(
             json["region_coordinate"]["x"], json["region_coordinate"]["y"]
         )
-        new_region.duplications = json["duplications"]
-        new_region.entities = _convert_entities_from_json(json["entities"])
-        new_region.parent_name = json["parent_name"]
+        new_region._duplications = json["duplications"]
+        new_region._entities = _convert_entities_from_json(json["entities"])
+        new_region._parent_name = json["parent_name"]
         new_region._child_names = json["child_names"]
 
         if "mesh_length" in json:
-            new_region.mesh_length = json["mesh_length"]
+            new_region._mesh_length = json["mesh_length"]
+
+        if "singular" in json:
+            new_region._singular = json["singular"]
+
+        if "lamination_type" in json:
+            new_region._lamination_type = json["lamination_type"]
 
         return new_region
 
@@ -200,18 +295,26 @@ class Region(object):
         dict
             Geometry region json representation
         """
+        if self._region_type == RegionType.adaptive:
+            lamination_type = self._lamination_type
+        else:
+            lamination_type = ""
+
         region_dict = {
-            "name": self.name,
-            "material": self.material,
-            "colour": {"r": self.colour[0], "g": self.colour[1], "b": self.colour[2]},
-            "area": self.area,
-            "centroid": {"x": self.centroid.x, "y": self.centroid.y},
-            "region_coordinate": {"x": self.region_coordinate.x, "y": self.region_coordinate.y},
-            "duplications": self.duplications,
+            "name": self._name,
+            "material": self._material,
+            "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
+            "area": self._area,
+            "centroid": {"x": self._centroid.x, "y": self._centroid.y},
+            "region_coordinate": {"x": self._region_coordinate.x, "y": self._region_coordinate.y},
+            "duplications": self._duplications,
             "entities": _convert_entities_to_json(self.entities),
-            "parent_name": self.parent_name,
+            "parent_name": self._parent_name,
             "region_type": self._region_type.value,
-            "mesh_length": self.mesh_length,
+            "mesh_length": self._mesh_length,
+            "on_boundary": False if self._linked_region is None else True,
+            "singular": self._singular,
+            "lamination_type": lamination_type,
         }
 
         return region_dict
@@ -224,15 +327,15 @@ class Region(object):
         Boolean
             Whether region is closed
         """
-        if len(self.entities) > 0:
-            entity_first = self.entities[0]
-            entity_last = self.entities[-1]
+        if len(self._entities) > 0:
+            entity_first = self._entities[0]
+            entity_last = self._entities[-1]
 
             is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
 
-            for i in range(len(self.entities) - 1):
+            for i in range(len(self._entities) - 1):
                 is_closed = get_entities_have_common_coordinate(
-                    self.entities[i], self.entities[i + 1]
+                    self._entities[i], self._entities[i + 1]
                 )
 
             return is_closed
@@ -241,12 +344,7 @@ class Region(object):
 
     @property
     def parent_name(self):
-        """Get region parent name.
-
-        Returns
-        -------
-        string
-        """
+        """Get or set the region parent name."""
         return self._parent_name
 
     @parent_name.setter
@@ -254,8 +352,27 @@ class Region(object):
         self._parent_name = name
 
     @property
+    def linked_region(self):
+        """Get or set linked duplication/unite region."""
+        return self._linked_region
+
+    @linked_region.setter
+    def linked_region(self, region):
+        self._linked_region = region
+        region._linked_region = self
+
+    @property
+    def singular(self):
+        """Get or set if region is singular."""
+        return self._singular
+
+    @singular.setter
+    def singular(self, singular):
+        self._singular = singular
+
+    @property
     def child_names(self):
-        """Property for child names list.
+        """Get child names list.
 
         Returns
         -------
@@ -270,13 +387,17 @@ class Region(object):
 
         Returns
         -------
-        string
+        RegionType
         """
         return self._region_type
 
+    @region_type.setter
+    def region_type(self, region_type):
+        self._region_type = region_type
+
     @property
     def motorcad_instance(self):
-        """Get linked Motor-CAD instance."""
+        """Get or set the linked Motor-CAD instance."""
         return self._motorcad_instance
 
     @motorcad_instance.setter
@@ -300,7 +421,7 @@ class Region(object):
 
     @property
     def parent(self):
-        """Return parent region from Motor-CAD.
+        """Get or set parent region from Motor-CAD.
 
         Returns
         -------
@@ -313,6 +434,94 @@ class Region(object):
     @parent.setter
     def parent(self, region):
         self._parent_name = region.name
+
+    @property
+    def lamination_type(self):
+        """Get or set lamination type of region from Motor-CAD.
+
+        Returns
+        -------
+            string
+        """
+        return self._lamination_type
+
+    @lamination_type.setter
+    def lamination_type(self, lamination_type):
+        if self.region_type == RegionType.adaptive:
+            self._lamination_type = lamination_type
+        else:
+            raise Exception(
+                "It is currently only possible to set lamination type for adaptive regions"
+            )
+
+    @property
+    def name(self):
+        """Get or set region name."""
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property
+    def material(self):
+        """Get or set region material name."""
+        return self._material
+
+    @material.setter
+    def material(self, material):
+        self._material = material
+
+    @property
+    def colour(self):
+        """Get or set region colour."""
+        return self._colour
+
+    @colour.setter
+    def colour(self, colour):
+        self._colour = colour
+
+    @property
+    def duplications(self):
+        """Get or set number of region duplications for the full machine."""
+        return self._duplications
+
+    @duplications.setter
+    def duplications(self, duplications):
+        self._duplications = duplications
+
+    @property
+    def entities(self):
+        """Get or set the list of entities in the region."""
+        return self._entities
+
+    @entities.setter
+    def entities(self, entities):
+        self._entities = entities
+
+    @property
+    def mesh_length(self):
+        """Get or set the mesh length to use, or 0 for default."""
+        return self._mesh_length
+
+    @mesh_length.setter
+    def mesh_length(self, mesh_length):
+        self._mesh_length = mesh_length
+
+    @property
+    def area(self):
+        """Get the region area."""
+        return self._area
+
+    @property
+    def centroid(self):
+        """Get the region centroid."""
+        return self._centroid
+
+    @property
+    def region_coordinate(self):
+        """Get the reference coordinate within the region."""
+        return self._region_coordinate
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
@@ -382,15 +591,15 @@ class Region(object):
         """
         if isinstance(mirror_line, Line):
             region = deepcopy(self)
-            region.entities.clear()
-            region.centroid = self.centroid.mirror(mirror_line)
-            region.region_coordinate = self.region_coordinate.mirror(mirror_line)
+            region._entities.clear()
+            region._centroid = self._centroid.mirror(mirror_line)
+            region._region_coordinate = self._region_coordinate.mirror(mirror_line)
             region._child_names = []
 
             if unique_name:
-                region.name = region.name + "_mirrored"
+                region._name = region._name + "_mirrored"
 
-            for entity in self.entities:
+            for entity in self._entities:
                 region.add_entity(entity.mirror(mirror_line))
 
             return region
@@ -407,7 +616,7 @@ class Region(object):
         angle : float
             Angle of rotation in degrees. Anticlockwise direction is positive.
         """
-        for entity in self.entities:
+        for entity in self._entities:
             entity.rotate(centre_point, angle)
 
     def translate(self, x, y):
@@ -420,7 +629,7 @@ class Region(object):
         y : float
             y distance.
         """
-        for entity in self.entities:
+        for entity in self._entities:
             entity.translate(x, y)
 
     def update(self, region):
@@ -431,26 +640,26 @@ class Region(object):
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object
         """
-        self.name = region.name
-        self.material = region.material
-        self.colour = region.colour
-        self.area = region.area
-        self.centroid = deepcopy(region.centroid)
-        self.region_coordinate = deepcopy(region.region_coordinate)
-        self.duplications = region.duplications
-        self.entities = deepcopy(region.entities)
-        self.parent_name = region.parent_name
-        self._child_names = region.child_names
+        self._name = region._name
+        self._material = region._material
+        self._colour = region._colour
+        self._area = region._area
+        self._centroid = deepcopy(region._centroid)
+        self._region_coordinate = deepcopy(region._region_coordinate)
+        self._duplications = region._duplications
+        self._entities = deepcopy(region._entities)
+        self._parent_name = region._parent_name
+        self._child_names = region._child_names
         self._motorcad_instance = region._motorcad_instance
 
     def _check_connection(self):
         """Check mc connection for region."""
-        if self.motorcad_instance is None:
+        if self._motorcad_instance is None:
             raise Exception(
                 "A Motor-CAD connection is required for this function"
                 + ", please set self.motorcad_instance to a valid Motor-CAD instance"
             )
-        if self.motorcad_instance.connection._wait_for_response(1) is False:
+        if self._motorcad_instance.connection._wait_for_response(1) is False:
             raise Exception(
                 "Unable to connect to Motor-CAD using self.motorcad_instance,"
                 + ", please set self.motorcad_instance to a valid Motor-CAD instance"
@@ -464,7 +673,7 @@ class Region(object):
         -------
         List of Coordinate
         """
-        return self.entities.points
+        return self._entities.points
 
     def add_point(self, point):
         """Add a new point into region on an existing Line/Arc.
@@ -477,7 +686,7 @@ class Region(object):
         point : Coordinate
             Coordinate at which to add new point
         """
-        for pos, entity in enumerate(self.entities):
+        for pos, entity in enumerate(self._entities):
             if entity.coordinate_on_entity(point):
                 if isinstance(entity, Line):
                     new_entity_1 = Line(entity.start, point)
@@ -488,9 +697,9 @@ class Region(object):
                 else:
                     raise Exception("Entity type is not Arc or Line")
 
-                self.entities.pop(pos)
-                self.entities.insert(pos, new_entity_1)
-                self.entities.insert(pos + 1, new_entity_2)
+                self._entities.pop(pos)
+                self._entities.insert(pos, new_entity_1)
+                self._entities.insert(pos + 1, new_entity_2)
                 break
 
         else:
@@ -506,7 +715,7 @@ class Region(object):
         new_coordinates : Coordinate
             Position to move the point to
         """
-        for entity in self.entities:
+        for entity in self._entities:
             if entity.start == old_coordinates:
                 entity.start = deepcopy(new_coordinates)
             if entity.end == old_coordinates:
@@ -514,6 +723,162 @@ class Region(object):
             if isinstance(entity, Arc):
                 # Check Arc is still valid
                 _ = entity.centre
+
+    def round_corner(self, corner_coordinate, radius):
+        """Round the corner of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and an arc is created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to round.
+        radius : float
+            Radius to round the corner by.
+        """
+        # If radius is 0, do nothing
+        if radius == 0:
+            return
+
+        # Find adjacent entities. There should be 2 entities adjacent to the corner. Going
+        # anti-clockwise around the region, the entities before and after the corner will be
+        # adj_entity[0] and adj_entity[1] respectively.
+        adj_entities = []
+        adj_entity_indices = []
+        for index in range(len(self._entities)):
+            entity = self._entities[index]
+            if entity.coordinate_on_entity(corner_coordinate):
+                adj_entities.append(entity)
+                adj_entity_indices.append(index)
+        # If no adjacent entities are found, the point provided is not a corner
+        if not adj_entities:
+            raise Exception(
+                "Failed to find point on entity in region. "
+                "You must specify a corner in this region."
+            )
+        # If only one adjacent entity is found, the point provided is not a corner
+        if len(adj_entities) == 1:
+            raise Exception(
+                "Point found on only one entity in region. "
+                "You must specify a corner in this region."
+            )
+        # If the adj_entities are the first and last entities of the region, then the entity after
+        # the corner will be found first (entity 0). In this case, swap the entities around so that
+        # adj_entity[0] is always the entity before the corner (corner is adj_entity[0].end).
+        if corner_coordinate == self._entities[len(self._entities) - 1].end:
+            adj_entities[0] = self._entities[len(self._entities) - 1]
+            adj_entities[1] = self._entities[0]
+            adj_entity_indices[0] = len(self._entities) - 1
+            adj_entity_indices[1] = 0
+
+        # If we have arc rounding, we need to find the angle at the intersection of the arc and the
+        # rounding arc. We don't know this position in advance, so iterate up to 100 times to find
+        # the correct distance.
+        distance = 0
+        converged = False
+        for iteration in range(100):
+            # get the angles of the adjacent entities. For a line, this is a property of the entity
+            # object. For an arc, approximate the arc by a straight line from the arc start or end
+            # (whichever is the corner coordinate) to a point 0.0001 mm along the arc.
+            adj_entity_angles = []
+            for entity in adj_entities:
+                if isinstance(entity, Arc):
+                    if corner_coordinate == entity.start:
+                        point_on_arc1 = entity.get_coordinate_from_distance(entity.start, distance)
+                        point_on_arc2 = entity.get_coordinate_from_distance(
+                            entity.start, distance + 0.0001
+                        )
+                    else:
+                        point_on_arc1 = entity.get_coordinate_from_distance(
+                            entity.end, distance + 0.0001
+                        )
+                        point_on_arc2 = entity.get_coordinate_from_distance(entity.end, distance)
+                    line_on_arc = Line(point_on_arc1, point_on_arc2)
+                    adj_entity_angles.append(line_on_arc.angle)
+                else:
+                    adj_entity_angles.append(entity.angle)
+
+            # calculate the internal angle of the corner.
+            corner_internal_angle = 180 + (adj_entity_angles[0] - adj_entity_angles[1])
+            # If this is more than 360, subtract 360.
+            if corner_internal_angle > 360:
+                corner_internal_angle = corner_internal_angle - 360
+            # If it is less than zero, add 360.
+            elif corner_internal_angle < 0:
+                corner_internal_angle = corner_internal_angle + 360
+
+            # calculate the arc angle
+            corner_arc_angle = 180 - corner_internal_angle
+
+            # If the arc angle is zero, the point provided is not a corner.
+            if (
+                isclose(corner_arc_angle, 0, abs_tol=1e-3)
+                or isclose(corner_arc_angle, 360, abs_tol=1e-3)
+                or isclose(corner_arc_angle, -360, abs_tol=1e-3)
+            ):
+                return
+
+            # Calculate distances by which the adjacent entities are shortened
+            previous_distance = distance
+            half_chord = radius * sin(radians(corner_arc_angle) / 2)
+            distance = abs(half_chord / (sin(radians(corner_internal_angle) / 2)))
+
+            # Check if distance has converged, or if iterative convergence not needed
+            if (isinstance(adj_entities[0], Line) and isinstance(adj_entities[1], Line)) or isclose(
+                previous_distance, distance, abs_tol=1e-3
+            ):
+                converged = True
+                break
+
+        # Raise assertion if not converged, as radius probably not valid
+        if converged == False:
+            raise Exception("Cannot find intersection. Check if radius is too large")
+
+        # check that the  distances by which the adjacent entities are shortened are less than the
+        # lengths of the adjacent entities.
+        for index in range(len(adj_entities)):
+            j = adj_entities[index]
+            if j.length < distance:
+                raise Exception(
+                    "Corner radius is too large for these entities. "
+                    "You must specify a smaller radius."
+                )
+        # get and set the new start and end coordinates for the adjacent entities
+        adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
+        adj_entities[1].start = adj_entities[1].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
+
+        # if the internal angle of the corner is more than 180, a negative radius must be applied
+        if corner_internal_angle > 180:
+            e = -1
+        else:
+            e = 1
+
+        # create the round corner arc and insert at the index after the first adjacent entity.
+        corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
+        self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
+
+    def round_corners(self, corner_coordinates, radius):
+        """Round multiple corners of a region.
+
+        Each corner coordinate must already exist on two entities belonging to the region.
+        The two entities adjacent to each corner are shortened, and an arc is created
+        between them.
+
+        Parameters
+        ----------
+        corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
+            List of coordinates of the corners to round.
+        radius : float
+            Radius to round the corners by.
+        """
+        for corner in corner_coordinates:
+            self.round_corner(corner, radius)
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
@@ -529,7 +894,7 @@ class Region(object):
         -------
         Line or Arc entity
         """
-        for entity in self.entities:
+        for entity in self._entities:
             if (coordinate_1 == entity.start) and (coordinate_2 == entity.end):
                 return entity
             elif (coordinate_1 == entity.end) and (coordinate_2 == entity.start):
@@ -539,16 +904,21 @@ class Region(object):
 
 
 class RegionMagnet(Region):
-    """Provides the Python representation of a Motor-CAD magnet geometry region."""
+    """Create magnet geometry region.
+
+    Parameters
+    ----------
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
 
     def __init__(self, motorcad_instance=None):
-        """Initialise a ``RegionMagnet`` instance."""
-        super().__init__(motorcad_instance)
+        """Initialise Magnet Region."""
+        super().__init__(RegionType.magnet, motorcad_instance)
         self._magnet_angle = 0.0
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
-        self._region_type = RegionType.magnet
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -845,6 +1215,47 @@ class Entity(object):
         self.start.translate(x, y)
         self.end.translate(x, y)
 
+    def get_intersection(self, entity):
+        """Get intersection Coordinate of entity with another entity.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        entity : ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        if isinstance(self, Line):
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = entity.get_line_intersection(self)
+            else:
+                raise Exception("Entity type is not Arc or Line")
+        else:
+            if isinstance(entity, Line):
+                points = self.get_line_intersection(entity)
+            elif isinstance(entity, Arc):
+                points = self.get_arc_intersection(entity)
+        if points:
+            intersections = []
+            if type(points) == list:
+                for point in points:
+                    if self.coordinate_on_entity(point):
+                        intersections.append(point)
+            else:
+                if self.coordinate_on_entity(points):
+                    intersections.append(points)
+            if intersections:
+                return intersections
+            else:
+                return None
+        else:
+            return None
+
 
 class Line(Entity):
     """Python representation of Motor-CAD line entity based upon start and end coordinates.
@@ -943,36 +1354,37 @@ class Line(Entity):
         else:
             raise Exception("Line can only be mirrored about Line()")
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the line from the reference.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the line from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Line.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Line.
+        fraction : float
+            Fractional distance along Line.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Line.
+            Coordinate at fractional distance along Line.
         """
-        if ref_coordinate == self.end:
-            coordinate_1 = self.end
-            coordinate_2 = self.start
-        else:
-            coordinate_1 = self.start
-            coordinate_2 = self.end
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        t = (self.length * percentage) / self.length
-        x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
-        y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
-
-        return Coordinate(x, y)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the line from the reference.
 
         Parameters
@@ -980,14 +1392,36 @@ class Line(Entity):
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along Line.
+
+        fraction : float, optional
+            Fractional distance along Line.
+
+        percentage : float, optional
+            Percentage distance along Line.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Line.
         """
+        if (distance is None) and (fraction is None) and (percentage is None):
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if (distance is not None) and (fraction is not None):
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if (distance is not None) and (percentage is not None):
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
+            if fraction is not None:
+                distance = self.length * fraction
+            elif percentage is not None:
+                distance = self.length * (percentage / 100)
+
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
@@ -1074,6 +1508,21 @@ class Line(Entity):
             # Lines don't intersect
             return None
 
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of line with an arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        return arc.get_line_intersection(self)
+
 
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
@@ -1107,27 +1556,37 @@ class _BaseArc(Entity):
         x_shift, y_shift = rt_to_xy(abs(self.radius), angle)
         return Coordinate(self.centre.x + x_shift, self.centre.y + y_shift)
 
-    def get_coordinate_from_percentage_distance(self, ref_coordinate, percentage):
-        """Get the coordinate at the percentage distance along the arc from the reference coord.
+    def get_coordinate_from_percentage_distance(self, ref_coordinate, fraction):
+        """Get the coordinate at a fractional distance along the arc from the reference coord.
+
+        .. note::
+           This method is deprecated. Use the :func:`Arc.get_coordinate_from_distance`
+           method with the `fraction = ` or `percentage =` argument.
 
         Parameters
         ----------
         ref_coordinate : Coordinate
             Entity reference coordinate.
 
-        percentage : float
-            Percentage distance along Arc.
+        fraction : float
+            Fractional distance along Arc.
 
         Returns
         -------
         Coordinate
-            Coordinate at percentage distance along Arc.
+            Coordinate at fractional distance along Arc.
         """
-        length = self.length * percentage
+        warn(
+            "get_coordinate_from_percentage_distance() WILL BE DEPRECATED SOON - "
+            "USE get_coordinate_from_distance instead with the `fraction = ` or `percentage = ` "
+            "optional argument",
+            DeprecationWarning,
+        )
+        return self.get_coordinate_from_distance(ref_coordinate, fraction=fraction)
 
-        return self.get_coordinate_from_distance(ref_coordinate, length)
-
-    def get_coordinate_from_distance(self, ref_coordinate, distance):
+    def get_coordinate_from_distance(
+        self, ref_coordinate, distance=None, fraction=None, percentage=None
+    ):
         """Get the coordinate at the specified distance along the arc from the reference coordinate.
 
         Parameters
@@ -1135,14 +1594,36 @@ class _BaseArc(Entity):
         ref_coordinate : Coordinate
            Entity reference coordinate.
 
-        distance : float
+        distance : float, optional
             Distance along arc.
+
+        fraction : float, optional
+            Fractional distance along Arc.
+
+        percentage : float, optional
+            Percentage distance along Arc.
 
         Returns
         -------
         Coordinate
             Coordinate at distance along Arc.
         """
+        if (distance is None) and (fraction is None) and (percentage is None):
+            raise Exception("You must provide either a distance, fraction or percentage.")
+
+        if (distance is not None) and (fraction is not None):
+            warn("Both distance and fraction provided. Using distance.", UserWarning)
+        if (distance is not None) and (percentage is not None):
+            warn("Both distance and percentage provided. Using distance.", UserWarning)
+
+        if distance is None:
+            if (fraction is not None) and (percentage is not None):
+                warn("Both fraction and percentage provided. Using fraction.", UserWarning)
+            if fraction is not None:
+                distance = self.length * fraction
+            elif percentage is not None:
+                distance = self.length * (percentage / 100)
+
         ref_coordinate_angle = atan2(
             (ref_coordinate.y - self.centre.y), (ref_coordinate.x - self.centre.x)
         )
@@ -1231,6 +1712,119 @@ class _BaseArc(Entity):
         return self.coordinate_within_arc_radius(coordinate) and isclose(
             abs(radius), abs(self.radius), abs_tol=GEOM_TOLERANCE
         )
+
+    def get_line_intersection(self, line):
+        """Get intersection Coordinates of arc with a line.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        line : ansys.motorcad.core.geometry.Line
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
+        """
+        # circle of the arc
+        a = self.centre.x
+        b = self.centre.y
+        r = self.radius
+
+        if line.is_vertical:
+            # line x coordinate is constant
+            x = line.start.x
+
+            A = 1
+            B = -2 * b
+            C = x**2 - 2 * x * a + a**2 + b**2 - r**2
+            D = B**2 - 4 * A * C
+
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                y = -B / (2 * A)
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                y1 = (-B + sqrt(D)) / (2 * A)
+                y2 = (-B - sqrt(D)) / (2 * A)
+                return [Coordinate(x, y1), Coordinate(x, y2)]
+        else:
+            # Normal case, line y is a function of x
+            m = line.gradient
+            c = line.y_intercept
+
+            A = 1 + m**2
+            B = 2 * (m * (c - b) - a)
+            C = a**2 + (c - b) ** 2 - r**2
+
+            D = B**2 - 4 * A * C
+            if D < 0:
+                # line and circle do not intersect
+                return None
+            elif D == 0:
+                # line and circle intersect at 1 point
+                x = -B / (2 * A)
+                y = m * x + c
+                return Coordinate(x, y)
+            else:
+                # line and circle intersect at 2 points
+                x1 = (-B + sqrt(D)) / (2 * A)
+                x2 = (-B - sqrt(D)) / (2 * A)
+                y1 = m * x1 + c
+                y2 = m * x2 + c
+                return [Coordinate(x1, y1), Coordinate(x2, y2)]
+
+    def get_arc_intersection(self, arc):
+        """Get intersection Coordinates of arc with another arc.
+
+        Returns None if intersection not found.
+
+        Parameters
+        ----------
+        arc : ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of Coordinate or None
+        """
+        # circle of self
+        a1 = self.centre.x
+        b1 = self.centre.y
+        r1 = abs(self.radius)
+
+        # circle of other arc
+        a2 = arc.centre.x
+        b2 = arc.centre.y
+        r2 = abs(arc.radius)
+
+        d = sqrt((a2 - a1) ** 2 + (b2 - b1) ** 2)
+
+        if d > (r1 + r2):
+            # if they don't intersect
+            return None
+        if d < abs(r1 - r2):
+            # if one circle is inside the other
+            return None
+        if d == 0 and r1 == r2:
+            # coincident circles
+            return None
+        else:
+            a = (r1**2 - r2**2 + d**2) / (2 * d)
+            h = sqrt(r1**2 - a**2)
+
+            x = a1 + a * (a2 - a1) / d
+            y = b1 + a * (b2 - b1) / d
+            x1 = x + h * (b2 - b1) / d
+            y1 = y - h * (a2 - a1) / d
+
+            x2 = x - h * (b2 - b1) / d
+            y2 = y + h * (a2 - a1) / d
+
+            return [Coordinate(x1, y1), Coordinate(x2, y2)]
 
     @property
     def start_angle(self):
@@ -1675,63 +2269,3 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
-
-
-class RegionType(Enum):
-    """Provides an enumeration for storing Motor-CAD region types."""
-
-    stator = "Stator"
-    rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
-    slot_area_rotor = "Rotor Slot"
-    slot_split = "Split Slot"
-    stator_liner = "Stator Liner"
-    rotor_liner = "Rotor Liner"
-    wedge = "Wedge"
-    stator_duct = "Stator Duct"
-    housing = "Housing"
-    housing_magnetic = "Magnetic Housing"
-    stator_impreg = "Stator Impreg"
-    impreg_gap = "Impreg Gap"
-    stator_copper = "Stator Copper"
-    stator_copper_ins = "Stator Copper Insulation"
-    stator_divider = "Stator Divider"
-    stator_slot_spacer = "Stator Slot Spacer"
-    stator_separator = "Stator slot separator"
-    coil_insulation = "Coil Insulation"
-    stator_air = "Stator Air"
-    rotor_hub = "Rotor hub"
-    rotor_air = "Rotor Air"
-    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
-    rotor_pocket = "Rotor Pocket"
-    pole_spacer = "Pole Spacer"
-    rotor_slot = "Rotor Slot"
-    coil_separator = "Coil Separator"
-    damper_bar = "Damper Bar"
-    wedge_rotor = "Rotor Wedge"
-    rotor_divider = "Rotor Divider"
-    rotor_copper_ins = "Rotor Copper Insulation"
-    rotor_copper = "Rotor Copper"
-    rotor_impreg = "Rotor Impreg"
-    shaft = "Shaft"
-    axle = "Axle"
-    rotor_duct = "Rotor Duct"
-    magnet = "Magnet"
-    barrier = "Barrier"
-    mounting_base = "Base Mount"
-    mounting_plate = "Plate Mount"
-    banding = "Banding"
-    sleeve = "Sleeve"
-    rotor_cover = "Rotor Cover"
-    slot_wj_insulation = "Slot Water Jacket Insulation"
-    slot_wj_wall = "Slot Water Jacket Wall"
-    slot_wj_duct = "Slot Water Jacket Duct"
-    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
-    cowling = "Cowling"
-    cowling_gril = "Cowling Grill"
-    brush = "Brush"
-    commutator = "Commutator"
-    airgap = "Airgap"
-    dxf_import = "DXF Import"
-    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
-    adaptive = "Adaptive Region"

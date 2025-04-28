@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,49 @@
 # SOFTWARE.
 
 """RPC methods for graphs."""
+from dataclasses import dataclass
+import math
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
+
+
+@dataclass
+class Magnetic3dGraph:
+    """Class for x, y and data from a magnetic 3d graph."""
+
+    x: list
+    y: list
+    data: list
+
+
+def _dft_real(values):
+    """
+    Calculate a discrete fourier transform from a real valued list.
+
+    Parameters
+    ----------
+    values : list of real
+        time domain data
+
+    Returns
+    -------
+    real : list
+        Real components of the dft.
+    imag : list
+        Imaginary components of the dft.
+    """
+    length_in = len(values)
+    # Discard terms above Nyquist limit
+    length_out = length_in // 2 + 1
+
+    real = [0] * length_out
+    imag = [0] * length_out
+
+    for i in range(length_out):
+        for j in range(length_in):
+            real[i] = real[i] + values[j] * math.cos(i * j * 2 * math.pi / length_in) / length_in
+            imag[i] = imag[i] - values[j] * math.sin(i * j * 2 * math.pi / length_in) / length_in
+    return real, imag
 
 
 class _RpcMethodsGraphs:
@@ -143,7 +185,8 @@ class _RpcMethodsGraphs:
         graph_name : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -168,7 +211,8 @@ class _RpcMethodsGraphs:
         graph_id : str, int
             Name (preferred) or ID of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
-        slice_number
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
 
         point_number : int
             Point number to get x and y coordinate values from.
@@ -200,10 +244,75 @@ class _RpcMethodsGraphs:
         y_values : list
             Value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_magnetic_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "MagneticDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_magnetic_graph_point, graph_name)
+
+    def get_magnetic_graph_harmonics(self, graph_name):
+        """Get harmonic analysis from Motor-CAD magnetic graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        order_values : list
+            Value of harmonic orders from graph
+        amplitude_values : list
+            Value of harmonic amplitudes from graph
+        angle_values : list
+            Value of harmonic angles from graph in degrees
+        """
+        x, y = self.get_magnetic_graph(graph_name)
+        # Find x-axis limits and range, as this is needed to find the phase information
+        min_x = min(x)
+        cycles = (max(x) - min(x)) / 360
+
+        # y normally contains a duplicated final point (360deg=0deg), so discard this point.
+        y_no_duplicate = y[: len(y) - 1]
+
+        # Carry out FFT only get up to the Nyquist limit, using real valued inputs
+        y_fft_real, y_fft_imag = _dft_real(y_no_duplicate)
+
+        # Apply normalisation.
+        for i in range(len(y_fft_real)):
+            if i > 0:
+                # Multiply by 2 to account for the positive and negative frequency component
+                y_fft_real[i] = 2 * y_fft_real[i]
+                y_fft_imag[i] = 2 * y_fft_imag[i]
+
+        # Get amplitude and angle:
+        y_mag = []
+        y_ang = []
+        for i in range(len(y_fft_real)):
+            y_mag.append(math.sqrt(y_fft_real[i] ** 2 + y_fft_imag[i] ** 2))
+            y_ang.append(math.degrees(math.atan2(y_fft_imag[i], y_fft_real[i])))
+
+        # Motor-CAD harmonic plot convention shifts the angles by 90 degrees.
+        # Also consider the phase angle of the first point:
+        for i in range(len(y_ang)):
+            y_ang[i] = y_ang[i] + 90 - (min_x * i / cycles)
+            if y_ang[i] > 180:
+                y_ang[i] = y_ang[i] - 360
+            if y_ang[i] < -180:
+                y_ang[i] = y_ang[i] + 360
+
+        # For very small magnitudes, the angle information is not meaningful, so set to zero
+        for i in range(len(y_ang)):
+            if math.isclose(y_mag[i], 0, abs_tol=1e-8):
+                y_ang[i] = 0
+
+        # Generate an index list for plotting
+        y_index = []
+        for i in range(len(y_ang)):
+            y_index.append(i / cycles)
+
+        return [y_index, y_mag, y_ang]
 
     def get_temperature_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient temperature graph.
@@ -220,10 +329,12 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        loop = 0
-        x_array = []
-        y_array = []
-        return self._get_graph(self.get_temperature_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "TransientDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_temperature_graph_point, graph_name)
 
     def get_power_graph(self, graph_name):
         """Get graph points from a Motor-CAD transient power loss graph.
@@ -240,4 +351,77 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
-        return self._get_graph(self.get_power_graph_point, graph_name)
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetGenericGraph"
+            params = [{"variant": graph_name}, "PowerDataSource", -1, -1]
+            return self.connection.send_and_receive(method, params)
+        else:
+            return self._get_graph(self.get_power_graph_point, graph_name)
+
+    def get_heatflow_graph(self, graph_name):
+        """Get graph points from a Motor-CAD heat flow graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
+        return self.connection.send_and_receive(method, params)
+
+    def get_fea_graph(self, graph_name, slice_number, point_number=0):
+        """Get graph points from a Motor-CAD FEA graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
+        point_number : int
+            Point number to get x and y coordinate arrays from for
+            transient graphs.
+
+        Returns
+        -------
+        x_values : list
+            value of x coordinates from graph
+        y_values : list
+            value of y coordinates from graph
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetGenericGraph"
+        params = [{"variant": graph_name}, "FEAPathDataSource", slice_number, point_number]
+        return self.connection.send_and_receive(method, params)
+
+    def get_magnetic_3d_graph(self, graph_name, slice_number):
+        """Get graph points from a Motor-CAD Magnetic 3d graph.
+
+        Parameters
+        ----------
+        graph_name : str, int
+            Name (preferred) or ID of the graph. In Motor-CAD, you can
+            select **Help -> Graph Viewer** to see the graph name.
+        slice_number : int
+            Which skew slice to get results from. Slice 1 is the first.
+
+        Returns
+        -------
+        Magnetic3dGraph
+            Class containing x, y and data as lists
+        """
+        self.connection.ensure_version_at_least("2025.0")
+        method = "GetMagnetic3DGraph"
+        params = [{"variant": graph_name}, slice_number]
+        graph_3d_dict = self.connection.send_and_receive(method, params)
+        return Magnetic3dGraph(**graph_3d_dict)
