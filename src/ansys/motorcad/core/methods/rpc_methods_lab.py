@@ -310,7 +310,7 @@ class _RpcMethodsLab:
         return self.connection.send_and_receive(method, params)
 
     @staticmethod
-    def write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb):
+    def _write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb):
         i_len, j_len = data["Speed"].shape
         for sheet in sheets:
             ws = wb.create_sheet("Newsheet")
@@ -341,7 +341,7 @@ class _RpcMethodsLab:
         return wb
 
     @staticmethod
-    def write_excel_BPM(data, sheets, DC_voltage_list, i, wb):
+    def _write_excel_BPM(data, sheets, DC_voltage_list, i, wb):
         i_len, j_len = data["Speed"].shape
         for sheet in sheets:
             ws = wb.create_sheet("Newsheet")
@@ -360,13 +360,11 @@ class _RpcMethodsLab:
                 jj = jj + 1
         return wb
 
-    def export_concept_ev_model(self, file_path, **kwargs):
+    def export_concept_ev_model(self, **kwargs):
         """Export efficiency map in concept ev excel format.
 
         Parameters
         ----------
-        file_path : str
-            File path including export file name and file extension (.xlsx)
         Max_speed : int
             Maximum speed in electromagnetic calculation
         Min_speed : int
@@ -388,6 +386,7 @@ class _RpcMethodsLab:
         """
         self.set_variable("MessageDisplayState", 2)
         self.set_motorlab_context()
+        file_path = self.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
         if "Max_speed" in kwargs:
             self.set_variable("SpeedMax_MotorLAB", kwargs["Max_speed"])
         if "Min_speed" in kwargs:
@@ -460,9 +459,9 @@ class _RpcMethodsLab:
             data_file_path = self.get_variable("ResultsPath_MotorLAB") + "MotorLAB_elecdata.mat"
             data = loadmat(data_file_path)
             if self.get_variable("Motor_Type") == 1 and kwargs["Min_speed"] == 0:
-                wb = _RpcMethodsLab.write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb)
+                wb = _RpcMethodsLab._write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb)
             else:
-                wb = _RpcMethodsLab.write_excel_BPM(data, sheets, DC_voltage_list, i, wb)
+                wb = _RpcMethodsLab._write_excel_BPM(data, sheets, DC_voltage_list, i, wb)
 
         units = ["Power_Factor", "Total_Loss", "Stator_Current_Line_RMS", "Shaft_Torque", "Speed"]
         ws = wb.create_sheet("Newsheet")
