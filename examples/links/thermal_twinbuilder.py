@@ -195,6 +195,7 @@ class MotorCADTwinModel:
         print("TB data output dir: " + self.outputDirectory)
 
         self.motFileName = None
+        self.heatFlowMethod = None
 
         self.nodeNames = []
         self.nodeNumbers = []
@@ -241,6 +242,10 @@ class MotorCADTwinModel:
                 cf.write("AirGapTempDependency=1\n")
             else:
                 cf.write("AirGapTempDependency=0\n")
+            if self.heatFlowMethod == 1:
+                cf.write("FluidHeatFlowMethod=1\n")
+            else:
+                cf.write("FluidHeatFlowMethod=0\n")
             cf.write("CopperLossScaling=0\n")
             cf.write("SpeedDependentLosses=0\n")
 
@@ -354,23 +359,13 @@ class MotorCADTwinModel:
         # 8 bearing losses
         ## TB model will not include this logic
         self.mcad.set_variable("BearingLossSource", 0)
-
-        # 9 Workaround for models created in Motor-CAD 2025R1 - ensure the old fluid heat flow
-        # method is used
+        # 9 Detect heat flow method used (new option in 2025R1)
         try:
-            heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
-            if heatFlowMethod == 1:
-                # Revert model to use the old fluid heat flow method
-                warnings.warn(
-                    "The Improved Fluid Heat Flow Method setting in this .mot file is incompatible "
-                    + "with the Twin Builder Thermal ROM. The setting has been changed from "
-                    + "Improved to Original."
-                )
-                self.mcad.set_variable("FluidHeatFlowMethod", 0)
+            self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
         except:
             # variable does not exist due to using older version of Motor-CAD
-            # no need to perform any action
-            pass
+            # set parameter to 0 which signifies use of the old method
+            self.heatFlowMethod = 0
 
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
