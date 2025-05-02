@@ -29,7 +29,7 @@ Twin Builder *Motor-CAD ROM* component.
 # %%
 # Background
 # ----------
-# .. note:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
+# .. important:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
 #    later.
 #
 # Motor-CAD creates a thermal model of the motor using a Lumped Parameter Thermal Network (LPTN),
@@ -67,11 +67,12 @@ Twin Builder *Motor-CAD ROM* component.
 # operating points of interest, formatted in the appropriate manner. The script below is an example
 # showing how this can be done.
 #
-# .. note:: This script is an example of how the data needed to generate a *Motor-CAD ROM* component
-#    can be obtained. For details on how the resulting *Motor-CAD ROM* component can be used, please
+# .. important:: This script demonstrates how to obtain the data needed to generate a
+#    *Motor-CAD ROM* component, as well as how to generate the component in Twin Builder.
+#    For details on how the resulting *Motor-CAD ROM* component can be used, please
 #    consult the Twin Builder Help Manual.
 #
-# .. note:: This script is designed to be run using Motor-CAD template "e8". For other models,
+# .. attention:: This script is designed to be run using Motor-CAD template "e8". For other models,
 #    modification of this script may be required.
 
 # %%
@@ -757,8 +758,8 @@ class MotorCADTwinModel:
 # %%
 # Example use case
 # ----------------
-# Below is an example of how the above ``MotorCADTwinModel`` class can be used. The .mot file that
-# will be used is the ``e8_eMobility`` template.
+# Below is an example of how the above ``MotorCADTwinModel`` class can be used using the
+# ``e8_eMobility`` template .mot file.
 
 
 # %%
@@ -806,15 +807,14 @@ def temperaturesHousingAmbient():
 
 
 # %%
-# Specify the input .mot file and the directory to save the output data to. For this example, the
-# e8 template model will be used
+# Specify the input .mot file and the directory to save the output data to.
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
 # %%
-# Create the e8 input file if it does not exist already
+# Create the e8 input file if it does not exist already.
 if Path(inputMotFilePath).exists() == False:
     motorcad = pymotorcad.MotorCAD()
     motorcad.load_template("e8")
@@ -876,5 +876,5 @@ MotorCADTwin.generateTwinData(
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# .. note:: For details on how the resulting *Motor-CAD ROM* component can be used, please consult
-#    the Twin Builder Help Manual.
+# .. seealso:: For informtation on how to use the *Motor-CAD ROM* component, please consult the
+#    Twin Builder Help Manual.
