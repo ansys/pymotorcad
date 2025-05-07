@@ -615,7 +615,7 @@ class MotorCADTwinModel:
         housingNodes = [
             nodeNumber
             for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] == "Housing"
+            if self.nodeGroupings[index] == "Housing" or nodeNumber == 5
         ]
 
         fileInd = 0
