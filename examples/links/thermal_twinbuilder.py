@@ -302,7 +302,7 @@ class MotorCADTwinModel:
         rmfFile = os.path.join(exportDirectory, self.motFileName + ".rmf")
         resistanceMatrix = self.getExportedMatrix(rmfFile)
 
-        # resistance matrix exported by v2025R1 and newer is transposed vs older versions 
+        # resistance matrix exported by v2025R1 and newer is transposed vs older versions
         if self.motorcadV2025OrNewer:
             resistanceMatrix = list(map(list, zip(*resistanceMatrix)))
 
@@ -510,7 +510,7 @@ class MotorCADTwinModel:
                 plt.savefig(os.path.join(self.outputDirectory, str(graphNode) + "_cooling.png"))
 
             # write cooling systems config file
-            if len(connectedNodesLists)>0:
+            if len(connectedNodesLists) > 0:
                 with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
                     k = 0
                     for connectedNodesList in connectedNodesLists:
