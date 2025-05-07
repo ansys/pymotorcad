@@ -293,6 +293,11 @@ class MotorCADTwinModel:
         temperatureVector = self.getExportedVector(tmfFile)
         return temperatureVector
 
+    def getCmfData(self, exportDirectory):
+        cmfFile = os.path.join(exportDirectory, self.motFileName + ".cmf")
+        capacitanceMatrix = self.getExportedVector(cmfFile)
+        return capacitanceMatrix
+
     def getRmfData(self, exportDirectory):
         rmfFile = os.path.join(exportDirectory, self.motFileName + ".rmf")
         resistanceMatrix = self.getExportedMatrix(rmfFile)
