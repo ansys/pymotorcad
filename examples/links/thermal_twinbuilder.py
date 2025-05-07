@@ -205,6 +205,8 @@ class MotorCADTwinModel:
 
         self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
+        # check which Motor-CAD version is being used as this affects the resistance matrix format
+        self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
         self.mcad.load_from_file(self.inputMotFilePath)
 
     # Main function to call which generates the required data for the Twin Builder export
@@ -246,6 +248,10 @@ class MotorCADTwinModel:
                 cf.write("FluidHeatFlowMethod=1\n")
             else:
                 cf.write("FluidHeatFlowMethod=0\n")
+            if self.motorcadV2025OrNewer:
+                cf.write("MCADVersion=20251\n")
+            else:
+                cf.write("MCADVersion=20242\n")
             cf.write("CopperLossScaling=0\n")
             cf.write("SpeedDependentLosses=0\n")
 
@@ -290,6 +296,11 @@ class MotorCADTwinModel:
     def getRmfData(self, exportDirectory):
         rmfFile = os.path.join(exportDirectory, self.motFileName + ".rmf")
         resistanceMatrix = self.getExportedMatrix(rmfFile)
+
+        # resistance matrix exported by v2025R1 and newer is transposed vs older versions 
+        if self.motorcadV2025OrNewer:
+            resistanceMatrix = list(map(list, zip(*resistanceMatrix)))
+
         return resistanceMatrix
 
     def getNmfData(self, exportDirectory):
@@ -359,7 +370,8 @@ class MotorCADTwinModel:
         # 8 bearing losses
         ## TB model will not include this logic
         self.mcad.set_variable("BearingLossSource", 0)
-        # 9 Detect heat flow method used (new option in 2025R1)
+
+        # detect heat flow method used (new option in 2024R2)
         try:
             self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
         except:
