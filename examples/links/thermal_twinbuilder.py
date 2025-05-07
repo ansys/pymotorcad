@@ -411,8 +411,6 @@ class MotorCADTwinModel:
         temperatureVector = self.getTmfData(exportDirectory)
 
         # determine which of the nodes is an inlet node
-        coolingSystemsPresent = []
-
         for index, temperature in enumerate(temperatureVector):
             isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
             isInlet_check2 = temperature > -10000000.0
@@ -420,12 +418,11 @@ class MotorCADTwinModel:
 
             if isInlet_check1 and isInlet_check2 and isInlet_check3:
                 self.nodeNumbers_fluidInlet.append(self.nodeNumbers[index])
-                coolingSystemsPresent.append(self.nodeGroupings[index])
 
         self.nodeNumbers_fluid = [
             nodeNumber
             for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] in coolingSystemsPresent
+            if self.nodeGroupings[index] in self.coolingSystemNodeGroups
         ]
 
     # Function that determines the nodes used for the cooling system and their connections. The
@@ -508,19 +505,20 @@ class MotorCADTwinModel:
                 plt.savefig(os.path.join(self.outputDirectory, str(graphNode) + "_cooling.png"))
 
             # write cooling systems config file
-            with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
-                k = 0
-                for connectedNodesList in connectedNodesLists:
-                    outfile.write(
-                        "inlet : "
-                        + str(inletNodes[k])
-                        + " - "
-                        + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
-                        + "\n"
-                    )
-                    for connectedNodes in connectedNodesList:
-                        outfile.write(str(connectedNodes) + "\n")
-                    k = k + 1
+            if len(connectedNodesLists)>0:
+                with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
+                    k = 0
+                    for connectedNodesList in connectedNodesLists:
+                        outfile.write(
+                            "inlet : "
+                            + str(inletNodes[k])
+                            + " - "
+                            + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
+                            + "\n"
+                        )
+                        for connectedNodes in connectedNodesList:
+                            outfile.write(str(connectedNodes) + "\n")
+                        k = k + 1
 
     def returnConnectedNodes(self, node, nodeList, resistanceMatrix):
         nodeIndex = self.nodeNumbers.index(node)
