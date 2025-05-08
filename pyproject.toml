@@ -39,7 +39,10 @@ tests = [
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "ansys.platform.instancemanagement>=1.0.2",
-    "matplotlib>=3.6.3"
+    "matplotlib>=3.6.3",
+    "scipy",
+    "openpyxl >=3.1.5",
+
 ]
 doc = [
     "Sphinx==8.1.3",
