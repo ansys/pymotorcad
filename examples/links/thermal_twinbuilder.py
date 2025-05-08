@@ -113,20 +113,21 @@ import ansys.motorcad.core as pymotorcad
 
 
 class MotorCADTwinModel:
-    # Store required constants for the Motor-CAD Node Group names (provided in the ``.nmf`` file),
+    # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the 
+    # ``.nmf`` file), corresponding parameter names for varying flowrate and inlet temperature
     # the Motor-CAD loss names (for display in Twinbuilder), and the corresponding Motor-CAD
     # parameter names.
-    coolingSystemNodeGroups = [
-        "End Space",
-        "Ventilated",
-        "Housing Water Jacket",
-        "Shaft Spiral Groove",
-        "Wet Rotor",
-        "Spray Cooling",
-        "Rotor Water Jacket",
-        "Slot Water Jacket",
-        "Heat Exchanger",
-    ]
+    coolingSystemData = {
+        "End Space":[],
+        "Ventilated":['TVent_Flow_Rate', 'TVent_Inlet_Temperature'],
+        "Housing Water Jacket":['WJ_Fluid_Volume_Flow_Rate', 'HousingWJ_Inlet_Temperature'],
+        "Shaft Spiral Groove":['Shaft_Groove_Fluid_Volume_Flow_Rate', 'Shaft_Groove_Fluid_Inlet_Temperature'],
+        "Wet Rotor":['Wet_Rotor_Fluid_Volume_Flow_Rate', 'Wet_Rotor_Inlet_Temp'],
+        "Spray Cooling":['Spray_Cooling_Fluid_Volume_Flow_Rate', 'Spray_Cooling_Inlet_Temp'],
+        "Rotor Water Jacket":['Rotor_WJ_Fluid_Volume_Flow_Rate', 'RotorWJ_Inlet_Temp'],
+        "Slot Water Jacket":['Slot_WJ_Fluid_Volume_Flow_Rate', 'Slot_WJ_Fluid_inlet_temperature'],
+        "Heat Exchanger":[],
+    }
 
     lossNames = [
         "Armature_Copper_dc",
@@ -419,7 +420,7 @@ class MotorCADTwinModel:
         for index, temperature in enumerate(temperatureVector):
             isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
             isInlet_check2 = temperature > -10000000.0
-            isInlet_check3 = self.nodeGroupings[index] in self.coolingSystemNodeGroups
+            isInlet_check3 = self.nodeGroupings[index] in self.coolingSystemData
 
             if isInlet_check1 and isInlet_check2 and isInlet_check3:
                 self.nodeNumbers_fluidInlet.append(self.nodeNumbers[index])
@@ -427,7 +428,7 @@ class MotorCADTwinModel:
         self.nodeNumbers_fluid = [
             nodeNumber
             for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] in self.coolingSystemNodeGroups
+            if self.nodeGroupings[index] in self.coolingSystemData
         ]
 
     # Function that determines the nodes used for the cooling system and their connections. The
