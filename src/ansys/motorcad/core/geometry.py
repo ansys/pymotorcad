@@ -25,16 +25,101 @@ from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
 from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+import warnings
 from warnings import warn
 
 GEOM_TOLERANCE = 1e-6
 
 
-class Region(object):
-    """Python representation of Motor-CAD geometry region."""
+class RegionType(Enum):
+    """Provides an enumeration for storing Motor-CAD region types."""
 
-    def __init__(self, motorcad_instance=None):
-        """Create geometry region and set parameters to defaults."""
+    stator = "Stator"
+    rotor = "Rotor"
+    slot_area_stator = "Stator Slot"
+    slot_area_rotor = "Rotor Slot"
+    slot_split = "Split Slot"
+    stator_liner = "Stator Liner"
+    rotor_liner = "Rotor Liner"
+    wedge = "Wedge"
+    stator_duct = "Stator Duct"
+    housing = "Housing"
+    housing_magnetic = "Magnetic Housing"
+    stator_impreg = "Stator Impreg"
+    impreg_gap = "Impreg Gap"
+    stator_copper = "Stator Copper"
+    stator_copper_ins = "Stator Copper Insulation"
+    stator_divider = "Stator Divider"
+    stator_slot_spacer = "Stator Slot Spacer"
+    stator_separator = "Stator slot separator"
+    coil_insulation = "Coil Insulation"
+    stator_air = "Stator Air"
+    rotor_hub = "Rotor hub"
+    rotor_air = "Rotor Air"
+    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
+    rotor_pocket = "Rotor Pocket"
+    pole_spacer = "Pole Spacer"
+    rotor_slot = "Rotor Slot"
+    coil_separator = "Coil Separator"
+    damper_bar = "Damper Bar"
+    wedge_rotor = "Rotor Wedge"
+    rotor_divider = "Rotor Divider"
+    rotor_copper_ins = "Rotor Copper Insulation"
+    rotor_copper = "Rotor Copper"
+    rotor_impreg = "Rotor Impreg"
+    shaft = "Shaft"
+    axle = "Axle"
+    rotor_duct = "Rotor Duct"
+    magnet = "Magnet"
+    barrier = "Barrier"
+    mounting_base = "Base Mount"
+    mounting_plate = "Plate Mount"
+    banding = "Banding"
+    sleeve = "Sleeve"
+    rotor_cover = "Rotor Cover"
+    slot_wj_insulation = "Slot Water Jacket Insulation"
+    slot_wj_wall = "Slot Water Jacket Wall"
+    slot_wj_duct = "Slot Water Jacket Duct"
+    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
+    cowling = "Cowling"
+    cowling_gril = "Cowling Grill"
+    brush = "Brush"
+    commutator = "Commutator"
+    airgap = "Airgap"
+    dxf_import = "DXF Import"
+    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    adaptive = "Adaptive Region"
+
+
+class Region(object):
+    """Create geometry region.
+
+    Parameters
+    ----------
+    region_type: RegionType
+        Type of region
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
+
+    def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
+        """Initialise Region."""
+        if not isinstance(region_type, RegionType):
+            warnings.warn(
+                "The first parameter of creating a new region has changed to region_type."
+                " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
+                " region type"
+            )
+            # Try and catch case where user has added Motor-CAD instance without using named param
+            motorcad_instance = region_type
+            region_type = None
+
+        elif region_type == RegionType.adaptive:
+            warnings.warn(
+                "It is strongly recommended to set a region_type when creating new regions."
+                " Creating new regions with no type will be deprecated in a future release"
+            )
+
         self._name = ""
         self._material = "air"
         self._colour = (0, 0, 0)
@@ -46,9 +131,8 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
-        self._region_type = RegionType.adaptive
+        self._region_type = region_type
         self._mesh_length = 0
-
         self._linked_region = None
         self._singular = False
         self._lamination_type = ""
@@ -306,6 +390,10 @@ class Region(object):
         RegionType
         """
         return self._region_type
+
+    @region_type.setter
+    def region_type(self, region_type):
+        self._region_type = region_type
 
     @property
     def motorcad_instance(self):
@@ -816,16 +904,21 @@ class Region(object):
 
 
 class RegionMagnet(Region):
-    """Provides the Python representation of a Motor-CAD magnet geometry region."""
+    """Create magnet geometry region.
+
+    Parameters
+    ----------
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
 
     def __init__(self, motorcad_instance=None):
-        """Initialise a ``RegionMagnet`` instance."""
-        super().__init__(motorcad_instance)
+        """Initialise Magnet Region."""
+        super().__init__(RegionType.magnet, motorcad_instance)
         self._magnet_angle = 0.0
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
-        self._region_type = RegionType.magnet
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -2176,63 +2269,3 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
-
-
-class RegionType(Enum):
-    """Provides an enumeration for storing Motor-CAD region types."""
-
-    stator = "Stator"
-    rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
-    slot_area_rotor = "Rotor Slot"
-    slot_split = "Split Slot"
-    stator_liner = "Stator Liner"
-    rotor_liner = "Rotor Liner"
-    wedge = "Wedge"
-    stator_duct = "Stator Duct"
-    housing = "Housing"
-    housing_magnetic = "Magnetic Housing"
-    stator_impreg = "Stator Impreg"
-    impreg_gap = "Impreg Gap"
-    stator_copper = "Stator Copper"
-    stator_copper_ins = "Stator Copper Insulation"
-    stator_divider = "Stator Divider"
-    stator_slot_spacer = "Stator Slot Spacer"
-    stator_separator = "Stator slot separator"
-    coil_insulation = "Coil Insulation"
-    stator_air = "Stator Air"
-    rotor_hub = "Rotor hub"
-    rotor_air = "Rotor Air"
-    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
-    rotor_pocket = "Rotor Pocket"
-    pole_spacer = "Pole Spacer"
-    rotor_slot = "Rotor Slot"
-    coil_separator = "Coil Separator"
-    damper_bar = "Damper Bar"
-    wedge_rotor = "Rotor Wedge"
-    rotor_divider = "Rotor Divider"
-    rotor_copper_ins = "Rotor Copper Insulation"
-    rotor_copper = "Rotor Copper"
-    rotor_impreg = "Rotor Impreg"
-    shaft = "Shaft"
-    axle = "Axle"
-    rotor_duct = "Rotor Duct"
-    magnet = "Magnet"
-    barrier = "Barrier"
-    mounting_base = "Base Mount"
-    mounting_plate = "Plate Mount"
-    banding = "Banding"
-    sleeve = "Sleeve"
-    rotor_cover = "Rotor Cover"
-    slot_wj_insulation = "Slot Water Jacket Insulation"
-    slot_wj_wall = "Slot Water Jacket Wall"
-    slot_wj_duct = "Slot Water Jacket Duct"
-    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
-    cowling = "Cowling"
-    cowling_gril = "Cowling Grill"
-    brush = "Brush"
-    commutator = "Commutator"
-    airgap = "Airgap"
-    dxf_import = "DXF Import"
-    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
-    adaptive = "Adaptive Region"
