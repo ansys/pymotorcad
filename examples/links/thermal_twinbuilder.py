@@ -786,8 +786,8 @@ class MotorCADTwinModel:
     def generateCoolingSystemsInputsDependency(self, coolingSystemsInputs):
 
         for index, (coolingSystem, parameters) in enumerate(coolingSystemsInputs.items()): 
-            if coolingSystem not in self.coolingSystemNodeGroups:
-                warnings.warn('The Cooling System name {} is not part of the list of Cooling Systems {}\n'.format(coolingSystem, self.coolingSystemNodeGroups))
+            if coolingSystem not in self.coolingSystemData:
+                warnings.warn('The Cooling System name {} is not part of the list of Cooling Systems {}\n'.format(coolingSystem, self.coolingSystemData))
                 return
             
             exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
@@ -1022,7 +1022,7 @@ coolingSystemsInputs = {
     "Housing Water Jacket":{
         "rpm":rpms,
         "FR":[9.7695e-05,0.000103122499999999,0.00010855,0.0001139775,0.000119405],
-        "inletTemp":[10, 20, 30]
+        "inletTemp":[40, 65]
     }
 }
 
