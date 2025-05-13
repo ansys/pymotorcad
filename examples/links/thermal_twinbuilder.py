@@ -794,7 +794,8 @@ class MotorCADTwinModel:
         for index, (coolingSystem, parameters) in enumerate(coolingSystemsInputs.items()):
             if coolingSystem not in self.coolingSystemData:
                 warnings.warn(
-                    "The Cooling System name {} is not part of the list of Cooling Systems {}\n".format(
+                    "The Cooling System name {} is not part of the list of Cooling Systems "
+                    "{}\n".format(
                         coolingSystem, self.coolingSystemData
                     )
                 )
@@ -869,7 +870,7 @@ class MotorCADTwinModel:
                                 if not (
                                     connectedNodes[i] in list(covered_nodes.keys())
                                     and upnode in covered_nodes[connectedNodes[i]]
-                                ):  # avoid taking the symmetric counterpart of the resistance in case there is
+                                ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
                                         self.nodeNames[self.nodeNumbers.index(upnode)]
                                         + " "
@@ -903,7 +904,7 @@ class MotorCADTwinModel:
                                 if not (
                                     connectedNodes[i] in list(covered_nodes.keys())
                                     and upnode in covered_nodes[connectedNodes[i]]
-                                ):  # avoid taking the symmetric counterpart of the resistance in case there is
+                                ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
                                         self.nodeNames[self.nodeNumbers.index(upnode)]
                                         + " "
@@ -934,7 +935,8 @@ class MotorCADTwinModel:
                         fileInd = fileInd + 1
                         print(
                             (
-                                "Run DP {}/{} for cooling system {} at parameters values flow rate {}, inlet temperature {} and rpm {}"
+                                "Run DP {}/{} for cooling system {} at parameters values flow rate "
+                                "{}, inlet temperature {} and rpm {}"
                             ).format(fileInd, nDps, coolingSystem, flow, inTemp, speed)
                         )
                         [R, C] = self.computeMatricesCoolingSystemsInput(
