@@ -795,9 +795,7 @@ class MotorCADTwinModel:
             if coolingSystem not in self.coolingSystemData:
                 warnings.warn(
                     "The Cooling System name {} is not part of the list of Cooling Systems "
-                    "{}\n".format(
-                        coolingSystem, self.coolingSystemData
-                    )
+                    "{}\n".format(coolingSystem, self.coolingSystemData)
                 )
                 return
 
