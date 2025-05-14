@@ -854,7 +854,9 @@ class MotorCADTwinModel:
                         ]
                     )
                     if upnode not in self.nodeNumbers_fluidInlet:
-                        fCout.write(self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n")
+                        fCout.write(
+                            self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n"
+                        )
                         c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                 covered_nodes.update({upnode: connectedNodes})
 
@@ -870,9 +872,15 @@ class MotorCADTwinModel:
                                     and upnode in covered_nodes[connectedNodes[i]]
                                 ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
-                                        self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
                                         + " "
-                                        + self.unbracket(self.nodeNames[self.nodeNumbers.index(connectedNodes[i])])
+                                        + self.unbracket(
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
+                                        )
                                         + "\n"
                                     )
                                     r_list.append(
@@ -884,7 +892,10 @@ class MotorCADTwinModel:
                                         ]
                                     )
                             if upnode not in self.nodeNumbers_fluidInlet:
-                                fCout.write(self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n")
+                                fCout.write(
+                                    self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                                    + "\n"
+                                )
                                 c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                             covered_nodes.update({upnode: connectedNodes})
 
@@ -904,9 +915,15 @@ class MotorCADTwinModel:
                                     and upnode in covered_nodes[connectedNodes[i]]
                                 ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
-                                        self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
                                         + " "
-                                        + self.unbracket(self.nodeNames[self.nodeNumbers.index(connectedNodes[i])])
+                                        + self.unbracket(
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
+                                        )
                                         + "\n"
                                     )
                                     r_list.append(
@@ -919,7 +936,10 @@ class MotorCADTwinModel:
                                     )
                                 if upnode not in self.nodeNumbers_fluidInlet:
                                     fCout.write(
-                                        self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n"
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
+                                        + "\n"
                                     )
                                     c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                             covered_nodes.update({upnode: connectedNodes})
