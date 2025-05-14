@@ -253,10 +253,12 @@ class Region(object):
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
         else:
-            new_region = cls(motorcad_instance)
-
-        if has_region_type:
-            new_region._region_type = RegionType(json["region_type"])
+            if has_region_type:
+                new_region = cls(
+                    motorcad_instance=motorcad_instance, region_type=RegionType(json["region_type"])
+                )
+            else:
+                new_region = cls(motorcad_instance=motorcad_instance)
 
         # self.Entities = json.Entities
         new_region._name = json["name"]
