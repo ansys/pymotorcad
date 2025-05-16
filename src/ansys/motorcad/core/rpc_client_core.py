@@ -54,6 +54,12 @@ _METHOD_SUCCESS = 0
 
 MOTORCAD_EXE_GLOBAL = ""
 
+if MOTORCAD_EXE_GLOBAL == "":
+    if "PYMOTORCAD_EXE" in environ:
+        pymotorcad_exe_environment_variable = environ["PYMOTORCAD_EXE"]
+        if pymotorcad_exe_environment_variable != "":
+            MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
+
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 # Useful for debugging new functions when using debug Motor-CAD
