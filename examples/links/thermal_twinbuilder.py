@@ -29,7 +29,7 @@ Twin Builder *Motor-CAD ROM* component.
 # %%
 # Background
 # ----------
-# .. note:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
+# .. important:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
 #    later.
 #
 # Motor-CAD creates a thermal model of the motor using a Lumped Parameter Thermal Network (LPTN),
@@ -67,11 +67,12 @@ Twin Builder *Motor-CAD ROM* component.
 # operating points of interest, formatted in the appropriate manner. The script below is an example
 # showing how this can be done.
 #
-# .. note:: This script is an example of how the data needed to generate a *Motor-CAD ROM* component
-#    can be obtained. For details on how the resulting *Motor-CAD ROM* component can be used, please
+# .. important:: This script demonstrates how to obtain the data needed to generate a
+#    *Motor-CAD ROM* component, as well as how to generate the component in Twin Builder.
+#    For details on how the resulting *Motor-CAD ROM* component can be used, please
 #    consult the Twin Builder Help Manual.
 #
-# .. note:: This script is designed to be run using Motor-CAD template "e8". For other models,
+# .. attention:: This script is designed to be run using Motor-CAD template "e8". For other models,
 #    modification of this script may be required.
 
 # %%
@@ -112,46 +113,50 @@ import ansys.motorcad.core as pymotorcad
 
 
 class MotorCADTwinModel:
-    # Store required constants for the Motor-CAD Node Group names (provided in the ``.nmf`` file),
+    # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
+    # ``.nmf`` file), corresponding parameter names for varying flowrate and inlet temperature
     # the Motor-CAD loss names (for display in Twinbuilder), and the corresponding Motor-CAD
     # parameter names.
-    coolingSystemNodeGroups = [
-        "End Space",
-        "Ventilated",
-        "Housing Water Jacket",
-        "Shaft Spiral Groove",
-        "Wet Rotor",
-        "Spray Cooling",
-        "Rotor Water Jacket",
-        "Slot Water Jacket",
-        "Heat Exchanger",
-    ]
+    coolingSystemData = {
+        "End Space": [],
+        "Ventilated": ["TVent_Flow_Rate", "TVent_Inlet_Temperature"],
+        "Housing Water Jacket": ["WJ_Fluid_Volume_Flow_Rate", "HousingWJ_Inlet_Temperature"],
+        "Shaft Spiral Groove": [
+            "Shaft_Groove_Fluid_Volume_Flow_Rate",
+            "Shaft_Groove_Fluid_Inlet_Temperature",
+        ],
+        "Wet Rotor": ["Wet_Rotor_Fluid_Volume_Flow_Rate", "Wet_Rotor_Inlet_Temp"],
+        "Spray Cooling": ["Spray_Cooling_Fluid_Volume_Flow_Rate", "Spray_Cooling_Inlet_Temp"],
+        "Rotor Water Jacket": ["Rotor_WJ_Fluid_Volume_Flow_Rate", "RotorWJ_Inlet_Temp"],
+        "Slot Water Jacket": ["Slot_WJ_Fluid_Volume_Flow_Rate", "Slot_WJ_Fluid_inlet_temperature"],
+        "Heat Exchanger": [],
+    }
 
     lossNames = [
-        "Loss_Armature_Copper_dc",
-        "Loss_Armature_Copper_Freq_Comp",
-        "Loss_Main_Winding",
-        "Loss_Aux_Winding",
-        "Loss_Stator_Back_Iron",
-        "Loss_Stator_Tooth",
-        "Loss_Windage",
-        "Loss_Windage_Ext_Fan",
-        "Loss_Friction_F_Bearing",
-        "Loss_Friction_R_Bearing",
-        "Loss_Magnet",
-        "Loss_Rotor_Banding",
-        "Loss_Stator_Sleeve",
-        "Loss_Embedded_Magnet_Pole",
-        "Loss_Encoder",
-        "Loss_Rotor_Back_Iron",
-        "Loss_Rotor_Tooth",
-        "Loss_Rotor_Copper",
-        "Loss_Stray_Load_Stator_Iron",
-        "Loss_Stray_Load_Rotor_Iron",
-        "Loss_Stray_Load_Stator_Copper",
-        "Loss_Stray_Load_Rotor_Copper",
-        "Loss_Brush_Friction",
-        "Loss_Brush_VI",
+        "Armature_Copper_dc",
+        "Armature_Copper_Freq_Comp",
+        "Main_Winding",
+        "Aux_Winding",
+        "Stator_Back_Iron",
+        "Stator_Tooth",
+        "Windage",
+        "Windage_Ext_Fan",
+        "Friction_F_Bearing",
+        "Friction_R_Bearing",
+        "Magnet",
+        "Rotor_Banding",
+        "Stator_Sleeve",
+        "Embedded_Magnet_Pole",
+        "Encoder",
+        "Rotor_Back_Iron",
+        "Rotor_Tooth",
+        "Rotor_Copper",
+        "Stray_Load_Stator_Iron",
+        "Stray_Load_Rotor_Iron",
+        "Stray_Load_Stator_Copper",
+        "Stray_Load_Rotor_Copper",
+        "Brush_Friction",
+        "Brush_VI",
     ]
 
     lossParameters = [
@@ -194,20 +199,28 @@ class MotorCADTwinModel:
         print("TB data output dir: " + self.outputDirectory)
 
         self.motFileName = None
+        self.heatFlowMethod = None
 
         self.nodeNames = []
         self.nodeNumbers = []
         self.nodeGroupings = []
         self.nodeNumbers_fluid = []
         self.nodeNumbers_fluidInlet = []
+        self.coolingSystems = None
 
         self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
+        # check which Motor-CAD version is being used as this affects the resistance matrix format
+        self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
         self.mcad.load_from_file(self.inputMotFilePath)
 
     # Main function to call which generates the required data for the Twin Builder export
     def generateTwinData(
-        self, parameters: dict, housingAmbientTemperatures=None, airgapTemperatures=None
+        self,
+        parameters: dict,
+        housingAmbientTemperatures=None,
+        airgapTemperatures=None,
+        coolingSystemsInputs=None,
     ):
         self.updateMotfile()
 
@@ -230,6 +243,9 @@ class MotorCADTwinModel:
             # uses fixed temperatures, so not dependent on losses
             self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures)
 
+        if coolingSystemsInputs is not None:
+            self.generateCoolingSystemsInputsDependency(coolingSystemsInputs)
+
         # write config file
         with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
             if housingAmbientTemperatures is not None:
@@ -240,6 +256,18 @@ class MotorCADTwinModel:
                 cf.write("AirGapTempDependency=1\n")
             else:
                 cf.write("AirGapTempDependency=0\n")
+            if self.heatFlowMethod == 1:
+                cf.write("FluidHeatFlowMethod=1\n")
+            else:
+                cf.write("FluidHeatFlowMethod=0\n")
+            if self.motorcadV2025OrNewer:
+                cf.write("MCADVersion=20251\n")
+            else:
+                cf.write("MCADVersion=20242\n")
+            if coolingSystemsInputs is not None:
+                cf.write("CoolingSystemsInputs=1\n")
+            else:
+                cf.write("CoolingSystemsInputs=0\n")
             cf.write("CopperLossScaling=0\n")
             cf.write("SpeedDependentLosses=0\n")
 
@@ -281,9 +309,19 @@ class MotorCADTwinModel:
         temperatureVector = self.getExportedVector(tmfFile)
         return temperatureVector
 
+    def getCmfData(self, exportDirectory):
+        cmfFile = os.path.join(exportDirectory, self.motFileName + ".cmf")
+        capacitanceMatrix = self.getExportedVector(cmfFile)
+        return capacitanceMatrix
+
     def getRmfData(self, exportDirectory):
         rmfFile = os.path.join(exportDirectory, self.motFileName + ".rmf")
         resistanceMatrix = self.getExportedMatrix(rmfFile)
+
+        # resistance matrix exported by v2025R1 and newer is transposed vs older versions
+        if self.motorcadV2025OrNewer:
+            resistanceMatrix = list(map(list, zip(*resistanceMatrix)))
+
         return resistanceMatrix
 
     def getNmfData(self, exportDirectory):
@@ -354,22 +392,13 @@ class MotorCADTwinModel:
         ## TB model will not include this logic
         self.mcad.set_variable("BearingLossSource", 0)
 
-        # 9 Workaround for models created in Motor-CAD 2025R1 - ensure the old fluid heat flow
-        # method is used
+        # detect heat flow method used (new option in 2024R2)
         try:
-            heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
-            if heatFlowMethod == 1:
-                # Revert model to use the old fluid heat flow method
-                warnings.warn(
-                    "The Improved Fluid Heat Flow Method setting in this .mot file is incompatible "
-                    + "with the Twin Builder Thermal ROM. The setting has been changed from "
-                    + "Improved to Original."
-                )
-                self.mcad.set_variable("FluidHeatFlowMethod", 0)
+            self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
         except:
             # variable does not exist due to using older version of Motor-CAD
-            # no need to perform any action
-            pass
+            # set parameter to 0 which signifies use of the old method
+            self.heatFlowMethod = 0
 
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
@@ -403,21 +432,18 @@ class MotorCADTwinModel:
         temperatureVector = self.getTmfData(exportDirectory)
 
         # determine which of the nodes is an inlet node
-        coolingSystemsPresent = []
-
         for index, temperature in enumerate(temperatureVector):
             isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
             isInlet_check2 = temperature > -10000000.0
-            isInlet_check3 = self.nodeGroupings[index] in self.coolingSystemNodeGroups
+            isInlet_check3 = self.nodeGroupings[index] in self.coolingSystemData
 
             if isInlet_check1 and isInlet_check2 and isInlet_check3:
                 self.nodeNumbers_fluidInlet.append(self.nodeNumbers[index])
-                coolingSystemsPresent.append(self.nodeGroupings[index])
 
         self.nodeNumbers_fluid = [
             nodeNumber
             for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] in coolingSystemsPresent
+            if self.nodeGroupings[index] in self.coolingSystemData
         ]
 
     # Function that determines the nodes used for the cooling system and their connections. The
@@ -431,6 +457,7 @@ class MotorCADTwinModel:
             print("initialization : no cooling systems found")
         else:
             print("initialization : cooling systems found")
+            self.coolingSystems = dict()
 
             resistanceMatrix = self.getRmfData(exportDirectory)
             graphNodes = []
@@ -459,6 +486,7 @@ class MotorCADTwinModel:
 
             for index, graphNode in enumerate(inletNodes):
                 connectedNodesList = []
+                connectedNodesInd = []
 
                 node = graphNode
                 next = []
@@ -483,6 +511,7 @@ class MotorCADTwinModel:
                                         ),
                                     ]
                                 )
+                                connectedNodesInd.append([node, graphNodes[k]])
 
                             curGraphEdges.append([node, graphNodes[k]])
                             if graphNodes[k] not in next:
@@ -494,25 +523,27 @@ class MotorCADTwinModel:
                 curG.add_nodes_from(graphNodes)
                 curG.add_edges_from(curGraphEdges)
                 connectedNodesLists.append(connectedNodesList)
+                self.coolingSystems.update({graphNode: connectedNodesInd})
 
                 plt.figure(index)
                 nx.draw(curG, with_labels=True)
                 plt.savefig(os.path.join(self.outputDirectory, str(graphNode) + "_cooling.png"))
 
             # write cooling systems config file
-            with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
-                k = 0
-                for connectedNodesList in connectedNodesLists:
-                    outfile.write(
-                        "inlet : "
-                        + str(inletNodes[k])
-                        + " - "
-                        + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
-                        + "\n"
-                    )
-                    for connectedNodes in connectedNodesList:
-                        outfile.write(str(connectedNodes) + "\n")
-                    k = k + 1
+            if len(connectedNodesLists) > 0:
+                with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
+                    k = 0
+                    for connectedNodesList in connectedNodesLists:
+                        outfile.write(
+                            "inlet : "
+                            + str(inletNodes[k])
+                            + " - "
+                            + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
+                            + "\n"
+                        )
+                        for connectedNodes in connectedNodesList:
+                            outfile.write(str(connectedNodes) + "\n")
+                        k = k + 1
 
     def returnConnectedNodes(self, node, nodeList, resistanceMatrix):
         nodeIndex = self.nodeNumbers.index(node)
@@ -607,7 +638,7 @@ class MotorCADTwinModel:
         housingNodes = [
             nodeNumber
             for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] == "Housing"
+            if self.nodeGroupings[index] == "Housing" or nodeNumber == 5
         ]
 
         fileInd = 0
@@ -753,12 +784,238 @@ class MotorCADTwinModel:
 
         return airgapNodeStator, airgapNodeRotor
 
+    # Function that determines Cooling Systems nodes' resistances/capacitances at
+    # different RPM, coolant flow rate and inlet temperatures, the results of which
+    # are used by Twin Builder to take into account the Cooling Systems inputs
+    # dependencies. coolingSystemsInputs is a dictionary with keys describing
+    # the Cooling System name and value being another dictionary storing
+    # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
+    def generateCoolingSystemsInputsDependency(self, coolingSystemsInputs):
+        for index, (coolingSystem, parameters) in enumerate(coolingSystemsInputs.items()):
+            if coolingSystem not in self.coolingSystemData:
+                warnings.warn(
+                    "The Cooling System name {} is not part of the list of Cooling Systems "
+                    "{}\n".format(coolingSystem, self.coolingSystemData)
+                )
+                return
+
+            exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
+            if not os.path.isdir(exportPath):
+                os.makedirs(os.path.join(exportPath))
+
+            rpms = parameters["rpm"]
+            frs = parameters["FR"]
+            inletTemps = parameters["inletTemp"]
+
+            with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
+                fout.write("rpm=[" + str(rpms[0]))
+                for el in rpms[1:]:
+                    fout.write("," + str(el))
+                fout.write("]\n")
+                fout.write("FR=[" + str(frs[0]))
+                for el in frs[1:]:
+                    fout.write("," + str(el))
+                fout.write("]\n")
+                fout.write("inletTemp=[" + str(inletTemps[0] + 273.15))
+                for el in inletTemps[1:]:
+                    fout.write("," + str(el + 273.15))
+                fout.write("]\n")
+
+            # identify all the impacted resistances and capacitances
+            exportDirectory = os.path.join(self.outputDirectory, "tmp")
+
+            resistanceMatrix = self.getRmfData(exportDirectory)
+            r_list = []
+            c_list = []
+
+            with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout, open(
+                os.path.join(exportPath, "r_nodes.txt"), "w"
+            ) as fRout:
+                covered_nodes = dict()
+                for inNode, conList in self.coolingSystems.items():
+                    if self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem:
+                        upnode = inNode
+                        coolSys = conList
+
+                connectedNodes = self.returnConnectedNodes(
+                    upnode, self.nodeNumbers, resistanceMatrix
+                )  # inlet node
+                for i in range(0, len(connectedNodes)):
+                    fRout.write(
+                        self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                        + " "
+                        + self.unbracket(self.nodeNames[self.nodeNumbers.index(connectedNodes[i])])
+                        + "\n"
+                    )
+                    r_list.append(
+                        [
+                            self.nodeNames[self.nodeNumbers.index(upnode)],
+                            self.nodeNames[self.nodeNumbers.index(connectedNodes[i])],
+                        ]
+                    )
+                    if upnode not in self.nodeNumbers_fluidInlet:
+                        fCout.write(
+                            self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n"
+                        )
+                        c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                covered_nodes.update({upnode: connectedNodes})
+
+                for item in coolSys:  # following downstream nodes of the cooling system
+                    for upnode in item:
+                        if upnode not in list(covered_nodes.keys()):
+                            connectedNodes = self.returnConnectedNodes(
+                                upnode, self.nodeNumbers, resistanceMatrix
+                            )
+                            for i in range(0, len(connectedNodes)):
+                                if not (
+                                    connectedNodes[i] in list(covered_nodes.keys())
+                                    and upnode in covered_nodes[connectedNodes[i]]
+                                ):  # avoid taking the symmetric counterpart of the resistance
+                                    fRout.write(
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
+                                        + " "
+                                        + self.unbracket(
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
+                                        )
+                                        + "\n"
+                                    )
+                                    r_list.append(
+                                        [
+                                            self.nodeNames[self.nodeNumbers.index(upnode)],
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ],
+                                        ]
+                                    )
+                            if upnode not in self.nodeNumbers_fluidInlet:
+                                fCout.write(
+                                    self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                                    + "\n"
+                                )
+                                c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                            covered_nodes.update({upnode: connectedNodes})
+
+                if (
+                    len(coolSys) == 0
+                ):  # particular case where the cooling system has only 2 nodes (inlet/outlet)
+                    for upnode in connectedNodes:
+                        if (
+                            self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem
+                        ):  # make sure the connected node still belongs to cooling system
+                            connectedNodes = self.returnConnectedNodes(
+                                upnode, self.nodeNumbers, resistanceMatrix
+                            )
+                            for i in range(0, len(connectedNodes)):
+                                if not (
+                                    connectedNodes[i] in list(covered_nodes.keys())
+                                    and upnode in covered_nodes[connectedNodes[i]]
+                                ):  # avoid taking the symmetric counterpart of the resistance
+                                    fRout.write(
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
+                                        + " "
+                                        + self.unbracket(
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
+                                        )
+                                        + "\n"
+                                    )
+                                    r_list.append(
+                                        [
+                                            self.nodeNames[self.nodeNumbers.index(upnode)],
+                                            self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ],
+                                        ]
+                                    )
+                                if upnode not in self.nodeNumbers_fluidInlet:
+                                    fCout.write(
+                                        self.unbracket(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                        )
+                                        + "\n"
+                                    )
+                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                            covered_nodes.update({upnode: connectedNodes})
+
+            # run the DoE
+            fileInd = 0
+            nDps = len(frs) * len(inletTemps) * len(rpms)
+            for flow in frs:
+                for inTemp in inletTemps:
+                    for speed in rpms:
+                        fileInd = fileInd + 1
+                        print(
+                            (
+                                "Run DP {}/{} for cooling system {} at parameters values flow rate "
+                                "{}, inlet temperature {} and rpm {}"
+                            ).format(fileInd, nDps, coolingSystem, flow, inTemp, speed)
+                        )
+                        [R, C] = self.computeMatricesCoolingSystemsInput(
+                            coolingSystem, speed, inTemp, flow, r_list, c_list, fileInd
+                        )
+                        with open(
+                            os.path.join(exportPath, "R" + str(fileInd) + ".csv"), "w"
+                        ) as fout:
+                            fout.write(str(speed) + "\n")
+                            fout.write(str(flow) + "\n")
+                            fout.write(str(inTemp + 273.15) + "\n")
+                            for r in R:
+                                fout.write(str(r) + "\n")
+                        with open(
+                            os.path.join(exportPath, "C" + str(fileInd) + ".csv"), "w"
+                        ) as fout:
+                            fout.write(str(speed) + "\n")
+                            fout.write(str(flow) + "\n")
+                            fout.write(str(inTemp + 273.15) + "\n")
+                            for c in C:
+                                fout.write(str(c) + "\n")
+
+    def computeMatricesCoolingSystemsInput(
+        self, coolingSystem, rpm, inTemp, fr, r_list, c_list, fileInd
+    ):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
+        if not os.path.isdir(exportDirectory):
+            os.makedirs(exportDirectory)
+
+        self.mcad.set_variable("Shaft_Speed_[RPM]", rpm)
+        self.mcad.set_variable(self.coolingSystemData[coolingSystem][0], fr)
+        self.mcad.set_variable(self.coolingSystemData[coolingSystem][1], inTemp)
+        self.mcad.do_steady_state_analysis()
+        self.mcad.export_matrices(exportDirectory)
+
+        resistanceMatrix = self.getRmfData(exportDirectory)
+        capacitanceMatrix = self.getCmfData(exportDirectory)
+
+        R = []
+        for r in r_list:
+            index1 = self.nodeNames.index(r[0])
+            index2 = self.nodeNames.index(r[1])
+            resistance = resistanceMatrix[index1][index2]
+            R.append(resistance)
+
+        C = []
+        for c in c_list:
+            index = (
+                self.nodeNames.index(c[0]) - 1
+            )  # -1 since capacitance matrix does not have ambient node
+            capacitance = capacitanceMatrix[index]
+            C.append(capacitance)
+
+        return [R, C]
+
 
 # %%
 # Example use case
 # ----------------
-# Below is an example of how the above ``MotorCADTwinModel`` class can be used. The .mot file that
-# will be used is the ``e8_eMobility`` template.
+# Below is an example of how the above ``MotorCADTwinModel`` class can be used using the
+# ``e8_eMobility`` template .mot file.
 
 
 # %%
@@ -806,15 +1063,14 @@ def temperaturesHousingAmbient():
 
 
 # %%
-# Specify the input .mot file and the directory to save the output data to. For this example, the
-# e8 template model will be used
+# Specify the input .mot file and the directory to save the output data to.
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
 # %%
-# Create the e8 input file if it does not exist already
+# Create the e8 input file if it does not exist already.
 if Path(inputMotFilePath).exists() == False:
     motorcad = pymotorcad.MotorCAD()
     motorcad.load_template("e8")
@@ -845,6 +1101,18 @@ airgapTemps = [40, 50, 65]
 housingAmbientTemps = temperaturesHousingAmbient()
 
 # %%
+# Specify the cooling systems for which input dependencies need to be taken into account.
+# For each cooling system involved, define the parameters values to sweep to extract the
+# corresponding training data.
+coolingSystemsInputs = {
+    "Housing Water Jacket": {
+        "rpm": rpms,
+        "FR": [9.7695e-05, 0.000103122499999999, 0.00010855, 0.0001139775, 0.000119405],
+        "inletTemp": [40, 65],
+    }
+}
+
+# %%
 # Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
 # well as the directory to which the results should be saved.
 MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
@@ -856,6 +1124,7 @@ MotorCADTwin.generateTwinData(
     parameters={"rpm": rpms},
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
+    coolingSystemsInputs=coolingSystemsInputs,
 )
 
 
@@ -876,5 +1145,5 @@ MotorCADTwin.generateTwinData(
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# .. note:: For details on how the resulting *Motor-CAD ROM* component can be used, please consult
-#    the Twin Builder Help Manual.
+# .. seealso:: For informtation on how to use the *Motor-CAD ROM* component, please consult the
+#    Twin Builder Help Manual.
