@@ -57,7 +57,6 @@ class Region(object):
         return (
             isinstance(other, Region)
             and self.name == other.name
-            and self.colour == other.colour
             # and self.area == other.area ->
             # Already check entities - can't expect user to calculate area
             # and self.centroid == other.centroid ->
