@@ -133,7 +133,6 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
         self._mesh_length = 0
-        self._extrusion_length = 0
 
         self._linked_region = None
         self._singular = False
@@ -153,7 +152,6 @@ class Region(object):
             and self._duplications == other._duplications
             and self._entities == other._entities
             and self._singular == other._singular
-            and self._extrusion_length == other._extrusion_length
         )
 
     @classmethod
@@ -289,9 +287,6 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
-        if "length" in json:
-            new_region._extrusion_length = json["length"]
-
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -322,8 +317,7 @@ class Region(object):
             "mesh_length": self._mesh_length,
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
-            "lamination_type": lamination_type,
-            "length": self._extrusion_length,
+            "lamination_type": lamination_type
         }
 
         return region_dict
@@ -516,14 +510,6 @@ class Region(object):
     @mesh_length.setter
     def mesh_length(self, mesh_length):
         self._mesh_length = mesh_length
-
-    @property
-    def extrusion_length(self):
-        return self._extrusion_length
-
-    @extrusion_length.setter
-    def extrusion_length(self, extrusion_length):
-        self._extrusion_length = extrusion_length
 
     @property
     def area(self):
