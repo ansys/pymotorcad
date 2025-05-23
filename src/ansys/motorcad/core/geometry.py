@@ -133,6 +133,7 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
         self._mesh_length = 0
+        self._extrusion_blocks = ExtrusionBlockList()
 
         self._linked_region = None
         self._singular = False
@@ -287,6 +288,9 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        if "extrusion_blocks" in json:
+            new_region._extrusion_blocks._from_json(json["extrusion_blocks"])
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -317,7 +321,8 @@ class Region(object):
             "mesh_length": self._mesh_length,
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
-            "lamination_type": lamination_type
+            "lamination_type": lamination_type,
+            "extrusion_blocks": self._extrusion_blocks._to_json,
         }
 
         return region_dict
@@ -372,6 +377,10 @@ class Region(object):
     @singular.setter
     def singular(self, singular):
         self._singular = singular
+
+    @property
+    def extrusion_blocks(self):
+        return self._extrusion_blocks
 
     @property
     def child_names(self):
@@ -2121,6 +2130,86 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+
+class ExtrusionBlock:
+    """Generic class for storing 3D extrusion data."""
+
+    def __init__(self):
+        """Initialise extrusion block"""
+        self.start_pos = 0
+        self.end_pos = 0
+        self.angle_shift = 0
+
+    def __eq__(self, other):
+        """Compare equality of 2 ExtrusionBlock objects."""
+        return (self.start_pos == other.start_pos) & (self.end_pos == other.end_pos) & \
+            (self.start_pos == other.end_pos)
+
+    def from_json(self, json):
+        """Convert the class from a JSON object.
+
+        Parameters
+        ----------
+        json: dict
+            Dictionary representing the extrusion block.
+        """
+        self.start_pos = json["extrusion_block_start"]
+        self.end_pos = json["extrusion_block_end"]
+        self.angle_shift = json["extrusion_block_angle"]
+
+    def to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        dict
+            Dictionary of the extrusion block represented as JSON.
+        """
+        block_dict = {
+            "extrusion_block_start": self.start_pos,
+            "extrusion_block_end": self.end_pos,
+            "extrusion_block_angle": self.start_pos}
+
+        return block_dict
+
+    @property
+    def extrusion_length(self):
+        """Return extrusion length between start and end positions.
+
+        Returns
+        -------
+        float
+           Block extrusion length.
+        """
+        return abs(self.end_pos - self.start_pos)
+
+
+class ExtrusionBlockList(list):
+    """Generic class for list of Entities."""
+
+    def _to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        list
+            List of the extrusion blocks represented as JSON.
+        """
+        return [block.to_json for block in self]
+
+    def _from_json(self, json_list):
+        """Convert the class from a JSON object.
+
+        Parameters
+        ----------
+        json: list
+            List of extrusion blocks in json.
+        """
+        for json_object in json_list:
+            block = ExtrusionBlock()
+            block.from_json(json_object)
+            self.append(block)
 
 
 def _convert_entities_to_json(entities):
