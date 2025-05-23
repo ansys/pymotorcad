@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,7 @@
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 from os import environ, path
+from pathlib import Path
 import re
 import socket
 import subprocess
@@ -52,6 +53,12 @@ SERVER_IP = LOCALHOST_ADDRESS
 _METHOD_SUCCESS = 0
 
 MOTORCAD_EXE_GLOBAL = ""
+
+if MOTORCAD_EXE_GLOBAL == "":
+    if "PYMOTORCAD_EXE" in environ:
+        pymotorcad_exe_environment_variable = environ["PYMOTORCAD_EXE"]
+        if pymotorcad_exe_environment_variable != "":
+            MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
@@ -182,6 +189,7 @@ class _MotorCADConnection:
         url="",
         timeout=2,
         compatibility_mode=False,
+        use_blackbox_licence=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -204,6 +212,8 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+        use_blackbox_licence: Boolean, default: False
+            Ask Motor-CAD to consume blackbox licence.
 
         Returns
         -------
@@ -230,6 +240,9 @@ class _MotorCADConnection:
 
         self._url = url
         self._timeout = timeout
+
+        if use_blackbox_licence:
+            environ["MOTORDES_BLACKBOX"] = "1"
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
@@ -407,7 +420,8 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
+            cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
         pid = motor_process.pid

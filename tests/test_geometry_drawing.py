@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 from matplotlib import pyplot as plt
 import pytest
 
-from ansys.motorcad.core.geometry import Coordinate, Line, Region
+from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
 import ansys.motorcad.core.geometry_drawing
 from ansys.motorcad.core.geometry_drawing import draw_objects
 
@@ -37,7 +37,7 @@ def set_drawing_flag(*args, **kwargs):
 
 
 def create_triangle_reg(bottom_left_coord):
-    region = Region()
+    region = Region(RegionType.stator_air)
     region.name = "region " + str(bottom_left_coord)
     c1 = bottom_left_coord
     c2 = bottom_left_coord + Coordinate(10, 0)
