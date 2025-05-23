@@ -318,7 +318,7 @@ class Region(object):
             "region_type": self._region_type.value,
             "mesh_length": self.mesh_length,
             "linked_regions": self._linked_regions,
-            "on_boundary": False if len(self._linked_regions) > 0 else True,
+            "on_boundary": False if len(self._linked_regions) = 0 else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
         }
