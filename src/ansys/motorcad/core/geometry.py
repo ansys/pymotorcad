@@ -132,8 +132,9 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self._mesh_length = 0
-        self._linked_region = None
+        self.mesh_length = 0
+        self._linked_regions = []
+
         self._singular = False
         self._lamination_type = ""
 
@@ -285,6 +286,9 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        if "linked_regions" in json:
+            new_region._linked_regions = json["linked_regions"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -312,8 +316,9 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self._parent_name,
             "region_type": self._region_type.value,
-            "mesh_length": self._mesh_length,
-            "on_boundary": False if self._linked_region is None else True,
+            "mesh_length": self.mesh_length,
+            "linked_regions": self._linked_regions,
+            "on_boundary": False if len(self._linked_regions) == 0 else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
         }
@@ -354,13 +359,24 @@ class Region(object):
 
     @property
     def linked_region(self):
-        """Get or set linked duplication/unite region."""
-        return self._linked_region
+        """Get linked duplication/unite region."""
+        warn('linked_region property is deprecated. Use linked_regions array', DeprecationWarning)
+        return self._linked_regions[0] if len(self._linked_regions) > 0 else None
 
     @linked_region.setter
     def linked_region(self, region):
-        self._linked_region = region
-        region._linked_region = self
+        warn('linked_region property is deprecated. Use linked_regions.append(region)', DeprecationWarning)
+        self._linked_regions.append(region)
+        region._linked_regions.append(self)
+
+    @property
+    def linked_regions(self):
+        """Get linked duplication/unite region."""
+        return self._linked_regions
+
+    @linked_regions.setter
+    def linked_regions(self, regions):
+        self._linked_regions = regions
 
     @property
     def singular(self):
