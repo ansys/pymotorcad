@@ -2055,34 +2055,6 @@ class EntityList(list):
             points += [deepcopy(entity.start)]
         return points
 
-    @property
-    def points_maxwell_polyline(self):
-        """Get points of shape/region from Entity list for generating AEDT polyline object.
-
-        Returns
-        -------
-        List of Lists of real
-        """
-        points = []
-        for entity in self:
-            points += [[str(entity.start.x), str(entity.start.y), "0"]]
-            if isinstance(entity, Arc):
-                mid_point = entity.midpoint
-                points += [[str(mid_point.x), str(mid_point.y), "0"]]
-
-        points += [[str(self[0].start.x), str(self[0].start.y), "0"]]
-        return points
-
-    @property
-    def entity_types(self):
-        """Get entity types of entities within shape/region from Entity list.
-
-        Returns
-        -------
-        List of string
-        """
-        return [entity.__class__.__name__ for entity in self]
-
     def _entities_same(self, entities_to_compare, check_reverse=False):
         """Check whether entities in region are the same as entities a different region.
 
