@@ -304,3 +304,14 @@ class _RpcMethodsAdaptiveGeometry:
         # No need to do this if running internally
         if not is_running_in_internal_scripting():
             return self.connection.send_and_receive(method)
+
+    def get_geometry_tree(self):
+        """Do placeholder."""
+        method = "GetGeometryTree"
+        return self.connection.send_and_receive(method)
+
+    def set_geometry_tree(self, tree):
+        """Do placeholder."""
+        params = [tree]
+        method = "SetTree"
+        return self.connection.send_and_receive(method, params)
