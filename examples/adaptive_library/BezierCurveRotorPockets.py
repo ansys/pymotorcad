@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 Bezier curve rotor pockets
 ==========================
@@ -40,7 +62,7 @@ with a custom curve defined using a Bezier function.
 # Import the ``os``, ``shutil``, ``sys`` and ``tempfile`` packages
 # to open and save a temporary MOT file if none is open.
 
-# sphinx_gallery_thumbnail_number = -1
+# sphinx_gallery_thumbnail_path = 'images/Adaptive_Geometry_Bezier_e4a_3.png'
 import os
 import shutil
 import sys
@@ -100,21 +122,13 @@ mc.reset_adaptive_geometry()
 # %%
 # Set adaptive parameter if required
 # ----------------------------------
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
+# The ``set_adaptive_parameter_default`` function checks if a parameter exists. If not,
 # it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter()`` function to set the required ``L1 Bezier Curve Projection``,
-# ``L1 Upper Convex`` and ``L1 Lower Concave`` parameters if undefined.
-set_default_parameter("L1 Bezier Curve Projection", 6)
-set_default_parameter("L1 Upper Convex", 0.5)
-set_default_parameter("L1 Lower Concave", -0.3)
+# Set the required ``L1 Bezier Curve Projection``, ``L1 Upper Convex`` and ``L1 Lower Concave``
+# parameters if undefined.
+mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 6)
+mc.set_adaptive_parameter_default("L1 Upper Convex", 0.5)
+mc.set_adaptive_parameter_default("L1 Lower Concave", -0.3)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier

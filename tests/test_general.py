@@ -1,4 +1,28 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
+
+import pytest
 
 from RPC_Test_Common import (
     almost_equal,
@@ -9,7 +33,7 @@ from RPC_Test_Common import (
     reset_to_default_file,
 )
 import ansys.motorcad.core
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADError
 
 # Allows us to add a new api method to testing before the next Motor-CAD release is available
 # Dev release will have a lower version number than actual release so don't want to check this
@@ -166,21 +190,39 @@ def test_save_load_magnetisation_curves(mc):
     reset_to_default_file(mc)
 
 
-def test_save_load_results():
+def test_save_load_results(mc):
     # Currently not working as part of full tests
     # Works individually - need to look into this
-    pass
-    # mc.do_magnetic_calculation()
-    # mc.save_results("EMagnetic")
-    # assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
-    # assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
-    #
-    # mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
-    #
-    # mc.load_results("EMagnetic")
-    # assert mc.get_variable("MaxTorque") != 0
-    #
-    # reset_to_default_file(mc)
+
+    # EMag test
+    mc.do_magnetic_calculation()
+    mc.save_results("EMagnetic")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
+
+    mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
+
+    mc.load_results("EMagnetic")
+    assert mc.get_variable("MaxTorque") != 0
+
+    reset_to_default_file(mc)
+
+    # Thermal test - transient graphs only
+    mc.do_transient_analysis()
+    mc.save_results("Thermal")
+    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\Thermal\GraphResults.ini")
+
+    mc.load_from_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
+
+    mc.load_results("TheRmal")
+    assert mc.get_power_graph_point("Armature Copper(Total)", 5) != 0
+
+    with pytest.raises(MotorCADError):
+        mc.load_results("wrong_type")
+
+    with pytest.raises(MotorCADError):
+        mc.save_results("wrong_type")
+    reset_to_default_file(mc)
 
 
 def test_get_message(mc):

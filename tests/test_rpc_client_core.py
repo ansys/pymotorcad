@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from time import sleep
 from unittest.mock import create_autospec
 import warnings
@@ -10,7 +32,7 @@ import pytest
 import ansys.motorcad.core as pym
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
-from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
+from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
 def test__find_free_motor_cad(mc):
@@ -34,6 +56,7 @@ def test_set_server_ip():
 
 
 def test_set_motorcad_exe():
+    save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"
 
     pymotorcad.set_motorcad_exe(test_path)
@@ -41,7 +64,7 @@ def test_set_motorcad_exe():
     assert pymotorcad.rpc_client_core._find_motor_cad_exe() == test_path
 
     # reset path
-    pymotorcad.set_motorcad_exe("")
+    pymotorcad.set_motorcad_exe(save_global_exe)
     pymotorcad.rpc_client_core._find_motor_cad_exe()
 
 
@@ -314,3 +337,10 @@ def test__resolve_localhost():
         raise e
     finally:
         mc2.quit()
+
+
+def test_blackbox_licencing():
+    mc2 = MotorCAD(use_blackbox_licence=True)
+    # Not sure it's possible to assert that only a blackbox licence was consumed
+    # Just check it works for now
+    mc2.get_licence()

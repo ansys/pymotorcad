@@ -1,5 +1,28 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 from os import environ, path
+from pathlib import Path
 import re
 import socket
 import subprocess
@@ -30,6 +53,12 @@ SERVER_IP = LOCALHOST_ADDRESS
 _METHOD_SUCCESS = 0
 
 MOTORCAD_EXE_GLOBAL = ""
+
+if MOTORCAD_EXE_GLOBAL == "":
+    if "PYMOTORCAD_EXE" in environ:
+        pymotorcad_exe_environment_variable = environ["PYMOTORCAD_EXE"]
+        if pymotorcad_exe_environment_variable != "":
+            MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
@@ -177,6 +206,7 @@ class _MotorCADConnection:
         url="",
         timeout=2,
         compatibility_mode=False,
+        use_blackbox_licence=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -199,6 +229,8 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+        use_blackbox_licence: Boolean, default: False
+            Ask Motor-CAD to consume blackbox licence.
 
         Returns
         -------
@@ -225,6 +257,9 @@ class _MotorCADConnection:
 
         self._url = url
         self._timeout = timeout
+
+        if use_blackbox_licence:
+            environ["MOTORDES_BLACKBOX"] = "1"
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
@@ -402,7 +437,8 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
+            cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
         pid = motor_process.pid

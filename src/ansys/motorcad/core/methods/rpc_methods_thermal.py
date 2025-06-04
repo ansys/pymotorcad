@@ -1,3 +1,25 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """RPC methods for Motor-CAD Thermal."""
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
@@ -60,13 +82,21 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def save_transient_power_values(self, file_name):
-        """Save transient power results to a CSV file."""
+        """Save transient power results to a text file.
+
+        Text file separator defined using the
+        ``"ExportTextSeparator"`` parameter (default is semicolon).
+        """
         method = "SaveTransientPowerValues"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
     def save_transient_temperatures(self, file_name):
-        """Save transient temperature results to a CSV file."""
+        """Save transient temperature results to a text file.
+
+        Text file separator defined using the
+        ``"ExportTextSeparator"`` parameter (default is semicolon).
+        """
         method = "SaveTransientTemperatures"
         params = [file_name]
         return self.connection.send_and_receive(method, params)

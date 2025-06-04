@@ -1,4 +1,27 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """RPC methods (general)."""
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class _RpcMethodsGeneral:
@@ -356,31 +379,49 @@ class _RpcMethodsGeneral:
         return self.connection.send_and_receive(method, params)
 
     def save_results(self, solution_type):
-        """Save the output results from an ``"EMagnetic"`` solution.
+        """Save the output results from an ``"EMagnetic"`` or ``"Thermal"`` solution.
 
-        This method supports only ``"EMagnetic"`` solutions.
+        This method supports only ``"EMagnetic"`` or ``"Thermal"`` solutions.
 
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic"``.
+            Solution type, which must be ``"EMagnetic"`` or ``"Thermal"``.
         """
         method = "SaveResults"
         params = [solution_type]
+
+        if solution_type.lower() == "thermal":
+            self.connection.ensure_version_at_least("2025.0")
+        elif solution_type.lower() != "emagnetic":
+            raise MotorCADError(
+                "Save results are not available for this solution type: "
+                + solution_type
+                + "\nAvailable solution types are: Thermal, EMagnetic"
+            )
         return self.connection.send_and_receive(method, params)
 
     def load_results(self, solution_type):
-        """Load the output results from an ``"EMagnetic"`` solution.
+        """Load the output results from an ``"EMagnetic"`` or ``"Thermal"`` solution.
 
-        This method supports only ``"EMagnetic"`` solution.
+        This method supports only ``"EMagnetic"`` or ``"Thermal"`` solution.
 
         Parameters
         ----------
         solution_type : str
-            Soultion type, which must be ``"EMagnetic"``.
+            Solution type, which must be ``"EMagnetic"`` or ``"Thermal"``.
         """
         method = "LoadResults"
         params = [solution_type]
+
+        if solution_type.lower() == "thermal":
+            self.connection.ensure_version_at_least("2025.0")
+        elif solution_type.lower() != "emagnetic":
+            raise MotorCADError(
+                "Load results are not available for this solution type: "
+                + solution_type
+                + "\nAvailable solution types are: Thermal, EMagnetic"
+            )
         return self.connection.send_and_receive(method, params)
 
     def load_magnetisation_curves(self, file_path):

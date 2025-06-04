@@ -1,6 +1,30 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Methods for adaptive geometry."""
-from ansys.motorcad.core.geometry import Region
-from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
+from warnings import warn
+
+from ansys.motorcad.core.geometry import Region, RegionMagnet
+from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -39,6 +63,22 @@ class _RpcMethodsAdaptiveGeometry:
         method = "GetAdaptiveParameterValue"
         params = [name]
         return self.connection.send_and_receive(method, params)
+
+    def set_adaptive_parameter_default(self, name, value):
+        """Set default value for an adaptive parameter, if the parameter does not already exist.
+
+        Parameters
+        ----------
+        name : string
+            name of parameter.
+        value : float
+            value of parameter.
+        """
+        self.connection.ensure_version_at_least("2024.0")
+        try:
+            self.get_adaptive_parameter_value(name)
+        except MotorCADError:
+            self.set_adaptive_parameter_value(name, value)
 
     def get_region(self, name):
         """Get Motor-CAD geometry region.
@@ -96,6 +136,17 @@ class _RpcMethodsAdaptiveGeometry:
             Motor-CAD region object.
         """
         self.connection.ensure_version_at_least("2024.0")
+
+        if isinstance(region, RegionMagnet):
+            if (region._br_multiplier != 0.0) or (region._magnet_angle != 0.0):
+                # User has changed magnet properties that do not exist in older Motor-CAD API
+                if not self.connection.check_version_at_least("2024.2"):
+                    warn("Setting magnet properties is only available in Motor-CAD 2024R2 or later")
+
+        if region.mesh_length != 0:
+            if not self.connection.check_version_at_least("2025"):
+                warn("Setting region mesh length is only available in Motor-CAD 2025R1 or later")
+
         raw_region = region._to_json()
 
         method = "SetRegion"
