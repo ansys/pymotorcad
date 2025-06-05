@@ -5,7 +5,6 @@ Utility functions
 
 .. currentmodule:: ansys.motorcad.core.rpc_client_core
 
-
 .. autosummary::
    :toctree: _autosummary_utility_functions
 
