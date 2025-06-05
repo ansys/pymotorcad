@@ -204,7 +204,7 @@ class _RpcMethodsFEAGeometry:
             First step of results required (for transient calculation).
         final_step : int
             Final step of results required (for transient calculation).
-        outputs : float
+        outputs : str
             FEA data requested, for example RegCode, B, Pt, B*BremX (mathematical expressions
             can be handled). Multiple outputs be passed as a comma-separated string, for example
             'RegCode,B,Pt,B*BremX'.
