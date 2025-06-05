@@ -205,9 +205,8 @@ class _RpcMethodsFEAGeometry:
         final_step : int
             Final step of results required (for transient calculation).
         outputs : str
-            FEA data requested, for example RegCode, B, Pt, B*BremX (mathematical expressions
-            can be handled). Multiple outputs be passed as a comma-separated string, for example
-            'RegCode,B,Pt,B*BremX'.
+            FEA data requested, for example RegCode, B, Pt. Multiple outputs be passed as a
+            comma-separated string, for example 'RegCode,B,Pt'.
         regions : str
             FEA region names that data is wanted for, for example L1_1Magnet1N1, Rotor,
             ArmatureSlotR2. Multiple regions must be passed as a comma-separated string,
