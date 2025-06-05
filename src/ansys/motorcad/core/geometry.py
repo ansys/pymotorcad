@@ -36,8 +36,8 @@ class RegionType(Enum):
 
     stator = "Stator"
     rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
-    slot_area_rotor = "Rotor Slot"
+    slot_area_stator = "Stator Slot Area"
+    slot_area_rotor = "Rotor Slot Area"
     slot_split = "Split Slot"
     stator_liner = "Stator Liner"
     rotor_liner = "Rotor Liner"
