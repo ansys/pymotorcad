@@ -32,7 +32,7 @@ import pytest
 import ansys.motorcad.core as pym
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
-from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
+from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
 def test__find_free_motor_cad(mc):
@@ -56,6 +56,7 @@ def test_set_server_ip():
 
 
 def test_set_motorcad_exe():
+    save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"
 
     pymotorcad.set_motorcad_exe(test_path)
@@ -63,7 +64,7 @@ def test_set_motorcad_exe():
     assert pymotorcad.rpc_client_core._find_motor_cad_exe() == test_path
 
     # reset path
-    pymotorcad.set_motorcad_exe("")
+    pymotorcad.set_motorcad_exe(save_global_exe)
     pymotorcad.rpc_client_core._find_motor_cad_exe()
 
 
