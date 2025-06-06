@@ -23,6 +23,9 @@
 # from os import path, remove
 # import time
 
+import os
+
+from openpyxl import load_workbook
 import pytest
 
 from RPC_Test_Common import reset_to_default_file  # (get_dir_path,
@@ -170,6 +173,18 @@ def test_external_custom_loss_functions(mc):
 
     mc.remove_external_custom_loss(removed_name)
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
+
+
+def test_export_concept_ev_model(mc):
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e9")
+    # run Efficiency Map calculation
+    mc.calculate_magnetic_lab()
+    file_path = mc.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
+    mc.export_concept_ev_model()
+    assert os.path.exists(file_path) is True
+    wb = load_workbook(file_path)
+    assert "Shaft_Torque" in wb.sheetnames
 
 
 # def test_lab_model_export(mc):
