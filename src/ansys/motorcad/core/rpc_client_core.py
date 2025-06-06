@@ -98,12 +98,12 @@ def set_default_instance(port):
 
 
 def set_motorcad_exe(exe_location):
-    """Set the directory with the Motor-CAD executable file to launch.
+    """Set the path of the Motor-CAD executable file to launch.
 
     Parameters
     ----------
     exe_location : str
-        Directory of the Motor-CAD executable file to launch.
+        Path of the Motor-CAD executable file to launch.
     """
     global MOTORCAD_EXE_GLOBAL
     MOTORCAD_EXE_GLOBAL = exe_location
