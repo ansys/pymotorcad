@@ -1747,13 +1747,17 @@ def test_limit_arc_chord():
     # and check we have the right number of entities
     square_1 = square(20, 0, 0)
     square_2 = square(20, 0, 0)
+    square_3 = square(20, 0, 0)
     assert len(square_1.entities) == 4
     assert len(square_2.entities) == 4
+    assert len(square_3.entities) == 4
     corner_radius = 5
     square_1.round_corners(square_1.points, corner_radius)
     square_2.round_corners(square_2.points, corner_radius)
+    square_3.round_corners(square_3.points, corner_radius)
     assert len(square_1.entities) == 8
     assert len(square_2.entities) == 8
+    assert len(square_3.entities) == 8
 
     # This should split the corners into three
     chord_tolerance = 0.1
@@ -1764,6 +1768,11 @@ def test_limit_arc_chord():
     chord_tolerance = 8
     square_2.limit_arc_chord(chord_tolerance)
     assert len(square_2.entities) == 8
+
+    # This should not split the corners (invalid input)
+    chord_tolerance = 0
+    square_3.limit_arc_chord(chord_tolerance)
+    assert len(square_3.entities) == 8
 
 
 def test_subtract_regions(mc):
