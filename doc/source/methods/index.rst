@@ -55,6 +55,20 @@ used to find line and arc entities to fit a list of coordinates within a defined
 tolerance.
 For descriptions of the functions, see :ref:`ref_geometry_fitting`.
 
+Utility functions
+------------------
+
+A number of utility functions are available.
+For more information, see
+:ref:`ref_utility_functions`.
+
+Motor-CAD errors
+----------------
+
+A class/exception type is used to obtain and handle errors from Motor-CAD.
+For more information, see
+:ref:`MotorCAD_errors`.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -65,3 +79,5 @@ For descriptions of the functions, see :ref:`ref_geometry_fitting`.
    geometry_drawing
    geometry_shapes
    geometry_fitting
+   utility_functions
+   MotorCAD_errors

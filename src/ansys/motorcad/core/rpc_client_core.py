@@ -72,7 +72,13 @@ def is_running_in_internal_scripting():
 
 
 def set_server_ip(ip):
-    """IP address of the machine that Motor-CAD is running on."""
+    """Set the IP address of the machine that Motor-CAD is running on.
+
+    Parameters
+    ----------
+    ip : str
+        IP address of the machine that Motor-CAD is running on.
+    """
     global SERVER_IP
     SERVER_IP = ip
 
@@ -81,13 +87,24 @@ def set_default_instance(port):
     """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD.
 
     For Motor-CAD internal use only. Do not use this function.
+
+        Parameters
+        ----------
+        port : int
+            Port number of the Motor-CAD instance to set as the default.
     """
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
 
 def set_motorcad_exe(exe_location):
-    """Set the directory with the Motor-CAD executable file to launch."""
+    """Set the path of the Motor-CAD executable file to launch.
+
+    Parameters
+    ----------
+    exe_location : str
+        Path of the Motor-CAD executable file to launch.
+    """
     global MOTORCAD_EXE_GLOBAL
     MOTORCAD_EXE_GLOBAL = exe_location
 
