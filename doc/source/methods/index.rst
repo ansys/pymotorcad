@@ -65,8 +65,8 @@ For more information, see
 Motor-CAD errors
 ----------------
 
-A class/exception type used for obtaining and handling errors from Motor-CAD.
-For descriptions, see
+A class/exception type is used to obtain and handle errors from Motor-CAD.
+For more information, see
 :ref:`MotorCAD_errors`.
 
 .. toctree::
