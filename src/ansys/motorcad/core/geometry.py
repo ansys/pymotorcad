@@ -36,6 +36,7 @@ class RegionType(Enum):
     stator = "Stator"
     rotor = "Rotor"
     slot_area_stator = "Stator Slot Area"
+    slot_area_stator_deprecated = "Stator Slot"
     slot_area_rotor = "Rotor Slot Area"
     slot_split = "Split Slot"
     stator_liner = "Stator Liner"
@@ -88,6 +89,9 @@ class RegionType(Enum):
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
+
+
+RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
 
 
 class Region(object):

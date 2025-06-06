@@ -113,6 +113,7 @@ radius = mc.get_adaptive_parameter_value("Slot Bttm Corner Radius")
 stator = mc.get_region("Stator")
 winding_1 = mc.get_region("ArmatureSlotL1")
 winding_2 = mc.get_region("ArmatureSlotR1")
+stator_slot = mc.get_region("StatorSlot")
 liner = mc.get_region("Liner")
 impreg = mc.get_region("Impreg")
 
@@ -135,6 +136,7 @@ draw_objects_debug([stator, impreg, impreg_corners[0], impreg_corners[1]])
 # ``Region.round_corners`` method. Armature winding regions only have 1 of the two corners, so use
 # the ``Region.round_corner`` method for these regions.
 stator.round_corners(corners, radius)
+stator_slot.round_corners(corners, radius)
 liner.round_corners(corners, radius)
 winding_1.round_corner(corners[1], radius)
 winding_2.round_corner(corners[0], radius)
@@ -148,6 +150,7 @@ impreg.round_corners(impreg_corners, radius)
 # %%
 # Set the edited regions in Motor-CAD.
 mc.set_region(stator)
+mc.set_region(stator_slot)
 mc.set_region(winding_1)
 mc.set_region(winding_2)
 mc.set_region(liner)
