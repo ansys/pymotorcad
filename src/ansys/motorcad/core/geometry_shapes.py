@@ -275,3 +275,53 @@ def triangular_notch(radius, sweep, centre_angle, depth):
     this_triangular_notch.entities = EntityList([line_1, line_2, airgap_arc])
 
     return this_triangular_notch
+
+
+def circular_notch(radius, sweep, centre_angle, depth):
+    """Create a circular notch for a rotor or stator at given angular position with given size.
+
+    Parameters
+    ----------
+    radius : float
+        Radius value, radius of the Rotor or Stator for which the notch is being defined.
+    sweep : float
+        Sweep value, the angular distance (in degrees) that the notch spans.
+    centre_angle : float
+        Angle value, angular coordinate of the notch centre.
+    depth : float
+        Depth value, depth of the notch.
+
+    Returns
+    -------
+    this_circular_notch : ansys.motorcad.core.geometry.Region
+        Region type with two Arc entity types.
+    """
+    # sanity check to make sure geometry is valid
+    if depth > radius:
+        raise Exception("Notch depth cannot be greater than rotor radius")
+    # calculate necessary angles for the coordinate calculation
+    rotor_centre = Coordinate(0, 0)
+    notch_start_angle = centre_angle - sweep / 2
+    notch_end_angle = centre_angle + sweep / 2
+
+    # make certain the given geometry is valid?
+
+    # generate coordinates for circular notch using start/mid/end
+    # angles above converting from polar to cartesian
+    x1, y1 = rt_to_xy(radius, notch_start_angle)
+    x2, y2 = rt_to_xy(radius - depth, centre_angle)
+    x3, y3 = rt_to_xy(radius, notch_end_angle)
+
+    p1 = Coordinate(x1, y1)
+    p2 = Coordinate(x2, y2)
+    p3 = Coordinate(x3, y3)
+
+    # using coordinate create entities making up notch region
+    inner_arc = Arc.from_coordinates(p3, p2, p1)
+    airgap_arc = Arc(p1, p3, rotor_centre, radius)
+
+    # create the circular notch region and add the 2 arcs to the region
+    this_circular_notch = Region()
+    this_circular_notch.entities = EntityList([inner_arc, airgap_arc])
+
+    return this_circular_notch
