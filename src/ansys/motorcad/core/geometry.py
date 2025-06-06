@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
 from warnings import warn
 
@@ -884,6 +884,55 @@ class Region(object):
         """
         for corner in corner_coordinates:
             self.round_corner(corner, radius)
+
+    def limit_arc_chord(self, max_chord_height):
+        """Limit the chord height for arcs in a region.
+
+        Subdivide arcs if required to ensure the arc's chord height (the distance between the arc
+        midpoint and the midpoint of a line between the start and end) is lower than the specified
+        value. This can be used to force a fine FEA mesh around entities with high curvature.
+
+        Parameters:
+            max_chord_height: float
+                The maximum chord height allowed.
+        """
+        new_entity_list = []
+        for entity in self.entities:
+            if (
+                isinstance(entity, Arc)
+                and (entity.radius != 0)
+                and (fabs(entity.radius * 2) > max_chord_height)
+            ):
+                # Find maximum arc angle so the chord height is equal to the required maximum error
+                max_angle = degrees(2 * acos(1 - max_chord_height / fabs(entity.radius)))
+
+                # Find how many segments are needed to achieve this
+                if max_angle > 0:
+                    segmentation = floor(entity.total_angle / max_angle)
+                else:
+                    segmentation = 1
+
+                # If required, split the arc into segments
+                if segmentation > 1:
+                    segment_start = entity.start
+                    for segment in range(1, segmentation + 1):
+                        segment_end = entity.get_coordinate_from_distance(
+                            entity.start, fraction=segment / segmentation
+                        )
+                        new_arc = Arc(segment_start, segment_end, entity.centre, entity.radius)
+                        # Add to the list
+                        new_entity_list.append(new_arc)
+                        # Ready for next segment
+                        segment_start = segment_end
+                else:
+                    # Arc already OK, just add to list as-is
+                    new_entity_list.append(entity)
+            else:
+                # Add to list unchanged
+                new_entity_list.append(entity)
+
+        # Update the entity list
+        self.entities = new_entity_list
 
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
