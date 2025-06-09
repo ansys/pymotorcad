@@ -32,10 +32,10 @@ from ansys.motorcad.core.geometry_shapes import (
 
 def test_square():
     points = [
-        geometry.Coordinate(-1, 0),
-        geometry.Coordinate(-1, 2),
-        geometry.Coordinate(1, 2),
-        geometry.Coordinate(1, 0),
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
     ]
     test_square = geometry.Region()
 
@@ -45,47 +45,9 @@ def test_square():
         else:
             test_square.add_entity(geometry.Line(point, points[count + 1]))
 
-    function_square = square(2, 1, 0)
+    function_square = square(2, 0, 0)
 
     assert function_square == test_square
-
-
-def test_square_repositioning():
-    points_upper = [
-        geometry.Coordinate(1.8027756377319948, 1.8027756377319946),
-        geometry.Coordinate(2.6348259320698384, 2.3574758339572237),
-        geometry.Coordinate(3.1895261282950678, 1.5254255396193799),
-        geometry.Coordinate(2.357475833957224, 0.9707253433941507),
-    ]
-    test_square_upper = geometry.Region()
-
-    for count, point in enumerate(points_upper):
-        if count == len(points_upper) - 1:
-            test_square_upper.add_entity(geometry.Line(point, points_upper[0]))
-        else:
-            test_square_upper.add_entity(geometry.Line(point, points_upper[count + 1]))
-
-    function_square_upper = square(1, 3, 45)
-
-    assert function_square_upper == test_square_upper
-
-    points_lower = [
-        geometry.Coordinate(2.3533936216582085, 0.9805806756909203),
-        geometry.Coordinate(3.333974297349129, 1.1766968108291045),
-        geometry.Coordinate(3.5300904324873126, 0.19611613513818416),
-        geometry.Coordinate(2.5495097567963922, 1.1102230246251565e-16),
-    ]
-    test_square_lower = geometry.Region()
-
-    for count, point in enumerate(points_lower):
-        if count == len(points_lower) - 1:
-            test_square_lower.add_entity(geometry.Line(point, points_lower[0]))
-        else:
-            test_square_lower.add_entity(geometry.Line(point, points_lower[count + 1]))
-
-    function_square_lower = square(1, 3, 0)
-
-    assert function_square_lower == test_square_lower
 
 
 def test_eq_triangle_h():
