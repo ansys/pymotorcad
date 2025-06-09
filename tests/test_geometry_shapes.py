@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from ansys.motorcad.core import geometry
-from ansys.motorcad.core.geometry import Arc, Line, RegionType
+from ansys.motorcad.core.geometry import Arc, Line
 from ansys.motorcad.core.geometry_shapes import (
     eq_triangle_h,
     eq_triangle_w,
@@ -37,7 +37,7 @@ def test_square():
         geometry.Coordinate(1, 2),
         geometry.Coordinate(1, 0),
     ]
-    test_square = geometry.Region(region_type=RegionType.stator)
+    test_square = geometry.Region()
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -56,7 +56,7 @@ def test_eq_triangle_h():
         geometry.Coordinate(0.6666666666666667, -0.5773502691896257),
         geometry.Coordinate(1.6666666666666665, 0.0),
     ]
-    test_triangle = geometry.Region(region_type=RegionType.stator)
+    test_triangle = geometry.Region()
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -75,7 +75,7 @@ def test_eq_triangle_w():
         geometry.Coordinate(0.6666666666666667, -0.5773502691896257),
         geometry.Coordinate(1.6666666666666665, 0.0),
     ]
-    test_triangle = geometry.Region(region_type=RegionType.stator)
+    test_triangle = geometry.Region()
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -93,7 +93,7 @@ def test_triangular_notch():
     p2 = geometry.Coordinate(6.123233995736766e-17, 1.0)
     p3 = geometry.Coordinate(1.0000000000000002, 1.7320508075688772)
 
-    test_notch = geometry.Region(region_type=RegionType.stator)
+    test_notch = geometry.Region()
     test_notch.add_entity(Line(p1, p2))
     test_notch.add_entity(Line(p2, p3))
     test_notch.add_entity(Arc(p3, p1, geometry.Coordinate(0, 0)))
