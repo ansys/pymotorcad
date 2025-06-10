@@ -70,6 +70,7 @@ import ansys.motorcad.core as pymotorcad
 # ~~~~~~~~~~~~~~~~
 # Initialise automation and launch Motor-CAD.
 print("Starting initialisation.")
+pymotorcad.set_motorcad_exe("C:\\Program Files\\AnsysMotorCAD\\v252\\Motor-CAD_2025_2_1.exe")
 mc = pymotorcad.MotorCAD()
 
 # %%
@@ -113,9 +114,6 @@ def write_text_file(
     flux_0_4,
     torque_5,
 ):
-    file_name = file_name.replace(".mot", "")
-    file_name = "".join(i for i in file_name if i in string.ascii_letters + "0123456789")
-
     rows = len(index_1)
 
     file_id = open(txt_file, "w")
@@ -349,18 +347,13 @@ def write_SML_file(
     index = 0
 
     for i in range(d_values):
-        # file_id.write("%s%d" % (" ", id_peak[i, 0]))
         file_id.write(f" {id_peak[i, 0]}")
-        # file_id.write("%s" % ",")
         file_id.write(",")
         if i == (d_values - 1):
-            # file_id.write("%s\n" % "\ ")
             file_id.write("\ \n")
-            # file_id.write("%s" % " 0,")
             file_id.write(" 0,")
 
     for r in range(d_values):
-        # file_id.write("%s%u%s" % (" ", q_values, ","))
         file_id.write(f" {q_values},")
         for i in range(q_values):
             file_id.write(f" {iq_peak[0, i]}")
@@ -370,7 +363,6 @@ def write_SML_file(
                 file_id.write(" 0,")
 
         for k in range(q_values):
-            # file_id.write("%s%u%s" % (" ", map_points, ","))
             file_id.write(f" {map_points},")
             for i in range(map_points):
                 file_id.write(f" {i * mec_deg:.3f}")
@@ -381,7 +373,6 @@ def write_SML_file(
 
             for j in range(1, 5):
                 for i in range(map_points):
-                    # file_id.write("%s%f" % (" ", final_table[int(j), int(index + i)]))
                     file_id.write(f" {final_table[int(j), int(index + i)]:.6f}")
                     file_id.write(",")
                     if (
@@ -785,6 +776,9 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~
 # Generate the TXT file, using the path and filename that was taken from the ``ece_config.json``
 # configuration file.
+file_name = file_name.replace(".mot", "")
+file_name = "".join(i for i in file_name if i in string.ascii_letters + "0123456789")
+
 write_text_file(
     file_name,
     index_1,
@@ -803,8 +797,6 @@ write_text_file(
     flux_0_4,
     torque_5,
 )
-
-file_id.close()
 
 # %%
 # Write the SML file
