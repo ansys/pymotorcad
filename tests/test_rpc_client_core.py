@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import os
 from time import sleep
 from unittest.mock import create_autospec
 import warnings
@@ -339,6 +339,9 @@ def test__resolve_localhost():
         mc2.quit()
 
 
+@pytest.mark.skipif(
+    "ANSYS_LICENSING_WEB" in os.environ, reason="Can't test blackbox with web licensing"
+)
 def test_blackbox_licencing():
     mc2 = MotorCAD(use_blackbox_licence=True)
     # Not sure it's possible to assert that only a blackbox licence was consumed
