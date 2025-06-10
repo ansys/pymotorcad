@@ -688,18 +688,13 @@ file_id.write(f" {d_values},")
 index = 0
 
 for i in range(d_values):
-    # file_id.write("%s%d" % (" ", id_peak[i, 0]))
     file_id.write(f" {id_peak[i, 0]}")
-    # file_id.write("%s" % ",")
     file_id.write(",")
     if i == (d_values - 1):
-        # file_id.write("%s\n" % "\ ")
         file_id.write("\ \n")
-        # file_id.write("%s" % " 0,")
         file_id.write(" 0,")
 
 for r in range(d_values):
-    # file_id.write("%s%u%s" % (" ", q_values, ","))
     file_id.write(f" {q_values},")
     for i in range(q_values):
         file_id.write(f" {iq_peak[0, i]}")
@@ -709,7 +704,6 @@ for r in range(d_values):
             file_id.write(" 0,")
 
     for k in range(q_values):
-        # file_id.write("%s%u%s" % (" ", map_points, ","))
         file_id.write(f" {map_points},")
         for i in range(map_points):
             file_id.write(f" {i * mec_deg:.3f}")
@@ -720,7 +714,6 @@ for r in range(d_values):
 
         for j in range(1, 5):
             for i in range(map_points):
-                # file_id.write("%s%f" % (" ", final_table[int(j), int(index + i)]))
                 file_id.write(f" {final_table[int(j), int(index + i)]:.6f}")
                 file_id.write(",")
                 if r == (d_values - 1) and k == (q_values - 1) and j == 4 and i == (map_points - 1):
