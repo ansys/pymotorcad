@@ -70,7 +70,6 @@ import ansys.motorcad.core as pymotorcad
 # ~~~~~~~~~~~~~~~~
 # Initialise automation and launch Motor-CAD.
 print("Starting initialisation.")
-pymotorcad.set_motorcad_exe("C:\\Program Files\\AnsysMotorCAD\\v252\\Motor-CAD_2025_2_1.exe")
 mc = pymotorcad.MotorCAD()
 
 # %%
@@ -805,6 +804,7 @@ write_text_file(
     torque_5,
 )
 
+file_id.close()
 
 # %%
 # Write the SML file
