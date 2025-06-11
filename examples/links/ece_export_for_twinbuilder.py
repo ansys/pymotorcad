@@ -64,6 +64,7 @@ import numpy as np
 from scipy import io
 
 import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.links_methods import write_text_file
 
 # %%
 # Launch Motor-CAD
@@ -96,77 +97,70 @@ def read_parameters(json_file):
 # Write data to text file
 # --------------------------------
 # Define the ``write_text_file`` function to write data to the text file:
-def write_text_file(
-    file_name,
-    index_1,
-    txt_file,
-    p,
-    phase_res,
-    phase_l,
-    d_values,
-    q_values,
-    id_peak,
-    iq_peak,
-    map_points,
-    mec_deg,
-    flux_d_2,
-    flux_q_3,
-    flux_0_4,
-    torque_5,
-):
-    rows = len(index_1)
-
-    file_id = open(txt_file, "w")
-
-    # %%
-    # Write the number of poles to the TXT file.
-    file_id.write("B_BasicData\r\n")
-    file_id.write("\tVersion\t1.1\r\n")
-    file_id.write(f"\tPoles\t{p * 2:.0f}\r\n")
-    _ = file_id.write("E_BasicData\r\n\n")
-
-    # %%
-    # Write the phase resistance and end winding inductances for each phase to the TXT file.
-    file_id.write("B_PhaseImp 3\r\n")
-    file_id.write(f"\tWG_Ph1\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
-    file_id.write(f"\tWG_Ph2\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
-    file_id.write(f"\tWG_Ph3\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
-    _ = file_id.write("E_PhaseImp\r\n\n")
-
-    # %%
-    # Write the D and Q axis current values to the TXT file.
-    file_id.write("B_Sweepings\r\n\n")
-    file_id.write(f"\tId_Iq\t( {d_values} :")
-    for i in range(d_values):
-        file_id.write(f"\t{id_peak[i, 0]}")
-    file_id.write(")\n")
-
-    file_id.write(f"\t\t( {q_values} :")
-    for i in range(q_values):
-        file_id.write(f"\t{iq_peak[0, i]}")
-    _ = file_id.write(")\n")
-
-    # %%
-    # Write the rotor positions to the TXT file.
-    file_id.write(f"\tRotate\t( {map_points} :")
-
-    for i in range(map_points):
-        file_id.write(f"\t{i * mec_deg:.3f}")
-    file_id.write(")\n")
-    _ = file_id.write("E_Sweepings\n\n")
-
-    # %%
-    # Write the D and Q axis flux and torque values and then close the TXT file.
-    file_id.write("B_OutputMatrix DQ0\n")
-
-    for i in range(rows):
-        file_id.write(
-            f"\t{index_1[i]}\t{flux_d_2[i]:.10e}\t{flux_q_3[i]:.10e}\t{flux_0_4[i]:.10e}"
-            f"\t{torque_5[i]:.10e}\r\n"
-        )
-    file_id.write("E_OutputMatrix\n")
-
-    file_id.close()
+# def write_text_file(
+#     file_name,
+#     data_table,
+#     p,
+#     phase_res,
+#     phase_l,
+#     id_peak,
+#     iq_peak,
+#     map_points,
+#     mec_deg
+# ):
+#     rows = len(data_table[0])
+#
+#     file_id = open(file_name, "w")
+#
+#     # %%
+#     # Write the number of poles to the TXT file.
+#     file_id.write("B_BasicData\r\n")
+#     file_id.write("\tVersion\t1.2\r\n")
+#     file_id.write(f"\tPoles\t{p * 2:.0f}\r\n")
+#     _ = file_id.write("E_BasicData\r\n\n")
+#
+#     # %%
+#     # Write the phase resistance and end winding inductances for each phase to the TXT file.
+#     file_id.write("B_PhaseImp 3\r\n")
+#     file_id.write(f"\tWG_Ph1\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+#     file_id.write(f"\tWG_Ph2\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+#     file_id.write(f"\tWG_Ph3\t{phase_res:.10e}\t{phase_l:.10e}\r\n")
+#     _ = file_id.write("E_PhaseImp\r\n\n")
+#
+#     # %%
+#     # Write the D and Q axis current values to the TXT file.
+#     file_id.write("B_Sweepings\r\n\n")
+#     file_id.write(f"\tId_Iq\t( {len(id_peak)} :")
+#     for i in range(len(id_peak)):
+#         file_id.write(f"\t{id_peak[i, 0]}")
+#     file_id.write(")\n")
+#
+#     file_id.write(f"\t\t( {len(id_peak[0])} :")
+#     for i in range(len(id_peak[0])):
+#         file_id.write(f"\t{iq_peak[0, i]}")
+#     _ = file_id.write(")\n")
+#
+#     # %%
+#     # Write the rotor positions to the TXT file.
+#     file_id.write(f"\tRotate\t( {map_points} :")
+#
+#     for i in range(map_points):
+#         file_id.write(f"\t{i * mec_deg:.3f}")
+#     file_id.write(")\n")
+#     _ = file_id.write("E_Sweepings\n\n")
+#
+#     # %%
+#     # Write the D and Q axis flux and torque values and then close the TXT file.
+#     file_id.write("B_OutputMatrix DQ0\n")
+#
+#     for i in range(rows):
+#         file_id.write(
+#             f"\t{data_table[0][i]}\t{data_table[1][i]:.10e}\t{data_table[2][i]:.10e}\t{data_table[3][i]:.10e}"
+#             f"\t{data_table[4][i]:.10e}\r\n"
+#         )
+#     file_id.write("E_OutputMatrix\n")
+#
+#     file_id.close()
 
 
 # %%
@@ -779,24 +773,7 @@ plt.show()
 file_name = file_name.replace(".mot", "")
 file_name = "".join(i for i in file_name if i in string.ascii_letters + "0123456789")
 
-write_text_file(
-    file_name,
-    index_1,
-    txt_file,
-    p,
-    phase_res,
-    phase_l,
-    d_values,
-    q_values,
-    id_peak,
-    iq_peak,
-    map_points,
-    mec_deg,
-    flux_d_2,
-    flux_q_3,
-    flux_0_4,
-    torque_5,
-)
+write_text_file(txt_file, final_table, p, phase_res, phase_l, id_peak, iq_peak, map_points, mec_deg)
 
 # %%
 # Write the SML file
