@@ -128,5 +128,23 @@ class _RpcMethodsCalculations:
 
         Refreshes the UI to recreate winding pattern. Will be replaced by direct API call soon.
         """
-        self.display_screen("Scripting")
-        self.display_screen("Winding;Definition")
+        if self.connection.check_version_at_least("2026.1"):
+            # Update parameters on the Winding Pattern page.
+            method = "RefreshWindingPattern"
+            self.connection.send_and_receive(method)
+            self.refresh_winding_definition()
+        else:
+            # Retain for now, as still lots of work done in the UI on this tab.
+            self.display_screen("Scripting")
+            self.display_screen("Winding;Definition")
+            self.display_screen("Winding;Pattern")
+
+    def refresh_winding_definition(self):
+        """Refresh winding definition.
+
+        Calls a function to update the winding definition page properties after changing parameters.
+        """
+        if self.connection.check_version_at_least("2025.2.1"):
+            # Update parameters on the Winding Pattern page.
+            method = "RefreshWindingDefinition"
+            return self.connection.send_and_receive(method)
