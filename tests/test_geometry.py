@@ -42,13 +42,13 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_shapes import eq_triangle_h, triangular_notch
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
 def generate_constant_region():
-    region = geometry.Region()
+    region = geometry.Region(region_type=RegionType.stator_air)
     region.name = "testing_region"
     region.colour = (0, 0, 255)
     region.material = "Air"
@@ -72,7 +72,7 @@ def create_square():
         geometry.Coordinate(2, 0),
     ]
 
-    square = geometry.Region()
+    square = geometry.Region(region_type=RegionType.stator)
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -86,7 +86,7 @@ def create_square():
 def create_triangle():
     points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
 
-    triangle = geometry.Region()
+    triangle = geometry.Region(region_type=RegionType.stator)
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -212,7 +212,7 @@ def test_get_region(mc):
 
 def test_get_region_dxf(mc):
     mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
-    expected_region = geometry.Region()
+    expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
     expected_region.duplications = 8
@@ -360,12 +360,12 @@ def test_region_from_json():
         "entities": [],
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
-        "region type": "Adaptive Region",
+        "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
     }
 
-    test_region = geometry.Region()
+    test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
@@ -396,13 +396,13 @@ def test_region_to_json():
         "entities": [],
         "lamination_type": "",
         "parent_name": "Insulation",
-        "region_type": "Adaptive Region",
+        "region_type": RegionType.stator_copper.value,
         "mesh_length": 0.035,
         "singular": True,
         "on_boundary": False,
     }
 
-    test_region = geometry.Region()
+    test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
@@ -427,7 +427,7 @@ def test_region_is_closed():
 def test_set_linked_region():
     region = generate_constant_region()
 
-    region_linked = Region()
+    region_linked = Region(region_type=RegionType.stator)
     region_linked.name = "linked_region_test"
     # set linked region
     region.linked_region = region_linked
@@ -520,7 +520,7 @@ def test_entities_same_1():
     entities = [entities_list_duplicate[i] for i in range(1, len(entities_list_duplicate))] + [
         entities_list_duplicate[i] for i in range(0, 1)
     ]
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(region_type=RegionType.stator)
     region_2.entities = entities
 
     assert region_1.entities == region_2.entities
@@ -529,7 +529,7 @@ def test_entities_same_1():
 def test_entities_same_reverse():
     region_1 = generate_constant_region()
 
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(RegionType.stator_air)
     region_2.entities = deepcopy(region_1.entities)
     region_2.entities.reverse()
 
@@ -561,7 +561,7 @@ def test_reverse_entities():
 
 def test_reverse_entities_2():
     region_1 = generate_constant_region()
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(RegionType.stator_air)
 
     region_2.entities = deepcopy(region_1.entities)
     region_2.entities.reverse()
@@ -840,9 +840,9 @@ def test_unite_regions(mc):
     # |--|--|--|    |--|  |--|
     #    |  |          |  |
     #    |--|          |--|
-    region_a = geometry.Region()
-    region_b = geometry.Region()
-    expected_region = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
@@ -889,13 +889,13 @@ def test_unite_regions_1(mc):
     # |        |    |---|           Regions have no mutual interceptions
     # |--------|
 
-    region_a = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(-1, -1)))
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
@@ -934,7 +934,7 @@ def test_unite_regions_2(mc):
         geometry.Coordinate(0, 0),
     ]
 
-    expected_region = geometry.Region()
+    expected_region = geometry.Region(RegionType.stator_air)
     expected_region._centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
     expected_region._region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
 
@@ -948,13 +948,13 @@ def test_unite_regions_2(mc):
 
 def test_replace_region(mc):
     """Test replace region entities with entities from another region."""
-    region_a = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
     region_a.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 8)))
     region_b.add_entity(
         geometry.Arc(
@@ -1000,7 +1000,7 @@ def test_check_collisions(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(0, -2), geometry.Coordinate(1, 2)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(1, 2), geometry.Coordinate(5, -3)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, -3), geometry.Coordinate(0, -2)))
@@ -1026,7 +1026,7 @@ def test_check_collisions_1(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(
         geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
     )
@@ -1057,7 +1057,7 @@ def test_check_collisions_2(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0), geometry.Coordinate(0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0), geometry.Coordinate(0.2, -2)))
@@ -1092,7 +1092,7 @@ def test_check_collisions_3(mc):
         geometry.Coordinate(2, 0),
     ]
 
-    square = geometry.Region()
+    square = geometry.Region(RegionType.stator_air)
     # create and add line entities to region from their respective points
     square.entities += create_lines_from_points(points_square)
 
@@ -1102,7 +1102,7 @@ def test_check_collisions_3(mc):
         geometry.Coordinate(4, 4),
     ]
 
-    triangle = geometry.Region()
+    triangle = geometry.Region(RegionType.stator_air)
     # create and add line entities to region from their respective points
     triangle.entities += create_lines_from_points(points_triangle)
 
@@ -1396,7 +1396,7 @@ def test_round_corner():
     line_1 = Line(corner_1, corner_3)
     line_2 = Line(corner_3, corner_2)
     line_3 = Line(corner_2, corner_1)
-    region = Region()
+    region = Region(RegionType.stator_air)
     region.add_entity(line_1)
     region.add_entity(line_2)
     region.add_entity(line_3)
@@ -1420,7 +1420,7 @@ def test_round_corner():
     arc_2 = Arc(arc_1.end, Coordinate(*rt_to_xy(radius, end_angle)), centre=centre)
     line_1 = Line(arc_2.end, centre)
     line_2 = Line(centre, arc_1.start)
-    region = Region()
+    region = Region(RegionType.stator_air)
     region.add_entity(arc_1)
     region.add_entity(arc_2)
     region.add_entity(line_1)
@@ -1587,7 +1587,7 @@ def test_round_corner_3():
     shape_radius = 10
     arc_1 = Arc(point_1, point_2, radius=shape_radius)
     arc_2 = Arc(point_2, point_1, radius=shape_radius)
-    shape_1 = Region()
+    shape_1 = Region(RegionType.stator_air)
     shape_1.add_entity(arc_1)
     shape_1.add_entity(arc_2)
 
@@ -1655,7 +1655,7 @@ def test_round_corners_3():
     shape_radius = 10
     arc_1 = Arc(point_1, point_2, radius=shape_radius)
     arc_2 = Arc(point_2, point_1, radius=shape_radius)
-    shape_1 = Region()
+    shape_1 = Region(RegionType.stator_air)
     shape_1.add_entity(arc_1)
     shape_1.add_entity(arc_2)
 
@@ -1742,6 +1742,39 @@ def test_do_not_round_corner():
     assert triangle_3.entities[3].end == triangle_2.entities[2].end
 
 
+def test_limit_arc_chord():
+    # Draw a square, round its corners, and then limit the radii,
+    # and check we have the right number of entities
+    square_1 = square(20, 0, 0)
+    square_2 = square(20, 0, 0)
+    square_3 = square(20, 0, 0)
+    assert len(square_1.entities) == 4
+    assert len(square_2.entities) == 4
+    assert len(square_3.entities) == 4
+    corner_radius = 5
+    square_1.round_corners(square_1.points, corner_radius)
+    square_2.round_corners(square_2.points, corner_radius)
+    square_3.round_corners(square_3.points, corner_radius)
+    assert len(square_1.entities) == 8
+    assert len(square_2.entities) == 8
+    assert len(square_3.entities) == 8
+
+    # This should split the corners into three
+    chord_tolerance = 0.1
+    square_1.limit_arc_chord(chord_tolerance)
+    assert len(square_1.entities) == 16
+
+    # This should not split the corners
+    chord_tolerance = 8
+    square_2.limit_arc_chord(chord_tolerance)
+    assert len(square_2.entities) == 8
+
+    # This should not split the corners (invalid input)
+    chord_tolerance = 0
+    square_3.limit_arc_chord(chord_tolerance)
+    assert len(square_3.entities) == 8
+
+
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
@@ -1751,9 +1784,9 @@ def test_subtract_regions(mc):
     # |--|--|--|    |--|  |--|
     #    |  |
     #    |--|
-    region_a = geometry.Region()
-    region_b = geometry.Region()
-    expected_region = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points_a = [
         geometry.Coordinate(-1, -1),
@@ -1805,9 +1838,9 @@ def test_subtract_region_1(mc):
     #      |---|
     #
     square = create_square()
-    rectangle = geometry.Region()
-    expected_region_1 = geometry.Region()
-    expected_region_2 = geometry.Region()
+    rectangle = geometry.Region(RegionType.stator_air)
+    expected_region_1 = geometry.Region(RegionType.stator_air)
+    expected_region_2 = geometry.Region(RegionType.stator_air)
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
@@ -1857,7 +1890,7 @@ def test_subtract_region_2(mc):
     #
     square = create_square()
     triangle = create_triangle()
-    expected_region = geometry.Region()
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(0, 2),
@@ -1883,8 +1916,8 @@ def test_subtract_region_3(mc):
     # |---|----|    |---|
     #
     square = create_square()
-    inner_square = geometry.Region()
-    expected_region = geometry.Region()
+    inner_square = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(2, 0),
@@ -1922,7 +1955,7 @@ def test_subtract_region_4(mc):
     # |--------|    |--------|
     #
     square = create_square()
-    inner_square = geometry.Region()
+    inner_square = geometry.Region(RegionType.stator_air)
     inner_square.name = "Subtraction Region"
     expected_region = deepcopy(square)
 
@@ -2496,14 +2529,14 @@ def test_region_rotate():
     p2 = Coordinate(5, 0)
     p3 = Coordinate(0, 5)
 
-    r1 = Region()
+    r1 = Region(RegionType.stator_air)
     r1.add_entity(Line(p1, p2))
     r1.add_entity(Arc(p2, p3, radius=10))
     r1.add_entity(Line(p3, p1))
 
     p4 = Coordinate(10, 5)
     p5 = Coordinate(5, 5)
-    r2 = Region()
+    r2 = Region(RegionType.stator_air)
     r2.add_entity(Arc(p2, p4, radius=10))
     r2.add_entity(Line(p4, p5))
     r2.add_entity(Line(p5, p2))
@@ -2518,7 +2551,7 @@ def test_region_translate():
     p1 = Coordinate(0, 0)
     p2 = Coordinate(5, 0)
     p3 = Coordinate(0, 5)
-    r1 = Region()
+    r1 = Region(RegionType.stator_air)
     r1.add_entity(Line(p1, p2))
     r1.add_entity(Arc(p2, p3, radius=10))
     r1.add_entity(Line(p3, p1))
@@ -2526,7 +2559,7 @@ def test_region_translate():
     p4 = Coordinate(3, -2)
     p5 = Coordinate(8, -2)
     p6 = Coordinate(3, 3)
-    r2 = Region()
+    r2 = Region(RegionType.stator_air)
     r2.add_entity(Line(p4, p5))
     r2.add_entity(Arc(p5, p6, radius=10))
     r2.add_entity(Line(p6, p4))
@@ -2581,7 +2614,7 @@ def test_get_set_region_compatibility(mc, monkeypatch):
     with pytest.warns(UserWarning):
         mc.set_region(test_region)
 
-    test_region = Region()
+    test_region = Region(RegionType.stator_air)
     test_region.mesh_length = 0.1
 
     with pytest.warns(UserWarning):
@@ -2641,3 +2674,10 @@ def test_set_lamination_type(mc):
     assert res == 0
 
     reset_to_default_file(mc)
+
+
+def test_region_creation_warnings(mc):
+    with pytest.warns():
+        _ = Region()
+    with pytest.warns():
+        _ = Region(mc)
