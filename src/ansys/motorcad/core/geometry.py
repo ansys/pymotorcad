@@ -164,6 +164,65 @@ class Region(object):
         """
         pass
 
+    @classmethod
+    def from_points_linear(
+        cls, points, region_type=RegionType.adaptive, motorcad_instance=None, sort=False
+    ):
+        """Create a region from a list of points, connecting them with lines.
+
+        Parameters
+        ----------
+        points : list of Coordinates or tuples
+        region_type : RegionType
+            Type of region
+        motorcad_instance : ansys.motorcad.core.MotorCAD
+            Motor-CAD instance currently connected
+        sort : bool
+            Reorders points to make geometry valid:
+        """
+        # conversion to Coordinates:
+        if all(isinstance(point, tuple) for point in points):
+            points_new = [0] * len(points)
+            for i, p in enumerate(points):
+                points_new[i] = Coordinate(p[0], p[1])
+            points = points_new
+
+        if sort:
+            xcenter = sum(list(point.x for point in points)) / len(points)
+            ycenter = sum(list(point.y for point in points)) / len(points)
+
+            def to_relative_coords(point):
+                return Coordinate(point.x - xcenter, point.y - ycenter)
+
+            def to_real_coords(point):
+                return Coordinate(point.x + xcenter, point.y + ycenter)
+
+            relative_points = list(map(to_relative_coords, points))
+
+            # To make sure behaviour is well-defined for points with an equal angular coordinate
+            # the points are first by sorted by radius, greatest to least
+            sorted_points_relative = sorted(
+                relative_points, key=lambda x: x.get_polar_coords_deg()[0], reverse=True
+            )
+
+            # Sort points by radial coordinate (relative to overall average position),
+            # from least to greatest angle (angles range from -180 to 180 degrees)
+            sorted_points_relative.sort(key=lambda x: x.get_polar_coords_deg()[1])
+
+            points = list(map(to_real_coords, sorted_points_relative))
+
+        reg = cls(region_type=region_type, motorcad_instance=motorcad_instance)
+
+        # Adds the lines
+        for count, point in enumerate(points):
+            if count == len(points) - 1:
+                reg.add_entity(Line(point, points[0]))
+            else:
+                reg.add_entity(Line(point, points[count + 1]))
+        if not reg.has_valid_geometry():
+            warnings.warn("Entered point order may result in invalid geometry.")
+        return reg
+
     def add_entity(self, entity):
         """Add entity to list of region entities.
 
@@ -333,19 +392,87 @@ class Region(object):
             Whether region is closed
         """
         if len(self._entities) > 0:
-            entity_first = self._entities[0]
-            entity_last = self._entities[-1]
-
-            is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
-
-            for i in range(len(self._entities) - 1):
-                is_closed = get_entities_have_common_coordinate(
-                    self._entities[i], self._entities[i + 1]
-                )
-
-            return is_closed
+            # Make sure all adjacent entities have a point in common
+            return all(
+                get_entities_have_common_coordinate(self._entities[i - 1], self._entities[i])
+                for i in range(0, len(self._entities))
+            )
         else:
             return False
+
+    def is_nonintersecting(self):
+        """Check whether region entities intersect each other.
+
+        Returns
+        -------
+        Boolean
+            Whether region is nonintersecting
+        """
+        side_pairs = []
+        # Create a set of all non-neighbor pairs of lines/arcs in the region
+        for entity in self.entities:
+            for entity_other in self.entities:
+                if entity != entity_other:
+                    if (
+                        entity.start != entity_other.end and entity.end != entity_other.start
+                    ) and not (
+                        (entity, entity_other) in side_pairs or (entity_other, entity) in side_pairs
+                    ):
+                        side_pairs.append((entity, entity_other))
+
+        # Check if they have any intersections
+        for side1, side2 in side_pairs:
+            intersections = side1.get_intersection(side2)
+            if intersections is not None:
+                for intersection in intersections:
+                    if side1.coordinate_on_entity(intersection) and side2.coordinate_on_entity(
+                        intersection
+                    ):
+                        return False
+        return True
+
+    def is_anticlockwise(self):
+        """Check whether region is drawn in an anticlockwise manner.
+
+        Returns
+        -------
+        Boolean
+            Whether region is anticlockwise
+        """
+        # Checks to make sure checking direction even makes sense
+        if not (self.is_nonintersecting() and self.is_closed()):
+            raise Exception("Region must be closed and nonintersecting")
+
+        # Find the lowest point, as well the entities coming in and out of that point
+        points = sorted(self.points, key=lambda p: p.y)
+        lowest = points[0]
+
+        for entity in self.entities:
+            if entity.start == lowest:
+                ent_out = entity
+            if entity.end == lowest:
+                ent_in = entity
+
+        # Determine the  angles of the entry and exit lines (arcs can make this tricky,
+        # so the angle is determined from the start and a point very near it)
+        exit_angle = Line(
+            ent_out.start, ent_out.get_coordinate_from_distance(ent_out.start, fraction=0.001)
+        ).angle
+        entry_angle = Line(
+            ent_in.end, ent_in.get_coordinate_from_distance(ent_in.end, fraction=0.001)
+        ).angle
+
+        return entry_angle > exit_angle
+
+    def has_valid_geometry(self):
+        """Check whether geometry is valid for motorcad.
+
+        Returns
+        -------
+        Boolean
+            Whether geometry is valid for motorcad
+        """
+        return self.is_closed() and self.is_nonintersecting() and self.is_anticlockwise()
 
     @property
     def parent_name(self):
