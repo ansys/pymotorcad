@@ -28,7 +28,7 @@ import os
 from openpyxl import load_workbook
 import pytest
 
-from RPC_Test_Common import reset_to_default_file  # (get_dir_path,
+from RPC_Test_Common import almost_equal_percentage, reset_to_default_file  # (get_dir_path,
 
 
 def test_model_build_lab(mc):
@@ -185,6 +185,17 @@ def test_export_concept_ev_model(mc):
     assert os.path.exists(file_path) is True
     wb = load_workbook(file_path)
     assert "Shaft_Torque" in wb.sheetnames
+    assert "Voltages" in wb.sheetnames
+    assert "Speed" in wb.sheetnames
+    assert "Stator_Current_Line_RMS" in wb.sheetnames
+    assert "Total_Loss" in wb.sheetnames
+    assert "Power_Factor" in wb.sheetnames
+    assert "Units" in wb.sheetnames
+    speed_sheet = wb["Speed"]
+    assert speed_sheet.max_row == 21
+    assert speed_sheet.max_column == 60
+    torque_sheet = wb["Shaft_Torque"]
+    assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 274.16, 0.1)
 
 
 # def test_lab_model_export(mc):
