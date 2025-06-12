@@ -833,7 +833,7 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 cmap=cm,
             )
             plt.colorbar(plot1, ax=ax[0, 0])
-            ax[0, 0].set_title("Elemental stress with Neuber correction")
+            ax[0, 0].set_title("Stress (Neuber correction)")
 
             plot2 = ax[0, 1].scatter(
                 stress_regions[i].get_x(),
@@ -843,7 +843,7 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 cmap=cm,
             )
             plt.colorbar(plot2, ax=ax[0, 1])
-            ax[0, 1].set_title("Elemental stress with Glinka correction")
+            ax[0, 1].set_title("Stress (Glinka correction)")
 
             plot3 = ax[1, 0].scatter(
                 stress_regions[i].get_x(),
@@ -853,7 +853,7 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 cmap=cm,
             )
             plt.colorbar(plot3, ax=ax[1, 0])
-            ax[1, 0].set_title("Plastic strain stress with Neuber correction")
+            ax[1, 0].set_title("Plastic strain (Neuber correction)")
 
             plot4 = ax[1, 1].scatter(
                 stress_regions[i].get_x(),
@@ -863,5 +863,5 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 cmap=cm,
             )
             plt.colorbar(plot4, ax=ax[1, 1])
-            ax[1, 1].set_title("Plastic strain with Glinka correction")
+            ax[1, 1].set_title("Plastic strain (Glinka correction)")
             plt.show()
