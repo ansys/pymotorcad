@@ -660,7 +660,7 @@ stress_regions = get_stress_data(mc)
 # %%
 # Choose which regions to show data for
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-region_names_to_postprocess = ["Rotor", "L1_1Magnet2"]
+region_names_to_postprocess = ["Rotor"]
 
 # %%
 # Plot the elastic stress data for each region
