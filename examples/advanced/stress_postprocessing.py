@@ -116,8 +116,6 @@ def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
 # %%
 # Classes to store and manipulate stress and FEA data
 # ---------------------------------------------------
-
-
 class Element:
     """Data for a 1st order triangular element and its associated stress and strain
 
@@ -639,8 +637,10 @@ def get_stress_data(mc, clean_up=True):
 #
 # Start Motor-CAD
 # ~~~~~~~~~~~~~~~
-# Load a template (for users this would normally be replaced by `load_from_file()`
+# Load a template (for users this would normally be replaced by `load_from_file()`, and disable
+# popup messages.
 mc = pymotorcad.MotorCAD()
+mc.set_variable("MessageDisplayState", 2)
 mc.load_template("e9")
 
 # %%
@@ -656,37 +656,40 @@ mc.do_mechanical_calculation()
 stress_regions = get_stress_data(mc)
 
 # %%
-# Plot the stress data for each region
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for i in range(len(stress_regions)):
-    if stress_regions[i].get_number_elements() > 0:
-        fig, ax = plt.subplots(1, 2, layout="constrained", sharey=True)
-        ax[0].scatter(
-            stress_regions[i].get_sp1(), stress_regions[i].get_sp2(), marker="."
-        )  # , c=svm)
-        ax[0].set_xlabel("Principal stress 1 [MPa]")
-        ax[0].set_ylabel("Principal stress 2 [MPa]")
-        ax[1].scatter(
-            stress_regions[i].get_svm(), stress_regions[i].get_sp1(), marker="."
-        )  # , c=svm)
-        ax[1].scatter(
-            stress_regions[i].get_svm(), stress_regions[i].get_sp2(), marker="x"
-        )  # , c=svm)
-        ax[1].legend(["Sp1", "Sp2"])
-        ax[1].set_xlabel("Von Mises Stress [MPa]")
-        ax[1].set_ylabel("Principal Stress [MPa]")
-        plt.suptitle(stress_regions[i].region_name)
-        plt.show()
+# Choose which regions to show data for
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+region_names_to_postprocess = ["Rotor", "L1_1Magnet2"]
 
 # %%
-# Post-processing, choose the regions to post-process
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-region_names_to_postprocess = ["Rotor"]
+# Plot the elastic stress data for each region
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+for region_name_to_postprocess in region_names_to_postprocess:
+    # Find matching regions
+    for i in range(len(stress_regions)):
+        if stress_regions[i].region_name == region_name_to_postprocess:
+            if stress_regions[i].get_number_elements() > 0:
+                fig, ax = plt.subplots(1, 2, layout="constrained", sharey=True)
+                ax[0].scatter(
+                    stress_regions[i].get_sp1(), stress_regions[i].get_sp2(), marker="."
+                )  # , c=svm)
+                ax[0].set_xlabel("Principal stress 1 [MPa]")
+                ax[0].set_ylabel("Principal stress 2 [MPa]")
+                ax[1].scatter(
+                    stress_regions[i].get_svm(), stress_regions[i].get_sp1(), marker="."
+                )  # , c=svm)
+                ax[1].scatter(
+                    stress_regions[i].get_svm(), stress_regions[i].get_sp2(), marker="x"
+                )  # , c=svm)
+                ax[1].legend(["Sp1", "Sp2"])
+                ax[1].set_xlabel("Von Mises Stress [MPa]")
+                ax[1].set_ylabel("Principal Stress [MPa]")
+                plt.suptitle(stress_regions[i].region_name)
+                plt.show()
 
 # %%
 # Non-linear stress strain data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Our non-linear stress-strain data, in this case for a region
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Our non-linear stress-strain data, in this case for a region with
 # Young's modulus of 185 GPa, and with plastic deformation above 480 MPa.
 non_linear_strain = np.array(
     [
