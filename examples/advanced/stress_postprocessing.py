@@ -116,6 +116,8 @@ def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
 # %%
 # Classes to store and manipulate stress and FEA data
 # ---------------------------------------------------
+
+
 class Element:
     """Data for a 1st order triangular element and its associated stress and strain
 
