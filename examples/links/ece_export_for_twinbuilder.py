@@ -105,7 +105,7 @@ os.mkdir(working_folder)
 # Use the ``read_parameters`` function to open the ``ece_config.json`` configuration file and import
 # the data as the ``in_data`` dictionary.
 #
-# The JSON configuration file must be saved to the same directory as this  Python script. The
+# The JSON configuration file must be saved to the same directory as this Python script. The
 # ``ece_config.json`` file can be downloaded from the PyMotorCAD GitHub repository:
 # https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
 
@@ -116,8 +116,10 @@ in_data = read_parameters(json_file)
 # The necessary data is extracted from the ``in_data`` dictionary. The JSON configuration file
 # contains:
 #
-# * The Motor-CAD MOT filename to be used for the ECE export. If the file does not exist in the
-#   ``working_folder`` location, this script opens the e8 Motor-CAD template by default.
+# * The Motor-CAD MOT filename to be used for the ECE export. If the file exists in the same
+#   directory as this Python script, it will be copied to the ``working_folder`` location. If the
+#   file does not exist in the same directory as this Python script or the ``working_folder``
+#   location, the script opens the e8 Motor-CAD template by default.
 #
 # * Operating parameters for the electric machine (shaft speed, DC bus voltage, temperature, maximum
 #   current, current resolution and number of points per cycle for the torque calculation). If using
@@ -148,20 +150,28 @@ txt_file = os.path.join(results_folder, in_data["txt_file"])
 sml_file = os.path.join(results_folder, in_data["sml_file"])
 
 # %%
-# Load the Motor-CAD file. If the ``mot_file`` specified in the JSON configuration file exists, open
-# the MOT file. The file in the ``working_folder`` will be modified by setting the operating
-# parameter input settings. Ensure this file is backed up if necessary.
+# Load the Motor-CAD file. If the ``mot_file`` specified in the JSON configuration file exists in
+# the same directory as this Python script, open the MOT file. If the file does not exist in the
+# same directory as this Python script, check the ``working_folder`` for the Motor-CAD file. The
+# file will be modified by setting the operating parameter input settings and saved to the
+# ``working_folder``.
 #
-# If the file does not exist, load the e8 IPM motor template and save the file to the
-# working directory. Use the ``mot_file`` filename that was taken from the JSON configuration file.
-# Save input settings to a Motor-CAD MOT file.
-if os.path.isfile(mot_file):
+# If the file does not exist in the same directory as this Python script or the ``working_folder``,
+# load the e8 IPM motor template and save the file to the working directory. Use the ``mot_file``
+# filename that was taken from the JSON configuration file. Save input settings to a Motor-CAD MOT
+# file.
+if os.path.isfile(os.path.join(os.getcwd(), file_name)):
+    shutil.copy(os.path.join(os.getcwd(), file_name), mot_file)
+    print(f"Motor-CAD file copied from {os.path.join(os.getcwd(), file_name)} to {mot_file}.")
+    mc.load_from_file(mot_file)
+    print("Opening " + mot_file)
+elif os.path.isfile(mot_file):
     mc.load_from_file(mot_file)
     print("Opening " + mot_file)
 else:
     mc.load_template("e8")
     mc.save_to_file(mot_file)
-    print("Opening Motor-CAD e8 template and saving to file " + mot_file)
+    print("Opening Motor-CAD e8 template and saving to " + mot_file)
 
 # %%
 # Determine alignment angle
