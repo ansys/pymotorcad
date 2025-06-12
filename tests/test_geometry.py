@@ -42,7 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_shapes import eq_triangle_h, triangular_notch
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
@@ -1744,6 +1744,39 @@ def test_do_not_round_corner():
     assert triangle_3.entities[2].end == triangle_2.entities[2].midpoint
     assert triangle_3.entities[3].start == triangle_2.entities[2].midpoint
     assert triangle_3.entities[3].end == triangle_2.entities[2].end
+
+
+def test_limit_arc_chord():
+    # Draw a square, round its corners, and then limit the radii,
+    # and check we have the right number of entities
+    square_1 = square(20, 0, 0)
+    square_2 = square(20, 0, 0)
+    square_3 = square(20, 0, 0)
+    assert len(square_1.entities) == 4
+    assert len(square_2.entities) == 4
+    assert len(square_3.entities) == 4
+    corner_radius = 5
+    square_1.round_corners(square_1.points, corner_radius)
+    square_2.round_corners(square_2.points, corner_radius)
+    square_3.round_corners(square_3.points, corner_radius)
+    assert len(square_1.entities) == 8
+    assert len(square_2.entities) == 8
+    assert len(square_3.entities) == 8
+
+    # This should split the corners into three
+    chord_tolerance = 0.1
+    square_1.limit_arc_chord(chord_tolerance)
+    assert len(square_1.entities) == 16
+
+    # This should not split the corners
+    chord_tolerance = 8
+    square_2.limit_arc_chord(chord_tolerance)
+    assert len(square_2.entities) == 8
+
+    # This should not split the corners (invalid input)
+    chord_tolerance = 0
+    square_3.limit_arc_chord(chord_tolerance)
+    assert len(square_3.entities) == 8
 
 
 def test_subtract_regions(mc):

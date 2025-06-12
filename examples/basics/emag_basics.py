@@ -217,9 +217,6 @@ while success == 0:
 
 # %%
 # Graph the harmonic data.
-mcad.initialise_tab_names()
-mcad.display_screen("Graphs;Harmonics;Torque")
-
 num_harmonic_points = (points_per_cycle * number_cycles) + 1
 data_point = []
 torque = []
