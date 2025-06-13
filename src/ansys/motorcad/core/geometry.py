@@ -360,12 +360,12 @@ class Region(object):
     @property
     def linked_region(self):
         """Get linked duplication/unite region."""
-        warn('linked_region property is deprecated. Use linked_regions array', DeprecationWarning)
+        warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
         return self._linked_regions[0] if len(self._linked_regions) > 0 else None
 
     @linked_region.setter
     def linked_region(self, region):
-        warn('linked_region property is deprecated. Use linked_regions.append(region)', DeprecationWarning)
+        warn("inked_region property is deprecated. Use linked_regions.append(region)", DeprecationWarning)
         self._linked_regions.append(region)
         region._linked_regions.append(self)
 

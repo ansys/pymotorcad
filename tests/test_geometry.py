@@ -378,7 +378,7 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
-    test_region.singular = (False)
+    test_region.singular = False
     test_region.linked_regions = ["linked_region", "linked_region_1"]
 
     region = geometry.Region._from_json(raw_region)
