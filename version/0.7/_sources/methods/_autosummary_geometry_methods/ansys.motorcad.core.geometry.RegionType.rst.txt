@@ -1,0 +1,77 @@
+﻿RegionType
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: RegionType
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RegionType.stator
+      RegionType.rotor
+      RegionType.slot_area_stator
+      RegionType.slot_area_stator_deprecated
+      RegionType.slot_area_rotor
+      RegionType.slot_split
+      RegionType.stator_liner
+      RegionType.rotor_liner
+      RegionType.wedge
+      RegionType.stator_duct
+      RegionType.housing
+      RegionType.housing_magnetic
+      RegionType.stator_impreg
+      RegionType.impreg_gap
+      RegionType.stator_copper
+      RegionType.stator_copper_ins
+      RegionType.stator_divider
+      RegionType.stator_slot_spacer
+      RegionType.stator_separator
+      RegionType.coil_insulation
+      RegionType.stator_air
+      RegionType.rotor_hub
+      RegionType.rotor_air
+      RegionType.rotor_air_exc_liner
+      RegionType.rotor_pocket
+      RegionType.pole_spacer
+      RegionType.rotor_slot
+      RegionType.coil_separator
+      RegionType.damper_bar
+      RegionType.wedge_rotor
+      RegionType.rotor_divider
+      RegionType.rotor_copper_ins
+      RegionType.rotor_copper
+      RegionType.rotor_impreg
+      RegionType.shaft
+      RegionType.axle
+      RegionType.rotor_duct
+      RegionType.magnet
+      RegionType.barrier
+      RegionType.mounting_base
+      RegionType.mounting_plate
+      RegionType.banding
+      RegionType.sleeve
+      RegionType.rotor_cover
+      RegionType.slot_wj_insulation
+      RegionType.slot_wj_wall
+      RegionType.slot_wj_duct
+      RegionType.slot_wj_duct_no_detail
+      RegionType.cowling
+      RegionType.cowling_gril
+      RegionType.brush
+      RegionType.commutator
+      RegionType.airgap
+      RegionType.dxf_import
+      RegionType.impreg_loss_lot_ac_loss
+      RegionType.adaptive
+   
+   
