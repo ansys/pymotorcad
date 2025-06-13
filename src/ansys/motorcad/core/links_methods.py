@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Unit containing functions for exporting an ECE to Twin Builder using Motor-CAD results."""
+from math import pi
 
 
 def write_text_file(
@@ -307,7 +308,7 @@ def write_SML_file(
     )
     file_id.write("INTERN  AM" "" "       AM2  N1:=N_25, N2:=N_26  ; \r\n")
     file_id.write(
-        f"INTERN  R        Rpos  N1:=N_26, N2:=GND  " f"( R:={0.0174533 * pole_pairs:.7f} ); \r\n"
+        f"INTERN  R        Rpos  N1:=N_26, N2:=GND  " f"( R:={(pi/180) * pole_pairs:.7f} ); \r\n"
     )
     file_id.write("INTERN  VM" "" "       VM_Erad  N1:=N_26, N2:=GND  ;\r\n\n")
 

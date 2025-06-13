@@ -267,7 +267,7 @@ alignment_angle = 90 + drive_offset
 # is determined such that the look-up tables are generated starting from the alignment angle.
 #
 # Get the number of pole pairs, used to calculate the rotor positions.
-p = mc.get_variable("Pole_Number") / 2
+pole_pairs = mc.get_variable("Pole_Number") / 2
 
 # %%
 # Calculate the number of rotor positions based on the alignment angle and a specified angular
@@ -288,8 +288,8 @@ i = 1
 while (max_elec_degree / elec_deg) < 30:
     elec_deg = fac[len(fac) - 1 - i]
     i += 1
-m_period = max_elec_degree / p
-mec_deg = float(float(elec_deg) / float(p))
+m_period = max_elec_degree / pole_pairs
+mec_deg = float(float(elec_deg) / float(pole_pairs))
 points_per_cycle = 360 / elec_deg
 
 # %%
@@ -386,7 +386,7 @@ d_values = len(id_peak)
 q_values = len(id_peak[0])
 comb = d_values * q_values
 map_points = int((max_elec_degree / elec_deg) + 1)
-rot_pos = (max_elec_degree / p) + 1
+rot_pos = (max_elec_degree / pole_pairs) + 1
 ind = 0
 index_1 = []
 flux_d_2 = []
@@ -489,7 +489,9 @@ plt.show()
 # configuration file. The TXT file is generated using the ``write_text_file`` method from the
 # ``ansys.motorcad.core.links_methods`` unit.
 
-write_text_file(txt_file, final_table, p, phase_res, phase_l, id_peak, iq_peak, map_points, mec_deg)
+write_text_file(
+    txt_file, final_table, pole_pairs, phase_res, phase_l, id_peak, iq_peak, map_points, mec_deg
+)
 
 # %%
 # Write the SML file
@@ -500,10 +502,19 @@ write_text_file(txt_file, final_table, p, phase_res, phase_l, id_peak, iq_peak, 
 # file. The SML file is generated using the ``write_SML_file`` method from the
 # ``ansys.motorcad.core.links_methods`` unit.
 
-mot_name = mot_file.replace(".mot", "")
-mot_name = "".join(i for i in mot_file if i in string.ascii_letters + "0123456789")
+mot_name = file_name.replace(".mot", "")
+mot_name = "".join(i for i in mot_name if i in string.ascii_letters + "0123456789")
 write_SML_file(
-    sml_file, mot_name, final_table, p, phase_res, phase_l, id_peak, iq_peak, map_points, mec_deg
+    sml_file,
+    mot_name,
+    final_table,
+    pole_pairs,
+    phase_res,
+    phase_l,
+    id_peak,
+    iq_peak,
+    map_points,
+    mec_deg,
 )
 # %%
 # Generating the ECE component
