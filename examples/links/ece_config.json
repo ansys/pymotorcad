@@ -1,12 +1,13 @@
 {
   "_comment": "Configuration file for the ECE block in TwinBuilder using Motor-CAD",
-  "mot_file": "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/e8_eMobility.mot",
+  "mot_file": "e8_eMobility.mot",
   "shaft_speed" : 3000,
   "dc_bus_voltage" : 350,
   "machine_temp" : 75,
   "Id_max" : 250,
   "current_step" : 50,
-  "map_name" : "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/Results/ECE_e8_map.mat",
-  "txt_file" : "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/Results/ECE_e8_txt_file.txt",
-  "sml_file" : "C:/Workspace/pyCharmProjects/RPC_Testing/Compatibility/Results/ECE_e8_txt_file.sml"
+  "torque_points_per_cycle" : 30,
+  "map_name" : "ECE_e8_map.mat",
+  "txt_file" : "ECE_e8_txt_file.txt",
+  "sml_file" : "ECE_e8_sml_file.sml"
 }
