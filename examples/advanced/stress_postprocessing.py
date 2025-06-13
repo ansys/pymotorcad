@@ -774,6 +774,26 @@ for region_name_to_postprocess in region_names_to_postprocess:
             # Apply the actual stress correction here
             stress_regions[i].apply_corrections(non_linear_strain, non_linear_stress)
 
+            # Print the maximum stresses and strains
+            print(f"For region {stress_regions[i].region_name}:")
+            print(f"Maximum elastic stress " f"{np.max(stress_regions[i].get_svm()):.6} MPa")
+            print(
+                f"Maximum stress with Neuber correction: "
+                f"{np.max(stress_regions[i].get_stress_nonlinear_neuber()):.6} MPa"
+            )
+            print(
+                f"Maximum stress with Glinka correction: "
+                f"{np.max(stress_regions[i].get_stress_nonlinear_glinka()):.6} MPa"
+            )
+            print(
+                f"Maximum plastic strain with Neuber correction: "
+                f"{np.max(stress_regions[i].get_strain_plastic_neuber()):.6}"
+            )
+            print(
+                f"Maximum plastic strain with Glinka correction: "
+                f"{np.max(stress_regions[i].get_strain_plastic_glinka()):.6}"
+            )
+
             # Plot:
             fig, ax = plt.subplots(3, 1, layout="constrained")
 
