@@ -71,7 +71,6 @@ from ansys.motorcad.core.links_methods import write_SML_file, write_text_file
 # ~~~~~~~~~~~~~~~~
 # Initialise automation and launch Motor-CAD.
 print("Starting initialisation.")
-pymotorcad.set_motorcad_exe("C:\\Program Files\\AnsysMotorCAD\\v252\\Motor-CAD_2025_2_1.exe")
 mc = pymotorcad.MotorCAD()
 
 # %%
@@ -107,7 +106,7 @@ os.mkdir(working_folder)
 # Use the ``read_parameters`` function to open the ``ece_config.json`` configuration file and import
 # the data as the ``in_data`` dictionary.
 #
-# The JSON configuration file must be saved to the same directory as this  Python script. The
+# The JSON configuration file must be saved to the same directory as this Python script. The
 # ``ece_config.json`` file can be downloaded from the PyMotorCAD GitHub repository:
 # https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
 
@@ -118,8 +117,10 @@ in_data = read_parameters(json_file)
 # The necessary data is extracted from the ``in_data`` dictionary. The JSON configuration file
 # contains:
 #
-# * The Motor-CAD MOT filename to be used for the ECE export. If the file does not exist in the
-#   ``working_folder`` location, this script opens the e8 Motor-CAD template by default.
+# * The Motor-CAD MOT filename to be used for the ECE export. If the file exists in the same
+#   directory as this Python script, it will be copied to the ``working_folder`` location. If the
+#   file does not exist in the same directory as this Python script or the ``working_folder``
+#   location, the script opens the e8 Motor-CAD template by default.
 #
 # * Operating parameters for the electric machine (shaft speed, DC bus voltage, temperature, maximum
 #   current, current resolution and number of points per cycle for the torque calculation). If using
@@ -150,20 +151,28 @@ txt_file = os.path.join(results_folder, in_data["txt_file"])
 sml_file = os.path.join(results_folder, in_data["sml_file"])
 
 # %%
-# Load the Motor-CAD file. If the ``mot_file`` specified in the JSON configuration file exists, open
-# the MOT file. The file in the ``working_folder`` will be modified by setting the operating
-# parameter input settings. Ensure this file is backed up if necessary.
+# Load the Motor-CAD file. If the ``mot_file`` specified in the JSON configuration file exists in
+# the same directory as this Python script, open the MOT file. If the file does not exist in the
+# same directory as this Python script, check the ``working_folder`` for the Motor-CAD file. The
+# file will be modified by setting the operating parameter input settings and saved to the
+# ``working_folder``.
 #
-# If the file does not exist, load the e8 IPM motor template and save the file to the
-# working directory. Use the ``mot_file`` filename that was taken from the JSON configuration file.
-# Save input settings to a Motor-CAD MOT file.
-if os.path.isfile(mot_file):
+# If the file does not exist in the same directory as this Python script or the ``working_folder``,
+# load the e8 IPM motor template and save the file to the working directory. Use the ``mot_file``
+# filename that was taken from the JSON configuration file. Save input settings to a Motor-CAD MOT
+# file.
+if os.path.isfile(os.path.join(os.getcwd(), file_name)):
+    shutil.copy(os.path.join(os.getcwd(), file_name), mot_file)
+    print(f"Motor-CAD file copied from {os.path.join(os.getcwd(), file_name)} to {mot_file}.")
+    mc.load_from_file(mot_file)
+    print("Opening " + mot_file)
+elif os.path.isfile(mot_file):
     mc.load_from_file(mot_file)
     print("Opening " + mot_file)
 else:
     mc.load_template("e8")
     mc.save_to_file(mot_file)
-    print("Opening Motor-CAD e8 template and saving to file " + mot_file)
+    print("Opening Motor-CAD e8 template and saving to " + mot_file)
 
 # %%
 # Determine alignment angle
@@ -496,8 +505,6 @@ mot_name = "".join(i for i in mot_file if i in string.ascii_letters + "012345678
 write_SML_file(
     sml_file, mot_name, final_table, p, phase_res, phase_l, id_peak, iq_peak, map_points, mec_deg
 )
-
-
 # %%
 # Generating the ECE component
 # ----------------------------
@@ -506,14 +513,12 @@ write_SML_file(
 # Click **OK** in the **Import Components** window.
 #
 # .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_1.png
-
 # %%
 # A new project component **ECE_e8_eMobility** is added to
 # **Component Libraries / Project Components**. Drag the ECE component into the
 # **Schematic Capture** window.
 #
 # .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_2.png
-
 # %%
 # Right-click on the ECE component and select **Edit Symbol -> Edit Pin Locations...** to open the
 # **Pin Location Editor** window. Rearrange the pins such that **A0**, **B0**, **C0** and **ROT2**
@@ -521,7 +526,6 @@ write_SML_file(
 # the window.
 #
 # .. image:: ../../images/twinbuilder_ECE/twinbuilder_procedure_3.png
-
 # %%
 # To open the **Parameters** tab, double-click on the ECE component. The phase resistance (**ra0**)
 # (at the armature conductor temperature) and armature end winding inductance (**la0**) imported
