@@ -367,7 +367,7 @@ class Region(object):
     def linked_region(self, region):
         warn(
             "inked_region property is deprecated. Use linked_regions.append(region)",
-            DeprecationWarning
+            DeprecationWarning,
         )
         self._linked_regions.append(region)
         region._linked_regions.append(self)
