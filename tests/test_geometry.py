@@ -364,7 +364,7 @@ def test_region_from_json():
         "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
-        "region_temperature": 25
+        "region_temperature": 25,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
