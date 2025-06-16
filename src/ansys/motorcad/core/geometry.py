@@ -391,6 +391,12 @@ class Region(object):
 
     @property
     def extrusion_blocks(self):
+        """Get extrusion blocks list.
+
+        Returns
+        -------
+        list of ExtrusionBlock
+        """
         return self._extrusion_blocks
 
     @property
@@ -2173,7 +2179,7 @@ class ExtrusionBlock:
     """Generic class for storing 3D extrusion data."""
 
     def __init__(self):
-        """Initialise extrusion block"""
+        """Initialise extrusion block."""
         self.start_pos = 0
         self.end_pos = 0
         self.angle_shift = 0
