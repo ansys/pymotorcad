@@ -139,6 +139,7 @@ class Region(object):
         self._region_type = region_type
         self._mesh_length = 0
         self._extrusion_blocks = ExtrusionBlockList()
+        self._temperature = 0
 
         self._linked_region = None
         self._singular = False
@@ -301,6 +302,9 @@ class Region(object):
         if "extrusion_blocks" in json:
             new_region._extrusion_blocks._from_json(json["extrusion_blocks"])
 
+        if "region_temperature" in json:
+            new_region._temperature = json["region_temperature"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -334,6 +338,7 @@ class Region(object):
             "singular": self._singular,
             "lamination_type": lamination_type,
             "extrusion_blocks": self._extrusion_blocks._to_json,
+            "region_temperature": self._temperature,
         }
 
         return region_dict
@@ -536,6 +541,16 @@ class Region(object):
     @mesh_length.setter
     def mesh_length(self, mesh_length):
         self._mesh_length = mesh_length
+
+    @property
+    def temperature(self):
+        """Get region temperature.
+
+        Returns
+        -------
+        float : region temperature
+        """
+        return self._temperature
 
     @property
     def area(self):

@@ -364,6 +364,7 @@ def test_region_from_json():
         "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
+        "region_temperature": 25
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -380,6 +381,7 @@ def test_region_from_json():
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
     test_region.singular = (False,)
+    test_region._temperature = 25
 
     region = geometry.Region._from_json(raw_region)
 
@@ -403,6 +405,7 @@ def test_region_to_json():
         "mesh_length": 0.035,
         "singular": True,
         "on_boundary": False,
+        "region_temperature": 35,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -418,6 +421,7 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
+    test_region._temperature = 35
 
     assert test_region._to_json() == raw_region
 
@@ -2687,3 +2691,11 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
+
+
+def test_get_temperature():
+    region_temp = 100
+    test_region = Region()
+    test_region._temperature = region_temp
+
+    assert test_region.temperature == region_temp
