@@ -199,6 +199,23 @@ class Region(object):
         for count, entity in enumerate(polyline):
             self.insert_entity(index + count, entity)
 
+    def is_closed(self):
+        """Check whether Region's entities are closed.
+
+        Returns
+        -------
+        Boolean
+            Whether Region is closed
+        """
+        if len(self.entities) > 0:
+            # Make sure all adjacent entities have a point in common
+            return all(
+                get_entities_have_common_coordinate(self.entities[i - 1], self.entities[i])
+                for i in range(0, len(self.entities))
+            )
+        else:
+            return False
+
     def remove_entity(self, entity_remove):
         """Remove the entity from the region.
 
@@ -2121,7 +2138,7 @@ class EntityList(list):
                 final_list.append(Line(point, points[0]))
             else:
                 final_list.append(Line(point, points[count + 1]))
-        if not final_list.has_valid_geometry():
+        if not final_list.has_valid_geometry:
             warnings.warn("Entered point order may result in invalid geometry.")
         return final_list
 
@@ -2186,7 +2203,7 @@ class EntityList(list):
             Whether EntityList is anticlockwise
         """
         # Checks to make sure checking direction even makes sense
-        if not (not self.self_intersecting() and self.is_closed()):
+        if not (not self.self_intersecting and self.is_closed):
             raise Exception("Entities must be closed and nonintersecting")
 
         # Find the lowest point, as well the entities coming in and out of that point
@@ -2219,7 +2236,7 @@ class EntityList(list):
         Boolean
             Whether geometry is valid for motorcad
         """
-        return self.is_closed() and (not self.self_intersecting()) and self.is_anticlockwise()
+        return self.is_closed and (not self.self_intersecting) and self.is_anticlockwise
 
     @property
     def points(self):

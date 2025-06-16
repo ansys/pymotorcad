@@ -421,17 +421,17 @@ def test_region_to_json():
 
 def test_EntityList_is_closed():
     region = generate_constant_region()
-    assert region.entities.is_closed()
+    assert region.entities.is_closed
 
     # Check an empty list returns as False
     test_el1 = EntityList()
-    assert test_el1.is_closed() == False
+    assert test_el1.is_closed == False
 
     # Test an open polygon is not closed
     test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
     test_el1.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
     test_el1.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
-    assert test_el1.is_closed() == False
+    assert test_el1.is_closed == False
 
 
 def test_EntityList_self_intersecting():
@@ -441,7 +441,7 @@ def test_EntityList_self_intersecting():
     test_el1.append(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
     test_el1.append(Line(Coordinate(1, 0), Coordinate(1, 1)))
     test_el1.append(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
-    assert test_el1.self_intersecting() == False
+    assert test_el1.self_intersecting == False
 
     # Test convex polygons are not detected as intersecting
     test_el2 = EntityList()
@@ -453,7 +453,7 @@ def test_EntityList_self_intersecting():
     test_el2.append(Line(Coordinate(1, 2), Coordinate(2, 2)))
     test_el2.append(Line(Coordinate(2, 2), Coordinate(2, 3)))
     test_el2.append(Line(Coordinate(2, 3), Coordinate(0, 3)))
-    assert test_el2.self_intersecting() == False
+    assert test_el2.self_intersecting == False
 
     # Test intersections are properly detected
     test_el3 = EntityList()
@@ -461,11 +461,11 @@ def test_EntityList_self_intersecting():
     test_el3.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
     test_el3.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
     test_el3.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_el3.self_intersecting() == True
+    assert test_el3.self_intersecting == True
 
 
 def test_EntityList_is_anticlockwise():
-    assert generate_constant_region().entities.is_anticlockwise() == True
+    assert generate_constant_region().entities.is_anticlockwise == True
 
     # Test opposite winding
     test_el2 = EntityList()
@@ -473,7 +473,7 @@ def test_EntityList_is_anticlockwise():
     test_el2.append(Line(Coordinate(0, 1), Coordinate(1, 1)))
     test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
     test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_el2.is_anticlockwise() == False
+    assert test_el2.is_anticlockwise == False
 
     # Test that arcs with endpoints that would result in opposite ordering if connected with a line
     # are correctly accounted for
@@ -483,7 +483,7 @@ def test_EntityList_is_anticlockwise():
         Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
     )
     test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
-    assert test_el3.is_anticlockwise() == True
+    assert test_el3.is_anticlockwise == True
 
     # Test error detection
     with pytest.raises(Exception, match="Entities must be closed and nonintersecting"):
@@ -492,11 +492,11 @@ def test_EntityList_is_anticlockwise():
         test_el4.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
         test_el4.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
         test_el4.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
-        test_el4.is_anticlockwise()
+        test_el4.is_anticlockwise
 
 
 def test_EntityList_has_valid_geometry():
-    assert generate_constant_region().entities.has_valid_geometry() == True
+    assert generate_constant_region().entities.has_valid_geometry == True
 
     # Test self_intersecting
     test_el1 = EntityList()
@@ -504,21 +504,21 @@ def test_EntityList_has_valid_geometry():
     test_el1.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
     test_el1.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
     test_el1.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_el1.has_valid_geometry() == False
+    assert test_el1.has_valid_geometry == False
 
     # Test is_anticlockwise
     test_el2 = EntityList()
     test_el2.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
     test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
     test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_el2.has_valid_geometry() == False
+    assert test_el2.has_valid_geometry == False
 
     # Test is_closed
     test_el3 = EntityList()
     test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
     test_el3.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
     test_el3.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
-    assert test_el3.has_valid_geometry() == False
+    assert test_el3.has_valid_geometry == False
 
 
 def test_set_linked_region():
