@@ -2183,7 +2183,8 @@ class ExtrusionBlock:
         return (
                 (self.start_pos == other.start_pos) &
                 (self.end_pos == other.end_pos) &
-                (self.start_pos == other.end_pos))
+                (self.start_pos == other.end_pos)
+        )
 
     def from_json(self, json):
         """Convert the class from a JSON object.
