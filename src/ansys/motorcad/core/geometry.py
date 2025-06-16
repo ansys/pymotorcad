@@ -2181,9 +2181,9 @@ class ExtrusionBlock:
     def __eq__(self, other):
         """Compare equality of 2 ExtrusionBlock objects."""
         return (
-                (self.start_pos == other.start_pos) &
-                (self.end_pos == other.end_pos) &
-                (self.start_pos == other.end_pos)
+            (self.start_pos == other.start_pos) &
+            (self.end_pos == other.end_pos) &
+            (self.start_pos == other.end_pos)
         )
 
     def from_json(self, json):
