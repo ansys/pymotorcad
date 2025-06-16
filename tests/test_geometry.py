@@ -34,6 +34,7 @@ from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
     Coordinate,
+    EntityList,
     Line,
     Region,
     RegionMagnet,
@@ -348,31 +349,6 @@ def test_region_remove_entity():
     assert region == expected_region
 
 
-def test_region_from_points_linear():
-    expected_square = create_square()
-
-    # test functionality without reordering
-    assert expected_square == Region.from_points_linear(
-        [(0, 0), (2, 0), (2, 2), (0, 2)], region_type=RegionType.stator
-    )
-    assert expected_square == Region.from_points_linear(
-        [Coordinate(0, 0), Coordinate(2, 0), Coordinate(2, 2), Coordinate(0, 2)],
-        region_type=RegionType.stator,
-    )
-
-    # Test warnings given when order is incorrect
-    with pytest.warns(UserWarning) as record:
-        reg = Region.from_points_linear(
-            [(0, 2), (2, 2), (2, 0), (0, 0)], region_type=RegionType.stator
-        )
-    assert "Entered point order may result in invalid geometry." == record[0].message.args[0]
-
-    # test reordering
-    assert expected_square == Region.from_points_linear(
-        [(0, 0), (2, 2), (0, 2), (2, 0)], region_type=RegionType.stator, sort=True
-    )
-
-
 def test_region_from_json():
     raw_region = {
         "name": "test_region",
@@ -443,97 +419,106 @@ def test_region_to_json():
     assert test_region._to_json() == raw_region
 
 
-def test_region_is_closed():
+def test_EntityList_is_closed():
     region = generate_constant_region()
-    assert region.is_closed()
+    assert region.entities.is_closed()
 
-    test_region1 = Region(region_type=RegionType.stator)
-    test_region1.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-    test_region1.add_entity(Line(Coordinate(1, 1), Coordinate(1, 0)))
-    test_region1.add_entity(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
-    assert test_region1.is_closed() == False
+    # Check an empty list returns as False
+    test_el1 = EntityList()
+    assert test_el1.is_closed() == False
 
-
-def test_region_is_nonintersecting():
-    test_region1 = Region(region_type=RegionType.stator)
-    test_region1.add_entity(Arc(Coordinate(0, 1), Coordinate(1, 0), centre=Coordinate(0.6, 0.6)))
-    test_region1.add_entity(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
-    test_region1.add_entity(Line(Coordinate(1, 0), Coordinate(1, 1)))
-    test_region1.add_entity(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
-    assert test_region1.is_nonintersecting() == True
-
-    test_region2 = Region(region_type=RegionType.stator)
-    test_region2.add_entity(Line(Coordinate(0, 3), Coordinate(0, 0)))
-    test_region2.add_entity(Line(Coordinate(0, 0), Coordinate(2, 0)))
-    test_region2.add_entity(Line(Coordinate(2, 0), Coordinate(2, 1)))
-    test_region2.add_entity(Line(Coordinate(2, 1), Coordinate(1, 1)))
-    test_region2.add_entity(Line(Coordinate(1, 1), Coordinate(1, 2)))
-    test_region2.add_entity(Line(Coordinate(1, 2), Coordinate(2, 2)))
-    test_region2.add_entity(Line(Coordinate(2, 2), Coordinate(2, 3)))
-    test_region2.add_entity(Line(Coordinate(2, 3), Coordinate(0, 3)))
-    assert test_region2.is_nonintersecting() == True
-
-    test_region3 = Region(region_type=RegionType.stator)
-    test_region3.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-    test_region3.add_entity(Line(Coordinate(1, 1), Coordinate(0, 1)))
-    test_region3.add_entity(Line(Coordinate(0, 1), Coordinate(1, 0)))
-    test_region3.add_entity(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_region3.is_nonintersecting() == False
+    # Test an open polygon is not closed
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el1.is_closed() == False
 
 
-def test_region_is_anticlockwise():
-    test_region1 = Region(region_type=RegionType.stator)
-    test_region1.add_entity(Line(Coordinate(0, 0), Coordinate(1, 0)))
-    test_region1.add_entity(Line(Coordinate(1, 0), Coordinate(1, 1)))
-    test_region1.add_entity(Line(Coordinate(1, 1), Coordinate(0, 1)))
-    test_region1.add_entity(Line(Coordinate(0, 1), Coordinate(0, 0)))
-    assert test_region1.is_anticlockwise() == True
+def test_EntityList_self_intersecting():
+    # Test that intersection detection works properly on arcs
+    test_el1 = EntityList()
+    test_el1.append(Arc(Coordinate(0, 1), Coordinate(1, 0), centre=Coordinate(0.6, 0.6)))
+    test_el1.append(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
+    assert test_el1.self_intersecting() == False
 
-    test_region2 = Region(region_type=RegionType.stator)
-    test_region2.add_entity(Line(Coordinate(0, 0), Coordinate(0, 1)))
-    test_region2.add_entity(Line(Coordinate(0, 1), Coordinate(1, 1)))
-    test_region2.add_entity(Line(Coordinate(1, 1), Coordinate(1, 0)))
-    test_region2.add_entity(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_region2.is_anticlockwise() == False
+    # Test convex polygons are not detected as intersecting
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 3), Coordinate(0, 0)))
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(2, 0)))
+    test_el2.append(Line(Coordinate(2, 0), Coordinate(2, 1)))
+    test_el2.append(Line(Coordinate(2, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 2)))
+    test_el2.append(Line(Coordinate(1, 2), Coordinate(2, 2)))
+    test_el2.append(Line(Coordinate(2, 2), Coordinate(2, 3)))
+    test_el2.append(Line(Coordinate(2, 3), Coordinate(0, 3)))
+    assert test_el2.self_intersecting() == False
 
-    test_region3 = Region(region_type=RegionType.stator)
-    test_region3.add_entity(Line(Coordinate(0, 0), Coordinate(0, 2)))
-    test_region3.add_entity(
+    # Test intersections are properly detected
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el3.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el3.self_intersecting() == True
+
+
+def test_EntityList_is_anticlockwise():
+    assert generate_constant_region().entities.is_anticlockwise() == True
+
+    # Test opposite winding
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(0, 1)))
+    test_el2.append(Line(Coordinate(0, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.is_anticlockwise() == False
+
+    # Test that arcs with endpoints that would result in opposite ordering if connected with a line
+    # are correctly accounted for
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
+    test_el3.append(
         Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
     )
-    test_region3.add_entity(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
-    assert test_region3.is_anticlockwise() == True
+    test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
+    assert test_el3.is_anticlockwise() == True
 
-    with pytest.raises(Exception, match="Region must be closed and nonintersecting"):
-        test_region4 = Region(region_type=RegionType.stator)
-        test_region4.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-        test_region4.add_entity(Line(Coordinate(1, 1), Coordinate(0, 1)))
-        test_region4.add_entity(Line(Coordinate(0, 1), Coordinate(1, 0)))
-        test_region4.add_entity(Line(Coordinate(1, 0), Coordinate(0, 0)))
-        test_region4.is_anticlockwise()
+    # Test error detection
+    with pytest.raises(Exception, match="Entities must be closed and nonintersecting"):
+        test_el4 = EntityList()
+        test_el4.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+        test_el4.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+        test_el4.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+        test_el4.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+        test_el4.is_anticlockwise()
 
 
-def test_region_has_valid_geometry():
-    assert generate_constant_region().has_valid_geometry() == True
+def test_EntityList_has_valid_geometry():
+    assert generate_constant_region().entities.has_valid_geometry() == True
 
-    test_region2 = Region(region_type=RegionType.stator)
-    test_region2.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-    test_region2.add_entity(Line(Coordinate(1, 1), Coordinate(0, 1)))
-    test_region2.add_entity(Line(Coordinate(0, 1), Coordinate(1, 0)))
-    test_region2.add_entity(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_region2.has_valid_geometry() == False
+    # Test self_intersecting
+    test_el1 = EntityList()
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el1.has_valid_geometry() == False
 
-    test_region3 = Region(region_type=RegionType.stator)
-    test_region3.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-    test_region3.add_entity(Line(Coordinate(1, 1), Coordinate(1, 0)))
-    test_region3.add_entity(Line(Coordinate(1, 0), Coordinate(0, 0)))
-    assert test_region3.has_valid_geometry() == False
+    # Test is_anticlockwise
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.has_valid_geometry() == False
 
-    test_region4 = Region(region_type=RegionType.stator)
-    test_region4.add_entity(Line(Coordinate(0, 0), Coordinate(1, 1)))
-    test_region4.add_entity(Line(Coordinate(1, 1), Coordinate(1, 0)))
-    test_region4.add_entity(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
-    assert test_region4.has_valid_geometry() == False
+    # Test is_closed
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el3.has_valid_geometry() == False
 
 
 def test_set_linked_region():
@@ -879,6 +864,32 @@ def test_arc_length():
     line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
     arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
     assert arc_2.length > line_1.length
+
+
+def test_entities_polygon():
+    expected_square = create_square()
+
+    # test functionality without reordering
+    reg1 = Region(region_type=RegionType.stator)
+    reg1.entities = EntityList.polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    assert expected_square == reg1
+
+    reg2 = Region(region_type=RegionType.stator)
+    reg2.entities = EntityList.polygon(
+        [Coordinate(0, 0), Coordinate(2, 0), Coordinate(2, 2), Coordinate(0, 2)]
+    )
+    assert expected_square == reg2
+
+    # Test warnings given when order is incorrect
+    with pytest.warns(UserWarning) as record:
+        reg3 = Region(region_type=RegionType.stator)
+        reg3.entities = EntityList.polygon([(0, 2), (2, 2), (2, 0), (0, 0)])
+    assert "Entered point order may result in invalid geometry." == record[0].message.args[0]
+
+    # test reordering
+    reg4 = Region(region_type=RegionType.stator)
+    reg4.entities = EntityList.polygon([(0, 0), (2, 2), (0, 2), (2, 0)], sort=True)
+    assert expected_square == reg4
 
 
 def test_convert_entities_to_json():
