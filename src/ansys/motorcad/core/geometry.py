@@ -2217,7 +2217,7 @@ class ExtrusionBlock:
         """
         self.start_pos = json["extrusion_block_start"]
         self.end_pos = json["extrusion_block_end"]
-        self.angle_shift = json["extrusion_block_angle"]
+        self.angle_shift = json["extrusion_block_angle_step"]
 
     def to_json(self):
         """Convert from a Python class to a JSON object.
@@ -2230,7 +2230,7 @@ class ExtrusionBlock:
         block_dict = {
             "extrusion_block_start": self.start_pos,
             "extrusion_block_end": self.end_pos,
-            "extrusion_block_angle": self.start_pos,
+            "extrusion_block_angle_step": self.start_pos,
         }
 
         return block_dict
