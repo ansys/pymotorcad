@@ -102,7 +102,8 @@ else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
-    mc.set_visible(True)
+    if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+        mc.set_visible(True)
     mc.load_template("e9")
 
     # Open relevant file
@@ -127,23 +128,11 @@ mc.reset_adaptive_geometry()
 # If the Adaptive Parameters have already been set in the current Motor-CAD file, their current
 # values will be used. Otherwise, the Adaptive Parameters will be defined and set to default values.
 #
-# The function ``set_default_parameter`` is defined to check if a parameter exists, and if not,
-# create it with a default value.
-
-
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter`` to set the required parameters if undefined
-set_default_parameter("Notch Angle", -4)
-set_default_parameter("Notch Sweep", 5)
-set_default_parameter("Notch Depth", 1)
-set_default_parameter("Notches per Pole", 2)
+# Use the ``set_adaptive_parameter_default`` method to set the required parameters if undefined.
+mc.set_adaptive_parameter_default("Notch Angle", -4)
+mc.set_adaptive_parameter_default("Notch Sweep", 5)
+mc.set_adaptive_parameter_default("Notch Depth", 1)
+mc.set_adaptive_parameter_default("Notches per Pole", 2)
 
 
 # %%

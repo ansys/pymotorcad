@@ -95,7 +95,8 @@ else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
-    mc.set_visible(True)
+    if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+        mc.set_visible(True)
     mc.load_template("e4a")
 
     # Set Standard Template geometry ready for Adaptive Templates script
@@ -122,21 +123,13 @@ mc.reset_adaptive_geometry()
 # %%
 # Set adaptive parameter if required
 # ----------------------------------
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
+# The ``set_adaptive_parameter_default`` function checks if a parameter exists. If not,
 # it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter()`` function to set the required ``L1 Bezier Curve Projection``,
-# ``L1 Upper Convex`` and ``L1 Lower Concave`` parameters if undefined.
-set_default_parameter("L1 Bezier Curve Projection", 6)
-set_default_parameter("L1 Upper Convex", 0.5)
-set_default_parameter("L1 Lower Concave", -0.3)
+# Set the required ``L1 Bezier Curve Projection``, ``L1 Upper Convex`` and ``L1 Lower Concave``
+# parameters if undefined.
+mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 6)
+mc.set_adaptive_parameter_default("L1 Upper Convex", 0.5)
+mc.set_adaptive_parameter_default("L1 Lower Concave", -0.3)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier
