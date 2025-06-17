@@ -140,6 +140,7 @@ class Region(object):
         self._mesh_length = 0
         self._extrusion_blocks = ExtrusionBlockList()
         self._temperature = 0
+        self._weight_reduction_factor = 1
 
         self._linked_region = None
         self._singular = False
@@ -304,6 +305,9 @@ class Region(object):
 
         if "region_temperature" in json:
             new_region._temperature = json["region_temperature"]
+
+        if "weight_reduction_factor" in json:
+            new_region._weight_reduction_factor = json["weight_reduction_factor"]
 
         return new_region
 
@@ -505,6 +509,27 @@ class Region(object):
     @material.setter
     def material(self, material):
         self._material = material
+
+    @property
+    def weight_reduction_factor(self):
+        """Get weight reduction factor.
+
+        Returns
+        -------
+        float : weight reduction factor
+        """
+        return self._weight_reduction_factor
+
+    @weight_reduction_factor.setter
+    def weight_reduction_factor(self, factor):
+        """Set weight reduction factor.
+
+        Parameters
+        ----------
+        factor : float
+            weight reduction factor
+        """
+        self._weight_reduction_factor = factor
 
     @property
     def colour(self):

@@ -365,6 +365,7 @@ def test_region_from_json():
         "mesh_length": 0.035,
         "singular": False,
         "region_temperature": 25,
+        "weight_reduction_factor": 0.5,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -382,6 +383,7 @@ def test_region_from_json():
     test_region.mesh_length = (0.035,)
     test_region.singular = (False,)
     test_region._temperature = 25
+    test_region.weight_reduction_factor = 0.5
 
     region = geometry.Region._from_json(raw_region)
 
@@ -406,6 +408,7 @@ def test_region_to_json():
         "singular": True,
         "on_boundary": False,
         "region_temperature": 35,
+        "weight_reduction_factor" : 0.75,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -422,6 +425,7 @@ def test_region_to_json():
     test_region.mesh_length = 0.035
     test_region.singular = True
     test_region._temperature = 35
+    test_region._weight_reduction_factor = 0.75
 
     assert test_region._to_json() == raw_region
 
@@ -2699,3 +2703,11 @@ def test_get_temperature():
     test_region._temperature = region_temp
 
     assert test_region.temperature == region_temp
+
+
+def test_get_weight_reduction_factor():
+    factor = 0.789
+    test_region = Region()
+    test_region.weight_reduction_factor = factor
+
+    assert test_region.weight_reduction_factor == factor
