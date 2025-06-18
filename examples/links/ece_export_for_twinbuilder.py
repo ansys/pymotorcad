@@ -104,8 +104,12 @@ os.mkdir(working_folder)
 
 # %%
 # Use the ``read_parameters`` function to open the ``ece_config.json`` configuration file and import
-# the data as the ``in_data`` dictionary.
+# the data as the ``in_data`` dictionary. The JSON file is displayed below:
 #
+# .. literalinclude :: ../../../../examples/links/ece_config.json
+#    :language: json
+
+# %%
 # The JSON configuration file must be saved to the same directory as this Python script. The
 # ``ece_config.json`` file can be downloaded from the PyMotorCAD GitHub repository:
 # https://github.com/ansys/pymotorcad/blob/main/examples/links/ece_config.json
