@@ -286,5 +286,5 @@ plt.show()
 # If you want to continue working with this instance of Motor-CAD, use the
 # ``MotorCAD(keep_instance_open=True)`` option when you launch Motor-CAD. If Motor-CAD is kept open,
 # it is useful to restore the popup messages that were disabled earlier, using the
-# ``set_variable()`` method ().
+# ``set_variable()`` method.
 mc.set_variable("MessageDisplayState", 0)
