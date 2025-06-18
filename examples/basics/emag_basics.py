@@ -246,22 +246,15 @@ mech_angle, airgap_flux_density = mc.get_fea_graph("B Gap (on load)", 1, 0)
 
 # %%
 # Only the most recently displayed harmonic graphs are available in Motor-CAD via the
-# **Graph Viewer**. To retrieve harmonic data by using Motor-CAD automation, first display the
-# relevant *Graphs -> Harmonics* tab. Use the ``initialise_tab_names()`` method to initialise the
-# available tabs in the Motor-CAD user interface. When the tabs have been initialised, the
-# ``display_screen()`` method can be used until either the Motor-CAD context is changed, or the
-# instance is closed.
+# **Graph Viewer**. Retrieve the torque harmonic graph data using the
+# ``get_magnetic_graph_harmonics()`` method.
 #
-# Open the *Graphs -> Harmonics -> Torque* tab to make the torque harmonic data available.
-mc.initialise_tab_names()
-mc.display_screen("Graphs;Harmonics;Torque")
+# .. note::
+#    The ``get_magnetic_graph_harmonics()`` method is available from PyMotorCAD v0.7.2 onwards. The
+#    previous workflow for extracting harmonic graph data is detailed in the PyMotorCAD v0.6
+#    documentation.
 
-# %%
-# Retrieve the torque harmonic graph data. The data type for this series is *E-Magnetics*, so use
-# the ``get_fea_graph()`` method.
-# harmonic_order, harmonic_amplitude = mc.get_magnetic_graph("HarmonicAmplitude")
-harmonic_order, harmonic_amplitude, __ = mc.get_magnetic_graph_harmonics("Torque")
-
+harmonic_order, harmonic_amplitude, __ = mc.get_magnetic_graph_harmonics("TorqueVW")
 
 print("Simulation completed.")
 
