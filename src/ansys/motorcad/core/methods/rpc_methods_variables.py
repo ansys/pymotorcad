@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
+from warnings import warn
 
 
 class _RpcMethodsVariables:
@@ -136,3 +137,30 @@ class _RpcMethodsVariables:
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
+
+    def get_file_name(self):
+        """Get current .mot file name and path.
+
+        Returns
+        -------
+        str
+            Current .mot file path and name
+        """
+        if self.connection.check_version_at_least("2025.0"):
+            method = "GetMotorCADFileName"
+            if self.connection.send_and_receive(method) == "":
+                warn("No file has been loaded in this MotorCAD instance")
+                return None
+            else:
+                return self.connection.send_and_receive(method)
+        else:
+            warn(
+                "GetMotorCADFileName not available in Motor-CAD "
+                + self.connection.program_version
+                + ". Returning value of CurrentMotFilePath_MotorLAB"
+            )
+            if self.get_variable("CurrentMotFilePath_MotorLAB") == "":
+                warn("No file has been loaded in this MotorCAD instance")
+                return None
+            else:
+                return self.get_variable("CurrentMotFilePath_MotorLAB")

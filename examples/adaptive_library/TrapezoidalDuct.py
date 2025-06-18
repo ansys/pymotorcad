@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,7 +42,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Coordinate, rt_to_xy, xy_to_rt
+from ansys.motorcad.core.geometry import xy_to_rt
 
 # %%
 # Connect to Motor-CAD
@@ -64,9 +64,10 @@ else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
-    mc.set_visible(True)
+    if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+        mc.set_visible(True)
     mc.load_template("e10")
-    mc.set_variable("RotorDuctType", 4)  # selected rectangular ducts
+    mc.set_variable("RotorDuctType", 4)  # select rectangular ducts
     mc.set_array_variable("RotorCircularDuctLayer_ChannelWidth", 0, 4)  # set duct width
 
     # Open relevant file
@@ -86,18 +87,6 @@ mc.reset_adaptive_geometry()
 # %%
 # Define necessary functions
 # --------------------------
-# Set adaptive parameter if required
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
-# it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
 # Check line distance from origin
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The rectangle consists of two lines of length equal to the rectangle width.
@@ -129,9 +118,9 @@ def check_line_origin_distance(i, duct_region):
 # -----------------------------------
 # From Motor-CAD, get the adaptive parameters and their values.
 #
-# Use the ``set_default_parameter()`` method to set the required ``Trapezoid_base_ratio`` parameter
-# if undefined.
-set_default_parameter("Trapezoid_base_ratio", 0.7)
+# Use the ``set_adaptive_parameter_default()`` method to set the required ``Trapezoid_base_ratio``
+# parameter if undefined.
+mc.set_adaptive_parameter_default("Trapezoid_base_ratio", 0.7)
 
 # %%
 # Set required parameters for the trapezoid: ratio of top width / base width
@@ -159,7 +148,7 @@ rt_region = mc.get_region("Rotor")  # get the rotor region
 #
 # * Find the top line that makes up the duct.
 #
-# * Modify the start and end points of the line.
+# * Modify the start and end points of the line using the get_coordinate_from_distance() method.
 #
 # * Set the region in Motor-CAD.
 #
@@ -169,63 +158,61 @@ duct_area = Trap_H * Trap_W
 for child_name in rt_region.child_names:
     if "RotorDuctFluidRegion" in child_name:
         duct_region = mc.get_region(child_name)
-        if round(duct_region.area / duct_area, 2) == 1:  # check if  full duct is drawn
+        if round(duct_region.area / duct_area, 2) == 1:  # check if a full duct is drawn
             for i, entity in enumerate(duct_region.entities):
-                if round(entity.length / Trap_W, 2) == 1:  # check if  the line is width
-                    # additional check in case width = height
+                if (
+                    round(entity.length / Trap_W, 2) == 1
+                ):  # check if the line length is the same as the duct width
+                    # additional check in case the duct width = height
                     r_start_point, angle_start_point = xy_to_rt(entity.start.x, entity.start.y)
                     r_end_point, angle_end_point = xy_to_rt(entity.end.x, entity.end.y)
                     if abs(angle_end_point - angle_start_point) > 0.05:  # 0.05 degree is tolerance
-                        # check if the line located at top or bottom
+                        # check if the line is located at top or bottom
                         Line_origin = check_line_origin_distance(i, duct_region)
                         if not Line_origin:
-                            del_trap_angle = (
-                                (angle_end_point - angle_start_point) * (1 - Trap_ratio) / 2
+                            distance = entity.length * (1 - Trap_ratio)
+                            new_start_point = entity.get_coordinate_from_distance(
+                                entity.start, fraction=(1 - Trap_ratio) / 2
                             )
-                            new_angle_start_point = angle_start_point + del_trap_angle
-                            new_angle_end_point = angle_end_point - del_trap_angle
-                            new_start_x, new_start_y = rt_to_xy(
-                                r_start_point, new_angle_start_point
+                            new_end_point = entity.get_coordinate_from_distance(
+                                entity.end, fraction=(1 - Trap_ratio) / 2
                             )
-                            new_end_x, new_end_y = rt_to_xy(r_end_point, new_angle_end_point)
-                            new_start_point = Coordinate(new_start_x, new_start_y)
-                            new_end_point = Coordinate(new_end_x, new_end_y)
                             duct_region.edit_point(entity.start, new_start_point)
                             duct_region.edit_point(entity.end, new_end_point)
                             mc.set_region(duct_region)
 
-        elif round(duct_region.area / duct_area, 2) == 0.5:  # half duct
+        elif (
+            round(duct_region.area / duct_area, 2) == 0.5
+        ):  # account for the case where we have half ducts
             Symm_angle = 360 / duct_region.duplications  # angle of symmetry
 
             for i, entity in enumerate(duct_region.entities):
-                if round(entity.length / Trap_W, 2) == 0.5:  # check if  the line is width
-                    # additional check in case width = height
+                if (
+                    round(entity.length / Trap_W, 2) == 0.5
+                ):  # check if the line length is the same as the duct width
+                    # additional check in case the duct width = height
                     r_start_point, angle_start_point = xy_to_rt(entity.start.x, entity.start.y)
                     r_end_point, angle_end_point = xy_to_rt(entity.end.x, entity.end.y)
                     if abs(angle_end_point - angle_start_point) > 0.05:  # 0.05 degree is tolerance
                         Line_origin = check_line_origin_distance(i, duct_region)
                         if not Line_origin:
-                            del_trap_angle = (angle_end_point - angle_start_point) * (
-                                1 - Trap_ratio
-                            )
+                            distance = entity.length * (1 - Trap_ratio)
                             if (
                                 angle_start_point - 0 < 1e-10
                                 or angle_start_point == 0
                                 or round(angle_start_point / Symm_angle, 2) == 1
                             ):  # on symmetry plane
-                                new_angle_end_point = angle_end_point - del_trap_angle
-                                new_end_x, new_end_y = rt_to_xy(r_end_point, new_angle_end_point)
-                                new_end_point = Coordinate(new_end_x, new_end_y)
+                                new_end_point = entity.get_coordinate_from_distance(
+                                    entity.end, fraction=(1 - Trap_ratio) / 2
+                                )
                                 duct_region.edit_point(entity.end, new_end_point)
                             elif (
                                 angle_end_point - 0 < 1e-10
                                 or round(angle_end_point / Symm_angle, 2) == 1
-                            ):  # symmetry plan
-                                new_angle_start_point = angle_start_point + del_trap_angle
-                                new_start_x, new_start_y = rt_to_xy(
-                                    r_start_point, new_angle_start_point
+                            ):  # symmetry plane
+                                new_start_point = entity.get_coordinate_from_distance(
+                                    entity.start, fraction=(1 - Trap_ratio) / 2
                                 )
-                                new_start_point = Coordinate(new_start_x, new_start_y)
                                 duct_region.edit_point(entity.start, new_start_point)
 
                             mc.set_region(duct_region)

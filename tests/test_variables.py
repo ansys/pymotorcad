@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -20,10 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from os import path, remove
+
 import pytest
 
-from RPC_Test_Common import reset_to_default_file
-from ansys.motorcad.core import MotorCADError
+from RPC_Test_Common import get_dir_path, reset_to_default_file
+from ansys.motorcad.core import MotorCAD, MotorCADError, rpc_client_core
 
 
 def test_get_variable(mc):
@@ -123,3 +125,46 @@ def test_restore_compatibility_settings(mc):
 
     mc.restore_compatibility_settings()
     assert mc.get_variable(test_compatibility_setting) == improved_method
+
+
+def test_get_file_name():
+    mc = MotorCAD()
+
+    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+
+    if path.exists(file_path):
+        remove(file_path)
+
+    assert path.exists(file_path) is False
+
+    with pytest.warns():
+        mc.get_file_name()
+
+    mc.save_to_file(file_path)
+    assert mc.get_file_name() == file_path
+    remove(file_path)
+
+
+def test_get_file_name_fallback():
+    mc = MotorCAD()
+    # Pretend to be an older version
+    mc.connection.program_version = "2024.2.3.1"
+    save_DONT_CHECK_MOTORCAD_VERSION = rpc_client_core.DONT_CHECK_MOTORCAD_VERSION
+    rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = False
+
+    try:
+        file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+
+        if path.exists(file_path):
+            remove(file_path)
+
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
+        remove(file_path)
+    finally:
+        rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = save_DONT_CHECK_MOTORCAD_VERSION

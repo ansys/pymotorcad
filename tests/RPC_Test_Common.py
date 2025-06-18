@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,6 +43,10 @@ def get_temp_files_dir_path():
 def almost_equal(a, b, decimal_places=1):
     # Rough check
     return round(a - b, decimal_places) == 0
+
+
+def almost_equal_percentage(a, b, percentage):
+    return abs(a - b) < abs(a * (percentage / 100))
 
 
 def almost_equal_fixed(a, b, allowed_difference=0):

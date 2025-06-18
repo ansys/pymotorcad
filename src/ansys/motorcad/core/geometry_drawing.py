@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,7 @@
 
 """Unit containing region drawing functions."""
 from copy import deepcopy
+import warnings
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Entity, Line, Region
@@ -35,6 +36,8 @@ try:
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
+_MAX_RECURSION = 100
+
 
 class _RegionDrawing:
     def __init__(self, ax, stored_coords):
@@ -46,11 +49,25 @@ class _RegionDrawing:
         x_min, x_max = self.ax.get_xlim()
         return x_max - x_min
 
-    def _find_coord_no_overlap(self, entity_coord):
+    def _find_coord_no_overlap(self, entity_coord, tried_coords, modifier):
         # adjust depending on text size
         # 0.04 good compromise
         overlap_tol = 0.04
         result = deepcopy(entity_coord)
+
+        recursion_depth = len(tried_coords)
+
+        if recursion_depth > _MAX_RECURSION:
+            return None
+
+        if entity_coord in tried_coords:
+            # Already tried this coordinate
+            # Might be flip-flopping between 2 points
+            # Add a small amount to how far we move the coord to try and force out of pattern
+            modifier += 0.01
+
+        tried_coords += [entity_coord]
+
         for stored_coord in self.stored_coords:
             difference = (entity_coord - stored_coord) / self._get_plot_range()
 
@@ -62,25 +79,35 @@ class _RegionDrawing:
             unit_vector = difference / abs(difference)
 
             if abs(difference) < overlap_tol:
-                result += unit_vector * overlap_tol * self._get_plot_range() * 1.1
-                result = self._find_coord_no_overlap(result)
+                result += unit_vector * overlap_tol * self._get_plot_range() * (1.1 + modifier)
+                result = self._find_coord_no_overlap(result, tried_coords, modifier)
                 break
         return result
 
     def _plot_text_no_overlap(self, point, text, colour):
-        new_coord = self._find_coord_no_overlap(point)
-        self.stored_coords += [new_coord]
-        self.ax.annotate(
-            text,
-            xy=(point.x, point.y),
-            xytext=(
-                new_coord.x + 0.04 * self._get_plot_range(),
-                new_coord.y + 0.04 * self._get_plot_range(),
-            ),
-            ha="right",
-            arrowprops=dict(arrowstyle="->", shrinkA=0, color=colour, alpha=0.5),
-            color=colour,
-        )
+        # Reset params for recursive function
+        tried_coords = []
+        modifier = 0
+
+        new_coord = self._find_coord_no_overlap(point, tried_coords, modifier)
+
+        if new_coord is None:
+            warning_str = "Failed to plot all labels on graph"
+            warnings.warn(warning_str)
+            self.ax.set_title("Warning : " + warning_str, color="red")
+        else:
+            self.stored_coords += [new_coord]
+            self.ax.annotate(
+                text,
+                xy=(point.x, point.y),
+                xytext=(
+                    new_coord.x + 0.04 * self._get_plot_range(),
+                    new_coord.y + 0.04 * self._get_plot_range(),
+                ),
+                ha="right",
+                arrowprops=dict(arrowstyle="->", shrinkA=0, color=colour, alpha=0.5),
+                color=colour,
+            )
 
     def draw_region(self, region, colour):
         """Draw a region."""

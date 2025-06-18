@@ -15,6 +15,7 @@ Geometry objects
 
    Region
    RegionMagnet
+   RegionType
    Coordinate
    Entity
    EntityList
@@ -29,9 +30,3 @@ Geometry functions
    get_entities_have_common_coordinate
    xy_to_rt
    rt_to_xy
-
-.. currentmodule:: ansys.motorcad.core.geometry_drawing
-.. autosummary::
-   :toctree: _autosummary_geometry_functions
-
-   draw_regions

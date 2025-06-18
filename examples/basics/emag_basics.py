@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -121,9 +121,7 @@ mc.set_variable("Magnet_Thickness", 4.5)
 # Winding setup
 # ~~~~~~~~~~~~~~
 # Instead of using the automatic winding pattern, set parameters for creating a partial custom
-# winding pattern. This example sets up an unevenly distributed winding pattern.
-#
-# The script:
+# winding pattern. This example sets up an unevenly distributed winding pattern:
 #
 # * Set the winding type to *Custom*.
 #
@@ -211,8 +209,10 @@ mc.do_magnetic_calculation()
 # Export results to CSV file
 # --------------------------
 # Export results to a CSV file. Results will be saved as *Export_EMag_Results.csv* in the temporary
-# working directory. A try and except block are used to raise an error in the case of the export
-# failing.
+# working directory. Use a try and except block to raise an error in the case of the export failing.
+#
+# Use the ``MotorCADError`` object to obtain error messages from Motor-CAD and raise an Exception in
+# the Python script.
 try:
     mc.export_results("EMagnetic", working_folder + "/Export_EMag_Results.csv")
     print("Results successfully exported.")
@@ -226,7 +226,8 @@ except pymotorcad.MotorCADError as e:
 shaft_torque = mc.get_variable("ShaftTorque")
 line_voltage = mc.get_variable("PeakLineLineVoltage")
 print(
-    f"Shaft Torque: {shaft_torque:.2f} Nm, Line-Line Terminal Voltage (peak): {line_voltage:.2f} V"
+    f"Shaft Torque: {shaft_torque:.2f} Nm\n"
+    f"Line-Line Terminal Voltage (peak): {line_voltage:.2f} V"
 )
 
 # %%
@@ -234,18 +235,18 @@ print(
 # ``get_magnetic_graph()`` method.
 #
 # .. note::
-#    When retrieving graph data points, use the *Graph Viewer* under *Help* in the Motor-CAD
+#    When retrieving graph data points, use the **Graph Viewer** under **Help** in the Motor-CAD
 #    interface to find the series names and data types.
 rotor_position, torque_vw = mc.get_magnetic_graph("TorqueVW")
 
 # %%
 # Retrieve the airgap flux density graph data. This data can be found in the *Graph Viewer* in
-# Motor-CAD. The data type for this series is *FEA Path*, so use the ``get_fea_graph()`` method.
+# Motor-CAD. The data type for this series is **FEA Path**, so use the ``get_fea_graph()`` method.
 mech_angle, airgap_flux_density = mc.get_fea_graph("B Gap (on load)", 1, 0)
 
 # %%
 # Only the most recently displayed harmonic graphs are available in Motor-CAD via the
-# *Graph Viewer*. To retrieve harmonic data by using Motor-CAD automation, first display the
+# **Graph Viewer**. To retrieve harmonic data by using Motor-CAD automation, first display the
 # relevant *Graphs -> Harmonics* tab. Use the ``initialise_tab_names()`` method to initialise the
 # available tabs in the Motor-CAD user interface. When the tabs have been initialised, the
 # ``display_screen()`` method can be used until either the Motor-CAD context is changed, or the
@@ -258,7 +259,9 @@ mc.display_screen("Graphs;Harmonics;Torque")
 # %%
 # Retrieve the torque harmonic graph data. The data type for this series is *E-Magnetics*, so use
 # the ``get_fea_graph()`` method.
-harmonic_order, harmonic_amplitude = mc.get_magnetic_graph("HarmonicAmplitude")
+# harmonic_order, harmonic_amplitude = mc.get_magnetic_graph("HarmonicAmplitude")
+harmonic_order, harmonic_amplitude, __ = mc.get_magnetic_graph_harmonics("Torque")
+
 
 print("Simulation completed.")
 

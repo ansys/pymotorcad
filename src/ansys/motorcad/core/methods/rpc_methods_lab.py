@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for Motor-CAD Lab."""
+
 k_num_custom_losses_internal_lab = "NumCustomLossesInternal_Lab"
 k_custom_loss_name_internal_lab = "CustomLoss_name_internal_lab"
 k_custom_loss_function_internal_lab = "CustomLoss_Function_Internal_Lab"
@@ -291,3 +292,15 @@ class _RpcMethodsLab:
         else:
             raise NameError("Provided name is not listed")
         return index
+
+    def export_lab_model(self, file_path):
+        """Export lab model.
+
+        Parameters
+        ----------
+        file_path : str
+            File path including lab model file name and file extension (.lab)
+        """
+        method = "ExportLabModel"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
