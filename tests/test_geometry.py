@@ -430,13 +430,16 @@ def test_ellipse_construction():
 
     test_ellipse = geometry.EntityList([arc1, arc2, arc3])
 
-    assert test_ellipse == geometry.Ellipse(p1, p4)
+    assert test_ellipse == geometry.Ellipse(p1, p4, n=3)
 
-    assert test_ellipse == geometry.Ellipse(p1, p4)
+    assert test_ellipse == geometry.Ellipse(p1, p4, n=3)
 
     # Test construction in opposite direction
     test_ellipse.reverse()
-    assert test_ellipse == geometry.Ellipse(p4, p1)
+    assert test_ellipse == geometry.Ellipse(p4, p1, n=3)
+
+    # test default n
+    assert 4 == geometry.Ellipse(p1, p4).n
 
     # Check shortcuts taken when arc is actually circular
     p1 = Coordinate(10, 0)
@@ -448,25 +451,25 @@ def test_ellipse_construction():
 
 
 def test_ellipse_construction_eccentricity():
-    p1 = Coordinate(9.965376457405135, 9.965376457405135)
+    p1 = Coordinate(10, 10)
     p2 = Coordinate(0.0, 13.228756555322953)
-    p3 = Coordinate(-9.965376457405135, 9.965376457405135)
+    p3 = Coordinate(-10, 10)
     arc1 = Arc(p1, p2, radius=16.84731387426322)
     arc2 = Arc(p2, p3, radius=16.84731387426322)
 
     test_ellipse = EntityList([arc1, arc2])
 
     assert test_ellipse == geometry.Ellipse(
-        Coordinate(10, 10), Coordinate(-10, 10), eccentricity=0.5
+        Coordinate(10, 10), Coordinate(-10, 10), eccentricity=0.5, n=2
     )
 
 
 def test_ellipse_rotation():
-    p1 = Coordinate(30.02452341580931, -8.881784197001252e-16)
+    p1 = Coordinate(30, 0)
     p2 = Coordinate(29.118935856758075, 2.035157007095493)
     p3 = Coordinate(25.59859511431621, 7.102432013387621)
     p4 = Coordinate(5.068621064868296, 18.916351338402347)
-    p5 = Coordinate(0.0, 19.972850124036842)
+    p5 = Coordinate(0.0, 20)
     arc1 = Arc(p1, p2, radius=14.542739476175015)
     arc2 = Arc(p2, p3, radius=20.21935621434003)
     arc3 = Arc(p3, p4, radius=46.004013376917285)
@@ -474,19 +477,19 @@ def test_ellipse_rotation():
 
     test_ellipse = EntityList([arc1, arc2, arc3, arc4])
 
-    assert test_ellipse == geometry.Ellipse(Coordinate(30, 0), Coordinate(0, 20), angle=15)
+    assert test_ellipse == geometry.Ellipse(Coordinate(30, 0), Coordinate(0, 20), angle=-15, n=4)
 
 
 def test_ellipse_rotation_and_eccentricity():
-    p1 = Coordinate(9.930334014651606, 0.0)
+    p1 = Coordinate(10, 0.0)
     p2 = Coordinate(6.403124237432849, 6.403124237432849)
-    p3 = Coordinate(0.0, 9.930334014651606)
+    p3 = Coordinate(0.0, 10)
     arc1 = Arc(p1, p2, radius=13.139695797251665)
     arc2 = Arc(p2, p3, radius=13.139695797251665)
 
     test_ellipse = EntityList([arc1, arc2])
     other_ellipse = geometry.Ellipse(
-        Coordinate(10, 0), Coordinate(0, 10), eccentricity=0.6, angle=45
+        Coordinate(10, 0), Coordinate(0, 10), eccentricity=0.6, angle=-45, n=2
     )
 
     assert test_ellipse == other_ellipse
@@ -495,7 +498,7 @@ def test_ellipse_rotation_and_eccentricity():
 def test_ellipse_warnings_and_errors():
     # When eccentricity is required but not given
     with pytest.raises(Exception, match="Eccentricity must be given for mirrored points"):
-        test_ellipse = geometry.Ellipse(Coordinate(10, 0), Coordinate(0, 10), angle=45)
+        test_ellipse = geometry.Ellipse(Coordinate(10, 0), Coordinate(0, 10), angle=-45)
 
     # When points are not mirrored, but x1 = -x2, or y1 = -y2
     with pytest.raises(
@@ -513,7 +516,7 @@ def test_ellipse_warnings_and_errors():
     with pytest.warns(
         UserWarning, match="Curvature may be too extreme. Less detail or curvature recommended"
     ):
-        test_ellipse = geometry.Ellipse(Coordinate(2, 0), Coordinate(0, 1), n=10)
+        test_ellipse = geometry.Ellipse(Coordinate(2, 0), Coordinate(0, 1), n=50)
 
 
 def test_ellipse_mirror_detection():

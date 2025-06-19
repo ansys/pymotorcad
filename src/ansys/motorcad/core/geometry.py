@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, log, radians, sin, sqrt
 import warnings
 from warnings import warn
 
@@ -2182,27 +2182,34 @@ class _BaseEllipse(EntityList):
         else:
             self.initialize_ab()
 
-        # if n is not provided, n is generated based on the eccentricity
-        if n is None:
-            self.n = int(1 / (1 - self.eccentricity))
+        # shortcut if ellipse is just circle:
+        if self.eccentricity == 0:
+            super().__init__([Arc(start, end, centre=Coordinate(0, 0))])
         else:
-            self.n = n
+            # if n is not provided, n is generated based on the eccentricity
+            if n is None:
+                self.n = int(3 * log(1 / (1 - self.eccentricity)))
+                if self.n < 2:
+                    self.n = 2
+            else:
+                self.n = n
 
-        quad1_points = self.get_quad1_interpolation_points()
-        arcs = self.get_quad1_arcs(quad1_points)
-        ellipse = self.get_whole_ellipse(arcs)
-        spanning_arcs = self.get_spanning_arcs(ellipse)
-        elliptic_arc = self.truncate_spanning_arcs(spanning_arcs)
-        arc0 = elliptic_arc[0]
-        if arc0.length < GEOM_TOLERANCE:
-            elliptic_arc.pop(0)
-        arcn = elliptic_arc[-1]
-        if arcn.length < GEOM_TOLERANCE:
-            elliptic_arc.pop()
-        super().__init__(elliptic_arc)
+            quad1_points = self.get_quad1_interpolation_points()
+            arcs = self.get_quad1_arcs(quad1_points)
+            ellipse = self.get_whole_ellipse(arcs)
+            spanning_arcs = self.get_spanning_arcs(ellipse)
+            elliptic_arc = self.truncate_spanning_arcs(spanning_arcs)
+            arc0 = elliptic_arc[0]
+            # Implementation sometimes results in very short arcs at endpoints
+            if arc0.length < GEOM_TOLERANCE:
+                elliptic_arc.pop(0)
+            arcn = elliptic_arc[-1]
+            if arcn.length < GEOM_TOLERANCE:
+                elliptic_arc.pop()
+            super().__init__(elliptic_arc)
 
-        if self.get_min_length() < 0.1:
-            warnings.warn("Curvature may be too extreme. Less detail or curvature recommended")
+            if self.get_min_length() < 0.1:
+                warnings.warn("Curvature may be too extreme. Less detail or curvature recommended")
 
     def is_reflection(self):
         """Determine whether start and end are reflections across an axis.
@@ -2233,6 +2240,8 @@ class _BaseEllipse(EntityList):
                 (self.start.x**2 * self.end.y**2 - self.end.x**2 * self.start.y**2)
                 / ((self.start.y + self.end.y) * (self.end.y - self.start.y))
             )
+            # b might be defined by one of two equations,
+            # depending on whether the x or y axis is the major one
             b = a * sqrt(
                 (self.end.y**2 - self.start.y**2) / (self.start.x**2 - self.end.x**2)
             )
@@ -2430,9 +2439,12 @@ class _BaseEllipse(EntityList):
         -------
         EntityList
         """
+        # Due to the nature of the approximation, arcs will not precisely contain the given
+        # start or end. Instead, the point with the same angular coordinate on the ellipse is used
         start_intersection_line = Line(Coordinate(0, 0), self.start)
         end_intersection_line = Line(Coordinate(0, 0), self.end)
 
+        # get_line_intersection will return two intersection points; the nearer is used
         start_intersections = spanning_arcs[0].get_line_intersection(start_intersection_line)
         start_intersections.sort(
             key=lambda p: sqrt((self.start.x - p.x) ** 2 + (self.start.y - p.y) ** 2)
@@ -2473,6 +2485,9 @@ class Ellipse(_BaseEllipse):
     end : Coordinate
         End coordinate.
 
+    inwards: bool
+        Whether Ellipse will curve towards or away from centre
+
     n : integer, optional
         Number of arcs used to construct the ellipse in each quadrant
 
@@ -2487,21 +2502,31 @@ class Ellipse(_BaseEllipse):
 
     """
 
-    def __init__(self, start, end, n=None, centre=Coordinate(0, 0), eccentricity=None, angle=0):
+    def __init__(
+        self, start, end, inwards=False, n=None, centre=Coordinate(0, 0), eccentricity=None, angle=0
+    ):
         """Initialize Ellipse."""
         self.start = start
         self.end = end
         self.centre = centre
         self.angle = angle
         self.n = n
+        # A manually supplied centre will take precedence in determining
+        # the direction of the ellipse
+        if inwards and (centre == Coordinate(0, 0)):
+            centre = centre.mirror(Line(start, end))
         self.relative_start = start.to_relative_coords(centre)
         self.relative_end = end.to_relative_coords(centre)
-        self.relative_start.rotate(Coordinate(0, 0), angle)
-        self.relative_end.rotate(Coordinate(0, 0), angle)
+        self.relative_start.rotate(Coordinate(0, 0), -angle)
+        self.relative_end.rotate(Coordinate(0, 0), -angle)
         super().__init__(self.relative_start, self.relative_end, n, eccentricity)
         for arc in self:
-            arc.rotate(Coordinate(0, 0), -angle)
+            arc.rotate(Coordinate(0, 0), angle)
             arc.translate(centre.x, centre.y)
+
+        # Correcting inaccuracies inherent to ellipse approximation at start and end
+        self[0] = Arc(start, self[0].end, radius=self[0].radius)
+        self[-1] = Arc(self[-1].start, end, radius=self[-1].radius)
 
 
 def _convert_entities_to_json(entities):
