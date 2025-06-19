@@ -430,9 +430,21 @@ def test_ellipse_construction():
 
     test_ellipse = geometry.EntityList([arc1, arc2, arc3])
 
-    assert test_ellipse == geometry.Ellipse(p1, p3, n=3)
+    assert test_ellipse == geometry.Ellipse(p1, p4)
 
-    assert test_ellipse == geometry.Ellipse(p1, p3)
+    assert test_ellipse == geometry.Ellipse(p1, p4)
+
+    # Test construction in opposite direction
+    test_ellipse.reverse()
+    assert test_ellipse == geometry.Ellipse(p4, p1)
+
+    # Check shortcuts taken when arc is actually circular
+    p1 = Coordinate(10, 0)
+    p2 = Coordinate(0, 10)
+    arc1 = Arc(p1, p2, radius=10)
+
+    test_ellipse = geometry.EntityList([arc1])
+    assert test_ellipse == geometry.Ellipse(p1, p2)
 
 
 def test_ellipse_construction_eccentricity():
@@ -480,8 +492,41 @@ def test_ellipse_rotation_and_eccentricity():
     assert test_ellipse == other_ellipse
 
 
-def test_ellipse_warnings():
-    pass
+def test_ellipse_warnings_and_errors():
+    # When eccentricity is required but not given
+    with pytest.raises(Exception, match="Eccentricity must be given for mirrored points"):
+        test_ellipse = geometry.Ellipse(Coordinate(10, 0), Coordinate(0, 10), angle=45)
+
+    # When points are not mirrored, but x1 = -x2, or y1 = -y2
+    with pytest.raises(
+        ZeroDivisionError, match="Invalid points: proposed shape must be an ellipse or elliptic arc"
+    ):
+        test_ellipse = geometry.Ellipse(Coordinate(20, 10), Coordinate(-30, -10))
+
+    # When points do not form an ellipse (more generally)
+    with pytest.raises(
+        ValueError, match="Invalid points: proposed shape must be an ellipse or elliptic arc"
+    ):
+        test_ellipse = geometry.Ellipse(Coordinate(5, 5), Coordinate(-4, 0))
+
+    # When automatic or manual selection of n may be too great
+    with pytest.warns(
+        UserWarning, match="Curvature may be too extreme. Less detail or curvature recommended"
+    ):
+        test_ellipse = geometry.Ellipse(Coordinate(2, 0), Coordinate(0, 1), n=10)
+
+
+def test_ellipse_mirror_detection():
+    x = 10
+    y = 10
+    p1 = Coordinate(x, y)
+    # Test each of the 3 reflections for which eccentricity is required
+    with pytest.raises(Exception, match="Eccentricity must be given for mirrored points"):
+        test_ellipse = geometry.Ellipse(p1, Coordinate(-x, y))
+    with pytest.raises(Exception, match="Eccentricity must be given for mirrored points"):
+        test_ellipse = geometry.Ellipse(p1, Coordinate(-x, -y))
+    with pytest.raises(Exception, match="Eccentricity must be given for mirrored points"):
+        test_ellipse = geometry.Ellipse(p1, Coordinate(x, -y))
 
 
 def test_set_linked_region():

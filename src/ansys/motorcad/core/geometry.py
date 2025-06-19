@@ -2240,10 +2240,6 @@ class _BaseEllipse(EntityList):
                 b = a * sqrt(
                     (self.start.y**2 - self.end.y**2) / (self.end.x**2 - self.start.x**2)
                 )
-                if type(b) == complex:
-                    raise Exception(
-                        "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
-                    )
 
             self.b = b
             self.a = a
@@ -2253,12 +2249,12 @@ class _BaseEllipse(EntityList):
             self.eccentricity = sqrt(1 - top**2 / bottom**2)
 
         except ZeroDivisionError as e:
-            raise Exception(
-                "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
+            raise ZeroDivisionError(
+                "Invalid points: proposed shape must be an ellipse or elliptic arc"
             ) from e
         except ValueError as e:
-            raise Exception(
-                "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
+            raise ValueError(
+                "Invalid points: proposed shape must be an ellipse or elliptic arc"
             ) from e
 
     def get_quad1_interpolation_points(self):
