@@ -46,7 +46,7 @@ mc.set_variable("ElectromagneticForcesCalc_Load", True)
 mc.set_variable("SkewType", 1)
 
 # Set up the sweep parameters, in this case for sync machine field current and skew angle
-skew_angles = [0, 9.5, 10, 10.5]
+skew_angles = [0, 7.5]
 field_currents = [5, 10]
 
 # Run the sweep
