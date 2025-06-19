@@ -324,29 +324,6 @@ class Region(object):
 
         return region_dict
 
-    def is_closed(self):
-        """Check whether region entities create a closed region.
-
-        Returns
-        -------
-        Boolean
-            Whether region is closed
-        """
-        if len(self._entities) > 0:
-            entity_first = self._entities[0]
-            entity_last = self._entities[-1]
-
-            is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
-
-            for i in range(len(self._entities) - 1):
-                is_closed = get_entities_have_common_coordinate(
-                    self._entities[i], self._entities[i + 1]
-                )
-
-            return is_closed
-        else:
-            return False
-
     @property
     def parent_name(self):
         """Get or set the region parent name."""
@@ -1180,6 +1157,26 @@ class Coordinate(object):
         """
         self.x += x
         self.y += y
+
+    def to_relative_coords(self, point):
+        """Translate Coordinate to corresponding spot in the coordinate system centred at point.
+
+        Parameters
+        ----------
+        point: Coordinate
+            new coordinate centre
+        """
+        return Coordinate(self.x - point.x, self.y - point.y)
+
+    def to_real_coords(self, point):
+        """Translate relative Coordinates to corresponding spot in the original coordinate system.
+
+        Parameters
+        ----------
+        point: Coordinate
+            old coordinate centre
+        """
+        return Coordinate(self.x + point.x, self.y + point.y)
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
@@ -2139,6 +2136,353 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+
+class _BaseEllipse(EntityList):
+    """Internal class to allow creation of Ellipses."""
+
+    def __init__(self, start, end, n=None, eccentricity=None):
+        self.start = deepcopy(start)
+        self.end = deepcopy(end)
+
+        # initializing a and b
+        if self.is_reflection():
+            if eccentricity is None:
+                raise Exception("Eccentricity must be given for mirrored points")
+            else:
+                self.eccentricity = eccentricity
+                self.a = sqrt(
+                    ((-(eccentricity**2) + 1) * self.start.x**2 + self.start.y**2)
+                    / (-(eccentricity**2) + 1)
+                )
+                self.b = sqrt(self.a**2 * (1 - eccentricity**2))
+        else:
+            self.initialize_ab()
+
+        # if n is not provided, n is generated based on the eccentricity
+        if n is None:
+            self.n = int(1 / (1 - self.eccentricity))
+        else:
+            self.n = n
+
+        quad1_points = self.get_quad1_interpolation_points()
+        arcs = self.get_quad1_arcs(quad1_points)
+        ellipse = self.get_whole_ellipse(arcs)
+        spanning_arcs = self.get_spanning_arcs(ellipse)
+        elliptic_arc = self.truncate_spanning_arcs(spanning_arcs)
+        arc0 = elliptic_arc[0]
+        if arc0.length < GEOM_TOLERANCE:
+            elliptic_arc.pop(0)
+        arcn = elliptic_arc[-1]
+        if arcn.length < GEOM_TOLERANCE:
+            elliptic_arc.pop()
+        super().__init__(elliptic_arc)
+
+        if self.get_min_length() < 0.1:
+            warnings.warn("Curvature may be too extreme. Less detail or curvature recommended")
+
+    def is_reflection(self):
+        """Determine whether start and end are reflections across an axis.
+
+        Returns
+        -------
+        boolean
+        """
+        x_axis = Line(Coordinate(0, 0), Coordinate(1, 0))
+        y_axis = Line(Coordinate(0, 0), Coordinate(0, 1))
+        if self.start.mirror(y_axis) == self.end:
+            return True
+        if self.start.mirror(x_axis) == self.end:
+            return True
+        if Coordinate(-self.start.x, -self.start.y) == self.end:
+            return True
+        return False
+
+    def initialize_ab(self):
+        """Initialize a, b, and eccentricity.
+
+        Returns
+        -------
+        None
+        """
+        try:
+            a = sqrt(
+                (self.start.x**2 * self.end.y**2 - self.end.x**2 * self.start.y**2)
+                / ((self.start.y + self.end.y) * (self.end.y - self.start.y))
+            )
+            b = a * sqrt(
+                (self.end.y**2 - self.start.y**2) / (self.start.x**2 - self.end.x**2)
+            )
+            if type(b) == complex:
+                b = a * sqrt(
+                    (self.start.y**2 - self.end.y**2) / (self.end.x**2 - self.start.x**2)
+                )
+                if type(b) == complex:
+                    raise Exception(
+                        "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
+                    )
+
+            self.b = b
+            self.a = a
+
+            top = min(a, b)
+            bottom = max(a, b)
+            self.eccentricity = sqrt(1 - top**2 / bottom**2)
+
+        except ZeroDivisionError as e:
+            raise Exception(
+                "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
+            ) from e
+        except ValueError as e:
+            raise Exception(
+                "Invalid eccentricity: proposed shape must be an ellipse or elliptic arc"
+            ) from e
+
+    def get_quad1_interpolation_points(self):
+        """Get the endpoints of arcs used within the first quadrant.
+
+        Returns
+        -------
+        List
+        """
+        a = self.a
+        b = self.b
+        n = self.n
+
+        if a == b:
+            return list(Coordinate.from_polar_coords(a, i / n * 90) for i in range(0, n + 1))
+
+        k_0 = a / b**2
+        k_n = b / a**2
+
+        points = [0] * (n + 1)
+        points[0] = Coordinate(a, 0)
+        points[n] = Coordinate(0, b)
+
+        for i in range(1, n):
+            k_i = (1 - i / n) * k_0 + (i / n) * k_n
+            l_i = ((a * b) / k_i) ** (2 / 3)
+            x_i = a * sqrt(abs((l_i - a**2) / (b**2 - a**2)))
+            y_i = b * sqrt(abs((l_i - b**2) / (a**2 - b**2)))
+            points[i] = Coordinate(x_i, y_i)
+        return points
+
+    def get_arc_section(self, arc, new_start, new_end):
+        """Return an Arc with new start and end coordinates.
+
+        Parameters
+        ----------
+        arc: Arc
+            Arc to be truncated
+
+        new_start: Coordinate
+
+        new_end: Coordinate
+
+        Returns
+        -------
+        Arc
+        """
+        return Arc(new_start, new_end, radius=arc.radius)
+
+    def get_quad1_arcs(self, points):
+        """Get a list of arcs defining the Ellipse in the first quadrant.
+
+        Parameters
+        ----------
+        points: list of Coordinate
+
+        Returns
+        -------
+        EntityList
+        """
+        # First arc chosen to pass through starting point, second point, and second point mirrored
+        arcs = EntityList()
+        full_arc_0 = Arc.from_coordinates(
+            Coordinate(points[1].x, -points[1].y), points[0], points[1]
+        )
+        arcs.append((self.get_arc_section(full_arc_0, points[0], points[1])))
+
+        if len(points) > 3:
+            for i in range(1, len(points) - 2):
+                # Each arc would pass through three points if extended
+                # Just the half spanning the ith and i+1th point is appended
+                full_arc_i = Arc.from_coordinates(points[i - 1], points[i], points[i + 1])
+                arcs.append(self.get_arc_section(full_arc_i, points[i], points[i + 1]))
+        full_arc_n = Arc.from_coordinates(
+            points[-2], points[-1], Coordinate(-points[-2].x, points[-2].y)
+        )
+        arcs.append(self.get_arc_section(full_arc_n, points[-2], points[-1]))
+        return arcs
+
+    def get_whole_ellipse(self, arcs):
+        """Extrapolate the whole ellipse from the first quadrant.
+
+        Parameters
+        ----------
+        arcs: EntityList of Arcs
+            Arcs within the first quadrant
+
+        Returns
+        -------
+        EntityList
+        """
+        n = len(arcs)
+        whole_ellipse = [0] * (n * 4)
+        whole_ellipse[0:n] = arcs
+        for i, arc in enumerate(arcs):
+            # Each arc is mirrored to the other three quadrants
+            whole_ellipse[2 * n - (i + 1)] = arc.mirror(Line(Coordinate(0, 0), Coordinate(0, 1)))
+            whole_ellipse[2 * n - (i + 1)].reverse()
+
+            whole_ellipse[2 * n + i] = whole_ellipse[2 * n - (i + 1)].mirror(
+                Line(Coordinate(0, 0), Coordinate(1, 0))
+            )
+            whole_ellipse[2 * n + i].reverse()
+
+            whole_ellipse[4 * n - (i + 1)] = arc.mirror(Line(Coordinate(0, 0), Coordinate(1, 0)))
+            whole_ellipse[4 * n - (i + 1)].reverse()
+
+        return EntityList(whole_ellipse)
+
+    def get_spanning_arcs(self, whole_ellipse):
+        """Get the section of the ellipse spanning between start and end.
+
+        Parameters
+        ----------
+        whole_ellipse: EntityList
+
+        Returns
+        -------
+        EntityList
+        """
+        spanning = False
+        n = len(whole_ellipse)
+        start_angle = self.start.get_polar_coords_deg()[1]
+        end_angle = self.end.get_polar_coords_deg()[1]
+        rev = (end_angle - start_angle) % 360 > 180
+        spanning_arcs = EntityList()
+
+        if rev:
+            whole_ellipse.reverse()
+            i = 0
+            while True:
+                arc = whole_ellipse[i % n]
+                if arc.end.get_polar_coords_deg()[1] == 180:
+                    lower_bound = -180
+                else:
+                    lower_bound = arc.end.get_polar_coords_deg()[1]
+                upper_bound = arc.start.get_polar_coords_deg()[1]
+                if lower_bound <= start_angle <= upper_bound:
+                    spanning = True
+
+                if spanning:
+                    spanning_arcs.append(arc)
+                if (lower_bound <= end_angle <= upper_bound) and spanning:
+                    break
+                i += 1
+        else:
+            i = 0
+            while True:
+                arc = whole_ellipse[i % n]
+                if arc.start.get_polar_coords_deg()[1] == 180:
+                    lower_bound = -180
+                else:
+                    lower_bound = arc.start.get_polar_coords_deg()[1]
+                upper_bound = arc.end.get_polar_coords_deg()[1]
+                if lower_bound <= start_angle < upper_bound:
+                    spanning = True
+
+                if spanning:
+                    spanning_arcs.append(arc)
+                if (lower_bound < end_angle <= upper_bound) and spanning:
+                    break
+                i += 1
+        return spanning_arcs
+
+    def truncate_spanning_arcs(self, spanning_arcs):
+        """Truncate spanning arcs to match start and end.
+
+        Parameters
+        ----------
+        spanning_arcs: EntityList
+
+        Returns
+        -------
+        EntityList
+        """
+        start_intersection_line = Line(Coordinate(0, 0), self.start)
+        end_intersection_line = Line(Coordinate(0, 0), self.end)
+
+        start_intersections = spanning_arcs[0].get_line_intersection(start_intersection_line)
+        start_intersections.sort(
+            key=lambda p: sqrt((self.start.x - p.x) ** 2 + (self.start.y - p.y) ** 2)
+        )
+        spanning_arcs[0] = self.get_arc_section(
+            spanning_arcs[0], start_intersections[0], spanning_arcs[0].end
+        )
+
+        end_intersections = spanning_arcs[-1].get_line_intersection(end_intersection_line)
+        end_intersections.sort(
+            key=lambda p: sqrt((self.end.x - p.x) ** 2 + (self.end.y - p.y) ** 2)
+        )
+        spanning_arcs[-1] = self.get_arc_section(
+            spanning_arcs[-1], spanning_arcs[-1].start, end_intersections[0]
+        )
+
+        return spanning_arcs
+
+    def get_min_length(self):
+        """Get the length of the smallest arc.
+
+        Returns
+        -------
+        int
+        """
+        lengths = list(arc.length for arc in self)
+        return min(lengths)
+
+
+class Ellipse(_BaseEllipse):
+    """Implementation of an ellipse constructed from Arc entities based upon start, end.
+
+    Parameters
+    ----------
+    start : Coordinate
+        Start coordinate.
+
+    end : Coordinate
+        End coordinate.
+
+    n : integer, optional
+        Number of arcs used to construct the ellipse in each quadrant
+
+    centre : Coordinate, optional
+       Centre coordinate.
+
+    eccentricity : float, optional
+        Ellipse eccentricity. Used only when points do not implicitly determine eccentricity,
+        which is when they are mirrored across a major or minor axis
+
+    angle: angle of the relative x-axis
+
+    """
+
+    def __init__(self, start, end, n=None, centre=Coordinate(0, 0), eccentricity=None, angle=0):
+        """Initialize Ellipse."""
+        self.start = start
+        self.end = end
+        self.centre = centre
+        self.angle = angle
+        self.n = n
+        self.relative_start = start.to_relative_coords(centre)
+        self.relative_end = end.to_relative_coords(centre)
+        self.relative_start.rotate(Coordinate(0, 0), angle)
+        self.relative_end.rotate(Coordinate(0, 0), angle)
+        super().__init__(self.relative_start, self.relative_end, n, eccentricity)
+        for arc in self:
+            arc.rotate(Coordinate(0, 0), -angle)
+            arc.translate(centre.x, centre.y)
 
 
 def _convert_entities_to_json(entities):

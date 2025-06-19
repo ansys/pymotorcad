@@ -34,6 +34,7 @@ from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
     Coordinate,
+    EntityList,
     Line,
     Region,
     RegionMagnet,
@@ -418,10 +419,69 @@ def test_region_to_json():
     assert test_region._to_json() == raw_region
 
 
-def test_region_is_closed():
-    region = generate_constant_region()
+def test_ellipse_construction():
+    p1 = Coordinate(30, 0)
+    p2 = Coordinate(27.559848045701823, 7.900907843696762)
+    p3 = Coordinate(22.843194819082754, 12.96471194276441)
+    p4 = Coordinate(0, 20)
+    arc1 = Arc(p1, p2, radius=14.011153320638373)
+    arc2 = Arc(p2, p3, radius=17.010133904699668)
+    arc3 = Arc(p3, p4, radius=40.60294496422776)
 
-    assert region.is_closed()
+    test_ellipse = geometry.EntityList([arc1, arc2, arc3])
+
+    assert test_ellipse == geometry.Ellipse(p1, p3, n=3)
+
+    assert test_ellipse == geometry.Ellipse(p1, p3)
+
+
+def test_ellipse_construction_eccentricity():
+    p1 = Coordinate(9.965376457405135, 9.965376457405135)
+    p2 = Coordinate(0.0, 13.228756555322953)
+    p3 = Coordinate(-9.965376457405135, 9.965376457405135)
+    arc1 = Arc(p1, p2, radius=16.84731387426322)
+    arc2 = Arc(p2, p3, radius=16.84731387426322)
+
+    test_ellipse = EntityList([arc1, arc2])
+
+    assert test_ellipse == geometry.Ellipse(
+        Coordinate(10, 10), Coordinate(-10, 10), eccentricity=0.5
+    )
+
+
+def test_ellipse_rotation():
+    p1 = Coordinate(30.02452341580931, -8.881784197001252e-16)
+    p2 = Coordinate(29.118935856758075, 2.035157007095493)
+    p3 = Coordinate(25.59859511431621, 7.102432013387621)
+    p4 = Coordinate(5.068621064868296, 18.916351338402347)
+    p5 = Coordinate(0.0, 19.972850124036842)
+    arc1 = Arc(p1, p2, radius=14.542739476175015)
+    arc2 = Arc(p2, p3, radius=20.21935621434003)
+    arc3 = Arc(p3, p4, radius=46.004013376917285)
+    arc4 = Arc(p4, p5, radius=46.004013376917285)
+
+    test_ellipse = EntityList([arc1, arc2, arc3, arc4])
+
+    assert test_ellipse == geometry.Ellipse(Coordinate(30, 0), Coordinate(0, 20), angle=15)
+
+
+def test_ellipse_rotation_and_eccentricity():
+    p1 = Coordinate(9.930334014651606, 0.0)
+    p2 = Coordinate(6.403124237432849, 6.403124237432849)
+    p3 = Coordinate(0.0, 9.930334014651606)
+    arc1 = Arc(p1, p2, radius=13.139695797251665)
+    arc2 = Arc(p2, p3, radius=13.139695797251665)
+
+    test_ellipse = EntityList([arc1, arc2])
+    other_ellipse = geometry.Ellipse(
+        Coordinate(10, 0), Coordinate(0, 10), eccentricity=0.6, angle=45
+    )
+
+    assert test_ellipse == other_ellipse
+
+
+def test_ellipse_warnings():
+    pass
 
 
 def test_set_linked_region():
