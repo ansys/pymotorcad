@@ -509,6 +509,14 @@ def test_reverse_arc():
     assert arc == expected_line
 
 
+def test_entities_same_subset():
+    entities = geometry.EntityList(
+        [Line(Coordinate(0, 0), Coordinate(0, 1)), Line(Coordinate(0, 1), Coordinate(1, 0))]
+    )
+    entities_expected = geometry.EntityList([Line(Coordinate(0, 0), Coordinate(0, 1))])
+    assert entities != entities_expected
+
+
 def test_entities_same():
     region = generate_constant_region()
     region_expected = generate_constant_region()
