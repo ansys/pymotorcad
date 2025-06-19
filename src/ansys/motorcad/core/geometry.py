@@ -2139,6 +2139,9 @@ class EntityList(list):
             else:
                 return False
 
+        if len(self) != len(entities_to_compare):
+            return False
+
         if check_reverse:
             if _entities_same_with_direction(self, entities_to_compare):
                 return True
