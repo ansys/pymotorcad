@@ -27,7 +27,7 @@ Motor-CAD Stress post-processing example script
 ===============================================
 This example provides post-processing for Motor-CAD rotor stress results.
 The stress results are loaded, and estimates for non-linear stress and strain
-results are calculated from Motor-CAD's the linear stress results using the
+results are calculated from Motor-CAD's linear stress results using the
 Neuber and Glinka correction methods.
 """
 
