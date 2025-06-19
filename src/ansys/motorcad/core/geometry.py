@@ -324,6 +324,29 @@ class Region(object):
 
         return region_dict
 
+    def is_closed(self):
+        """Check whether region entities create a closed region.
+
+        Returns
+        -------
+        Boolean
+            Whether region is closed
+        """
+        if len(self._entities) > 0:
+            entity_first = self._entities[0]
+            entity_last = self._entities[-1]
+
+            is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
+
+            for i in range(len(self._entities) - 1):
+                is_closed = get_entities_have_common_coordinate(
+                    self._entities[i], self._entities[i + 1]
+                )
+
+            return is_closed
+        else:
+            return False
+
     @property
     def parent_name(self):
         """Get or set the region parent name."""
