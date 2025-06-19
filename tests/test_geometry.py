@@ -510,11 +510,12 @@ def test_reverse_arc():
 
 
 def test_entities_same_subset():
-    entities = geometry.EntityList(
-        [Line(Coordinate(0, 0), Coordinate(0, 1)), Line(Coordinate(0, 1), Coordinate(1, 0))]
-    )
-    entities_expected = geometry.EntityList([Line(Coordinate(0, 0), Coordinate(0, 1))])
-    assert entities != entities_expected
+    arc1 = Arc(Coordinate(1, 0), Coordinate(0, 1), radius=1)
+    arc2 = Arc(Coordinate(0, 1), Coordinate(-1, 0), radius=1)
+    ent1 = geometry.EntityList([arc1, arc2])
+    ent2 = geometry.EntityList([arc1])
+
+    assert ent1 != ent2
 
 
 def test_entities_same():
