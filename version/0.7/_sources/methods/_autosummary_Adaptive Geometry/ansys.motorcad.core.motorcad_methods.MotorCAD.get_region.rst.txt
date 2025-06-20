@@ -1,0 +1,6 @@
+﻿get\_region
+===========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_region

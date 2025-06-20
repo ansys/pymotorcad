@@ -1,0 +1,6 @@
+singular
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.singular
