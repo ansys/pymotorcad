@@ -109,8 +109,8 @@ def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
             non_linear_stress[i] / non_linear_strain[i], youngs_modulus, rel_tol=0.0001
         ):
             return non_linear_stress[i - 1]
-    # Return something in case we don't find an answer
-    return 0
+    # Return maximum stress in list if no divergence found
+    return non_linear_stress[-1]
 
 
 # %%
@@ -620,7 +620,7 @@ def get_stress_data(mc, clean_up=True):
         stress_regions[this_region - 1].reg_code = this_region
         stress_regions[this_region - 1].youngs_modulus = float(split_line[1])
         stress_regions[this_region - 1].poissons_ratio = float(split_line[2])
-        stress_regions[this_region - 1].region_name = split_line[8].strip()
+        stress_regions[this_region - 1].region_name = split_line[-1].strip()
 
     # Tidy up
     in_file.close()
