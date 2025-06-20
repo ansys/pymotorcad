@@ -2506,8 +2506,6 @@ class Ellipse(_BaseEllipse):
         self, start, end, inwards=False, n=None, centre=Coordinate(0, 0), eccentricity=None, angle=0
     ):
         """Initialize Ellipse."""
-        self.start = start
-        self.end = end
         self.centre = centre
         self.angle = angle
         self.n = n
@@ -2515,11 +2513,17 @@ class Ellipse(_BaseEllipse):
         # the direction of the ellipse
         if inwards and (centre == Coordinate(0, 0)):
             centre = centre.mirror(Line(start, end))
+        # Approximation is always done on an ellipse centred at the origin
+        # With an axis of symmetry aligned with the x-axis
         self.relative_start = start.to_relative_coords(centre)
         self.relative_end = end.to_relative_coords(centre)
         self.relative_start.rotate(Coordinate(0, 0), -angle)
         self.relative_end.rotate(Coordinate(0, 0), -angle)
         super().__init__(self.relative_start, self.relative_end, n, eccentricity)
+        self.start = deepcopy(start)
+        self.end = deepcopy(end)
+
+        # Transforming relative Ellipse back to proper location and orientation
         for arc in self:
             arc.rotate(Coordinate(0, 0), angle)
             arc.translate(centre.x, centre.y)
