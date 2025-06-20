@@ -109,8 +109,8 @@ def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
             non_linear_stress[i] / non_linear_strain[i], youngs_modulus, rel_tol=0.0001
         ):
             return non_linear_stress[i - 1]
-    # Return something in case we don't find an answer
-    return 0
+    # Return maximum stress in list if no divergence found
+    return non_linear_stress[-1]
 
 
 # %%
