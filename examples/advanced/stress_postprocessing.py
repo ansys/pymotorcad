@@ -620,7 +620,7 @@ def get_stress_data(mc, clean_up=True):
         stress_regions[this_region - 1].reg_code = this_region
         stress_regions[this_region - 1].youngs_modulus = float(split_line[1])
         stress_regions[this_region - 1].poissons_ratio = float(split_line[2])
-        stress_regions[this_region - 1].region_name = split_line[8].strip()
+        stress_regions[this_region - 1].region_name = split_line[-1].strip()
 
     # Tidy up
     in_file.close()
