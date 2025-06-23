@@ -455,28 +455,29 @@ class MotorCADTwinModel:
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
     def generateCoolingSystemNetwork(self):
-        print("initialization : identifying cooling systems")
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
-        self.computeMatrices(exportDirectory)
-
         if len(self.nodeNumbers_fluid) == 0:
             print("initialization : no cooling systems found")
         else:
             print("initialization : cooling systems found")
+            
+            exportDirectory = os.path.join(self.outputDirectory, "tmp")
+            self.computeMatrices(exportDirectory)
+
             self.coolingSystems = dict()
 
             resistanceMatrix = self.getRmfData(exportDirectory)
             graphNodes = []
             graphEdges = []
 
-            for node in self.nodeNumbers_fluid:
-                connectedNodes = self.returnConnectedNodes(
-                    node, self.nodeNumbers_fluid, resistanceMatrix
+            for fluidNode in self.nodeNumbers_fluid:
+                if fluidNode not in graphNodes:
+                    graphNodes.append(fluidNode)
+                    
+                connectedFluidNodes = self.returnConnectedNodes(
+                    fluidNode, self.nodeNumbers_fluid, resistanceMatrix
                 )
-                if node not in graphNodes:
-                    graphNodes.append(node)
-                for connectedNode in connectedNodes:
-                    graphEdges.append([node, connectedNode])
+                for connectedNode in connectedFluidNodes:
+                    graphEdges.append([fluidNode, connectedNode])
 
             G = nx.DiGraph()
             G.add_nodes_from(graphNodes)
@@ -490,13 +491,12 @@ class MotorCADTwinModel:
                 if graphNode in self.nodeNumbers_fluidInlet:
                     inletNodes.append(graphNode)
 
-            for index, graphNode in enumerate(inletNodes):
+            for index, inletNode in enumerate(inletNodes):
                 connectedNodesList = []
                 connectedNodesInd = []
 
-                node = graphNode
                 next = []
-                next.append(node)
+                next.append(inletNode)
                 covered = []
                 curGraphEdges = []
 
@@ -506,7 +506,7 @@ class MotorCADTwinModel:
                     for k in range(0, len(line)):
                         if line[k] > 0 and graphNodes[k] not in covered:
                             # don't consider first connection for the power correction
-                            if node != graphNode:
+                            if node != inletNode:
                                 connectedNodesList.append(
                                     [
                                         self.unbracket(
@@ -529,11 +529,11 @@ class MotorCADTwinModel:
                 curG.add_nodes_from(graphNodes)
                 curG.add_edges_from(curGraphEdges)
                 connectedNodesLists.append(connectedNodesList)
-                self.coolingSystems.update({graphNode: connectedNodesInd})
+                self.coolingSystems.update({inletNode: connectedNodesInd})
 
                 plt.figure(index)
                 nx.draw(curG, with_labels=True)
-                plt.savefig(os.path.join(self.outputDirectory, str(graphNode) + "_cooling.png"))
+                plt.savefig(os.path.join(self.outputDirectory, str(inletNode) + "_cooling.png"))
 
             # write cooling systems config file
             if len(connectedNodesLists) > 0:
@@ -550,7 +550,8 @@ class MotorCADTwinModel:
                         for connectedNodes in connectedNodesList:
                             outfile.write(str(connectedNodes) + "\n")
                         k = k + 1
-
+    
+    # Returns the sublist of nodeList that is connected to node
     def returnConnectedNodes(self, node, nodeList, resistanceMatrix):
         nodeIndex = self.nodeNumbers.index(node)
         resistanceRow = resistanceMatrix[nodeIndex]
