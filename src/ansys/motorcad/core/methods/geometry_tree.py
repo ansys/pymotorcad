@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
-from ansys.motorcad.core.geometry import Region
+from ansys.motorcad.core.geometry import Region, RegionType
 
 
 class GeometryTree(dict):
@@ -34,29 +34,78 @@ class GeometryTree(dict):
         ----------
         tree
         """
-        self.root = GeometryNode()
-        self.tree_json = tree["regions"]
+        root = dict()
+        root["name_unique"] = "root"
+        root["parent_name"] = ""
+        root["child_names"] = list()
+        tree_json = tree["regions"]
 
-    def build_tree(self, region: dict, parent):
+        # properly connect the json file before tree is constructed
+        for region in tree_json.values():
+            if region["parent_name"] == "":
+                region["parent_name"] = "root"
+                root["child_names"].append(region["name_unique"])
+
+        self.build_tree(tree_json, root)
+
+    def build_tree(self, tree_json, node, parent=None):
         """Recursively builds tree.
 
         Parameters
         ----------
-        region
-        parent
+        tree_json: dict
+        node: dict
+        parent: None or GeometryNode
         """
         # base case
-        if region["parent_name"]:
-            pass
+        self[node["name_unique"]] = GeometryNode._from_json(self, node, parent)
+
+        # recursive case
+        if node["child_names"] != []:
+            for child_name in node["child_names"]:
+                self.build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
+
+    def add_region(self, region, name=None, parent=None, children=[]):
+        """."""
+        region.__class__ = GeometryNode
+        region.children = children
+        if parent is None:
+            region.parent = self["root"]
+        else:
+            region.parent = parent
+        if name is None:
+            self[region.name] = region
+        else:
+            self[name] = region
+
+    def remove_region(self, region_name):
+        """."""
+        for child in self[region_name].children:
+            child.parent = self[region_name].parent
+            child.parent_name = self[region_name].parent.name
+            self[region_name].parent.children.append(child)
+        self.pop(region_name)
 
 
 class GeometryNode(Region):
     """."""
 
     @classmethod
-    def _from_json(cls, json, parent):
-        new_region = super()._from_json(json, cls_to_create=cls)
-        new_region.parent = parent
+    def _from_json(cls, tree, node_json, parent):
+        """Create node from dict."""
+        if node_json["name_unique"] == "root":
+            new_region = GeometryNode(region_type=RegionType.airgap)
+            new_region.name = "root"
+            new_region.key = "root"
+            new_region.children = list()
+
+        else:
+            new_region = super()._from_json(node_json)
+            new_region.__class__ = GeometryNode
+            new_region.parent = parent
+            new_region.children = list()
+            parent.children.append(new_region)
+            new_region.key = node_json["name_unique"]
         return new_region
 
     @property
@@ -73,3 +122,18 @@ class GeometryNode(Region):
     @parent.setter
     def parent(self, parent):
         self._parent = parent
+
+    @property
+    def children(self):
+        """Get or set parent region.
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            list of Motor-CAD region object
+        """
+        return self._children
+
+    @children.setter
+    def children(self, children):
+        self._children = children
