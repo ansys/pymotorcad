@@ -313,5 +313,5 @@ class _RpcMethodsAdaptiveGeometry:
     def set_geometry_tree(self, tree):
         """Do placeholder."""
         params = [tree]
-        method = "SetTree"
+        method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)

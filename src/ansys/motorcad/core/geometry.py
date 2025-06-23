@@ -233,7 +233,7 @@ class Region(object):
 
     # method to receive region from Motor-CAD and create python object
     @classmethod
-    def _from_json(cls, json, motorcad_instance=None):
+    def _from_json(cls, json, motorcad_instance=None, cls_to_create=None):
         """Convert the class from a JSON object.
 
         Parameters
@@ -243,10 +243,14 @@ class Region(object):
         motorcad_instance : ansys.motorcad.core.MotorCAD
             Motor-CAD instance to connect to. The default is ``None``.
         """
+        if cls_to_create is None:
+            cls_to_create = cls
         has_region_type = "region_type" in json
         is_magnet = has_region_type and (json["region_type"] == RegionType.magnet.value)
 
         if is_magnet:
+            if cls_to_create is Region:
+                cls_to_create = RegionMagnet
             new_region = RegionMagnet(motorcad_instance)
             new_region._magnet_angle = json["magnet_angle"]
             new_region._br_multiplier = json["magnet_magfactor"]
@@ -285,7 +289,7 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
-        return new_region
+        return cls_to_create(new_region)
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
