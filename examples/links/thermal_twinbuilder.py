@@ -537,18 +537,21 @@ class MotorCADTwinModel:
 
             # write cooling systems config file
             if len(connectedNodesLists) > 0:
-                with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as outfile:
-                    k = 0
-                    for connectedNodesList in connectedNodesLists:
-                        outfile.write(
+                with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
+                    for inletNode in inletNodes:
+                        cs.write(
                             "inlet : "
-                            + str(inletNodes[k])
+                            + str(inletNode)
                             + " - "
-                            + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
+                            + str(self.nodeNames[self.nodeNumbers.index(inletNode)])
                             + "\n"
                         )
+
+                with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
+                    k = 0
+                    for connectedNodesList in connectedNodesLists:
                         for connectedNodes in connectedNodesList:
-                            outfile.write(str(connectedNodes) + "\n")
+                            cs.write(str(connectedNodes) + "\n")
                         k = k + 1
     
     # Returns the sublist of nodeList that is connected to node
