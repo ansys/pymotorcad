@@ -242,16 +242,13 @@ class MotorCADTwinModel:
 
         self.generateSamples(parameters)
 
-        # this changes the losses in the file, so do after samples obtained
         self.generateLossDistribution()
 
         if housingAmbientTemperatures is not None:
-            # uses fixed temperatures, so not dependent on losses
             self.generateHousingTempDependency(housingAmbientTemperatures)
 
         if airgapTemperatures is not None:
             if self.validAirgap() == True:
-                # uses fixed temperatures, so not dependent on losses
                 self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures)
             else:
                 # set to None so correct config is written
@@ -368,7 +365,10 @@ class MotorCADTwinModel:
 
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
-    def setLosses(self, lossVector):
+    def setLosses(self, lossVector=None):
+        if lossVector == None:
+            # use a very small loss value
+            lossVector = 0.1 * np.ones(len(self.lossParameters))
         for index, lossParameter in enumerate(self.lossParameters):
             self.mcad.set_variable(lossParameter, lossVector[index])
 
@@ -385,10 +385,8 @@ class MotorCADTwinModel:
         # 1 rpm
         ## N/A no need to set RPM, this is done as required
         # 2 loss values
-        ## use a very small loss value
-        lossVector = 0.1 * np.ones(len(self.lossParameters))
-        self.setLosses(lossVector)
-        # 3 speed dep losses
+        self.setLosses()
+        # 3 speed dependent losses
         self.mcad.set_variable("Speed_Dependant_Losses", 0)
         # 4 copper loss variation x2
         ## turn off any temperature scaling losses as will affect loss distribution calculation
@@ -425,15 +423,12 @@ class MotorCADTwinModel:
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
-    def computeMatrices(self, exportDirectory, rpm=None, lossVector=None):
+    def computeMatrices(self, exportDirectory, rpm=None):
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
         if rpm is not None:
             self.mcad.set_variable("Shaft_Speed_[RPM]", rpm)
-
-        if lossVector is not None:
-            self.setLosses(lossVector)
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
@@ -631,8 +626,8 @@ class MotorCADTwinModel:
 
             lossVector = np.zeros(numLossParameters)
             lossVector[lossIndex] = inputLoss
-
-            self.computeMatrices(exportDirectory, lossVector=lossVector)
+            self.setLosses(lossVector)
+            self.computeMatrices(exportDirectory)
 
             powerVector = self.getPmfData(exportDirectory)
             for nodeIndex, nodePower in enumerate(powerVector):
@@ -651,6 +646,9 @@ class MotorCADTwinModel:
                 for nodeLoss in lossDistributionMatrix[index]:
                     outfile.write(", " + str(nodeLoss))
                 outfile.write("\n")
+
+        # reset the losses
+        self.setLosses()
 
     # Function that determines the Housing to Ambient resistances at different housing temperatures,
     # the results of which are used by Twin Builder to take into account external Natural Convection
