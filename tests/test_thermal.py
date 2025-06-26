@@ -22,7 +22,7 @@
 
 import pytest
 
-from RPC_Test_Common import almost_equal, get_dir_path
+from RPC_Test_Common import almost_equal, get_dir_path, reset_to_default_file
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
@@ -49,6 +49,7 @@ def test_set_resistance_multiplier(mc):
 
 
 def test_get_node_to_node_resistance(mc):
+    reset_to_default_file(mc)
     mc.do_steady_state_analysis()
     res = mc.get_node_to_node_resistance(1, 9)
     assert almost_equal(res, 0.0043, 3)
@@ -88,6 +89,7 @@ def test_set_get_node_capacitance(mc):
 
 
 def test_get_node_power(mc):
+    reset_to_default_file(mc)
     mc.do_steady_state_analysis()
 
     power = mc.get_node_power(397)
