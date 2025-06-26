@@ -2584,7 +2584,6 @@ def test_region_translate():
 
 
 def test_get_set_region_magnet(mc):
-    reset_to_default_file(mc)
     mc.set_variable("GeometryTemplateType", 1)
     mc.reset_adaptive_geometry()
     magnet = mc.get_region("L1_1Magnet2")

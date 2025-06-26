@@ -196,6 +196,7 @@ def test_export_concept_ev_model(mc):
     assert speed_sheet.max_column == 60
     torque_sheet = wb["Shaft_Torque"]
     assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 274.16, 0.1)
+    reset_to_default_file(mc)
 
 
 # def test_lab_model_export(mc):
