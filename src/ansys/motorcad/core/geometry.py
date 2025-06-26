@@ -36,7 +36,7 @@ class RegionType(Enum):
 
     stator = "Stator"
     rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
+    slot_area_stator = "Stator Slot Area"
     slot_area_rotor = "Rotor Slot"
     slot_split = "Split Slot"
     stator_liner = "Stator Liner"
@@ -233,7 +233,7 @@ class Region(object):
 
     # method to receive region from Motor-CAD and create python object
     @classmethod
-    def _from_json(cls, json, motorcad_instance=None, cls_to_create=None):
+    def _from_json(cls, json, motorcad_instance=None):
         """Convert the class from a JSON object.
 
         Parameters

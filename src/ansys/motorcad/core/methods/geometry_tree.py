@@ -21,18 +21,77 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
-from ansys.motorcad.core.geometry import Region, RegionType
+
+from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
 
 
 class GeometryTree(dict):
-    """."""
+    """Class used to build geometry trees."""
 
-    def __init__(self, tree: dict):
+    def __init__(self, empty=False):
+        """Initialize the geometry tree.
+
+        Parameters
+        ----------
+        empty: bool
+            Return an empty geometry tree, mostly used for the purposes of debugging.
+        """
+        if empty:
+            super().__init__()
+        else:
+            root = GeometryNode(region_type=RegionType.airgap)
+            root.parent = None
+            root.children = list()
+            root.name = "root"
+            root.key = "root"
+            pair = [("root", root)]
+            super().__init__(pair)
+
+    def __eq__(self, other):
+        """Define equality operator.
+
+        Equality for trees requires both trees have the same structure.
+        Also requires that each node with the same key is equal.
+        """
+
+        def dive(key):
+            if len(self[key].children) != len(other[key].children):
+                return False
+            for child in self[key].children:
+                # Making sure each child is in the other corresponding node's children
+                if not child.key in other[key].child_keys:
+                    return False
+                if not dive(child.key):
+                    return False
+            # Actual equality check of nodes
+            if self[key] != other[key]:
+                return False
+            return True
+
+        return dive("root")
+
+    def __ne__(self, other):
+        """Define inequality."""
+        return not self.__eq__(other)
+
+    @classmethod
+    def from_json(cls, tree):
+        """Return a GeometryTree representation of the geometry defined within a JSON.
+
+        Parameters
+        ----------
+        tree: dict
+            JSON to create a tree from (generally, the output of get_geometry_tree()).
+        Returns
+        -------
+        GeometryTree
+        """
+        self = cls(empty=True)
         """Initialize tree.
 
         Parameters
         ----------
-        tree
+        tree: dict
         """
         root = dict()
         root["name_unique"] = "root"
@@ -47,6 +106,26 @@ class GeometryTree(dict):
                 root["child_names"].append(region["name_unique"])
 
         self.build_tree(tree_json, root)
+        return self
+
+    def to_json(self):
+        """Return a dict object used to set geometry."""
+        regions = dict()
+        for key in self:
+            if key != "root":
+                if self[key].region_type == "Magnet":
+                    regions[key] = RegionMagnet._to_json(self[key])
+                else:
+                    regions[key] = Region._to_json(self[key])
+        return {"regions": regions}
+
+    def get_node(self, key):
+        """Get a region from the tree (case-insensitive)."""
+        try:
+            node = self[key]
+        except KeyError:
+            node = self[key.capitalize()]
+        return node
 
     def build_tree(self, tree_json, node, parent=None):
         """Recursively builds tree.
@@ -54,53 +133,139 @@ class GeometryTree(dict):
         Parameters
         ----------
         tree_json: dict
+            Dictionary containing region dicts
         node: dict
+            Information of current region
         parent: None or GeometryNode
         """
-        # base case
-        self[node["name_unique"]] = GeometryNode._from_json(self, node, parent)
+        # Convert current node to GeometryNode and add it to tree
+        self[node["name_unique"]] = GeometryNode.from_json(self, node, parent)
 
-        # recursive case
+        # Recur for each child.
         if node["child_names"] != []:
             for child_name in node["child_names"]:
-                self.build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
+                self.build_tree(
+                    tree_json, tree_json[child_name], self.get_node(node["name_unique"])
+                )
 
-    def add_region(self, region, name=None, parent=None, children=[]):
-        """."""
+    def add_node(self, region, key=None, parent=None, children=None):
+        """Add node to tree.
+
+        Parameters
+        ----------
+        region: ansys.motorcad.core.geometry.Region
+            Region to convert and add to tree
+        key: str
+            Key to be used for dict
+        parent: GeometryNode or str
+            Parent object or parent key (must be already within tree)
+        children: list of GeometryNode or str
+            Children objects or children keys (must be already within tree)
+
+        """
         region.__class__ = GeometryNode
-        region.children = children
+        if children is None:
+            region.children = list()
+        else:
+            if all(isinstance(child, Region) for child in children):
+                region.children = children
+            elif all(isinstance(child, str) for child in children):
+                direct_children = list(self.get_node(child) for child in children)
+                region.children = direct_children
+            else:
+                raise TypeError("Children must be a GeometryNode or str")
+            # Essentially, slotting the given node in between the given parent and children
+            for child in region.children:
+                child.parent.children.remove(child)
+                child.parent = region
+
         if parent is None:
             region.parent = self["root"]
         else:
-            region.parent = parent
-        if name is None:
-            self[region.name] = region
-        else:
-            self[name] = region
+            if isinstance(parent, GeometryNode):
+                region.parent = parent
+                parent.children.append(region)
+            elif isinstance(parent, str):
+                region.parent = self[parent]
+                self[parent].children.append(region)
+            else:
+                raise TypeError("Parent must be a GeometryNode or str")
 
-    def remove_region(self, region_name):
-        """."""
-        for child in self[region_name].children:
-            child.parent = self[region_name].parent
-            child.parent_name = self[region_name].parent.name
-            self[region_name].parent.children.append(child)
-        self.pop(region_name)
+        if key is None:
+            self[region.name] = region
+            region.key = region.name
+        else:
+            self[key] = region
+            region.key = key
+
+    def remove_node(self, node):
+        """Remove Node from tree, attach children of removed node to parent."""
+        if type(node) is str:
+            node = self.get_node(node)
+        for child in node.children:
+            child.parent = node.parent
+            node.parent.children.append(child)
+        node.parent.children.remove(node)
+        self.pop(node.key)
+
+    def remove_branch(self, node):
+        """Remove Node and all descendants from tree."""
+        if type(node) == str:
+            node = self.get_node(node)
+
+        # Recursive inner function to find and remove all descendants
+        def dive(node):
+            for child in node.children:
+                dive(child)
+            self.pop(node.key)
+
+        dive(node)
+        node.parent.children.remove(node)
 
 
 class GeometryNode(Region):
-    """."""
+    """Subclass of Region used for entries in GeometryTree."""
+
+    def __init__(self, region_type=RegionType.adaptive, parent=None, child_nodes=None):
+        """Initialize the geometry node.
+
+        Parameters
+        ----------
+        region_type: RegionType
+        parent: GeometryNode
+        child_nodes: list of GeometryNode
+        """
+        super().__init__(region_type=region_type)
+        if parent is not None:
+            self.parent = parent
+            parent.children.append(self)
+        else:
+            self.parent = None
+        if child_nodes is None:
+            child_nodes = list()
+        self.children = child_nodes
 
     @classmethod
-    def _from_json(cls, tree, node_json, parent):
-        """Create node from dict."""
+    def from_json(cls, tree, node_json, parent):
+        """Create a GeometryNode from JSON data.
+
+        Parameters
+        ----------
+        tree: dict
+        node_json: dict
+        parent: GeometryNode
+
+        Returns
+        -------
+        GeometryNode
+        """
         if node_json["name_unique"] == "root":
             new_region = GeometryNode(region_type=RegionType.airgap)
             new_region.name = "root"
             new_region.key = "root"
-            new_region.children = list()
 
         else:
-            new_region = super()._from_json(node_json)
+            new_region = Region._from_json(node_json)
             new_region.__class__ = GeometryNode
             new_region.parent = parent
             new_region.children = list()
@@ -114,8 +279,7 @@ class GeometryNode(Region):
 
         Returns
         -------
-        list of ansys.motorcad.core.geometry.Region
-            list of Motor-CAD region object
+        ansys.motorcad.core.geometry.Region
         """
         return self._parent
 
@@ -137,3 +301,49 @@ class GeometryNode(Region):
     @children.setter
     def children(self, children):
         self._children = children
+
+    @property
+    def child_keys(self):
+        """Get list of keys corresponding to child nodes.
+
+        Returns
+        -------
+        list of str
+        """
+        return list(child.key for child in self.children)
+
+    @property
+    def parent_key(self):
+        """Get key corresponding to parent node.
+
+        Returns
+        -------
+        str
+        """
+        if self.parent is None:
+            return ""
+        else:
+            return self.parent.key
+
+    @property
+    def child_names(self):
+        """Get list of names corresponding to child nodes.
+
+        Returns
+        -------
+        list of str
+        """
+        return list(child.name for child in self.children)
+
+    @property
+    def parent_name(self):
+        """Get name corresponding to parent node.
+
+        Returns
+        -------
+        str
+        """
+        if self.parent is None:
+            return ""
+        else:
+            return self.parent.name
