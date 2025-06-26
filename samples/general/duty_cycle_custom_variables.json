@@ -1,0 +1,30 @@
+{
+  "_comment": "Configuration file for custom Drive Cycle Variables in Motor-CAD Thermal",
+  "mot_file": "C:\\Workspace\\MotorCAD_thermal_scripts\\e10_HWJ_vary_temp_3.mot",
+  "duty_cycle_periods": 5,
+  "duty_cycle_time": [
+    "10",
+    "20",
+    "30",
+    "20",
+    "20"
+  ],
+  "parameter_names": [
+    "HousingWJ_Inlet_Temperature",
+    "WJ_Fluid_Volume_Flow_Rate"
+  ],
+  "HousingWJ_Inlet_Temperature": [
+    65.0,
+    67.5,
+    70.0,
+    68.0,
+    66.0
+  ],
+  "WJ_Fluid_Volume_Flow_Rate": [
+    0.00013336,
+    0.000125025,
+    0.00011669,
+    0.000113356,
+    0.000110022
+  ]
+}
