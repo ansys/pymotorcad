@@ -316,29 +316,7 @@ class _RpcMethodsLab:
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def _write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb):
-        i_len, j_len = data["Speed"].shape
-        for sheet in sheets:
-            ws = wb.create_sheet("Newsheet")
-            ws.title = "Voltages"
-            if len(DC_voltage_list) > 1:
-                ws.title = sheet + str(i + 1)
-            else:
-                ws.title = sheet
-            if sheet == "Speed":
-                for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
-                    for ii, cell in enumerate(col):
-                        if data[sheet][ii][jj] == 1:
-                            ws[cell.coordinate] = 0
-                        else:
-                            ws[cell.coordinate] = data[sheet][ii][jj]
-            else:
-                for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
-                    for ii, cell in enumerate(col):
-                        ws[cell.coordinate] = data[sheet][ii][jj]
-        return wb
-
-    def _write_excel_BPM(data, sheets, DC_voltage_list, i, wb):
+    def _write_excel(self, data, sheets, DC_voltage_list, i, wb, reset_speeds):
         i_len, j_len = data["Speed"].shape
         for sheet in sheets:
             ws = wb.create_sheet("Newsheet")
@@ -349,7 +327,12 @@ class _RpcMethodsLab:
                 ws.title = sheet
             for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
                 for ii, cell in enumerate(col):
-                    ws[cell.coordinate] = data[sheet][ii][jj]
+                    if reset_speeds and sheet == "Speed" and data[sheet][ii][jj] == 1:
+                        # Special case for induction motor, where we want to
+                        # change speed from 1 RPM to 0 RPM
+                        ws[cell.coordinate] = 0
+                    else:
+                        ws[cell.coordinate] = data[sheet][ii][jj]
         return wb
 
     def _set_model_parameters(self, **kwargs):
@@ -425,51 +408,72 @@ class _RpcMethodsLab:
                 "Failed to export concept_ev_model. Please ensure Numpy and Scipy are installed"
             )
 
-        self.set_variable("MessageDisplayState", 2)
-        self.set_motorlab_context()
-        file_path = self.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
-        # set model parameters
-        _RpcMethodsLab._set_model_parameters(self, **kwargs)
-        wb = Workbook()
-        # choose number of DC bus voltages (list as user input)
-        if "DC_voltage_list" in kwargs:
-            DC_voltage_list = kwargs["DC_voltage_list"]
-        else:
-            DC_voltage_list = [self.get_variable("DCBusVoltage")]
-
-        ws = wb.active
-        ws.title = "Voltages"
-        ws["A1"] = "Index"
-        ws["B1"] = "Voltages"
-        for i, DC_voltage in enumerate(DC_voltage_list):
-            ws["A" + str(i + 2)] = i + 1
-            ws["B" + str(i + 2)] = DC_voltage_list[i]
-
-        # Units sheet
-
-        # set _calcualtion type  Efficiency Map
-        self.set_variable("EmagneticCalcType_Lab", 1)
-        sheets = ["Speed", "Shaft_Torque", "Stator_Current_Line_RMS", "Total_Loss", "Power_Factor"]
-        for i, DC_voltage in enumerate(DC_voltage_list):
-            self.set_variable("DCBusVoltage", DC_voltage)
-            # run Efficiency Map calculation
-            self.calculate_magnetic_lab()
-            # read the lab data .mat file
-            data_file_path = self.get_variable("ResultsPath_MotorLAB") + "MotorLAB_elecdata.mat"
-            data = loadmat(data_file_path)
-            if "Min_speed" in kwargs:
-                if self.get_variable("Motor_Type") == 1 and kwargs["Min_speed"] == 0:
-                    wb = _RpcMethodsLab._write_excel_IM_speed(data, sheets, DC_voltage_list, i, wb)
-                else:
-                    wb = _RpcMethodsLab._write_excel_BPM(data, sheets, DC_voltage_list, i, wb)
+        save_message_display_state = self.get_variable("MessageDisplayState")
+        try:
+            self.set_variable("MessageDisplayState", 2)
+            self.set_motorlab_context()
+            file_path = self.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
+            # set model parameters
+            _RpcMethodsLab._set_model_parameters(self, **kwargs)
+            wb = Workbook()
+            # choose number of DC bus voltages (list as user input)
+            if "DC_voltage_list" in kwargs:
+                DC_voltage_list = kwargs["DC_voltage_list"]
             else:
-                wb = _RpcMethodsLab._write_excel_BPM(data, sheets, DC_voltage_list, i, wb)
+                DC_voltage_list = [self.get_variable("DCBusVoltage")]
 
-        units = ["Power_Factor", "Total_Loss", "Stator_Current_Line_RMS", "Shaft_Torque", "Speed"]
-        ws = wb.create_sheet("Newsheet")
-        ws.title = "Units"
-        for i, unit in enumerate(units):
-            ws["A" + str(i + 1)] = unit
-            index = np.where(np.strings.find(data["varStr"], unit) == 0)[0]
-            ws["B" + str(i + 1)] = data["varUnits"][index][0]
-        wb.save(file_path)
+            ws = wb.active
+            ws.title = "Voltages"
+            ws["A1"] = "Index"
+            ws["B1"] = "Voltages"
+            for i, DC_voltage in enumerate(DC_voltage_list):
+                ws["A" + str(i + 2)] = i + 1
+                ws["B" + str(i + 2)] = DC_voltage_list[i]
+
+            # Units sheet
+
+            # set _calcualtion type  Efficiency Map
+            self.set_variable("EmagneticCalcType_Lab", 1)
+            sheets = [
+                "Speed",
+                "Shaft_Torque",
+                "Stator_Current_Line_RMS",
+                "Total_Loss",
+                "Power_Factor",
+            ]
+            for i, DC_voltage in enumerate(DC_voltage_list):
+                self.set_variable("DCBusVoltage", DC_voltage)
+                # run Efficiency Map calculation
+                self.calculate_magnetic_lab()
+                # read the lab data .mat file
+                data_file_path = self.get_variable("ResultsPath_MotorLAB") + "MotorLAB_elecdata.mat"
+                data = loadmat(data_file_path)
+                if (
+                    "Min_speed" in kwargs
+                    and self.get_variable("Motor_Type") == 1
+                    and kwargs["Min_speed"] == 0
+                ):
+                    wb = _RpcMethodsLab._write_excel(
+                        self, data, sheets, DC_voltage_list, i, wb, True
+                    )
+                else:
+                    wb = _RpcMethodsLab._write_excel(
+                        self, data, sheets, DC_voltage_list, i, wb, False
+                    )
+
+            units = [
+                "Power_Factor",
+                "Total_Loss",
+                "Stator_Current_Line_RMS",
+                "Shaft_Torque",
+                "Speed",
+            ]
+            ws = wb.create_sheet("Newsheet")
+            ws.title = "Units"
+            for i, unit in enumerate(units):
+                ws["A" + str(i + 1)] = unit
+                index = np.where(np.strings.find(data["varStr"], unit) == 0)[0]
+                ws["B" + str(i + 1)] = data["varUnits"][index][0]
+            wb.save(file_path)
+        finally:
+            self.set_variable("MessageDisplayState", save_message_display_state)
