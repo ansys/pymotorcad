@@ -23,6 +23,8 @@
 """RPC methods for variables."""
 from warnings import warn
 
+from ansys.motorcad.core.datastore import Datastore
+
 
 class _RpcMethodsVariables:
     def __init__(self, mc_connection):
@@ -164,3 +166,14 @@ class _RpcMethodsVariables:
                 return None
             else:
                 return self.get_variable("CurrentMotFilePath_MotorLAB")
+
+    def get_datastore(self):
+        """Get the whole database from Motor-CAD.
+
+        Returns
+        -------
+        datastore.Datastore
+        """
+        method = "GetDataStore"
+        datastore_json = self.connection.send_and_receive(method)
+        return Datastore.from_json(datastore_json)
