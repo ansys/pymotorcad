@@ -250,8 +250,12 @@ class MotorCADTwinModel:
             self.generateHousingTempDependency(housingAmbientTemperatures)
 
         if airgapTemperatures is not None:
-            # uses fixed temperatures, so not dependent on losses
-            self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures)
+            if self.validAirgap() == True:
+                # uses fixed temperatures, so not dependent on losses
+                self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures)
+            else:
+                # set to None so correct config is written
+                airgapTemperatures = None
 
         if coolingSystemsInputs is not None:
             self.generateCoolingSystemsInputsDependency(coolingSystemsInputs)
@@ -721,34 +725,60 @@ class MotorCADTwinModel:
             header_line.append(self.nodeNames[index])
 
         return file_content, header_line
+    
+    def validAirgap(self):
+        tVent = self.mcad.get_variable("ThroughVentilation")
+        sVent = self.mcad.get_variable("SelfVentilation")
+        wetrotor = self.mcad.get_variable("Wet_Rotor")
+
+        valid = True
+
+        if wetrotor:
+            warnings.warn("Temperature dependent airgap not supported for wet rotor")
+            valid = False
+        elif tVent or sVent:
+            statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
+            if statorCoolingOnly == False:
+                warnings.warn(
+                    "Temperature dependent airgap not supported for ventilated cooling with airgap"
+                    "flow"
+                )
+                valid = False
+        
+        return valid
 
     # Function that determines the Stator to Rotor airgap resistance at different housing
     # temperatures, the results of which are used by Twin Builder to take into account the
     # temperature dependent nature of this resistance
     def generateAirgapTempDependency(self, rpmSamples, airgapTemperatures):
         fileInd = 0
+        
+        # Airgap nodes between which there is a temperature dependent resistance
+        airgapNodesList = self.getAirgapNodesList()
 
         for rpm in rpmSamples:
             fileInd = fileInd + 1
             print("RPM : " + str(rpm))
 
-            file_content = self.computeMatricesAirgapTemp(airgapTemperatures, rpm)
+            file_content = self.computeMatricesAirgapTemp(airgapNodesList, airgapTemperatures, rpm)
 
             exportPath = os.path.join(self.outputDirectory, "AirGapTempDependency")
             if not os.path.isdir(exportPath):
                 os.makedirs(os.path.join(exportPath))
 
             with open(os.path.join(exportPath, "AirGap_Temp" + str(fileInd) + ".csv"), "w") as fout:
-                fout.write(str(rpm) + "\n")
+                header = str(rpm)
+                for airgapNodeStator, airgapNodeRotor in airgapNodesList:
+                    header += "," + str(airgapNodeStator) + "-" + str(airgapNodeRotor)
+
+                fout.write(str(header) + "\n")
+
                 for key, item in file_content.items():
-                    fout.write(str(key) + "," + str(item))
+                    fout.write(str(key) + "," + ",".join(map(str, item)))
                     fout.write("\n")
 
-    def computeMatricesAirgapTemp(self, airgapTemperatures, rpm):
+    def computeMatricesAirgapTemp(self, airgapNodesList, airgapTemperatures, rpm):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
-
-        # Airgap nodes between which there is a temperature dependent resistance
-        airgapNodeStator, airgapNodeRotor = self.getAirgapNodes()
 
         file_content = dict()
 
@@ -757,51 +787,47 @@ class MotorCADTwinModel:
             print("Air Gap average temperature: " + str(airgapTemperature))
 
             # Set the fixed temperature
-            name = "Airgap_Stator_Node_" + str(airgapNodeStator)
-            self.mcad.set_fixed_temperature_value(name, airgapNodeStator, airgapTemperature, name)
-            name = "Airgap_Rotor_Node_" + str(airgapNodeRotor)
-            self.mcad.set_fixed_temperature_value(name, airgapNodeRotor, airgapTemperature, name)
+            for airgapNodeStator, airgapNodeRotor in airgapNodesList:
+                name = "Airgap_Stator_Node_" + str(airgapNodeStator)
+                self.mcad.set_fixed_temperature_value(name, airgapNodeStator, airgapTemperature, name)
+                name = "Airgap_Rotor_Node_" + str(airgapNodeRotor)
+                self.mcad.set_fixed_temperature_value(name, airgapNodeRotor, airgapTemperature, name)
 
             self.computeMatrices(exportDirectory, rpm=rpm)
             resistanceMatrix = self.getRmfData(exportDirectory)
 
-            index1 = self.nodeNumbers.index(airgapNodeStator)
-            index2 = self.nodeNumbers.index(airgapNodeRotor)
-            airgapResistance = resistanceMatrix[index1][index2]
+            airgapResistances = []
+            for airgapNodeStator, airgapNodeRotor in airgapNodesList:
+                index1 = self.nodeNumbers.index(airgapNodeStator)
+                index2 = self.nodeNumbers.index(airgapNodeRotor)
+                airgapResistances.append(resistanceMatrix[index1][index2])
 
-            file_content.update({airgapTemperature + 273.15: airgapResistance})
+            file_content.update({airgapTemperature + 273.15: airgapResistances})
 
         return file_content
 
-    def getAirgapNodes(self):
-        tVent = self.mcad.get_variable("ThroughVentilation")
-        sVent = self.mcad.get_variable("SelfVentilation")
-        if tVent or sVent:
-            statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
-            if statorCoolingOnly == False:
-                warnings.warn(
-                    "Temperature dependent airgap not supported for ventilated cooling with airgap"
-                    "flow"
-                )
-
-        wetrotor = self.mcad.get_variable("Wet_Rotor")
-        if wetrotor:
-            warnings.warn("Temperature dependent airgap not supported for wet rotor")
-
-        axialSlices = self.mcad.get_variable("AxialSliceDefinition")
-        if axialSlices > 0:
-            warnings.warn("Temperature dependent airgap only supported for middle axial slice")
-
+    def getAirgapNodesList(self):
+        airgapNodesList = []
+        
         sleeveThickness = self.mcad.get_variable("Sleeve_Thickness")
         if sleeveThickness > 0:
             # sleeve node present on stator side
-            airgapNodeStator = 61
+            airgapNodeStator_midslice = 61
         else:
-            airgapNodeStator = 11
+            airgapNodeStator_midslice = 11
 
-        airgapNodeRotor = 12
+        airgapNodeRotor_midslice = 12
+        
+        axialSliceDefinition = self.mcad.get_variable("AxialSliceDefinition")
+        axialSlices = axialSliceDefinition * 2 + 1
+        
+        # Motor-CAD axial slices use 1-based indexing
+        for axialSlice in range(1, axialSlices+1):
+            airgapNodeStator = self.mcad.get_offset_node_number(airgapNodeStator_midslice, axialSlice, 1)
+            airgapNodeRotor = self.mcad.get_offset_node_number(airgapNodeRotor_midslice, axialSlice, 1)
+            airgapNodesList.append((airgapNodeStator, airgapNodeRotor))
 
-        return airgapNodeStator, airgapNodeRotor
+        return airgapNodesList
 
     # Function that determines Cooling Systems nodes' resistances/capacitances at
     # different RPM, coolant flow rate and inlet temperatures, the results of which
