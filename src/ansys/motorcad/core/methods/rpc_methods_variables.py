@@ -172,7 +172,7 @@ class _RpcMethodsVariables:
 
         Returns
         -------
-        datastore.Datastore
+        ansys.motorcad.core.datastore.Datastore
         """
         method = "GetDataStore"
         datastore_json = self.connection.send_and_receive(method)
