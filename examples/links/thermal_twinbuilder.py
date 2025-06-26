@@ -207,7 +207,9 @@ class MotorCADTwinModel:
         self.motFileName = None
         self.heatFlowMethod = None
 
-        self.nodeNames = []
+        # self.nodeNames has no spaces or (curved brackets), self.nodeNames_original maintains these
+        self.nodeNames = [] 
+        self.nodeNames_original = []
         self.nodeNumbers = []
         self.nodeGroupings = []
         self.nodeNumbers_fluid = []
@@ -235,6 +237,8 @@ class MotorCADTwinModel:
         self.getNodeData()
 
         self.generateCoolingSystemNetwork()
+
+        self.generateFixedTemperatures()
 
         self.generateSamples(parameters)
 
@@ -334,6 +338,7 @@ class MotorCADTwinModel:
         # obtain the node numbers, node names, and node groupings from the nmf file
         nmfFile = os.path.join(exportDirectory, self.motFileName + ".nmf")
         nodeNumbers = []
+        nodeNames_original = []
         nodeNames = []
         nodeGroupings = []
         with open(nmfFile, "r") as fid:
@@ -349,11 +354,13 @@ class MotorCADTwinModel:
                         lineSplit = line.split(" ", 1)
 
                         nodeNumbers.append(int(lineSplit[0]))
-                        nodeNames.append(lineSplit[1][1:-2])
+                        nodeName_original = lineSplit[1][1:-2]
+                        nodeNames_original.append(nodeName_original)
+                        nodeNames.append(self.unbracket(nodeName_original))
                         nodeGroupings.append(groupName)
 
         # sort based on the node numbers
-        return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames, nodeGroupings))))
+        return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings))))
 
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
@@ -434,10 +441,17 @@ class MotorCADTwinModel:
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
 
-        self.nodeNumbers, self.nodeNames, self.nodeGroupings = self.getNmfData(exportDirectory)
-        temperatureVector = self.getTmfData(exportDirectory)
+        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = self.getNmfData(exportDirectory)
+        
+        self.nodeNumbers_fluid = [
+            nodeNumber
+            for (index, nodeNumber) in enumerate(self.nodeNumbers)
+            if self.nodeGroupings[index] in self.coolingSystemData
+        ]
 
         # determine which of the nodes is an inlet node
+        temperatureVector = self.getTmfData(exportDirectory)
+
         for index, temperature in enumerate(temperatureVector):
             isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
             isInlet_check2 = temperature > -10000000.0
@@ -446,11 +460,6 @@ class MotorCADTwinModel:
             if isInlet_check1 and isInlet_check2 and isInlet_check3:
                 self.nodeNumbers_fluidInlet.append(self.nodeNumbers[index])
 
-        self.nodeNumbers_fluid = [
-            nodeNumber
-            for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] in self.coolingSystemData
-        ]
 
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
@@ -507,16 +516,7 @@ class MotorCADTwinModel:
                         if line[k] > 0 and graphNodes[k] not in covered:
                             # don't consider first connection for the power correction
                             if node != inletNode:
-                                connectedNodesList.append(
-                                    [
-                                        self.unbracket(
-                                            self.nodeNames[self.nodeNumbers.index(node)]
-                                        ),
-                                        self.unbracket(
-                                            self.nodeNames[self.nodeNumbers.index(graphNodes[k])]
-                                        ),
-                                    ]
-                                )
+                                connectedNodesList.append([self.nodeNames[self.nodeNumbers.index(node)], self.nodeNames[self.nodeNumbers.index(graphNodes[k])]])
                                 connectedNodesInd.append([node, graphNodes[k]])
 
                             curGraphEdges.append([node, graphNodes[k]])
@@ -537,15 +537,6 @@ class MotorCADTwinModel:
 
             # write cooling systems config file
             if len(connectedNodesLists) > 0:
-                with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
-                    for inletNode in inletNodes:
-                        cs.write(
-                            "inlet : "
-                            + str(inletNode)
-                            + " - "
-                            + str(self.nodeNames[self.nodeNumbers.index(inletNode)])
-                            + "\n"
-                        )
 
                 with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
                     k = 0
@@ -569,6 +560,24 @@ class MotorCADTwinModel:
                     connectedNodesList.append(connectedNode)
 
         return connectedNodesList
+    
+    # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
+    def generateFixedTemperatures(self):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        self.computeMatrices(exportDirectory)
+        
+        temperatureVector = self.getTmfData(exportDirectory)
+
+        fixedTemperatureIndexes = [
+            index
+            for index, temperature in enumerate(temperatureVector)
+            if temperature > -10000000.0
+        ]
+
+        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
+            for index in fixedTemperatureIndexes:
+                ft.write(str(self.nodeNames[index]) + "\n")
+
 
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
     def generateSamples(self, parameters: dict):
@@ -599,7 +608,7 @@ class MotorCADTwinModel:
     # automatically distribute this amongst appropriate nodes.
     def generateLossDistribution(self):
         numLossParameters = len(self.lossNames)
-        lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames)))
+        lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames_original)))
 
         # use a small loss value of 1W
         inputLoss = 1
@@ -614,7 +623,7 @@ class MotorCADTwinModel:
                 + self.lossNames[lossIndex]
             )
 
-            exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis" + str(lossIndex))
+            exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex))
 
             lossVector = np.zeros(numLossParameters)
             lossVector[lossIndex] = inputLoss
@@ -629,7 +638,7 @@ class MotorCADTwinModel:
 
         with open(os.path.join(self.outputDirectory, "LossDistribution.csv"), "w") as outfile:
             outfile.write(" ")
-            for nodeName in self.nodeNames:
+            for nodeName in self.nodeNames_original:
                 outfile.write(", " + nodeName)
             outfile.write("\n")
 
@@ -709,7 +718,7 @@ class MotorCADTwinModel:
         header_line.append(ambientTemperature + 273.15)
         for housingNode in housingNodes:
             index = self.nodeNumbers.index(housingNode)
-            header_line.append(self.unbracket(self.nodeNames[index]))
+            header_line.append(self.nodeNames[index])
 
         return file_content, header_line
 
@@ -852,9 +861,9 @@ class MotorCADTwinModel:
                 )  # inlet node
                 for i in range(0, len(connectedNodes)):
                     fRout.write(
-                        self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                        self.nodeNames[self.nodeNumbers.index(upnode)]
                         + " "
-                        + self.unbracket(self.nodeNames[self.nodeNumbers.index(connectedNodes[i])])
+                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
                         + "\n"
                     )
                     r_list.append(
@@ -864,9 +873,7 @@ class MotorCADTwinModel:
                         ]
                     )
                     if upnode not in self.nodeNumbers_fluidInlet:
-                        fCout.write(
-                            self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)]) + "\n"
-                        )
+                        fCout.write(self.nodeNames[self.nodeNumbers.index(upnode)] + "\n")
                         c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                 covered_nodes.update({upnode: connectedNodes})
 
@@ -882,15 +889,9 @@ class MotorCADTwinModel:
                                     and upnode in covered_nodes[connectedNodes[i]]
                                 ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
-                                        self.unbracket(
-                                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        )
+                                        self.nodeNames[self.nodeNumbers.index(upnode)]
                                         + " "
-                                        + self.unbracket(
-                                            self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ]
-                                        )
+                                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
                                         + "\n"
                                     )
                                     r_list.append(
@@ -903,7 +904,7 @@ class MotorCADTwinModel:
                                     )
                             if upnode not in self.nodeNumbers_fluidInlet:
                                 fCout.write(
-                                    self.unbracket(self.nodeNames[self.nodeNumbers.index(upnode)])
+                                    self.nodeNames[self.nodeNumbers.index(upnode)]
                                     + "\n"
                                 )
                                 c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
@@ -925,15 +926,9 @@ class MotorCADTwinModel:
                                     and upnode in covered_nodes[connectedNodes[i]]
                                 ):  # avoid taking the symmetric counterpart of the resistance
                                     fRout.write(
-                                        self.unbracket(
-                                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        )
+                                        self.nodeNames[self.nodeNumbers.index(upnode)]
                                         + " "
-                                        + self.unbracket(
-                                            self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ]
-                                        )
+                                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
                                         + "\n"
                                     )
                                     r_list.append(
@@ -946,9 +941,7 @@ class MotorCADTwinModel:
                                     )
                                 if upnode not in self.nodeNumbers_fluidInlet:
                                     fCout.write(
-                                        self.unbracket(
-                                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        )
+                                        self.nodeNames[self.nodeNumbers.index(upnode)]
                                         + "\n"
                                     )
                                     c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
@@ -1074,8 +1067,8 @@ def temperaturesHousingAmbient():
 
 # %%
 # Specify the input .mot file and the directory to save the output data to.
-working_folder = os.getcwd()
-mcad_name = "e8_mobility"
+working_folder = r'D:\OneDrive - ANSYS, Inc\Projects\Twinbuilder\26R1 updates\py script testing'
+mcad_name = "e8"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
@@ -1092,7 +1085,7 @@ if Path(inputMotFilePath).exists() == False:
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
 # reduce calculation time, but in real use it is recommended that this be greater.
-rpms = [200, 500, 1000]
+rpms = [200, 500]
 
 # %%
 # Specify the airgap temperatures to investigate, in order for the temperature dependent nature
@@ -1100,7 +1093,7 @@ rpms = [200, 500, 1000]
 # *Motor-CAD ROM* component will interpolate between these, so it is important to cover the complete
 # expected airgap temperature range with the appropriate sampling in order to maintain accuracy.
 # This parameter can be set to ``None`` should this not be required.
-airgapTemps = [40, 50, 65]
+airgapTemps = None
 
 # %%
 # Specify the housing and ambient temperatures to investigate, in order for the natural
@@ -1108,7 +1101,7 @@ airgapTemps = [40, 50, 65]
 # generated *Motor-CAD ROM* component will interpolate between these, so it is important to cover
 # the complete expected housing and ambient temperature range with the appropriate sampling in order
 # to maintain accuracy. This parameter can be set to ``None`` should this not be required.
-housingAmbientTemps = temperaturesHousingAmbient()
+housingAmbientTemps = None#temperaturesHousingAmbient()
 
 # %%
 # Specify the cooling systems for which input dependencies need to be taken into account.
@@ -1117,7 +1110,7 @@ housingAmbientTemps = temperaturesHousingAmbient()
 coolingSystemsInputs = {
     "Housing Water Jacket": {
         "rpm": rpms,
-        "FR": [9.7695e-05, 0.000103122499999999, 0.00010855, 0.0001139775, 0.000119405],
+        "FR": [9.7695e-05, 0.000103122499999999],
         "inletTemp": [40, 65],
     }
 }
