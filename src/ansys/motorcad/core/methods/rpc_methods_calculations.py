@@ -138,3 +138,14 @@ class _RpcMethodsCalculations:
             # Retain for now, as still lots of work done in the UI on this tab.
             self.display_screen("Scripting")
             self.display_screen("Winding;Definition")
+
+    def create_winding_pattern_rotor(self):
+        """Create rotor winding pattern.
+
+        Update the rotor winding and weights and volumes post edit of winding parameters.
+        Requires MotorCAD version 26R1 or greater.
+        """
+
+        method = "RefreshWindingDefinitionRotor"
+        return self.connection.send_and_receive(method)
+
