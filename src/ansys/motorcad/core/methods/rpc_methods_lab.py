@@ -382,6 +382,10 @@ class _RpcMethodsLab:
     def export_concept_ev_model(self, **kwargs):
         """Export efficiency map in concept ev excel format.
 
+        This will run an efficiency map calculation in Motor-CAD Lab and export the
+        results for use in ConceptEV. Lab variables such as maximum and minimum
+        speed and current will be changed by this method.
+
         Parameters
         ----------
         Max_speed : int
