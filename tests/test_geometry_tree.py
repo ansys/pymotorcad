@@ -2454,27 +2454,27 @@ def test_add_node_errors():
 
 
 def test_remove_node():
-    test_tree1 = deepcopy(sample_tree)
-    magnet = test_tree1["L1_1Magnet1"]
-    test_tree1["Rotor"].children.remove(magnet)
-    test_tree1.pop("L1_1Magnet1")
+    test_tree = deepcopy(sample_tree)
+    magnet = test_tree["L1_1Magnet1"]
+    test_tree["Rotor"].children.remove(magnet)
+    test_tree.pop("L1_1Magnet1")
 
-    test_tree_2 = deepcopy(sample_tree)
-    test_tree_2.remove_node("L1_1Magnet1")
-    assert test_tree1 == test_tree_2
+    function_tree = deepcopy(sample_tree)
+    function_tree.remove_node("L1_1Magnet1")
+    assert test_tree == function_tree
 
 
 def test_remove_branch():
-    test_tree1 = deepcopy(sample_tree)
-    test_tree1["root"].children.remove(test_tree1["Rotor"])
-    for child_key in test_tree1["Rotor"].child_keys:
-        test_tree1.pop(child_key)
-    test_tree1.pop("Rotor")
+    test_tree = deepcopy(sample_tree)
+    test_tree["root"].children.remove(test_tree["Rotor"])
+    for child_key in test_tree["Rotor"].child_keys:
+        test_tree.pop(child_key)
+    test_tree.pop("Rotor")
 
-    test_tree2 = deepcopy(sample_tree)
-    test_tree2.remove_branch("Rotor")
+    function_tree = deepcopy(sample_tree)
+    function_tree.remove_branch("Rotor")
 
-    assert test_tree1 == test_tree2
+    assert test_tree == function_tree
 
 
 def test_remove_branch2():
@@ -2489,3 +2489,23 @@ def test_remove_branch2():
     test_tree2.remove_branch(test_tree2["Rotor"])
 
     assert test_tree1 == test_tree2
+
+
+def test_get_parent():
+    test_tree = get_simple_tree()
+
+    assert test_tree["root"] == test_tree["Triangle"].parent
+
+    assert test_tree["root"].key == test_tree["Triangle"].parent_key
+
+    assert test_tree["root"].name == test_tree["Triangle"].parent_name
+
+
+def test_get_children():
+    test_tree = get_simple_tree()
+
+    assert test_tree["root"].children == [test_tree["Triangle"]]
+
+    assert test_tree["root"].child_names == ["Triangle"]
+
+    assert test_tree["root"].child_keys == ["Triangle"]
