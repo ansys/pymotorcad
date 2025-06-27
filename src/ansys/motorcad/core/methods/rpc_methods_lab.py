@@ -44,6 +44,26 @@ except ImportError:
     Num_Sci_py_AVAILABLE = False
 
 
+def _write_excel(data, sheets, DC_voltage_list, i, wb, reset_speeds):
+    i_len, j_len = data["Speed"].shape
+    for sheet in sheets:
+        ws = wb.create_sheet("Newsheet")
+        ws.title = "Voltages"
+        if len(DC_voltage_list) > 1:
+            ws.title = sheet + str(i + 1)
+        else:
+            ws.title = sheet
+        for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
+            for ii, cell in enumerate(col):
+                if reset_speeds and sheet == "Speed" and data[sheet][ii][jj] == 1:
+                    # Special case for induction motor, where we want to
+                    # change speed from 1 RPM to 0 RPM
+                    ws[cell.coordinate] = 0
+                else:
+                    ws[cell.coordinate] = data[sheet][ii][jj]
+    return wb
+
+
 class _RpcMethodsLab:
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -316,25 +336,6 @@ class _RpcMethodsLab:
         params = [file_path]
         return self.connection.send_and_receive(method, params)
 
-    def _write_excel(self, data, sheets, DC_voltage_list, i, wb, reset_speeds):
-        i_len, j_len = data["Speed"].shape
-        for sheet in sheets:
-            ws = wb.create_sheet("Newsheet")
-            ws.title = "Voltages"
-            if len(DC_voltage_list) > 1:
-                ws.title = sheet + str(i + 1)
-            else:
-                ws.title = sheet
-            for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
-                for ii, cell in enumerate(col):
-                    if reset_speeds and sheet == "Speed" and data[sheet][ii][jj] == 1:
-                        # Special case for induction motor, where we want to
-                        # change speed from 1 RPM to 0 RPM
-                        ws[cell.coordinate] = 0
-                    else:
-                        ws[cell.coordinate] = data[sheet][ii][jj]
-        return wb
-
     def _set_model_parameters(self, **kwargs):
         if "Max_speed" in kwargs:
             self.set_variable("SpeedMax_MotorLAB", kwargs["Max_speed"])
@@ -452,13 +453,9 @@ class _RpcMethodsLab:
                     and self.get_variable("Motor_Type") == 1
                     and kwargs["Min_speed"] == 0
                 ):
-                    wb = _RpcMethodsLab._write_excel(
-                        self, data, sheets, DC_voltage_list, i, wb, True
-                    )
+                    wb = _write_excel(data, sheets, DC_voltage_list, i, wb, True)
                 else:
-                    wb = _RpcMethodsLab._write_excel(
-                        self, data, sheets, DC_voltage_list, i, wb, False
-                    )
+                    wb = _write_excel(data, sheets, DC_voltage_list, i, wb, False)
 
             units = [
                 "Power_Factor",
