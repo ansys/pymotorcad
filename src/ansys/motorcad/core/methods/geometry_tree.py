@@ -75,7 +75,7 @@ class GeometryTree(dict):
         return not self.__eq__(other)
 
     @classmethod
-    def from_json(cls, tree):
+    def _from_json(cls, tree):
         """Return a GeometryTree representation of the geometry defined within a JSON.
 
         Parameters
@@ -105,7 +105,7 @@ class GeometryTree(dict):
                 region["parent_name"] = "root"
                 root["child_names"].append(region["name_unique"])
 
-        self.build_tree(tree_json, root)
+        self._build_tree(tree_json, root)
         return self
 
     def to_json(self):
@@ -127,7 +127,7 @@ class GeometryTree(dict):
             node = self[key.capitalize()]
         return node
 
-    def build_tree(self, tree_json, node, parent=None):
+    def _build_tree(self, tree_json, node, parent=None):
         """Recursively builds tree.
 
         Parameters
@@ -144,12 +144,15 @@ class GeometryTree(dict):
         # Recur for each child.
         if node["child_names"] != []:
             for child_name in node["child_names"]:
-                self.build_tree(
+                self._build_tree(
                     tree_json, tree_json[child_name], self.get_node(node["name_unique"])
                 )
 
     def add_node(self, region, key=None, parent=None, children=None):
         """Add node to tree.
+
+        Note that any children specified will be 'reassigned' to the added node, with no
+        connection to their previous parent.
 
         Parameters
         ----------

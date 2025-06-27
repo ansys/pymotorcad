@@ -24,6 +24,7 @@
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Region, RegionMagnet
+from ansys.motorcad.core.methods.geometry_tree import GeometryTree
 from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
@@ -308,7 +309,8 @@ class _RpcMethodsAdaptiveGeometry:
     def get_geometry_tree(self):
         """Do placeholder."""
         method = "GetGeometryTree"
-        return self.connection.send_and_receive(method)
+        json = self.connection.send_and_receive(method)
+        return GeometryTree._from_json(json)
 
     def set_geometry_tree(self, tree):
         """Do placeholder."""
