@@ -160,7 +160,7 @@ class Datastore(dict):
     def __init__(self):
         """Do initialisation."""
         super().__init__()
-        self.__activex_names__ = {} # Lookup table to allow alternative activex names.
+        self.__activex_names__ = {}  # Lookup table to allow alternative activex names.
 
     def get_variable_record(self, variable_name):
         """Get a variable record case-insensitive.
@@ -205,12 +205,11 @@ class Datastore(dict):
 
             datastore.__activex_names__[
                 datastore_record_json["activex_name"].lower()
-                ] = datastore_record_json["activex_name"]
+            ] = datastore_record_json["activex_name"]
             if datastore_record_json["alternative_activex_name"] != "xxx":
                 # Parameter also has an alternative name. Add it to another dict to search quickly.
                 datastore.__activex_names__[
                     datastore_record_json["alternative_activex_name"].lower()
-                    ] = datastore_record_json["activex_name"]
-
+                ] = datastore_record_json["activex_name"]
 
         return datastore
