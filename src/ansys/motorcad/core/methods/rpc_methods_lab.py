@@ -355,8 +355,6 @@ class _RpcMethodsLab:
                     self.set_variable("Imax_MotorLAB", kwargs["I_max"])
             if "I_min" in kwargs:
                 self.set_variable("Imin_MotorLAB", kwargs["I_min"])
-            # if "I_inc" in kwargs:
-            #     self.set_variable("Iinc_MotorLAB",kwargs["I_inc"])
         else:  # RMS
             if "I_max" in kwargs:
                 if self.get_variable("Motor_Type") == 6:  # Sync
@@ -365,6 +363,7 @@ class _RpcMethodsLab:
                     self.set_variable("Imax_RMS_MotorLAB", kwargs["I_max"])
             if "I_min" in kwargs:
                 self.set_variable("Imin_RMS_MotorLAB", kwargs["I_min"])
+
         if "I_inc" in kwargs:
             if self.get_variable("Motor_Type") == 6:  # Sync machine
                 print("sync executed")
