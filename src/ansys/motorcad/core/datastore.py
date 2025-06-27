@@ -38,14 +38,21 @@ class DataStoreRecord:
         self.current_value = None
         self.default_value = None
 
+        self.units = None
+        self.input_or_output_type = None
+
         self.record_name = ""
+        self.activex_name = ""
+        self.alternative_activex_name = ""
+        self.file_section = ""
+
         self.is_array = False
         self.is_array_2d = False
         self.use_max_value = False
         self.use_min_value = False
+        self.max_value = None
+        self.min_value = None
 
-        self.activex_name = ""
-        self.alternative_activex_name = ""
 
     @property
     def value(self):
@@ -90,13 +97,23 @@ class DataStoreRecord:
 
         datastore_record.current_value = json["current_value"]
         datastore_record.default_value = json["default_value"]
+
+        datastore_record.units = json["units"]
+        datastore_record.input_or_output_type = json["input_or_output_type"]
+
         datastore_record.record_name = json["record_name"]
         datastore_record.activex_name = json["activex_name"]
         datastore_record.alternative_activex_name = json["alternative_activex_name"]
+        datastore_record.file_section = json["file_section"]
+
         datastore_record.is_array = json["is_array"]
         datastore_record.is_array_2d = json["is_array_2d"]
         datastore_record.use_max_value = json["use_max_value"]
         datastore_record.use_min_value = json["use_min_value"]
+        if datastore_record.use_max_value:
+            datastore_record.max_value = json["max_value"]
+        if datastore_record.use_min_value:
+            datastore_record.min_value = json["min_value"]
 
         return datastore_record
 
