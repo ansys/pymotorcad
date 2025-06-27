@@ -181,7 +181,9 @@ def test_export_concept_ev_model(mc):
     # run Efficiency Map calculation
     mc.calculate_magnetic_lab()
     file_path = mc.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
-    mc.export_concept_ev_model()
+    mc.export_concept_ev_model(
+        Max_speed=10000, Min_speed=0, Speed_step=500, I_max=480, I_min=1, I_inc=30, Op_mode=2
+    )
     assert os.path.exists(file_path) is True
     wb = load_workbook(file_path)
     assert "Shaft_Torque" in wb.sheetnames
