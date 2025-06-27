@@ -49,13 +49,20 @@ def chord_angle(cord_length, r):
     return angle * 180 / math.pi
 
 
+# Set IM motor type if not already
+if not pymotorcad.is_running_in_internal_scripting():
+    mc.set_variable("Motor_Type", 1)
+    mc.set_variable("Top_Bar_Type", 2)
+    mc.set_variable("Bar Corner Radius[T]", 0)
+
+
 # Get the bar region
 bar = mc.get_region("TopRotorBar")
 
 # Get the points at the bottom corners of bar
 # Point1 is away from x axis
-point1 = bar.points[3]
-point2 = bar.points[5]
+point1 = bar.points[4]
+point2 = bar.points[6]
 
 # Get the top bar tooth width
 # Define adaptive parameter for booth bar tooth width
