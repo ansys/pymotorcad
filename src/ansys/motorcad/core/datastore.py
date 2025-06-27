@@ -160,6 +160,7 @@ class Datastore(dict):
     def __init__(self):
         """Do initialisation."""
         super().__init__()
+        self.__activex_names__ = {} # Lookup table to allow alternative activex names.
 
     def get_variable_record(self, variable_name):
         """Get a variable record case-insensitive.
@@ -172,15 +173,11 @@ class Datastore(dict):
         -------
         DataStoreRecord
         """
-        for item in self:
-            # Return match if any of the names match
-            if (
-                (item.lower() == variable_name.lower())
-                or (self[item].activex_name.lower() == variable_name.lower())
-                or (self[item].alternative_activex_name.lower() == variable_name.lower())
-            ):
-                return self[item]
-        return None
+        try:
+            return self[self.__activex_names__[variable_name.lower()]]
+        except KeyError:
+            # Variable doesn't exist in the datastore. Return nothing.
+            return None
 
     def get_variable(self, variable_name):
         """Get a variable value case insensitive.
@@ -205,5 +202,15 @@ class Datastore(dict):
         for datastore_record_json in datastore_json["data_records"]:
             datastore_record_object = DataStoreRecord.from_json(datastore_record_json, datastore)
             datastore[datastore_record_json["activex_name"]] = datastore_record_object
+
+            datastore.__activex_names__[
+                datastore_record_json["activex_name"].lower()
+                ] = datastore_record_json["activex_name"]
+            if datastore_record_json["alternative_activex_name"] != "xxx":
+                # Parameter also has an alternative name. Add it to another dict to search quickly.
+                datastore.__activex_names__[
+                    datastore_record_json["alternative_activex_name"].lower()
+                    ] = datastore_record_json["activex_name"]
+
 
         return datastore
