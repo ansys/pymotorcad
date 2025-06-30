@@ -90,15 +90,17 @@ def test_get_node(sample_tree):
 def test_add_node(basic_tree):
     # Tests the basic functionality of adding a node
     test_tree = deepcopy(basic_tree)
-    new_node = GeometryNode(parent=test_tree["root"])
+    new_node = GeometryNode()
+    new_node.parent = test_tree["root"]
     new_node.name = "node"
     new_node.key = "node"
+    test_tree.get_node("root").children.append(new_node)
     test_tree["node"] = new_node
 
     function_tree = deepcopy(basic_tree)
-    new_node2 = GeometryNode(parent=function_tree["root"])
+    new_node2 = GeometryNode()
     new_node2.name = "node"
-    function_tree.add_node(new_node2)
+    function_tree.add_node(new_node2, parent=function_tree["root"])
 
     assert test_tree == function_tree
 
@@ -163,11 +165,58 @@ def test_remove_node(basic_tree):
     test_tree = deepcopy(basic_tree)
 
     function_tree = deepcopy(basic_tree)
-    new_node2 = GeometryNode(parent=function_tree["root"])
+    new_node2 = GeometryNode()
     new_node2.name = "node"
     function_tree.add_node(new_node2, children=["Triangle"])
     function_tree.remove_node(new_node2)
     assert test_tree == function_tree
+
+
+def test_equality_1(basic_tree):
+    test_tree = deepcopy(basic_tree)
+    test_tree["root"].children.remove(test_tree["Triangle"])
+    test_tree.pop("Triangle")
+    assert test_tree != basic_tree
+
+
+def test_equality_2(basic_tree):
+    test_tree1 = deepcopy(basic_tree)
+    new_node1 = GeometryNode()
+    new_node1.name = "node"
+    test_tree1.add_node(new_node1, parent="root", children=["Triangle"])
+
+    test_tree2 = deepcopy(basic_tree)
+    new_node2 = GeometryNode()
+    new_node2.name = "node"
+    test_tree2.add_node(new_node2, parent=test_tree2["Triangle"])
+
+    assert test_tree2 != test_tree1
+
+
+def test_equality_3(basic_tree):
+    test_tree1 = deepcopy(basic_tree)
+    new_node1 = GeometryNode()
+    new_node1.name = "node1"
+    test_tree1.add_node(new_node1, parent="root")
+    new_node2 = GeometryNode()
+    new_node2.name = "node2"
+    test_tree1.add_node(new_node2, parent="node1", children=["Triangle"])
+
+    test_tree2 = deepcopy(basic_tree)
+    new_node3 = GeometryNode()
+    new_node3.name = "node1"
+    test_tree2.add_node(new_node3, parent="root", children=["Triangle"])
+    new_node4 = GeometryNode()
+    new_node4.name = "node2"
+    test_tree2.add_node(new_node4, parent="Triangle")
+
+    assert test_tree1 != test_tree2
+
+
+def test_equality_4(basic_tree):
+    test_tree = deepcopy(basic_tree)
+    test_tree["Triangle"].entities.append(Line(Coordinate(0, 0), Coordinate(-1, 0)))
+    assert test_tree != basic_tree
 
 
 def test_remove_branch(basic_tree):
@@ -175,12 +224,20 @@ def test_remove_branch(basic_tree):
     test_tree = deepcopy(basic_tree)
     test_tree.remove_node("Triangle")
 
-    function_tree = deepcopy(basic_tree)
-    new_node = GeometryNode(parent=function_tree["root"])
-    new_node.name = "node"
-    function_tree.add_node(new_node, children=["Triangle"])
-    function_tree.remove_branch(new_node)
-    assert test_tree == function_tree
+    function_tree1 = deepcopy(basic_tree)
+    new_node1 = GeometryNode()
+    new_node1.name = "node"
+    function_tree1.add_node(new_node1, parent=function_tree1["root"], children=["Triangle"])
+    function_tree1.remove_branch(new_node1)
+
+    function_tree2 = deepcopy(basic_tree)
+    new_node2 = GeometryNode()
+    new_node2.name = "node"
+    function_tree2.add_node(new_node2, parent=function_tree2["root"], children=["Triangle"])
+    function_tree2.remove_branch("node")
+
+    assert test_tree == function_tree1
+    assert test_tree == function_tree2
 
 
 def test_remove_branch2(basic_tree):
@@ -189,7 +246,7 @@ def test_remove_branch2(basic_tree):
     test_tree.remove_node(test_tree["Triangle"])
 
     function_tree = deepcopy(basic_tree)
-    new_node = GeometryNode(parent=function_tree["root"])
+    new_node = GeometryNode()
     new_node.name = "node"
     function_tree.add_node(new_node, children=["Triangle"])
     function_tree.remove_branch(function_tree["node"])
@@ -202,6 +259,9 @@ def test_get_parent(basic_tree):
     assert basic_tree["root"].key == basic_tree["Triangle"].parent_key
 
     assert basic_tree["root"].name == basic_tree["Triangle"].parent_name
+
+    assert basic_tree["root"].parent_name == ""
+    assert basic_tree["root"].parent_key == ""
 
 
 def test_get_children(basic_tree):

@@ -178,18 +178,23 @@ class GeometryTree(dict):
             else:
                 raise TypeError("Children must be a GeometryNode or str")
             # Essentially, slotting the given node in between the given parent and children
+            # Children are removed from their old spot and placed in the new one
+            # Children's children become assigned to child's old parent
             for child in region.children:
-                child.parent.children.remove(child)
+                self.remove_node(child)
                 child.parent = region
+                child.children = list()
+                self[child.key] = child
 
         if parent is None:
             region.parent = self["root"]
+            self["root"].children.append(region)
         else:
             if isinstance(parent, GeometryNode):
                 region.parent = parent
                 parent.children.append(region)
             elif isinstance(parent, str):
-                region.parent = self[parent]
+                region.parent = self.get_node(parent)
                 self[parent].children.append(region)
             else:
                 raise TypeError("Parent must be a GeometryNode or str")
@@ -227,26 +232,23 @@ class GeometryTree(dict):
 
 
 class GeometryNode(Region):
-    """Subclass of Region used for entries in GeometryTree."""
+    """Subclass of Region used for entries in GeometryTree.
 
-    def __init__(self, region_type=RegionType.adaptive, parent=None, child_nodes=None):
+    Nodes should not have a parent or children unless they are part of a tree.
+    """
+
+    def __init__(self, region_type=RegionType.adaptive):
         """Initialize the geometry node.
+
+        Parent and children are defined when the node is added to a tree.
 
         Parameters
         ----------
         region_type: RegionType
-        parent: GeometryNode
-        child_nodes: list of GeometryNode
         """
         super().__init__(region_type=region_type)
-        if parent is not None:
-            self.parent = parent
-            parent.children.append(self)
-        else:
-            self.parent = None
-        if child_nodes is None:
-            child_nodes = list()
-        self.children = child_nodes
+        self.children = list()
+        self.parent = None
 
     @classmethod
     def from_json(cls, tree, node_json, parent):
