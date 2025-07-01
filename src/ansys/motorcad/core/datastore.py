@@ -188,7 +188,7 @@ class Datastore(dict):
     def __init__(self):
         """Do initialisation."""
         super().__init__()
-        self.__activex_names__ = {}  # Lookup table to allow alternative activex names.
+        self.__activex_names__ = {} # Lookup table to allow alternative activex names.
 
     def get_variable_record(self, variable_name):
         """Get a variable record case-insensitive.
