@@ -53,7 +53,6 @@ class DataStoreRecord:
         self.max_value = None
         self.min_value = None
 
-
     @property
     def value(self):
         """Get value of record."""
@@ -62,6 +61,18 @@ class DataStoreRecord:
     def __str__(self):
         """Get string representation of record."""
         return str(self.current_value)
+
+    def file_section_in_list(self, section_list: list | None):
+        if section_list is None:
+            return True
+        else:
+            return self.file_section in section_list
+
+    def inout_in_list(self, inout_list: list | None):
+        if inout_list is None:
+            return True
+        else:
+            return self.input_or_output_type in inout_list
 
     @classmethod
     def from_json(cls, json, parent_datastore):
@@ -89,8 +100,8 @@ class DataStoreRecord:
             datastore_record = DataStoreRecordArray2D(parent_datastore)
             datastore_record.dynamic = json["dynamic"]
             if datastore_record.dynamic:
-                datastore_record.array_length_2d = json["array_length_2d"]
-                datastore_record.array_length_ref_2d_name = json["array_length_ref_2d"]
+                datastore_record.array_length_2d = tuple(json["array_length_2d"])
+                datastore_record.array_length_ref_2d_name = tuple(json["array_length_ref_2d"])
 
         else:
             datastore_record = cls(parent_datastore)
@@ -151,8 +162,8 @@ class DataStoreRecordArray2D(DataStoreRecord):
     def __init__(self, parent_datastore):
         """Do initialisation."""
         super().__init__(parent_datastore)
-        self.array_length_2d = [-1, -1]
-        self.array_length_ref_2d_name = []
+        self.array_length_2d = (-1, -1)
+        self.array_length_ref_2d_name = ("", "")
         self.dynamic = False
 
     @property
@@ -177,7 +188,7 @@ class Datastore(dict):
     def __init__(self):
         """Do initialisation."""
         super().__init__()
-        self.__activex_names__ = {} # Lookup table to allow alternative activex names.
+        self.__activex_names__ = {}  # Lookup table to allow alternative activex names.
 
     def get_variable_record(self, variable_name):
         """Get a variable record case-insensitive.
@@ -211,6 +222,48 @@ class Datastore(dict):
             return self.get_variable_record(variable_name).value
         return None
 
+    def filter_variables(self, file_sections=None, inout_types=None):
+        """Filter the datastore by file section and input-or-output type.
+
+        Parameters
+        ----------
+        file_sections : list | None
+            variable section (category in automation parameter names)
+        inout_types : list | None
+            Input/Output type (e.g. input, compatibility, setting).
+
+        Returns
+        -------
+        DataStore
+        """
+        result = dict(
+            (key, item) for key, item in self.items() if
+            item.file_section_in_list(file_sections) and
+            item.inout_in_list(inout_types)
+        )
+
+        return Datastore.from_dict(result)
+
+    def to_dict(self):
+        """Cast Datastore class to a dictionary with the current_value.
+
+        Returns
+        -------
+        dict
+        """
+        return dict((key, item.current_value) for key, item in self.items())
+
+    def extend(self, datastore: 'Datastore'):
+        for key, value in datastore.items():
+            self[key] = value
+            self[key].parent_datastore = self
+
+            self.__activex_names__[key.lower()] = key
+            if value.alternative_activex_name != "xxx":
+                # Parameter also has an alternative name. Add it to another dict to search quickly.
+                self.__activex_names__[value.alternative_activex_name.lower()] = key
+        return self
+
     @classmethod
     def from_json(cls, datastore_json):
         """Create a Datastore object from JSON data."""
@@ -222,12 +275,27 @@ class Datastore(dict):
 
             datastore.__activex_names__[
                 datastore_record_json["activex_name"].lower()
-                ] = datastore_record_json["activex_name"]
+            ] = datastore_record_json["activex_name"]
             if datastore_record_json["alternative_activex_name"] != "xxx":
                 # Parameter also has an alternative name. Add it to another dict to search quickly.
                 datastore.__activex_names__[
                     datastore_record_json["alternative_activex_name"].lower()
-                    ] = datastore_record_json["activex_name"]
+                ] = datastore_record_json["activex_name"]
 
+        return datastore
+
+    @classmethod
+    def from_dict(cls, datastore_dict):
+        """Create a Datastore object from a dictionary of DataStoreRecords"""
+        datastore = cls()
+
+        for key, value in datastore_dict.items():
+            datastore[key] = value
+            datastore[key].parent_datastore = datastore
+
+            datastore.__activex_names__[key.lower()] = key
+            if value.alternative_activex_name != "xxx":
+                # Parameter also has an alternative name. Add it to another dict to search quickly.
+                datastore.__activex_names__[value.alternative_activex_name.lower()] = key
 
         return datastore
