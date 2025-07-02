@@ -24,18 +24,108 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+import warnings
 from warnings import warn
 
 GEOM_TOLERANCE = 1e-6
 
 
-class Region(object):
-    """Python representation of Motor-CAD geometry region."""
+class RegionType(Enum):
+    """Provides an enumeration for storing Motor-CAD region types."""
 
-    def __init__(self, motorcad_instance=None):
-        """Create geometry region and set parameters to defaults."""
+    stator = "Stator"
+    rotor = "Rotor"
+    slot_area_stator = "Stator Slot Area"
+    slot_area_stator_deprecated = "Stator Slot"
+    slot_area_rotor = "Rotor Slot Area"
+    slot_split = "Split Slot"
+    stator_liner = "Stator Liner"
+    rotor_liner = "Rotor Liner"
+    wedge = "Wedge"
+    stator_duct = "Stator Duct"
+    housing = "Housing"
+    housing_magnetic = "Magnetic Housing"
+    stator_impreg = "Stator Impreg"
+    impreg_gap = "Impreg Gap"
+    stator_copper = "Stator Copper"
+    stator_copper_ins = "Stator Copper Insulation"
+    stator_divider = "Stator Divider"
+    stator_slot_spacer = "Stator Slot Spacer"
+    stator_separator = "Stator slot separator"
+    coil_insulation = "Coil Insulation"
+    stator_air = "Stator Air"
+    rotor_hub = "Rotor hub"
+    rotor_air = "Rotor Air"
+    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
+    rotor_pocket = "Rotor Pocket"
+    pole_spacer = "Pole Spacer"
+    rotor_slot = "Rotor Slot"
+    coil_separator = "Coil Separator"
+    damper_bar = "Damper Bar"
+    wedge_rotor = "Rotor Wedge"
+    rotor_divider = "Rotor Divider"
+    rotor_copper_ins = "Rotor Copper Insulation"
+    rotor_copper = "Rotor Copper"
+    rotor_impreg = "Rotor Impreg"
+    shaft = "Shaft"
+    axle = "Axle"
+    rotor_duct = "Rotor Duct"
+    magnet = "Magnet"
+    barrier = "Barrier"
+    mounting_base = "Base Mount"
+    mounting_plate = "Plate Mount"
+    banding = "Banding"
+    sleeve = "Sleeve"
+    rotor_cover = "Rotor Cover"
+    slot_wj_insulation = "Slot Water Jacket Insulation"
+    slot_wj_wall = "Slot Water Jacket Wall"
+    slot_wj_duct = "Slot Water Jacket Duct"
+    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
+    cowling = "Cowling"
+    cowling_gril = "Cowling Grill"
+    brush = "Brush"
+    commutator = "Commutator"
+    airgap = "Airgap"
+    dxf_import = "DXF Import"
+    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    adaptive = "Adaptive Region"
+
+
+RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
+
+
+class Region(object):
+    """Create geometry region.
+
+    Parameters
+    ----------
+    region_type: RegionType
+        Type of region
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
+
+    def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
+        """Initialise Region."""
+        if not isinstance(region_type, RegionType):
+            warnings.warn(
+                "The first parameter of creating a new region has changed to region_type."
+                " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
+                " region type"
+            )
+            # Try and catch case where user has added Motor-CAD instance without using named param
+            motorcad_instance = region_type
+            region_type = None
+
+        elif region_type == RegionType.adaptive:
+            warnings.warn(
+                "It is strongly recommended to set a region_type when creating new regions."
+                " Creating new regions with no type will be deprecated in a future release"
+            )
+
         self._name = ""
+        self._base_name = ""
         self._material = "air"
         self._colour = (0, 0, 0)
         self._area = 0.0
@@ -46,9 +136,8 @@ class Region(object):
         self._parent_name = ""
         self._child_names = []
         self._motorcad_instance = motorcad_instance
-        self._region_type = RegionType.adaptive
+        self._region_type = region_type
         self._mesh_length = 0
-
         self._linked_region = None
         self._singular = False
         self._lamination_type = ""
@@ -58,7 +147,6 @@ class Region(object):
         return (
             isinstance(other, Region)
             and self._name == other._name
-            and self._colour == other._colour
             # and self.area == other.area ->
             # Already check entities - can't expect user to calculate area
             # and self.centroid == other.centroid ->
@@ -170,15 +258,22 @@ class Region(object):
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
         else:
-            new_region = cls(motorcad_instance)
-
-        if has_region_type:
-            new_region._region_type = RegionType(json["region_type"])
+            if has_region_type:
+                new_region = cls(
+                    motorcad_instance=motorcad_instance, region_type=RegionType(json["region_type"])
+                )
+            else:
+                new_region = cls(motorcad_instance=motorcad_instance)
 
         # self.Entities = json.Entities
-        new_region._name = json["name"]
-        new_region._material = json["material"]
 
+        if "name_unique" in json:
+            new_region.name = json["name_unique"]
+        else:
+            new_region.name = json["name"]
+
+        new_region._base_name = json["name"]
+        new_region.material = json["material"]
         new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
         new_region._area = json["area"]
 
@@ -218,6 +313,7 @@ class Region(object):
 
         region_dict = {
             "name": self._name,
+            "name_base": self._base_name,
             "material": self._material,
             "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
             "area": self._area,
@@ -306,6 +402,10 @@ class Region(object):
         RegionType
         """
         return self._region_type
+
+    @region_type.setter
+    def region_type(self, region_type):
+        self._region_type = region_type
 
     @property
     def motorcad_instance(self):
@@ -792,6 +892,55 @@ class Region(object):
         for corner in corner_coordinates:
             self.round_corner(corner, radius)
 
+    def limit_arc_chord(self, max_chord_height):
+        """Limit the chord height for arcs in a region.
+
+        Subdivide arcs if required to ensure the arc's chord height (the distance between the arc
+        midpoint and the midpoint of a line between the start and end) is lower than the specified
+        value. This can be used to force a fine FEA mesh around entities with high curvature.
+
+        Parameters:
+            max_chord_height: float
+                The maximum chord height allowed.
+        """
+        new_entity_list = []
+        for entity in self.entities:
+            if (
+                isinstance(entity, Arc)
+                and (entity.radius != 0)
+                and (fabs(entity.radius * 2) > max_chord_height)
+            ):
+                # Find maximum arc angle so the chord height is equal to the required maximum error
+                max_angle = degrees(2 * acos(1 - max_chord_height / fabs(entity.radius)))
+
+                # Find how many segments are needed to achieve this
+                if max_angle > 0:
+                    segmentation = floor(entity.total_angle / max_angle)
+                else:
+                    segmentation = 1
+
+                # If required, split the arc into segments
+                if segmentation > 1:
+                    segment_start = entity.start
+                    for segment in range(1, segmentation + 1):
+                        segment_end = entity.get_coordinate_from_distance(
+                            entity.start, fraction=segment / segmentation
+                        )
+                        new_arc = Arc(segment_start, segment_end, entity.centre, entity.radius)
+                        # Add to the list
+                        new_entity_list.append(new_arc)
+                        # Ready for next segment
+                        segment_start = segment_end
+                else:
+                    # Arc already OK, just add to list as-is
+                    new_entity_list.append(entity)
+            else:
+                # Add to list unchanged
+                new_entity_list.append(entity)
+
+        # Update the entity list
+        self.entities = new_entity_list
+
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
 
@@ -816,16 +965,21 @@ class Region(object):
 
 
 class RegionMagnet(Region):
-    """Provides the Python representation of a Motor-CAD magnet geometry region."""
+    """Create magnet geometry region.
+
+    Parameters
+    ----------
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
 
     def __init__(self, motorcad_instance=None):
-        """Initialise a ``RegionMagnet`` instance."""
-        super().__init__(motorcad_instance)
+        """Initialise Magnet Region."""
+        super().__init__(RegionType.magnet, motorcad_instance)
         self._magnet_angle = 0.0
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
-        self._region_type = RegionType.magnet
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -839,6 +993,7 @@ class RegionMagnet(Region):
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
+        region_dict["magnet_polarity"] = self._magnet_polarity
 
         return region_dict
 
@@ -919,6 +1074,10 @@ class RegionMagnet(Region):
         string
         """
         return self._magnet_polarity
+
+    @magnet_polarity.setter
+    def magnet_polarity(self, value):
+        self._magnet_polarity = value
 
 
 class Coordinate(object):
@@ -1924,6 +2083,10 @@ class EntityList(list):
         """Compare equality of 2 EntityList objects."""
         return self._entities_same(other, check_reverse=True)
 
+    def __ne__(self, other):
+        """Compare difference of 2 EntityList objects."""
+        return not self == other
+
     def reverse(self):
         """Reverse EntityList, including entity start end coordinates."""
         super().reverse()
@@ -1979,6 +2142,9 @@ class EntityList(list):
                 return True
             else:
                 return False
+
+        if len(self) != len(entities_to_compare):
+            return False
 
         if check_reverse:
             if _entities_same_with_direction(self, entities_to_compare):
@@ -2176,63 +2342,3 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
-
-
-class RegionType(Enum):
-    """Provides an enumeration for storing Motor-CAD region types."""
-
-    stator = "Stator"
-    rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
-    slot_area_rotor = "Rotor Slot"
-    slot_split = "Split Slot"
-    stator_liner = "Stator Liner"
-    rotor_liner = "Rotor Liner"
-    wedge = "Wedge"
-    stator_duct = "Stator Duct"
-    housing = "Housing"
-    housing_magnetic = "Magnetic Housing"
-    stator_impreg = "Stator Impreg"
-    impreg_gap = "Impreg Gap"
-    stator_copper = "Stator Copper"
-    stator_copper_ins = "Stator Copper Insulation"
-    stator_divider = "Stator Divider"
-    stator_slot_spacer = "Stator Slot Spacer"
-    stator_separator = "Stator slot separator"
-    coil_insulation = "Coil Insulation"
-    stator_air = "Stator Air"
-    rotor_hub = "Rotor hub"
-    rotor_air = "Rotor Air"
-    rotor_air_exc_liner = "Rotor Air (excluding liner area)"
-    rotor_pocket = "Rotor Pocket"
-    pole_spacer = "Pole Spacer"
-    rotor_slot = "Rotor Slot"
-    coil_separator = "Coil Separator"
-    damper_bar = "Damper Bar"
-    wedge_rotor = "Rotor Wedge"
-    rotor_divider = "Rotor Divider"
-    rotor_copper_ins = "Rotor Copper Insulation"
-    rotor_copper = "Rotor Copper"
-    rotor_impreg = "Rotor Impreg"
-    shaft = "Shaft"
-    axle = "Axle"
-    rotor_duct = "Rotor Duct"
-    magnet = "Magnet"
-    barrier = "Barrier"
-    mounting_base = "Base Mount"
-    mounting_plate = "Plate Mount"
-    banding = "Banding"
-    sleeve = "Sleeve"
-    rotor_cover = "Rotor Cover"
-    slot_wj_insulation = "Slot Water Jacket Insulation"
-    slot_wj_wall = "Slot Water Jacket Wall"
-    slot_wj_duct = "Slot Water Jacket Duct"
-    slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
-    cowling = "Cowling"
-    cowling_gril = "Cowling Grill"
-    brush = "Brush"
-    commutator = "Commutator"
-    airgap = "Airgap"
-    dxf_import = "DXF Import"
-    impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
-    adaptive = "Adaptive Region"
