@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import atan2, cos, degrees, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
 from warnings import warn
 
@@ -36,8 +36,9 @@ class RegionType(Enum):
 
     stator = "Stator"
     rotor = "Rotor"
-    slot_area_stator = "Stator Slot"
-    slot_area_rotor = "Rotor Slot"
+    slot_area_stator = "Stator Slot Area"
+    slot_area_stator_deprecated = "Stator Slot"
+    slot_area_rotor = "Rotor Slot Area"
     slot_split = "Split Slot"
     stator_liner = "Stator Liner"
     rotor_liner = "Rotor Liner"
@@ -91,6 +92,9 @@ class RegionType(Enum):
     adaptive = "Adaptive Region"
 
 
+RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
+
+
 class Region(object):
     """Create geometry region.
 
@@ -121,6 +125,7 @@ class Region(object):
             )
 
         self._name = ""
+        self._base_name = ""
         self._material = "air"
         self._colour = (0, 0, 0)
         self._area = 0.0
@@ -261,9 +266,14 @@ class Region(object):
                 new_region = cls(motorcad_instance=motorcad_instance)
 
         # self.Entities = json.Entities
-        new_region._name = json["name"]
-        new_region._material = json["material"]
 
+        if "name_unique" in json:
+            new_region.name = json["name_unique"]
+        else:
+            new_region.name = json["name"]
+
+        new_region._base_name = json["name"]
+        new_region.material = json["material"]
         new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
         new_region._area = json["area"]
 
@@ -303,6 +313,7 @@ class Region(object):
 
         region_dict = {
             "name": self._name,
+            "name_base": self._base_name,
             "material": self._material,
             "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
             "area": self._area,
@@ -881,6 +892,55 @@ class Region(object):
         for corner in corner_coordinates:
             self.round_corner(corner, radius)
 
+    def limit_arc_chord(self, max_chord_height):
+        """Limit the chord height for arcs in a region.
+
+        Subdivide arcs if required to ensure the arc's chord height (the distance between the arc
+        midpoint and the midpoint of a line between the start and end) is lower than the specified
+        value. This can be used to force a fine FEA mesh around entities with high curvature.
+
+        Parameters:
+            max_chord_height: float
+                The maximum chord height allowed.
+        """
+        new_entity_list = []
+        for entity in self.entities:
+            if (
+                isinstance(entity, Arc)
+                and (entity.radius != 0)
+                and (fabs(entity.radius * 2) > max_chord_height)
+            ):
+                # Find maximum arc angle so the chord height is equal to the required maximum error
+                max_angle = degrees(2 * acos(1 - max_chord_height / fabs(entity.radius)))
+
+                # Find how many segments are needed to achieve this
+                if max_angle > 0:
+                    segmentation = floor(entity.total_angle / max_angle)
+                else:
+                    segmentation = 1
+
+                # If required, split the arc into segments
+                if segmentation > 1:
+                    segment_start = entity.start
+                    for segment in range(1, segmentation + 1):
+                        segment_end = entity.get_coordinate_from_distance(
+                            entity.start, fraction=segment / segmentation
+                        )
+                        new_arc = Arc(segment_start, segment_end, entity.centre, entity.radius)
+                        # Add to the list
+                        new_entity_list.append(new_arc)
+                        # Ready for next segment
+                        segment_start = segment_end
+                else:
+                    # Arc already OK, just add to list as-is
+                    new_entity_list.append(entity)
+            else:
+                # Add to list unchanged
+                new_entity_list.append(entity)
+
+        # Update the entity list
+        self.entities = new_entity_list
+
     def find_entity_from_coordinates(self, coordinate_1, coordinate_2):
         """Search through region to find an entity with start and end coordinates.
 
@@ -933,6 +993,7 @@ class RegionMagnet(Region):
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
+        region_dict["magnet_polarity"] = self._magnet_polarity
 
         return region_dict
 
@@ -1013,6 +1074,10 @@ class RegionMagnet(Region):
         string
         """
         return self._magnet_polarity
+
+    @magnet_polarity.setter
+    def magnet_polarity(self, value):
+        self._magnet_polarity = value
 
 
 class Coordinate(object):
@@ -2018,6 +2083,10 @@ class EntityList(list):
         """Compare equality of 2 EntityList objects."""
         return self._entities_same(other, check_reverse=True)
 
+    def __ne__(self, other):
+        """Compare difference of 2 EntityList objects."""
+        return not self == other
+
     def reverse(self):
         """Reverse EntityList, including entity start end coordinates."""
         super().reverse()
@@ -2073,6 +2142,9 @@ class EntityList(list):
                 return True
             else:
                 return False
+
+        if len(self) != len(entities_to_compare):
+            return False
 
         if check_reverse:
             if _entities_same_with_direction(self, entities_to_compare):
