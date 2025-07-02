@@ -42,7 +42,7 @@ from ansys.motorcad.core.geometry import (
     _orientation_of_three_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_shapes import eq_triangle_h, triangular_notch
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
@@ -351,6 +351,7 @@ def test_region_remove_entity():
 def test_region_from_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -367,6 +368,7 @@ def test_region_from_json():
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region._area = 5.1
@@ -387,6 +389,7 @@ def test_region_from_json():
 def test_region_to_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -404,6 +407,7 @@ def test_region_to_json():
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region._area = 5.1
@@ -503,6 +507,15 @@ def test_reverse_arc():
     arc.reverse()
 
     assert arc == expected_line
+
+
+def test_entities_same_subset():
+    arc1 = Arc(Coordinate(1, 0), Coordinate(0, 1), radius=1)
+    arc2 = Arc(Coordinate(0, 1), Coordinate(-1, 0), radius=1)
+    ent1 = geometry.EntityList([arc1, arc2])
+    ent2 = geometry.EntityList([arc1])
+
+    assert ent1 != ent2
 
 
 def test_entities_same():
@@ -1742,6 +1755,39 @@ def test_do_not_round_corner():
     assert triangle_3.entities[3].end == triangle_2.entities[2].end
 
 
+def test_limit_arc_chord():
+    # Draw a square, round its corners, and then limit the radii,
+    # and check we have the right number of entities
+    square_1 = square(20, 0, 0)
+    square_2 = square(20, 0, 0)
+    square_3 = square(20, 0, 0)
+    assert len(square_1.entities) == 4
+    assert len(square_2.entities) == 4
+    assert len(square_3.entities) == 4
+    corner_radius = 5
+    square_1.round_corners(square_1.points, corner_radius)
+    square_2.round_corners(square_2.points, corner_radius)
+    square_3.round_corners(square_3.points, corner_radius)
+    assert len(square_1.entities) == 8
+    assert len(square_2.entities) == 8
+    assert len(square_3.entities) == 8
+
+    # This should split the corners into three
+    chord_tolerance = 0.1
+    square_1.limit_arc_chord(chord_tolerance)
+    assert len(square_1.entities) == 16
+
+    # This should not split the corners
+    chord_tolerance = 8
+    square_2.limit_arc_chord(chord_tolerance)
+    assert len(square_2.entities) == 8
+
+    # This should not split the corners (invalid input)
+    chord_tolerance = 0
+    square_3.limit_arc_chord(chord_tolerance)
+    assert len(square_3.entities) == 8
+
+
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
@@ -2561,11 +2607,13 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
 
+    magnet.magnet_polarity = "S"
+
     mc.set_region(magnet)
     magnet = mc.get_region("L1_1Magnet2")
     assert magnet.br_multiplier == 2
     assert magnet.magnet_angle == 0
-    assert magnet.magnet_polarity == "N"
+    assert magnet.magnet_polarity == "S"
     assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
     assert magnet.br_value == 1.31
