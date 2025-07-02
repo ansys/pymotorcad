@@ -23,15 +23,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from math import cos, radians, sin, sqrt
 
-from ansys.motorcad.core.geometry import (
-    Arc,
-    Coordinate,
-    EntityList,
-    Line,
-    Region,
-    rt_to_xy,
-    xy_to_rt,
-)
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, Region, rt_to_xy
 
 
 def square(width, r_O, th_O):
@@ -52,35 +44,6 @@ def square(width, r_O, th_O):
         Region type with four Line entity types.
     """
     x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D = _square_coordinates(width, r_O, th_O)
-
-    r_A, th_A = xy_to_rt(x_A, y_A)
-    r_B, th_B = xy_to_rt(x_B, y_B)
-    r_C, th_C = xy_to_rt(x_C, y_C)
-    r_D, th_D = xy_to_rt(x_D, y_D)
-
-    # Check none cross lower boundary
-    lower_angles = [th_D, th_C]
-    shift_angle = 0
-    for th in lower_angles:
-        if th < 0:
-            if abs(th) > shift_angle:
-                shift_angle = abs(th)
-    duplication_angle = 45
-    # Check none cross upper boundary
-    upper_angles = [th_A, th_B]
-    for th in upper_angles:
-        if th > duplication_angle:
-            if (th - duplication_angle) > abs(shift_angle):
-                shift_angle = -abs(th - duplication_angle)
-
-    if shift_angle != 0:
-        print(
-            "Square coordinate not valid: square rotated by "
-            + str(shift_angle)
-            + " mechanical degrees."
-        )
-        th_O_new = th_O + shift_angle
-        x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D = _square_coordinates(width, r_O, th_O_new)
 
     p_A = Coordinate(x_A, y_A)
     p_B = Coordinate(x_B, y_B)
