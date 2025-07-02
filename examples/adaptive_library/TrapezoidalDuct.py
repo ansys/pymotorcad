@@ -64,7 +64,8 @@ else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
-    mc.set_visible(True)
+    if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+        mc.set_visible(True)
     mc.load_template("e10")
     mc.set_variable("RotorDuctType", 4)  # select rectangular ducts
     mc.set_array_variable("RotorCircularDuctLayer_ChannelWidth", 0, 4)  # set duct width
