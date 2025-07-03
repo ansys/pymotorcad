@@ -25,7 +25,7 @@ Installation
 
 Python module
 --------------
-The ``ansys.motorcad.core`` package currently supports Python 3.7 through Python 3.11 on Windows.
+The ``ansys.motorcad.core`` package currently supports Python 3.7 through Python 3.12 on Windows.
 
 Install the latest release from
 `PyPi <https://pypi.org/project/ansys-motorcad-core/>`_ with:
