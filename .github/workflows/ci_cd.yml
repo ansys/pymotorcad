@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.11'
+  MAIN_PYTHON_VERSION: '3.12'
   LIBRARY_NAME: ansys-motorcad-core
   LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -79,7 +79,7 @@ jobs:
         # Only the tox environment specified in the tox.ini gh-actions is run
         run: tox
         env:
-          python-version: "3.12-cov-only"
+          python-version: "${{ env.MAIN_PYTHON_VERSION }}-cov-only"
         
       - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
