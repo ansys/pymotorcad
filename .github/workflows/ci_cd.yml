@@ -77,9 +77,7 @@ jobs:
           
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        run: tox
-        env:
-          python: "py${{ env.MAIN_PYTHON_VERSION }}-cov-only"
+        run: tox -e py312-coverage
         
       - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
