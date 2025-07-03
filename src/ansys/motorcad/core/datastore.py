@@ -253,6 +253,21 @@ class Datastore(dict):
         """
         return dict((key, item.current_value) for key, item in self.items())
 
+    def pop(self, __key):
+        if self.get_variable_record(__key) is not None:
+            # key exists in the dictionary. Need to remove from activex_names.
+            record = self.get_variable_record(__key)
+            if record.alternative_activex_name != "xxx":
+                # Remove alternative name as well.
+                self.__activex_names__.pop(record.alternative_activex_name.lower())
+
+            # Ensure the actual activex name is being removed, not the alternative.
+            self.__activex_names__.pop(record.activex_name.lower())
+            return super().pop(record.activex_name)
+        else:
+            # Keep behaviour of returning a KeyError if not in the dict.
+            raise KeyError
+
     def extend(self, datastore: 'Datastore'):
         for key, value in datastore.items():
             self[key] = value
