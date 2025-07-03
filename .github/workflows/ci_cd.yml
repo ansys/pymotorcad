@@ -79,7 +79,7 @@ jobs:
         # Only the tox environment specified in the tox.ini gh-actions is run
         run: tox
         env:
-          python-version: "${{ env.MAIN_PYTHON_VERSION }}-cov-only"
+          python: "py${{ env.MAIN_PYTHON_VERSION }}-cov-only"
         
       - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
