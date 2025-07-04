@@ -344,8 +344,8 @@ class _RpcMethodsLab:
                 self.set_variable("SpeedMin_MotorLAB", 1)
             else:
                 self.set_variable("SpeedMin_MotorLAB", kwargs["Min_speed"])
-        if "Speed_Step" in kwargs:
-            self.set_variable("Speedinc_MotorLAB", kwargs["Speed_Step"])
+        if "Speed_step" in kwargs:
+            self.set_variable("Speedinc_MotorLAB", kwargs["Speed_step"])
 
         Current_def = self.get_variable("CurrentSpec_MotorLAB")
         if Current_def == 0:  # peak
