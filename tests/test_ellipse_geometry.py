@@ -79,13 +79,15 @@ def simple_ellipse3():
 
 
 def test_ellipse_construction1(simple_ellipse1):
+    # Test basic functionality
     p1 = Coordinate(20, 0)
     p2 = Coordinate(0, 25)
     origin = Coordinate(0, 0)
     assert simple_ellipse1 == Ellipse(p1, p2, centre=origin, angle=0)
 
 
-def test_ellipse_construction2():  # p
+def test_ellipse_construction2():
+    # Test depth construction
     p1 = Coordinate(20, 0)
     p2 = Coordinate(0, 20)
     ellipse = Ellipse(p1, p2, depth=16)
@@ -100,6 +102,7 @@ def test_ellipse_construction2():  # p
 
 
 def test_ellipse_construction3(simple_ellipse2):
+    # Test depth inversion
     p1 = Coordinate(20, 0)
     p2 = Coordinate(0, 20)
     ellipse = Ellipse(p1, p2, depth=-16)
@@ -114,6 +117,7 @@ def test_ellipse_construction3(simple_ellipse2):
 
 
 def test_ellipse_construction4(simple_ellipse3):
+    # Test depth construction when a minor axis is required
     p2 = Coordinate(20, 0)
     p1 = Coordinate(0, 20)
     ellipse = Ellipse(p1, p2, depth=14)
@@ -128,6 +132,7 @@ def test_ellipse_construction4(simple_ellipse3):
 
 
 def test_ellipse_construction5():
+    # Test shortcut to create an arc when necessary
     p1 = Coordinate(20, 0)
     p2 = Coordinate(0, 20)
     ellipse = Ellipse(p1, p2, depth=10 * sqrt(2))
@@ -140,16 +145,30 @@ def test_ellipse_construction5():
             min_dist = dist
     assert 10 * sqrt(2) - GEOM_TOLERANCE <= min_dist <= 10 * sqrt(2) + GEOM_TOLERANCE
 
+    ellipse2 = Ellipse(p1, p2, centre=Coordinate(0, 0), angle=0)
+    assert len(ellipse2) == 1
+
 
 def test_ellipse_reverse():
+    # Test ordering
     p2 = Coordinate(20, 0)
     p1 = Coordinate(0, 25)
     ellipse = Ellipse(p1, p2, centre=Coordinate(0, 0), angle=0)
     assert ellipse.start == p1
-    assert ellipse.end == p2  #
+    assert ellipse.end == p2
+
+
+def test_ellipse_truncation():
+    # Test ordering
+    p2 = Coordinate(0, 25)
+    p1 = Coordinate(-20, 0)
+    ellipse = Ellipse(p2, p1, centre=Coordinate(0, 0), angle=0)
+    assert ellipse.start == p2
+    assert ellipse.end == p1
 
 
 def test_ellipse_n():
+    # Test manual precision
     p1 = Coordinate(25, 0)
     p2 = Coordinate(0, 20)
     ellipse = Ellipse(p1, p2, centre=Coordinate(0, 0), angle=0, n=2)

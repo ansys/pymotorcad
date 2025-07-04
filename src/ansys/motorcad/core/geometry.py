@@ -1193,26 +1193,6 @@ class Coordinate(object):
         self.x += x
         self.y += y
 
-    def to_relative_coords(self, point):
-        """Translate Coordinate to corresponding spot in the coordinate system centred at point.
-
-        Parameters
-        ----------
-        point: Coordinate
-            new coordinate centre
-        """
-        return Coordinate(self.x - point.x, self.y - point.y)
-
-    def to_real_coords(self, point):
-        """Translate relative Coordinates to corresponding spot in the original coordinate system.
-
-        Parameters
-        ----------
-        point: Coordinate
-            old coordinate centre
-        """
-        return Coordinate(self.x + point.x, self.y + point.y)
-
     @classmethod
     def from_polar_coords(cls, radius, theta):
         """Create Coordinate from polar coordinates.

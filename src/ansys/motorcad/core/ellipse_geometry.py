@@ -130,9 +130,8 @@ class _BaseEllipse(EntityList):
             )
             # b might be defined by one of two equations,
             # depending on whether the x or y axis is the major one
+            # as well as the direction of the ellipse
             b = a * sqrt((end.y**2 - start.y**2) / (start.x**2 - end.x**2))
-            if type(b) == complex:
-                b = a * sqrt((start.y**2 - end.y**2) / (end.x**2 - start.x**2))
 
             self.b = b
             self.a = a
@@ -149,17 +148,6 @@ class _BaseEllipse(EntityList):
             raise ValueError(
                 "Invalid points: proposed shape must be an ellipse or elliptic arc"
             ) from e
-
-    def get_a(self):
-        start = self.relative_start
-        end = self.relative_end
-        try:
-            a = sqrt(
-                (start.x**2 * end.y**2 - end.x**2 * start.y**2)
-                / ((start.y + end.y) * (end.y - start.y))
-            )
-        except:
-            pass
 
     def get_quad1_interpolation_points(self):
         """Get the endpoints of arcs used within the first quadrant.
@@ -287,8 +275,6 @@ class _BaseEllipse(EntityList):
             end_angle = 0
         if abs(start_angle) < GEOM_TOLERANCE:
             start_angle = 0
-        if end_angle == 180:
-            end_angle = -180
         if start_angle == 180:
             start_angle = -180
         rev = (end_angle - start_angle) % 360 > 180
@@ -470,8 +456,12 @@ class Ellipse(_BaseEllipse):
             angle = tangent_line.angle - 90
 
         self.n = n
-        self.relative_start = start.to_relative_coords(centre)
-        self.relative_end = end.to_relative_coords(centre)
+        relative_start = deepcopy(start)
+        relative_start.translate(-centre.x, -centre.y)
+        self.relative_start = relative_start
+        relative_end = deepcopy(end)
+        relative_end.translate(-centre.x, -centre.y)
+        self.relative_end = relative_end
         self.relative_start.rotate(Coordinate(0, 0), -angle)
         self.relative_end.rotate(Coordinate(0, 0), -angle)
         self.centre = centre
