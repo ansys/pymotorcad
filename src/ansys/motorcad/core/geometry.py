@@ -388,7 +388,7 @@ class Region(object):
 
         Returns
         -------
-        list of string\
+        list of string
             list of child region names
         """
         return self._child_names
