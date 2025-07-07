@@ -79,23 +79,20 @@ class DataStoreRecord:
 
     def to_json(self):
         record_dict = {
-        "current_value" : self.current_value,
-        "default_value" : self.default_value,
-
-        "units" : self.units,
-        "input_or_output_type" : self.input_or_output_type,
-
-        "record_name" : self.record_name,
-        "activex_name" : self.activex_name,
-        "alternative_activex_name" : self.alternative_activex_name,
-        "file_section" : self.file_section,
-
-        "is_array" : self.is_array,
-        "is_array_2d" : self.is_array_2d,
-        "use_max_value" : self.use_max_value,
-        "use_min_value" : self.use_min_value,
-        "max_value" : self.max_value,
-        "min_value" : self.min_value,
+            "current_value": self.current_value,
+            "default_value": self.default_value,
+            "units": self.units,
+            "input_or_output_type": self.input_or_output_type,
+            "record_name": self.record_name,
+            "activex_name": self.activex_name,
+            "alternative_activex_name": self.alternative_activex_name,
+            "file_section": self.file_section,
+            "is_array": self.is_array,
+            "is_array_2d": self.is_array_2d,
+            "use_max_value": self.use_max_value,
+            "use_min_value": self.use_min_value,
+            "max_value": self.max_value,
+            "min_value": self.min_value,
         }
         return record_dict
 
@@ -227,7 +224,7 @@ class Datastore(dict):
     def __init__(self):
         """Do initialisation."""
         super().__init__()
-        self.__activex_names__ = {} # Lookup table to allow alternative activex names.
+        self.__activex_names__ = {}  # Lookup table to allow alternative activex names.
 
     def get_variable_record(self, variable_name):
         """Get a variable record case-insensitive.
@@ -276,9 +273,9 @@ class Datastore(dict):
         DataStore
         """
         result = dict(
-            (key, item) for key, item in self.items() if
-            item.file_section_in_list(file_sections) and
-            item.inout_in_list(inout_types)
+            (key, item)
+            for key, item in self.items()
+            if item.file_section_in_list(file_sections) and item.inout_in_list(inout_types)
         )
 
         return Datastore.from_dict(result)
@@ -318,7 +315,7 @@ class Datastore(dict):
             # Keep behaviour of returning a KeyError if not in the dict.
             raise KeyError
 
-    def extend(self, datastore: 'Datastore'):
+    def extend(self, datastore: "Datastore"):
         for key, value in datastore.items():
             self[key] = value
             self[key].update_parent(self)
@@ -338,9 +335,9 @@ class Datastore(dict):
             datastore_record_object = DataStoreRecord.from_json(datastore_record_json, datastore)
             datastore[datastore_record_json["activex_name"]] = datastore_record_object
 
-            datastore.__activex_names__[
-                datastore_record_json["activex_name"].lower()
-            ] = datastore_record_json["activex_name"]
+            datastore.__activex_names__[datastore_record_json["activex_name"].lower()] = (
+                datastore_record_json["activex_name"]
+            )
             if datastore_record_json["alternative_activex_name"] != "xxx":
                 # Parameter also has an alternative name. Add it to another dict to search quickly.
                 datastore.__activex_names__[
