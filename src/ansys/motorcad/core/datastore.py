@@ -34,7 +34,7 @@ class DataStoreRecord:
 
     def __init__(self, parent_datastore):
         """Do initialisation."""
-        self.parent_datastore = parent_datastore
+        self._parent_datastore = parent_datastore
         self.current_value = None
         self.default_value = None
 
@@ -62,6 +62,9 @@ class DataStoreRecord:
         """Get string representation of record."""
         return str(self.current_value)
 
+    def update_parent(self, parent_datastore):
+        self._parent_datastore = parent_datastore
+
     def file_section_in_list(self, section_list: list | None):
         if section_list is None:
             return True
@@ -73,6 +76,28 @@ class DataStoreRecord:
             return True
         else:
             return self.input_or_output_type in inout_list
+
+    def to_json(self):
+        record_dict = {
+        "current_value" : self.current_value,
+        "default_value" : self.default_value,
+
+        "units" : self.units,
+        "input_or_output_type" : self.input_or_output_type,
+
+        "record_name" : self.record_name,
+        "activex_name" : self.activex_name,
+        "alternative_activex_name" : self.alternative_activex_name,
+        "file_section" : self.file_section,
+
+        "is_array" : self.is_array,
+        "is_array_2d" : self.is_array_2d,
+        "use_max_value" : self.use_max_value,
+        "use_min_value" : self.use_min_value,
+        "max_value" : self.max_value,
+        "min_value" : self.min_value,
+        }
+        return record_dict
 
     @classmethod
     def from_json(cls, json, parent_datastore):
@@ -153,7 +178,14 @@ class DataStoreRecordArray(DataStoreRecord):
         -------
         int
         """
-        return self.parent_datastore.get_variable_record(self.array_length_ref_name)
+        return self._parent_datastore.get_variable_record(self.array_length_ref_name)
+
+    def to_json(self):
+        record_dict = super().to_json()
+        record_dict["array_length"] = self.array_length
+        record_dict["array_length_ref"] = self.array_length_ref_name
+        record_dict["dynamic"] = self.dynamic
+        return record_dict
 
 
 class DataStoreRecordArray2D(DataStoreRecord):
@@ -177,9 +209,16 @@ class DataStoreRecordArray2D(DataStoreRecord):
         array_length_2d_array = []
         for array_length_ref_name in self.array_length_ref_2d_name:
             array_length_2d_array += [
-                self.parent_datastore.get_variable_record(array_length_ref_name)
+                self._parent_datastore.get_variable_record(array_length_ref_name)
             ]
         return array_length_2d_array
+
+    def to_json(self):
+        record_dict = super().to_json()
+        record_dict["array_length_2d"] = self.array_length_2d
+        record_dict["array_length_ref_2d"] = self.array_length_ref_2d_name
+        record_dict["dynamic"] = self.dynamic
+        return record_dict
 
 
 class Datastore(dict):
@@ -244,6 +283,17 @@ class Datastore(dict):
 
         return Datastore.from_dict(result)
 
+    def to_json(self):
+        """Return serialised version of the Datastore object to be saved as a JSON.
+        Has the same structure as
+
+        Returns
+        -------
+        dict
+        """
+        record_list = [value.to_json() for key, value in self.items()]
+        return {"data_records": record_list}
+
     def to_dict(self):
         """Cast Datastore class to a dictionary with the current_value.
 
@@ -271,7 +321,7 @@ class Datastore(dict):
     def extend(self, datastore: 'Datastore'):
         for key, value in datastore.items():
             self[key] = value
-            self[key].parent_datastore = self
+            self[key].update_parent(self)
 
             self.__activex_names__[key.lower()] = key
             if value.alternative_activex_name != "xxx":
@@ -306,7 +356,7 @@ class Datastore(dict):
 
         for key, value in datastore_dict.items():
             datastore[key] = value
-            datastore[key].parent_datastore = datastore
+            datastore[key].update_parent(datastore)
 
             datastore.__activex_names__[key.lower()] = key
             if value.alternative_activex_name != "xxx":
