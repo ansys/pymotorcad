@@ -63,21 +63,55 @@ class DataStoreRecord:
         return str(self.current_value)
 
     def update_parent(self, parent_datastore):
+        """Update the reference to the parent datastore this DataStoreRecord is contained in.
+
+        Parameters
+        ----------
+        parent_datastore : Datastore
+        """
         self._parent_datastore = parent_datastore
 
-    def file_section_in_list(self, section_list: list | None):
+    def file_section_in_list(self, section_list):
+        """Check if this record is part of the list of file sections.
+
+        Parameters
+        ----------
+        section_list : list | None
+            list of strings that define the category (e.g. Magnetics, Dimensions, Winding, etc).
+
+        Returns
+        -------
+        bool
+        """
         if section_list is None:
             return True
         else:
             return self.file_section in section_list
 
-    def inout_in_list(self, inout_list: list | None):
+    def inout_in_list(self, inout_list):
+        """Check if this record is part of the list of input_or_output_type
+
+        Parameters
+        ----------
+        inout_list : list | None
+            list of integers that define the data type (e.g. input type, compatibility type, etc).
+
+        Returns
+        -------
+        bool
+        """
         if inout_list is None:
             return True
         else:
             return self.input_or_output_type in inout_list
 
     def to_json(self):
+        """Convert DatastoreRecord to a serialisable dictionary for JSON export.
+
+        Returns
+        -------
+        dict
+        """
         record_dict = {
             "current_value": self.current_value,
             "default_value": self.default_value,
@@ -178,6 +212,12 @@ class DataStoreRecordArray(DataStoreRecord):
         return self._parent_datastore.get_variable_record(self.array_length_ref_name)
 
     def to_json(self):
+        """Convert 1D array Datastore record to a serialisable dictionary for JSON export.
+
+        Returns
+        -------
+        dict
+        """
         record_dict = super().to_json()
         record_dict["array_length"] = self.array_length
         record_dict["array_length_ref"] = self.array_length_ref_name
@@ -211,6 +251,12 @@ class DataStoreRecordArray2D(DataStoreRecord):
         return array_length_2d_array
 
     def to_json(self):
+        """Convert 2D array Datastore record to a serialisable dictionary for JSON export.
+
+        Returns
+        -------
+        dict
+        """
         record_dict = super().to_json()
         record_dict["array_length_2d"] = self.array_length_2d
         record_dict["array_length_ref_2d"] = self.array_length_ref_2d_name
@@ -316,6 +362,12 @@ class Datastore(dict):
             raise KeyError
 
     def extend(self, datastore: "Datastore"):
+        """Extend the current datastore using data from the provided Datastore.
+
+        Returns
+        -------
+        Datastore
+        """
         for key, value in datastore.items():
             self[key] = value
             self[key].update_parent(self)
