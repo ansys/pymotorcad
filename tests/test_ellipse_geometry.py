@@ -24,8 +24,8 @@ from math import sqrt
 
 import pytest
 
-from ansys.motorcad.core.ellipse_geometry import Ellipse
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, EntityList, Line
+from ansys.motorcad.core.geometry_ellipse import Ellipse
 
 
 @pytest.fixture(scope="function")
@@ -83,7 +83,8 @@ def test_ellipse_construction1(simple_ellipse1):
     p1 = Coordinate(20, 0)
     p2 = Coordinate(0, 25)
     origin = Coordinate(0, 0)
-    assert simple_ellipse1 == Ellipse(p1, p2, centre=origin, angle=0)
+    ellipse = Ellipse(p1, p2, centre=origin, angle=0)
+    assert simple_ellipse1 == ellipse
 
 
 def test_ellipse_construction2():

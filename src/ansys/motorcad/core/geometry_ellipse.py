@@ -40,7 +40,7 @@ class _BaseEllipse(EntityList):
     Begins by extracting the lengths of the major and minor axes from the given information,
     then approximates a single quadrant. It then mirrors that to create a full ellipse, and
     extracts the section of that full ellipse defined by the start and end coordinates.
-    n defines the precision of the approximation of the single quadrant. As such, it is
+    n defines the precision of the approximation of the single quadrant. As such, while it is
     correlated with the number of arcs in the final returned elliptic arc, that final
     number will vary based on the location and length of the elliptic arc defined by the
      start and end coordinates.
@@ -67,11 +67,13 @@ class _BaseEllipse(EntityList):
             self.relative_start = deepcopy(start)
             self.relative_end = deepcopy(end)
 
-        # initializing a and b
+        # Initialising a and b
+        # If the points are mirrored, eccentricity must be given
         if self.is_reflection():
             if eccentricity is None:
                 raise Exception("Eccentricity must be given for mirrored points")
             else:
+                # With given eccentricity, there is enough information to calculate a and b
                 self.eccentricity = eccentricity
                 self.a = sqrt(
                     (
@@ -82,7 +84,7 @@ class _BaseEllipse(EntityList):
                 )
                 self.b = sqrt(self.a**2 * (1 - eccentricity**2))
         else:
-            self.initialize_ab()
+            self._initialise_ab()
 
         # shortcut if ellipse is just circle:
         if self.eccentricity == 0:
@@ -96,11 +98,17 @@ class _BaseEllipse(EntityList):
             else:
                 self.n = n
 
-            quad1_points = self.get_quad1_interpolation_points()
-            arcs = self.get_quad1_arcs(quad1_points)
-            ellipse = self.get_whole_ellipse(arcs)
-            spanning_arcs = self.get_spanning_arcs(ellipse)
-            elliptic_arc = self.truncate_spanning_arcs(spanning_arcs)
+            # Get interpolation points in the first quadrant
+            quad1_points = self._get_quad1_interpolation_points()
+            # Use those points to create the section of the ellipse spanning
+            # the first quadrant
+            self.arcs = self._get_quad1_arcs(quad1_points)
+            # Use that quadrant to generate the whole ellipse
+            self.whole_ellipse = self._get_whole_ellipse()
+            # Find the arcs that span between start and end
+            spanning_arcs = self._get_spanning_arcs()
+            # Truncate the first and last arcs so they more precisely match the start and end
+            elliptic_arc = self._truncate_spanning_arcs(spanning_arcs)
             arc0 = elliptic_arc[0]
             # Implementation sometimes results in very short arcs at endpoints;
             # these are removed.
@@ -114,8 +122,25 @@ class _BaseEllipse(EntityList):
             if self.get_min_length() < 0.1:
                 warnings.warn("Curvature may be too extreme. Less detail or curvature recommended")
 
-    def initialize_ab(self):
-        """Initialize a, b, and eccentricity.
+    def is_reflection(self):
+        """Determine whether start and end are reflections across an axis.
+
+        Returns
+        -------
+        boolean
+        """
+        x_axis = Line(Coordinate(0, 0), Coordinate(1, 0))
+        y_axis = Line(Coordinate(0, 0), Coordinate(0, 1))
+        if self.relative_start.mirror(y_axis) == self.relative_end:
+            return True
+        if self.relative_start.mirror(x_axis) == self.relative_end:
+            return True
+        if Coordinate(-self.relative_start.x, -self.relative_start.y) == self.relative_end:
+            return True
+        return False
+
+    def _initialise_ab(self):
+        """Initialise a, b, and eccentricity.
 
         Returns
         -------
@@ -136,6 +161,9 @@ class _BaseEllipse(EntityList):
             self.b = b
             self.a = a
 
+            # Eccentricity is defined in terms of the major and minor axes.
+            # Either a (the length of the x axis) or b (the length of the y axis)
+            # could be major, so which is which is sorted out below
             top = min(a, b)
             bottom = max(a, b)
             self.eccentricity = sqrt(1 - top**2 / bottom**2)
@@ -149,7 +177,7 @@ class _BaseEllipse(EntityList):
                 "Invalid points: proposed shape must be an ellipse or elliptic arc"
             ) from e
 
-    def get_quad1_interpolation_points(self):
+    def _get_quad1_interpolation_points(self):
         """Get the endpoints of arcs used within the first quadrant.
 
         Returns
@@ -163,70 +191,58 @@ class _BaseEllipse(EntityList):
         if a == b:
             return list(Coordinate.from_polar_coords(a, i / n * 90) for i in range(0, n + 1))
 
+        # The location of the interpolation points is defined by a weighted average of curvatures
+        # k_i represents the curvature at the ith point
         k_0 = a / b**2
         k_n = b / a**2
 
-        points = [0] * (n + 1)
+        points = [Coordinate(0, 0)] * (n + 1)
         points[0] = Coordinate(a, 0)
         points[n] = Coordinate(0, b)
 
         for i in range(1, n):
             k_i = (1 - i / n) * k_0 + (i / n) * k_n
+            # l_i merely an intermediate variable to aid in algebra
             l_i = ((a * b) / k_i) ** (2 / 3)
+            # Each point has an approximately equal difference in curvature to its neighbors:
+            # This in general results in points more densely clustered near points of high curvature
             x_i = a * sqrt(abs((l_i - a**2) / (b**2 - a**2)))
             y_i = b * sqrt(abs((l_i - b**2) / (a**2 - b**2)))
             points[i] = Coordinate(x_i, y_i)
         return points
 
-    def get_arc_section(self, arc, new_start, new_end):
-        """Return an Arc with new start and end coordinates.
-
-        Parameters
-        ----------
-        arc: Arc
-            Arc to be truncated
-
-        new_start: Coordinate
-
-        new_end: Coordinate
-
-        Returns
-        -------
-        Arc
-        """
-        return Arc(new_start, new_end, radius=arc.radius)
-
-    def get_quad1_arcs(self, points):
+    def _get_quad1_arcs(self, points):
         """Get a list of arcs defining the Ellipse in the first quadrant.
 
         Parameters
         ----------
-        points: list of Coordinate
+        points: List of Coordinate
 
         Returns
         -------
         EntityList
         """
         # First arc chosen to pass through starting point, second point, and second point mirrored
+        # across x-axis
         arcs = EntityList()
         full_arc_0 = Arc.from_coordinates(
             Coordinate(points[1].x, -points[1].y), points[0], points[1]
         )
-        arcs.append((self.get_arc_section(full_arc_0, points[0], points[1])))
-
+        arcs.append((Arc(points[0], points[1], radius=full_arc_0.radius)))
         if len(points) > 3:
             for i in range(1, len(points) - 2):
-                # Each arc would pass through three points if extended
+                # Each arc would pass through three points if extended: the i-1th,
+                # the ith, and the i+1th
                 # Just the half spanning the ith and i+1th point is appended
                 full_arc_i = Arc.from_coordinates(points[i - 1], points[i], points[i + 1])
-                arcs.append(self.get_arc_section(full_arc_i, points[i], points[i + 1]))
+                arcs.append(Arc(points[i], points[i + 1], radius=full_arc_i.radius))
         full_arc_n = Arc.from_coordinates(
             points[-2], points[-1], Coordinate(-points[-2].x, points[-2].y)
         )
-        arcs.append(self.get_arc_section(full_arc_n, points[-2], points[-1]))
+        arcs.append(Arc(points[-2], points[-1], radius=full_arc_n.radius))
         return arcs
 
-    def get_whole_ellipse(self, arcs):
+    def _get_whole_ellipse(self):
         """Extrapolate the whole ellipse from the first quadrant.
 
         Parameters
@@ -238,11 +254,12 @@ class _BaseEllipse(EntityList):
         -------
         EntityList
         """
+        arcs = self.arcs
         n = len(arcs)
-        whole_ellipse = [0] * (n * 4)
+        whole_ellipse = [Coordinate(0, 0)] * (n * 4)
         whole_ellipse[0:n] = arcs
         for i, arc in enumerate(arcs):
-            # Each arc is mirrored to the other three quadrants
+            # Each arc is mirrored to the other three quadrants at an appropriate location
             whole_ellipse[2 * n - (i + 1)] = arc.mirror(Line(Coordinate(0, 0), Coordinate(0, 1)))
             whole_ellipse[2 * n - (i + 1)].reverse()
 
@@ -256,7 +273,7 @@ class _BaseEllipse(EntityList):
 
         return EntityList(whole_ellipse)
 
-    def get_spanning_arcs(self, whole_ellipse):
+    def _get_spanning_arcs(self):
         """Get the section of the ellipse spanning between start and end.
 
         Parameters
@@ -267,6 +284,7 @@ class _BaseEllipse(EntityList):
         -------
         EntityList
         """
+        whole_ellipse = self.whole_ellipse
         spanning = False
         n = len(whole_ellipse)
         start_angle = self.relative_start.get_polar_coords_deg()[1]
@@ -280,11 +298,21 @@ class _BaseEllipse(EntityList):
         rev = (end_angle - start_angle) % 360 > 180
         spanning_arcs = EntityList()
 
+        # The basic structure of both following sections is to walk through the ellipse (clockwise
+        # if rev is True, anticlockwise otherwise) until it finds the arc containing the starting
+        # point. It then continues to walk through the ellipse, adding each arc to the spanning
+        # section, until it reaches the arc containing the ending point, at which point it adds
+        # that final arc to the spanning section and breaks out of its loop.
+
         if rev:
             whole_ellipse.reverse()
             i = 0
             while True:
                 arc = whole_ellipse[i % n]
+                # A little bit of work is required to handle the angle edge cases
+                # Since we are going clockwise, if an arc's end were 180, its start
+                # would still be negative resulting in mistakenly assigned or missed
+                # points. To fix this, it is reassigned to -180
                 if arc.end.get_polar_coords_deg()[1] == 180:
                     lower_bound = -180
                 else:
@@ -302,6 +330,9 @@ class _BaseEllipse(EntityList):
             i = 0
             while True:
                 arc = whole_ellipse[i % n]
+                # Since we are going anticlockwise, if an arc's start were 180,
+                # its end would be negative resulting in mistakenly assigned or
+                # missed points. To fix this, it is reassigned to -180
                 if arc.start.get_polar_coords_deg()[1] == 180:
                     lower_bound = -180
                 else:
@@ -317,7 +348,7 @@ class _BaseEllipse(EntityList):
                 i += 1
         return spanning_arcs
 
-    def truncate_spanning_arcs(self, spanning_arcs):
+    def _truncate_spanning_arcs(self, spanning_arcs):
         """Truncate spanning arcs to match start and end.
 
         Parameters
@@ -340,16 +371,18 @@ class _BaseEllipse(EntityList):
                 (self.relative_start.x - p.x) ** 2 + (self.relative_start.y - p.y) ** 2
             )
         )
-        spanning_arcs[0] = self.get_arc_section(
-            spanning_arcs[0], start_intersections[0], spanning_arcs[0].end
+        # Resetting the starting arc's beginning to match the start
+        spanning_arcs[0] = Arc(
+            start_intersections[0], spanning_arcs[0].end, radius=spanning_arcs[0].radius
         )
 
         end_intersections = spanning_arcs[-1].get_line_intersection(end_intersection_line)
         end_intersections.sort(
             key=lambda p: sqrt((self.relative_end.x - p.x) ** 2 + (self.relative_end.y - p.y) ** 2)
         )
-        spanning_arcs[-1] = self.get_arc_section(
-            spanning_arcs[-1], spanning_arcs[-1].start, end_intersections[0]
+        # Resetting the final arc's end to match the endpoint
+        spanning_arcs[-1] = Arc(
+            spanning_arcs[-1].start, end_intersections[0], radius=spanning_arcs[-1].radius
         )
 
         return spanning_arcs
@@ -371,6 +404,7 @@ class Ellipse(_BaseEllipse):
     Expected inputs:
         Ellipse(start, end, depth)
         Ellipse(start, end, eccentricity)
+        Ellipse(start, end, angle, centre, eccentricity or depth (if required))
     Angle and centre may also be provided in either case.
     Default angle is equal to the angle of the normal of the line connecting start
     and end. If no centre point is given, the centre will be defined as the average
@@ -440,21 +474,72 @@ class Ellipse(_BaseEllipse):
         When providing angle and eccentricity, switching whether the major or
         minor axis is used may be accomplished by leading supplied angle by 90 degrees.
 
+    Examples
+    --------
+    A basic example using depth
+
+    >>> point1 = Coordinate(0,10)
+    >>> point2 = Coordinate(0,-10)
+    >>> ellipse = Ellipse(point1, point2, depth = 20)
+    >>> draw_objects_debug(ellipse)
+
+    An equivalent elliptic arc using eccentricity
+
+    >>> point1 = Coordinate(0,10)
+    >>> point2 = Coordinate(0,-10)
+    >>> ellipse = Ellipse(point1, point2, eccentricity = 0.8660254037844386)
+    >>> draw_objects_debug(ellipse)
+
+    Elliptic arc with changed centre, but same start, end, and midpoint
+
+    >>> point1 = Coordinate(0,10)
+    >>> point2 = Coordinate(0,-10)
+    >>> ellipse = Ellipse(point1, point2, centre=Coordinate(-10,0), depth=-20)
+    >>> draw_objects_debug(ellipse)
+
+    Identical ellipse with greater precision
+
+    >>> point1 = Coordinate(0,10)
+    >>> point2 = Coordinate(0,-10)
+    >>> ellipse = Ellipse(point1, point2, centre=Coordinate(-10,0), depth=-20, n=15)
+    >>> draw_objects_debug(ellipse)
+
+    An elliptic arc that does not require depth or eccentricity
+
+    >>> point1 = Coordinate(10,0)
+    >>> point2 = Coordinate(0,20)
+    >>> ellipse = Ellipse(point1, point2, centre=Coordinate(0,0), angle=0)
+    >>> draw_objects_debug(ellipse)
+
+    An elliptic arc with manually supplied angle, centre, and eccentricity.
+
+    >>> point1 = Coordinate(10,0)
+    >>> point2 = Coordinate(0,10)
+    >>> ellipse = Ellipse(point1, point2, centre=Coordinate(0,0), angle=45, eccentricity=0.9)
+    >>> draw_objects_debug(ellipse)
+
+    An elliptic arc that generates the same whole ellipse, but uses the minor axis by
+    leading supplied angle by 90
+
+    >>> point1 = Coordinate(10,0)
+    >>> point2 = Coordinate(0,10)
+    >>> ellipse = Ellipse(point1, point2, centre=Coordinate(0,0), angle=135, eccentricity=0.9)
+    >>> draw_objects_debug(ellipse)
+
     """
 
     def __init__(self, start, end, n=None, depth=None, eccentricity=None, angle=None, centre=None):
-        """Initialize Ellipse."""
+        """Initialise Ellipse."""
         origin = Coordinate(0, 0)
         midpoint = start - (start - end) / 2
         if centre is None:
             centre = midpoint
 
-        angle_given = True
         if angle is None:
-            angle_given = False
             tangent_line = Line(start, midpoint)
             angle = tangent_line.angle - 90
 
+        # Calculating relative start and end, to be later fed to the _BaseEllipse Class
         self.n = n
         relative_start = deepcopy(start)
         relative_start.translate(-centre.x, -centre.y)
@@ -466,12 +551,12 @@ class Ellipse(_BaseEllipse):
         self.relative_end.rotate(Coordinate(0, 0), -angle)
         self.centre = centre
 
-        radius = Line(centre, start).length
-
         mirror = False
+        # The following if-block calculates an eccentricity that results in the requested depth
         # An eccentricity that gives the proper depth is found even if centre is provided,
         # so long as the centre also results in required eccentricity
         if (depth is not None) and (eccentricity is None) and (self.is_reflection()):
+            # Negative depth results in an ellipse that curves in the opposite direction
             if depth < 0:
                 mirror = True
                 depth = -depth
@@ -479,17 +564,23 @@ class Ellipse(_BaseEllipse):
             threshold_radius = Line(centre, start).length
             axis_length = depth + Line(centre, midpoint).length
 
-            # Case when an arc section with depth greater than that of an arc is required
+            # Case when an arc section with depth greater than that of a circular arc is required
+            # The major axis is aligned with the supplied angle
             if axis_length > threshold_radius:
                 eccentricity = sqrt(
                     (axis_length**2 - self.relative_start.x**2 - self.relative_start.y**2)
                     / (axis_length**2 - self.relative_start.x**2)
                 )
 
+            # In the case that an arc section with depth less than that of a circular arc
+            # is required, the angle is incremented by 90 degrees. This essentially makes
+            # certain the major axis remains the x-axis, letting one re-use old calculations
+            # for that case. The major axis is perpendicular to the supplied angle
             if axis_length < threshold_radius:
                 angle += 90
                 self.relative_start.rotate(origin, -90)
                 self.relative_end.rotate(origin, -90)
+                # A different calculation for eccentricity is still required
                 eccentricity = sqrt(
                     1
                     - axis_length**2
@@ -497,12 +588,12 @@ class Ellipse(_BaseEllipse):
                     / (axis_length**2 * self.relative_start.x**2)
                 )
 
+            # Case when a circular arc is all that is required
             if abs(axis_length - threshold_radius) < GEOM_TOLERANCE:
                 eccentricity = 0
 
-        # Approximation is always done on an ellipse centred at the origin
-        # With an axis of symmetry aligned with the x-axis
-
+        # Approximation is always done on an ellipse centred at the origin, with
+        # axes of symmetry aligned with the x and y axes
         super().__init__(self.relative_start, self.relative_end, n, eccentricity)
         self.start = deepcopy(start)
         self.end = deepcopy(end)
@@ -516,24 +607,8 @@ class Ellipse(_BaseEllipse):
         self[0] = Arc(start, self[0].end, radius=self[0].radius)
         self[-1] = Arc(self[-1].start, end, radius=self[-1].radius)
 
+        # Handling negative depth
         if mirror:
             reflection_line = Line(start, end)
             for i, section in enumerate(self):
                 self[i] = section.mirror(reflection_line)
-
-    def is_reflection(self):
-        """Determine whether start and end are reflections across an axis.
-
-        Returns
-        -------
-        boolean
-        """
-        x_axis = Line(Coordinate(0, 0), Coordinate(1, 0))
-        y_axis = Line(Coordinate(0, 0), Coordinate(0, 1))
-        if self.relative_start.mirror(y_axis) == self.relative_end:
-            return True
-        if self.relative_start.mirror(x_axis) == self.relative_end:
-            return True
-        if Coordinate(-self.relative_start.x, -self.relative_start.y) == self.relative_end:
-            return True
-        return False
