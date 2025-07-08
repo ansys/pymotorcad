@@ -2145,6 +2145,10 @@ class EntityList(list):
         """Compare equality of 2 EntityList objects."""
         return self._entities_same(other, check_reverse=True)
 
+    def __ne__(self, other):
+        """Compare difference of 2 EntityList objects."""
+        return not self == other
+
     def reverse(self):
         """Reverse EntityList, including entity start end coordinates."""
         super().reverse()
@@ -2200,6 +2204,9 @@ class EntityList(list):
                 return True
             else:
                 return False
+
+        if len(self) != len(entities_to_compare):
+            return False
 
         if check_reverse:
             if _entities_same_with_direction(self, entities_to_compare):
