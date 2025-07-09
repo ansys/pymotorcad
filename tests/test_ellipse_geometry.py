@@ -150,6 +150,20 @@ def test_ellipse_construction5():
     assert len(ellipse2) == 1
 
 
+def test_ellipse_direction():
+    # Test that ellipse by default passes to the right of the line connecting start and end
+    p1 = Coordinate(10, 0)
+    p2 = Coordinate(-10, 0)
+    assert Ellipse(p1, p2, depth=5)[0].end.y > 0
+    assert Ellipse(p2, p1, depth=5)[0].end.y < 0
+
+    p3 = Coordinate(0, 10)
+    p4 = Coordinate(0, -10)
+
+    assert Ellipse(p3, p4, depth=5)[0].end.x < 0
+    assert Ellipse(p4, p3, depth=5)[0].end.x > 0
+
+
 def test_ellipse_reverse():
     # Test ordering
     p2 = Coordinate(20, 0)

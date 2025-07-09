@@ -607,6 +607,17 @@ class Ellipse(_BaseEllipse):
         self[0] = Arc(start, self[0].end, radius=self[0].radius)
         self[-1] = Arc(self[-1].start, end, radius=self[-1].radius)
 
+        # To make sure ellipse behaviour is predictable, ellipse is checked
+        # and/or made to arc to the right of the line from start to end
+
+        # A sample point used to check which direction the arc goes
+        sample_point = deepcopy(self[0].midpoint)
+        direct_angle = Line(start, end).angle
+        sample_point.rotate(start, -direct_angle + 90)
+        test_angle = Line(start, sample_point).angle
+        if test_angle > 90:
+            mirror = not mirror
+
         # Handling negative depth
         if mirror:
             reflection_line = Line(start, end)
