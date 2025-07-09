@@ -29,7 +29,7 @@ class GeometryTree(dict):
     """Class used to build geometry trees."""
 
     def __init__(self, empty=False):
-        """Initialize the geometry tree.
+        """Initialise the geometry tree.
 
         Parameters
         ----------
@@ -121,11 +121,9 @@ class GeometryTree(dict):
 
     def get_node(self, key):
         """Get a region from the tree (case-insensitive)."""
-        try:
-            node = self[key]
-        except KeyError:
-            node = self[key.capitalize()]
-        return node
+        if key.lower() in self.lowercase_keys:
+            return self[self.lowercase_keys[key.lower()]]
+        raise KeyError()
 
     def _build_tree(self, tree_json, node, parent=None):
         """Recursively builds tree.
@@ -144,9 +142,7 @@ class GeometryTree(dict):
         # Recur for each child.
         if node["child_names"] != []:
             for child_name in node["child_names"]:
-                self._build_tree(
-                    tree_json, tree_json[child_name], self.get_node(node["name_unique"])
-                )
+                self._build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
 
     def add_node(self, region, key=None, parent=None, children=None):
         """Add node to tree.
@@ -229,6 +225,11 @@ class GeometryTree(dict):
 
         dive(node)
         node.parent.children.remove(node)
+
+    @property
+    def lowercase_keys(self):
+        """Return a dict of lowercase keys and their corresponding real keys."""
+        return dict((key.lower(), key) for key in self)
 
 
 class GeometryNode(Region):
