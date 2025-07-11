@@ -22,7 +22,7 @@
 
 """
 Oval Rotor Ducts
-========================
+================
 This scripts uses the adaptive templates functionality to add elliptical rotor ducts.
 """
 # %%
