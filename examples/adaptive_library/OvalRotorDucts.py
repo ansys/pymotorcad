@@ -131,7 +131,7 @@ radius = float(mc.get_variable("RotorCircularDuctLayer_RadialDiameter").split(" 
 # ---------------------------------------------------------
 # It might be the case that MotorCAD has split the rectangular duct into upper and lower parts
 # due to it crossing a line of symmetry. This will often occur for ellipses with the same width and
-# height, but not always, so splitting the ellipse in similar way is left until later,
+# height, but not always, so splitting the ellipse in a similar way is left until later,
 # when calculations can be run on whether it's necessary
 
 try:
