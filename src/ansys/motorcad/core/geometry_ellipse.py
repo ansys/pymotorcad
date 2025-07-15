@@ -99,10 +99,10 @@ class _BaseEllipse(EntityList):
                 self.n = n
 
             # Get interpolation points in the first quadrant
-            quad1_points = self._get_quad1_interpolation_points()
+            self._quad1_points = self._get_quad1_interpolation_points()
             # Use those points to create the section of the ellipse spanning
             # the first quadrant
-            self.arcs = self._get_quad1_arcs(quad1_points)
+            self.arcs = self._get_quad1_arcs()
             # Use that quadrant to generate the whole ellipse
             self.whole_ellipse = self._get_whole_ellipse()
             # Find the arcs that span between start and end
@@ -211,7 +211,7 @@ class _BaseEllipse(EntityList):
             points[i] = Coordinate(x_i, y_i)
         return points
 
-    def _get_quad1_arcs(self, points):
+    def _get_quad1_arcs(self):
         """Get a list of arcs defining the Ellipse in the first quadrant.
 
         Parameters
@@ -222,6 +222,7 @@ class _BaseEllipse(EntityList):
         -------
         EntityList
         """
+        points = self._quad1_points
         # First arc chosen to pass through starting point, second point, and second point mirrored
         # across x-axis
         arcs = EntityList()

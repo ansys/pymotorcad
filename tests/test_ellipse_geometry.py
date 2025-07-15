@@ -150,6 +150,22 @@ def test_ellipse_construction5():
     assert len(ellipse2) == 1
 
 
+def test_ellipse_rounding():
+    # Make certain arcs with neglectable length are lopped off at endpoints
+    p1 = Coordinate(20, 0)
+    p2 = Coordinate(-13.602546959066672, 29.342368685121265)
+
+    test_ellipse = Ellipse(p1, p2, centre=Coordinate(0, 0), angle=0)
+
+    assert test_ellipse[-1].length > GEOM_TOLERANCE
+
+    p3 = Coordinate(13.60834759842632, 29.312992161666193)
+    p4 = Coordinate(0, 40)
+
+    test_ellipse = Ellipse(p3, p4, centre=Coordinate(0, 0), angle=0)
+    assert test_ellipse[0].length > GEOM_TOLERANCE
+
+
 def test_ellipse_direction():
     # Test that ellipse by default passes to the right of the line connecting start and end
     p1 = Coordinate(10, 0)
