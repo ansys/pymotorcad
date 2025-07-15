@@ -75,7 +75,7 @@ class GeometryTree(dict):
         return not self.__eq__(other)
 
     @classmethod
-    def _from_json(cls, tree):
+    def _from_json(cls, tree, mc):
         """Return a GeometryTree representation of the geometry defined within a JSON.
 
         Parameters
@@ -106,6 +106,7 @@ class GeometryTree(dict):
                 root["child_names"].append(region["name_unique"])
 
         self._build_tree(tree_json, root)
+        self.mc = mc
         return self
 
     def to_json(self):
@@ -143,6 +144,92 @@ class GeometryTree(dict):
         if node["child_names"] != []:
             for child_name in node["child_names"]:
                 self._build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
+
+    def fix_geometry(self, node):
+        """Fix geometry to work with FEA.
+
+        Parameters
+        ----------
+        node: node representing region to be fixed
+
+        Returns
+        -------
+        None
+
+        """
+        # Splits regions apart, if necessary, to enforce valid geometry
+        node = self.get_node(node)
+        name_length = len(node.key)
+        duplication_angle = 360 / node.duplications
+
+        # brush1 used to find the valid portion just above angle 0
+        brush1 = Region(region_type=RegionType.airgap)
+        brush_length = self.mc.get_variable("Stator_Lam_Dia")
+        p1 = Coordinate(0, 0)
+        p2 = Coordinate(brush_length, 0)
+        brush1.entities.append(Line(p2, p1))
+
+        brush1.entities.append(Arc(p1, p2, centre=Coordinate(brush_length / 2, 1)))
+        valid_regions_lower = self.mc.subtract_region(node, brush1)
+
+        # Case where there is no lower intersection
+        if (len(valid_regions_lower) == 1) and (valid_regions_lower[0].entities == node.entities):
+            # now perform the upper check
+            # brush3 used to find the valid portion just below duplication angle
+            brush3 = Region(region_type=RegionType.airgap)
+            p1 = Coordinate(0, 0)
+            p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
+            brush3.entities.append(Line(p1, p2))
+            brush3.entities.append(Arc(p2, p1, radius=brush_length / 2))
+            valid_regions_upper = self.mc.subtract_region(node, brush3)
+
+            # Case where no slicing necessary
+            if (len(valid_regions_upper) == 1) and (
+                valid_regions_upper[0].entities == node.entities
+            ):
+                return False
+            # Case where upper slicing necessary
+            else:
+                for new_valid_region in valid_regions_upper:
+                    self.add_node(new_valid_region, parent=node.parent)
+                # now perform the upper check
+                # brush4 used to find the invalid portion just above duplication angle
+                brush4 = Region(region_type=RegionType.airgap)
+                p1 = Coordinate(0, 0)
+                p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
+                brush4.entities.append(Line(p2, p1))
+                brush4.entities.append(Arc(p1, p2, radius=brush_length / 2))
+                invalid_regions_upper = self.mc.subtract_region(node, brush4)
+                for i, new_lower_valid_region in enumerate(invalid_regions_upper):
+                    new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
+                    new_lower_valid_region.name = new_lower_valid_region.name[0 : name_length + 1]
+                    new_lower_valid_region.name += str(i + len(valid_regions_upper) + 1)
+                    self.add_node(new_lower_valid_region, parent=node.parent)
+                self.remove_node(node)
+                return True
+        # Case where lower slicing necessary
+        else:
+            # first, handle the valid regions returned
+            for new_valid_region in valid_regions_lower:
+                self.add_node(new_valid_region, parent=node.parent)
+
+            # brush2 used to find the invalid portion just below angle 0
+            brush2 = Region(region_type=RegionType.airgap)
+            p1 = Coordinate(0, 0)
+            p2 = Coordinate(brush_length, 0)
+            brush2.entities.append(Line(p1, p2))
+            brush2.entities.append(Arc(p2, p1, centre=Coordinate(brush_length / 2, -1)))
+            # Upper in this case referring to the fact that this region will
+            # form the upper half of the ellipse.
+            # It will be below the other half in terms of relative positioning
+            invalid_regions_lower = self.mc.subtract_region(node, brush2)
+            for i, new_upper_valid_region in enumerate(invalid_regions_lower):
+                new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
+                new_upper_valid_region.name = new_upper_valid_region.name[0 : name_length + 1]
+                new_upper_valid_region.name += str(i + len(valid_regions_lower) + 1)
+                self.add_node(new_upper_valid_region, parent=node.parent)
+            self.remove_node(node)
+            return True
 
     def add_node(self, region, key=None, parent=None, children=None):
         """Add node to tree.

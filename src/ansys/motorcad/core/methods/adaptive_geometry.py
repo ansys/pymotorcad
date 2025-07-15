@@ -310,7 +310,7 @@ class _RpcMethodsAdaptiveGeometry:
         """Do placeholder."""
         method = "GetGeometryTree"
         json = self.connection.send_and_receive(method)
-        return GeometryTree._from_json(json)
+        return GeometryTree._from_json(json, self)
 
     def set_geometry_tree(self, tree):
         """Do placeholder."""
