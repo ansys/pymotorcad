@@ -1175,26 +1175,6 @@ class Coordinate(object):
         self.x += x
         self.y += y
 
-    def to_relative_coords(self, point):
-        """Translate Coordinate to corresponding spot in the coordinate system centred at point.
-
-        Parameters
-        ----------
-        point: Coordinate
-            new coordinate centre
-        """
-        return Coordinate(self.x - point.x, self.y - point.y)
-
-    def to_real_coords(self, point):
-        """Translate relative Coordinates to corresponding spot in the original coordinate system.
-
-        Parameters
-        ----------
-        point: Coordinate
-            old coordinate centre
-        """
-        return Coordinate(self.x + point.x, self.y + point.y)
-
     @classmethod
     def from_polar_coords(cls, radius, theta):
         """Create Coordinate from polar coordinates.
@@ -2097,6 +2077,10 @@ class EntityList(list):
     def polygon(cls, points, sort=False):
         """Create an EntityList from a list of points, connecting them with lines.
 
+        If sort is true, a centre point roughly in the centre of the supplied points will be
+        established and lines connecting the supplied points will be drawn anticlockwise about
+        that centre.
+
         Parameters
         ----------
         points : list of Coordinates or tuples
@@ -2116,7 +2100,9 @@ class EntityList(list):
 
             centre = Coordinate(xcentre, ycentre)
 
-            relative_points = list(point.to_relative_coords(centre) for point in points)
+            relative_points = list(deepcopy(point) for point in points)
+            for point in relative_points:
+                point.translate(-xcentre, -ycentre)
 
             # To make sure behaviour is well-defined for points with an equal angular coordinate
             # the points are first by sorted by radius, greatest to least
@@ -2128,7 +2114,9 @@ class EntityList(list):
             # from least to greatest angle (angles range from -180 to 180 degrees)
             sorted_points_relative.sort(key=lambda x: x.get_polar_coords_deg()[1])
 
-            points = list(point.to_real_coords(centre) for point in sorted_points_relative)
+            for point in sorted_points_relative:
+                point.translate(xcentre, ycentre)
+            points = sorted_points_relative
 
         final_list = EntityList()
 
