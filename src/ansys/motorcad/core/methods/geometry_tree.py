@@ -22,7 +22,7 @@
 
 """Methods for building geometry trees."""
 
-from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMagnet, RegionType
 
 
 class GeometryTree(dict):
