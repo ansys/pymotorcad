@@ -109,7 +109,7 @@ else:
     mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
     mc.set_variable("RotorDuctType", 4)
-    # The ducts are made slightly larger to aid in visibility
+    # Make ducts slightly larger to aid in visibility
     mc.set_variable("RotorCircularDuctLayer_ChannelHeight", 6)
     mc.set_variable("RotorCircularDuctLayer_ChannelWidth", 4)
 
@@ -120,7 +120,7 @@ mc.reset_adaptive_geometry()
 # %%
 # Get required parameters
 # -----------------------
-# Get the duct information specified
+# Get the duct information specified.
 angle = float(mc.get_variable("RotorCircularDuctLayer_OffsetAngle").split(" : ")[0])
 height = float(mc.get_variable("RotorCircularDuctLayer_ChannelHeight").split(" : ")[0])
 width = float(mc.get_variable("RotorCircularDuctLayer_ChannelWidth").split(" : ")[0])
@@ -132,7 +132,7 @@ radius = float(mc.get_variable("RotorCircularDuctLayer_RadialDiameter").split(" 
 # It might be the case that MotorCAD has split the rectangular duct into upper and lower parts
 # due to it crossing a line of symmetry. This will often occur for ellipses with the same width and
 # height, but not always, so splitting the ellipse in a similar way is left until later,
-# when calculations can be run on whether it's necessary
+# when calculations can be run on whether it's necessary.
 
 try:
     rotor_duct = mc.get_region("RotorDuctFluidRegion")
@@ -173,8 +173,8 @@ rotor_duct.entities += lower_half
 # %%
 # Split the region if necessary and set it to MotorCAD
 # ----------------------------------------------------
-# In order to have valid geometry, a region must not cross the line at its duplication angle;
-# in fact its geometry must remain in the angular range from 0 to its duplication angle.
+# In order to have valid geometry, a duct must not cross the line at its duplication angle;
+# in fact, its geometry must remain in the angular range from 0 to its duplication angle.
 # Regions placed on boundaries may still be used, but must be split into linked regions with
 # defining geometry contained within the aforementioned section. This principle is applied below.
 # Once any necessary splitting is performed, the new duct geometry is set to the regions
@@ -291,7 +291,7 @@ else:
 
 
 # %%
-# .. image:: ../../images/adaptive_templates/OvalRotorDucts_Split.png
+# .. image:: ../../images/adaptive_templates/HalfEllipse.png
 
 # %%
 # Load in Adaptive Templates script if required
