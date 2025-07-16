@@ -188,9 +188,6 @@ class _BaseEllipse(EntityList):
         b = self.b
         n = self.n
 
-        if a == b:
-            return list(Coordinate.from_polar_coords(a, i / n * 90) for i in range(0, n + 1))
-
         # The location of the interpolation points is defined by a weighted average of curvatures
         # k_i represents the curvature at the ith point
         k_0 = a / b**2
