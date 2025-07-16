@@ -75,6 +75,7 @@ class RegionType(Enum):
     barrier = "Barrier"
     mounting_base = "Base Mount"
     mounting_plate = "Plate Mount"
+    endcap = "Endcap"
     banding = "Banding"
     sleeve = "Sleeve"
     rotor_cover = "Rotor Cover"
