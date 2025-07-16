@@ -109,10 +109,10 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def draw_region(self, region, colour):
+    def draw_region_debug(self, region, colour):
         """Draw a region."""
         for entity in region.entities:
-            self.draw_entity(entity, colour)
+            self.draw_entity(entity, colour, debug=True)
 
         for entity_num, entity in enumerate(region.entities):
             text = "e{}".format(entity_num)
@@ -129,7 +129,26 @@ class _RegionDrawing:
         """Draw coordinate onto plot."""
         plt.plot(coordinate.x, coordinate.y, "x", color=colour)
 
-    def draw_entity(self, entity, colour):
+    def draw_region(self, region, colour, labels):
+        colour = tuple(channel / 255 for channel in colour)
+        fill_points_x = []
+        fill_points_y = []
+        for entity in region.entities:
+            point_0 = entity.start
+            fill_points_x.append(point_0.x)
+            fill_points_y.append(point_0.y)
+            for i in range(1, int(entity.length / 0.1)):
+                point_i = entity.get_coordinate_from_distance(point_0, distance=i * 0.1)
+                fill_points_x.append(point_i.x)
+                fill_points_y.append(point_i.y)
+            self.draw_entity(entity, "black")
+
+        plt.fill(fill_points_x, fill_points_y, color=colour)
+
+        if labels:
+            self._plot_text_no_overlap(region.centroid, region.name, "black")
+
+    def draw_entity(self, entity, colour, debug=False):
         """Draw entity onto plot."""
         entity_coords = []
 
@@ -140,7 +159,17 @@ class _RegionDrawing:
         entity_coords += [Coordinate(mid_point.x, mid_point.y)]
 
         if isinstance(entity, Line):
-            plt.plot([entity.start.x, entity.end.x], [entity.start.y, entity.end.y], color=colour)
+            if debug:
+                plt.plot(
+                    [entity.start.x, entity.end.x], [entity.start.y, entity.end.y], color=colour
+                )
+            else:
+                plt.plot(
+                    [entity.start.x, entity.end.x],
+                    [entity.start.y, entity.end.y],
+                    color=colour,
+                    lw=0.6,
+                )
 
         elif isinstance(entity, Arc):
             width = abs(entity.radius * 2)
@@ -155,10 +184,14 @@ class _RegionDrawing:
             else:
                 start_angle = angle2
                 end_angle = angle1
-
-            arc = mpatches.Arc(
-                centre, width, height, theta1=start_angle, theta2=end_angle, color=colour
-            )
+            if debug:
+                arc = mpatches.Arc(
+                    centre, width, height, theta1=start_angle, theta2=end_angle, color=colour
+                )
+            else:
+                arc = mpatches.Arc(
+                    centre, width, height, theta1=start_angle, theta2=end_angle, color=colour, lw=2
+                )
             self.ax.plot(marker="-o")
             self.ax.add_patch(arc)
 
@@ -205,9 +238,9 @@ def draw_objects(objects):
         if object is None:
             continue
         if isinstance(object, Region):
-            region_drawing.draw_region(object, colours[i])
+            region_drawing.draw_region_debug(object, colours[i])
         elif isinstance(object, Entity):
-            region_drawing.draw_entity(object, entity_no_region_colour)
+            region_drawing.draw_entity(object, entity_no_region_colour, debug=True)
         elif isinstance(object, Coordinate):
             region_drawing.draw_coordinate(object, entity_no_region_colour)
         else:
