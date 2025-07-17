@@ -1,0 +1,64 @@
+
+
+.. _sphx_glr_samples_general:
+
+.. _ref_samples_general:
+
+General example repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This script should be run from the scripting tab or an external IDE, after the force calculation has been run in Motor-CAD.">
+
+.. only:: html
+
+  .. image:: /samples/general/images/thumb/sphx_glr_MotionForceExport_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_samples_general_MotionForceExport.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Force export for Ansys Motion</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Simple parametric sweep for SYNC machine">
+
+.. only:: html
+
+  .. image:: /samples/general/images/thumb/sphx_glr_ParameterSweepSync_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_samples_general_ParameterSweepSync.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Simple parametric sweep for SYNC machine</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /samples/general/MotionForceExport
+   /samples/general/ParameterSweepSync
+
