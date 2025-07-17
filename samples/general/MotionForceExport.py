@@ -26,15 +26,18 @@ Force export for Ansys Motion
 This example shows how to export forces for Ansys Motion multibody analysis software, and includes
 more options for controlling the offset required to align the forces with the structural model.
 The file names and offset parameters are set in the main script near the end of this file.
+
+This script should be run from the scripting tab or an external IDE, after the force calculation
+has been run in Motor-CAD.
 """
 
 import math
 
 import ansys.motorcad.core as pymotorcad
 
-#########################################################
-# Utility functions for export. See below for main script
-#########################################################
+###############################################################################
+# Utility functions for export. See below for main script:
+###############################################################################
 
 
 def write_name_value_pair(file, name, value, indent_level, quoted_value, comma_end):
@@ -668,9 +671,9 @@ def export_to_motion_unv(
     anf_file.close()
 
 
-#######################
-# Start of main script:
-#######################
+###############################################################################
+# Main script:                                                                #
+###############################################################################
 unv_filename = "Output.unv"
 amesh_filename = "Output.amesh"
 anf_filename = "Output.anf"
