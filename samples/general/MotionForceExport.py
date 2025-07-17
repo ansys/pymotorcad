@@ -700,13 +700,18 @@ if slices > 1:
     exit(-1)
 
 # Do the export
-export_to_motion_unv(
-    mc,
-    unv_filename,
-    amesh_filename,
-    anf_filename,
-    offset_angle_degrees,
-    slice_centre_x,
-    slice_centre_y,
-    slice_centre_z,
-)
+try:
+    export_to_motion_unv(
+        mc,
+        unv_filename,
+        amesh_filename,
+        anf_filename,
+        offset_angle_degrees,
+        slice_centre_x,
+        slice_centre_y,
+        slice_centre_z,
+    )
+except pymotorcad.MotorCADError as e:
+    print("Motion export files not generated. Please check that force results are available")
+    print("Exception raised:")
+    print(e)
