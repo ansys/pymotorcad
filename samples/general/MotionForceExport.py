@@ -682,6 +682,8 @@ slice_centre_x = 0
 slice_centre_y = 0
 slice_centre_z = 0
 
+# Connect to Motor-CAD. This assumes that Motor-CAD is already running, and the model required is
+# open and the model has been solved (or results loaded).
 mc = pymotorcad.MotorCAD(open_new_instance=False)
 
 if mc.get_variable("SkewType") == 2:
