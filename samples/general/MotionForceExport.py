@@ -36,7 +36,7 @@ import math
 import ansys.motorcad.core as pymotorcad
 
 ###############################################################################
-# Utility functions for export. See below for main script:
+# Utility functions for export:
 ###############################################################################
 
 
@@ -672,7 +672,7 @@ def export_to_motion_unv(
 
 
 ###############################################################################
-# Main script:                                                                #
+# Main script:
 ###############################################################################
 unv_filename = "Output.unv"
 amesh_filename = "Output.amesh"
