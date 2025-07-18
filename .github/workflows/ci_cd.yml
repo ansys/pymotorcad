@@ -57,8 +57,6 @@ jobs:
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
 
-          check-licenses: false
-
   tests:
     name: Tests and coverage
     needs: smoke-tests
