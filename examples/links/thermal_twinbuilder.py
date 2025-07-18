@@ -767,7 +767,9 @@ class MotorCADTwinModel:
             with open(os.path.join(exportPath, "AirGap_Temp" + str(fileInd) + ".csv"), "w") as fout:
                 header = str(rpm)
                 for airgapNodeStator, airgapNodeRotor in airgapNodesList:
-                    header += "," + str(airgapNodeStator) + "-" + str(airgapNodeRotor)
+                    airgapNodeStatorName = self.nodeNames[self.nodeNumbers.index(airgapNodeStator)]
+                    airgapNodeRotorName = self.nodeNames[self.nodeNumbers.index(airgapNodeRotor)]
+                    header += "," + str(airgapNodeStatorName) + "-" + str(airgapNodeRotorName)
 
                 fout.write(str(header) + "\n")
 
