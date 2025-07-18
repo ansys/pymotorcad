@@ -976,8 +976,8 @@ class MotorCADTwinModel:
             # run the DoE
             fileInd = 0
             nDps = len(frs) * len(inletTemps) * len(rpms)
-            for flow in frs:
-                for inTemp in inletTemps:
+            for inTemp in inletTemps:
+                for flow in frs:
                     for speed in rpms:
                         fileInd = fileInd + 1
                         print(
