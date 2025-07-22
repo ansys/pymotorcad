@@ -89,7 +89,7 @@ class DataStoreRecord:
             return self.file_section in section_list
 
     def inout_in_list(self, inout_list):
-        """Check if this record is part of the list of input_or_output_type
+        """Check if this record is part of the list of input_or_output_type.
 
         Parameters
         ----------
@@ -328,7 +328,6 @@ class Datastore(dict):
 
     def to_json(self):
         """Return serialised version of the Datastore object to be saved as a JSON.
-        Has the same structure as
 
         Returns
         -------
@@ -346,20 +345,30 @@ class Datastore(dict):
         """
         return dict((key, item.current_value) for key, item in self.items())
 
-    def pop(self, __key):
-        if self.get_variable_record(__key) is not None:
+    def pop(self, k, d=None):
+        """
+        D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+        If the key is not found, return the default if given; otherwise,
+        raise a KeyError.
+        """
+
+        if self.get_variable_record(k) is not None:
             # key exists in the dictionary. Need to remove from activex_names.
-            record = self.get_variable_record(__key)
+            record = self.get_variable_record(k)
             if record.alternative_activex_name != "xxx":
                 # Remove alternative name as well.
                 self.__activex_names__.pop(record.alternative_activex_name.lower())
 
             # Ensure the actual activex name is being removed, not the alternative.
             self.__activex_names__.pop(record.activex_name.lower())
-            return super().pop(record.activex_name)
+            return super().pop(record.activex_name, d)
         else:
             # Keep behaviour of returning a KeyError if not in the dict.
-            raise KeyError
+            if d is not None:
+                return d
+            else:
+                raise KeyError
 
     def extend(self, datastore: "Datastore"):
         """Extend the current datastore using data from the provided Datastore.
@@ -400,7 +409,7 @@ class Datastore(dict):
 
     @classmethod
     def from_dict(cls, datastore_dict):
-        """Create a Datastore object from a dictionary of DataStoreRecords"""
+        """Create a Datastore object from a dictionary of DataStoreRecords."""
         datastore = cls()
 
         for key, value in datastore_dict.items():
