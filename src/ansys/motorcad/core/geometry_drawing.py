@@ -25,7 +25,8 @@ from copy import deepcopy
 import warnings
 from warnings import warn
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, Entity, Line, Region
+from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
+from ansys.motorcad.core.methods.geometry_tree import GeometryNode, GeometryTree
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:
@@ -109,10 +110,10 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def draw_region_debug(self, region, colour):
+    def draw_region_old(self, region, colour):
         """Draw a region."""
         for entity in region.entities:
-            self.draw_entity(entity, colour, debug=True)
+            self.draw_entity_old(entity, colour)
 
         for entity_num, entity in enumerate(region.entities):
             text = "e{}".format(entity_num)
@@ -125,30 +126,7 @@ class _RegionDrawing:
 
         self._plot_text_no_overlap(region.centroid, region.name, colour)
 
-    def draw_coordinate(self, coordinate, colour):
-        """Draw coordinate onto plot."""
-        plt.plot(coordinate.x, coordinate.y, "x", color=colour)
-
-    def draw_region(self, region, colour, labels):
-        colour = tuple(channel / 255 for channel in colour)
-        fill_points_x = []
-        fill_points_y = []
-        for entity in region.entities:
-            point_0 = entity.start
-            fill_points_x.append(point_0.x)
-            fill_points_y.append(point_0.y)
-            for i in range(1, int(entity.length / 0.1)):
-                point_i = entity.get_coordinate_from_distance(point_0, distance=i * 0.1)
-                fill_points_x.append(point_i.x)
-                fill_points_y.append(point_i.y)
-            self.draw_entity(entity, "black")
-
-        plt.fill(fill_points_x, fill_points_y, color=colour)
-
-        if labels:
-            self._plot_text_no_overlap(region.centroid, region.name, "black")
-
-    def draw_entity(self, entity, colour, debug=False):
+    def draw_entity_old(self, entity, colour, debug=False):
         """Draw entity onto plot."""
         entity_coords = []
 
@@ -197,6 +175,115 @@ class _RegionDrawing:
 
         self.ax.set_aspect("equal", adjustable="box")
 
+    def draw_coordinate(self, coordinate, colour):
+        """Draw coordinate onto plot."""
+        plt.plot(coordinate.x, coordinate.y, "x", color=colour)
+
+    def draw_duplicates(self, region: GeometryNode, colour, labels, depth):
+        duplication_angle = 360 / region.duplications
+        origin = Coordinate(0, 0)
+
+        for duplicate_number in range(0, region.duplications):
+            duplicate = deepcopy(region)
+            duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
+            self.draw_region(duplicate, colour, labels, depth, full_geometry=True)
+
+    def draw_region(self, region, colour, labels, depth, full_geometry=False, draw_points=False):
+        duplication_angle = 360 / region.duplications
+        colour = tuple(channel / 255 for channel in colour)
+        fill_points_x = []
+        fill_points_y = []
+        for entity in region.entities:
+            point_0 = entity.start
+            fill_points_x.append(point_0.x)
+            fill_points_y.append(point_0.y)
+            for i in range(1, int(entity.length / 0.1)):
+                point_i = entity.get_coordinate_from_distance(point_0, distance=i * 0.1)
+                fill_points_x.append(point_i.x)
+                fill_points_y.append(point_i.y)
+            if not (
+                isinstance(entity, Line)
+                and (
+                    ((entity.angle % duplication_angle) < GEOM_TOLERANCE)
+                    or ((entity.angle % duplication_angle) - duplication_angle < GEOM_TOLERANCE)
+                )
+                and entity.get_coordinate_distance(Coordinate(0, 0)) < GEOM_TOLERANCE
+                and full_geometry
+            ):
+                self.draw_entity(
+                    entity,
+                    "black",
+                    depth=depth,
+                )
+
+        plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth)
+        self.ax.set_aspect("equal", adjustable="box")
+
+        if draw_points:
+            for entity_num, entity in enumerate(region.entities):
+                text = "e{}".format(entity_num)
+                self._plot_text_no_overlap(entity.midpoint, text, "black")
+
+            points = region.entities.points
+            for point_num, point in enumerate(points):
+                text = "p{}".format(point_num)
+                self._plot_text_no_overlap(point, text, "black")
+
+        if labels:
+            self._plot_text_no_overlap(region.centroid, region.name, "black")
+
+    def draw_entity(self, entity, colour, depth=0, draw_points=False):
+        """Draw entity onto plot."""
+        entity_coords = []
+
+        mid_point = Coordinate(
+            (entity.end.x + entity.start.x) / 2, (entity.end.y + entity.start.y) / 2
+        )
+
+        entity_coords += [Coordinate(mid_point.x, mid_point.y)]
+
+        if isinstance(entity, Line):
+            plt.plot(
+                [entity.start.x, entity.end.x],
+                [entity.start.y, entity.end.y],
+                color=colour,
+                lw=2,
+                zorder=depth,
+            )
+
+        elif isinstance(entity, Arc):
+            width = abs(entity.radius * 2)
+            height = abs(entity.radius * 2)
+            centre = entity.centre.x, entity.centre.y
+            rad1, angle1 = (entity.start - entity.centre).get_polar_coords_deg()
+            rad2, angle2 = (entity.end - entity.centre).get_polar_coords_deg()
+
+            if entity.radius > 0:
+                start_angle = angle1
+                end_angle = angle2
+            else:
+                start_angle = angle2
+                end_angle = angle1
+            arc = mpatches.Arc(
+                centre,
+                width,
+                height,
+                theta1=start_angle,
+                theta2=end_angle,
+                color=colour,
+                lw=2.5,
+                zorder=depth,
+            )
+            self.ax.plot(marker="-o")
+            self.ax.add_patch(arc)
+
+        if draw_points:
+            self._plot_text_no_overlap(entity.start, "s", colour)
+            self._plot_text_no_overlap(entity.midpoint, "m", colour)
+            self._plot_text_no_overlap(entity.end, "e", colour)
+
+        self.ax.set_aspect("equal", adjustable="box")
+
 
 def draw_objects_debug(objects):
     """Draw regions on plot if not being run in Motor-CAD.
@@ -206,60 +293,134 @@ def draw_objects_debug(objects):
     objects : List of objects
         entities to draw
     """
+    warn(
+        "draw_objects_debug() WILL BE DEPRECATED SOON - USE geometry_drawing.draw_objects instead",
+        DeprecationWarning,
+    )
     if not is_running_in_internal_scripting():
         draw_objects(objects)
 
 
-def draw_objects(objects):
+def draw_objects(objects, labels=False, full_geometry=False, depth=0, draw_points=None):
     """Draw geometry objects on a plot."""
-    if not MATPLOTLIB_AVAILABLE:
-        raise ImportError(
-            "Failed to draw geometry. Please ensure MatPlotLib and a suitable backend "
-            "e.g. PyQt5 are installed"
-        )
-
-    if not isinstance(objects, list):
-        # Given a single region not a list - reformat
-        objects = [objects]
-
     stored_coords = []
-
-    # Some basic colours
-    colours = ["red", "blue", "green", "purple"]
-    entity_no_region_colour = "grey"
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-
     region_drawing = _RegionDrawing(ax, stored_coords)
-    for i, object in enumerate(objects):
-        # loop through colours once end of list reached
-        while i > len(colours) - 1:
-            i -= len(colours)
-        if object is None:
-            continue
-        if isinstance(object, Region):
-            region_drawing.draw_region_debug(object, colours[i])
-        elif isinstance(object, Entity):
-            region_drawing.draw_entity(object, entity_no_region_colour, debug=True)
-        elif isinstance(object, Coordinate):
-            region_drawing.draw_coordinate(object, entity_no_region_colour)
-        else:
-            raise TypeError("Object cannot be drawn")
+
+    if isinstance(objects, GeometryTree):
+        tree = objects.values()
+        # List below determines order in which items are drawn, and therefore which are
+        # drawn above when overlaps occur
+        region_types = [
+            "Stator",
+            "Rotor",
+            "Stator Slot Area",
+            "Stator Slot",
+            "Rotor Slot Area",
+            "Split Slot",
+            "Stator Liner",
+            "Rotor Liner",
+            "Wedge",
+            "Stator Duct",
+            "Housing",
+            "Magnetic Housing",
+            "Stator Impreg",
+            "Impreg Gap",
+            "Stator Copper",
+            "Stator Copper Insulation",
+            "Stator Divider",
+            "Stator Slot Spacer",
+            "Stator slot separator",
+            "Coil Insulation",
+            "Stator Air",
+            "Rotor hub",
+            "Rotor Air",
+            "Rotor Air (excluding liner area)",
+            "Rotor Pocket",
+            "Pole Spacer",
+            "Rotor Slot",
+            "Coil Separator",
+            "Damper Bar",
+            "Rotor Wedge",
+            "Rotor Divider",
+            "Rotor Copper Insulation",
+            "Rotor Copper",
+            "Rotor Impreg",
+            "Shaft",
+            "Axle",
+            "Rotor Duct",
+            "Magnet",
+            "Barrier",
+            "Base Mount",
+            "Plate Mount",
+            "Endcap",
+            "Banding",
+            "Sleeve",
+            "Rotor Cover",
+            "Slot Water Jacket Insulation",
+            "Slot Water Jacket Wall",
+            "Slot Water Jacket Duct",
+            "Slot Water Jacket Duct (no detail)",
+            "Cowling",
+            "Cowling Grill",
+            "Brush",
+            "Commutator",
+            "Airgap",
+            "DXF Import",
+            "Stator Proximity Loss Slot",
+            "Adaptive Region",
+        ]
+        excluded_regions = [
+            "Housing",
+            "Stator Slot Area",
+            "Stator Liner",
+            "Stator Impreg",
+            "Plate Mount",
+            "Endcap",
+            "Impreg Gap",
+        ]
+        # excluded_regions = []
+        for region_type in excluded_regions:
+            region_types.remove(region_type)
+
+        for depth, region_type in enumerate(region_types):
+            if region_type == "Shaft":
+                pass
+            for node in tree:
+                if node.region_type.value == region_type:
+                    if node.key != "root":
+                        if full_geometry:
+                            region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
+                        else:
+                            if draw_points is not None:
+                                region_drawing.draw_region(
+                                    node, node.colour, labels, depth=depth, draw_points=draw_points
+                                )
+                            else:
+                                region_drawing.draw_region(node, node.colour, labels, depth=depth)
+
+    elif isinstance(objects, list):
+        if all(isinstance(object, Region) for object in objects):
+            for region in objects:
+                if draw_points is not None:
+                    region_drawing.draw_region(
+                        region, region.colour, labels, depth=depth, draw_points=draw_points
+                    )
+                else:
+                    region_drawing.draw_region(
+                        region, region.colour, labels, depth=depth, draw_points=True
+                    )
+        if all(isinstance(object, Entity) for object in objects):
+            for entity in objects:
+                if draw_points is not None:
+                    region_drawing.draw_entity(entity, "black", labels, draw_points=draw_points)
+                else:
+                    region_drawing.draw_entity(entity, "black", labels, draw_points=True)
+
+    if isinstance(objects, Region) or isinstance(objects, GeometryNode):
+        region_drawing.draw_region(objects, objects.colour, labels, depth=depth, draw_points=True)
+
+    if isinstance(objects, Entity):
+        region_drawing.draw_entity(objects, "black", draw_points=True)
     plt.show()
-
-
-def draw_regions(regions):
-    """WILL BE DEPRECATED SOON - USE geometry_drawing.draw_objects() instead.
-
-    Draw regions on plot.
-
-    Parameters
-    ----------
-    regions : Region or list of Region
-        entities to draw
-    """
-    warn(
-        "draw_regions() WILL BE DEPRECATED SOON - USE geometry_drawing.draw_objects instead",
-        DeprecationWarning,
-    )
-    draw_objects(regions)

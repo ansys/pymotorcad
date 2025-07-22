@@ -1590,6 +1590,15 @@ class Line(Entity):
         """
         return arc.get_line_intersection(self)
 
+    def get_coordinate_distance(self, coordinate):
+        """Get distance of line with another coordinate."""
+        normal_angle = self.angle - 90
+        defining_point = Coordinate.from_polar_coords(1, normal_angle)
+        normal = Line(Coordinate(0, 0), defining_point)
+        normal.translate(coordinate.x, coordinate.y)
+        nearest_point = self.get_line_intersection(normal)
+        return sqrt((coordinate.x - nearest_point.x) ** 2 + (coordinate.y - nearest_point.y) ** 2)
+
 
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
