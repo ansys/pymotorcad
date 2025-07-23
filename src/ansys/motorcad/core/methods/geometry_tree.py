@@ -34,7 +34,8 @@ class GeometryTree(dict):
         Parameters
         ----------
         empty: bool
-            Return an empty geometry tree, mostly used for the purposes of debugging.
+            Return an empty geometry tree, mostly used for the purposes of debugging and
+            internal construction.
         """
         if empty:
             super().__init__()
@@ -46,6 +47,37 @@ class GeometryTree(dict):
             root.key = "root"
             pair = [("root", root)]
             super().__init__(pair)
+
+    def __iter__(self):
+        """Define ordering according to tree structure."""
+        well_ordered = []
+
+        def dive(node=self.start):
+            well_ordered.append(node)
+            for child in node.children:
+                dive(child)
+
+        dive()
+        return iter(well_ordered)
+
+    def __str__(self):
+        """Return string representation of the geometry tree."""
+        string = ""
+        starting_depth = list(self.values())[0].depth
+
+        for node in self.values():
+            relative_depth = node.depth - starting_depth
+            string += "│   " * (relative_depth - 1)
+            if relative_depth == 0:
+                cap = ""
+            elif node == node.parent.children[-1]:
+                cap = "└── "
+            else:
+                cap = "├── "
+            string += cap
+            string += node.key
+            string += "\n"
+        return string
 
     def __eq__(self, other):
         """Define equality operator.
@@ -122,9 +154,28 @@ class GeometryTree(dict):
 
     def get_node(self, key):
         """Get a region from the tree (case-insensitive)."""
-        if key.lower() in self.lowercase_keys:
-            return self[self.lowercase_keys[key.lower()]]
-        raise KeyError()
+        if isinstance(key, str):
+            if key.lower() in self.lowercase_keys:
+                return self[self.lowercase_keys[key.lower()]]
+            raise KeyError()
+        elif isinstance(key, GeometryNode):
+            return key
+        else:
+            raise TypeError("key must be a string or GeometryNode")
+
+    def get_subtree(self, node):
+        """Get all GeometryTree consisting of all nodes descended from the supplied one."""
+        if node == self["root"]:
+            return self
+        subtree = GeometryTree(empty=True)
+
+        def dive(node):
+            subtree[node.key] = node
+            for child in node.children:
+                dive(child)
+
+        dive(self.get_node(node))
+        return subtree
 
     def _build_tree(self, tree_json, node, parent=None):
         """Recursively builds tree.
@@ -249,7 +300,8 @@ class GeometryTree(dict):
             Children objects or children keys (must be already within tree)
 
         """
-        region.__class__ = GeometryNode
+        if not isinstance(region, GeometryNode):
+            region.__class__ = GeometryNode
         if children is None:
             region.children = list()
         else:
@@ -316,7 +368,21 @@ class GeometryTree(dict):
     @property
     def lowercase_keys(self):
         """Return a dict of lowercase keys and their corresponding real keys."""
-        return dict((key.lower(), key) for key in self)
+        return dict((node.key.lower(), node.key) for node in self)
+
+    @property
+    def start(self):
+        """Return the start of the tree."""
+        # Find starting point
+        for node in self.values():
+            if node.parent is None:
+                start = node
+            else:
+                try:
+                    self[node.parent.key]
+                except KeyError:
+                    start = node
+        return start
 
 
 class GeometryNode(Region):
@@ -337,6 +403,14 @@ class GeometryNode(Region):
         super().__init__(region_type=region_type)
         self.children = list()
         self.parent = None
+        self.key = None
+
+    def __repr__(self):
+        """Return string representation of GeometryNode."""
+        try:
+            return self.key
+        except AttributeError:
+            return self.name
 
     @classmethod
     def from_json(cls, tree, node_json, parent):
@@ -365,6 +439,20 @@ class GeometryNode(Region):
             parent.children.append(new_region)
             new_region.key = node_json["name_unique"]
         return new_region
+
+    @property
+    def depth(self):
+        """Depth of node."""
+        depth = 0
+        node = self
+
+        while True:
+            if node.key == "root":
+                break
+            depth += 1
+            node = node.parent
+
+        return depth
 
     @property
     def parent(self):
