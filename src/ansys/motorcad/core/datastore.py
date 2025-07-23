@@ -347,12 +347,22 @@ class Datastore(dict):
 
     def pop(self, k, d=None):
         """
-        D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+        Remove specified key and return the corresponding value.
 
         If the key is not found, return the default if given; otherwise,
         raise a KeyError.
-        """
 
+        Parameters
+        ----------
+        k : _KT
+            key parameter.
+        d : Any | None
+            Default value if key is not in dictionary.
+
+        Returns
+        -------
+        Any
+        """
         if self.get_variable_record(k) is not None:
             # key exists in the dictionary. Need to remove from activex_names.
             record = self.get_variable_record(k)
