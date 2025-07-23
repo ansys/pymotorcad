@@ -396,9 +396,9 @@ class Datastore(dict):
             datastore_record_object = DataStoreRecord.from_json(datastore_record_json, datastore)
             datastore[datastore_record_json["activex_name"]] = datastore_record_object
 
-            datastore.__activex_names__[datastore_record_json["activex_name"].lower()] = (
-                datastore_record_json["activex_name"]
-            )
+            datastore.__activex_names__[
+                datastore_record_json["activex_name"].lower()
+            ] = datastore_record_json["activex_name"]
             if datastore_record_json["alternative_activex_name"] != "xxx":
                 # Parameter also has an alternative name. Add it to another dict to search quickly.
                 datastore.__activex_names__[
