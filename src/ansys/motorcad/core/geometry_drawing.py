@@ -85,7 +85,7 @@ class _RegionDrawing:
                 break
         return result
 
-    def _plot_text_no_overlap(self, point, text, colour):
+    def _plot_text_no_overlap(self, point, text, colour, depth=0):
         # Reset params for recursive function
         tried_coords = []
         modifier = 0
@@ -108,6 +108,7 @@ class _RegionDrawing:
                 ha="right",
                 arrowprops=dict(arrowstyle="->", shrinkA=0, color=colour, alpha=0.5),
                 color=colour,
+                zorder=depth + 1,
             )
 
     def draw_region_old(self, region, colour):
@@ -180,8 +181,8 @@ class _RegionDrawing:
         plt.plot(coordinate.x, coordinate.y, "x", color=colour)
 
     def draw_duplicates(self, region: GeometryNode, colour, labels, depth):
+        """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
-        origin = Coordinate(0, 0)
 
         for duplicate_number in range(0, region.duplications):
             duplicate = deepcopy(region)
@@ -189,6 +190,7 @@ class _RegionDrawing:
             self.draw_region(duplicate, colour, labels, depth, full_geometry=True)
 
     def draw_region(self, region, colour, labels, depth, full_geometry=False, draw_points=False):
+        # Draw region onto a plot
         duplication_angle = 360 / region.duplications
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
@@ -207,9 +209,14 @@ class _RegionDrawing:
                     ((entity.angle % duplication_angle) < GEOM_TOLERANCE)
                     or ((entity.angle % duplication_angle) - duplication_angle < GEOM_TOLERANCE)
                 )
+                # Check start and end of a line are not the same, to avoid unsupported
+                # operand types in the next line
+                and entity.start != entity.end
                 and entity.get_coordinate_distance(Coordinate(0, 0)) < GEOM_TOLERANCE
                 and full_geometry
             ):
+                if region.points[0].x > 125:
+                    pass
                 self.draw_entity(
                     entity,
                     "black",
@@ -230,7 +237,7 @@ class _RegionDrawing:
                 self._plot_text_no_overlap(point, text, "black")
 
         if labels:
-            self._plot_text_no_overlap(region.centroid, region.name, "black")
+            self._plot_text_no_overlap(region.centroid, region.name, "black", depth=depth)
 
     def draw_entity(self, entity, colour, depth=0, draw_points=False):
         """Draw entity onto plot."""
@@ -379,6 +386,8 @@ def draw_objects(objects, labels=False, full_geometry=False, depth=0, draw_point
             "Plate Mount",
             "Endcap",
             "Impreg Gap",
+            "Rotor Impreg",
+            "Stator Duct",
         ]
         # excluded_regions = []
         for region_type in excluded_regions:

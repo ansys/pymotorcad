@@ -1597,6 +1597,8 @@ class Line(Entity):
         normal = Line(Coordinate(0, 0), defining_point)
         normal.translate(coordinate.x, coordinate.y)
         nearest_point = self.get_line_intersection(normal)
+        if nearest_point is None:
+            return None
         return sqrt((coordinate.x - nearest_point.x) ** 2 + (coordinate.y - nearest_point.y) ** 2)
 
 
