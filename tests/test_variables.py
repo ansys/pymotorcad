@@ -195,6 +195,3 @@ def test_get_datastore(mc):
     filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
     datastore_json = datastore.to_json()
     datastore_dict = datastore.to_dict()
-
-
-
