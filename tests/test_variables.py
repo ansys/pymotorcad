@@ -189,3 +189,12 @@ def test_get_datastore(mc):
         if (datastore[item].is_array) and (datastore[item].dynamic)
     ]
     arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
+
+    datastore.pop("slot_width")
+    datastore.pop("test_int")
+    filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
+    datastore_json = datastore.to_json()
+    datastore_dict = datastore.to_dict()
+
+
+
