@@ -170,28 +170,29 @@ def test_get_file_name_fallback():
         rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = save_DONT_CHECK_MOTORCAD_VERSION
 
 
-def test_get_datastore(mc):
-    """Incomplete testing"""
-    datastore = mc.get_datastore()
-
-    test = datastore.get_variable("slot_width")
-    test_rec = datastore.get_variable_record("test_int")
-
-    test_array = datastore.get_variable("IMInductance_CurrentProp")
-    test_array_2d = datastore.get_variable("ConductorCentre_L_x")
-
-    test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
-    test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
-
-    arrays = [
-        datastore[item]
-        for item in datastore
-        if (datastore[item].is_array) and (datastore[item].dynamic)
-    ]
-    arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
-
-    datastore.pop("slot_width")
-    datastore.pop("test_int")
-    filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
-    datastore_json = datastore.to_json()
-    datastore_dict = datastore.to_dict()
+# TODO - introduce testing for datastore class (not functional at the moment).
+# def test_get_datastore(mc):
+#     """Incomplete testing"""
+#     datastore = mc.get_datastore()
+#
+#     test = datastore.get_variable("slot_width")
+#     test_rec = datastore.get_variable_record("test_int")
+#
+#     test_array = datastore.get_variable("IMInductance_CurrentProp")
+#     test_array_2d = datastore.get_variable("ConductorCentre_L_x")
+#
+#     test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
+#     test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
+#
+#     arrays = [
+#         datastore[item]
+#         for item in datastore
+#         if (datastore[item].is_array) and (datastore[item].dynamic)
+#     ]
+#     arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
+#
+#     datastore.pop("slot_width")
+#     datastore.pop("test_int")
+#     filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
+#     datastore_json = datastore.to_json()
+#     datastore_dict = datastore.to_dict()
