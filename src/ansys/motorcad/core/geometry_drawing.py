@@ -44,6 +44,7 @@ class _RegionDrawing:
     def __init__(self, ax, stored_coords):
         self.ax = ax
         self.stored_coords = stored_coords
+        self.legend_objects = []
 
     def _get_plot_range(self):
         # plot should be square so get_xlim() == get_ylim()
@@ -203,8 +204,13 @@ class _RegionDrawing:
                 point_i = entity.get_coordinate_from_distance(point_0, distance=i * 0.1)
                 fill_points_x.append(point_i.x)
                 fill_points_y.append(point_i.y)
+            # If geometry is full, lines separating region duplications shouldn't be drawn.
+            # These are determined by seeing if, for Line entities, the angle
+            # (modulo duplication angle) matches zero or the duplication angle, and seeing
+            # if they also pass through the origin.
             if not (
-                isinstance(entity, Line)
+                full_geometry
+                and isinstance(entity, Line)
                 and (
                     ((entity.angle % duplication_angle) < GEOM_TOLERANCE)
                     or ((entity.angle % duplication_angle) - duplication_angle < GEOM_TOLERANCE)
@@ -213,17 +219,16 @@ class _RegionDrawing:
                 # operand types in the next line
                 and entity.start != entity.end
                 and entity.get_coordinate_distance(Coordinate(0, 0)) < GEOM_TOLERANCE
-                and full_geometry
             ):
-                if region.points[0].x > 125:
-                    pass
                 self.draw_entity(
                     entity,
                     "black",
                     depth=depth,
                 )
 
-        plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth)
+        self.legend_objects.append(
+            plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth, label=region.name)[0]
+        )
         self.ax.set_aspect("equal", adjustable="box")
 
         if draw_points:
@@ -240,15 +245,11 @@ class _RegionDrawing:
             self._plot_text_no_overlap(region.centroid, region.name, "black", depth=depth)
 
     def draw_entity(self, entity, colour, depth=0, draw_points=False):
-        """Draw entity onto plot."""
-        entity_coords = []
+        """Draw entity onto plot.
 
-        mid_point = Coordinate(
-            (entity.end.x + entity.start.x) / 2, (entity.end.y + entity.start.y) / 2
-        )
-
-        entity_coords += [Coordinate(mid_point.x, mid_point.y)]
-
+        Entities are drawn with relatively large line width, so that they do not end up covered
+        by the region's filled interior colours.
+        """
         if isinstance(entity, Line):
             plt.plot(
                 [entity.start.x, entity.end.x],
@@ -308,106 +309,43 @@ def draw_objects_debug(objects):
         draw_objects(objects)
 
 
-def draw_objects(objects, labels=False, full_geometry=False, depth=0, draw_points=None):
+def draw_objects(
+    objects,
+    labels=False,
+    full_geometry=False,
+    depth=0,
+    draw_points=None,
+    save=None,
+    dpi=None,
+    legend=False,
+):
     """Draw geometry objects on a plot."""
+    if is_running_in_internal_scripting():
+        return
     stored_coords = []
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     region_drawing = _RegionDrawing(ax, stored_coords)
 
     if isinstance(objects, GeometryTree):
-        tree = objects.values()
-        # List below determines order in which items are drawn, and therefore which are
-        # drawn above when overlaps occur
-        region_types = [
-            "Stator",
-            "Rotor",
-            "Stator Slot Area",
-            "Stator Slot",
-            "Rotor Slot Area",
-            "Split Slot",
-            "Stator Liner",
-            "Rotor Liner",
-            "Wedge",
-            "Stator Duct",
-            "Housing",
-            "Magnetic Housing",
-            "Stator Impreg",
-            "Impreg Gap",
-            "Stator Copper",
-            "Stator Copper Insulation",
-            "Stator Divider",
-            "Stator Slot Spacer",
-            "Stator slot separator",
-            "Coil Insulation",
-            "Stator Air",
-            "Rotor hub",
-            "Rotor Air",
-            "Rotor Air (excluding liner area)",
-            "Rotor Pocket",
-            "Pole Spacer",
-            "Rotor Slot",
-            "Coil Separator",
-            "Damper Bar",
-            "Rotor Wedge",
-            "Rotor Divider",
-            "Rotor Copper Insulation",
-            "Rotor Copper",
-            "Rotor Impreg",
-            "Shaft",
-            "Axle",
-            "Rotor Duct",
-            "Magnet",
-            "Barrier",
-            "Base Mount",
-            "Plate Mount",
-            "Endcap",
-            "Banding",
-            "Sleeve",
-            "Rotor Cover",
-            "Slot Water Jacket Insulation",
-            "Slot Water Jacket Wall",
-            "Slot Water Jacket Duct",
-            "Slot Water Jacket Duct (no detail)",
-            "Cowling",
-            "Cowling Grill",
-            "Brush",
-            "Commutator",
-            "Airgap",
-            "DXF Import",
-            "Stator Proximity Loss Slot",
-            "Adaptive Region",
-        ]
-        excluded_regions = [
-            "Housing",
-            "Stator Slot Area",
-            "Stator Liner",
-            "Stator Impreg",
-            "Plate Mount",
-            "Endcap",
-            "Impreg Gap",
-            "Rotor Impreg",
-            "Stator Duct",
-        ]
-        # excluded_regions = []
-        for region_type in excluded_regions:
-            region_types.remove(region_type)
+        # The list below determines which objects (and children) are by default drawn.
 
-        for depth, region_type in enumerate(region_types):
-            if region_type == "Shaft":
-                pass
-            for node in tree:
-                if node.region_type.value == region_type:
-                    if node.key != "root":
+        region_types = ["Stator", "Split Slot", "Wedge", "Stator Air", "Rotor", "Shaft"]
+        for starting_node in objects:
+            if starting_node.region_type.value in region_types:
+                if starting_node.key != "root":
+                    subtree = objects.get_subtree(starting_node)
+                    for node in subtree:
+                        # Draw 360 degrees of each region if requested
                         if full_geometry:
-                            region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
+                            region_drawing.draw_duplicates(node, node.colour, labels, depth=0)
                         else:
                             if draw_points is not None:
                                 region_drawing.draw_region(
-                                    node, node.colour, labels, depth=depth, draw_points=draw_points
+                                    node, node.colour, labels, depth=0, draw_points=draw_points
                                 )
                             else:
-                                region_drawing.draw_region(node, node.colour, labels, depth=depth)
+                                region_drawing.draw_region(node, node.colour, labels, depth=0)
 
     elif isinstance(objects, list):
         if all(isinstance(object, Region) for object in objects):
@@ -432,4 +370,17 @@ def draw_objects(objects, labels=False, full_geometry=False, depth=0, draw_point
 
     if isinstance(objects, Entity):
         region_drawing.draw_entity(objects, "black", draw_points=True)
-    plt.show()
+
+    if legend:
+        plt.legend(
+            handles=region_drawing.legend_objects,
+            fontsize="small",
+            draggable=True,
+            loc="center",
+            bbox_to_anchor=(0.9, 0.5),
+        )
+
+    if save is None:
+        plt.show()
+    else:
+        plt.savefig(save, dpi=dpi)

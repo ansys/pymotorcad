@@ -65,7 +65,7 @@ class GeometryTree(dict):
         string = ""
         starting_depth = list(self.values())[0].depth
 
-        for node in self.values():
+        for node in self:
             relative_depth = node.depth - starting_depth
             string += "│   " * (relative_depth - 1)
             if relative_depth == 0:
