@@ -144,12 +144,12 @@ class GeometryTree(dict):
     def to_json(self):
         """Return a dict object used to set geometry."""
         regions = dict()
-        for key in self:
-            if key != "root":
-                if self[key].region_type == "Magnet":
-                    regions[key] = RegionMagnet._to_json(self[key])
+        for node in self:
+            if node.key != "root":
+                if node.region_type == "Magnet":
+                    regions[node.key] = RegionMagnet._to_json(node)
                 else:
-                    regions[key] = Region._to_json(self[key])
+                    regions[node.key] = Region._to_json(node)
         return {"regions": regions}
 
     def get_node(self, key):
@@ -196,8 +196,11 @@ class GeometryTree(dict):
             for child_name in node["child_names"]:
                 self._build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
 
-    def fix_geometry(self, node):
+    def fix_duct_geometry(self, node):
         """Fix geometry to work with FEA.
+
+        Meant primarily for ducts; splitting apart magnet or other regions in this way can result
+        in errors when solving.
 
         Parameters
         ----------
@@ -206,7 +209,6 @@ class GeometryTree(dict):
         Returns
         -------
         None
-
         """
         # Splits regions apart, if necessary, to enforce valid geometry
         node = self.get_node(node)
