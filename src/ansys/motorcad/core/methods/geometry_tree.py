@@ -156,7 +156,8 @@ class GeometryTree(dict):
         """Get a region from the tree (case-insensitive)."""
         if isinstance(key, str):
             if key.lower() in self.lowercase_keys:
-                return self[self.lowercase_keys[key.lower()]]
+                lower_key = key.lower()
+                return self[self.lowercase_keys[lower_key]]
             raise KeyError()
         elif isinstance(key, GeometryNode):
             return key
@@ -257,6 +258,10 @@ class GeometryTree(dict):
                     new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
                     new_lower_valid_region.name = new_lower_valid_region.name[0 : name_length + 1]
                     new_lower_valid_region.name += str(i + len(valid_regions_upper) + 1)
+                    # Linked regions currently only guaranteed to work if only one new region is
+                    # formed at top and bottom; will change once regions can be multiply linked.
+                    new_lower_valid_region.linked_region = valid_regions_upper[i]
+                    valid_regions_upper[i].linked_region = new_lower_valid_region
                     self.add_node(new_lower_valid_region, parent=node.parent)
                 self.remove_node(node)
                 return True
@@ -280,6 +285,10 @@ class GeometryTree(dict):
                 new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
                 new_upper_valid_region.name = new_upper_valid_region.name[0 : name_length + 1]
                 new_upper_valid_region.name += str(i + len(valid_regions_lower) + 1)
+                # Linked regions currently only guaranteed to work if only one new region is
+                # formed at top and bottom; will change once regions can be multiply linked.
+                new_upper_valid_region.linked_region = valid_regions_lower[i]
+                valid_regions_lower[i].linked_region = new_upper_valid_region
                 self.add_node(new_upper_valid_region, parent=node.parent)
             self.remove_node(node)
             return True
@@ -379,6 +388,7 @@ class GeometryTree(dict):
         for node in self.values():
             if node.parent is None:
                 start = node
+                break
             else:
                 try:
                     self[node.parent.key]

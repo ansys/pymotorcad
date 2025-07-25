@@ -63,7 +63,7 @@ def basic_tree():
 
 
 def test_get_tree(sample_tree):
-    node_keys = set(sample_tree)
+    node_keys = set(node.key for node in sample_tree)
     # Check each item is listed only once among all children
     # Check also that each item is the child of something, except root
     valid = True
@@ -78,13 +78,12 @@ def test_get_tree(sample_tree):
     assert valid
 
 
-# def test_to_json(sample_tree):
-#    test_json = sample_tree.to_json()
-#    assert test_json == sample_json2
-
-
 def test_get_node(sample_tree):
     assert sample_tree.get_node("rotor") == sample_tree["Rotor"]
+
+
+def test_tostring(sample_tree):
+    print(sample_tree)
 
 
 def test_add_node(basic_tree):
