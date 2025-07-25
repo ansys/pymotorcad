@@ -141,7 +141,7 @@ class GeometryTree(dict):
         self.mc = mc
         return self
 
-    def to_json(self):
+    def _to_json(self):
         """Return a dict object used to set geometry."""
         regions = dict()
         for node in self:
