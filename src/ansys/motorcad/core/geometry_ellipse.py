@@ -193,9 +193,8 @@ class _BaseEllipse(EntityList):
         k_0 = a / b**2
         k_n = b / a**2
 
-        points = [Coordinate(0, 0)] * (n + 1)
-        points[0] = Coordinate(a, 0)
-        points[n] = Coordinate(0, b)
+        points = []
+        points.append(Coordinate(a, 0))
 
         for i in range(1, n):
             k_i = (1 - i / n) * k_0 + (i / n) * k_n
@@ -205,7 +204,8 @@ class _BaseEllipse(EntityList):
             # This in general results in points more densely clustered near points of high curvature
             x_i = a * sqrt(abs((l_i - a**2) / (b**2 - a**2)))
             y_i = b * sqrt(abs((l_i - b**2) / (a**2 - b**2)))
-            points[i] = Coordinate(x_i, y_i)
+            points.append(Coordinate(x_i, y_i))
+        points.append(Coordinate(0, b))
         return points
 
     def _get_quad1_arcs(self):
