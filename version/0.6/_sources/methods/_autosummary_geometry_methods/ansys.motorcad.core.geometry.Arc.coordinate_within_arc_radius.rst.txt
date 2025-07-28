@@ -1,0 +1,6 @@
+coordinate\_within\_arc\_radius
+===============================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.coordinate_within_arc_radius
