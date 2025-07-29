@@ -27,6 +27,11 @@ This script applies the adaptive templates functionality to modify IPM rotor lam
 regions from having sharp corners to round corners.
 """
 # %%
+# .. note::
+#    This adaptive templates example uses the geometry tree functionality introduced in Motor-CAD
+#    v2026R1. The example is compatible with Motor-CAD v2026R1 and later.
+
+# %%
 # With Motor-CAD standard template geometry, we can define corner rounding for Rotor Lamination and
 # Magnet regions, however the same radius is used for all magnet corners, and the same radius is
 # used for all rotor lamination corners.
@@ -77,6 +82,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.geometry import RegionType
 
 # %%
 # Connect to Motor-CAD
@@ -118,127 +124,6 @@ mc.reset_adaptive_geometry()
 
 
 # %%
-# Define necessary functions
-# --------------------------
-# Corners to round
-# ~~~~~~~~~~~~~~~~
-# For a region that shares an entity with another region, create a list of corner coordinates to
-# be rounded. Points that are shared by both regions are not to be rounded.
-#
-# For example: if the region to round is the rotor pocket shown below, where a line is shared with
-# a magnet region, then a list of the points circled in green will be returned. The points circled
-# in red (shared with the magnet region) are not returned by the function.
-
-# %%
-# .. image:: ../../images/adaptive_templates/IPM_rounded_1.png
-#     :width: 600pt
-
-
-def corners_to_round(region_to_round, other_regions):
-    corner_list = []
-    other_region_points = []
-    if type(other_regions) == list:
-        for other_region in other_regions:
-            other_region_points.extend(other_region.points)
-    else:
-        other_region_points.extend(other_regions.points)
-
-    for point in region_to_round.points:
-        if point not in other_region_points:
-            corner_list.append(point)
-    return corner_list
-
-
-# %%
-# Get magnet cutout
-# ~~~~~~~~~~~~~~~~~
-# For a corresponding magnet and rotor pocket region, get a region that represents the entire region
-# cutout of the rotor lamination.
-#
-# For example, for the rotor pocket and magnet regions, the entire region cutout is shown below.
-
-
-# %%
-# .. image:: ../../images/adaptive_templates/IPM_rounded_2.png
-#     :width: 600pt
-def get_magnet_cutout(magnets, pocket):
-    # copy pocket region to create magnet cut out region
-    magnet_cut_out = deepcopy(pocket)
-    # Keep pocket properties but replace pocket entities with magnet entities
-    if type(magnets) == list:
-        magnets_utd = deepcopy(magnets[0])
-        magnets_utd.unite(magnets[1])
-        magnet_cut_out.replace(magnets_utd)
-    else:
-        magnet_cut_out.replace(magnets)
-    # unite magnet cut out and original pocket to form entire magnet cut out region
-    try:
-        magnet_cut_out.unite(pocket)
-    except:
-        pocket.unite(magnets)
-        magnet_cut_out.update(pocket)
-    return magnet_cut_out
-
-
-# %%
-# Round magnet pockets
-# ~~~~~~~~~~~~~~~~~~~~
-# For a given magnet region and entire rotor pocket region (with magnet cutout), round the
-# corresponding rotor pocket region using the ``Region.round_corners`` method and the
-# ``corners_to_round`` function defined above.
-def round_magnet_pockets(magnets, full_pocket, rotor_lam_corner_radius):
-    if type(magnets) == list:
-        for magnet in magnets:
-            full_pocket.subtract(magnet)
-    else:
-        full_pocket.subtract(magnets)
-
-    full_pocket.round_corners(corners_to_round(full_pocket, magnets), rotor_lam_corner_radius)
-
-
-# %%
-# Round magnet and pockets
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# For a given magnet region:
-#
-# * Get the corresponding rotor pocket regions.
-#
-# * Get the entire rotor pocket region using the ``get_magnet_cutout`` function defined above.
-#
-# * Round the magnet region corners using the ``Region.round_corners`` method.
-#
-# * Round the rotor pocket region corners using the ``round_magnet_pockets`` function defined above.
-def round_magnet_and_pockets(
-    magnet_region, rotor_region, magnet_corner_radius, rotor_lam_corner_radius
-):
-    # get corresponding pocket regions
-    pockets = []
-    for region in rotor_region.children:
-        if "Pocket" in region.name:
-            pocket_region = region
-            for point in pocket_region.points:
-                if point in magnet_region.points:
-                    pockets.append(pocket_region)
-                    break
-
-    # get entire pocket
-    for index in range(len(pockets)):
-        pockets[index] = get_magnet_cutout(magnet_region, pockets[index])
-
-    # round magnet
-    magnet_region.round_corners(magnet_region.points, magnet_corner_radius)
-    mc.set_region(magnet_region)
-
-    # round pockets
-    for index_1 in range(len(pockets)):
-        if index_1 > 0:
-            for index_2 in range(index_1):
-                pockets[index_1].subtract(pockets[index_2])
-        round_magnet_pockets(magnet_region, pockets[index_1], rotor_lam_corner_radius)
-        mc.set_region(pockets[index_1])
-
-
-# %%
 # Get required parameters and objects
 # -----------------------------------
 # From Motor-CAD, get the adaptive parameters and their values.
@@ -261,29 +146,120 @@ L2_rotor_lam_corner_radius = mc.get_adaptive_parameter_value("L2 Rotor Lam Corne
 L2_magnet_corner_radius = mc.get_adaptive_parameter_value("L2 Magnet Corner Radius")
 
 # %%
-# Get the necessary standard template regions. These are the magnet regions with corners to be
-# rounded, and the rotor region. Rotor pocket regions that correspond to the magnets will be
-# obtained from the list of rotor child regions. The regions can be drawn for debugging if
-# required.
+# Get the standard template geometry tree. This can be used to get the magnet regions with
+# corners to be rounded. Rotor pocket regions that correspond to the magnets will be
+# obtained from the tree. The regions can be drawn for debugging if required.
 
-rotor = mc.get_region("Rotor")
+geometry_tree = mc.get_geometry_tree()
 
-L1_1Magnet2 = mc.get_region("L1_1Magnet2")
-L1_1Magnet1 = mc.get_region("L1_1Magnet1")
-L2_1Magnet2 = mc.get_region("L2_1Magnet2")
-L2_1Magnet1 = mc.get_region("L2_1Magnet1")
+# %%
+# Create a dictionary object to store magnet and pocket geometry nodes from the geometry tree
+regions_to_round = {}
+
+# %%
+# Get the magnet regions from the geometry tree. Find magnets using the RegionType attribute. Store
+# the magnets in the ``regions_to_round`` dictionary.
+regions_to_round["magnets"] = []
+for node in geometry_tree:
+    if node.region_type == RegionType.magnet:
+        regions_to_round["magnets"].append(geometry_tree.get_node(node))
+
+# %%
+# Get the corresponding rotor pocket regions from the geometry tree. Check whether the magnet is a
+# child of the rotor pocket. If so, the magnet is completely enclosed by the pocket.
+#
+# If there is no inner or outer magnet gap, there can be more than one rotor pocket per magnet, so
+# the pocket regions are stored as a list.
+#
+# Store the rotor pockets in the ``regions_to_round`` dictionary along with a boolean to describe
+# whether the magnet is a child of the rotor pocket. The indexing is set so that the corresponding
+# dictionary items (magnet, rotor pocket list, boolean) have the same index in the dictionary.
+regions_to_round["rotor pockets"] = []
+regions_to_round["magnet is child of pocket?"] = []
+for magnet in regions_to_round["magnets"]:
+    magnet_rotor_pockets = []
+    if magnet.parent.region_type == RegionType.rotor_pocket:
+        magnet_rotor_pockets.append(magnet.parent)
+        regions_to_round["magnet is child of pocket?"].append(True)
+    else:
+        regions_to_round["magnet is child of pocket?"].append(False)
+        for node in geometry_tree:
+            if node.region_type == RegionType.rotor_pocket:
+                for point in node.points:
+                    if point in magnet.points:
+                        magnet_rotor_pockets.append(node)
+                        break
+    regions_to_round["rotor pockets"].append(magnet_rotor_pockets)
 
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
-# Use the ``round_magnet_and_pockets`` function to round the magnet regions and their corresponding
-# rotor pocket regions.
-round_magnet_and_pockets(L1_1Magnet2, rotor, L1_magnet_corner_radius, L1_rotor_lam_corner_radius)
-round_magnet_and_pockets(L1_1Magnet1, rotor, L1_magnet_corner_radius, L1_rotor_lam_corner_radius)
+# Create full rotor cutout regions, by uniting the corresponding magnet and rotor pocket
+# regions. The corners of the full rotor cutout regions will be rounded to carry out the rotor
+# lamination rounding. For the case where the magnet is a child region of the rotor pocket, the
+# rotor pocket is already the full cutout region, so it is not necessary to unite regions.
+#
+# Store the full rotor cutout regions in the ``regions_to_round`` dictionary
+# with indexing that corresponds to the magnets.
+regions_to_round["full rotor cutouts"] = []
+for i in range(len(regions_to_round["magnets"])):
+    full_rotor_cutout = []
+    magnet = deepcopy(regions_to_round["magnets"][i])
+    rotor_pockets = deepcopy(regions_to_round["rotor pockets"][i])
+    if regions_to_round["magnet is child of pocket?"][i]:
+        regions_to_round["full rotor cutouts"].append(rotor_pockets)
+    else:
+        magnet.unite(rotor_pockets)
+        magnet.key = f"Full Rotor Cutout_{i+1}"
+        magnet.name = magnet.key
+        full_rotor_cutout.append(magnet)
+        regions_to_round["full rotor cutouts"].append(full_rotor_cutout)
 
-round_magnet_and_pockets(L2_1Magnet2, rotor, L2_magnet_corner_radius, L2_rotor_lam_corner_radius)
-round_magnet_and_pockets(L2_1Magnet1, rotor, L2_magnet_corner_radius, L2_rotor_lam_corner_radius)
+# %%
+# Round the corners of the magnet geometry regions using the ``round_corners`` Region method. To
+# identify the magnet layer, check the magnet region name, which will contain "L1" for layer 1, "L2"
+# for layer 2 etc.
+for magnet in regions_to_round["magnets"]:
+    if "L1" in magnet.name:
+        magnet_radius = L1_magnet_corner_radius
+    else:
+        magnet_radius = L2_magnet_corner_radius
+    magnet.round_corners(magnet.points, magnet_radius)
 
+# %%
+# Round the corners of the full rotor cutouts using the ``round_corners`` Region method. Check the
+# magnet region name to determine which rotor lamination corner radius to use.
+#
+# Subtract the rounded magnet regions from their corresponding rounded full rotor cutout regions.
+# This will result in rounded rotor pocket regions. If more than one rotor pocket region results
+# from the ``subtract`` Region method, extra regions are returned. These are added to the
+# ``full rotor cutouts`` item in the ``regions_to_round`` dictionary.
+for i in range(len(regions_to_round["magnets"])):
+    magnet = regions_to_round["magnets"][i]
+    if "L1" in magnet.name:
+        lam_radius = L1_rotor_lam_corner_radius
+    else:
+        lam_radius = L2_rotor_lam_corner_radius
+    full_rotor_cutout = regions_to_round["full rotor cutouts"][i][0]
+    full_rotor_cutout.round_corners(full_rotor_cutout.points, lam_radius)
+    if not regions_to_round["magnet is child of pocket?"][i]:
+        extras = full_rotor_cutout.subtract(magnet)
+        regions_to_round["full rotor cutouts"][i].extend(extras)
+
+# %%
+# Update the rotor pocket regions in the geometry tree using the ``replace`` Region method. Replace
+# original rotor pocket entities with entities from the rounded pockets.
+for i in range(len(regions_to_round["magnets"])):
+    original_pockets = regions_to_round["rotor pockets"][i]
+    rounded_pockets = regions_to_round["full rotor cutouts"][i]
+    for i in range(len(original_pockets)):
+        original_pocket = original_pockets[i]
+        rounded_pocket = rounded_pockets[i]
+        original_pocket.replace(rounded_pocket)
+
+# %%
+# Set the updated geometry tree in Motor-CAD.
+mc.set_geometry_tree(geometry_tree)
 
 # %%
 # .. image:: ../../images/adaptive_templates/IPM_rounded.png
