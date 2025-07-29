@@ -385,20 +385,23 @@ class Region(object):
 
     @property
     def linked_regions(self):
-        """Get linked duplication/unite region."""
+        """Get linked region objects for duplication/unite operations."""
         self._check_connection()
         return [self.motorcad_instance.get_region(name) for name in self._linked_region_names]
 
     @linked_regions.setter
     def linked_regions(self, regions):
+        """Set linked regions for duplication/unite operations."""
         self._linked_region_names = [region.name for region in regions]
 
     @property
     def linked_region_names(self):
+        """Get linked region names for duplication/unite operations."""
         return self._linked_region_names
 
     @linked_region_names.setter
     def linked_region_names(self, names):
+        """Set linked region names for duplication/unite operations."""
         self._linked_region_names = names
 
     @property
