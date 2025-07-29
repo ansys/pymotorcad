@@ -881,14 +881,14 @@ class Region(object):
 
         # Raise assertion if not converged, as radius probably not valid
         if converged == False:
-            raise Exception("Cannot find intersection. Check if radius is too large")
+            raise ValueError("Cannot find intersection. Check if radius is too large")
 
         # check that the  distances by which the adjacent entities are shortened are less than half
         # the lengths of the adjacent entities.
         for index in range(len(adj_entity_lengths)):
             j = adj_entity_lengths[index]
             if j < 2 * distance:
-                raise Exception(
+                raise ValueError(
                     "Corner radius is too large for these entities. "
                     "You must specify a smaller radius."
                 )
@@ -947,7 +947,7 @@ class Region(object):
             try:
                 # try to round the corner with the specified radius
                 self._round_corner(corner_coordinate, radius, adj_entity_lengths)
-            except Exception as e:
+            except ValueError as e:
                 if "Corner radius is too large for these entities" in str(e):
                     new_corner_radius = round(radius, 1)
                     # iterate 100 times to find a maximum suitable corner radius
@@ -960,7 +960,7 @@ class Region(object):
                                 corner_coordinate, new_corner_radius, adj_entity_lengths
                             )
                             break
-                        except Exception as e:
+                        except ValueError as e:
                             if "Corner radius is too large for these entities" in str(e):
                                 # try 100 iterations
                                 if iteration < 99:
@@ -1021,7 +1021,7 @@ class Region(object):
                 try:
                     # try to round the corner with the specified radius
                     self._round_corner(corner, radius, adj_entity_lengths)
-                except Exception as e:
+                except ValueError as e:
                     if "Corner radius is too large for these entities" in str(e):
                         new_corner_radius = round(radius, 1)
                         # iterate 100 times to find a maximum suitable corner radius
@@ -1032,7 +1032,7 @@ class Region(object):
                                 # try to round the corner with the new shorter radius
                                 self._round_corner(corner, new_corner_radius, adj_entity_lengths)
                                 break
-                            except Exception as e:
+                            except ValueError as e:
                                 if "Corner radius is too large for these entities" in str(e):
                                     # try 100 iterations
                                     if iteration < 99:
