@@ -307,13 +307,13 @@ class _RpcMethodsAdaptiveGeometry:
             return self.connection.send_and_receive(method)
 
     def get_geometry_tree(self):
-        """Do placeholder."""
+        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor."""
         method = "GetGeometryTree"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
 
     def set_geometry_tree(self, tree: GeometryTree):
-        """Do placeholder."""
+        """Use a GeometryTree object to set the defining geometry of the loaded motor."""
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
