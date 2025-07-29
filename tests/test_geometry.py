@@ -364,6 +364,8 @@ def test_region_from_json():
         "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
+        "linked_regions": ["linked_region", "linked_region_1"],
+        "on_boundary": True,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -379,7 +381,8 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
-    test_region.singular = (False,)
+    test_region.singular = False
+    test_region._linked_region_names = ["linked_region", "linked_region_1"]
 
     region = geometry.Region._from_json(raw_region)
 
@@ -402,6 +405,7 @@ def test_region_to_json():
         "region_type": RegionType.stator_copper.value,
         "mesh_length": 0.035,
         "singular": True,
+        "linked_regions": [],
         "on_boundary": False,
     }
 
@@ -418,6 +422,7 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
+    test_region.linked_region_names = []
 
     assert test_region._to_json() == raw_region
 
@@ -429,6 +434,7 @@ def test_region_is_closed():
 
 
 def test_set_linked_region():
+    # depreciated functionality, here for backwards compatibility
     region = generate_constant_region()
 
     region_linked = Region(region_type=RegionType.stator)
@@ -436,8 +442,21 @@ def test_set_linked_region():
     # set linked region
     region.linked_region = region_linked
 
-    assert region._linked_region.name == region_linked.name
+    assert region.linked_region.name == region_linked.name
     assert region_linked.linked_region.name == region.name
+
+
+def test_set_linked_regions():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_regions.append(region_linked)
+    region_linked.linked_regions.append(region)
+
+    assert region.linked_regions.__contains__(region_linked)
+    assert region_linked.linked_regions.__contains__(region)
 
 
 def test_set_singular_region():
@@ -480,6 +499,11 @@ def test_region_children(mc):
     children = rotor.children
 
     assert len(children) == 16
+
+
+def test_region_linked_regions(mc):
+    duct = mc.get_region("RotorDuctFluidRegion_1")
+    assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():
