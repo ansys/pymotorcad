@@ -28,7 +28,7 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMa
 class GeometryTree(dict):
     """Class used to build geometry trees."""
 
-    def __init__(self, empty=False):
+    def __init__(self, empty=False, mc=None):
         """Initialise the geometry tree.
 
         Parameters
@@ -39,6 +39,7 @@ class GeometryTree(dict):
         """
         if empty:
             super().__init__()
+
         else:
             root = GeometryNode(region_type=RegionType.airgap)
             root.parent = None
@@ -47,6 +48,8 @@ class GeometryTree(dict):
             root.key = "root"
             pair = [("root", root)]
             super().__init__(pair)
+
+        self._motorcad_instance = mc
 
     def __iter__(self):
         """Define ordering according to tree structure."""
