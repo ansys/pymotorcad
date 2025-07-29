@@ -32,6 +32,7 @@ from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 try:
     import matplotlib.patches as mpatches
     import matplotlib.pyplot as plt
+    import matplotlib.transforms as transforms
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
@@ -188,9 +189,16 @@ class _RegionDrawing:
         for duplicate_number in range(0, region.duplications):
             duplicate = deepcopy(region)
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
-            self.draw_region(duplicate, colour, labels, depth, full_geometry=True)
+            if duplicate_number == 0:
+                self.draw_region(duplicate, colour, labels, depth, full_geometry=True)
+            else:
+                self.draw_region(
+                    duplicate, colour, labels, depth, full_geometry=True, defining=False
+                )
 
-    def draw_region(self, region, colour, labels, depth, full_geometry=False, draw_points=False):
+    def draw_region(
+        self, region, colour, labels, depth, full_geometry=False, draw_points=False, defining=True
+    ):
         # Draw region onto a plot
         duplication_angle = 360 / region.duplications
         colour = tuple(channel / 255 for channel in colour)
@@ -226,9 +234,24 @@ class _RegionDrawing:
                     depth=depth,
                 )
 
-        self.legend_objects.append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth, label=region.name)[0]
-        )
+        if defining:
+            label = ""
+            label += "│   " * (region.depth - 2)
+            if region.depth == 1:
+                cap = ""
+            elif region == region.parent.children[-1]:
+                cap = "└── "
+            else:
+                cap = "├── "
+            label += cap
+            label += region.key
+
+            self.legend_objects.append(
+                plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth, label=label)[0]
+            )
+        else:
+            plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth)
+
         self.ax.set_aspect("equal", adjustable="box")
 
         if draw_points:
@@ -317,7 +340,8 @@ def draw_objects(
     draw_points=None,
     save=None,
     dpi=None,
-    legend=False,
+    legend=None,
+    axis_ticks=True,
 ):
     """Draw geometry objects on a plot."""
     if is_running_in_internal_scripting():
@@ -328,8 +352,10 @@ def draw_objects(
     region_drawing = _RegionDrawing(ax, stored_coords)
 
     if isinstance(objects, GeometryTree):
-        # The list below determines which objects (and children) are by default drawn.
-
+        # Set legend to by default be drawn if showing defining geometry
+        if legend is None and not full_geometry:
+            legend = True
+        # The list below determines which objects types (and children) are by default drawn.
         region_types = ["Stator", "Split Slot", "Wedge", "Stator Air", "Rotor", "Shaft"]
         for starting_node in objects:
             if starting_node.region_type.value in region_types:
@@ -338,14 +364,14 @@ def draw_objects(
                     for node in subtree:
                         # Draw 360 degrees of each region if requested
                         if full_geometry:
-                            region_drawing.draw_duplicates(node, node.colour, labels, depth=0)
+                            region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
                         else:
                             if draw_points is not None:
                                 region_drawing.draw_region(
-                                    node, node.colour, labels, depth=0, draw_points=draw_points
+                                    node, node.colour, labels, depth=depth, draw_points=draw_points
                                 )
                             else:
-                                region_drawing.draw_region(node, node.colour, labels, depth=0)
+                                region_drawing.draw_region(node, node.colour, labels, depth=depth)
 
     elif isinstance(objects, list):
         if all(isinstance(object, Region) for object in objects):
@@ -372,13 +398,23 @@ def draw_objects(
         region_drawing.draw_entity(objects, "black", draw_points=True)
 
     if legend:
-        plt.legend(
+        leg = fig.legend(
             handles=region_drawing.legend_objects,
             fontsize="small",
             draggable=True,
-            loc="center",
-            bbox_to_anchor=(0.9, 0.5),
+            loc="center left",
+            bbox_to_anchor=(0.01, 0.5),
+            labelspacing=0.3,
         )
+
+        # Move drawing to make room for legend
+        left_bound = leg.get_window_extent().width
+        figure_bound = fig.transFigure.inverted().transform((left_bound, 0))[0]
+
+        ax.set_position(transforms.Bbox.from_extents(figure_bound + 0.1, 0, 1, 1), which="both")
+
+    if not axis_ticks:
+        ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     if save is None:
         plt.show()
