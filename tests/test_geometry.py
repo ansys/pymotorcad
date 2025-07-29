@@ -365,6 +365,7 @@ def test_region_from_json():
         "mesh_length": 0.035,
         "singular": False,
         "linked_regions": ["linked_region", "linked_region_1"],
+        "on_boundary": True,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -405,6 +406,7 @@ def test_region_to_json():
         "mesh_length": 0.035,
         "singular": True,
         "linked_regions": [],
+        "on_boundary": False,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
