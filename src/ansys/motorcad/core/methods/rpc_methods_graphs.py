@@ -216,8 +216,8 @@ class _RpcMethodsGraphs:
 
         point_number : int
             Point number to get x and y coordinate values from.
-        time_step_number
-
+        time_step_number : int
+            Time step number to get x and y coordinate values from.
         Returns
         -------
         xValue : float
