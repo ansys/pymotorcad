@@ -231,7 +231,7 @@ class _RegionDrawing:
                 self.draw_entity(
                     entity,
                     "black",
-                    depth=depth,
+                    depth=depth + 1,
                 )
 
         if defining:
@@ -278,7 +278,7 @@ class _RegionDrawing:
                 [entity.start.x, entity.end.x],
                 [entity.start.y, entity.end.y],
                 color=colour,
-                lw=2,
+                lw=0.5,
                 zorder=depth,
             )
 
@@ -302,7 +302,7 @@ class _RegionDrawing:
                 theta1=start_angle,
                 theta2=end_angle,
                 color=colour,
-                lw=2.5,
+                lw=0.5,
                 zorder=depth,
             )
             self.ax.plot(marker="-o")
@@ -342,8 +342,32 @@ def draw_objects(
     dpi=None,
     legend=None,
     axis_ticks=True,
+    toggle_regions=None,
 ):
-    """Draw geometry objects on a plot."""
+    """Draw geometry objects on a plot.
+
+    Parameters
+    objects : List of objects
+        objects to draw
+    labels : bool
+        whether labels should be drawn. Default is False for GeometryTrees, True for other objects
+    full_geometry : bool
+        Whether duplications of regions should be drawn
+    depth : int
+        drawing depth for objects
+    dpi : int
+        resolution of figure
+    legend : bool
+        whether legend should be drawn
+    axis_ticks : bool
+        whether axis ticks should be drawn
+    toggle_regions : list
+        used for GeometryTrees: provided regions will be drawn if not already, and not if
+        already drawn.
+    """
+    if toggle_regions is None:
+        toggle_regions = []
+
     if is_running_in_internal_scripting():
         return
     stored_coords = []
@@ -356,22 +380,53 @@ def draw_objects(
         if legend is None and not full_geometry:
             legend = True
         # The list below determines which objects types (and children) are by default drawn.
-        region_types = ["Stator", "Split Slot", "Wedge", "Stator Air", "Rotor", "Shaft"]
+        region_types = [
+            "Stator",
+            "Split Slot",
+            "Wedge",
+            "Stator Air",
+            "Rotor",
+            "Shaft",
+            "Banding",
+            "Magnet",
+        ]
+        starting_nodes = []
         for starting_node in objects:
-            if starting_node.region_type.value in region_types:
-                if starting_node.key != "root":
-                    subtree = objects.get_subtree(starting_node)
-                    for node in subtree:
-                        # Draw 360 degrees of each region if requested
-                        if full_geometry:
-                            region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
+            if starting_node.region_type.value in region_types and starting_node.key != "root":
+                starting_nodes.append(starting_node.key)
+        intersection = []
+        for starting_node in starting_nodes:
+            if starting_node in toggle_regions:
+                intersection.append(starting_node)
+        for intersection_node in intersection:
+            starting_nodes.remove(intersection_node)
+            toggle_regions.remove(intersection_node)
+
+        starting_nodes += toggle_regions
+
+        # capture starting nodes that are already drawn to being descendants of a different starting
+        # node, to prevent things being drawn twice.
+        tree_descendants = []
+        for starting_node in starting_nodes:
+            subtree = objects.get_subtree(starting_node)
+            for node in subtree:
+                if node.key != starting_node:
+                    tree_descendants.append(node.key)
+
+        for starting_node in starting_nodes:
+            subtree = objects.get_subtree(starting_node)
+            if not starting_node in tree_descendants:
+                for node in subtree:
+                    # Draw 360 degrees of each region if requested
+                    if full_geometry:
+                        region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
+                    else:
+                        if draw_points is not None:
+                            region_drawing.draw_region(
+                                node, node.colour, labels, depth=depth, draw_points=draw_points
+                            )
                         else:
-                            if draw_points is not None:
-                                region_drawing.draw_region(
-                                    node, node.colour, labels, depth=depth, draw_points=draw_points
-                                )
-                            else:
-                                region_drawing.draw_region(node, node.colour, labels, depth=depth)
+                            region_drawing.draw_region(node, node.colour, labels, depth=depth)
 
     elif isinstance(objects, list):
         if all(isinstance(object, Region) for object in objects):
