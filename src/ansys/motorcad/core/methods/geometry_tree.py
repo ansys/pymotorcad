@@ -137,8 +137,8 @@ class GeometryTree(dict):
                 region["parent_name"] = "root"
                 root["child_names"].append(region["name_unique"])
 
-        self._build_tree(tree_json, root)
-        self.mc = mc
+        self._build_tree(tree_json, root, mc)
+        self._motorcad_instance = mc
         return self
 
     def _to_json(self):
@@ -179,7 +179,7 @@ class GeometryTree(dict):
         dive(node)
         return subtree
 
-    def _build_tree(self, tree_json, node, parent=None):
+    def _build_tree(self, tree_json, node, mc, parent=None):
         """Recursively builds tree.
 
         Parameters
@@ -191,12 +191,12 @@ class GeometryTree(dict):
         parent: None or GeometryNode
         """
         # Convert current node to GeometryNode and add it to tree
-        self[node["name_unique"]] = GeometryNode.from_json(self, node, parent)
+        self[node["name_unique"]] = GeometryNode.from_json(node, parent, mc)
 
         # Recur for each child.
         if node["child_names"] != []:
             for child_name in node["child_names"]:
-                self._build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
+                self._build_tree(tree_json, tree_json[child_name], mc, self[node["name_unique"]])
 
     def fix_duct_geometry(self, node):
         """Fix geometry to work with FEA.
@@ -436,14 +436,14 @@ class GeometryNode(Region):
             return self.name
 
     @classmethod
-    def from_json(cls, tree, node_json, parent):
+    def from_json(cls, node_json, parent, mc):
         """Create a GeometryNode from JSON data.
 
         Parameters
         ----------
-        tree: dict
         node_json: dict
         parent: GeometryNode
+        mc: Motorcad
 
         Returns
         -------
@@ -461,6 +461,8 @@ class GeometryNode(Region):
             new_region.children = list()
             parent.children.append(new_region)
             new_region.key = node_json["name_unique"]
+
+        new_region._motorcad_instance = mc
         return new_region
 
     @property
