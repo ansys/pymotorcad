@@ -262,6 +262,9 @@ class Region(object):
             new_region._br_multiplier = json["magnet_magfactor"]
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
+
+            if "magnet_temp_coeff_method" in json:
+                new_region._weight_reduction_factor = json["magnet_temp_coeff_method"]
         else:
             if has_region_type:
                 new_region = cls(
@@ -1042,6 +1045,7 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+        self._temperature_coeff_method = 0
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -1140,6 +1144,16 @@ class RegionMagnet(Region):
     @magnet_polarity.setter
     def magnet_polarity(self, value):
         self._magnet_polarity = value
+
+    @property
+    def temperature_coefficient_method(self):
+        """Get magnet temperature coefficient method.
+
+        Returns
+        -------
+        float : magnet temperature coefficient method
+        """
+        return self._temperature_coeff_method
 
 
 class Coordinate(object):
