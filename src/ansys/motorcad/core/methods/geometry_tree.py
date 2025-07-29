@@ -100,7 +100,7 @@ class GeometryTree(dict):
                 return False
             return True
 
-        return dive("root")
+        return dive(self.start.key)
 
     def __ne__(self, other):
         """Define inequality."""
@@ -166,7 +166,8 @@ class GeometryTree(dict):
 
     def get_subtree(self, node):
         """Get all GeometryTree consisting of all nodes descended from the supplied one."""
-        if node == self["root"]:
+        node = self.get_node(node)
+        if node.key == "root":
             return self
         subtree = GeometryTree(empty=True)
 
@@ -175,7 +176,7 @@ class GeometryTree(dict):
             for child in node.children:
                 dive(child)
 
-        dive(self.get_node(node))
+        dive(node)
         return subtree
 
     def _build_tree(self, tree_json, node, parent=None):
@@ -200,8 +201,9 @@ class GeometryTree(dict):
     def fix_duct_geometry(self, node):
         """Fix geometry to work with FEA.
 
-        Meant primarily for ducts; splitting apart magnet or other regions in this way can result
-        in errors when solving.
+        Check if a region crosses over its upper or lower duplication angle, and splits it
+        apart into two regions within the valid sector. Meant primarily for ducts; splitting
+        apart magnet or other regions in this way can result in errors when solving.
 
         Parameters
         ----------
@@ -209,7 +211,7 @@ class GeometryTree(dict):
 
         Returns
         -------
-        None
+        Bool: bool representing whether splitting occurred
         """
         # Splits regions apart, if necessary, to enforce valid geometry
         node = self.get_node(node)
@@ -244,7 +246,8 @@ class GeometryTree(dict):
                 return False
             # Case where upper slicing necessary
             else:
-                for new_valid_region in valid_regions_upper:
+                for i, new_valid_region in enumerate(valid_regions_upper):
+                    new_valid_region.name += f"_{i + 1}"
                     self.add_node(new_valid_region, parent=node.parent)
                 # now perform the upper check
                 # brush4 used to find the invalid portion just above duplication angle
@@ -257,7 +260,7 @@ class GeometryTree(dict):
                 for i, new_lower_valid_region in enumerate(invalid_regions_upper):
                     new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
                     new_lower_valid_region.name = new_lower_valid_region.name[0 : name_length + 1]
-                    new_lower_valid_region.name += str(i + len(valid_regions_upper) + 1)
+                    new_lower_valid_region.name += f"_{i + len(valid_regions_upper) + 1}"
                     # Linked regions currently only guaranteed to work if only one new region is
                     # formed at top and bottom; will change once regions can be multiply linked.
                     new_lower_valid_region.linked_region = valid_regions_upper[i]
@@ -268,7 +271,8 @@ class GeometryTree(dict):
         # Case where lower slicing necessary
         else:
             # first, handle the valid regions returned
-            for new_valid_region in valid_regions_lower:
+            for i, new_valid_region in enumerate(valid_regions_lower):
+                new_valid_region.name += f"_{i+1}"
                 self.add_node(new_valid_region, parent=node.parent)
 
             # brush2 used to find the invalid portion just below angle 0
@@ -284,7 +288,7 @@ class GeometryTree(dict):
             for i, new_upper_valid_region in enumerate(invalid_regions_lower):
                 new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
                 new_upper_valid_region.name = new_upper_valid_region.name[0 : name_length + 1]
-                new_upper_valid_region.name += str(i + len(valid_regions_lower) + 1)
+                new_upper_valid_region.name += f"_{i + len(valid_regions_lower) + 1}"
                 # Linked regions currently only guaranteed to work if only one new region is
                 # formed at top and bottom; will change once regions can be multiply linked.
                 new_upper_valid_region.linked_region = valid_regions_lower[i]
@@ -307,12 +311,24 @@ class GeometryTree(dict):
             Key to be used for dict
         parent: GeometryNode or str
             Parent object or parent key (must be already within tree)
-        children: list of GeometryNode or str
-            Children objects or children keys (must be already within tree)
+        children: list
+             List of children objects or children keys (must be already within tree)
 
         """
         if not isinstance(region, GeometryNode):
             region.__class__ = GeometryNode
+
+        if key is None:
+            region.key = region.name
+        else:
+            region.key = key
+
+        # Make certain any nodes being replaced are properly removed
+        try:
+            self.remove_node(region.key)
+        except KeyError:
+            pass
+
         if children is None:
             region.children = list()
         else:
@@ -345,12 +361,7 @@ class GeometryTree(dict):
             else:
                 raise TypeError("Parent must be a GeometryNode or str")
 
-        if key is None:
-            self[region.name] = region
-            region.key = region.name
-        else:
-            self[key] = region
-            region.key = key
+        self[region.key] = region
 
     def remove_node(self, node):
         """Remove Node from tree, attach children of removed node to parent."""
