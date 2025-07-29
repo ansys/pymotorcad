@@ -382,7 +382,7 @@ def test_region_from_json():
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
     test_region.singular = False
-    test_region.linked_regions = ["linked_region", "linked_region_1"]
+    test_region._linked_region_names = ["linked_region", "linked_region_1"]
 
     region = geometry.Region._from_json(raw_region)
 
@@ -422,7 +422,7 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
-    test_region.linked_regions = []
+    test_region.linked_region_names = []
 
     assert test_region._to_json() == raw_region
 
@@ -499,6 +499,11 @@ def test_region_children(mc):
     children = rotor.children
 
     assert len(children) == 16
+
+
+def test_region_linked_regions(mc):
+    duct = mc.get_region("RotorDuctFluidRegion_1")
+    assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():

@@ -138,7 +138,7 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
         self.mesh_length = 0
-        self._linked_regions = []
+        self._linked_region_names = []
 
         self._singular = False
         self._lamination_type = ""
@@ -297,7 +297,7 @@ class Region(object):
             new_region._lamination_type = json["lamination_type"]
 
         if "linked_regions" in json:
-            new_region._linked_regions = json["linked_regions"]
+            new_region._linked_region_names = json["linked_regions"]
 
         return new_region
 
@@ -328,7 +328,7 @@ class Region(object):
             "parent_name": self._parent_name,
             "region_type": self._region_type.value,
             "mesh_length": self.mesh_length,
-            "linked_regions": self._linked_regions,
+            "linked_regions": self._linked_region_names,
             "on_boundary": False if len(self._linked_regions) == 0 else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
@@ -386,11 +386,20 @@ class Region(object):
     @property
     def linked_regions(self):
         """Get linked duplication/unite region."""
-        return self._linked_regions
+        self._check_connection()
+        return [self.motorcad_instance.get_region(name) for name in self._linked_region_names]
 
     @linked_regions.setter
     def linked_regions(self, regions):
-        self._linked_regions = regions
+        self._linked_region_names = [region.name for region in regions]
+
+    @property
+    def linked_region_names(self):
+        return self._linked_region_names
+
+    @linked_region_names.setter
+    def linked_region_names(self, names):
+        self._linked_region_names = names
 
     @property
     def singular(self):
