@@ -360,7 +360,7 @@ class GeometryTree(dict):
                 self[parent].children.append(region)
             else:
                 raise TypeError("Parent must be a GeometryNode or str")
-
+        region._motorcad_instance = self._motorcad_instance
         self[region.key] = region
 
     def remove_node(self, node):
