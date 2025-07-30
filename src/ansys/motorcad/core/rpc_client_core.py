@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, path, putenv, getenv, unsetenv
+from os import environ, getenv, path, putenv, unsetenv
 from pathlib import Path
 import re
 import socket
@@ -230,7 +230,7 @@ class _MotorCADConnection:
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
         use_blackbox_licence: Boolean, default: None
-            Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD 
+            Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
             behaviour will be used.
 
         Returns
@@ -262,9 +262,9 @@ class _MotorCADConnection:
         if use_blackbox_licence is not None:
             # Use the user specified desired licensing
             if use_blackbox_licence:
-                putenv("MOTORDES_BLACKBOX","1")
+                putenv("MOTORDES_BLACKBOX", "1")
             else:
-                putenv("MOTORDES_BLACKBOX","0")
+                putenv("MOTORDES_BLACKBOX", "0")
         else:
             # User has not specified a desired licensing, so use default behaviour
             # Ensure any changes to environment variable made in scripting environment are discarded
@@ -272,7 +272,7 @@ class _MotorCADConnection:
             blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
             if blackbox_env_var_orig is None:
                 # Original blackbox environment variable does not exist, so delete if present
-                unsetenv("MOTORDES_BLACKBOX")            
+                unsetenv("MOTORDES_BLACKBOX")
             else:
                 # Reset environment variable to original value
                 putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)

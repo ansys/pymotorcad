@@ -81,7 +81,7 @@ class MotorCAD(_MotorCADCore):
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
     use_blackbox_licence: Boolean, default: None
-        Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD 
+        Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
         behaviour will be used.
 
     Returns
