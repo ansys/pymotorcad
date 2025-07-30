@@ -182,6 +182,22 @@ class GeometryTree(dict):
         dive(node)
         return subtree
 
+    def get_nodes_from_type(self, node_type):
+        """Return all nodes in the tree of the supplied region type.
+
+        Parameters
+        ----------
+        node_type: str or RegionType
+            Region type to be fetched
+        """
+        if isinstance(node_type, RegionType):
+            node_type = node_type.value
+        nodes = []
+        for node in self:
+            if node.region_type.value == node_type and node.key != "root":
+                nodes.append(node)
+        return nodes
+
     def _build_tree(self, tree_json, node, mc, parent=None):
         """Recursively builds tree.
 

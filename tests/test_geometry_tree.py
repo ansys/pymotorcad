@@ -136,6 +136,13 @@ def test_get_node(sample_tree):
     assert "key must be a string or GeometryNode" in str(e_info.value)
 
 
+def test_get_region_type(sample_tree):
+    nodes = sample_tree.get_nodes_from_type("Magnet")
+
+    for node in nodes:
+        assert node.region_type.value == "Magnet"
+
+
 def test_tostring(sample_tree):
     # Test that all nodes are, at the least, present in the string representation
     string_repr = str(sample_tree)
