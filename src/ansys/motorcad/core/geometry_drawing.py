@@ -389,6 +389,8 @@ def draw_objects(
             "Shaft",
             "Banding",
             "Magnet",
+            "Coil Separator",
+            "Rotor Slot",
         ]
         starting_nodes = []
         for starting_node in objects:
