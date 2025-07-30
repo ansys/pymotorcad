@@ -394,15 +394,6 @@ def draw_objects(
         for starting_node in objects:
             if starting_node.region_type.value in region_types and starting_node.key != "root":
                 starting_nodes.append(starting_node.key)
-        intersection = []
-        for starting_node in starting_nodes:
-            if starting_node in toggle_regions:
-                intersection.append(starting_node)
-        for intersection_node in intersection:
-            starting_nodes.remove(intersection_node)
-            toggle_regions.remove(intersection_node)
-
-        starting_nodes += toggle_regions
 
         # capture starting nodes that are already drawn to being descendants of a different starting
         # node, to prevent things being drawn twice.
@@ -418,15 +409,30 @@ def draw_objects(
             if not starting_node in tree_descendants:
                 for node in subtree:
                     # Draw 360 degrees of each region if requested
-                    if full_geometry:
-                        region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
-                    else:
-                        if draw_points is not None:
-                            region_drawing.draw_region(
-                                node, node.colour, labels, depth=depth, draw_points=draw_points
-                            )
+                    if not node.key in toggle_regions:
+                        if full_geometry:
+                            region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
                         else:
-                            region_drawing.draw_region(node, node.colour, labels, depth=depth)
+                            if draw_points is not None:
+                                region_drawing.draw_region(
+                                    node, node.colour, labels, depth=depth, draw_points=draw_points
+                                )
+                            else:
+                                region_drawing.draw_region(node, node.colour, labels, depth=depth)
+                    else:
+                        toggle_regions.remove(node.key)
+
+        for key in toggle_regions:
+            node = objects.get_node(key)
+            if full_geometry:
+                region_drawing.draw_duplicates(node, node.colour, labels, depth=depth)
+            else:
+                if draw_points is not None:
+                    region_drawing.draw_region(
+                        node, node.colour, labels, depth=depth, draw_points=draw_points
+                    )
+                else:
+                    region_drawing.draw_region(node, node.colour, labels, depth=depth)
 
     elif isinstance(objects, list):
         if all(isinstance(object, Region) for object in objects):
