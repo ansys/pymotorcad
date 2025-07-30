@@ -42,7 +42,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         keep_instance_open=False,
         url="",
         timeout=2,
-        use_blackbox_licence=False,
+        use_blackbox_licence=None,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -80,8 +80,9 @@ class MotorCAD(_MotorCADCore):
         Whether to keep the Motor-CAD instance open after the instance becomes free.
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
-    use_blackbox_licence: Boolean, default: False
-            Ask Motor-CAD to consume blackbox licence.
+    use_blackbox_licence: Boolean, default: None
+        Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD 
+        behaviour will be used.
 
     Returns
     -------
@@ -97,7 +98,7 @@ class MotorCAD(_MotorCADCore):
         reuse_parallel_instances=False,
         keep_instance_open=False,
         url="",
-        use_blackbox_licence=False,
+        use_blackbox_licence=None,
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
