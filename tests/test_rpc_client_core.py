@@ -349,7 +349,7 @@ def test_blackbox_licencing():
     # Not sure it's possible to assert that only a non-blackbox licence was consumed
     # Just check it works for now
     mc2.get_licence()
-    
+
     mc3 = MotorCAD()
     # Not sure it's possible to check which licence type has been used, and whether this
     # matches the default setting
