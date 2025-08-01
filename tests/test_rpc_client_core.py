@@ -340,7 +340,18 @@ def test__resolve_localhost():
 
 
 def test_blackbox_licencing():
-    mc2 = MotorCAD(use_blackbox_licence=True)
+    mc1 = MotorCAD(use_blackbox_licence=True)
     # Not sure it's possible to assert that only a blackbox licence was consumed
     # Just check it works for now
+    mc1.get_licence()
+
+    mc2 = MotorCAD(use_blackbox_licence=False)
+    # Not sure it's possible to assert that only a non-blackbox licence was consumed
+    # Just check it works for now
     mc2.get_licence()
+    
+    mc3 = MotorCAD()
+    # Not sure it's possible to check which licence type has been used, and whether this
+    # matches the default setting
+    # Just check it works for now
+    mc3.get_licence()
