@@ -367,7 +367,7 @@ class MotorCADTwinModel:
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
     def setLosses(self, lossVector=None):
-        if lossVector == None:
+        if lossVector is None:
             # use a very small loss value
             lossVector = 0.1 * np.ones(len(self.lossParameters))
         for index, lossParameter in enumerate(self.lossParameters):
@@ -541,6 +541,13 @@ class MotorCADTwinModel:
                 with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
                     k = 0
                     for connectedNodesList in connectedNodesLists:
+                        cs.write(
+                            "inlet : "
+                            + str(inletNodes[k])
+                            + " - "
+                            + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
+                            + "\n"
+                        )
                         for connectedNodes in connectedNodesList:
                             cs.write(str(connectedNodes) + "\n")
                         k = k + 1
@@ -837,7 +844,7 @@ class MotorCADTwinModel:
     # the Cooling System name and value being another dictionary storing
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
     def generateCoolingSystemsInputsDependency(self, coolingSystemsInputs):
-        for index, (coolingSystem, parameters) in enumerate(coolingSystemsInputs.items()):
+        for coolingSystem, parameters in coolingSystemsInputs.items():
             if coolingSystem not in self.coolingSystemData:
                 warnings.warn(
                     "The Cooling System name {} is not part of the list of Cooling Systems "
@@ -882,6 +889,7 @@ class MotorCADTwinModel:
                     if self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem:
                         upnode = inNode
                         coolSys = conList
+                        break
 
                 connectedNodes = self.returnConnectedNodes(
                     upnode, self.nodeNumbers, resistanceMatrix
@@ -966,12 +974,12 @@ class MotorCADTwinModel:
                                             ],
                                         ]
                                     )
-                                if upnode not in self.nodeNumbers_fluidInlet:
-                                    fCout.write(
-                                        self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        + "\n"
-                                    )
-                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                            if upnode not in self.nodeNumbers_fluidInlet:
+                                fCout.write(
+                                    self.nodeNames[self.nodeNumbers.index(upnode)]
+                                    + "\n"
+                                )
+                                c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                             covered_nodes.update({upnode: connectedNodes})
 
             # run the DoE
