@@ -198,6 +198,7 @@ class MotorCADTwinModel:
     def __init__(self, inputMotFilePath: str, outputDir: str):
         self.inputMotFilePath = inputMotFilePath
         self.outputDirectory = outputDir
+        os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
         if not os.path.isdir(self.outputDirectory):
             os.makedirs(self.outputDirectory)
 
