@@ -25,6 +25,7 @@ from copy import deepcopy
 import warnings
 from warnings import warn
 
+# Flake8 incorrectly flagged this as unused
 from matplotlib.widgets import CheckButtons  # noqa: F401
 
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
@@ -98,11 +99,10 @@ class _RegionDrawing:
                 break
         return result
 
-    def _plot_text_no_overlap(self, point, text, colour, depth=0):
+    def _plot_text_no_overlap(self, point, text, colour):
         # Reset params for recursive function
         tried_coords = []
         modifier = 0
-
         new_coord = self._find_coord_no_overlap(point, tried_coords, modifier)
 
         if new_coord is None:
@@ -111,7 +111,7 @@ class _RegionDrawing:
             self.ax.set_title("Warning : " + warning_str, color="red")
         else:
             self.stored_coords += [new_coord]
-            self.ax.annotate(
+            return self.ax.annotate(
                 text,
                 xy=(point.x, point.y),
                 xytext=(
@@ -121,7 +121,6 @@ class _RegionDrawing:
                 ha="right",
                 arrowprops=dict(arrowstyle="->", shrinkA=0, color=colour, alpha=0.5),
                 color=colour,
-                zorder=depth + 1,
             )
 
     def draw_region_old(self, region, colour):
@@ -193,7 +192,7 @@ class _RegionDrawing:
         """Draw coordinate onto plot."""
         plt.plot(coordinate.x, coordinate.y, "x", color=colour)
 
-    def _draw_duplicates(self, region: GeometryNode, colour, labels, depth):
+    def _draw_duplicates(self, region: GeometryNode, colour, labels):
         """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
 
@@ -201,13 +200,11 @@ class _RegionDrawing:
             duplicate = deepcopy(region)
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
             if duplicate_number == 0:
-                self._draw_region(duplicate, colour, labels, depth, full_geometry=True)
+                self._draw_region(duplicate, colour, labels, full_geometry=True)
             else:
-                self._draw_region(duplicate, colour, labels, depth, full_geometry=True)
+                self._draw_region(duplicate, colour, labels, full_geometry=True)
 
-    def _draw_region(
-        self, region, colour, labels=False, depth=0, full_geometry=False, draw_points=False
-    ):
+    def _draw_region(self, region, colour, labels=False, full_geometry=False, draw_points=False):
         # Draw region onto a plot
         duplication_angle = 360 / region.duplications
         colour = tuple(channel / 255 for channel in colour)
@@ -253,12 +250,11 @@ class _RegionDrawing:
                     self._draw_entity(
                         entity,
                         "black",
-                        depth=depth + 1,
                     )
                 )
 
         self.legend_objects[label].append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, zorder=depth, label=label)[0]
+            plt.fill(fill_points_x, fill_points_y, color=colour, label=label, lw=0.1)[0]
         )
 
         self.ax.set_aspect("equal", adjustable="box")
@@ -266,17 +262,22 @@ class _RegionDrawing:
         if draw_points:
             for entity_num, entity in enumerate(region.entities):
                 text = "e{}".format(entity_num)
-                self._plot_text_no_overlap(entity.midpoint, text, "black")
+                point = self._plot_text_no_overlap(entity.midpoint, text, "black")
+                if point is not None:
+                    self.legend_objects[label].append(point)
 
             points = region.entities.points
             for point_num, point in enumerate(points):
                 text = "p{}".format(point_num)
-                self._plot_text_no_overlap(point, text, "black")
-
+                point = self._plot_text_no_overlap(point, text, "black")
+                if point is not None:
+                    self.legend_objects[label].append(point)
         if labels:
-            self._plot_text_no_overlap(region.centroid, region.name, "black", depth=depth)
+            point = self._plot_text_no_overlap(region.centroid, region.name, "black")
+            if point is not None:
+                self.legend_objects[label].append(point)
 
-    def _draw_entity(self, entity, colour, depth=0, draw_points=False):
+    def _draw_entity(self, entity, colour, draw_points=False):
         """Draw entity onto plot.
 
         Entities are drawn with relatively large line width, so that they do not end up covered
@@ -287,8 +288,8 @@ class _RegionDrawing:
                 [entity.start.x, entity.end.x],
                 [entity.start.y, entity.end.y],
                 color=colour,
-                lw=0.5,
-                zorder=depth,
+                lw=0.4,
+                zorder=2,
             )[0]
 
         elif isinstance(entity, Arc):
@@ -311,8 +312,8 @@ class _RegionDrawing:
                 theta1=start_angle,
                 theta2=end_angle,
                 color=colour,
-                lw=0.5,
-                zorder=depth,
+                lw=0.4,
+                zorder=2,
             )
             self.ax.plot(marker="-o")
             self.ax.add_patch(drawn_entity)
@@ -347,12 +348,11 @@ def draw_objects(
     objects,
     labels=False,
     full_geometry=False,
-    depth=0,
     draw_points=None,
     save=None,
     dpi=None,
     legend=None,
-    axis_ticks=True,
+    axes=True,
 ):
     """Draw geometry objects on a plot.
 
@@ -360,11 +360,9 @@ def draw_objects(
     objects : List of objects
         objects to draw
     labels : bool
-        whether labels should be drawn. Default is False for GeometryTrees, True for other objects
+        whether labels should be drawn. Default is False
     full_geometry : bool
         Whether duplications of regions should be drawn
-    depth : int
-        drawing depth for objects
     dpi : int
         resolution of figure
     legend : bool
@@ -382,6 +380,29 @@ def draw_objects(
     ax = fig.add_subplot(1, 1, 1)
     region_drawing = _RegionDrawing(ax, stored_coords)
 
+    # Determine a label that portrays appropriate positional information in the tree.
+    def get_label(object):
+        # Make certain label is appropriate for regions that might not be a part of trees
+        if isinstance(object, Region) and not isinstance(object, GeometryNode):
+            return object.name
+        if isinstance(object, tuple):
+            return str(object[0]).split(".")[-1][0:-2] + str(object[1])
+
+        if object.key == "root":
+            return "root"
+        label = ""
+        label += "│   " * (object.depth - 2)
+        if object.depth == 1:
+            cap = ""
+        elif object == object.parent.children[-1]:
+            cap = "└── "
+        else:
+            cap = "├── "
+        label += cap
+        label += object.key
+        return label
+
+    # Draw a geometry tree
     if isinstance(objects, GeometryTree):
         # Set legend to by default be drawn if showing defining geometry
         if legend is None and not full_geometry:
@@ -400,22 +421,6 @@ def draw_objects(
             "Rotor Slot",
         ]
 
-        # Determine a label that portrays appropriate positional information in the tree.
-        def get_label(node):
-            if node.key == "root":
-                return "root"
-            label = ""
-            label += "│   " * (node.depth - 2)
-            if node.depth == 1:
-                cap = ""
-            elif node == node.parent.children[-1]:
-                cap = "└── "
-            else:
-                cap = "├── "
-            label += cap
-            label += node.key
-            return label
-
         # A set is used to avoid elements that are both of an appropriate type and children of
         # an appropriate type being listed twice
         drawn_nodes = set()
@@ -432,72 +437,98 @@ def draw_objects(
                 region_drawing.legend_objects[label] = []
 
                 if full_geometry:
-                    region_drawing._draw_duplicates(node, node.colour, labels, depth=depth)
+                    region_drawing._draw_duplicates(node, node.colour, labels)
 
                 else:
                     if draw_points is not None:
                         region_drawing._draw_region(
-                            node, node.colour, labels, depth=depth, draw_points=draw_points
+                            node, node.colour, labels, draw_points=draw_points
                         )
                     else:
-                        region_drawing._draw_region(node, node.colour, labels, depth=depth)
+                        region_drawing._draw_region(node, node.colour, labels)
 
-            # Assign each region an appropriate visibility based on what should be by default
+            # Assign each region an appropriate visibility state based on what should be by default
             # displayed
             if label in drawn_nodes:
                 region_drawing.object_states[label] = True
             elif node.key != "root":
                 region_drawing.object_states[label] = False
 
+        # Enforce initial visibility
         for drawn_region in region_drawing.legend_objects:
             for drawn_object in region_drawing.legend_objects[drawn_region]:
                 drawn_object.set_visible(region_drawing.object_states[drawn_region])
 
+    # Draw a list of entities or nodes
     elif isinstance(objects, list):
         if all(isinstance(object, Region) for object in objects):
+            if draw_points is None:
+                draw_points = False
             for region in objects:
-                if draw_points is not None:
-                    region_drawing._draw_region(
-                        region, region.colour, labels, depth=depth, draw_points=draw_points
-                    )
-                else:
-                    region_drawing._draw_region(
-                        region, region.colour, labels, depth=depth, draw_points=True
-                    )
+                label = get_label(region)
+                region_drawing.legend_objects[label] = []
+                region_drawing.object_states[label] = True
+                region_drawing._draw_region(region, region.colour, labels, draw_points=draw_points)
+
         if all(isinstance(object, Entity) for object in objects):
-            for entity in objects:
-                if draw_points is not None:
-                    region_drawing._draw_entity(entity, "black", labels, draw_points=draw_points)
-                else:
-                    region_drawing._draw_entity(entity, "black", labels, draw_points=True)
+            if draw_points is None:
+                draw_points = False
+            for i, entity in enumerate(objects):
+                label = get_label((type(entity), i))
+                region_drawing.legend_objects[label] = []
+                region_drawing.object_states[label] = True
+                region_drawing.legend_objects[label].append(
+                    region_drawing._draw_entity(entity, "black", draw_points)
+                )
 
+    # Draw a sole region/node
     if isinstance(objects, Region) or isinstance(objects, GeometryNode):
-        region_drawing._draw_region(objects, objects.colour, labels, depth=depth, draw_points=True)
+        if draw_points is None:
+            draw_points = False
+        label = get_label(objects)
+        region_drawing.legend_objects[label] = []
+        region_drawing.object_states[label] = True
+        region_drawing._draw_region(objects, objects.colour, labels, draw_points=draw_points)
 
+    # Draw a sole entity
     if isinstance(objects, Entity):
-        region_drawing._draw_entity(objects, "black", draw_points=True)
+        if draw_points is None:
+            draw_points = True
+        label = get_label((type(objects), 1))
+        region_drawing.legend_objects[label] = []
+        region_drawing.object_states[label] = True
+        region_drawing.legend_objects[label].append(
+            region_drawing._draw_entity(objects, "black", draw_points)
+        )
 
     # Create an interactable legend to label and change displayed regions
     if legend:
-        x_boundary = 0.016 * max(len(label) for label in region_drawing.labels_list) + 0.01
+        # Size the legend based on the length of the longest label
+        x_boundary = 0.015 * max(len(label) for label in region_drawing.labels_list) + 0.05
 
         rax = plt.axes([0.05, 0.2, x_boundary, 0.6])
         box_size = min(len(region_drawing.object_states), 10)
         region_drawing.current_index = 0
 
+        # Create the CheckButtons object that makes up the actual region
         check = CheckButtons(
             rax, region_drawing.labels_list[0:box_size], region_drawing.states_list[0:box_size]
         )
+
+        # Shift the original plot aside to make room
         ax.set_position(transforms.Bbox.from_extents(x_boundary + 0.1, 0, 1, 1), which="both")
 
+        # Define the behaviour of a checkbox upon being clicked
         def func(label):
             region_drawing.object_states[label] = not region_drawing.object_states[label]
             for region_object in region_drawing.legend_objects[label]:
                 region_object.set_visible(region_drawing.object_states[label])
             plt.draw()
 
+        # Link the above function to the CheckButtons object
         check.on_clicked(func)
 
+        # Function that cycles the labels displayed on the CheckButtons object up or down
         def cycle_check(check, direction):
             current_index = region_drawing.current_index
             number = len(region_drawing.object_states)
@@ -506,8 +537,10 @@ def draw_objects(
                 for i in range(0, box_size):
                     new_index = (current_index + i + 1) % number
                     check.labels[i % box_size].set_text(labels[new_index])
+                    # Avoid actually modifying data with just a scrolling action
                     check.eventson = False
                     check.set_active(i % box_size, region_drawing.states_list[new_index])
+                    # Make certain changes can occur once scrolling is done
                     check.eventson = True
                 region_drawing.current_index += 1
 
@@ -520,6 +553,7 @@ def draw_objects(
                     check.eventson = True
                 region_drawing.current_index -= 1
 
+        # Link the direction keys and scroll wheel to the cycling function
         def on_press(event):
             cycle_check(check, event.key)
             fig.canvas.draw()
@@ -532,8 +566,9 @@ def draw_objects(
 
         fig.canvas.mpl_connect("scroll_event", on_scroll)
 
-    if not axis_ticks:
-        ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+    if not axes:
+        ax.axis("off")
+        # ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     if save is None:
         plt.show()
