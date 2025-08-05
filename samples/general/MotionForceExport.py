@@ -27,7 +27,7 @@ This example shows how to export forces for Ansys Motion multibody analysis soft
 more options for controlling the offset required to align the forces with the structural model.
 The file names and offset parameters are set in the main script near the end of this file.
 
-This script should be run from the scripting tab or an external IDE, after the force calculation
+This script should be run from the scripting tab after the force calculation
 has been run in Motor-CAD.
 """
 
@@ -685,8 +685,11 @@ slice_centre_x = 0
 slice_centre_y = 0
 slice_centre_z = 0
 
-# Connect to Motor-CAD. This assumes that Motor-CAD is already running, and the model required is
-# open and the model has been solved (or results loaded).
+# Connect to Motor-CAD. This assumes that the script is running from the scripting tab, and
+# the model has been solved (or results loaded).
+
+# Alternatively, this could be changed to pymotorcad.MotorCAD(open_new_instance=False) to connect
+# to an existing instance if running from an external IDE.
 mc = pymotorcad.MotorCAD()
 
 if mc.get_variable("SkewType") == 2:
