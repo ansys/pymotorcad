@@ -1063,38 +1063,48 @@ class MotorCADTwinModel:
 # function has been defined to return this dictionary. As can be seen in the code comments, more
 # data points are calculated when the housing and ambient temperatures are close together, as this
 # is where the natural convection heat transfer coefficients vary the most.
-def temperaturesHousingAmbient():
-    # Consider ambient temperature as 20, 40, 65
-    # For each ambient temperature run housing nodes sweep between 20 and 100 deg
-    # 0<= abs(dT) <= 5 -> 0.5 deg => 10 points
-    # 5 < abs(dT) <= 15 -> 1 deg => 10 points
-    # 15 < abs(dT) <= 40 -> 5 deg => 5 points
+def temperaturesHousingAmbient(ambientTemperatures, housingTemperatureMin, housingTemperatureMax):
+    # For each ambient temperature run housing nodes sweep between min and max housing temperature
+    # abs(dT) <= 5 -> 1 deg => 10 points
+    # 5 < abs(dT) <= 40 -> 5 deg => 14 points
     # 40 < abs(dT) -> 10 deg
 
     print("Determining Ambient and Housing temperatures to investigate:")
     temperatures = dict()
 
-    ambientTemperatures = [20, 40]
-    housingTemperatureMin = 20
-    housingTemperatureMax = 100
-
-    for ambientTemperature in ambientTemperatures:
-        housingTemperatures = [housingTemperatureMin]
-        curTemp = housingTemperatureMin
-        while curTemp < housingTemperatureMax:
-            curdT = abs(curTemp - ambientTemperature)
-            if curdT < 5:
-                dT = 0.5
-            elif curdT < 15:
+    for ambient in ambientTemperatures:    
+        temps = []
+        # downward temperature sweep
+        curT = min(ambient, housingTemperatureMax)
+        while curT > housingTemperatureMin:
+            temps.append(curT)
+            dT = abs(curT - ambient)
+            if dT < 5:
                 dT = 1
-            elif curdT < 40:
+            elif dT < 40:
                 dT = 5
             else:
                 dT = 10
-            curTemp = curTemp + dT
-            housingTemperatures.append(curTemp)
+            curT = curT - dT
+        temps.append(housingTemperatureMin)
+        temps.reverse()
+        temps = temps[:-1]  # remove ambient as will be added on later
 
-        temperatures.update({ambientTemperature: housingTemperatures})
+        # upward temperature sweep
+        curT = max(ambient, housingTemperatureMin)
+        while curT < housingTemperatureMax:
+            temps.append(curT)
+            dT = abs(curT - ambient)
+            if dT < 5:
+                dT = 1
+            elif dT < 40:
+                dT = 5
+            else:
+                dT = 10
+            curT = curT + dT
+        temps.append(housingTemperatureMax)
+
+        temperatures.update({ambient: temps})
 
     print(temperatures)
     return temperatures
@@ -1136,7 +1146,7 @@ airgapTemps = None
 # generated *Motor-CAD ROM* component will interpolate between these, so it is important to cover
 # the complete expected housing and ambient temperature range with the appropriate sampling in order
 # to maintain accuracy. This parameter can be set to ``None`` should this not be required.
-housingAmbientTemps = None#temperaturesHousingAmbient()
+housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 
 # %%
 # Specify the cooling systems for which input dependencies need to be taken into account.
