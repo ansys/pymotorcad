@@ -246,19 +246,23 @@ class _RegionDrawing:
                 and entity.start != entity.end
                 and entity.get_coordinate_distance(Coordinate(0, 0)) < GEOM_TOLERANCE
             ):
+                # Draw entity and add it to legend_objects in the appropriate region's list for
+                # later access
                 self.legend_objects[label].append(
                     self._draw_entity(
                         entity,
                         "black",
                     )
                 )
-
+        # Draw region's colouring and add it to legend_objects in the appropriate list for
+        # later access
         self.legend_objects[label].append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, label=label, lw=0.1)[0]
+            plt.fill(fill_points_x, fill_points_y, color=colour, label=label, lw=0.4)[0]
         )
 
         self.ax.set_aspect("equal", adjustable="box")
 
+        # Draw midpoints and endpoints, place them in a region's list in legend_objects
         if draw_points:
             for entity_num, entity in enumerate(region.entities):
                 text = "e{}".format(entity_num)
@@ -353,6 +357,7 @@ def draw_objects(
     dpi=None,
     legend=None,
     axes=True,
+    toggle_regions=None,
 ):
     """Draw geometry objects on a plot.
 
@@ -363,21 +368,22 @@ def draw_objects(
         whether labels should be drawn. Default is False
     full_geometry : bool
         Whether duplications of regions should be drawn
+    draw_points : bool
+        Whether to draw end and mid points of entities. Default is False, except for sole entities.
     dpi : int
-        resolution of figure
+        resolution of figure (used primarily when exporting images as pngs)
     legend : bool
-        whether legend should be drawn
-    axis_ticks : bool
-        whether axis ticks should be drawn
-    toggle_regions : list
+        whether interactable legend should be drawn
+    axes : bool
+        whether axes should be drawn
+    toggle_regions : list of str
         used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
     """
     if is_running_in_internal_scripting():
         return
     stored_coords = []
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots(figsize=(10, 6))
     region_drawing = _RegionDrawing(ax, stored_coords)
 
     # Determine a label that portrays appropriate positional information in the tree.
@@ -385,6 +391,8 @@ def draw_objects(
         # Make certain label is appropriate for regions that might not be a part of trees
         if isinstance(object, Region) and not isinstance(object, GeometryNode):
             return object.name
+        # Tuples used to draw lists of entities. The second value input is an integer used to
+        # grant unique labels
         if isinstance(object, tuple):
             return str(object[0]).split(".")[-1][0:-2] + str(object[1])
 
@@ -404,6 +412,8 @@ def draw_objects(
 
     # Draw a geometry tree
     if isinstance(objects, GeometryTree):
+        if toggle_regions is None:
+            toggle_regions = list()
         # Set legend to by default be drawn if showing defining geometry
         if legend is None and not full_geometry:
             legend = True
@@ -453,6 +463,8 @@ def draw_objects(
                 region_drawing.object_states[label] = True
             elif node.key != "root":
                 region_drawing.object_states[label] = False
+            if node.key in toggle_regions:
+                region_drawing.object_states[label] = not region_drawing.object_states[label]
 
         # Enforce initial visibility
         for drawn_region in region_drawing.legend_objects:
@@ -504,7 +516,7 @@ def draw_objects(
     # Create an interactable legend to label and change displayed regions
     if legend:
         # Size the legend based on the length of the longest label
-        x_boundary = 0.015 * max(len(label) for label in region_drawing.labels_list) + 0.05
+        x_boundary = 0.01 * max(len(label) for label in region_drawing.labels_list) + 0.05
 
         rax = plt.axes([0.05, 0.2, x_boundary, 0.6])
         box_size = min(len(region_drawing.object_states), 10)
@@ -568,7 +580,6 @@ def draw_objects(
 
     if not axes:
         ax.axis("off")
-        # ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     if save is None:
         plt.show()
