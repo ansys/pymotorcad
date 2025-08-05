@@ -354,6 +354,47 @@ getting or setting any Motor-CAD geometry:
 
     mc.reset_adaptive_geometry()
 
+To work on an Adaptive Templates script in an IDE, go to the **Geometry -> Editor ->
+Adaptive Templates** tab and select **Adaptive** under **Geometry Templates Type**. Save the script
+to a convenient location, and tick the **Use External IDE** option. The Adaptive Templates script
+will be greyed-out and unavailable to edit within the Motor-CAD GUI.
+
+To open the Adaptive Templates script file in your default IDE, click **Open with default**. To
+choose a specific IDE, click **Open with...**.
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE.png
+    :width: 500pt
+
+    **Use External IDE** options in the Motor-CAD GUI.
+
+Adaptive Templates scripts should use the ``open_new_instance=False`` option when connecting to
+Motor-CAD.
+
+.. code:: python
+
+    mc = pymotorcad.MotorCAD(open_new_instance=False)
+
+Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
+docstrings and debugging when working on the script. The Adaptive Templates script can be run within
+the IDE, and the commands will communicate with to the open Motor-CAD instance when the
+``open_new_instance=False`` option is used.
+
+For example, you can add a breakpoint and run a script in debug mode to investigate the variables.
+In the screenshot below, a breakpoint has been added to pause the script before setting a new notch
+region in Motor-CAD. Looking into the variables, we can find the ``notch`` region object and
+investigate its attributes and properties. We can see that it has 3 entities (two lines and one arc)
+. This is a useful tool when working on a Python script, such as an Adaptive Templates script.
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE_2.png
+    :width: 500pt
+
+    Using a breakpoint in an Adaptive Template script to investigate variables.
+
+IDEs such as PyCharm have a lot of useful features for editing Python scripts. It is much easier and
+more efficient to use an IDE to develop Adaptive Templates scripts, compared with the limited editor
+within the Motor-CAD GUI.
+
+
 Drawing geometry objects
 ------------------------
 When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
