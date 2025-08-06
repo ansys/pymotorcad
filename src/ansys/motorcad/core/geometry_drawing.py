@@ -358,6 +358,7 @@ def draw_objects(
     legend=None,
     axes=True,
     toggle_regions=None,
+    title=None,
 ):
     """Draw geometry objects on a plot.
 
@@ -581,6 +582,8 @@ def draw_objects(
     if not axes:
         ax.axis("off")
 
+    if title is not None:
+        ax.set_title(title)
     if save is None:
         plt.show()
     else:
