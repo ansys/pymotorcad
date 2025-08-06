@@ -209,7 +209,7 @@ class MotorCADTwinModel:
         self.heatFlowMethod = None
 
         # self.nodeNames has no spaces or (curved brackets), self.nodeNames_original maintains these
-        self.nodeNames = [] 
+        self.nodeNames = []
         self.nodeNames_original = []
         self.nodeNumbers = []
         self.nodeGroupings = []
@@ -1112,8 +1112,8 @@ def temperaturesHousingAmbient(ambientTemperatures, housingTemperatureMin, housi
 
 # %%
 # Specify the input .mot file and the directory to save the output data to.
-working_folder = r'D:\OneDrive - ANSYS, Inc\Projects\Twinbuilder\26R1 updates\py script testing'
-mcad_name = "e8"
+working_folder = r"D:\OneDrive - ANSYS, Inc\Projects\Twinbuilder\26R1 updates\py script testing"
+mcad_name = "e8_multicool"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
@@ -1130,7 +1130,7 @@ if Path(inputMotFilePath).exists() == False:
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
 # reduce calculation time, but in real use it is recommended that this be greater.
-rpms = [200, 500]
+rpms = [200, 500, 1000]
 
 # %%
 # Specify the airgap temperatures to investigate, in order for the temperature dependent nature
@@ -1138,7 +1138,7 @@ rpms = [200, 500]
 # *Motor-CAD ROM* component will interpolate between these, so it is important to cover the complete
 # expected airgap temperature range with the appropriate sampling in order to maintain accuracy.
 # This parameter can be set to ``None`` should this not be required.
-airgapTemps = None
+airgapTemps = [60, 120]
 
 # %%
 # Specify the housing and ambient temperatures to investigate, in order for the natural
