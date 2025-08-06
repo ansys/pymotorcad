@@ -372,7 +372,8 @@ class Region(object):
     def linked_region(self):
         """Get linked duplication/unite region."""
         warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
-        return self._linked_regions[0] if len(self._linked_regions) > 0 else None
+        return self.motorcad_instance.get_region(self._linked_region_names[0]) if len(self._linked_region_names) > 0 \
+            else None
 
     @linked_region.setter
     def linked_region(self, region):
@@ -380,8 +381,8 @@ class Region(object):
             "inked_region property is deprecated. Use linked_regions.append(region)",
             DeprecationWarning,
         )
-        self._linked_regions.append(region)
-        region._linked_regions.append(self)
+        self._linked_region_names.append(region.name)
+        region._linked_region_names.append(self.name)
 
     @property
     def linked_regions(self):
