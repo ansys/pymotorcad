@@ -88,6 +88,7 @@ class RegionType(Enum):
     cowling_gril = "Cowling Grill"
     cowling_grill_hole = "Cowling Grill Hole"
     brush = "Brush"
+    bearings = "Bearings"
     commutator = "Commutator"
     airgap = "Airgap"
     dxf_import = "DXF Import"

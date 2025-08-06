@@ -28,7 +28,7 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMa
 class GeometryTree(dict):
     """Class used to build geometry trees."""
 
-    def __init__(self, empty=False):
+    def __init__(self, empty=False, mc=None):
         """Initialise the geometry tree.
 
         Parameters
@@ -39,6 +39,7 @@ class GeometryTree(dict):
         """
         if empty:
             super().__init__()
+
         else:
             root = GeometryNode(region_type=RegionType.airgap)
             root.parent = None
@@ -47,6 +48,8 @@ class GeometryTree(dict):
             root.key = "root"
             pair = [("root", root)]
             super().__init__(pair)
+
+        self._motorcad_instance = mc
 
     def __iter__(self):
         """Define ordering according to tree structure."""
@@ -137,8 +140,8 @@ class GeometryTree(dict):
                 region["parent_name"] = "root"
                 root["child_names"].append(region["name_unique"])
 
-        self._build_tree(tree_json, root)
-        self.mc = mc
+        self._build_tree(tree_json, root, mc)
+        self._motorcad_instance = mc
         return self
 
     def _to_json(self):
@@ -179,7 +182,23 @@ class GeometryTree(dict):
         dive(node)
         return subtree
 
-    def _build_tree(self, tree_json, node, parent=None):
+    def get_nodes_from_type(self, node_type):
+        """Return all nodes in the tree of the supplied region type.
+
+        Parameters
+        ----------
+        node_type: str or RegionType
+            Region type to be fetched
+        """
+        if isinstance(node_type, RegionType):
+            node_type = node_type.value
+        nodes = []
+        for node in self:
+            if node.region_type.value == node_type and node.key != "root":
+                nodes.append(node)
+        return nodes
+
+    def _build_tree(self, tree_json, node, mc, parent=None):
         """Recursively builds tree.
 
         Parameters
@@ -191,12 +210,12 @@ class GeometryTree(dict):
         parent: None or GeometryNode
         """
         # Convert current node to GeometryNode and add it to tree
-        self[node["name_unique"]] = GeometryNode.from_json(self, node, parent)
+        self[node["name_unique"]] = GeometryNode.from_json(node, parent, mc)
 
         # Recur for each child.
         if node["child_names"] != []:
             for child_name in node["child_names"]:
-                self._build_tree(tree_json, tree_json[child_name], self[node["name_unique"]])
+                self._build_tree(tree_json, tree_json[child_name], mc, self[node["name_unique"]])
 
     def fix_duct_geometry(self, node):
         """Fix geometry to work with FEA.
@@ -360,7 +379,7 @@ class GeometryTree(dict):
                 self[parent].children.append(region)
             else:
                 raise TypeError("Parent must be a GeometryNode or str")
-
+        region._motorcad_instance = self._motorcad_instance
         self[region.key] = region
 
     def remove_node(self, node):
@@ -436,14 +455,14 @@ class GeometryNode(Region):
             return self.name
 
     @classmethod
-    def from_json(cls, tree, node_json, parent):
+    def from_json(cls, node_json, parent, mc):
         """Create a GeometryNode from JSON data.
 
         Parameters
         ----------
-        tree: dict
         node_json: dict
         parent: GeometryNode
+        mc: Motorcad
 
         Returns
         -------
@@ -461,6 +480,8 @@ class GeometryNode(Region):
             new_region.children = list()
             parent.children.append(new_region)
             new_region.key = node_json["name_unique"]
+
+        new_region._motorcad_instance = mc
         return new_region
 
     @property
