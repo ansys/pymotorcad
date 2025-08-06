@@ -159,10 +159,7 @@ regions_to_round = {}
 # %%
 # Get the magnet regions from the geometry tree. Find magnets using the RegionType attribute. Store
 # the magnets in the ``regions_to_round`` dictionary.
-regions_to_round["magnets"] = []
-for node in geometry_tree:
-    if node.region_type == RegionType.magnet:
-        regions_to_round["magnets"].append(geometry_tree.get_node(node))
+regions_to_round["magnets"] = geometry_tree.get_nodes_from_type(RegionType.magnet)
 
 # %%
 # Get the corresponding rotor pocket regions from the geometry tree. Check whether the magnet is a
@@ -183,14 +180,12 @@ for magnet in regions_to_round["magnets"]:
         regions_to_round["magnet is child of pocket?"].append(True)
     else:
         regions_to_round["magnet is child of pocket?"].append(False)
-        for node in geometry_tree:
-            if node.region_type == RegionType.rotor_pocket:
-                for point in node.points:
-                    if point in magnet.points:
-                        magnet_rotor_pockets.append(node)
-                        break
+        for node in geometry_tree.get_nodes_from_type(RegionType.rotor_pocket):
+            for point in node.points:
+                if point in magnet.points:
+                    magnet_rotor_pockets.append(node)
+                    break
     regions_to_round["rotor pockets"].append(magnet_rotor_pockets)
-
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
