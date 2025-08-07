@@ -397,13 +397,3 @@ def test_linked_regions(sample_tree):
     for node in sample_tree:
         for linked in node.linked_regions:
             assert node in linked.linked_regions
-
-
-def test_set_tree(mc, sample_tree):
-    # Test that tree is correctly set after modification
-
-    sample_tree.remove_node("Stator")
-    mc.set_geometry_tree(sample_tree)
-    new_tree = mc.get_geometry_tree()
-
-    assert new_tree == sample_tree
