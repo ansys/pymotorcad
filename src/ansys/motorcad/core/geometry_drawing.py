@@ -25,9 +25,6 @@ from copy import deepcopy
 import warnings
 from warnings import warn
 
-# Flake8 incorrectly flagged this as unused
-from matplotlib.widgets import CheckButtons  # noqa: F401
-
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
 from ansys.motorcad.core.methods.geometry_tree import GeometryNode, GeometryTree
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
@@ -36,6 +33,9 @@ try:
     import matplotlib.patches as mpatches
     import matplotlib.pyplot as plt
     import matplotlib.transforms as transforms
+
+    # Flake8 incorrectly flagged this as unused
+    from matplotlib.widgets import CheckButtons  # noqa: F401
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
@@ -210,17 +210,19 @@ class _RegionDrawing:
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
-
-        label = ""
-        label += "│   " * (region.depth - 2)
-        if region.depth == 1:
-            cap = ""
-        elif region == region.parent.children[-1]:
-            cap = "└── "
+        if region.__class__ == GeometryNode:
+            label = ""
+            label += "│   " * (region.depth - 2)
+            if region.depth == 1:
+                cap = ""
+            elif region == region.parent.children[-1]:
+                cap = "└── "
+            else:
+                cap = "├── "
+            label += cap
+            label += region.key
         else:
-            cap = "├── "
-        label += cap
-        label += region.key
+            label = region.name
 
         for entity in region.entities:
             point_0 = entity.start
@@ -341,7 +343,7 @@ def draw_objects_debug(objects):
         entities to draw
     """
     warn(
-        "draw_objects_debug() WILL BE DEPRECATED SOON - USE geometry_drawing.draw_objects instead",
+        "draw_objects_debug() WILL BE DEPRECATED SOON - Use geometry_drawing.draw_objects instead",
         DeprecationWarning,
     )
     if not is_running_in_internal_scripting():
@@ -381,8 +383,12 @@ def draw_objects(
         used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
     """
-    if is_running_in_internal_scripting():
-        return
+    if not MATPLOTLIB_AVAILABLE:
+        raise ImportError(
+            "Failed to draw geometry. Please ensure MatPlotLib and a suitable backend "
+            "e.g. PyQt5 are installed"
+        )
+
     stored_coords = []
     fig, ax = plt.subplots(figsize=(10, 6))
     region_drawing = _RegionDrawing(ax, stored_coords)

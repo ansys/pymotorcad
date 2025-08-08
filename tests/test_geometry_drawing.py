@@ -63,7 +63,7 @@ def test_label_recursion(monkeypatch):
 
     monkeypatch.setattr(ansys.motorcad.core.geometry_drawing, "_MAX_RECURSION", 1)
     with pytest.warns():
-        draw_objects([r1, r2, r3])
+        draw_objects([r1, r2, r3], labels=True)
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
