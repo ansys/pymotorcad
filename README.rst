@@ -131,7 +131,7 @@ To install in developer mode, complete these steps:
 
     .. code:: bash
     
-        python -m pip install --editable .
+        python -m pip install --editable .[tests,doc]
     
 #. Verify your development installation with this command:
 
