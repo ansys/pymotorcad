@@ -20,7 +20,7 @@ Run this code to clone and install the latest version of PyMotorCAD in developme
 
     git clone https://github.com/ansys/pymotorcad
     cd pymotorcad
-    pip install --editable ansys-motorcad-core
+    pip install --editable .
 
 
 Post issues
