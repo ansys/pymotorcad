@@ -142,6 +142,10 @@ class GeometryTree(dict):
 
         self._build_tree(tree_json, root, mc)
         self._motorcad_instance = mc
+        # Establish linkages between linked regions
+        for node in self:
+            for linked_region_name in node._linked_region_names:
+                node.linked_regions.append(self[linked_region_name])
         return self
 
     def _to_json(self):
@@ -470,6 +474,7 @@ class GeometryNode(Region):
             new_region = GeometryNode(region_type=RegionType.airgap)
             new_region.name = "root"
             new_region.key = "root"
+            # Protected linked_region_names attribute used only when first initializing the tree
             new_region._linked_region_names = []
 
         else:
@@ -479,6 +484,7 @@ class GeometryNode(Region):
             new_region.children = list()
             parent.children.append(new_region)
             new_region.key = node_json["name_unique"]
+            # Protected linked_region_names attribute used only when first initializing the tree
             new_region._linked_region_names = node_json["linked_regions"]
 
         new_region._motorcad_instance = mc
@@ -573,8 +579,3 @@ class GeometryNode(Region):
             return ""
         else:
             return self.parent.name
-
-    @property
-    def linked_regions(self):
-        """Get linked region objects for duplication/unite operations."""
-        return [self.geometry_tree[name] for name in self._linked_region_names]
