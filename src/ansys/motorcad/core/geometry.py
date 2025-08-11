@@ -740,7 +740,7 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
-    def _consolidate_lines(self):
+    def consolidate_lines(self):
         """Consolidate separate Line objects into a single Line object where possible.
 
         If the current and previous entities are both Line entity types with the same angle, the
@@ -887,11 +887,11 @@ class Region(object):
         if converged == False:
             raise ValueError("Cannot find intersection. Check if radius is too large")
 
-        # check that the  distances by which the adjacent entities are shortened are less than half
+        # check that the  distances by which the adjacent entities are shortened are less than
         # the lengths of the adjacent entities.
         for index in range(len(adj_entity_lengths)):
             j = adj_entity_lengths[index]
-            if j < 2 * distance:
+            if j < distance:
                 raise ValueError(
                     "Corner radius is too large for these entities. "
                     "You must specify a smaller radius."
@@ -930,8 +930,6 @@ class Region(object):
         maximise : bool
             Whether to maximise the possible radius if the radius provided is too large.
         """
-        # consolidate Line entities in the region where possible
-        self._consolidate_lines()
         # get the original entities before any corner rounding has been done
         entities_orig = deepcopy(self._entities)
         # get the lengths of the original adjacent entities before any corner rounding
@@ -994,12 +992,10 @@ class Region(object):
         maximise : bool
             Whether to maximise the possible radius if the radius provided is too large.
         """
-        # consolidate Line entities in the region where possible
-        self._consolidate_lines()
-        # get the original entities before any corner rounding has been done
-        entities_orig = deepcopy(self._entities)
         # if the corner radius is too large, an exception will be raised
         if not maximise:
+            # get the original entities before any corner rounding has been done
+            entities_orig = deepcopy(self._entities)
             # apply the rounding to each corner in turn
             for corner in corner_coordinates:
                 # get the lengths of the original adjacent entities before any corner rounding
@@ -1016,6 +1012,8 @@ class Region(object):
         else:
             # apply the rounding to each corner in turn
             for corner in corner_coordinates:
+                # get the original entities before any corner rounding has been done
+                entities_orig = deepcopy(self._entities)
                 # get the lengths of the original adjacent entities before any corner rounding
                 adj_entity_lengths = []
                 for index in range(len(entities_orig)):
