@@ -141,8 +141,9 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self._mesh_length = 0
-        self._linked_region = None
+        self.mesh_length = 0
+        self._linked_regions = []
+
         self._singular = False
         self._lamination_type = ""
 
@@ -316,6 +317,8 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        new_region._raw_region = json
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -332,25 +335,41 @@ class Region(object):
         else:
             lamination_type = ""
 
-        region_dict = {
-            "name": self._name,
-            "name_base": self._base_name,
-            "material": self._material,
-            "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
-            "area": self._area,
-            "centroid": {"x": self._centroid.x, "y": self._centroid.y},
-            "region_coordinate": {"x": self._region_coordinate.x, "y": self._region_coordinate.y},
-            "duplications": self._duplications,
-            "entities": _convert_entities_to_json(self.entities),
-            "parent_name": self._parent_name,
-            "region_type": self._region_type.value,
-            "mesh_length": self._mesh_length,
-            "on_boundary": False if self._linked_region is None else True,
-            "singular": self._singular,
-            "lamination_type": lamination_type,
-        }
+        try:
+            self._raw_region
+        except AttributeError:
+            self._raw_region = dict()
+        # Previous implementations had users only generally interact with the unique name,
+        # assigning it as the name attribute if possible. This behaviour is maintained for
+        # now, though it is a piece of information lost that future users may want control over
 
-        return region_dict
+        self._raw_region["name"] = self._name
+        if "name_unique" in self._raw_region:
+            self._raw_region["name_unique"] = self._name
+        self._raw_region["name_base"] = self._base_name
+        self._raw_region["material"] = self._material
+        self._raw_region["colour"] = {
+            "r": self._colour[0],
+            "g": self._colour[1],
+            "b": self._colour[2],
+        }
+        self._raw_region["area"] = self._area
+        self._raw_region["centroid"] = {"x": self._centroid.x, "y": self._centroid.y}
+        self._raw_region["region_coordinate"] = {
+            "x": self._region_coordinate.x,
+            "y": self._region_coordinate.y,
+        }
+        self._raw_region["duplications"] = self._duplications
+        self._raw_region["entities"] = _convert_entities_to_json(self.entities)
+        self._raw_region["parent_name"] = self.parent_name
+        self._raw_region["region_type"] = self._region_type.value
+        self._raw_region["mesh_length"] = self.mesh_length
+        self._raw_region["linked_regions"] = self.linked_region_names
+        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
+        self._raw_region["singular"] = self._singular
+        self._raw_region["lamination_type"] = lamination_type
+
+        return self._raw_region
 
     @property
     def parent_name(self):
@@ -363,13 +382,38 @@ class Region(object):
 
     @property
     def linked_region(self):
-        """Get or set linked duplication/unite region."""
-        return self._linked_region
+        """Get linked duplication/unite region."""
+        warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
+        return self.linked_regions[0] if len(self.linked_regions) > 0 else None
 
     @linked_region.setter
     def linked_region(self, region):
-        self._linked_region = region
-        region._linked_region = self
+        warn(
+            "linked_region property is deprecated. Use linked_regions.append(region)",
+            DeprecationWarning,
+        )
+        self.linked_regions.append(region)
+        region.linked_regions.append(self)
+
+    @property
+    def linked_regions(self):
+        """
+        Get linked region objects for duplication/unite operations.
+
+        Entirely original regions (that is, linkages to or from regions that are not named within
+        the default geometry) must be established using GeometryTrees.
+        """
+        return self._linked_regions
+
+    @linked_regions.setter
+    def linked_regions(self, regions):
+        """Set linked regions for duplication/unite operations."""
+        self._linked_regions = regions
+
+    @property
+    def linked_region_names(self):
+        """Get linked region names for duplication/unite operations."""
+        return [linked_region.name for linked_region in self.linked_regions]
 
     @property
     def singular(self):
