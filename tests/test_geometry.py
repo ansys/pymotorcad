@@ -352,6 +352,7 @@ def test_region_remove_entity():
 def test_region_from_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -368,6 +369,7 @@ def test_region_from_json():
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region._area = 5.1
@@ -388,6 +390,7 @@ def test_region_from_json():
 def test_region_to_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -405,6 +408,7 @@ def test_region_to_json():
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
     test_region._area = 5.1
@@ -607,6 +611,15 @@ def test_reverse_arc():
     assert arc == expected_line
 
 
+def test_entities_same_subset():
+    arc1 = Arc(Coordinate(1, 0), Coordinate(0, 1), radius=1)
+    arc2 = Arc(Coordinate(0, 1), Coordinate(-1, 0), radius=1)
+    ent1 = geometry.EntityList([arc1, arc2])
+    ent2 = geometry.EntityList([arc1])
+
+    assert ent1 != ent2
+
+
 def test_entities_same():
     region = generate_constant_region()
     region_expected = generate_constant_region()
@@ -740,6 +753,12 @@ def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
 
     assert line.length == sqrt(2)
+
+
+def test_line_get_coordinate_distance():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
+    point = Coordinate(1, 1)
+    assert line.get_coordinate_distance(point) == 1
 
 
 def test_arc_get_coordinate_from_fractional_distance():
@@ -2722,11 +2741,13 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
 
+    magnet.magnet_polarity = "S"
+
     mc.set_region(magnet)
     magnet = mc.get_region("L1_1Magnet2")
     assert magnet.br_multiplier == 2
     assert magnet.magnet_angle == 0
-    assert magnet.magnet_polarity == "N"
+    assert magnet.magnet_polarity == "S"
     assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
     assert magnet.br_value == 1.31
