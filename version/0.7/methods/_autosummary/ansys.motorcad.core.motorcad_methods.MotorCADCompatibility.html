@@ -1,0 +1,1351 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MotorCADCompatibility &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=77703c5e" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=71f551fa"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="AddArc_Boundary_RT" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT.html" />
+    <link rel="prev" title="MotorCADCompatibility API" href="../MotorCADCompatibility_object.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.7.4" />
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../MotorCAD_object.html">MotorCAD API</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../MotorCADCompatibility_object.html">MotorCADCompatibility API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">MotorCADCompatibility</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT.html">AddArc_Boundary_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_XY.html">AddArc_Boundary_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_RT.html">AddArc_CentreStartEnd_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_XY.html">AddArc_CentreStartEnd_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_RT.html">AddArc_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_XY.html">AddArc_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddCircularConductor_A.html">AddCircularConductor_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_RT.html">AddLine_Boundary_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_XY.html">AddLine_Boundary_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_RT.html">AddLine_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_XY.html">AddLine_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_RT.html">AddMagnetRegion_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_XY.html">AddMagnetRegion_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_CustomMaterial_XY.html">AddPoint_CustomMaterial_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_RT.html">AddPoint_Magnetic_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_XY.html">AddPoint_Magnetic_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_RT.html">AddPoint_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_XY.html">AddPoint_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRectangularConductor_A.html">AddRectangularConductor_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_RT.html">AddRegion_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_XY.html">AddRegion_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal.html">Add_Region_Thermal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal_A.html">Add_Region_Thermal_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AvoidImmediateUpdate.html">AvoidImmediateUpdate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.BuildModel_Lab.html">BuildModel_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateDutyCycle_Lab.html">CalculateDutyCycle_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Spatial.html">CalculateForceHarmonics_Spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Temporal.html">CalculateForceHarmonics_Temporal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateGenerator_Lab.html">CalculateGenerator_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIMSaturationModel.html">CalculateIMSaturationModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIronLossCoefficients.html">CalculateIronLossCoefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetParameters.html">CalculateMagnetParameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetic_Lab.html">CalculateMagnetic_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateOperatingPoint_Lab.html">CalculateOperatingPoint_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateSaturationMap.html">CalculateSaturationMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTestPerformance_Lab.html">CalculateTestPerformance_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateThermal_Lab.html">CalculateThermal_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTorqueEnvelope.html">CalculateTorqueEnvelope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CheckIfGeometryIsValid.html">CheckIfGeometryIsValid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearAllData.html">ClearAllData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearDutyCycle.html">ClearDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearExternalCircuit.html">ClearExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearFixedTemperatureValue.html">ClearFixedTemperatureValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearMessageLog.html">ClearMessageLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearModelBuild_Lab.html">ClearModelBuild_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateNewNode.html">CreateNewNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh.html">CreateOptimisedMesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh_Thermal.html">CreateOptimisedMesh_Thermal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateReport.html">CreateReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteRegions.html">DeleteRegions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteSolidMaterial.html">DeleteSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisableErrorMessages.html">DisableErrorMessages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisplayScreen.html">DisplayScreen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticCalculation.html">DoMagneticCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticThermalCalculation.html">DoMagneticThermalCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMechanicalCalculation.html">DoMechanicalCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMultiForceCalculation.html">DoMultiForceCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSlotFiniteElement.html">DoSlotFiniteElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSteadyStateAnalysis.html">DoSteadyStateAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoTransientAnalysis.html">DoTransientAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoWeightCalculation.html">DoWeightCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.EditMagnetRegion.html">EditMagnetRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportDutyCycle_Lab.html">ExportDutyCycle_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportFigure_Lab.html">ExportFigure_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportForceAnimation.html">ExportForceAnimation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMatrices.html">ExportMatrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMultiForceData.html">ExportMultiForceData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportNVHResultsData.html">ExportNVHResultsData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportResults.html">ExportResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportSolidMaterial.html">ExportSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysDiscovery.html">ExportToAnsysDiscovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysElectronicsDesktop.html">ExportToAnsysElectronicsDesktop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GeometryExport.html">GeometryExport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable.html">GetArrayVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable_2d.html">GetArrayVariable_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetComponentMaterial.html">GetComponentMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetFEAGraphPoint.html">GetFEAGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetForceFrequencyDomainAmplitude.html">GetForceFrequencyDomainAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetIMIronLoss.html">GetIMIronLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetLicence.html">GetLicence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagnetic3DGraphPoint.html">GetMagnetic3DGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagneticGraphPoint.html">GetMagneticGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMessages.html">GetMessages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetModelBuilt_Lab.html">GetModelBuilt_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeCapacitance.html">GetNodeCapacitance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeExists.html">GetNodeExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodePower.html">GetNodePower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeTemperature.html">GetNodeTemperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeToNodeResistance.html">GetNodeToNodeResistance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetOffsetNodeNumber.html">GetOffsetNodeNumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPointValue.html">GetPointValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPowerGraphPoint.html">GetPowerGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionLoss.html">GetRegionLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionValue.html">GetRegionValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetTemperatureGraphPoint.html">GetTemperatureGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetVariable.html">GetVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetWindingCoil.html">GetWindingCoil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ImportSolidMaterial.html">ImportSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitialiseTabNames.html">InitialiseTabNames</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitiateGeometryFromScript.html">InitiateGeometryFromScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.IsStopRequested.html">IsStopRequested</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadCustomDriveCycle.html">LoadCustomDriveCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile.html">LoadDXFFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle.html">LoadDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit.html">LoadExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalModel_Lab.html">LoadExternalModel_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFEAResult.html">LoadFEAResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFromFile.html">LoadFromFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadMagnetisationCurves.html">LoadMagnetisationCurves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportStructure.html">LoadReportStructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportTree.html">LoadReportTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadResults.html">LoadResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadScript.html">LoadScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadTemplate.html">LoadTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadWindingPattern.html">LoadWindingPattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ModifyNode.html">ModifyNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Quit.html">Quit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RemoveExternalComponent.html">RemoveExternalComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ResetRegions.html">ResetRegions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RestoreCompatibilitySettings.html">RestoreCompatibilitySettings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RunScript.html">RunScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveDutyCycle.html">SaveDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveExternalCircuit.html">SaveExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveFEAData.html">SaveFEAData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveIronLossCoefficients.html">SaveIronLossCoefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetParameters.html">SaveMagnetParameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetisationCurves.html">SaveMagnetisationCurves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMotorCADScreenToFile.html">SaveMotorCADScreenToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveResults.html">SaveResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScreenToFile.html">SaveScreenToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScript.html">SaveScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTemplate.html">SaveTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveToFile.html">SaveToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientPowerValues.html">SaveTransientPowerValues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientTemperatures.html">SaveTransientTemperatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveWindingPattern.html">SaveWindingPattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Set3DComponentVisibility.html">Set3DComponentVisibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetAllEmagCalculations.html">SetAllEmagCalculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable.html">SetArrayVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable_2d.html">SetArrayVariable_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetBndCond.html">SetBndCond</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetCapacitanceValue.html">SetCapacitanceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetComponentMaterial.html">SetComponentMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathArc.html">SetFEAPathArc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathLine.html">SetFEAPathLine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathPoint.html">SetFEAPathPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFixedTemperatureValue.html">SetFixedTemperatureValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFluid.html">SetFluid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMeshGeneratorParam.html">SetMeshGeneratorParam</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMotorLABContext.html">SetMotorLABContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerInjectionValue.html">SetPowerInjectionValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerSourceValue.html">SetPowerSourceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetRegionColour.html">SetRegionColour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceMultiplier.html">SetResistanceMultiplier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceValue.html">SetResistanceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVariable.html">SetVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVisible.html">SetVisible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetWindingCoil.html">SetWindingCoil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMagneticContext.html">ShowMagneticContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMechanicalContext.html">ShowMechanicalContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMessage.html">ShowMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowResultsViewer_Lab.html">ShowResultsViewer_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowThermalContext.html">ShowThermalContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SolveProblem.html">SolveProblem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.StoreProblemData.html">StoreProblemData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateForceAnalysisResults.html">UpdateForceAnalysisResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateInterface.html">UpdateInterface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.set_free.html">set_free</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_functions.html">Geometry objects and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_drawing.html">Geometry drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_shapes.html">Geometry shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_fitting.html">Geometry fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utility_functions.html">Utility functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MotorCAD_errors.html">Motor-CAD errors</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">API reference</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../MotorCADCompatibility_object.html" class="nav-link">MotorCADCompatibility API</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MotorCADCompatibility</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="motorcadcompatibility">
+<h1>MotorCADCompatibility<a class="headerlink" href="#motorcadcompatibility" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ansys.motorcad.core.motorcad_methods.</span></span><span class="sig-name descname"><span class="pre">MotorCADCompatibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_new_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_success_variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_parallel_instances</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_instance_open</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility" title="Link to this definition">#</a></dt>
+<dd><p>Create a MotorCAD object that behaves the same as old ActiveX methods.</p>
+<p>This class contains the old <code class="docutils literal notranslate"><span class="pre">camelCase</span></code> function names.
+It can be used to run old scripts that were written for ActiveX.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_Boundary_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_Boundary_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_CentreStartEnd_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_CentreStartEnd_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddArc_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddCircularConductor_A.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddCircularConductor_A" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddCircularConductor_A"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddCircularConductor_A</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddLine_Boundary_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddLine_Boundary_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddLine_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddLine_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddMagnetRegion_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddMagnetRegion_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_CustomMaterial_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_CustomMaterial_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_CustomMaterial_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddPoint_CustomMaterial_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddPoint_Magnetic_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddPoint_Magnetic_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddPoint_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddPoint_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRectangularConductor_A.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRectangularConductor_A" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRectangularConductor_A"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddRectangularConductor_A</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_RT.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_RT" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_RT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddRegion_RT</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_XY.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_XY" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_XY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AddRegion_XY</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.Add_Region_Thermal</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal_A.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal_A" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal_A"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.Add_Region_Thermal_A</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AvoidImmediateUpdate.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AvoidImmediateUpdate" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AvoidImmediateUpdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.AvoidImmediateUpdate</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.BuildModel_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.BuildModel_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.BuildModel_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.BuildModel_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateDutyCycle_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateDutyCycle_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateDutyCycle_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateDutyCycle_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Spatial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Spatial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Spatial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateForceHarmonics_Spatial</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Temporal.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Temporal" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Temporal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateForceHarmonics_Temporal</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateGenerator_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateGenerator_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateGenerator_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateGenerator_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIMSaturationModel.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIMSaturationModel" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIMSaturationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateIMSaturationModel</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIronLossCoefficients.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIronLossCoefficients" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIronLossCoefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateIronLossCoefficients</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetParameters.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetParameters" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateMagnetParameters</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetic_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetic_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetic_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateMagnetic_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateOperatingPoint_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateOperatingPoint_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateOperatingPoint_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateOperatingPoint_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateSaturationMap.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateSaturationMap" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateSaturationMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateSaturationMap</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTestPerformance_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTestPerformance_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTestPerformance_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateTestPerformance_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateThermal_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateThermal_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateThermal_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateThermal_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTorqueEnvelope.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTorqueEnvelope" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTorqueEnvelope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CalculateTorqueEnvelope</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CheckIfGeometryIsValid.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CheckIfGeometryIsValid" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CheckIfGeometryIsValid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CheckIfGeometryIsValid</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearAllData.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearAllData" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearAllData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearAllData</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearDutyCycle.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearDutyCycle" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearDutyCycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearDutyCycle</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearExternalCircuit.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearExternalCircuit" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearExternalCircuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearExternalCircuit</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearFixedTemperatureValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearFixedTemperatureValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearFixedTemperatureValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearFixedTemperatureValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearMessageLog.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearMessageLog" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearMessageLog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearMessageLog</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearModelBuild_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearModelBuild_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearModelBuild_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ClearModelBuild_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateNewNode.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateNewNode" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateNewNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CreateNewNode</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CreateOptimisedMesh</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh_Thermal.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh_Thermal" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh_Thermal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CreateOptimisedMesh_Thermal</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateReport.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateReport" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.CreateReport</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteRegions.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteRegions" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteRegions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DeleteRegions</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteSolidMaterial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteSolidMaterial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteSolidMaterial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DeleteSolidMaterial</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisableErrorMessages.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisableErrorMessages" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisableErrorMessages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DisableErrorMessages</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisplayScreen.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisplayScreen" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisplayScreen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DisplayScreen</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticCalculation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticCalculation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticCalculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoMagneticCalculation</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticThermalCalculation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticThermalCalculation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticThermalCalculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoMagneticThermalCalculation</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMechanicalCalculation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMechanicalCalculation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMechanicalCalculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoMechanicalCalculation</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMultiForceCalculation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMultiForceCalculation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMultiForceCalculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoMultiForceCalculation</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSlotFiniteElement.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSlotFiniteElement" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSlotFiniteElement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoSlotFiniteElement</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSteadyStateAnalysis.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSteadyStateAnalysis" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSteadyStateAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoSteadyStateAnalysis</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoTransientAnalysis.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoTransientAnalysis" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoTransientAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoTransientAnalysis</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoWeightCalculation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoWeightCalculation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoWeightCalculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.DoWeightCalculation</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.EditMagnetRegion.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.EditMagnetRegion" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.EditMagnetRegion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.EditMagnetRegion</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportDutyCycle_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportDutyCycle_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportDutyCycle_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportDutyCycle_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportFigure_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportFigure_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportFigure_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportFigure_Lab</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportForceAnimation.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportForceAnimation" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportForceAnimation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportForceAnimation</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMatrices.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMatrices" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMatrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportMatrices</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMultiForceData.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMultiForceData" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMultiForceData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportMultiForceData</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportNVHResultsData.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportNVHResultsData" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportNVHResultsData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportNVHResultsData</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportResults.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportResults" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportResults</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportSolidMaterial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportSolidMaterial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportSolidMaterial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportSolidMaterial</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysDiscovery.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysDiscovery" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysDiscovery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportToAnsysDiscovery</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysElectronicsDesktop.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysElectronicsDesktop" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysElectronicsDesktop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ExportToAnsysElectronicsDesktop</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GeometryExport.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GeometryExport" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GeometryExport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GeometryExport</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetArrayVariable</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable_2d.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable_2d" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetArrayVariable_2d</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetComponentMaterial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetComponentMaterial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetComponentMaterial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetComponentMaterial</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetFEAGraphPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetFEAGraphPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetFEAGraphPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetFEAGraphPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetForceFrequencyDomainAmplitude.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetForceFrequencyDomainAmplitude" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetForceFrequencyDomainAmplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetForceFrequencyDomainAmplitude</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetIMIronLoss.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetIMIronLoss" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetIMIronLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetIMIronLoss</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetLicence.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetLicence" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetLicence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetLicence</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagnetic3DGraphPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagnetic3DGraphPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagnetic3DGraphPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetMagnetic3DGraphPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagneticGraphPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagneticGraphPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagneticGraphPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetMagneticGraphPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMessages.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMessages" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMessages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetMessages</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetModelBuilt_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetModelBuilt_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetModelBuilt_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetModelBuilt_Lab</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeCapacitance.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeCapacitance" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeCapacitance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetNodeCapacitance</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeExists.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeExists" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeExists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetNodeExists</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodePower.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodePower" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodePower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetNodePower</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeTemperature.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeTemperature" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeTemperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetNodeTemperature</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeToNodeResistance.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeToNodeResistance" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeToNodeResistance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetNodeToNodeResistance</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetOffsetNodeNumber.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetOffsetNodeNumber" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetOffsetNodeNumber"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetOffsetNodeNumber</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPointValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPointValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPointValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetPointValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPowerGraphPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPowerGraphPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPowerGraphPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetPowerGraphPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionLoss.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionLoss" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetRegionLoss</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetRegionValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetTemperatureGraphPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetTemperatureGraphPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetTemperatureGraphPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetTemperatureGraphPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetVariable.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetVariable" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetVariable</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetWindingCoil.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetWindingCoil" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetWindingCoil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.GetWindingCoil</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ImportSolidMaterial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ImportSolidMaterial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ImportSolidMaterial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ImportSolidMaterial</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitialiseTabNames.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitialiseTabNames" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitialiseTabNames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.InitialiseTabNames</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitiateGeometryFromScript.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitiateGeometryFromScript" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitiateGeometryFromScript"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.InitiateGeometryFromScript</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.IsStopRequested.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.IsStopRequested" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.IsStopRequested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.IsStopRequested</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadCustomDriveCycle.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadCustomDriveCycle" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadCustomDriveCycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadCustomDriveCycle</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadDXFFile</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadDutyCycle</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadExternalCircuit</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalModel_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalModel_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalModel_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadExternalModel_Lab</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFEAResult.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFEAResult" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFEAResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadFEAResult</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFromFile.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFromFile" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFromFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadFromFile</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadMagnetisationCurves.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadMagnetisationCurves" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadMagnetisationCurves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadMagnetisationCurves</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportStructure.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportStructure" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportStructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadReportStructure</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportTree.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportTree" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportTree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadReportTree</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadResults.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadResults" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadResults</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadScript.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadScript" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadScript"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadScript</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadTemplate.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadTemplate" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadTemplate</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadWindingPattern.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadWindingPattern" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadWindingPattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadWindingPattern</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ModifyNode.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ModifyNode" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ModifyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ModifyNode</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Quit.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Quit" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Quit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.Quit</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RemoveExternalComponent.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RemoveExternalComponent" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RemoveExternalComponent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.RemoveExternalComponent</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ResetRegions.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ResetRegions" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ResetRegions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ResetRegions</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RestoreCompatibilitySettings.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RestoreCompatibilitySettings" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RestoreCompatibilitySettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.RestoreCompatibilitySettings</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RunScript.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RunScript" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RunScript"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.RunScript</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveDutyCycle.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveDutyCycle" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveDutyCycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveDutyCycle</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveExternalCircuit.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveExternalCircuit" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveExternalCircuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveExternalCircuit</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveFEAData.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveFEAData" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveFEAData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveFEAData</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveIronLossCoefficients.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveIronLossCoefficients" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveIronLossCoefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveIronLossCoefficients</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetParameters.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetParameters" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveMagnetParameters</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetisationCurves.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetisationCurves" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetisationCurves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveMagnetisationCurves</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMotorCADScreenToFile.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMotorCADScreenToFile" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMotorCADScreenToFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveMotorCADScreenToFile</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveResults.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveResults" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveResults</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScreenToFile.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScreenToFile" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScreenToFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveScreenToFile</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScript.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScript" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScript"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveScript</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTemplate.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTemplate" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveTemplate</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveToFile.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveToFile" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveToFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveToFile</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientPowerValues.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientPowerValues" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientPowerValues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveTransientPowerValues</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientTemperatures.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientTemperatures" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientTemperatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveTransientTemperatures</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveWindingPattern.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveWindingPattern" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveWindingPattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SaveWindingPattern</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Set3DComponentVisibility.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Set3DComponentVisibility" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Set3DComponentVisibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.Set3DComponentVisibility</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetAllEmagCalculations.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetAllEmagCalculations" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetAllEmagCalculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetAllEmagCalculations</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetArrayVariable</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable_2d.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable_2d" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetArrayVariable_2d</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetBndCond.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetBndCond" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetBndCond"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetBndCond</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetCapacitanceValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetCapacitanceValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetCapacitanceValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetCapacitanceValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetComponentMaterial.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetComponentMaterial" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetComponentMaterial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetComponentMaterial</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathArc.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathArc" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathArc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetFEAPathArc</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathLine.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathLine" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathLine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetFEAPathLine</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathPoint.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathPoint" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathPoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetFEAPathPoint</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFixedTemperatureValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFixedTemperatureValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFixedTemperatureValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetFixedTemperatureValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFluid.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFluid" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFluid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetFluid</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMeshGeneratorParam.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMeshGeneratorParam" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMeshGeneratorParam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetMeshGeneratorParam</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMotorLABContext.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMotorLABContext" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMotorLABContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetMotorLABContext</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerInjectionValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerInjectionValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerInjectionValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetPowerInjectionValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerSourceValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerSourceValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerSourceValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetPowerSourceValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetRegionColour.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetRegionColour" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetRegionColour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetRegionColour</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceMultiplier.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceMultiplier" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceMultiplier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetResistanceMultiplier</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceValue.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceValue" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetResistanceValue</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVariable.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVariable" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetVariable</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVisible.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVisible" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVisible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetVisible</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetWindingCoil.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetWindingCoil" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetWindingCoil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SetWindingCoil</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMagneticContext.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMagneticContext" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMagneticContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ShowMagneticContext</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMechanicalContext.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMechanicalContext" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMechanicalContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ShowMechanicalContext</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMessage.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMessage" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ShowMessage</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowResultsViewer_Lab.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowResultsViewer_Lab" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowResultsViewer_Lab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ShowResultsViewer_Lab</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowThermalContext.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowThermalContext" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowThermalContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.ShowThermalContext</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SolveProblem.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SolveProblem" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SolveProblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.SolveProblem</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.StoreProblemData.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.StoreProblemData" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.StoreProblemData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.StoreProblemData</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateForceAnalysisResults.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateForceAnalysisResults" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateForceAnalysisResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.UpdateForceAnalysisResults</span></code></a>(*args)</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateInterface.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateInterface" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.UpdateInterface</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.set_free.html#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.set_free" title="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.set_free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MotorCADCompatibility.set_free</span></code></a>()</p></td>
+<td><p>Deprecated function.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility"><code class="docutils literal notranslate"><span class="pre">MotorCADCompatibility</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+<link rel="stylesheet" href="../../_static/css/fuse-search.css">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.2.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+AddLine\_XY
+===========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddLine_XY

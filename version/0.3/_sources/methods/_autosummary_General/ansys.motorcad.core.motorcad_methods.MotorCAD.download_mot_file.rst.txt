@@ -1,0 +1,6 @@
+﻿download\_mot\_file
+===================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.download_mot_file
