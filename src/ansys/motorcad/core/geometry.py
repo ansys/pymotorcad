@@ -61,6 +61,7 @@ class RegionType(Enum):
     rotor_pocket = "Rotor Pocket"
     pole_spacer = "Pole Spacer"
     rotor_slot = "Rotor Slot"
+    rotor_bar_end_ring = "Rotor Bar End Ring"
     coil_separator = "Coil Separator"
     damper_bar = "Damper Bar"
     wedge_rotor = "Rotor Wedge"
@@ -75,6 +76,7 @@ class RegionType(Enum):
     barrier = "Barrier"
     mounting_base = "Base Mount"
     mounting_plate = "Plate Mount"
+    endcap = "Endcap"
     banding = "Banding"
     sleeve = "Sleeve"
     rotor_cover = "Rotor Cover"
@@ -84,7 +86,9 @@ class RegionType(Enum):
     slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
     cowling = "Cowling"
     cowling_gril = "Cowling Grill"
+    cowling_grill_hole = "Cowling Grill Hole"
     brush = "Brush"
+    bearings = "Bearings"
     commutator = "Commutator"
     airgap = "Airgap"
     dxf_import = "DXF Import"
@@ -1742,6 +1746,17 @@ class Line(Entity):
         ansys.motorcad.core.geometry.Coordinate or list of Coordinate or None
         """
         return arc.get_line_intersection(self)
+
+    def get_coordinate_distance(self, coordinate):
+        """Get distance of line with another coordinate."""
+        normal_angle = self.angle - 90
+        defining_point = Coordinate.from_polar_coords(1, normal_angle)
+        normal = Line(Coordinate(0, 0), defining_point)
+        normal.translate(coordinate.x, coordinate.y)
+        nearest_point = self.get_line_intersection(normal)
+        if nearest_point is None:
+            return None
+        return sqrt((coordinate.x - nearest_point.x) ** 2 + (coordinate.y - nearest_point.y) ** 2)
 
 
 class _BaseArc(Entity):
