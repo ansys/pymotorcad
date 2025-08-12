@@ -443,22 +443,18 @@ class MotorCADTwinModel:
 
         self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = self.getNmfData(exportDirectory)
         
-        self.nodeNumbers_fluid = [
-            nodeNumber
-            for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] in self.coolingSystemData
-        ]
-
-        # determine which of the nodes is an inlet node
+        # determine which nodes are fluid nodes, and which of those are inlet nodes
         temperatureVector = self.getTmfData(exportDirectory)
+        
+        for (index, nodeNumber) in enumerate(self.nodeNumbers):
+            if self.nodeGroupings[index] in self.coolingSystemData:
+                self.nodeNumbers_fluid.append(nodeNumber)
 
-        for index, temperature in enumerate(temperatureVector):
-            isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
-            isInlet_check2 = temperature > -10000000.0
-            isInlet_check3 = self.nodeGroupings[index] in self.coolingSystemData
+                isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
+                isInlet_check2 = temperatureVector[index] > -10000000.0
 
-            if isInlet_check1 and isInlet_check2 and isInlet_check3:
-                self.nodeNumbers_fluidInlet.append(self.nodeNumbers[index])
+                if isInlet_check1 and isInlet_check2:
+                    self.nodeNumbers_fluidInlet.append(nodeNumber)
 
 
     # Function that determines the nodes used for the cooling system and their connections. The
