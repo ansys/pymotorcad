@@ -1330,7 +1330,7 @@ def test_is_matplotlib_installed(monkeypatch):
     import ansys.motorcad.core.geometry_drawing as geom_import
 
     with pytest.raises(ImportError):
-        geom_import.draw_regions(region)
+        geom_import.draw_objects(region)
 
 
 def test_strings(capsys):
