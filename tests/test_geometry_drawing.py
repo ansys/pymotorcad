@@ -22,6 +22,7 @@
 from matplotlib import pyplot as plt
 import pytest
 
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
 import ansys.motorcad.core.geometry_drawing
 from ansys.motorcad.core.geometry_drawing import draw_objects
@@ -64,6 +65,43 @@ def test_label_recursion(monkeypatch):
     monkeypatch.setattr(ansys.motorcad.core.geometry_drawing, "_MAX_RECURSION", 1)
     with pytest.warns():
         draw_objects([r1, r2, r3], labels=True)
+
+
+def test_image_creation(mc):
+    # Test that various parameters generate images as expected. Test images should be changed
+    # out if graphics rendering is changed.
+    gt = mc.get_geometry_tree()
+
+    draw_objects(
+        gt,
+        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\base_tree"),
+        axes=False,
+        toggle_regions="Shaft",
+        title="GT",
+    )
+    draw_objects(
+        gt,
+        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\full_symmetry"),
+        optimize=True,
+        full_geometry=True,
+    )
+    draw_objects(
+        gt["Rotor"],
+        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor"),
+        optimize=True,
+        labels=True,
+        draw_points=True,
+        dpi=800,
+    )
+    draw_objects(
+        gt["Rotor"].entities,
+        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor_entities"),
+        draw_points=True,
+    )
+    draw_objects(
+        [gt["Rotor"], gt["Stator"]],
+        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\region_list"),
+    )
 
 
 # def test_draw_objects_debug(mc, monkeypatch):

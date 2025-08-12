@@ -197,12 +197,10 @@ class _RegionDrawing:
         duplication_angle = 360 / region.duplications
 
         for duplicate_number in range(0, region.duplications):
-            duplicate = deepcopy(region)
+            duplicate = region.duplicate()
+            duplicate.parent = region.parent
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
-            if duplicate_number == 0:
-                self._draw_region(duplicate, colour, labels, full_geometry=True)
-            else:
-                self._draw_region(duplicate, colour, labels, full_geometry=True)
+            self._draw_region(duplicate, colour, labels, full_geometry=True)
 
     def _draw_region(self, region, colour, labels=False, full_geometry=False, draw_points=False):
         # Draw region onto a plot
@@ -210,12 +208,12 @@ class _RegionDrawing:
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
-        if region.__class__ == GeometryNode:
+        if isinstance(region, GeometryNode):
             label = ""
             label += "│   " * (region.depth - 2)
             if region.depth == 1:
                 cap = ""
-            elif region == region.parent.children[-1]:
+            elif region.name == region.parent.children[-1].name:
                 cap = "└── "
             else:
                 cap = "├── "
@@ -225,11 +223,23 @@ class _RegionDrawing:
             label = region.name
 
         for entity in region.entities:
-            point_0 = entity.start
-            fill_points_x.append(point_0.x)
-            fill_points_y.append(point_0.y)
-            for i in range(1, int(entity.length / 0.1)):
-                point_i = entity.get_coordinate_from_distance(point_0, distance=i * 0.1)
+            if entity.length == 0:
+                continue
+            if isinstance(entity, Line):
+                num_points = 2
+            else:
+                num_points = int(
+                    720
+                    * (entity.length / (2 * 3.14159265358979323846264338327950288 * entity.radius))
+                )
+                if num_points < 2 or (1 / (num_points - 1)) * entity.length < 0.05:
+                    num_points = int(entity.length / 0.05 + 1)
+
+            for i in range(0, num_points):
+                fractional_distance = i / (num_points - 1)
+                point_i = entity.get_coordinate_from_distance(
+                    entity.start, fraction=fractional_distance
+                )
                 fill_points_x.append(point_i.x)
                 fill_points_y.append(point_i.y)
             # If geometry is full, lines separating region duplications shouldn't be drawn.
@@ -361,6 +371,7 @@ def draw_objects(
     axes=True,
     toggle_regions=None,
     title=None,
+    optimize=False,
 ):
     """Draw geometry objects on a plot.
 
@@ -382,6 +393,9 @@ def draw_objects(
     toggle_regions : list of str
         used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
+    optimize: bool
+        whether geometry drawing should be optimized or not. Default is False. Incompatible with
+        toggle_regions, as prevents regions that are not by default displayed from being calculated.
     """
     if not MATPLOTLIB_AVAILABLE:
         raise ImportError(
@@ -393,7 +407,8 @@ def draw_objects(
     fig, ax = plt.subplots(figsize=(10, 6))
     region_drawing = _RegionDrawing(ax, stored_coords)
 
-    # Determine a label that portrays appropriate positional information in the tree.
+    # Determine a label that portrays appropriate positional information in the tree (if, indeed,
+    # a tree is supplied)
     def get_label(object):
         # Make certain label is appropriate for regions that might not be a part of trees
         if isinstance(object, Region) and not isinstance(object, GeometryNode):
@@ -445,6 +460,10 @@ def draw_objects(
             if starting_node.region_type.value in region_types and starting_node.key != "root":
                 for subnode in objects.get_subtree(starting_node):
                     drawn_nodes.add(get_label(subnode))
+        if optimize:
+            for node in objects:
+                if not get_label(node) in drawn_nodes and node.key != "root":
+                    objects.remove_node(node)
 
         for node in objects:
             label = get_label(node)
@@ -490,8 +509,6 @@ def draw_objects(
                 region_drawing._draw_region(region, region.colour, labels, draw_points=draw_points)
 
         if all(isinstance(object, Entity) for object in objects):
-            if draw_points is None:
-                draw_points = False
             for i, entity in enumerate(objects):
                 label = get_label((type(entity), i))
                 region_drawing.legend_objects[label] = []
@@ -587,7 +604,6 @@ def draw_objects(
 
     if not axes:
         ax.axis("off")
-
     if title is not None:
         ax.set_title(title)
     if save is None:
