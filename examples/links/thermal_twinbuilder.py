@@ -1154,9 +1154,18 @@ housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 # corresponding training data.
 coolingSystemsInputs = {
     "Housing Water Jacket": {
+        "FR": [8/6e4],
+        "inletTemp": [75, 85, 95],
+    },
+    "Spray Cooling (Radial from Housing) Front": {
         "rpm": rpms,
-        "FR": [9.7695e-05, 0.000103122499999999],
-        "inletTemp": [40, 65],
+        "FR": [8/6e4],
+        "inletTemp": [75, 80, 85, 90, 95, 100],
+    },
+    "Spray Cooling (Radial from Housing) Rear": {
+        "rpm": rpms,
+        "FR": [8/6e4],
+        "inletTemp": [75, 80, 85, 90, 95, 100],
     }
 }
 
