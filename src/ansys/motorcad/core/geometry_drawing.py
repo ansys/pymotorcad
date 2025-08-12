@@ -22,6 +22,7 @@
 
 """Unit containing region drawing functions."""
 from copy import deepcopy
+import json
 import warnings
 from warnings import warn
 
@@ -230,3 +231,20 @@ def draw_regions(regions):
         DeprecationWarning,
     )
     draw_objects(regions)
+
+
+def _draw_regions_json_array(json_array_string):
+    """Draw regions from string of json array - for Motor-CAD geometry developers.
+
+    Parameters
+    ----------
+    json_array_string : str
+        String representation of json array containing geometery objects.
+    """
+    json_array = json.loads(json_array_string)
+    region_array = []
+
+    for json_region in json_array:
+        region_array += [Region._from_json(json_region)]
+
+    draw_objects(region_array)
