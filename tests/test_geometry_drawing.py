@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import os
+
 from matplotlib import pyplot as plt
 import pytest
 
@@ -30,6 +32,10 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 drawing_flag = False
+
+
+def is_similar(image1, image2):
+    return image1.shape == image2.shape and not (np.bitwise_xor(image1, image2).any())
 
 
 def set_drawing_flag(*args, **kwargs):
@@ -67,41 +73,68 @@ def test_label_recursion(monkeypatch):
         draw_objects([r1, r2, r3], labels=True)
 
 
-def test_image_creation(mc):
-    # Test that various parameters generate images as expected. Test images should be changed
-    # out if graphics rendering is changed.
+def test_drawing_base(mc):
+    # Test that various parameters generate images without causing fatal errors.
     gt = mc.get_geometry_tree()
-
+    path = get_dir_path() + r"\test_files\geometry_drawing_test_img\base_tree.png"
     draw_objects(
         gt,
-        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\base_tree"),
+        save=path,
         axes=False,
         toggle_regions="Shaft",
         title="GT",
     )
+    os.remove(path)
+
+
+def test_drawing_full_symmetry(mc):
+    # Test that various parameters generate images without causing fatal errors.
+    gt = mc.get_geometry_tree()
+    path = get_dir_path() + r"\test_files\geometry_drawing_test_img\full_symmetry.png"
     draw_objects(
         gt,
-        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\full_symmetry"),
+        save=path,
         optimize=True,
         full_geometry=True,
     )
+    os.remove(path)
+
+
+def test_drawing_region_points_labels(mc):
+    # Test that various parameters generate images without causing fatal errors.
+    gt = mc.get_geometry_tree()
+    path = get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor.png"
     draw_objects(
         gt["Rotor"],
-        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor"),
-        optimize=True,
+        save=path,
         labels=True,
         draw_points=True,
         dpi=800,
     )
+    os.remove(path)
+
+
+def test_drawing_entities_points(mc):
+    # Test that various parameters generate images without causing fatal errors.
+    gt = mc.get_geometry_tree()
+    path = get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor_entities.png"
     draw_objects(
         gt["Rotor"].entities,
-        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\rotor_entities"),
+        save=path,
         draw_points=True,
     )
+    os.remove(path)
+
+
+def test_drawing_region_list(mc):
+    # Test that various parameters generate images without causing fatal errors.
+    gt = mc.get_geometry_tree()
+    path = get_dir_path() + r"\test_files\geometry_drawing_test_img\region_list.png"
     draw_objects(
         [gt["Rotor"], gt["Stator"]],
-        save=(get_dir_path() + r"\test_files\geometry_drawing_test_img\region_list"),
+        save=path,
     )
+    os.remove(path)
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
