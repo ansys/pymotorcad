@@ -61,6 +61,7 @@ class RegionType(Enum):
     rotor_pocket = "Rotor Pocket"
     pole_spacer = "Pole Spacer"
     rotor_slot = "Rotor Slot"
+    rotor_bar_end_ring = "Rotor Bar End Ring"
     coil_separator = "Coil Separator"
     damper_bar = "Damper Bar"
     wedge_rotor = "Rotor Wedge"
@@ -75,6 +76,7 @@ class RegionType(Enum):
     barrier = "Barrier"
     mounting_base = "Base Mount"
     mounting_plate = "Plate Mount"
+    endcap = "Endcap"
     banding = "Banding"
     sleeve = "Sleeve"
     rotor_cover = "Rotor Cover"
@@ -84,7 +86,9 @@ class RegionType(Enum):
     slot_wj_duct_no_detail = "Slot Water Jacket Duct (no detail)"
     cowling = "Cowling"
     cowling_gril = "Cowling Grill"
+    cowling_grill_hole = "Cowling Grill Hole"
     brush = "Brush"
+    bearings = "Bearings"
     commutator = "Commutator"
     airgap = "Airgap"
     dxf_import = "DXF Import"
@@ -125,6 +129,7 @@ class Region(object):
             )
 
         self._name = ""
+        self._base_name = ""
         self._material = "air"
         self._colour = (0, 0, 0)
         self._area = 0.0
@@ -199,6 +204,23 @@ class Region(object):
         for count, entity in enumerate(polyline):
             self.insert_entity(index + count, entity)
 
+    def is_closed(self):
+        """Check whether Region's entities are closed.
+
+        Returns
+        -------
+        Boolean
+            Whether Region is closed
+        """
+        if len(self.entities) > 0:
+            # Make sure all adjacent entities have a point in common
+            return all(
+                get_entities_have_common_coordinate(self.entities[i - 1], self.entities[i])
+                for i in range(0, len(self.entities))
+            )
+        else:
+            return False
+
     def remove_entity(self, entity_remove):
         """Remove the entity from the region.
 
@@ -265,9 +287,14 @@ class Region(object):
                 new_region = cls(motorcad_instance=motorcad_instance)
 
         # self.Entities = json.Entities
-        new_region._name = json["name"]
-        new_region._material = json["material"]
 
+        if "name_unique" in json:
+            new_region.name = json["name_unique"]
+        else:
+            new_region.name = json["name"]
+
+        new_region._base_name = json["name"]
+        new_region.material = json["material"]
         new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
         new_region._area = json["area"]
 
@@ -307,6 +334,7 @@ class Region(object):
 
         region_dict = {
             "name": self._name,
+            "name_base": self._base_name,
             "material": self._material,
             "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
             "area": self._area,
@@ -323,29 +351,6 @@ class Region(object):
         }
 
         return region_dict
-
-    def is_closed(self):
-        """Check whether region entities create a closed region.
-
-        Returns
-        -------
-        Boolean
-            Whether region is closed
-        """
-        if len(self._entities) > 0:
-            entity_first = self._entities[0]
-            entity_last = self._entities[-1]
-
-            is_closed = get_entities_have_common_coordinate(entity_first, entity_last)
-
-            for i in range(len(self._entities) - 1):
-                is_closed = get_entities_have_common_coordinate(
-                    self._entities[i], self._entities[i + 1]
-                )
-
-            return is_closed
-        else:
-            return False
 
     @property
     def parent_name(self):
@@ -986,6 +991,7 @@ class RegionMagnet(Region):
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
+        region_dict["magnet_polarity"] = self._magnet_polarity
 
         return region_dict
 
@@ -1066,6 +1072,10 @@ class RegionMagnet(Region):
         string
         """
         return self._magnet_polarity
+
+    @magnet_polarity.setter
+    def magnet_polarity(self, value):
+        self._magnet_polarity = value
 
 
 class Coordinate(object):
@@ -1577,6 +1587,17 @@ class Line(Entity):
         """
         return arc.get_line_intersection(self)
 
+    def get_coordinate_distance(self, coordinate):
+        """Get distance of line with another coordinate."""
+        normal_angle = self.angle - 90
+        defining_point = Coordinate.from_polar_coords(1, normal_angle)
+        normal = Line(Coordinate(0, 0), defining_point)
+        normal.translate(coordinate.x, coordinate.y)
+        nearest_point = self.get_line_intersection(normal)
+        if nearest_point is None:
+            return None
+        return sqrt((coordinate.x - nearest_point.x) ** 2 + (coordinate.y - nearest_point.y) ** 2)
+
 
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
@@ -2071,6 +2092,10 @@ class EntityList(list):
         """Compare equality of 2 EntityList objects."""
         return self._entities_same(other, check_reverse=True)
 
+    def __ne__(self, other):
+        """Compare difference of 2 EntityList objects."""
+        return not self == other
+
     def reverse(self):
         """Reverse EntityList, including entity start end coordinates."""
         super().reverse()
@@ -2078,6 +2103,159 @@ class EntityList(list):
         # Also reverse entity start/end points so the EntityList is continuous
         for entity in self:
             entity.reverse()
+
+    @classmethod
+    def polygon(cls, points, sort=False):
+        """Create an EntityList from a list of points, connecting them with lines.
+
+        If sort is true, a centre point roughly in the centre of the supplied points will be
+        established and lines connecting the supplied points will be drawn anticlockwise about
+        that centre.
+
+        Parameters
+        ----------
+        points : list of Coordinates or tuples
+        sort : bool
+            Reorders points to make geometry valid:
+        """
+        # conversion to Coordinates:
+        if all(isinstance(point, tuple) for point in points):
+            points_new = [0] * len(points)
+            for i, p in enumerate(points):
+                points_new[i] = Coordinate(p[0], p[1])
+            points = points_new
+
+        if sort:
+            xcentre = sum(list(point.x for point in points)) / len(points)
+            ycentre = sum(list(point.y for point in points)) / len(points)
+
+            centre = Coordinate(xcentre, ycentre)
+
+            relative_points = list(deepcopy(point) for point in points)
+            for point in relative_points:
+                point.translate(-xcentre, -ycentre)
+
+            # To make sure behaviour is well-defined for points with an equal angular coordinate
+            # the points are first by sorted by radius, greatest to least
+            sorted_points_relative = sorted(
+                relative_points, key=lambda x: x.get_polar_coords_deg()[0], reverse=True
+            )
+
+            # Sort points by radial coordinate (relative to overall average position),
+            # from least to greatest angle (angles range from -180 to 180 degrees)
+            sorted_points_relative.sort(key=lambda x: x.get_polar_coords_deg()[1])
+
+            for point in sorted_points_relative:
+                point.translate(xcentre, ycentre)
+            points = sorted_points_relative
+
+        final_list = EntityList()
+
+        # Adds the lines
+        for count, point in enumerate(points):
+            if count == len(points) - 1:
+                final_list.append(Line(point, points[0]))
+            else:
+                final_list.append(Line(point, points[count + 1]))
+        if not final_list.has_valid_geometry:
+            warnings.warn("Entered point order may result in invalid geometry.")
+        return final_list
+
+    @property
+    def is_closed(self):
+        """Check whether entities create a closed region.
+
+        Returns
+        -------
+        Boolean
+            Whether EntityList is closed
+        """
+        if len(self) > 0:
+            # Make sure all adjacent entities have a point in common
+            return all(
+                get_entities_have_common_coordinate(self[i - 1], self[i])
+                for i in range(0, len(self))
+            )
+        else:
+            return False
+
+    @property
+    def self_intersecting(self):
+        """Check whether entities intersect each other.
+
+        Returns
+        -------
+        Boolean
+            Whether entities are intersecting
+        """
+        entity_pairs = []
+        # Create a set of all non-neighbor pairs of lines/arcs in the region
+        for entity in self:
+            for entity_other in self:
+                if entity != entity_other:
+                    if (
+                        entity.start != entity_other.end and entity.end != entity_other.start
+                    ) and not (
+                        (entity, entity_other) in entity_pairs
+                        or (entity_other, entity) in entity_pairs
+                    ):
+                        entity_pairs.append((entity, entity_other))
+
+        # Check if they have any intersections
+        for entity1, entity2 in entity_pairs:
+            intersections = entity1.get_intersection(entity2)
+            if intersections is not None:
+                for intersection in intersections:
+                    if entity1.coordinate_on_entity(intersection) and entity2.coordinate_on_entity(
+                        intersection
+                    ):
+                        return True
+        return False
+
+    @property
+    def is_anticlockwise(self):
+        """Check whether EntityList is connected in an anticlockwise manner.
+
+        Returns
+        -------
+        Boolean
+            Whether EntityList is anticlockwise
+        """
+        # Checks to make sure checking direction even makes sense
+        if not (not self.self_intersecting and self.is_closed):
+            raise Exception("Entities must be closed and nonintersecting")
+
+        # Find the lowest point, as well the entities coming in and out of that point
+        points = sorted(self.points, key=lambda p: p.y)
+        lowest = points[0]
+
+        for entity in self:
+            if entity.start == lowest:
+                ent_out = entity
+            if entity.end == lowest:
+                ent_in = entity
+
+        # Determine the  angles of the entry and exit lines (arcs can make this tricky,
+        # so the angle is determined from the start and a point very near it)
+        exit_angle = Line(
+            ent_out.start, ent_out.get_coordinate_from_distance(ent_out.start, fraction=0.001)
+        ).angle
+        entry_angle = Line(
+            ent_in.end, ent_in.get_coordinate_from_distance(ent_in.end, fraction=0.001)
+        ).angle
+
+        return entry_angle > exit_angle
+
+    @property
+    def has_valid_geometry(self):
+        """Check whether geometry is valid for motorcad.
+
+        Returns
+        -------
+        Boolean
+            Whether geometry is valid for motorcad
+        """
+        return self.is_closed and (not self.self_intersecting) and self.is_anticlockwise
 
     @property
     def points(self):
@@ -2126,6 +2304,9 @@ class EntityList(list):
                 return True
             else:
                 return False
+
+        if len(self) != len(entities_to_compare):
+            return False
 
         if check_reverse:
             if _entities_same_with_direction(self, entities_to_compare):
