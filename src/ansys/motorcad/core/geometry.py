@@ -142,6 +142,10 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
         self._mesh_length = 0
+        self._extrusion_blocks = ExtrusionBlockList()
+        self._temperature = 0
+        self._weight_reduction_factor = 1
+
         self._linked_region = None
         self._singular = False
         self._lamination_type = ""
@@ -159,6 +163,7 @@ class Region(object):
             # Region coordinate is an output, cannot guarantee will be same for identical regions
             and self._duplications == other._duplications
             and self._entities == other._entities
+            and self._singular == other._singular
         )
 
     @classmethod
@@ -316,6 +321,15 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        if "extrusion_blocks" in json:
+            new_region._extrusion_blocks._from_json(json["extrusion_blocks"])
+
+        if "region_temperature" in json:
+            new_region._temperature = json["region_temperature"]
+
+        if "weight_reduction_factor" in json:
+            new_region._weight_reduction_factor = json["weight_reduction_factor"]
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -348,6 +362,8 @@ class Region(object):
             "on_boundary": False if self._linked_region is None else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
+            "extrusion_blocks": self._extrusion_blocks._to_json,
+            "region_temperature": self._temperature,
         }
 
         return region_dict
@@ -379,6 +395,16 @@ class Region(object):
     @singular.setter
     def singular(self, singular):
         self._singular = singular
+
+    @property
+    def extrusion_blocks(self):
+        """Get extrusion blocks list.
+
+        Returns
+        -------
+        list of ExtrusionBlock
+        """
+        return self._extrusion_blocks
 
     @property
     def child_names(self):
@@ -483,6 +509,27 @@ class Region(object):
         self._material = material
 
     @property
+    def weight_reduction_factor(self):
+        """Get weight reduction factor.
+
+        Returns
+        -------
+        float : weight reduction factor
+        """
+        return self._weight_reduction_factor
+
+    @weight_reduction_factor.setter
+    def weight_reduction_factor(self, factor):
+        """Set weight reduction factor.
+
+        Parameters
+        ----------
+        factor : float
+            weight reduction factor
+        """
+        self._weight_reduction_factor = factor
+
+    @property
     def colour(self):
         """Get or set region colour."""
         return self._colour
@@ -519,6 +566,16 @@ class Region(object):
         self._mesh_length = mesh_length
 
     @property
+    def temperature(self):
+        """Get region temperature.
+
+        Returns
+        -------
+        float : region temperature
+        """
+        return self._temperature
+
+    @property
     def area(self):
         """Get the region area."""
         return self._area
@@ -532,6 +589,11 @@ class Region(object):
     def region_coordinate(self):
         """Get the reference coordinate within the region."""
         return self._region_coordinate
+
+    @property
+    def duplication_angle(self):
+        """Get linked Motor-CAD instance."""
+        return 360 / self.duplications
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
@@ -2320,6 +2382,90 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+
+class ExtrusionBlock:
+    """Generic class for storing 3D extrusion data."""
+
+    def __init__(self):
+        """Initialise extrusion block."""
+        self.start_pos = 0
+        self.end_pos = 0
+        self.angle_shift = 0
+
+    def __eq__(self, other):
+        """Compare equality of 2 ExtrusionBlock objects."""
+        return (
+            (self.start_pos == other.start_pos)
+            & (self.end_pos == other.end_pos)
+            & (self.start_pos == other.end_pos)
+        )
+
+    def from_json(self, json):
+        """Convert the class from a JSON object.
+
+        Parameters
+        ----------
+        json: dict
+            Dictionary representing the extrusion block.
+        """
+        self.start_pos = json["extrusion_block_start"]
+        self.end_pos = json["extrusion_block_end"]
+        self.angle_shift = json["extrusion_block_angle_step"]
+
+    def to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        dict
+            Dictionary of the extrusion block represented as JSON.
+        """
+        block_dict = {
+            "extrusion_block_start": self.start_pos,
+            "extrusion_block_end": self.end_pos,
+            "extrusion_block_angle_step": self.start_pos,
+        }
+
+        return block_dict
+
+    @property
+    def extrusion_length(self):
+        """Return extrusion length between start and end positions.
+
+        Returns
+        -------
+        float
+           Block extrusion length.
+        """
+        return abs(self.end_pos - self.start_pos)
+
+
+class ExtrusionBlockList(list):
+    """Generic class for list of Entities."""
+
+    def _to_json(self):
+        """Convert from a Python class to a JSON object.
+
+        Returns
+        -------
+        list
+            List of the extrusion blocks represented as JSON.
+        """
+        return [block.to_json for block in self]
+
+    def _from_json(self, json_list):
+        """Convert the class from a JSON object.
+
+        Parameters
+        ----------
+        json: list
+            List of extrusion blocks in json.
+        """
+        for json_object in json_list:
+            block = ExtrusionBlock()
+            block.from_json(json_object)
+            self.append(block)
 
 
 def _convert_entities_to_json(entities):
