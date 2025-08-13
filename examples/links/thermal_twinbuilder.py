@@ -418,8 +418,7 @@ class MotorCADTwinModel:
     def includeHousingRtVariation(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
         hasHousingTemps = housingAmbientTemperatures is not None
         hasBlownOver = (coolingSystemsParameterSweeps is not None) and ("Blown Over" in coolingSystemsParameterSweeps)
-        includeHousingRtVariation = hasHousingTemps or hasBlownOver
-        return includeHousingRtVariation
+        return hasHousingTemps or hasBlownOver
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
