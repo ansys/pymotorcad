@@ -90,7 +90,7 @@ if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 else:
-    mc = pymotorcad.MotorCAD(open_new_instance=False)
+    mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
