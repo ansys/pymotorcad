@@ -863,7 +863,7 @@ class MotorCADTwinModel:
                 for paramName, paramValues in parameters.items():
                     # do not include parameters with no values in dp_values.txt
                     if len(paramValues) > 0:
-                        fout.write(paramName + "=" + str(paramValues))
+                        fout.write(coolingSystem + "_" + paramName + "=" + str(paramValues))
                         fout.write("\n")
                         numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
@@ -984,7 +984,7 @@ class MotorCADTwinModel:
                 fileInd = fileInd + 1
                 print("Run DP {}/{} for cooling system {} with parameters {} of {}".format(fileInd, numDPs, coolingSystem, paramNames, paramValues))
 
-                [R, C] = self.computeMatricesCoolingSystems(coolingSystem, paramValues, r_list, c_list, fileInd)
+                [R, C] = self.computeMatricesCoolingSystems(coolingSystem, paramNames, paramValues, r_list, c_list, fileInd)
 
                 for elementList, filePrefix in [(R, "R"), (C, "C")]:
                     with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
@@ -996,16 +996,13 @@ class MotorCADTwinModel:
                             fout.write(str(el) + "\n")                    
 
 
-    def computeMatricesCoolingSystems(
-        self, coolingSystem, rpm, inTemp, fr, r_list, c_list, fileInd
-    ):
+    def computeMatricesCoolingSystems(self, coolingSystem, paramNames, paramValues, r_list, c_list, fileInd):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
-        self.mcad.set_variable("Shaft_Speed_[RPM]", rpm)
-        self.mcad.set_variable(self.coolingSystemData[coolingSystem][0], fr)
-        self.mcad.set_variable(self.coolingSystemData[coolingSystem][1], inTemp)
+        for paramName, paramVal in (paramNames, paramValues):
+            self.mcad.set_variable(self.coolingSystemData[coolingSystem][paramName], paramVal)
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
 
@@ -1021,9 +1018,8 @@ class MotorCADTwinModel:
 
         C = []
         for c in c_list:
-            index = (
-                self.nodeNames.index(c[0]) - 1
-            )  # -1 since capacitance matrix does not have ambient node
+            # -1 since capacitance matrix does not have ambient node
+            index = self.nodeNames.index(c[0]) - 1
             capacitance = capacitanceMatrix[index]
             C.append(capacitance)
 
