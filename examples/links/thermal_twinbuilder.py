@@ -261,29 +261,18 @@ class MotorCADTwinModel:
             self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         # write config file
+        configFlags = {
+            "HousingTempDependency": 1 if includeHousingRtVariation else 0,
+            "AirGapTempDependency": 1 if airgapTemperatures is not None else 0,
+            "FluidHeatFlowMethod": 1 if self.heatFlowMethod == 1 else 0,
+            "MCADVersion": 20251 if self.motorcadV2025OrNewer else 20242,
+            "CoolingSystemsInputs": 1 if coolingSystemsParameterSweeps is not None else 0,
+            "CopperLossScaling": 0,
+            "SpeedDependentLosses": 0,
+        }
         with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
-            if housingAmbientTemperatures is not None:
-                cf.write("HousingTempDependency=1\n")
-            else:
-                cf.write("HousingTempDependency=0\n")
-            if airgapTemperatures is not None:
-                cf.write("AirGapTempDependency=1\n")
-            else:
-                cf.write("AirGapTempDependency=0\n")
-            if self.heatFlowMethod == 1:
-                cf.write("FluidHeatFlowMethod=1\n")
-            else:
-                cf.write("FluidHeatFlowMethod=0\n")
-            if self.motorcadV2025OrNewer:
-                cf.write("MCADVersion=20251\n")
-            else:
-                cf.write("MCADVersion=20242\n")
-            if coolingSystemsParameterSweeps is not None:
-                cf.write("CoolingSystemsInputs=1\n")
-            else:
-                cf.write("CoolingSystemsInputs=0\n")
-            cf.write("CopperLossScaling=0\n")
-            cf.write("SpeedDependentLosses=0\n")
+            for key, value in configFlags.items():
+                cf.write(f"{key}={value}\n")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
     # ``.rmf`` and .``.tmf``)
