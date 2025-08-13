@@ -187,7 +187,7 @@ rotor_duct.entities += lower_half
 # defining geometry contained within the aforementioned section. This process is built into the
 # GeometryTree function, fix_duct_geometry, which is applied below to the newly built duct.
 
-gt.fix_duct_geometry(rotor_duct)
+_ = gt.fix_duct_geometry(rotor_duct)
 
 # %%
 # Set the updated geometry tree to MotorCAD
