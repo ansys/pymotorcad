@@ -23,7 +23,6 @@
 """Methods for building geometry trees."""
 from copy import deepcopy
 
-
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMagnet, RegionType
 
 
@@ -486,7 +485,7 @@ class GeometryNode(Region):
         new_region._motorcad_instance = mc
         return new_region
 
-    def duplicate(self:
+    def duplicate(self):
         """
         Return a copy of the GeometryNode.
 
