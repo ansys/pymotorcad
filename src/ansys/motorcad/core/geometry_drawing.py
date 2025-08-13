@@ -123,71 +123,6 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def draw_region_old(self, region, colour):
-        """Draw a region."""
-        for entity in region.entities:
-            self.draw_entity_old(entity, colour)
-
-        for entity_num, entity in enumerate(region.entities):
-            text = "e{}".format(entity_num)
-            self._plot_text_no_overlap(entity.midpoint, text, colour)
-
-        points = region.entities.points
-        for point_num, point in enumerate(points):
-            text = "p{}".format(point_num)
-            self._plot_text_no_overlap(point, text, colour)
-
-        self._plot_text_no_overlap(region.centroid, region.name, colour)
-
-    def draw_entity_old(self, entity, colour, debug=False):
-        """Draw entity onto plot."""
-        entity_coords = []
-
-        mid_point = Coordinate(
-            (entity.end.x + entity.start.x) / 2, (entity.end.y + entity.start.y) / 2
-        )
-
-        entity_coords += [Coordinate(mid_point.x, mid_point.y)]
-
-        if isinstance(entity, Line):
-            if debug:
-                plt.plot(
-                    [entity.start.x, entity.end.x], [entity.start.y, entity.end.y], color=colour
-                )
-            else:
-                plt.plot(
-                    [entity.start.x, entity.end.x],
-                    [entity.start.y, entity.end.y],
-                    color=colour,
-                    lw=0.6,
-                )
-
-        elif isinstance(entity, Arc):
-            width = abs(entity.radius * 2)
-            height = abs(entity.radius * 2)
-            centre = entity.centre.x, entity.centre.y
-            rad1, angle1 = (entity.start - entity.centre).get_polar_coords_deg()
-            rad2, angle2 = (entity.end - entity.centre).get_polar_coords_deg()
-
-            if entity.radius > 0:
-                start_angle = angle1
-                end_angle = angle2
-            else:
-                start_angle = angle2
-                end_angle = angle1
-            if debug:
-                arc = mpatches.Arc(
-                    centre, width, height, theta1=start_angle, theta2=end_angle, color=colour
-                )
-            else:
-                arc = mpatches.Arc(
-                    centre, width, height, theta1=start_angle, theta2=end_angle, color=colour, lw=2
-                )
-            self.ax.plot(marker="-o")
-            self.ax.add_patch(arc)
-
-        self.ax.set_aspect("equal", adjustable="box")
-
     def draw_coordinate(self, coordinate, colour):
         """Draw coordinate onto plot."""
         plt.plot(coordinate.x, coordinate.y, "x", color=colour)
@@ -394,8 +329,9 @@ def draw_objects(
         used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
     optimize: bool
-        whether geometry drawing should be optimized or not. Default is False. Incompatible with
-        toggle_regions, as prevents regions that are not by default displayed from being calculated.
+        whether geometry tree drawing should be optimized or not. Default is False. Incompatible
+        with toggle_regions, as prevents regions that are not by default displayed from being
+        calculated.
     """
     if not MATPLOTLIB_AVAILABLE:
         raise ImportError(
@@ -546,7 +482,7 @@ def draw_objects(
         box_size = min(len(region_drawing.object_states), 10)
         region_drawing.current_index = 0
 
-        # Create the CheckButtons object that makes up the actual region
+        # Create the CheckButtons object that makes up the actual legend
         check = CheckButtons(
             rax, region_drawing.labels_list[0:box_size], region_drawing.states_list[0:box_size]
         )
