@@ -1648,7 +1648,7 @@ class _BaseArc(Entity):
             and self.start == other.start
             and self.end == other.end
             and self.centre == other.centre
-            and self.radius == other.radius
+            and abs(self.radius - other.radius) < GEOM_TOLERANCE
         )
 
     @property

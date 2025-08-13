@@ -58,7 +58,7 @@ This scripts uses the adaptive templates functionality to add elliptical rotor d
 # Import the ``pymotorcad`` package to access Motor-CAD. Import MotorCADError for error handling.
 # Import the ``Ellipse`` function to create the duct geometry region with Adaptive Templates
 # geometry. Import the ``os``, ``shutil``, ``sys``, and ``tempfile`` packages to open and save a
-# temporary MOT file if none is open. Import ``deepcopy`` and various geometry functions to aid in
+# temporary MOT file if none is open. Import various geometry functions to aid in
 # building ellipses.
 
 # sphinx_gallery_thumbnail_path = 'images/adaptive_templates/OvalRotorDucts.png'
@@ -129,7 +129,10 @@ mc.reset_adaptive_geometry()
 gt = mc.get_geometry_tree()
 
 rotor_duct = gt["RotorDuctFluidRegion"]
-
+try:
+    gt.remove_node("RotorDuctFluidRegion_1")
+except KeyError:
+    pass
 
 # %%
 # Create and assign new geometry to duct
