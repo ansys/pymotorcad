@@ -83,10 +83,10 @@ Twin Builder *Motor-CAD ROM* component.
 import os
 from pathlib import Path
 import warnings
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import itertools
 
 import ansys.motorcad.core as pymotorcad
 
@@ -229,7 +229,7 @@ class MotorCADTwinModel:
         parameters: dict,
         housingAmbientTemperatures=None,
         airgapTemperatures=None,
-        coolingSystemsInputs=None,
+        coolingSystemsParameterSweeps=None,
     ):
         self.updateMotfile()
 
@@ -255,8 +255,8 @@ class MotorCADTwinModel:
                 # set to None so correct config is written
                 airgapTemperatures = None
 
-        if coolingSystemsInputs is not None:
-            self.generateCoolingSystemsInputsDependency(coolingSystemsInputs)
+        if coolingSystemsParameterSweeps is not None:
+            self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         # write config file
         with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
@@ -276,7 +276,7 @@ class MotorCADTwinModel:
                 cf.write("MCADVersion=20251\n")
             else:
                 cf.write("MCADVersion=20242\n")
-            if coolingSystemsInputs is not None:
+            if coolingSystemsParameterSweeps is not None:
                 cf.write("CoolingSystemsInputs=1\n")
             else:
                 cf.write("CoolingSystemsInputs=0\n")
@@ -836,11 +836,11 @@ class MotorCADTwinModel:
     # Function that determines Cooling Systems nodes' resistances/capacitances at
     # different RPM, coolant flow rate and inlet temperatures, the results of which
     # are used by Twin Builder to take into account the Cooling Systems inputs
-    # dependencies. coolingSystemsInputs is a dictionary with keys describing
+    # dependencies. coolingSystemsParameterSweeps is a dictionary with keys describing
     # the Cooling System name and value being another dictionary storing
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
-    def generateCoolingSystemsInputsDependency(self, coolingSystemsInputs):
-        for coolingSystem, parameters in coolingSystemsInputs.items():
+    def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps):
+        for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
             if coolingSystem not in self.coolingSystemData:
                 warnings.warn(
                     "The Cooling System name {} is not part of the list of Cooling Systems "
@@ -852,23 +852,14 @@ class MotorCADTwinModel:
             if not os.path.isdir(exportPath):
                 os.makedirs(os.path.join(exportPath))
 
-            rpms = parameters["rpm"]
-            frs = parameters["FR"]
-            inletTemps = parameters["inletTemp"]
-
+            numDPs = 0
             with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
-                fout.write("rpm=[" + str(rpms[0]))
-                for el in rpms[1:]:
-                    fout.write("," + str(el))
-                fout.write("]\n")
-                fout.write("FR=[" + str(frs[0]))
-                for el in frs[1:]:
-                    fout.write("," + str(el))
-                fout.write("]\n")
-                fout.write("inletTemp=[" + str(inletTemps[0] + 273.15))
-                for el in inletTemps[1:]:
-                    fout.write("," + str(el + 273.15))
-                fout.write("]\n")
+                for paramName, paramValues in parameters.items():
+                    # do not include parameters with no values in dp_values.txt
+                    if len(paramValues) > 0:
+                        fout.write(paramName + "=" + str(paramValues))
+                        fout.write("\n")
+                        numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
             # identify all the impacted resistances and capacitances
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
