@@ -244,13 +244,15 @@ class MotorCADTwinModel:
         self.generateSamples(parameters)
 
         self.generateLossDistribution()
+        
+        includeHousingRtVariation = self.includeHousingRtVariation(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
-        if housingAmbientTemperatures is not None:
-            self.generateHousingTempDependency(housingAmbientTemperatures)
+        if includeHousingRtVariation:
+            self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
         if airgapTemperatures is not None:
             if self.validAirgap() == True:
-                self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures)
+                self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures) # TODO check for parameters RPM presence
             else:
                 # set to None so correct config is written
                 airgapTemperatures = None
@@ -421,6 +423,14 @@ class MotorCADTwinModel:
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
         usedMotFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
         self.mcad.save_to_file(usedMotFilePath)
+
+    # Determines whether to include housing resistance temperature variation based on the presence 
+    # of housing ambient temperatures or a Blown Over cooling system parameter sweep.
+    def includeHousingRtVariation(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
+        hasHousingTemps = housingAmbientTemperatures is not None
+        hasBlownOver = (coolingSystemsParameterSweeps is not None) and ("Blown Over" in coolingSystemsParameterSweeps)
+        includeHousingRtVariation = hasHousingTemps or hasBlownOver
+        return includeHousingRtVariation
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -654,11 +664,14 @@ class MotorCADTwinModel:
         # reset the losses
         self.setLosses()
 
-    # Function that determines the Housing to Ambient resistances at different housing temperatures,
-    # the results of which are used by Twin Builder to take into account external Natural Convection
-    # cooling.
-    # The input parameter is a dict, format e.g.: {tAmbient1:[tHousing1, ..., tHousingx],
-    # tAmbient2:[tHousing1,..., tHousingy], tAmbient3:[tHousing1, ..., tHousingx]}
+    # Function that determines the Housing to Ambient resistances as a function of the Ambient 
+    # temperatures, the Housing temperatures, and Blown Over cooling system parameters. The results
+    # of this are used by Twin Builder to take into account external Natural Convection cooling and
+    # Blown Over cooling.
+    # The input parameter is a dict with key=Ambient temperature and value=[Housing temperatures]:
+    # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
+    #       tAmbient2:[tHousingx, ..., tHousingz], 
+    #       tAmbient3:[tHousingy, ..., tHousingz]}
     def generateHousingTempDependency(self, housingAmbientTemperatures):
         housingNodes = [
             nodeNumber
@@ -841,6 +854,10 @@ class MotorCADTwinModel:
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
     def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps):
         for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
+            # skip over Blown Over, as this is handled separately
+            if coolingSystem == "Blown Over":
+                continue
+
             if coolingSystem not in self.coolingSystemData:
                 warnings.warn(
                     "The Cooling System name {} is not part of the list of Cooling Systems "
