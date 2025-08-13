@@ -971,38 +971,26 @@ class MotorCADTwinModel:
 
             # run the DoE
             fileInd = 0
-            nDps = len(frs) * len(inletTemps) * len(rpms)
-            for inTemp in inletTemps:
-                for flow in frs:
-                    for speed in rpms:
-                        fileInd = fileInd + 1
-                        print(
-                            (
-                                "Run DP {}/{} for cooling system {} at parameters values flow rate "
-                                "{}, inlet temperature {} and rpm {}"
-                            ).format(fileInd, nDps, coolingSystem, flow, inTemp, speed)
-                        )
-                        [R, C] = self.computeMatricesCoolingSystemsInput(
-                            coolingSystem, speed, inTemp, flow, r_list, c_list, fileInd
-                        )
-                        with open(
-                            os.path.join(exportPath, "R" + str(fileInd) + ".csv"), "w"
-                        ) as fout:
-                            fout.write(str(speed) + "\n")
-                            fout.write(str(flow) + "\n")
-                            fout.write(str(inTemp + 273.15) + "\n")
-                            for r in R:
-                                fout.write(str(r) + "\n")
-                        with open(
-                            os.path.join(exportPath, "C" + str(fileInd) + ".csv"), "w"
-                        ) as fout:
-                            fout.write(str(speed) + "\n")
-                            fout.write(str(flow) + "\n")
-                            fout.write(str(inTemp + 273.15) + "\n")
-                            for c in C:
-                                fout.write(str(c) + "\n")
 
-    def computeMatricesCoolingSystemsInput(
+            paramNames = list(parameters.keys())
+
+            for paramValues in itertools.product(*parameters.values()):
+                fileInd = fileInd + 1
+                print("Run DP {}/{} for cooling system {} with parameters {} of {}".format(fileInd, numDPs, coolingSystem, paramNames, paramValues))
+
+                [R, C] = self.computeMatricesCoolingSystems(coolingSystem, paramValues, r_list, c_list, fileInd)
+
+                for elementList, filePrefix in [(R, "R"), (C, "C")]:
+                    with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
+                        for val in paramValues:
+                            # write parameter values to file
+                            fout.write(str(val) + "\n")   # TODO +273.15K to this if a temperature
+                        for el in elementList:
+                            # write resistances or capacitances to file
+                            fout.write(str(el) + "\n")                    
+
+
+    def computeMatricesCoolingSystems(
         self, coolingSystem, rpm, inTemp, fr, r_list, c_list, fileInd
     ):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
@@ -1139,7 +1127,7 @@ housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 # Specify the cooling systems for which input dependencies need to be taken into account.
 # For each cooling system involved, define the parameters values to sweep to extract the
 # corresponding training data.
-coolingSystemsInputs = {
+coolingSystemsParameterSweeps = {
     "Housing Water Jacket": {
         "FR": [8/6e4],
         "inletTemp": [75, 85, 95],
@@ -1168,7 +1156,7 @@ MotorCADTwin.generateTwinData(
     parameters={"rpm": rpms},
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
-    coolingSystemsInputs=coolingSystemsInputs,
+    coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
 )
 
 
