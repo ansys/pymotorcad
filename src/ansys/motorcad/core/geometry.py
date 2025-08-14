@@ -734,7 +734,39 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
-    def round_corner(self, corner_coordinate, radius):
+    def consolidate_lines(self):
+        """Consolidate separate Line objects into a single Line object where possible.
+
+        If the current and previous entities are both Line entity types with the same angle, the
+        current entity is removed and the previous entity is extended to the end point of the
+        removed entity.
+
+        """
+        entities_to_remove = []
+        # last entity of the region
+        entity_n = self._entities[len(self._entities) - 1]
+        # for each entity in the region
+        for entity in self._entities:
+            # if the entity is a line
+            if isinstance(entity, Line) and isinstance(entity_n, Line):
+                if (
+                    isclose(entity.angle, entity_n.angle, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle - 180, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle + 180, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle - 360, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle + 360, abs_tol=1e-6)
+                ):
+                    entity_n.end = entity.end
+                    entities_to_remove.append(entity)
+                else:
+                    entity_n = entity
+            else:
+                entity_n = entity
+
+        for entity in entities_to_remove:
+            self.remove_entity(entity)
+
+    def _round_corner(self, corner_coordinate, radius, distance_limit):
         """Round the corner of a region.
 
         The corner coordinates must already exist on two entities belonging to the region.
@@ -747,6 +779,11 @@ class Region(object):
             Coordinate of the corner to round.
         radius : float
             Radius to round the corner by.
+        distance_limit : float
+            Maximum distance that the adjacent entities can be shortened by.
+        adj_entity_lengths : list of float
+            List of lengths of the original region entities that are adjacent to the corner to
+            round.
         """
         # If radius is 0, do nothing
         if radius == 0:
@@ -844,17 +881,15 @@ class Region(object):
 
         # Raise assertion if not converged, as radius probably not valid
         if converged == False:
-            raise Exception("Cannot find intersection. Check if radius is too large")
+            raise ValueError("Cannot find intersection. Check if radius is too large")
 
-        # check that the  distances by which the adjacent entities are shortened are less than the
-        # lengths of the adjacent entities.
-        for index in range(len(adj_entities)):
-            j = adj_entities[index]
-            if j.length < distance:
-                raise Exception(
-                    "Corner radius is too large for these entities. "
-                    "You must specify a smaller radius."
-                )
+        # check that the  distances by which the adjacent entities are shortened are less than
+        # the distance_limit.
+        if distance_limit < distance:
+            raise ValueError(
+                "Corner radius is too large for these entities. "
+                "You must specify a smaller radius."
+            )
         # get and set the new start and end coordinates for the adjacent entities
         adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
             corner_coordinate, distance
@@ -873,7 +908,73 @@ class Region(object):
         corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
         self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
 
-    def round_corners(self, corner_coordinates, radius):
+    def round_corner(self, corner_coordinate, radius, maximise=True):
+        """Round the corner of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and an arc is created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to round.
+        radius : float
+            Radius to round the corner by.
+        maximise : bool
+            Whether to maximise the possible radius if the radius provided is too large.
+        """
+        # get the original entities before any corner rounding has been done
+        entities_orig = deepcopy(self._entities)
+        # get the lengths of the original adjacent entities before any corner rounding
+        adj_entity_lengths = []
+        for index in range(len(entities_orig)):
+            entity = entities_orig[index]
+            if entity.coordinate_on_entity(corner_coordinate):
+                adj_entity_lengths.append(entity.length)
+        # find the limit for how much an adjacent entity may be shortened by:
+        distance_limit = 10000
+        for index in range(len(adj_entity_lengths)):
+            if adj_entity_lengths[index] < distance_limit:
+                distance_limit = adj_entity_lengths[index]
+
+        # if the corner radius is too large, an exception will be raised
+        if not maximise:
+            # round the corner
+            self._round_corner(corner_coordinate, radius, distance_limit)
+        # if the corner radius is too large, maximise the corner radius that is short enough for
+        # the adjacent entities. The adjacent entities can only be shortened to half the original
+        # entity length before any corner rounding
+        else:
+            try:
+                # try to round the corner with the specified radius
+                self._round_corner(corner_coordinate, radius, distance_limit)
+            except ValueError as e:
+                if "Corner radius is too large for these entities" in str(e):
+                    new_corner_radius = round(radius, 1)
+                    # iterate 100 times to find a maximum suitable corner radius
+                    for iteration in range(100):
+                        # subtract 0.1 mm from the previous corner radius that was tried
+                        new_corner_radius -= 0.1
+                        try:
+                            # try to round the corner with the new shorter radius
+                            self._round_corner(corner_coordinate, new_corner_radius, distance_limit)
+                            break
+                        except ValueError as e:
+                            if "Corner radius is too large for these entities" in str(e):
+                                # try 100 iterations
+                                if iteration < 99:
+                                    pass
+                                # if the radius is still too large on the final iteration, raise
+                                # the exception
+                                else:
+                                    raise e
+                # if any other exception is raised by the corner rounding attempt, raise the
+                # exception
+                else:
+                    raise e
+
+    def round_corners(self, corner_coordinates, radius, maximise=True):
         """Round multiple corners of a region.
 
         Each corner coordinate must already exist on two entities belonging to the region.
@@ -886,9 +987,76 @@ class Region(object):
             List of coordinates of the corners to round.
         radius : float
             Radius to round the corners by.
+        maximise : bool
+            Whether to maximise the possible radius if the radius provided is too large.
         """
-        for corner in corner_coordinates:
-            self.round_corner(corner, radius)
+        # if the corner radius is too large, an exception will be raised
+        if not maximise:
+            # get the original entities before any corner rounding has been done
+            entities_orig = deepcopy(self._entities)
+            # apply the rounding to each corner in turn
+            for corner in corner_coordinates:
+                # get the lengths of the original adjacent entities before any corner rounding
+                adj_entity_lengths = []
+                for index in range(len(entities_orig)):
+                    entity = entities_orig[index]
+                    if entity.coordinate_on_entity(corner):
+                        adj_entity_lengths.append(entity.length)
+
+                # find the distance limit that the adjacent entities can be shortened by
+                distance_limit = 10000
+                for index in range(len(adj_entity_lengths)):
+                    if adj_entity_lengths[index] < distance_limit:
+                        distance_limit = adj_entity_lengths[index]
+
+                # round the corner
+                self._round_corner(corner, radius, distance_limit)
+        # if the corner radius is too large, maximise the corner radius that is short enough for
+        # the adjacent entities. The adjacent entities can only be shortened to half the original
+        # entity length before any corner rounding
+        else:
+            # apply the rounding to each corner in turn
+            for corner in corner_coordinates:
+                # get the original entities before any corner rounding has been done
+                entities_orig = deepcopy(self._entities)
+                # get the lengths of the original adjacent entities before any corner rounding
+                adj_entity_lengths = []
+                for index in range(len(entities_orig)):
+                    entity = entities_orig[index]
+                    if entity.coordinate_on_entity(corner):
+                        adj_entity_lengths.append(entity.length)
+                # find the distance limit that the adjacent entities can be shortened by
+                distance_limit = 10000
+                for index in range(len(adj_entity_lengths)):
+                    if adj_entity_lengths[index] < distance_limit:
+                        distance_limit = adj_entity_lengths[index]
+                try:
+                    # try to round the corner with the specified radius
+                    self._round_corner(corner, radius, distance_limit)
+                except ValueError as e:
+                    if "Corner radius is too large for these entities" in str(e):
+                        new_corner_radius = round(radius, 1)
+                        # iterate 100 times to find a maximum suitable corner radius
+                        for iteration in range(100):
+                            # subtract 0.1 mm from the previous corner radius that was tried
+                            new_corner_radius -= 0.1
+                            try:
+                                # try to round the corner with the new shorter radius
+                                self._round_corner(corner, new_corner_radius, distance_limit)
+                                break
+                            except ValueError as e:
+                                if "Corner radius is too large for these entities" in str(e):
+                                    # try 100 iterations
+                                    if iteration < 99:
+                                        pass
+                                    # if the radius is still too large on the final iteration, raise
+                                    # the exception
+                                    else:
+                                        raise e
+                    # if any other exception is raised by the corner rounding attempt, raise the
+                    # exception
+                    else:
+                        raise e
 
     def limit_arc_chord(self, max_chord_height):
         """Limit the chord height for arcs in a region.
