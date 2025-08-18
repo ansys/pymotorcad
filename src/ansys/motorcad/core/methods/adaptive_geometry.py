@@ -81,7 +81,7 @@ class _RpcMethodsAdaptiveGeometry:
         except MotorCADError:
             self.set_adaptive_parameter_value(name, value)
 
-    def get_region(self, name):
+    def get_region(self, name, get_linked=True):
         """Get Motor-CAD geometry region.
 
         Parameters
@@ -101,7 +101,9 @@ class _RpcMethodsAdaptiveGeometry:
         raw_region = self.connection.send_and_receive(method, params)
 
         region = Region._from_json(raw_region, motorcad_instance=self)
-
+        if get_linked:
+            for linked_region in raw_region["linked_regions"]:
+                region.linked_regions.append(self.get_region(linked_region, get_linked=False))
         return region
 
     def get_region_dxf(self, name):
