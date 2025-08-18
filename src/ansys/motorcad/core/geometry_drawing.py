@@ -44,20 +44,183 @@ except ImportError:
 _MAX_RECURSION = 100
 
 
+class BiDict:
+    """Simple bi-directional dictionary for use with legend labels."""
+
+    def __init__(self):
+        """Initialize a bi-directional dictionary."""
+        self.forward = dict()
+        self.backward = dict()
+
+    def insert(self, key, value):
+        """Insert key-value pair."""
+        if key in self.forward:
+            old_value = self.forward[key]
+            del self.backward[old_value]
+        if value in self.backward:
+            old_key = self.backward[value]
+            del self.forward[old_key]
+
+        self.forward[key] = value
+        self.backward[value] = key
+
+    def get_forward(self, key):
+        """Get a dictionary with keys as keys."""
+        return self.forward.get(key)
+
+    def get_backward(self, value):
+        """Get a dictionary with keys as values."""
+        return self.backward.get(value)
+
+    def remove_by_key(self, key):
+        """Remove a key-value pair from the dictionary, by key."""
+        value = self.forward.pop(key, None)
+        if value:
+            self.backward.pop(value, None)
+
+    def remove_by_value(self, value):
+        """Remove a key-value pair from the dictionary, by value."""
+        key = self.backward.pop(value, None)
+        if key:
+            self.forward.pop(key, None)
+
+
 class _RegionDrawing:
-    def __init__(self, ax, stored_coords):
+    def __init__(self, fig, ax, stored_coords):
+        self.fig = fig
         self.ax = ax
         self.stored_coords = stored_coords
         self.legend_objects = dict()
         self.object_states = dict()
+        self.keys_and_labels = BiDict()
 
     @property
     def states_list(self):
         return list(self.object_states.values())
 
-    @property
-    def labels_list(self):
-        return list(self.legend_objects)
+    @staticmethod
+    def get_label(object):
+        # Make certain label is appropriate for regions that might not be a part of trees
+        if isinstance(object, Region) and not isinstance(object, GeometryNode):
+            return object.name
+        # Tuples used to draw lists of entities. The second value input is an integer used to
+        # grant unique labels
+        if isinstance(object, tuple):
+            return str(object[0]).split(".")[-1][0:-2] + str(object[1])
+
+        if object.key == "root":
+            return "root"
+        label = ""
+        label += "│   " * (object.depth - 2)
+        if object.depth == 1:
+            cap = ""
+        elif object == object.parent.children[-1]:
+            cap = "└── "
+        else:
+            cap = "├── "
+        label += cap
+        label += object.key
+        return label
+
+    def enable_legend(self):
+        # Size the legend based on the length of the longest label
+        x_boundary = 0.01 * max(len(label) for label in self.keys_and_labels.backward) + 0.05
+
+        rax = plt.axes([0.05, 0.2, x_boundary, 0.6])
+        self.rax = rax
+        self.box_size = min(len(self.object_states), 12)
+        self.current_index = 0
+
+        # Create the CheckButtons object that makes up the actual legend
+        self.check = CheckButtons(
+            rax,
+            list(self.keys_and_labels.backward)[0 : self.box_size],
+            self.states_list[0 : self.box_size],
+        )
+
+        # Shift the original plot aside to make room
+        self.ax.set_position(transforms.Bbox.from_extents(x_boundary + 0.1, 0, 1, 1), which="both")
+
+        # Link the above function to the CheckButtons object
+        self.check.on_clicked(self.func)
+
+        # Link the direction keys and scroll wheel to the cycling function
+        def on_press(event):
+            self.cycle_check(event.key)
+            self.fig.canvas.draw()
+
+        self.fig.canvas.mpl_connect("key_press_event", on_press)
+
+        def on_scroll(event):
+            self.cycle_check(event.button)
+            self.fig.canvas.draw()
+
+        self.fig.canvas.mpl_connect("scroll_event", on_scroll)
+
+        rax.annotate(
+            "",
+            (0.96, 0.1),
+            xytext=(0.96, 0.9),
+            xycoords="axes fraction",
+            arrowprops=dict(arrowstyle="<->", color="gray"),
+        )
+        if self.box_size != len(self.object_states):
+            scroll_bar_bottom = 0.9 - (0.8 / (len(self.object_states) - self.box_size + 1))
+            self.scroll_bar = rax.annotate(
+                "",
+                (0.96, scroll_bar_bottom),
+                xytext=(0.96, 0.9),
+                xycoords="axes fraction",
+                arrowprops=dict(arrowstyle="<|-|>", color="black"),
+            )
+
+    # Function that cycles the labels displayed on the CheckButtons object up or down
+    def cycle_check(self, direction):
+        if self.box_size == len(self.object_states):
+            return
+        check = self.check
+        current_index = self.current_index
+        number = len(self.object_states)
+        labels = list(self.keys_and_labels.backward)
+        if direction == "down":
+            # Don't scroll if at the bottom
+            if self.current_index == (number - self.box_size):
+                return
+            for i in range(0, self.box_size):
+                new_index = (current_index + i + 1) % number
+                check.labels[i % self.box_size].set_text(labels[new_index])
+                # Avoid actually modifying data with just a scrolling action
+                check.eventson = False
+                check.set_active(i % self.box_size, self.states_list[new_index])
+                # Make certain changes can occur once scrolling is done
+                check.eventson = True
+            self.current_index += 1
+
+        if direction == "up":
+            # Don't scroll if at the top
+            if self.current_index == 0:
+                return
+            for i in range(0, self.box_size):
+                new_index = (current_index + i - 1) % number
+                check.labels[i % self.box_size].set_text(labels[new_index])
+                check.eventson = False
+                check.set_active(i % self.box_size, self.states_list[new_index])
+                check.eventson = True
+            self.current_index -= 1
+
+        scroll_size = (number - self.box_size) + 1
+        scroll_bar_top = 0.9 - ((0.8 / scroll_size) * self.current_index)
+        scroll_bar_bottom = scroll_bar_top - (0.8 / scroll_size)
+        self.scroll_bar.xy = (0.96, scroll_bar_bottom)
+        self.scroll_bar.xyann = (0.96, scroll_bar_top)
+
+    # Define the behaviour of a checkbox upon being clicked
+    def func(self, label):
+        key = self.keys_and_labels.backward[label]
+        self.object_states[key] = not self.object_states[key]
+        for region_object in self.legend_objects[key]:
+            region_object.set_visible(self.object_states[key])
+        plt.draw()
 
     def _get_plot_range(self):
         # plot should be square so get_xlim() == get_ylim()
@@ -144,18 +307,9 @@ class _RegionDrawing:
         fill_points_x = []
         fill_points_y = []
         if isinstance(region, GeometryNode):
-            label = ""
-            label += "│   " * (region.depth - 2)
-            if region.depth == 1:
-                cap = ""
-            elif region.name == region.parent.children[-1].name:
-                cap = "└── "
-            else:
-                cap = "├── "
-            label += cap
-            label += region.key
+            legend_key = region.key
         else:
-            label = region.name
+            legend_key = region.name
 
         for entity in region.entities:
             if entity.length == 0:
@@ -195,7 +349,7 @@ class _RegionDrawing:
             ):
                 # Draw entity and add it to legend_objects in the appropriate region's list for
                 # later access
-                self.legend_objects[label].append(
+                self.legend_objects[legend_key].append(
                     self._draw_entity(
                         entity,
                         "black",
@@ -203,8 +357,8 @@ class _RegionDrawing:
                 )
         # Draw region's colouring and add it to legend_objects in the appropriate list for
         # later access
-        self.legend_objects[label].append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, label=label, lw=0.4)[0]
+        self.legend_objects[legend_key].append(
+            plt.fill(fill_points_x, fill_points_y, color=colour, label=legend_key, lw=0.4)[0]
         )
 
         self.ax.set_aspect("equal", adjustable="box")
@@ -215,18 +369,18 @@ class _RegionDrawing:
                 text = "e{}".format(entity_num)
                 point = self._plot_text_no_overlap(entity.midpoint, text, "black")
                 if point is not None:
-                    self.legend_objects[label].append(point)
+                    self.legend_objects[legend_key].append(point)
 
             points = region.entities.points
             for point_num, point in enumerate(points):
                 text = "p{}".format(point_num)
                 point = self._plot_text_no_overlap(point, text, "black")
                 if point is not None:
-                    self.legend_objects[label].append(point)
+                    self.legend_objects[legend_key].append(point)
         if labels:
             point = self._plot_text_no_overlap(region.centroid, region.name, "black")
             if point is not None:
-                self.legend_objects[label].append(point)
+                self.legend_objects[legend_key].append(point)
 
     def _draw_entity(self, entity, colour, draw_points=False):
         """Draw entity onto plot.
@@ -297,7 +451,7 @@ def draw_objects_debug(objects):
 
 def draw_objects(
     objects,
-    labels=False,
+    label_regions=False,
     full_geometry=False,
     draw_points=None,
     save=None,
@@ -307,31 +461,35 @@ def draw_objects(
     toggle_regions=None,
     title=None,
     optimize=False,
+    expose_region_drawing=False,
 ):
     """Draw geometry objects on a plot.
 
     Parameters
     objects : List of objects
-        objects to draw
+        Objects to draw
     labels : bool
-        whether labels should be drawn. Default is False
+        Whether labels should be drawn. Default is False
     full_geometry : bool
         Whether duplications of regions should be drawn
     draw_points : bool
         Whether to draw end and mid points of entities. Default is False, except for sole entities.
     dpi : int
-        resolution of figure (used primarily when exporting images as pngs)
+        Resolution of figure (used primarily when exporting images as pngs)
     legend : bool
-        whether interactable legend should be drawn
+        Whether interactable legend should be drawn
     axes : bool
-        whether axes should be drawn
+        Whether axes should be drawn
     toggle_regions : list of str
-        used for GeometryTrees: provided regions will be drawn if not already, and not if
+        Used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
     optimize: bool
-        whether geometry tree drawing should be optimized or not. Default is False. Incompatible
+        Whether geometry tree drawing should be optimized or not. Default is False. Incompatible
         with toggle_regions, as prevents regions that are not by default displayed from being
         calculated.
+    expose_region_drawing : bool
+        Whether _Region_Drawing object should be returned (which allows access to the axes and
+         figure). Default is False.
     """
     if not MATPLOTLIB_AVAILABLE:
         raise ImportError(
@@ -341,32 +499,10 @@ def draw_objects(
 
     stored_coords = []
     fig, ax = plt.subplots(figsize=(10, 6))
-    region_drawing = _RegionDrawing(ax, stored_coords)
+    region_drawing = _RegionDrawing(fig, ax, stored_coords)
 
     # Determine a label that portrays appropriate positional information in the tree (if, indeed,
     # a tree is supplied)
-    def get_label(object):
-        # Make certain label is appropriate for regions that might not be a part of trees
-        if isinstance(object, Region) and not isinstance(object, GeometryNode):
-            return object.name
-        # Tuples used to draw lists of entities. The second value input is an integer used to
-        # grant unique labels
-        if isinstance(object, tuple):
-            return str(object[0]).split(".")[-1][0:-2] + str(object[1])
-
-        if object.key == "root":
-            return "root"
-        label = ""
-        label += "│   " * (object.depth - 2)
-        if object.depth == 1:
-            cap = ""
-        elif object == object.parent.children[-1]:
-            cap = "└── "
-        else:
-            cap = "├── "
-        label += cap
-        label += object.key
-        return label
 
     # Draw a geometry tree
     if isinstance(objects, GeometryTree):
@@ -395,38 +531,42 @@ def draw_objects(
         for starting_node in objects:
             if starting_node.region_type.value in region_types and starting_node.key != "root":
                 for subnode in objects.get_subtree(starting_node):
-                    drawn_nodes.add(get_label(subnode))
+                    drawn_nodes.add(subnode.key)
+
         if optimize:
             for node in objects:
-                if not get_label(node) in drawn_nodes and node.key != "root":
+                if not node.key in drawn_nodes and node.key != "root":
                     objects.remove_node(node)
 
         for node in objects:
-            label = get_label(node)
-            if node.key != "root":
+            legend_key = node.key
+            if legend_key != "root":
                 # Establish a place to store all the drawn entities composing an object, for
                 # later use in toggling visibility
-                region_drawing.legend_objects[label] = []
+                region_drawing.legend_objects[legend_key] = []
+                region_drawing.keys_and_labels.insert(legend_key, region_drawing.get_label(node))
 
                 if full_geometry:
-                    region_drawing._draw_duplicates(node, node.colour, labels)
+                    region_drawing._draw_duplicates(node, node.colour, label_regions)
 
                 else:
                     if draw_points is not None:
                         region_drawing._draw_region(
-                            node, node.colour, labels, draw_points=draw_points
+                            node, node.colour, label_regions, draw_points=draw_points
                         )
                     else:
-                        region_drawing._draw_region(node, node.colour, labels)
+                        region_drawing._draw_region(node, node.colour, label_regions)
 
             # Assign each region an appropriate visibility state based on what should be by default
             # displayed
-            if label in drawn_nodes:
-                region_drawing.object_states[label] = True
+            if legend_key in drawn_nodes:
+                region_drawing.object_states[legend_key] = True
             elif node.key != "root":
-                region_drawing.object_states[label] = False
+                region_drawing.object_states[legend_key] = False
             if node.key in toggle_regions:
-                region_drawing.object_states[label] = not region_drawing.object_states[label]
+                region_drawing.object_states[legend_key] = not region_drawing.object_states[
+                    legend_key
+                ]
 
         # Enforce initial visibility
         for drawn_region in region_drawing.legend_objects:
@@ -439,17 +579,21 @@ def draw_objects(
             if draw_points is None:
                 draw_points = False
             for region in objects:
-                label = get_label(region)
-                region_drawing.legend_objects[label] = []
-                region_drawing.object_states[label] = True
-                region_drawing._draw_region(region, region.colour, labels, draw_points=draw_points)
+                legend_key = region.name
+                region_drawing.legend_objects[legend_key] = []
+                region_drawing.object_states[legend_key] = True
+                region_drawing.keys_and_labels.insert(legend_key, region_drawing.get_label(region))
+                region_drawing._draw_region(
+                    region, region.colour, label_regions, draw_points=draw_points
+                )
 
         if all(isinstance(object, Entity) for object in objects):
             for i, entity in enumerate(objects):
-                label = get_label((type(entity), i))
-                region_drawing.legend_objects[label] = []
-                region_drawing.object_states[label] = True
-                region_drawing.legend_objects[label].append(
+                legend_key = str(entity.__class__).split(".")[-1][0:-2] + str(i)
+                region_drawing.legend_objects[legend_key] = []
+                region_drawing.object_states[legend_key] = True
+                region_drawing.keys_and_labels.insert(legend_key, legend_key)
+                region_drawing.legend_objects[legend_key].append(
                     region_drawing._draw_entity(entity, "black", draw_points)
                 )
 
@@ -457,86 +601,30 @@ def draw_objects(
     if isinstance(objects, Region) or isinstance(objects, GeometryNode):
         if draw_points is None:
             draw_points = False
-        label = get_label(objects)
-        region_drawing.legend_objects[label] = []
-        region_drawing.object_states[label] = True
-        region_drawing._draw_region(objects, objects.colour, labels, draw_points=draw_points)
+        if isinstance(objects, Region):
+            legend_key = objects.name
+        else:
+            legend_key = objects.key
+        region_drawing.legend_objects[legend_key] = []
+        region_drawing.object_states[legend_key] = True
+        region_drawing.keys_and_labels.insert(legend_key, legend_key)
+        region_drawing._draw_region(objects, objects.colour, label_regions, draw_points=draw_points)
 
     # Draw a sole entity
     if isinstance(objects, Entity):
         if draw_points is None:
             draw_points = True
-        label = get_label((type(objects), 1))
-        region_drawing.legend_objects[label] = []
-        region_drawing.object_states[label] = True
-        region_drawing.legend_objects[label].append(
+        legend_key = str(entity.__class__).split(".")[-1][0:-2]
+        region_drawing.legend_objects[legend_key] = []
+        region_drawing.object_states[legend_key] = True
+        region_drawing.keys_and_labels.insert(legend_key, legend_key)
+        region_drawing.legend_objects[legend_key].append(
             region_drawing._draw_entity(objects, "black", draw_points)
         )
 
     # Create an interactable legend to label and change displayed regions
     if legend:
-        # Size the legend based on the length of the longest label
-        x_boundary = 0.01 * max(len(label) for label in region_drawing.labels_list) + 0.05
-
-        rax = plt.axes([0.05, 0.2, x_boundary, 0.6])
-        box_size = min(len(region_drawing.object_states), 10)
-        region_drawing.current_index = 0
-
-        # Create the CheckButtons object that makes up the actual legend
-        check = CheckButtons(
-            rax, region_drawing.labels_list[0:box_size], region_drawing.states_list[0:box_size]
-        )
-
-        # Shift the original plot aside to make room
-        ax.set_position(transforms.Bbox.from_extents(x_boundary + 0.1, 0, 1, 1), which="both")
-
-        # Define the behaviour of a checkbox upon being clicked
-        def func(label):
-            region_drawing.object_states[label] = not region_drawing.object_states[label]
-            for region_object in region_drawing.legend_objects[label]:
-                region_object.set_visible(region_drawing.object_states[label])
-            plt.draw()
-
-        # Link the above function to the CheckButtons object
-        check.on_clicked(func)
-
-        # Function that cycles the labels displayed on the CheckButtons object up or down
-        def cycle_check(check, direction):
-            current_index = region_drawing.current_index
-            number = len(region_drawing.object_states)
-            labels = region_drawing.labels_list
-            if direction == "down":
-                for i in range(0, box_size):
-                    new_index = (current_index + i + 1) % number
-                    check.labels[i % box_size].set_text(labels[new_index])
-                    # Avoid actually modifying data with just a scrolling action
-                    check.eventson = False
-                    check.set_active(i % box_size, region_drawing.states_list[new_index])
-                    # Make certain changes can occur once scrolling is done
-                    check.eventson = True
-                region_drawing.current_index += 1
-
-            if direction == "up":
-                for i in range(0, box_size):
-                    new_index = (current_index + i - 1) % number
-                    check.labels[i % box_size].set_text(labels[new_index])
-                    check.eventson = False
-                    check.set_active(i % box_size, region_drawing.states_list[new_index])
-                    check.eventson = True
-                region_drawing.current_index -= 1
-
-        # Link the direction keys and scroll wheel to the cycling function
-        def on_press(event):
-            cycle_check(check, event.key)
-            fig.canvas.draw()
-
-        fig.canvas.mpl_connect("key_press_event", on_press)
-
-        def on_scroll(event):
-            cycle_check(check, event.button)
-            fig.canvas.draw()
-
-        fig.canvas.mpl_connect("scroll_event", on_scroll)
+        region_drawing.enable_legend()
 
     if not axes:
         ax.axis("off")
@@ -546,3 +634,5 @@ def draw_objects(
         plt.show()
     else:
         plt.savefig(save, dpi=dpi)
+    if expose_region_drawing:
+        return region_drawing

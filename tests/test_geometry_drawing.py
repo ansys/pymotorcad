@@ -25,15 +25,11 @@ import tempfile
 from matplotlib import pyplot as plt
 import pytest
 
+import ansys
 from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
-import ansys.motorcad.core.geometry_drawing
 from ansys.motorcad.core.geometry_drawing import draw_objects
 
 drawing_flag = False
-
-
-def is_similar(image1, image2):
-    return image1.shape == image2.shape and not (np.bitwise_xor(image1, image2).any())
 
 
 def set_drawing_flag(*args, **kwargs):
@@ -68,7 +64,7 @@ def test_label_recursion(monkeypatch):
 
     monkeypatch.setattr(ansys.motorcad.core.geometry_drawing, "_MAX_RECURSION", 1)
     with pytest.warns():
-        draw_objects([r1, r2, r3], labels=True)
+        draw_objects([r1, r2, r3], label_regions=True)
 
 
 def test_drawing_base(mc):
@@ -106,7 +102,7 @@ def test_drawing_region_points_labels(mc):
         draw_objects(
             gt["Rotor"],
             save=path,
-            labels=True,
+            label_regions=True,
             draw_points=True,
             dpi=800,
         )
@@ -133,6 +129,30 @@ def test_drawing_region_list(mc):
             [gt["Rotor"], gt["Stator"]],
             save=path,
         )
+
+
+def test_scroll(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "scroll_test.png")
+        region_drawing = draw_objects(gt, expose_region_drawing=True, save=path)
+        first_top = region_drawing.check.labels[0].get_text()
+        next_top = region_drawing.check.labels[1].get_text()
+        region_drawing.cycle_check("down")
+        assert region_drawing.check.labels[0].get_text() == next_top
+
+        region_drawing.cycle_check("up")
+        assert region_drawing.check.labels[0].get_text() == first_top
+
+
+def test_check(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "check_test.png")
+        region_drawing = draw_objects(gt, expose_region_drawing=True, save=path)
+        current_housing = region_drawing.object_states["Housing"]
+        region_drawing.func("Housing")
+        assert current_housing != region_drawing.object_states["Housing"]
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
