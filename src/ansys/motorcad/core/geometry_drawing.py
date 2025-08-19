@@ -388,7 +388,7 @@ class _RegionDrawing:
         # Draw region's colouring and add it to legend_objects in the appropriate list for
         # later access
         self.legend_objects[legend_key].append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, label=legend_key, lw=0.4)[0]
+            plt.fill(fill_points_x, fill_points_y, color=colour, label=legend_key, lw=0.6)[0]
         )
 
         self.ax.set_aspect("equal", adjustable="box")
