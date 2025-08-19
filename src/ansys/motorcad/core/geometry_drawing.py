@@ -94,7 +94,7 @@ class _RegionDrawing:
         self.object_states = dict()
         self.keys_and_labels = BiDict()
         # Dict containing the maximum radius of each region
-        self.max_radii = dict()
+        self.bounds = dict()
         self.full_geometry = False
 
     @property
@@ -169,7 +169,7 @@ class _RegionDrawing:
             arrowprops=dict(arrowstyle="<->", color="gray"),
         )
         if self.box_size != len(self.object_states):
-            scroll_bar_bottom = 0.9 - (0.8 / (len(self.object_states) - self.box_size + 1))
+            scroll_bar_bottom = 0.8
             self.scroll_bar = rax.annotate(
                 "",
                 (0.96, scroll_bar_bottom),
@@ -212,9 +212,9 @@ class _RegionDrawing:
                 check.eventson = True
             self.current_index -= 1
 
-        scroll_size = (number - self.box_size) + 1
-        scroll_bar_top = 0.9 - ((0.8 / scroll_size) * self.current_index)
-        scroll_bar_bottom = scroll_bar_top - (0.8 / scroll_size)
+        scroll_size = number - self.box_size
+        scroll_bar_top = 0.9 - ((0.7 / scroll_size) * self.current_index)
+        scroll_bar_bottom = scroll_bar_top - 0.1
         self.scroll_bar.xy = (0.96, scroll_bar_bottom)
         self.scroll_bar.xyann = (0.96, scroll_bar_top)
 
@@ -228,24 +228,47 @@ class _RegionDrawing:
         plt.draw()
 
     def resize_drawing(self):
-        margin = self.max_drawn_radius() * 0.05
-        lim = self.max_drawn_radius() + margin
         if self.full_geometry:
+            margin = self.max_drawn_radius() * 0.05
+            lim = self.max_drawn_radius() + margin
             self.ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
         else:
-            self.ax.set(xlim=(-margin, lim), ylim=(-lim / 3, (2 * lim) / 3))
+            bounds = self.max_x_and_y()
+            margin = max(abs(bounds[0] - bounds[1]), abs(bounds[2] - bounds[3])) * 0.05
+            self.ax.set(
+                xlim=(bounds[1] - margin, bounds[0] + margin),
+                ylim=(bounds[3] - margin, bounds[2] + margin),
+            )
 
     def _get_plot_range(self):
         # plot should be square so get_xlim() == get_ylim()
         x_min, x_max = self.ax.get_xlim()
         return x_max - x_min
 
-    def max_drawn_radius(self):
-        max = 0
+    def max_x_and_y(self):
+        max_x = 0
+        min_x = 1000000
+        max_y = 0
+        min_y = 1000000
+
         for key in self.object_states:
-            if self.object_states[key] and self.max_radii[key] > max:
-                max = self.max_radii[key]
-        return max
+            if self.object_states[key] and self.bounds[key][1] > max_x:
+                max_x = self.bounds[key][1]
+            if self.object_states[key] and self.bounds[key][2] < min_x:
+                min_x = self.bounds[key][2]
+            if self.object_states[key] and self.bounds[key][3] > max_y:
+                max_y = self.bounds[key][3]
+            if self.object_states[key] and self.bounds[key][4] < min_y:
+                min_y = self.bounds[key][4]
+
+        return max_x, min_x, max_y, min_y
+
+    def max_drawn_radius(self):
+        max_rad = 0
+        for key in self.object_states:
+            if self.object_states[key] and self.bounds[key][0] > max_rad:
+                max_rad = self.bounds[key][0]
+        return max_rad
 
     def _find_coord_no_overlap(self, entity_coord, tried_coords, modifier):
         # adjust depending on text size
@@ -326,16 +349,10 @@ class _RegionDrawing:
             legend_key = region.key
         else:
             legend_key = region.name
-        entity_maxes = list()
+        entity_bounds = []
 
         for entity in region.entities:
-            entity_maxes.append(
-                max(
-                    Coordinate.get_polar_coords_deg(entity.start)[0],
-                    Coordinate.get_polar_coords_deg(entity.end)[0],
-                    Coordinate.get_polar_coords_deg(entity.midpoint)[0],
-                )
-            )
+            entity_bounds.append(entity.get_bounds())
             if entity.length == 0:
                 continue
             if isinstance(entity, Line):
@@ -379,8 +396,15 @@ class _RegionDrawing:
                         "black",
                     )
                 )
-        # Add region's maximum radius to region_drawing
-        self.max_radii[legend_key] = max(entity_maxes)
+        # Add bounds to region_drawing for later sizing
+        region_bound = []
+        region_bound.append(max(entity_bound[0] for entity_bound in entity_bounds))
+        region_bound.append(max(entity_bound[1] for entity_bound in entity_bounds))
+        region_bound.append(min(entity_bound[2] for entity_bound in entity_bounds))
+        region_bound.append(max(entity_bound[3] for entity_bound in entity_bounds))
+        region_bound.append(min(entity_bound[4] for entity_bound in entity_bounds))
+        self.bounds[legend_key] = region_bound
+
         # Draw region's colouring and add it to legend_objects in the appropriate list for
         # later access
         self.legend_objects[legend_key].append(
@@ -634,6 +658,7 @@ def draw_objects(
                 region_drawing.legend_objects[legend_key].append(
                     region_drawing._draw_entity(entity, "black", draw_points)
                 )
+                region_drawing.bounds[legend_key] = entity.get_bounds()
 
     # Draw a sole region/node
     if isinstance(objects, Region) or isinstance(objects, GeometryNode):
@@ -652,13 +677,14 @@ def draw_objects(
     if isinstance(objects, Entity):
         if draw_points is None:
             draw_points = True
-        legend_key = str(entity.__class__).split(".")[-1][0:-2]
+        legend_key = str(objects.__class__).split(".")[-1][0:-2]
         region_drawing.legend_objects[legend_key] = []
         region_drawing.object_states[legend_key] = True
         region_drawing.keys_and_labels.insert(legend_key, legend_key)
         region_drawing.legend_objects[legend_key].append(
             region_drawing._draw_entity(objects, "black", draw_points)
         )
+        region_drawing.bounds[legend_key] = objects.get_bounds()
 
     # Create an interactable legend to label and change displayed regions
     if legend:
