@@ -89,7 +89,7 @@ def test_drawing_full_symmetry(mc):
         draw_objects(
             gt,
             save=path,
-            optimize=True,
+            optimise=True,
             full_geometry=True,
         )
 

@@ -93,6 +93,8 @@ class _RegionDrawing:
         self.legend_objects = dict()
         self.object_states = dict()
         self.keys_and_labels = BiDict()
+        # Dict containing the maximum radius of each region
+        self.max_radii = dict()
 
     @property
     def states_list(self):
@@ -220,12 +222,21 @@ class _RegionDrawing:
         self.object_states[key] = not self.object_states[key]
         for region_object in self.legend_objects[key]:
             region_object.set_visible(self.object_states[key])
+        lim = self.max_drawn_radius() * 1.05
+        self.ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
         plt.draw()
 
     def _get_plot_range(self):
         # plot should be square so get_xlim() == get_ylim()
         x_min, x_max = self.ax.get_xlim()
         return x_max - x_min
+
+    def max_drawn_radius(self):
+        max = 0
+        for key in self.object_states:
+            if self.object_states[key] and self.max_radii[key] > max:
+                max = self.max_radii[key]
+        return max
 
     def _find_coord_no_overlap(self, entity_coord, tried_coords, modifier):
         # adjust depending on text size
@@ -310,8 +321,16 @@ class _RegionDrawing:
             legend_key = region.key
         else:
             legend_key = region.name
+        entity_maxes = list()
 
         for entity in region.entities:
+            entity_maxes.append(
+                max(
+                    Coordinate.get_polar_coords_deg(entity.start)[0],
+                    Coordinate.get_polar_coords_deg(entity.end)[0],
+                    Coordinate.get_polar_coords_deg(entity.midpoint)[0],
+                )
+            )
             if entity.length == 0:
                 continue
             if isinstance(entity, Line):
@@ -355,6 +374,8 @@ class _RegionDrawing:
                         "black",
                     )
                 )
+        # Add region's maximum radius to region_drawing
+        self.max_radii[legend_key] = max(entity_maxes)
         # Draw region's colouring and add it to legend_objects in the appropriate list for
         # later access
         self.legend_objects[legend_key].append(
@@ -460,7 +481,7 @@ def draw_objects(
     axes=True,
     toggle_regions=None,
     title=None,
-    optimize=False,
+    optimise=False,
     expose_region_drawing=False,
 ):
     """Draw geometry objects on a plot.
@@ -474,6 +495,8 @@ def draw_objects(
         Whether duplications of regions should be drawn
     draw_points : bool
         Whether to draw end and mid points of entities. Default is False, except for sole entities.
+    save: str
+        Path to save file to. Default is None.
     dpi : int
         Resolution of figure (used primarily when exporting images as pngs)
     legend : bool
@@ -483,12 +506,14 @@ def draw_objects(
     toggle_regions : list of str
         Used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
-    optimize: bool
+    title: str
+        Title of figure
+    optimise: bool
         Whether geometry tree drawing should be optimized or not. Default is False. Incompatible
         with toggle_regions, as prevents regions that are not by default displayed from being
         calculated.
     expose_region_drawing : bool
-        Whether _Region_Drawing object should be returned (which allows access to the axes and
+        Whether _RegionDrawing object should be returned (which allows access to the axes and
          figure). Default is False.
     """
     if not MATPLOTLIB_AVAILABLE:
@@ -533,7 +558,7 @@ def draw_objects(
                 for subnode in objects.get_subtree(starting_node):
                     drawn_nodes.add(subnode.key)
 
-        if optimize:
+        if optimise:
             for node in objects:
                 if not node.key in drawn_nodes and node.key != "root":
                     objects.remove_node(node)
@@ -625,6 +650,8 @@ def draw_objects(
     # Create an interactable legend to label and change displayed regions
     if legend:
         region_drawing.enable_legend()
+    lim = region_drawing.max_drawn_radius() * 1.05
+    ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
 
     if not axes:
         ax.axis("off")
