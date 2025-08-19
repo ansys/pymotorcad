@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Keywords: **Tapered Bar**, **Induction Motor**, **motor**
 """
 Converting IM parallel tooth bar to tapered tooth bar
 =========================================
@@ -27,6 +28,7 @@ Converting IM parallel tooth bar to tapered tooth bar
 This script applies the adaptive templates functionality to change
 the points at the bottom of parallel tooth to create a tapered tooth bar geometry.
 """
+
 
 import math
 import sys
@@ -41,6 +43,9 @@ mc = pymotorcad.MotorCAD()
 # Reset geometry to default
 mc.reset_adaptive_geometry()
 
+# Disable popup messages
+mc.set_variable("MessageDisplayState", 2)
+
 
 # function to return angle based on chord length
 # Used for finding new point based on tooth width at bottom of bar
@@ -51,9 +56,7 @@ def chord_angle(cord_length, r):
 
 # Set IM motor type if not already
 if not pymotorcad.is_running_in_internal_scripting():
-    mc.set_variable("Motor_Type", 1)
-    mc.set_variable("Top_Bar_Type", 2)
-    mc.set_variable("Bar Corner Radius[T]", 0)
+    mc.load_template("i6a")
 
 
 # Get the bar region
@@ -61,8 +64,8 @@ bar = mc.get_region("TopRotorBar")
 
 # Get the points at the bottom corners of bar
 # Point1 is away from x axis
-point1 = bar.points[4]
-point2 = bar.points[6]
+point1 = bar.points[3]
+point2 = bar.points[5]
 
 # Get the top bar tooth width
 # Define adaptive parameter for booth bar tooth width
