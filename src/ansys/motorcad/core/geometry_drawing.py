@@ -95,6 +95,7 @@ class _RegionDrawing:
         self.keys_and_labels = BiDict()
         # Dict containing the maximum radius of each region
         self.max_radii = dict()
+        self.full_geometry = False
 
     @property
     def states_list(self):
@@ -125,6 +126,7 @@ class _RegionDrawing:
         return label
 
     def enable_legend(self):
+        self.fig.set_size_inches(10, 6)
         # Size the legend based on the length of the longest label
         x_boundary = 0.01 * max(len(label) for label in self.keys_and_labels.backward) + 0.05
 
@@ -222,9 +224,16 @@ class _RegionDrawing:
         self.object_states[key] = not self.object_states[key]
         for region_object in self.legend_objects[key]:
             region_object.set_visible(self.object_states[key])
-        lim = self.max_drawn_radius() * 1.05
-        self.ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
+        self.resize_drawing()
         plt.draw()
+
+    def resize_drawing(self):
+        margin = self.max_drawn_radius() * 0.05
+        lim = self.max_drawn_radius() + margin
+        if self.full_geometry:
+            self.ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
+        else:
+            self.ax.set(xlim=(-margin, lim), ylim=(-lim / 3, (2 * lim) / 3))
 
     def _get_plot_range(self):
         # plot should be square so get_xlim() == get_ylim()
@@ -523,8 +532,9 @@ def draw_objects(
         )
 
     stored_coords = []
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8, 8))
     region_drawing = _RegionDrawing(fig, ax, stored_coords)
+    region_drawing.full_geometry = full_geometry
 
     # Determine a label that portrays appropriate positional information in the tree (if, indeed,
     # a tree is supplied)
@@ -650,8 +660,7 @@ def draw_objects(
     # Create an interactable legend to label and change displayed regions
     if legend:
         region_drawing.enable_legend()
-    lim = region_drawing.max_drawn_radius() * 1.05
-    ax.set(xlim=(-lim, lim), ylim=(-lim, lim))
+    region_drawing.resize_drawing()
 
     if not axes:
         ax.axis("off")
