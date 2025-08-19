@@ -306,10 +306,6 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def draw_coordinate(self, coordinate, colour):
-        """Draw coordinate onto plot."""
-        plt.plot(coordinate.x, coordinate.y, "x", color=colour)
-
     def _draw_duplicates(self, region: GeometryNode, colour, labels):
         """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
@@ -492,6 +488,7 @@ def draw_objects(
     title=None,
     optimise=False,
     expose_region_drawing=False,
+    draw_internal=False,
 ):
     """Draw geometry objects on a plot.
 
@@ -524,7 +521,13 @@ def draw_objects(
     expose_region_drawing : bool
         Whether _RegionDrawing object should be returned (which allows access to the axes and
          figure). Default is False.
+    draw_internal : bool
+        Whether to draw interactive region drawing when running internally. Has no effect if saving
+         to file. Default is False.
     """
+    if (not draw_internal) and is_running_in_internal_scripting() and save is None:
+        return
+
     if not MATPLOTLIB_AVAILABLE:
         raise ImportError(
             "Failed to draw geometry. Please ensure MatPlotLib and a suitable backend "

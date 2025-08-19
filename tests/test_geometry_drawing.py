@@ -27,7 +27,7 @@ import pytest
 
 import ansys
 from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
-from ansys.motorcad.core.geometry_drawing import draw_objects
+from ansys.motorcad.core.geometry_drawing import BiDict, draw_objects
 
 drawing_flag = False
 
@@ -73,11 +73,7 @@ def test_drawing_base(mc):
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, "base_tree.png")
         draw_objects(
-            gt,
-            save=path,
-            axes=False,
-            toggle_regions="Shaft",
-            title="GT",
+            gt, save=path, axes=False, toggle_regions="Shaft", title="GT", draw_points=True
         )
 
 
@@ -131,17 +127,45 @@ def test_drawing_region_list(mc):
         )
 
 
-def test_scroll(mc):
+def test_scroll1(mc):
     gt = mc.get_geometry_tree()
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, "scroll_test.png")
         region_drawing = draw_objects(gt, expose_region_drawing=True, save=path)
         first_top = region_drawing.check.labels[0].get_text()
         next_top = region_drawing.check.labels[1].get_text()
+        # Check nothing occurs if at top
+        region_drawing.cycle_check("up")
         region_drawing.cycle_check("down")
         assert region_drawing.check.labels[0].get_text() == next_top
 
         region_drawing.cycle_check("up")
+        assert region_drawing.check.labels[0].get_text() == first_top
+
+
+def test_scroll2(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "scroll_test.png")
+        region_drawing = draw_objects(gt, expose_region_drawing=True, save=path)
+        bottom = list(region_drawing.keys_and_labels.forward.values())[-1]
+        for i in range(0, 20):
+            region_drawing.cycle_check("down")
+
+        # Check it hasn't scrolled more than the maximum
+        assert region_drawing.check.labels[-1].get_text() == bottom
+
+
+def test_scroll3(mc):
+    # Test scroll does nothing if there are not enough items
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "scroll_test.png")
+        region_drawing = draw_objects(
+            gt.get_subtree("Stator"), expose_region_drawing=True, save=path
+        )
+        first_top = region_drawing.check.labels[0].get_text()
+        region_drawing.cycle_check("down")
         assert region_drawing.check.labels[0].get_text() == first_top
 
 
@@ -153,6 +177,34 @@ def test_check(mc):
         current_housing = region_drawing.object_states["Housing"]
         region_drawing.func("Housing")
         assert current_housing != region_drawing.object_states["Housing"]
+
+
+def test_draw_entity(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "region_list.png")
+        draw_objects(gt["Rotor"].entities[0], save=path)
+
+
+def test_bidict():
+    test_dict = BiDict()
+    test_dict.insert("key1", "value1")
+    test_dict.insert("key1", "value2")
+    assert test_dict.get_forward("key1") == "value2"
+    assert test_dict.get_backward("value2") == "key1"
+    test_dict.remove_by_value("value2")
+    assert test_dict.forward == dict()
+    assert test_dict.backward == dict()
+
+    test_dict = BiDict()
+    test_dict.insert("key1", "value1")
+    test_dict.insert("key2", "value1")
+    assert test_dict.get_forward("key2") == "value1"
+    assert test_dict.get_backward("value1") == "key2"
+
+    test_dict.remove_by_key("key2")
+    assert test_dict.forward == dict()
+    assert test_dict.backward == dict()
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
