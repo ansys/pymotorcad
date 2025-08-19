@@ -388,7 +388,7 @@ class _RegionDrawing:
         # Draw region's colouring and add it to legend_objects in the appropriate list for
         # later access
         self.legend_objects[legend_key].append(
-            plt.fill(fill_points_x, fill_points_y, color=colour, label=legend_key, lw=0.6)[0]
+            plt.fill(fill_points_x, fill_points_y, color=colour, label=legend_key, lw=0.45)[0]
         )
 
         self.ax.set_aspect("equal", adjustable="box")
@@ -423,7 +423,7 @@ class _RegionDrawing:
                 [entity.start.x, entity.end.x],
                 [entity.start.y, entity.end.y],
                 color=colour,
-                lw=0.4,
+                lw=0.45,
                 zorder=2,
             )[0]
 
@@ -447,7 +447,7 @@ class _RegionDrawing:
                 theta1=start_angle,
                 theta2=end_angle,
                 color=colour,
-                lw=0.4,
+                lw=0.45,
                 zorder=2,
             )
             self.ax.plot(marker="-o")
