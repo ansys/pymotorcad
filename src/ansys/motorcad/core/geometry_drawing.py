@@ -513,6 +513,7 @@ def draw_objects(
     optimise=False,
     expose_region_drawing=False,
     draw_internal=False,
+    display=True,
 ):
     """Draw geometry objects on a plot.
 
@@ -548,6 +549,9 @@ def draw_objects(
     draw_internal : bool
         Whether to draw interactive region drawing when running internally. Has no effect if saving
          to file. Default is False.
+    display:
+        Whether to draw interactive plot. Useful to set as false when planning on further
+        modifications to the figure before drawing.
     """
     if (not draw_internal) and is_running_in_internal_scripting() and save is None:
         return
@@ -695,9 +699,9 @@ def draw_objects(
         ax.axis("off")
     if title is not None:
         ax.set_title(title)
-    if save is None:
-        plt.show()
-    else:
+    if save:
         plt.savefig(save, dpi=dpi)
+    elif display:
+        plt.show()
     if expose_region_drawing:
         return region_drawing
