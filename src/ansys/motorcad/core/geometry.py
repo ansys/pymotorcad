@@ -1368,6 +1368,22 @@ class Line(Entity):
         """Override the default equals implementation for Line."""
         return isinstance(other, Line) and self.start == other.start and self.end == other.end
 
+    def get_bounds(self):
+        """
+        Return relevant information about the maximum and minimum x, y, and radius.
+
+        Returns: (max_radius, max_x, min_x, max_y, min_y)
+        """
+        max_radius = max(
+            Coordinate.get_polar_coords_deg(self.start)[0],
+            Coordinate.get_polar_coords_deg(self.end)[0],
+            Coordinate.get_polar_coords_deg(self.midpoint)[0],
+        )
+        xs = (self.start.x, self.end.x, self.midpoint.x)
+        ys = (self.start.y, self.end.y, self.midpoint.y)
+
+        return (max_radius, max(xs), min(xs), max(ys), min(ys))
+
     @property
     def midpoint(self):
         """Get midpoint of Line.
@@ -2110,6 +2126,22 @@ class Arc(_BaseArc):
         else:
             # Arc had an angle defined as greater than 180 deg
             return p_centre - Coordinate(l_x, l_y)
+
+    def get_bounds(self):
+        """
+        Return relevant information about the maximum and minimum x, y, and radius.
+
+        Returns: (max_radius, max_x, min_x, max_y, min_y)
+        """
+        max_radius = max(
+            Coordinate.get_polar_coords_deg(self.start)[0],
+            Coordinate.get_polar_coords_deg(self.end)[0],
+            Coordinate.get_polar_coords_deg(self.midpoint)[0],
+        )
+        xs = (self.start.x, self.end.x, self.midpoint.x)
+        ys = (self.start.y, self.end.y, self.midpoint.y)
+
+        return (max_radius, max(xs), min(xs), max(ys), min(ys))
 
 
 class EntityList(list):
