@@ -22,7 +22,9 @@
 import os
 import tempfile
 
-from matplotlib import pyplot as plt
+import matplotlib
+
+matplotlib.use("Agg")
 import pytest
 
 import ansys
@@ -53,7 +55,7 @@ def test_label_recursion(monkeypatch):
     # Stop plt.show() blocking tests
     global drawing_flag
     drawing_flag = False
-    monkeypatch.setattr(plt, "show", set_drawing_flag)
+    monkeypatch.setattr(matplotlib.pyplot, "show", set_drawing_flag)
 
     # add your geometry template here using PyMotorCAD
     r1 = create_triangle_reg(Coordinate(0, 0))
