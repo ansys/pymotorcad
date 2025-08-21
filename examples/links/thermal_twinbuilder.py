@@ -138,6 +138,26 @@ class MotorCADTwinModel:
         "Heat Exchanger": [],
     }
 
+    # dictionary linking defined cooling system names with the group names in the .nmf files
+    coolingSystemToGroupName = {
+        "End Space": "End Space",
+        "Ventilated": "Ventilated",
+        "Housing Water Jacket": "Housing Water Jacket",
+        "Shaft Spiral Groove": "Shaft Spiral Groove",
+        "Wet Rotor": "Wet Rotor",
+        "Spray Cooling": "Spray Cooling",
+        "Spray Cooling (Radial from Housing) Front": "Spray Cooling", 
+        "Spray Cooling (Radial from Housing) Rear": "Spray Cooling",
+        "Spray Cooling (Radial from Rotor) Front": "Spray Cooling",
+        "Spray Cooling (Radial from Rotor) Rear": "Spray Cooling",
+        "Spray Cooling (Axial from Endcap) Front": "Spray Cooling",
+        "Spray Cooling (Axial from Endcap) Rear": "Spray Cooling",
+        "Rotor Water Jacket": "Rotor Water Jacket",
+        "Slot Water Jacket": "Slot Water Jacket",
+        "Blown Over": None,
+        "Heat Exchanger": "Heat Exchanger",
+    }
+
     lossNames = [
         "Armature_Copper_dc",
         "Armature_Copper_Freq_Comp",
@@ -435,7 +455,7 @@ class MotorCADTwinModel:
         temperatureVector = self.getTmfData(exportDirectory)
         
         for (index, nodeNumber) in enumerate(self.nodeNumbers):
-            if self.nodeGroupings[index] in self.coolingSystemData:
+            if self.nodeGroupings[index] in self.coolingSystemToGroupName.values():
                 self.nodeNumbers_fluid.append(nodeNumber)
 
                 isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
@@ -912,7 +932,7 @@ class MotorCADTwinModel:
             ) as fRout:
                 covered_nodes = dict()
                 for inNode, conList in self.coolingSystems.items():
-                    if self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem:
+                    if self.nodeGroupings[self.nodeNumbers.index(inNode)] == self.coolingSystemToGroupName[coolingSystem]:
                         upnode = inNode
                         coolSys = conList
                         break
@@ -974,7 +994,7 @@ class MotorCADTwinModel:
                 if (len(coolSys) == 0):  
                     # particular case where the cooling system has only 2 nodes (inlet/outlet)
                     for upnode in connectedNodes:
-                        if (self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem):  
+                        if self.nodeGroupings[self.nodeNumbers.index(upnode)] == self.coolingSystemToGroupName[coolingSystem]:
                             # make sure the connected node still belongs to cooling system
                             connectedNodes = self.returnConnectedNodes(
                                 upnode, self.nodeNumbers, resistanceMatrix
