@@ -971,13 +971,11 @@ class MotorCADTwinModel:
                                 c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                             covered_nodes.update({upnode: connectedNodes})
 
-                if (
-                    len(coolSys) == 0
-                ):  # particular case where the cooling system has only 2 nodes (inlet/outlet)
+                if (len(coolSys) == 0):  
+                    # particular case where the cooling system has only 2 nodes (inlet/outlet)
                     for upnode in connectedNodes:
-                        if (
-                            self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem
-                        ):  # make sure the connected node still belongs to cooling system
+                        if (self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem):  
+                            # make sure the connected node still belongs to cooling system
                             connectedNodes = self.returnConnectedNodes(
                                 upnode, self.nodeNumbers, resistanceMatrix
                             )
