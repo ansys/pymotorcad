@@ -245,10 +245,7 @@ class MotorCADTwinModel:
 
         self.generateLossDistribution()
         
-        includeHousingRtVariation = self.includeHousingRtVariation(housingAmbientTemperatures, coolingSystemsParameterSweeps)
-
-        if includeHousingRtVariation:
-            self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
+        housingTempDependency = self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
         if airgapTemperatures is not None:
             if self.validAirgap() == True:
@@ -262,7 +259,7 @@ class MotorCADTwinModel:
 
         # write config file
         configFlags = {
-            "HousingTempDependency": 1 if includeHousingRtVariation else 0,
+            "HousingTempDependency": 1 if housingTempDependency else 0,
             "AirGapTempDependency": 1 if airgapTemperatures is not None else 0,
             "FluidHeatFlowMethod": 1 if self.heatFlowMethod == 1 else 0,
             "MCADVersion": 20251 if self.motorcadV2025OrNewer else 20242,
@@ -412,13 +409,6 @@ class MotorCADTwinModel:
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
         usedMotFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
         self.mcad.save_to_file(usedMotFilePath)
-
-    # Determines whether to include housing resistance temperature variation based on the presence 
-    # of housing ambient temperatures or a Blown Over cooling system parameter sweep.
-    def includeHousingRtVariation(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
-        hasHousingTemps = housingAmbientTemperatures is not None
-        hasBlownOver = (coolingSystemsParameterSweeps is not None) and ("Blown Over" in coolingSystemsParameterSweeps)
-        return hasHousingTemps or hasBlownOver
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -660,43 +650,94 @@ class MotorCADTwinModel:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
     #       tAmbient2:[tHousingx, ..., tHousingz], 
     #       tAmbient3:[tHousingy, ..., tHousingz]}
-    def generateHousingTempDependency(self, housingAmbientTemperatures):
-        housingNodes = [
-            nodeNumber
-            for (index, nodeNumber) in enumerate(self.nodeNumbers)
-            if self.nodeGroupings[index] == "Housing" or nodeNumber == 5
-        ]
+    def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
+        # Determine whether to include housing resistance temperature variation based on the presence 
+        # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
+        hasBlownOver = (coolingSystemsParameterSweeps is not None) and ("Blown Over" in coolingSystemsParameterSweeps)
+        hasHousingTemps = housingAmbientTemperatures is not None
+
+        if hasHousingTemps == False:
+            # No housing temperatures specified, so cannot generate housing temperature model
+            if hasBlownOver == True:
+                # using Blown Over without specifying Housing Temperatures is not allowed
+                warnings.warn("Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures. Blown Over variation has not been included in the model.")
+            return False
+
+        exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
+        if not os.path.isdir(exportDirectory):
+            os.makedirs(os.path.join(exportDirectory))
+          
+        with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
+            fout.write("Temp_Ambient=[")
+            ambientTemperatures = [tAmbient+273.15 for tAmbient in housingAmbientTemperatures]
+            fout.write(",".join(map(str, ambientTemperatures)))
+            fout.write("]\n")
+
+        if hasBlownOver:
+            blownover = coolingSystemsParameterSweeps["Blown Over"]
+            if len(blownover) > 1:
+                warnings.warn("Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.".format(blownover), stacklevel=2)
+                hasBlownOver = False
+            else:
+                (paramName, paramValues) = list(blownover.items())[0]
+                # do not include parameters with no values in dp_values.txt
+                if len(paramValues) > 0:
+                    with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                        fout.write("Blown_Over" + "_" + paramName + "=" + str(paramValues))
+                        fout.write("\n")
+                else:
+                    hasBlownOver = False
+
+        housingNodeNumbers = []
+        housingNodeIndices = []
+        housingNodeNames = []
+        for (index, nodeNumber) in enumerate(self.nodeNumbers):
+            # housing node selection includes special case for plate node
+            if (self.nodeGroupings[index] == "Housing") or (nodeNumber == 5):
+                housingNodeNumbers.append(nodeNumber)
+                housingNodeIndices.append(index)
+                housingNodeNames.append(self.nodeNames[index])
+
+        if hasBlownOver:
+            paramValues = itertools.product(list(housingAmbientTemps.items()), paramValues)
+        else:
+            paramValues = itertools.product(list(housingAmbientTemps.items()))
 
         fileInd = 0
-        for ambientTemperature, fixedHousingTemperatures in housingAmbientTemperatures.items():
+        for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
             fileInd = fileInd + 1
 
             print("Tamb: " + str(ambientTemperature))
             self.mcad.set_variable("T_Ambient", ambientTemperature)
-            file_content, header_line = self.computeMatricesHousingTemps(
-                housingNodes, ambientTemperature, fixedHousingTemperatures
-            )
 
-            exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
-            if not os.path.isdir(exportDirectory):
-                os.makedirs(os.path.join(exportDirectory))
+            if hasBlownOver:
+                # blownOverValue is a list of length 1, so get the first/only value
+                blownOverValue = blownOverValue[0]
+                print(paramName + ": " + str(blownOverValue))
+                self.mcad.set_variable(paramName, blownOverValue)
+            
+            file_content = self.computeMatricesHousingTemps(housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures)
 
             with open(
                 os.path.join(exportDirectory, "Housing_Temp" + str(fileInd) + ".csv"), "w"
             ) as fout:
-                fout.write(str(header_line[0]))
-                for el in header_line[1:]:
-                    fout.write("," + str(el))
+                fout.write(str(ambientTemperature + 273.15))
+                fout.write("\n")
+                
+                if hasBlownOver:
+                    fout.write(str(blownOverValue))
+                    fout.write("\n")
+
+                fout.write("," + ",".join(map(str, housingNodeNames)))
                 fout.write("\n")
                 for key, item in file_content.items():
                     fout.write(str(key))
-                    for el in item:
-                        fout.write("," + str(el))
+                    fout.write("," + ",".join(map(str, item)))
                     fout.write("\n")
 
-    def computeMatricesHousingTemps(
-        self, housingNodes, ambientTemperature, fixedHousingTemperatures
-    ):
+        return True
+
+    def computeMatricesHousingTemps(self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         file_content = dict()
@@ -705,7 +746,7 @@ class MotorCADTwinModel:
             print("HousingTemp: " + str(housingTemperature))
 
             # Set the fixed temperature
-            for housingNode in housingNodes:
+            for housingNode in housingNodeNumbers:
                 name = "Housing Node " + str(housingNode)
                 self.mcad.set_fixed_temperature_value(name, housingNode, housingTemperature, name)
 
@@ -715,19 +756,12 @@ class MotorCADTwinModel:
             ambientResistances = resistanceMatrix[0]
 
             housingResistances = []
-            for housingNode in housingNodes:
-                index = self.nodeNumbers.index(housingNode)
-                housingResistances.append(ambientResistances[index])
+            for housingNodeIndex in housingNodeIndices:
+                housingResistances.append(ambientResistances[housingNodeIndex])
 
             file_content.update({housingTemperature + 273.15: housingResistances})
 
-        header_line = []
-        header_line.append(ambientTemperature + 273.15)
-        for housingNode in housingNodes:
-            index = self.nodeNumbers.index(housingNode)
-            header_line.append(self.nodeNames[index])
-
-        return file_content, header_line
+        return file_content
     
     def validAirgap(self):
         tVent = self.mcad.get_variable("ThroughVentilation")
@@ -992,7 +1026,7 @@ class MotorCADTwinModel:
                             fout.write(str(val) + "\n")   # TODO +273.15K to this if a temperature
                         for el in elementList:
                             # write resistances or capacitances to file
-                            fout.write(str(el) + "\n")                    
+                            fout.write(str(el) + "\n")
 
 
     def computeMatricesCoolingSystems(self, coolingSystem, paramNames, paramValues, r_list, c_list, fileInd):
@@ -1142,6 +1176,9 @@ coolingSystemsParameterSweeps = {
         "rpm": rpms,
         "FR": [8/6e4],
         "inletTemp": [75, 80, 85, 90, 95, 100],
+    },
+    "Blown Over": {
+        "FR": [8/6e4],
     }
 }
 
