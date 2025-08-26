@@ -246,7 +246,7 @@ class MotorCADTwinModel:
     # Main function to call which generates the required data for the Twin Builder export
     def generateTwinData(
         self,
-        parameters: dict,
+        rpms: list,
         housingAmbientTemperatures=None,
         airgapTemperatures=None,
         coolingSystemsParameterSweeps=None,
@@ -261,7 +261,7 @@ class MotorCADTwinModel:
 
         self.generateFixedTemperatures()
 
-        self.generateSamples(parameters)
+        self.generateRpmSamples(rpms)
 
         self.generateLossDistribution()
         
@@ -269,7 +269,7 @@ class MotorCADTwinModel:
 
         if airgapTemperatures is not None:
             if self.validAirgap() == True:
-                self.generateAirgapTempDependency(parameters["rpm"], airgapTemperatures) # TODO check for parameters RPM presence
+                self.generateAirgapTempDependency(rpms, airgapTemperatures)
             else:
                 # set to None so correct config is written
                 airgapTemperatures = None
@@ -591,27 +591,21 @@ class MotorCADTwinModel:
 
 
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
-    def generateSamples(self, parameters: dict):
-        rpmSamples = parameters["rpm"]
+    def generateRpmSamples(self, rpmSamples: list):
+        dps = []
 
         for index, rpm in enumerate(rpmSamples):
             print("DoE : computing sample point rpm = " + str(rpm))
-            exportDirectory = os.path.join(self.outputDirectory, "dp" + str(index).zfill(6))
+            dpName = "dp" + str(index).zfill(6)
+            exportDirectory = os.path.join(self.outputDirectory, dpName)
             self.computeMatrices(exportDirectory, rpm=rpm)
+            dps.append((dpName, rpm))
 
         # write doe file
         with open(os.path.join(self.outputDirectory, "doe.csv"), "w") as cf:
-            cf.write("Name")
-            parameterNames = list(parameters.keys())
-            parameterValues = list(parameters.values())
-            nbDPs = len(parameterValues[0])
-            for parameterName in parameterNames:
-                cf.write(", " + str(parameterName))
-            cf.write("\n")
-            for i in range(0, nbDPs):
-                cf.write("dp" + str(i).zfill(6))
-                for j in range(0, len(parameterNames)):
-                    cf.write(", " + str(parameterValues[j][i]))
+            cf.write("Name, rpm\n")
+            for (dpName, rpm) in dps:
+                cf.write(dpName + ", " + str(rpm))
                 cf.write("\n")
 
     # Function that extracts the per-node loss distribution for each loss type, allowing the user to
@@ -1209,7 +1203,7 @@ MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 # Finally, generate the required data. This function will write the data to the directory
 # specified above. The identified cooling system node flow path is automatically plotted.
 MotorCADTwin.generateTwinData(
-    parameters={"rpm": rpms},
+    rpms=rpms,
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
     coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
