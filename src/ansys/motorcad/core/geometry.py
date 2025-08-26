@@ -951,19 +951,16 @@ class Region(object):
         maximise : bool
             Whether to maximise the possible radius if the radius provided is too large.
         """
-        # get the original entities before any corner rounding has been done
-        entities_orig = deepcopy(self._entities)
         # get the lengths of the original adjacent entities before any corner rounding
         adj_entity_lengths = []
-        for index in range(len(entities_orig)):
-            entity = entities_orig[index]
+        for entity in self._entities:
             if entity.coordinate_on_entity(corner_coordinate):
                 adj_entity_lengths.append(entity.length)
         # find the limit for how much an adjacent entity may be shortened by:
         distance_limit = 10000
-        for index in range(len(adj_entity_lengths)):
-            if adj_entity_lengths[index] < distance_limit:
-                distance_limit = adj_entity_lengths[index]
+        for length in adj_entity_lengths:
+            if length < distance_limit:
+                distance_limit = length
 
         # if the corner radius is too large, an exception will be raised
         if not maximise:
