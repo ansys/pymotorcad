@@ -151,7 +151,7 @@ def test_scroll2(mc):
         path = os.path.join(temp_dir, "scroll_test.png")
         region_drawing = draw_objects(gt, expose_region_drawing=True, save=path)
         bottom = list(region_drawing.keys_and_labels.forward.values())[-1]
-        for i in range(0, 20):
+        for i in range(0, len(list(region_drawing.keys_and_labels.forward))):
             region_drawing.cycle_check("down")
 
         # Check it hasn't scrolled more than the maximum
