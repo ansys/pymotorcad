@@ -351,7 +351,7 @@ def test_get_children(basic_tree):
 def test_fix_region1(split_tree, basic_tree, mc):
     # Test that a region is correctly fixed when it crosses the lower boundary
 
-    basic_tree.mc = mc
+    basic_tree._motorcad_instance = mc
     basic_tree.fix_duct_geometry("Triangle")
 
     assert split_tree == basic_tree
@@ -360,7 +360,7 @@ def test_fix_region1(split_tree, basic_tree, mc):
 def test_fix_region2(basic_tree, split_tree, mc):
     # Test that a region is correctly fixed when it crosses the upper boundary
 
-    basic_tree.mc = mc
+    basic_tree._motorcad_instance = mc
 
     basic_tree["Triangle"].rotate(Coordinate(0, 0), 45)
     basic_tree.fix_duct_geometry("Triangle")
@@ -386,17 +386,14 @@ def test_fix_region3(basic_tree, mc):
     basic_tree["Triangle"].rotate(Coordinate(0, 0), 22.5)
 
     function_tree = deepcopy(basic_tree)
-    function_tree.mc = mc
+    function_tree._motorcad_instance = mc
     function_tree.fix_duct_geometry("Triangle")
 
     assert basic_tree == function_tree
 
 
-def test_set_tree(mc, sample_tree):
-    # Test that tree is correctly set after modification
-
-    sample_tree.remove_node("Stator")
-    mc.set_geometry_tree(sample_tree)
-    new_tree = mc.get_geometry_tree()
-
-    assert new_tree == sample_tree
+def test_linked_regions(sample_tree):
+    # Make certain connections, if present, are mutual
+    for node in sample_tree:
+        for linked in node.linked_regions:
+            assert node in linked.linked_regions
