@@ -134,3 +134,8 @@ generate_method_docs()
 import os
 
 os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
+
+# PyAnsys tags configuration
+html_context = {
+    "pyansys_tags": ['Electronics']
+}
