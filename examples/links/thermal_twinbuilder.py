@@ -87,6 +87,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import itertools
+from dataclasses import dataclass, astuple
+from typing import Dict, List, Optional
 
 import ansys.motorcad.core as pymotorcad
 
@@ -111,52 +113,82 @@ import ansys.motorcad.core as pymotorcad
 # 7. Temperature dependent Airgap heat transfer is characterized and saved to the
 #    ``AirGapTempDependency`` folder
 
+@dataclass(eq=True, frozen=True)
+class AutomationParam:
+    name: str
+    automationString: str
+    tbOffset: float = 0
+
+    def __iter__(self):
+        return iter(astuple(self))
+
+@dataclass(eq=True, frozen=True)
+class CoolingSystem:
+    name: str
+    groupName: str|None
+
+# All automation parameters used for the cooling systems are defined here
+rpm = AutomationParam("rpm", "Shaft_Speed")
+Ventilated_FlowRate = AutomationParam("Ventilated_FlowRate", "TVent_Flow_Rate")
+Ventilated_InletTemp = AutomationParam("Ventilated_InletTemp", "TVent_Inlet_Temperature", 273.15)
+HousingWJ_FlowRate = AutomationParam("HousingWJ_FlowRate", "WJ_Fluid_Volume_Flow_Rate")
+HousingWJ_InletTemp = AutomationParam("HousingWJ_InletTemp", "HousingWJ_Inlet_Temperature", 273.15)
+ShaftSG_FlowRate = AutomationParam("ShaftSG_FlowRate", "Shaft_Groove_Fluid_Volume_Flow_Rate")
+ShaftSG_InletTemp = AutomationParam("ShaftSG_InletTemp", "Shaft_Groove_Fluid_Inlet_Temperature", 273.15)
+WetRotor_FlowRate = AutomationParam("WetRotor_FlowRate", "Wet_Rotor_Fluid_Volume_Flow_Rate")
+WetRotor_InletTemp = AutomationParam("WetRotor_InletTemp", "Wet_Rotor_Inlet_Temp", 273.15)
+Spray_FlowRate = AutomationParam("Spray_FlowRate", "Spray_Cooling_Fluid_Volume_Flow_Rate")
+Spray_InletTemp = AutomationParam("Spray_InletTemp", "Spray_Cooling_Inlet_Temp", 273.15)
+SprayRadialHousing_FlowRate = AutomationParam("SprayRadialHousing_FlowRate", "Spray_RadialHousing_VolumeFlowRate")
+SprayRadialHousing_FrontFlowProportion = AutomationParam("SprayRadialHousing_FrontFlowProportion", "Spray_RadialHousing_FlowProportion_F")
+SprayRadialHousingF_InletTemp = AutomationParam("SprayRadialHousingF_InletTemp", "Spray_RadialHousing_InletTemperature_F", 273.15)
+SprayRadialHousingR_InletTemp = AutomationParam("SprayRadialHousingR_InletTemp", "Spray_RadialHousing_InletTemperature_R", 273.15)
+SprayRadialRotor_FlowRate = AutomationParam("SprayRadialRotor_FlowRate", "Spray_RadialRotor_VolumeFlowRate")
+SprayRadialRotor_FrontFlowProportion = AutomationParam("SprayRadialRotor_FrontFlowProportion", "Spray_RadialRotor_FlowProportion_F")
+SprayRadialRotorF_InletTemp = AutomationParam("SprayRadialRotorF_InletTemp", "Spray_RadialRotor_InletTemperature_F", 273.15)
+SprayRadialRotorR_InletTemp = AutomationParam("SprayRadialRotorR_InletTemp", "Spray_RadialRotor_InletTemperature_R", 273.15)
+SprayAxialEndcap_FlowRate = AutomationParam("SprayAxialEndcap_FlowRate", "Spray_AxialEndcap_VolumeFlowRate")
+SprayAxialEndcap_FrontFlowProportion = AutomationParam("SprayAxialEndcap_FrontFlowProportion", "Spray_AxialEndcap_FlowProportion_F")
+SprayAxialEndcapF_InletTemp = AutomationParam("SprayAxialEndcapF_InletTemp", "Spray_AxialEndcap_InletTemperature_F", 273.15)
+SprayAxialEndcapR_InletTemp = AutomationParam("SprayAxialEndcapR_InletTemp", "Spray_AxialEndcap_InletTemperature_R", 273.15)
+RotorWJ_FlowRate = AutomationParam("RotorWJ_FlowRate", "Rotor_WJ_Fluid_Volume_Flow_Rate")
+RotorWJ_InletTemp = AutomationParam("RotorWJ_InletTemp", "RotorWJ_Inlet_Temp", 273.15)
+SlotWJ_FlowRate = AutomationParam("SlotWJ_FlowRate", "Slot_WJ_Fluid_Volume_Flow_Rate")
+SlotWJ_InletTemp = AutomationParam("SlotWJ_InletTemp", "Slot_WJ_Fluid_inlet_temperature", 273.15)
+BlownOver_FlowRate = AutomationParam("BlownOver_FlowRate", "Forced_Conv_Default_Flow_Rate")
+BlownOver_Velocity = AutomationParam("BlownOver_Velocity", "Forced_Conv_Default_Velocity")
+
+# All automation parameters used for the cooling systems are defined here
+Ventilated = CoolingSystem("Ventilated", "Ventilated")
+Housing_Water_Jacket = CoolingSystem("Housing_Water_Jacket", "Housing Water Jacket")
+Shaft_Spiral_Groove = CoolingSystem("Shaft_Spiral_Groove", "Shaft Spiral Groove")
+Wet_Rotor = CoolingSystem("Wet_Rotor", "Wet Rotor")
+Spray_Cooling = CoolingSystem("Spray_Cooling", "Spray Cooling")
+Spray_Cooling_Radial_Housing_Front = CoolingSystem("Spray_Cooling_Radial_Housing_Front", "Spray Cooling")
+Spray_Cooling_Radial_Housing_Rear = CoolingSystem("Spray_Cooling_Radial_Housing_Rear", "Spray Cooling")
+Spray_Cooling_Radial_Rotor_Front = CoolingSystem("Spray_Cooling_Radial_Rotor_Front", "Spray Cooling")
+Spray_Cooling_Radial_Rotor_Rear = CoolingSystem("Spray_Cooling_Radial_Rotor_Rear", "Spray Cooling")
+Spray_Cooling_Axial_Endcap_Front = CoolingSystem("Spray_Cooling_Axial_Endcap_Front", "Spray Cooling")
+Spray_Cooling_Axial_Endcap_Rear = CoolingSystem("Spray_Cooling_Axial_Endcap_Rear", "Spray Cooling")
+Rotor_Water_Jacket = CoolingSystem("Rotor_Water_Jacket", "Rotor Water Jacket")
+Slot_Water_Jacket = CoolingSystem("Slot_Water_Jacket", "Slot Water Jacket")
+Blown_Over = CoolingSystem("Blown_Over", None)
+
+coolingSystemNames = [Ventilated, Housing_Water_Jacket, Shaft_Spiral_Groove, Wet_Rotor, 
+                      Spray_Cooling, Spray_Cooling_Radial_Housing_Front, 
+                      Spray_Cooling_Radial_Housing_Rear,Spray_Cooling_Radial_Rotor_Front, 
+                      Spray_Cooling_Radial_Rotor_Rear,Spray_Cooling_Axial_Endcap_Front, 
+                      Spray_Cooling_Axial_Endcap_Rear, Rotor_Water_Jacket,Slot_Water_Jacket, 
+                      Blown_Over]
+
+# coolingSystemData
+coolingSystemSweepType = Optional[Dict[CoolingSystem, Dict[AutomationParam, List[float]|List[int]]]]
 
 class MotorCADTwinModel:
     # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
     # ``.nmf`` file), corresponding parameter names for varying flowrate and inlet temperature
     # the Motor-CAD loss names (for display in Twinbuilder), and the corresponding Motor-CAD
     # parameter names.
-    coolingSystemData = {
-        "End Space": [],
-        "Ventilated": ["TVent_Flow_Rate", "TVent_Inlet_Temperature"],
-        "Housing Water Jacket": ["WJ_Fluid_Volume_Flow_Rate", "HousingWJ_Inlet_Temperature"],
-        "Shaft Spiral Groove": [
-            "Shaft_Groove_Fluid_Volume_Flow_Rate",
-            "Shaft_Groove_Fluid_Inlet_Temperature",
-        ],
-        "Wet Rotor": ["Wet_Rotor_Fluid_Volume_Flow_Rate", "Wet_Rotor_Inlet_Temp"],
-        "Spray Cooling": ["Spray_Cooling_Fluid_Volume_Flow_Rate", "Spray_Cooling_Inlet_Temp"],
-        "Spray Cooling (Radial from Housing) Front": ["Spray_RadialHousing_VolumeFlowRate", "Spray_RadialHousing_InletTemperature_F"],
-        "Spray Cooling (Radial from Housing) Rear": ["Spray_RadialHousing_VolumeFlowRate", "Spray_RadialHousing_InletTemperature_R"],
-        "Spray Cooling (Radial from Rotor) Front": ["Spray_RadialRotor_VolumeFlowRate", "Spray_RadialRotor_InletTemperature_F"],
-        "Spray Cooling (Radial from Rotor) Rear": ["Spray_RadialRotor_VolumeFlowRate", "Spray_RadialRotor_InletTemperature_R"],
-        "Spray Cooling (Axial from Endcap) Front": ["Spray_AxialEndcap_VolumeFlowRate", "Spray_AxialEndcap_InletTemperature_F"],
-        "Spray Cooling (Axial from Endcap) Rear": ["Spray_AxialEndcap_VolumeFlowRate", "Spray_AxialEndcap_InletTemperature_R"],
-        "Rotor Water Jacket": ["Rotor_WJ_Fluid_Volume_Flow_Rate", "RotorWJ_Inlet_Temp"],
-        "Slot Water Jacket": ["Slot_WJ_Fluid_Volume_Flow_Rate", "Slot_WJ_Fluid_inlet_temperature"],
-        "Heat Exchanger": [],
-    }
-
-    # dictionary linking defined cooling system names with the group names in the .nmf files
-    coolingSystemToGroupName = {
-        "End Space": "End Space",
-        "Ventilated": "Ventilated",
-        "Housing Water Jacket": "Housing Water Jacket",
-        "Shaft Spiral Groove": "Shaft Spiral Groove",
-        "Wet Rotor": "Wet Rotor",
-        "Spray Cooling": "Spray Cooling",
-        "Spray Cooling (Radial from Housing) Front": "Spray Cooling", 
-        "Spray Cooling (Radial from Housing) Rear": "Spray Cooling",
-        "Spray Cooling (Radial from Rotor) Front": "Spray Cooling",
-        "Spray Cooling (Radial from Rotor) Rear": "Spray Cooling",
-        "Spray Cooling (Axial from Endcap) Front": "Spray Cooling",
-        "Spray Cooling (Axial from Endcap) Rear": "Spray Cooling",
-        "Rotor Water Jacket": "Rotor Water Jacket",
-        "Slot Water Jacket": "Slot Water Jacket",
-        "Blown Over": None,
-        "Heat Exchanger": "Heat Exchanger",
-    }
 
     lossNames = [
         "Armature_Copper_dc",
@@ -235,7 +267,7 @@ class MotorCADTwinModel:
         self.nodeGroupings = []
         self.nodeNumbers_fluid = []
         self.nodeNumbers_fluidInlet = []
-        self.coolingSystems = None
+        self.coolingSystemsPresent = dict()
 
         self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
@@ -249,7 +281,7 @@ class MotorCADTwinModel:
         rpms: list,
         housingAmbientTemperatures=None,
         airgapTemperatures=None,
-        coolingSystemsParameterSweeps=None,
+        coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
         self.updateMotfile()
 
@@ -274,8 +306,7 @@ class MotorCADTwinModel:
                 # set to None so correct config is written
                 airgapTemperatures = None
 
-        if coolingSystemsParameterSweeps is not None:
-            self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
+        coolingSystemsInputs = self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         # write config file
         configFlags = {
@@ -283,7 +314,7 @@ class MotorCADTwinModel:
             "AirGapTempDependency": 1 if airgapTemperatures is not None else 0,
             "FluidHeatFlowMethod": 1 if self.heatFlowMethod == 1 else 0,
             "MCADVersion": 20251 if self.motorcadV2025OrNewer else 20242,
-            "CoolingSystemsInputs": 1 if coolingSystemsParameterSweeps is not None else 0,
+            "CoolingSystemsInputs": 1 if coolingSystemsInputs else 0,
             "CopperLossScaling": 0,
             "SpeedDependentLosses": 0,
         }
@@ -450,12 +481,14 @@ class MotorCADTwinModel:
         self.computeMatrices(exportDirectory)
 
         self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = self.getNmfData(exportDirectory)
-        
+
         # determine which nodes are fluid nodes, and which of those are inlet nodes
         temperatureVector = self.getTmfData(exportDirectory)
-        
+
+        coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
+
         for (index, nodeNumber) in enumerate(self.nodeNumbers):
-            if self.nodeGroupings[index] in self.coolingSystemToGroupName.values():
+            if self.nodeGroupings[index] in coolingsystemGroupings:
                 self.nodeNumbers_fluid.append(nodeNumber)
 
                 isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
@@ -475,8 +508,6 @@ class MotorCADTwinModel:
             
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
             self.computeMatrices(exportDirectory)
-
-            self.coolingSystems = dict()
 
             resistanceMatrix = self.getRmfData(exportDirectory)
             graphNodes = []
@@ -533,7 +564,7 @@ class MotorCADTwinModel:
                 curG.add_nodes_from(graphNodes)
                 curG.add_edges_from(curGraphEdges)
                 connectedNodesLists.append(connectedNodesList)
-                self.coolingSystems.update({inletNode: connectedNodesInd})
+                self.coolingSystemsPresent.update({inletNode: connectedNodesInd})
 
                 plt.figure(index)
                 nx.draw(curG, with_labels=True)
@@ -664,44 +695,30 @@ class MotorCADTwinModel:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
     #       tAmbient2:[tHousingx, ..., tHousingz],
     #       tAmbient3:[tHousingy, ..., tHousingz]}
-    def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
+    def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps:coolingSystemSweepType):
         # Determine whether to include housing resistance temperature variation based on the presence 
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
-        hasBlownOver = (coolingSystemsParameterSweeps is not None) and ("Blown Over" in coolingSystemsParameterSweeps)
+        hasBlownOver = (coolingSystemsParameterSweeps is not None) and (Blown_Over in coolingSystemsParameterSweeps)
         hasHousingTemps = housingAmbientTemperatures is not None
 
         if hasHousingTemps == False:
-            # No housing temperatures specified, so cannot generate housing temperature model
             if hasBlownOver == True:
                 # using Blown Over without specifying Housing Temperatures is not allowed
                 warnings.warn("Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures. Blown Over variation has not been included in the model.")
+            
+            # No housing temperatures specified, so cannot generate housing temperature model
             return False
 
         exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
         if not os.path.isdir(exportDirectory):
             os.makedirs(os.path.join(exportDirectory))
-          
+
         with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
             fout.write("Temp_Ambient=[")
             ambientTemperatures = [tAmbient+273.15 for tAmbient in housingAmbientTemperatures]
             fout.write(",".join(map(str, ambientTemperatures)))
             fout.write("]\n")
-
-        if hasBlownOver:
-            blownover = coolingSystemsParameterSweeps["Blown Over"]
-            if len(blownover) > 1:
-                warnings.warn("Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.".format(blownover), stacklevel=2)
-                hasBlownOver = False
-            else:
-                (paramName, paramValues) = list(blownover.items())[0]
-                # do not include parameters with no values in dp_values.txt
-                if len(paramValues) > 0:
-                    with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
-                        fout.write("Blown_Over" + "_" + paramName + "=" + str(paramValues))
-                        fout.write("\n")
-                else:
-                    hasBlownOver = False
-
+        
         housingNodeNumbers = []
         housingNodeIndices = []
         housingNodeNames = []
@@ -711,6 +728,23 @@ class MotorCADTwinModel:
                 housingNodeNumbers.append(nodeNumber)
                 housingNodeIndices.append(index)
                 housingNodeNames.append(self.nodeNames[index])
+
+        if hasBlownOver and (coolingSystemsParameterSweeps is not None):
+            blownover = coolingSystemsParameterSweeps[Blown_Over]
+            if len(blownover) > 1:
+                paramNames = [x.name for x in blownover.keys()]
+                warnings.warn(f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.", stacklevel=2)
+                hasBlownOver = False
+            else:
+                (param, paramValues) = list(blownover.items())[0]
+                # do not include parameters with no values in dp_values.txt
+                if len(paramValues) > 0:
+                    with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                        paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                        fout.write(param.name + "=" + str(paramValuesTB))
+                        fout.write("\n")
+                else:
+                    hasBlownOver = False
 
         if hasBlownOver:
             paramValues = itertools.product(list(housingAmbientTemps.items()), paramValues)
@@ -727,8 +761,8 @@ class MotorCADTwinModel:
             if hasBlownOver:
                 # blownOverValue is a list of length 1, so get the first/only value
                 blownOverValue = blownOverValue[0]
-                print(paramName + ": " + str(blownOverValue))
-                self.mcad.set_variable(paramName, blownOverValue)
+                print(param.name + ": " + str(blownOverValue))
+                self.mcad.set_variable(param.automationString, blownOverValue)
             
             file_content = self.computeMatricesHousingTemps(housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures)
 
@@ -888,166 +922,170 @@ class MotorCADTwinModel:
     # dependencies. coolingSystemsParameterSweeps is a dictionary with keys describing
     # the Cooling System name and value being another dictionary storing
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
-    def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps):
-        for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
-            # skip over Blown Over, as this is handled separately
-            if coolingSystem == "Blown Over":
-                continue
+    def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps:coolingSystemSweepType):
+        if coolingSystemsParameterSweeps is None:
+            return False
+        else:
+            for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
+                # skip over Blown Over, as this is handled separately
+                if coolingSystem == Blown_Over:
+                    continue
 
-            if coolingSystem not in self.coolingSystemData:
-                warnings.warn(
-                    "The Cooling System name {} is not part of the list of Cooling Systems "
-                    "{}\n".format(coolingSystem, self.coolingSystemData)
-                )
-                return
+                if coolingSystem not in coolingSystemNames:
+                    warnings.warn(f"The Cooling System name {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames} so has been skipped")
+                    # todo verify this before runnning the model
+                    return False
 
-            exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
-            if not os.path.isdir(exportPath):
-                os.makedirs(os.path.join(exportPath))
+                exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
+                if not os.path.isdir(exportPath):
+                    os.makedirs(os.path.join(exportPath))
 
-            numDPs = 0
-            with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
-                for paramName, paramValues in parameters.items():
-                    # do not include parameters with no values in dp_values.txt
-                    if len(paramValues) > 0:
-                        fout.write(coolingSystem + "_" + paramName + "=" + str(paramValues))
-                        fout.write("\n")
-                        numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
+                numDPs = 0
+                with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
+                    for param, paramValues in parameters.items():
+                        # do not include parameters with no values in dp_values.txt
+                        if len(paramValues) > 0:
+                            paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                            fout.write(param.name + "=" + str(paramValuesTB))
+                            fout.write("\n")
+                            numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
-            # identify all the impacted resistances and capacitances
-            exportDirectory = os.path.join(self.outputDirectory, "tmp")
+                # identify all the impacted resistances and capacitances
+                exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
-            resistanceMatrix = self.getRmfData(exportDirectory)
-            r_list = []
-            c_list = []
+                resistanceMatrix = self.getRmfData(exportDirectory)
+                r_list = []
+                c_list = []
 
-            with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout, open(
-                os.path.join(exportPath, "r_nodes.txt"), "w"
-            ) as fRout:
-                covered_nodes = dict()
-                for inNode, conList in self.coolingSystems.items():
-                    if self.nodeGroupings[self.nodeNumbers.index(inNode)] == self.coolingSystemToGroupName[coolingSystem]:
-                        upnode = inNode
-                        coolSys = conList
-                        break
+                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout, open(
+                    os.path.join(exportPath, "r_nodes.txt"), "w"
+                ) as fRout:
+                    covered_nodes = dict()
+                    for inNode, conList in self.coolingSystemsPresent.items():
+                        if self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem.groupName:
+                            upnode = inNode
+                            coolSys = conList
+                            break
 
-                connectedNodes = self.returnConnectedNodes(
-                    upnode, self.nodeNumbers, resistanceMatrix
-                )  # inlet node
-                for i in range(0, len(connectedNodes)):
-                    fRout.write(
-                        self.nodeNames[self.nodeNumbers.index(upnode)]
-                        + " "
-                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
-                        + "\n"
-                    )
-                    r_list.append(
-                        [
-                            self.nodeNames[self.nodeNumbers.index(upnode)],
-                            self.nodeNames[self.nodeNumbers.index(connectedNodes[i])],
-                        ]
-                    )
-                    if upnode not in self.nodeNumbers_fluidInlet:
-                        fCout.write(self.nodeNames[self.nodeNumbers.index(upnode)] + "\n")
-                        c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                covered_nodes.update({upnode: connectedNodes})
+                    connectedNodes = self.returnConnectedNodes(
+                        upnode, self.nodeNumbers, resistanceMatrix
+                    )  # inlet node
+                    for i in range(0, len(connectedNodes)):
+                        fRout.write(
+                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                            + " "
+                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
+                            + "\n"
+                        )
+                        r_list.append(
+                            [
+                                self.nodeNames[self.nodeNumbers.index(upnode)],
+                                self.nodeNames[self.nodeNumbers.index(connectedNodes[i])],
+                            ]
+                        )
+                        if upnode not in self.nodeNumbers_fluidInlet:
+                            fCout.write(self.nodeNames[self.nodeNumbers.index(upnode)] + "\n")
+                            c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                    covered_nodes.update({upnode: connectedNodes})
 
-                for item in coolSys:  # following downstream nodes of the cooling system
-                    for upnode in item:
-                        if upnode not in list(covered_nodes.keys()):
-                            connectedNodes = self.returnConnectedNodes(
-                                upnode, self.nodeNumbers, resistanceMatrix
-                            )
-                            for i in range(0, len(connectedNodes)):
-                                if not (
-                                    connectedNodes[i] in list(covered_nodes.keys())
-                                    and upnode in covered_nodes[connectedNodes[i]]
-                                ):  # avoid taking the symmetric counterpart of the resistance
-                                    fRout.write(
+                    for item in coolSys:  # following downstream nodes of the cooling system
+                        for upnode in item:
+                            if upnode not in list(covered_nodes.keys()):
+                                connectedNodes = self.returnConnectedNodes(
+                                    upnode, self.nodeNumbers, resistanceMatrix
+                                )
+                                for i in range(0, len(connectedNodes)):
+                                    if not (
+                                        connectedNodes[i] in list(covered_nodes.keys())
+                                        and upnode in covered_nodes[connectedNodes[i]]
+                                    ):  # avoid taking the symmetric counterpart of the resistance
+                                        fRout.write(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                            + " "
+                                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
+                                            + "\n"
+                                        )
+                                        r_list.append(
+                                            [
+                                                self.nodeNames[self.nodeNumbers.index(upnode)],
+                                                self.nodeNames[
+                                                    self.nodeNumbers.index(connectedNodes[i])
+                                                ],
+                                            ]
+                                        )
+                                if upnode not in self.nodeNumbers_fluidInlet:
+                                    fCout.write(
                                         self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        + " "
-                                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
                                         + "\n"
                                     )
-                                    r_list.append(
-                                        [
-                                            self.nodeNames[self.nodeNumbers.index(upnode)],
-                                            self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ],
-                                        ]
-                                    )
-                            if upnode not in self.nodeNumbers_fluidInlet:
-                                fCout.write(
-                                    self.nodeNames[self.nodeNumbers.index(upnode)]
-                                    + "\n"
-                                )
-                                c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                            covered_nodes.update({upnode: connectedNodes})
+                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                                covered_nodes.update({upnode: connectedNodes})
 
-                if (len(coolSys) == 0):  
-                    # particular case where the cooling system has only 2 nodes (inlet/outlet)
-                    for upnode in connectedNodes:
-                        if self.nodeGroupings[self.nodeNumbers.index(upnode)] == self.coolingSystemToGroupName[coolingSystem]:
-                            # make sure the connected node still belongs to cooling system
-                            connectedNodes = self.returnConnectedNodes(
-                                upnode, self.nodeNumbers, resistanceMatrix
-                            )
-                            for i in range(0, len(connectedNodes)):
-                                if not (
-                                    connectedNodes[i] in list(covered_nodes.keys())
-                                    and upnode in covered_nodes[connectedNodes[i]]
-                                ):  # avoid taking the symmetric counterpart of the resistance
-                                    fRout.write(
+                    if (len(coolSys) == 0):  
+                        # particular case where the cooling system has only 2 nodes (inlet/outlet)
+                        for upnode in connectedNodes:
+                            if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
+                                # make sure the connected node still belongs to cooling system
+                                connectedNodes = self.returnConnectedNodes(
+                                    upnode, self.nodeNumbers, resistanceMatrix
+                                )
+                                for i in range(0, len(connectedNodes)):
+                                    if not (
+                                        connectedNodes[i] in list(covered_nodes.keys())
+                                        and upnode in covered_nodes[connectedNodes[i]]
+                                    ):  # avoid taking the symmetric counterpart of the resistance
+                                        fRout.write(
+                                            self.nodeNames[self.nodeNumbers.index(upnode)]
+                                            + " "
+                                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
+                                            + "\n"
+                                        )
+                                        r_list.append(
+                                            [
+                                                self.nodeNames[self.nodeNumbers.index(upnode)],
+                                                self.nodeNames[
+                                                    self.nodeNumbers.index(connectedNodes[i])
+                                                ],
+                                            ]
+                                        )
+                                if upnode not in self.nodeNumbers_fluidInlet:
+                                    fCout.write(
                                         self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        + " "
-                                        + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
                                         + "\n"
                                     )
-                                    r_list.append(
-                                        [
-                                            self.nodeNames[self.nodeNumbers.index(upnode)],
-                                            self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ],
-                                        ]
-                                    )
-                            if upnode not in self.nodeNumbers_fluidInlet:
-                                fCout.write(
-                                    self.nodeNames[self.nodeNumbers.index(upnode)]
-                                    + "\n"
-                                )
-                                c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                            covered_nodes.update({upnode: connectedNodes})
+                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
+                                covered_nodes.update({upnode: connectedNodes})
 
-            # run the DoE
-            fileInd = 0
+                # run the DoE
+                fileInd = 0
 
-            paramNames = list(parameters.keys())
+                paramList = list(parameters.keys())
 
-            for paramValues in itertools.product(*parameters.values()):
-                fileInd = fileInd + 1
-                print("Run DP {}/{} for cooling system {} with parameters {} of {}".format(fileInd, numDPs, coolingSystem, paramNames, paramValues))
+                for paramValues in itertools.product(*parameters.values()):
+                    fileInd = fileInd + 1
+                    paramNames = [param.name for param in paramList]
+                    print(f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}")
 
-                [R, C] = self.computeMatricesCoolingSystems(coolingSystem, paramNames, paramValues, r_list, c_list, fileInd)
+                    [R, C] = self.computeMatricesCoolingSystems(paramList, paramValues, r_list, c_list, fileInd)
 
-                for elementList, filePrefix in [(R, "R"), (C, "C")]:
-                    with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
-                        for val in paramValues:
-                            # write parameter values to file
-                            fout.write(str(val) + "\n")   # TODO +273.15K to this if a temperature
-                        for el in elementList:
-                            # write resistances or capacitances to file
-                            fout.write(str(el) + "\n")
+                    for elementList, filePrefix in [(R, "R"), (C, "C")]:
+                        with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
+                            for val in paramValues:
+                                # write parameter values to file
+                                fout.write(str(val) + "\n")   # TODO +273.15K to this if a temperature
+                            for el in elementList:
+                                # write resistances or capacitances to file
+                                fout.write(str(el) + "\n")
+            return True
 
 
-    def computeMatricesCoolingSystems(self, coolingSystem, paramNames, paramValues, r_list, c_list, fileInd):
+    def computeMatricesCoolingSystems(self, paramList:List[AutomationParam], paramValues, r_list, c_list, fileInd):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
-        for paramName, paramVal in (paramNames, paramValues):
-            self.mcad.set_variable(self.coolingSystemData[coolingSystem][paramName], paramVal)
+        for param, paramVal in (paramList, paramValues):
+            self.mcad.set_variable(param.automationString, paramVal)
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
 
@@ -1174,23 +1212,23 @@ housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 # Specify the cooling systems for which input dependencies need to be taken into account.
 # For each cooling system involved, define the parameters values to sweep to extract the
 # corresponding training data.
-coolingSystemsParameterSweeps = {
-    "Housing Water Jacket": {
-        "FR": [8/6e4],
-        "inletTemp": [75, 85, 95],
+coolingSystemsParameterSweeps: coolingSystemSweepType = {
+    Housing_Water_Jacket: {
+        HousingWJ_FlowRate: [8/6e4],
+        HousingWJ_InletTemp: [75, 85, 95],
     },
-    "Spray Cooling (Radial from Housing) Front": {
-        "rpm": rpms,
-        "FR": [8/6e4],
-        "inletTemp": [75, 80, 85, 90, 95, 100],
+    Spray_Cooling_Radial_Housing_Front: {
+        rpm: speeds,
+        SprayRadialHousing_FlowRate: [8/6e4],
+        SprayRadialHousingF_InletTemp: [75, 80, 85, 90, 95, 100],
     },
-    "Spray Cooling (Radial from Housing) Rear": {
-        "rpm": rpms,
-        "FR": [8/6e4],
-        "inletTemp": [75, 80, 85, 90, 95, 100],
+    Spray_Cooling_Radial_Housing_Rear: {
+        rpm: speeds,
+        SprayRadialHousing_FlowRate: [8/6e4],
+        SprayRadialHousingR_InletTemp: [75, 80, 85, 90, 95, 100],
     },
-    "Blown Over": {
-        "FR": [8/6e4],
+    Blown_Over: {
+        BlownOver_FlowRate: [8/6e4],
     }
 }
 
