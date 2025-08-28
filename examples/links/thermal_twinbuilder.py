@@ -264,7 +264,7 @@ class MotorCADTwinModel:
         self.generateRpmSamples(rpms)
 
         self.generateLossDistribution()
-        
+
         housingTempDependency = self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
         if airgapTemperatures is not None:
@@ -319,23 +319,23 @@ class MotorCADTwinModel:
         return matrix
 
     def getPmfData(self, exportDirectory):
-        pmfFile = os.path.join(exportDirectory, self.motFileName + ".pmf")
+        pmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".pmf")
         # exported power vector does not contain ambient, so add on
         powerVector = [0.0] + self.getExportedVector(pmfFile)
         return powerVector
 
     def getTmfData(self, exportDirectory):
-        tmfFile = os.path.join(exportDirectory, self.motFileName + ".tmf")
+        tmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".tmf")
         temperatureVector = self.getExportedVector(tmfFile)
         return temperatureVector
 
     def getCmfData(self, exportDirectory):
-        cmfFile = os.path.join(exportDirectory, self.motFileName + ".cmf")
+        cmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".cmf")
         capacitanceMatrix = self.getExportedVector(cmfFile)
         return capacitanceMatrix
 
     def getRmfData(self, exportDirectory):
-        rmfFile = os.path.join(exportDirectory, self.motFileName + ".rmf")
+        rmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
         resistanceMatrix = self.getExportedMatrix(rmfFile)
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
@@ -346,7 +346,7 @@ class MotorCADTwinModel:
 
     def getNmfData(self, exportDirectory):
         # obtain the node numbers, node names, and node groupings from the nmf file
-        nmfFile = os.path.join(exportDirectory, self.motFileName + ".nmf")
+        nmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".nmf")
         nodeNumbers = []
         nodeNames_original = []
         nodeNames = []
@@ -656,13 +656,13 @@ class MotorCADTwinModel:
         # reset the losses
         self.setLosses()
 
-    # Function that determines the Housing to Ambient resistances as a function of the Ambient 
+    # Function that determines the Housing to Ambient resistances as a function of the Ambient
     # temperatures, the Housing temperatures, and Blown Over cooling system parameters. The results
     # of this are used by Twin Builder to take into account external Natural Convection cooling and
     # Blown Over cooling.
     # The input parameter is a dict with key=Ambient temperature and value=[Housing temperatures]:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
-    #       tAmbient2:[tHousingx, ..., tHousingz], 
+    #       tAmbient2:[tHousingx, ..., tHousingz],
     #       tAmbient3:[tHousingy, ..., tHousingz]}
     def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps):
         # Determine whether to include housing resistance temperature variation based on the presence 
@@ -1152,7 +1152,7 @@ if Path(inputMotFilePath).exists() == False:
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
 # reduce calculation time, but in real use it is recommended that this be greater.
-rpms = [200, 500, 1000]
+speeds = [200, 500, 1000]
 
 # %%
 # Specify the airgap temperatures to investigate, in order for the temperature dependent nature
@@ -1203,7 +1203,7 @@ MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 # Finally, generate the required data. This function will write the data to the directory
 # specified above. The identified cooling system node flow path is automatically plotted.
 MotorCADTwin.generateTwinData(
-    rpms=rpms,
+    rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
     coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
