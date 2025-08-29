@@ -141,8 +141,9 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self._mesh_length = 0
-        self._linked_region = None
+        self.mesh_length = 0
+        self._linked_regions = []
+
         self._singular = False
         self._lamination_type = ""
 
@@ -344,8 +345,9 @@ class Region(object):
             "entities": _convert_entities_to_json(self.entities),
             "parent_name": self._parent_name,
             "region_type": self._region_type.value,
-            "mesh_length": self._mesh_length,
-            "on_boundary": False if self._linked_region is None else True,
+            "mesh_length": self.mesh_length,
+            "linked_regions": self.linked_region_names,
+            "on_boundary": False if len(self.linked_regions) == 0 else True,
             "singular": self._singular,
             "lamination_type": lamination_type,
         }
@@ -363,13 +365,38 @@ class Region(object):
 
     @property
     def linked_region(self):
-        """Get or set linked duplication/unite region."""
-        return self._linked_region
+        """Get linked duplication/unite region."""
+        warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
+        return self.linked_regions[0] if len(self.linked_regions) > 0 else None
 
     @linked_region.setter
     def linked_region(self, region):
-        self._linked_region = region
-        region._linked_region = self
+        warn(
+            "linked_region property is deprecated. Use linked_regions.append(region)",
+            DeprecationWarning,
+        )
+        self.linked_regions.append(region)
+        region.linked_regions.append(self)
+
+    @property
+    def linked_regions(self):
+        """
+        Get linked region objects for duplication/unite operations.
+
+        Entirely original regions (that is, linkages to or from regions that are not named within
+        the default geometry) must be established using GeometryTrees.
+        """
+        return self._linked_regions
+
+    @linked_regions.setter
+    def linked_regions(self, regions):
+        """Set linked regions for duplication/unite operations."""
+        self._linked_regions = regions
+
+    @property
+    def linked_region_names(self):
+        """Get linked region names for duplication/unite operations."""
+        return [linked_region.name for linked_region in self.linked_regions]
 
     @property
     def singular(self):
@@ -1341,6 +1368,22 @@ class Line(Entity):
         """Override the default equals implementation for Line."""
         return isinstance(other, Line) and self.start == other.start and self.end == other.end
 
+    def get_bounds(self):
+        """
+        Return relevant information about the maximum and minimum x, y, and radius.
+
+        Returns: (max_radius, max_x, min_x, max_y, min_y)
+        """
+        max_radius = max(
+            Coordinate.get_polar_coords_deg(self.start)[0],
+            Coordinate.get_polar_coords_deg(self.end)[0],
+            Coordinate.get_polar_coords_deg(self.midpoint)[0],
+        )
+        xs = (self.start.x, self.end.x, self.midpoint.x)
+        ys = (self.start.y, self.end.y, self.midpoint.y)
+
+        return (max_radius, max(xs), min(xs), max(ys), min(ys))
+
     @property
     def midpoint(self):
         """Get midpoint of Line.
@@ -2083,6 +2126,22 @@ class Arc(_BaseArc):
         else:
             # Arc had an angle defined as greater than 180 deg
             return p_centre - Coordinate(l_x, l_y)
+
+    def get_bounds(self):
+        """
+        Return relevant information about the maximum and minimum x, y, and radius.
+
+        Returns: (max_radius, max_x, min_x, max_y, min_y)
+        """
+        max_radius = max(
+            Coordinate.get_polar_coords_deg(self.start)[0],
+            Coordinate.get_polar_coords_deg(self.end)[0],
+            Coordinate.get_polar_coords_deg(self.midpoint)[0],
+        )
+        xs = (self.start.x, self.end.x, self.midpoint.x)
+        ys = (self.start.y, self.end.y, self.midpoint.y)
+
+        return (max_radius, max(xs), min(xs), max(ys), min(ys))
 
 
 class EntityList(list):

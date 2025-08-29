@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
+from copy import deepcopy
 
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMagnet, RegionType
 
@@ -142,6 +143,10 @@ class GeometryTree(dict):
 
         self._build_tree(tree_json, root, mc)
         self._motorcad_instance = mc
+        # Establish linkages between linked regions
+        for node in self:
+            for linked_region_name in node._linked_region_names:
+                node.linked_regions.append(self[linked_region_name])
         return self
 
     def _to_json(self):
@@ -210,7 +215,7 @@ class GeometryTree(dict):
         parent: None or GeometryNode
         """
         # Convert current node to GeometryNode and add it to tree
-        self[node["name_unique"]] = GeometryNode.from_json(node, parent, mc)
+        self[node["name_unique"]] = GeometryNode.from_json(self, node, parent, mc)
 
         # Recur for each child.
         if node["child_names"] != []:
@@ -234,18 +239,18 @@ class GeometryTree(dict):
         """
         # Splits regions apart, if necessary, to enforce valid geometry
         node = self.get_node(node)
-        name_length = len(node.key)
+        name = node.key
         duplication_angle = 360 / node.duplications
 
         # brush1 used to find the valid portion just above angle 0
         brush1 = Region(region_type=RegionType.airgap)
-        brush_length = self.mc.get_variable("Stator_Lam_Dia")
+        brush_length = self._motorcad_instance.get_variable("Stator_Lam_Dia")
         p1 = Coordinate(0, 0)
         p2 = Coordinate(brush_length, 0)
         brush1.entities.append(Line(p2, p1))
 
         brush1.entities.append(Arc(p1, p2, centre=Coordinate(brush_length / 2, 1)))
-        valid_regions_lower = self.mc.subtract_region(node, brush1)
+        valid_regions_lower = self._motorcad_instance.subtract_region(node, brush1)
 
         # Case where there is no lower intersection
         if (len(valid_regions_lower) == 1) and (valid_regions_lower[0].entities == node.entities):
@@ -256,7 +261,7 @@ class GeometryTree(dict):
             p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
             brush3.entities.append(Line(p1, p2))
             brush3.entities.append(Arc(p2, p1, radius=brush_length / 2))
-            valid_regions_upper = self.mc.subtract_region(node, brush3)
+            valid_regions_upper = self._motorcad_instance.subtract_region(node, brush3)
 
             # Case where no slicing necessary
             if (len(valid_regions_upper) == 1) and (
@@ -266,7 +271,7 @@ class GeometryTree(dict):
             # Case where upper slicing necessary
             else:
                 for i, new_valid_region in enumerate(valid_regions_upper):
-                    new_valid_region.name += f"_{i + 1}"
+                    new_valid_region.name = f"{name}_{i + 1}"
                     self.add_node(new_valid_region, parent=node.parent)
                 # now perform the upper check
                 # brush4 used to find the invalid portion just above duplication angle
@@ -275,15 +280,14 @@ class GeometryTree(dict):
                 p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
                 brush4.entities.append(Line(p2, p1))
                 brush4.entities.append(Arc(p1, p2, radius=brush_length / 2))
-                invalid_regions_upper = self.mc.subtract_region(node, brush4)
+                invalid_regions_upper = self._motorcad_instance.subtract_region(node, brush4)
                 for i, new_lower_valid_region in enumerate(invalid_regions_upper):
                     new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
-                    new_lower_valid_region.name = new_lower_valid_region.name[0 : name_length + 1]
-                    new_lower_valid_region.name += f"_{i + len(valid_regions_upper) + 1}"
-                    # Linked regions currently only guaranteed to work if only one new region is
-                    # formed at top and bottom; will change once regions can be multiply linked.
-                    new_lower_valid_region.linked_region = valid_regions_upper[i]
-                    valid_regions_upper[i].linked_region = new_lower_valid_region
+                    new_lower_valid_region.name = f"{name}_{i + len(valid_regions_upper) + 1}"
+                    # Make sure regions are appropriately linked
+                    for valid_region_upper in valid_regions_upper:
+                        new_lower_valid_region.linked_regions.append(valid_region_upper)
+                        valid_region_upper.linked_regions.append(new_lower_valid_region)
                     self.add_node(new_lower_valid_region, parent=node.parent)
                 self.remove_node(node)
                 return True
@@ -291,7 +295,7 @@ class GeometryTree(dict):
         else:
             # first, handle the valid regions returned
             for i, new_valid_region in enumerate(valid_regions_lower):
-                new_valid_region.name += f"_{i+1}"
+                new_valid_region.name = f"{name}_{i+1}"
                 self.add_node(new_valid_region, parent=node.parent)
 
             # brush2 used to find the invalid portion just below angle 0
@@ -303,15 +307,14 @@ class GeometryTree(dict):
             # Upper in this case referring to the fact that this region will
             # form the upper half of the ellipse.
             # It will be below the other half in terms of relative positioning
-            invalid_regions_lower = self.mc.subtract_region(node, brush2)
+            invalid_regions_lower = self._motorcad_instance.subtract_region(node, brush2)
             for i, new_upper_valid_region in enumerate(invalid_regions_lower):
                 new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
-                new_upper_valid_region.name = new_upper_valid_region.name[0 : name_length + 1]
-                new_upper_valid_region.name += f"_{i + len(valid_regions_lower) + 1}"
-                # Linked regions currently only guaranteed to work if only one new region is
-                # formed at top and bottom; will change once regions can be multiply linked.
-                new_upper_valid_region.linked_region = valid_regions_lower[i]
-                valid_regions_lower[i].linked_region = new_upper_valid_region
+                new_upper_valid_region.name = f"{name}_{i + len(valid_regions_lower) + 1}"
+                # Make sure regions are appropriately linked
+                for valid_region_lower in valid_regions_lower:
+                    new_upper_valid_region.linked_regions.append(valid_region_lower)
+                    valid_region_lower.linked_regions.append(new_upper_valid_region)
                 self.add_node(new_upper_valid_region, parent=node.parent)
             self.remove_node(node)
             return True
@@ -455,7 +458,7 @@ class GeometryNode(Region):
             return self.name
 
     @classmethod
-    def from_json(cls, node_json, parent, mc):
+    def from_json(cls, gt, node_json, parent, mc):
         """Create a GeometryNode from JSON data.
 
         Parameters
@@ -472,6 +475,8 @@ class GeometryNode(Region):
             new_region = GeometryNode(region_type=RegionType.airgap)
             new_region.name = "root"
             new_region.key = "root"
+            # Protected linked_region_names attribute used only when first initializing the tree
+            new_region._linked_region_names = []
 
         else:
             new_region = Region._from_json(node_json)
@@ -480,9 +485,27 @@ class GeometryNode(Region):
             new_region.children = list()
             parent.children.append(new_region)
             new_region.key = node_json["name_unique"]
+            # Protected linked_region_names attribute used only when first initializing the tree
+            new_region._linked_region_names = node_json["linked_regions"]
 
         new_region._motorcad_instance = mc
+        new_region.geometry_tree = gt
         return new_region
+
+    def duplicate(self):
+        """
+        Return a copy of the GeometryNode.
+
+         Duplicates all data except for its pointers to parent and children.
+        """
+        node_copy = GeometryNode()
+        forbidden = ["_parent", "_children", "_entities"]
+        for att in vars(self):
+            if not att in forbidden:
+                node_copy.__setattr__(att, getattr(self, att))
+        for entity in self.entities:
+            node_copy.entities.append(deepcopy(entity))
+        return node_copy
 
     @property
     def depth(self):
