@@ -30,6 +30,7 @@ has been run in Motor-CAD.
 """
 
 from math import asin, cos, radians, sin
+import os
 import sys
 
 # Standard imports
@@ -37,6 +38,12 @@ import ansys.motorcad.core as pymotorcad
 
 # Connect to Motor-CAD
 mcApp = pymotorcad.MotorCAD()
+
+# Users should run this script from the scripting tab after the stress calculation
+# Trigger this automatically for the automated documentation build
+if "PYMOTORCAD_DOCS_BUILD" in os.environ:
+    mcApp.load_template("e10")
+    mcApp.do_mechanical_calculation()
 
 # Sample points is hardcoded to 15 in Motor-CAD for stress averaging
 sample_points = 15
