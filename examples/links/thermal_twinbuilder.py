@@ -89,6 +89,7 @@ import numpy as np
 import itertools
 from dataclasses import dataclass, astuple
 from typing import Dict, List, Optional
+from numbers import Number
 
 import ansys.motorcad.core as pymotorcad
 
@@ -283,6 +284,8 @@ class MotorCADTwinModel:
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
+        housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps)
+
         self.updateMotfile()
 
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.nodeNumbers_fluid,
@@ -297,21 +300,19 @@ class MotorCADTwinModel:
 
         self.generateLossDistribution()
 
-        housingTempDependency = self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
+        if housingTempDependency:
+            self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
-        if airgapTemperatures is not None:
-            if self.validAirgap() == True:
-                self.generateAirgapTempDependency(rpms, airgapTemperatures)
-            else:
-                # set to None so correct config is written
-                airgapTemperatures = None
+        if airGapTempDependency:
+            self.generateAirgapTempDependency(rpms, airgapTemperatures)
 
-        coolingSystemsInputs = self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
+        if coolingSystemsInputs:
+            self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         # write config file
         configFlags = {
             "HousingTempDependency": 1 if housingTempDependency else 0,
-            "AirGapTempDependency": 1 if airgapTemperatures is not None else 0,
+            "AirGapTempDependency": 1 if airGapTempDependency else 0,
             "FluidHeatFlowMethod": 1 if self.heatFlowMethod == 1 else 0,
             "MCADVersion": 20251 if self.motorcadV2025OrNewer else 20242,
             "CoolingSystemsInputs": 1 if coolingSystemsInputs else 0,
@@ -417,6 +418,88 @@ class MotorCADTwinModel:
         for lossParameter in self.lossParameters:
             lossVector.append(self.mcad.get_variable(lossParameter))
         return lossVector
+    
+    def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
+        # rpm must be a non-zero length list of floats (or integers)
+        assert(len(rpms) > 0)
+        assert(isinstance(rpms, list))
+        assert(all(isinstance(rpm, Number) for rpm in rpms))
+
+        # validate airgap temperatures if not None
+        if (airgapTemperatures is None) or (len(airgapTemperatures)==0):
+            airGapTempDependency = False
+        else:        
+            # airgap temperatures must be a list of floats (or integers)
+            assert(isinstance(airgapTemperatures, list))
+            assert(all(isinstance(temp, Number) for temp in airgapTemperatures))
+            # ensure the .mot file is suitable for use with airgap temperature dependence
+            airGapTempDependency = self.validAirgap()
+
+        # validate coolingSystemsParameterSweeps
+        if (coolingSystemsParameterSweeps is None) or (len(coolingSystemsParameterSweeps) == 0):
+            coolingSystemsInputs = False
+            hasBlownOver = False
+        else:
+            assert(isinstance(coolingSystemsParameterSweeps, dict))
+            for (coolingSystem, parameterSweeps) in list(coolingSystemsParameterSweeps.items()):
+                assert(isinstance(coolingSystem, CoolingSystem))
+                if coolingSystem not in coolingSystemNames:
+                    warnings.warn(f"The Cooling System name {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}.")
+                    assert(False)
+                assert(isinstance(parameterSweeps, dict))
+                for (param, paramValues) in list(parameterSweeps.items()):
+                    assert(isinstance(param, AutomationParam))
+                    assert(isinstance(paramValues, list))
+                    if len(paramValues) == 0:
+                        del coolingSystemsParameterSweeps[coolingSystem][param]
+                    assert(all(isinstance(val, Number) for val in paramValues))
+                if len(parameterSweeps) == 0:
+                    del coolingSystemsParameterSweeps[coolingSystem]
+
+            if len(coolingSystemsParameterSweeps) == 0:
+                # Check again for length zero, as items may have been deleted
+                coolingSystemsInputs = False
+            elif (len(coolingSystemsParameterSweeps) == 1) and (Blown_Over in coolingSystemsParameterSweeps):
+                # Only blown over key exists. This is not treated as part of the cooling system
+                coolingSystemsInputs = False
+            else:
+                coolingSystemsInputs = True
+
+            # Verify blown over key has only one input
+            blownover = coolingSystemsParameterSweeps.get(Blown_Over)
+            if blownover is None:
+                hasBlownOver = False
+            else:
+                hasBlownOver = True
+                if len(blownover) > 1:
+                    paramNames = [x.name for x in blownover.keys()]
+                    warnings.warn(f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.", stacklevel=2)
+                    assert(False)
+
+
+        # validate housing ambient temperatures if not None
+        # Determine whether to include housing resistance temperature variation based on the presence
+        # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
+        if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):
+            if hasBlownOver:
+                # using Blown Over without specifying Housing Temperatures is not allowed
+                warnings.warn("Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures.")
+                assert(False)
+                
+            housingTempDependency = False
+        else:
+            assert(isinstance(housingAmbientTemperatures, dict))
+            for (ambientTemp, housingTempList) in housingAmbientTemperatures.items():
+                assert(isinstance(ambientTemp, Number))
+                # housing temperatures must be a list of floats (or integers)
+                assert(isinstance(housingTempList, list))
+                assert(len(housingTempList) > 0)
+                assert(all(isinstance(temp, Number) for temp in housingTempList))
+
+            housingTempDependency = True
+            
+            
+        return housingTempDependency, airGapTempDependency, coolingSystemsInputs
 
     # Functions to update any mot file settings that need to be set appropriately
     # to ensure the correct calculations performed
@@ -698,17 +781,6 @@ class MotorCADTwinModel:
     def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps:coolingSystemSweepType):
         # Determine whether to include housing resistance temperature variation based on the presence 
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
-        hasBlownOver = (coolingSystemsParameterSweeps is not None) and (Blown_Over in coolingSystemsParameterSweeps)
-        hasHousingTemps = housingAmbientTemperatures is not None
-
-        if hasHousingTemps == False:
-            if hasBlownOver == True:
-                # using Blown Over without specifying Housing Temperatures is not allowed
-                warnings.warn("Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures. Blown Over variation has not been included in the model.")
-            
-            # No housing temperatures specified, so cannot generate housing temperature model
-            return False
-
         exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
         if not os.path.isdir(exportDirectory):
             os.makedirs(os.path.join(exportDirectory))
@@ -729,26 +801,18 @@ class MotorCADTwinModel:
                 housingNodeIndices.append(index)
                 housingNodeNames.append(self.nodeNames[index])
 
-        if hasBlownOver and (coolingSystemsParameterSweeps is not None):
+        if (coolingSystemsParameterSweeps is not None) and (Blown_Over in coolingSystemsParameterSweeps):
             blownover = coolingSystemsParameterSweeps[Blown_Over]
-            if len(blownover) > 1:
-                paramNames = [x.name for x in blownover.keys()]
-                warnings.warn(f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.", stacklevel=2)
-                hasBlownOver = False
-            else:
-                (param, paramValues) = list(blownover.items())[0]
-                # do not include parameters with no values in dp_values.txt
-                if len(paramValues) > 0:
-                    with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
-                        paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
-                        fout.write(param.name + "=" + str(paramValuesTB))
-                        fout.write("\n")
-                else:
-                    hasBlownOver = False
-
-        if hasBlownOver:
+            (param, paramValues) = list(blownover.items())[0]
+            with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                fout.write(param.name + "=" + str(paramValuesTB))
+                fout.write("\n")
+                
+            hasBlownOver = True
             paramValues = itertools.product(list(housingAmbientTemps.items()), paramValues)
         else:
+            hasBlownOver = False
             paramValues = itertools.product(list(housingAmbientTemps.items()))
 
         fileInd = 0
@@ -782,8 +846,6 @@ class MotorCADTwinModel:
                     fout.write(str(key))
                     fout.write("," + ",".join(map(str, item)))
                     fout.write("\n")
-
-        return True
 
     def computeMatricesHousingTemps(self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
@@ -923,18 +985,11 @@ class MotorCADTwinModel:
     # the Cooling System name and value being another dictionary storing
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
     def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps:coolingSystemSweepType):
-        if coolingSystemsParameterSweeps is None:
-            return False
-        else:
+        if coolingSystemsParameterSweeps is not None:
             for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
                 # skip over Blown Over, as this is handled separately
                 if coolingSystem == Blown_Over:
                     continue
-
-                if coolingSystem not in coolingSystemNames:
-                    warnings.warn(f"The Cooling System name {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames} so has been skipped")
-                    # todo verify this before runnning the model
-                    return False
 
                 exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
                 if not os.path.isdir(exportPath):
@@ -1076,7 +1131,6 @@ class MotorCADTwinModel:
                             for el in elementList:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
-            return True
 
 
     def computeMatricesCoolingSystems(self, paramList:List[AutomationParam], paramValues, r_list, c_list, fileInd):
@@ -1123,7 +1177,7 @@ class MotorCADTwinModel:
 # function has been defined to return this dictionary. As can be seen in the code comments, more
 # data points are calculated when the housing and ambient temperatures are close together, as this
 # is where the natural convection heat transfer coefficients vary the most.
-def temperaturesHousingAmbient(ambientTemperatures, housingTemperatureMin, housingTemperatureMax):
+def temperaturesHousingAmbient(ambientTemperatures: List[float], housingTemperatureMin: float, housingTemperatureMax: float) -> dict[float, List[float]]: 
     # For each ambient temperature run housing nodes sweep between min and max housing temperature
     # abs(dT) <= 5 -> 1 deg => 10 points
     # 5 < abs(dT) <= 40 -> 5 deg => 14 points
