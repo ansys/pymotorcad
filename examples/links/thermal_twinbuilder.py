@@ -1114,7 +1114,8 @@ class MotorCADTwinModel:
 
                 paramList = list(parameters.keys())
 
-                for paramValues in itertools.product(*parameters.values()):
+                for paramValues in itertools.product(*reversed(parameters.values())):
+                    paramValues = list(reversed(paramValues))
                     fileInd = fileInd + 1
                     paramNames = [param.name for param in paramList]
                     print(f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}")
