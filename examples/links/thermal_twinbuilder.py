@@ -810,10 +810,10 @@ class MotorCADTwinModel:
                 fout.write("\n")
                 
             hasBlownOver = True
-            paramValues = itertools.product(list(housingAmbientTemps.items()), paramValues)
+            paramValues = itertools.product(list(housingAmbientTemperatures.items()), paramValues)
         else:
             hasBlownOver = False
-            paramValues = itertools.product(list(housingAmbientTemps.items()))
+            paramValues = itertools.product(list(housingAmbientTemperatures.items()))
 
         fileInd = 0
         for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
