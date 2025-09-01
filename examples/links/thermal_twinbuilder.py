@@ -991,7 +991,7 @@ class MotorCADTwinModel:
                 if coolingSystem == Blown_Over:
                     continue
 
-                exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem))
+                exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem.name))
                 if not os.path.isdir(exportPath):
                     os.makedirs(os.path.join(exportPath))
 
@@ -1139,7 +1139,7 @@ class MotorCADTwinModel:
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
-        for param, paramVal in (paramList, paramValues):
+        for (param, paramVal) in zip(paramList, paramValues):
             self.mcad.set_variable(param.automationString, paramVal)
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
