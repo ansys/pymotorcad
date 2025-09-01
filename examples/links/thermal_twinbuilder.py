@@ -408,7 +408,7 @@ class MotorCADTwinModel:
     # performed with the correct losses and to determine the loss distribution
     def setLosses(self, lossVector=None):
         if lossVector is None:
-            # use a very small loss value
+            # use a very small loss value to avoid infinite resistances
             lossVector = 0.1 * np.ones(len(self.lossParameters))
         for index, lossParameter in enumerate(self.lossParameters):
             self.mcad.set_variable(lossParameter, lossVector[index])
