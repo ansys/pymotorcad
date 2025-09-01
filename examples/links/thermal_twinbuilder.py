@@ -521,7 +521,7 @@ class MotorCADTwinModel:
         self.mcad.set_variable("MagneticThermalCoupling", 0)
         self.mcad.set_variable("LabThermalCoupling", 0)
         # 6 matrix separator
-        ## export assumes comma is being used TODO use the original separator
+        ## export relies on semi-colon being used as the separator
         self.mcad.set_variable("ExportTextSeparator", ";")
         # 7 windage losses
         ## TB model will not include this logic
@@ -1125,9 +1125,10 @@ class MotorCADTwinModel:
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
                         with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
-                            for val in paramValues:
+                            for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
-                                fout.write(str(val) + "\n")   # TODO +273.15K to this if a temperature
+                                paramValueTB = paramValue+paramList[index].tbOffset
+                                fout.write(str(paramValueTB) + "\n")
                             for el in elementList:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
