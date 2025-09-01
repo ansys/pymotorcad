@@ -998,12 +998,10 @@ class MotorCADTwinModel:
                 numDPs = 0
                 with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
                     for param, paramValues in parameters.items():
-                        # do not include parameters with no values in dp_values.txt
-                        if len(paramValues) > 0:
-                            paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
-                            fout.write(param.name + "=" + str(paramValuesTB))
-                            fout.write("\n")
-                            numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
+                        paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                        fout.write(param.name + "=" + str(paramValuesTB))
+                        fout.write("\n")
+                        numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
                 # identify all the impacted resistances and capacitances
                 exportDirectory = os.path.join(self.outputDirectory, "tmp")
