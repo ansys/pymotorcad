@@ -991,7 +991,7 @@ class MotorCADTwinModel:
                 if coolingSystem == Blown_Over:
                     continue
 
-                exportPath = os.path.join(self.outputDirectory, self.unbracket(coolingSystem.name))
+                exportPath = os.path.join(self.outputDirectory, "CoolingSystems", self.unbracket(coolingSystem.name))
                 if not os.path.isdir(exportPath):
                     os.makedirs(os.path.join(exportPath))
 
