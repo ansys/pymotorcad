@@ -819,15 +819,16 @@ class MotorCADTwinModel:
         for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
             fileInd = fileInd + 1
 
-            print("Tamb: " + str(ambientTemperature))
+            message = f"Tamb = {str(ambientTemperature)}"
             self.mcad.set_variable("T_Ambient", ambientTemperature)
 
             if hasBlownOver:
                 # blownOverValue is a list of length 1, so get the first/only value
                 blownOverValue = blownOverValue[0]
-                print(param.name + ": " + str(blownOverValue))
+                message += f", {param.name} = {str(blownOverValue)}"
+                
                 self.mcad.set_variable(param.automationString, blownOverValue)
-            
+            print(message)
             file_content = self.computeMatricesHousingTemps(housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures)
 
             with open(
