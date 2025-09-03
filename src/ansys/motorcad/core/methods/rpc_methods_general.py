@@ -85,6 +85,20 @@ class _RpcMethodsGeneral:
         params = [directory_path]
         return self.connection.send_and_receive(method, params)
 
+    def load_reduced_nodes(self, file_path):
+        """Load reduced nodes selection from a file.
+
+        Parameters
+        ----------
+        file_path : str
+            Filepath for loading the file with the enabled nodes.
+            Use the ``r'filepath'`` syntax to force Python to ignore
+            special characters.
+        """
+        method = "LoadReducedNodes"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
+
     def load_custom_drive_cycle(self, file_path):
         """Load a custom waveform from a file.
 
