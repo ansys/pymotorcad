@@ -406,10 +406,12 @@ class MotorCADTwinModel:
 
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
-    def setLosses(self, lossVector=None):
-        if lossVector is None:
-            # use a very small loss value to avoid infinite resistances
-            lossVector = 0.1 * np.ones(len(self.lossParameters))
+    def setLosses(self, loss): # TODO add zero loss verification and loss check, consider custom loss handling
+        if isinstance(loss, Number):
+            # single loss value has been supplied, apply this to all losses
+            lossVector = [loss] * len(self.lossParameters)
+        else:
+            lossVector = loss
         for index, lossParameter in enumerate(self.lossParameters):
             self.mcad.set_variable(lossParameter, lossVector[index])
 
@@ -507,8 +509,8 @@ class MotorCADTwinModel:
         # update the model settings to those needed for the TB export
         # 1 rpm
         ## N/A no need to set RPM, this is done as required
-        # 2 loss values
-        self.setLosses()
+        # 2 set small loss value
+        self.setLosses(0.1)
         # 3 speed dependent losses
         self.mcad.set_variable("Speed_Dependant_Losses", 0)
         # 4 copper loss variation x2
@@ -744,7 +746,7 @@ class MotorCADTwinModel:
 
             exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex))
 
-            lossVector = np.zeros(numLossParameters)
+            lossVector = [0.0] * numLossParameters
             lossVector[lossIndex] = inputLoss
             self.setLosses(lossVector)
             self.computeMatrices(exportDirectory)
@@ -767,8 +769,8 @@ class MotorCADTwinModel:
                     outfile.write(", " + str(nodeLoss))
                 outfile.write("\n")
 
-        # reset the losses
-        self.setLosses()
+        # reset the losses to a small value
+        self.setLosses(0.1)
 
     # Function that determines the Housing to Ambient resistances as a function of the Ambient
     # temperatures, the Housing temperatures, and Blown Over cooling system parameters. The results
