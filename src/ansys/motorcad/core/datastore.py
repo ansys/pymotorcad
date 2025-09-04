@@ -22,6 +22,21 @@
 
 """Contains data classes for getting whole datastore from Motor-CAD."""
 
+from enum import Enum
+
+
+class DataTypes(Enum):
+    """enumerators of Input/Output category for datastore filtering."""
+
+    input = [0, 1, 6]
+    output = 2
+    settings = 3
+    persistent = 4
+    deprecated = 5
+    compatibility = [7, 8, 9, 10, 11, 12]
+    recommended = [13, 14, 15, 16, 17]
+    unsupported = [18, 19, 20, 21, 22, 23]
+
 
 class DataStoreRecord:
     """Object to store data records from Motor-CAD.
@@ -93,8 +108,9 @@ class DataStoreRecord:
 
         Parameters
         ----------
-        inout_list : list | None
-            list of integers that define the data type (e.g. input type, compatibility type, etc).
+        inout_list : list[DataTypes] | None
+            list of DataType enum that define the data type (e.g. DataTypes.input,
+            DataTypes.compatibility, etc).
 
         Returns
         -------
@@ -103,7 +119,17 @@ class DataStoreRecord:
         if inout_list is None:
             return True
         else:
-            return self.input_or_output_type in inout_list
+            result = False
+            for inout_type in inout_list:
+                if isinstance(inout_type.value, list):
+                    if self.input_or_output_type in inout_type.value:
+                        result = True
+                        break
+                else:
+                    if self.input_or_output_type is inout_type.value:
+                        result = True
+                        break
+            return result
 
     def to_json(self):
         """Convert DatastoreRecord to a serialisable dictionary for JSON export.
