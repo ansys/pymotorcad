@@ -106,8 +106,8 @@ class Region(object):
 
     Parameters
     ----------
-    region_type: RegionType
-        Type of region
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
     motorcad_instance: ansys.motorcad.core.MotorCAD
         Motor-CAD instance currently connected
     """
