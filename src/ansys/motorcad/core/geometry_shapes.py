@@ -23,10 +23,18 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from math import cos, radians, sin, sqrt
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry import (
+    Arc,
+    Coordinate,
+    EntityList,
+    Line,
+    Region,
+    RegionType,
+    rt_to_xy,
+)
 
 
-def square(width, r_O, th_O):
+def square(width, r_O, th_O, region_type=RegionType.adaptive):
     """Create a square of given width at a given set of coordinates.
 
     Parameters
@@ -37,6 +45,8 @@ def square(width, r_O, th_O):
         Radial coordinate of the square centre.
     th_O : float
         Angular coordinate of the square centre.
+    region_type : ansys.motorcad.core.geometry.RegionType
+        RegionType of the square region.
 
     Returns
     -------
@@ -56,7 +66,7 @@ def square(width, r_O, th_O):
     line_CB = Line(p_C, p_B)
     line_BA = Line(p_B, p_A)
 
-    this_square = Region()
+    this_square = Region(region_type=region_type)
     this_square.entities = EntityList([line_AD, line_DC, line_CB, line_BA])
 
     return this_square
@@ -119,7 +129,7 @@ def _square_coordinates(width, r_O, th_O):
     return x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D
 
 
-def eq_triangle_h(height, r_O, th_O):
+def eq_triangle_h(height, r_O, th_O, region_type=RegionType.adaptive):
     """Create an equilateral triangle of given height at a given set of coordinates.
 
     Parameters
@@ -130,6 +140,8 @@ def eq_triangle_h(height, r_O, th_O):
         Radial coordinate of the triangle centre.
     th_O : float
         Angular coordinate of the triangle centre.
+    region_type : ansys.motorcad.core.geometry.RegionType
+        RegionType of the triangle region.
 
     Returns
     -------
@@ -165,13 +177,13 @@ def eq_triangle_h(height, r_O, th_O):
     line_CB = Line(p_C, p_B)
     line_BA = Line(p_B, p_A)
 
-    this_triangle = Region()
+    this_triangle = Region(region_type=region_type)
     this_triangle.entities = EntityList([line_AC, line_CB, line_BA])
 
     return this_triangle
 
 
-def eq_triangle_w(width, r_O, th_O):
+def eq_triangle_w(width, r_O, th_O, region_type=RegionType.adaptive):
     """Create an equilateral triangle of given width at a given set of coordinates.
 
     Parameters
@@ -182,6 +194,8 @@ def eq_triangle_w(width, r_O, th_O):
         Radial coordinate of the triangle centre.
     th_O : float
         Angular coordinate of the triangle centre.
+    region_type : ansys.motorcad.core.geometry.RegionType
+        RegionType of the triangle region.
 
     Returns
     -------
@@ -189,12 +203,12 @@ def eq_triangle_w(width, r_O, th_O):
         Region type with three Line entity types.
     """
     height = sqrt(3) * width / 2
-    this_triangle = eq_triangle_h(height, r_O, th_O)
+    this_triangle = eq_triangle_h(height, r_O, th_O, region_type=region_type)
 
     return this_triangle
 
 
-def triangular_notch(radius, sweep, centre_angle, depth):
+def triangular_notch(radius, sweep, centre_angle, depth, region_type=RegionType.adaptive):
     """Create a triangular notch for a rotor or stator at given angular position with given size.
 
     Parameters
@@ -207,6 +221,8 @@ def triangular_notch(radius, sweep, centre_angle, depth):
         Angle value, angular coordinate of the notch centre.
     depth : float
         Depth value, depth of the notch.
+    region_type : ansys.motorcad.core.geometry.RegionType
+        RegionType of the notch region.
 
     Returns
     -------
@@ -234,7 +250,41 @@ def triangular_notch(radius, sweep, centre_angle, depth):
     airgap_arc = Arc(p1, p3, rotor_centre, radius)
 
     # create the triangular notch region and add the 2 lines and 1 arc to the region
-    this_triangular_notch = Region()
+    this_triangular_notch = Region(region_type=region_type)
     this_triangular_notch.entities = EntityList([line_1, line_2, airgap_arc])
 
     return this_triangular_notch
+
+
+def circle(centre, radius, region_type=RegionType.adaptive):
+    """Create a circle region constructed from two Arc entities.
+
+    Parameters
+    ----------
+    centre : ansys.motorcad.core.geometry.Coordinate
+        Centre Coordinate around which the circle region is to be created.
+    radius : float
+        Radius value, radius of the circle.
+    region_type : ansys.motorcad.core.geometry.RegionType
+        RegionType of the circle region.
+
+    Returns
+    -------
+    this_circle : ansys.motorcad.core.geometry.Region
+        Region with two Arc entities.
+    """
+    arc_1 = Arc(
+        Coordinate(centre.x, centre.y - radius),
+        Coordinate(centre.x, centre.y + radius),
+        centre=centre,
+    )
+    arc_2 = Arc(
+        Coordinate(centre.x, centre.y + radius),
+        Coordinate(centre.x, centre.y - radius),
+        centre=centre,
+    )
+    this_cicle = Region(region_type=region_type)
+    this_cicle.add_entity(arc_1)
+    this_cicle.add_entity(arc_2)
+
+    return this_cicle
