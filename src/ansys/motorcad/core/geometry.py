@@ -28,6 +28,8 @@ from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, 
 import warnings
 from warnings import warn
 
+import ansys.motorcad.core
+
 GEOM_TOLERANCE = 1e-6
 
 
@@ -112,16 +114,36 @@ class Region(object):
 
     def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
         """Initialise Region."""
+        # handle the case where region_type is not a RegionType
         if not isinstance(region_type, RegionType):
-            warnings.warn(
-                "The first parameter of creating a new region has changed to region_type."
-                " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
-                " region type"
-            )
-            # Try and catch case where user has added Motor-CAD instance without using named param
-            motorcad_instance = region_type
-            region_type = None
+            # if a string has been provided, try to set the region_type to this string
+            if isinstance(region_type, str):
+                try:
+                    # valid RegionType attributes will be set based on the string
+                    region_type = getattr(RegionType, region_type)
+                except Exception as e:
+                    raise Exception(
+                        f"{region_type} is not a valid RegionType. Please provide"
+                        f" a valid RegionType."
+                    )
+            # Try and catch case where user has added Motor-CAD instance without using named
+            # parameters
+            elif isinstance(region_type, ansys.motorcad.core.MotorCAD):
+                warnings.warn(
+                    "The first parameter of creating a new region has changed to region_type."
+                    " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
+                    " region type"
+                )
+                motorcad_instance = region_type
+                region_type = region_type = RegionType.adaptive
+            # if any other type of object is provided, raise an exception.
+            else:
+                raise Exception(
+                    f"{region_type} is not a valid RegionType. Please provide a valid "
+                    f"RegionType."
+                )
 
+        # warn the user if they have not provided a specific region_type other than adaptive
         elif region_type == RegionType.adaptive:
             warnings.warn(
                 "It is strongly recommended to set a region_type when creating new regions."
