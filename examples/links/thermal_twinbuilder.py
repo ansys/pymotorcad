@@ -288,6 +288,8 @@ class MotorCADTwinModel:
 
         self.updateMotfile()
 
+        self.validateMotfileLosses()
+
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.nodeNumbers_fluid,
         # and self.nodeNumbers_fluidInlet
         self.getNodeData()
@@ -406,7 +408,7 @@ class MotorCADTwinModel:
 
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
-    def setLosses(self, loss): # TODO add zero loss verification and loss check, consider custom loss handling
+    def setLosses(self, loss):
         if isinstance(loss, Number):
             # single loss value has been supplied, apply this to all losses
             lossVector = [loss] * len(self.lossParameters)
@@ -423,7 +425,7 @@ class MotorCADTwinModel:
     
     def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
         # rpm must be a non-zero length list of floats (or integers)
-        assert(len(rpms) > 0)
+        assert(len(rpms) > 0) # TODO fix assert, replace with something more suitable
         assert(isinstance(rpms, list))
         assert(all(isinstance(rpm, Number) for rpm in rpms))
 
@@ -545,6 +547,28 @@ class MotorCADTwinModel:
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
         usedMotFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
         self.mcad.save_to_file(usedMotFilePath)
+
+    # Verify that the only losses in the mdoel are those that have been defined by Motor-CAD
+    # Custom losses (from Lab or Thermal) are currently not supported. # TODO add custom loss handling
+    def validateMotfileLosses(self):
+        print("Verifying absence of custom losses")
+
+        self.setLosses(0)
+        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        self.computeMatrices(exportDirectory)
+
+        powerVector = self.getPmfData(exportDirectory)
+        if self.heatFlowMethod == 0:
+            # Original fluid heat flow method means negative powers can exist.
+            # Do a less robust check by ignoring negative values
+            totalLoss = sum(p for p in powerVector if p > 0)
+        else:
+            # Improved fluid heat flow method allows us to perform a full sum
+            totalLoss = sum(abs(p) for p in powerVector)
+
+        if totalLoss > 0:
+            assert False, "Custom losses are present in the thermal model. These are not currently supported. Please remove these custom losses"
+
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -689,7 +713,7 @@ class MotorCADTwinModel:
         return connectedNodesList
     
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-    def generateFixedTemperatures(self):
+    def generateFixedTemperatures(self): # TODO update with additional node name
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
         
