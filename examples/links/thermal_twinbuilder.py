@@ -269,8 +269,8 @@ class MotorCADTwinModel:
         self.nodeNumbers_fluid = []
         self.nodeNumbers_fluidInlet = []
         self.coolingSystemsPresent = dict()
-
-        self.mcad = pymotorcad.MotorCAD()
+        self.customPowerInjections = []
+        
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
@@ -287,6 +287,8 @@ class MotorCADTwinModel:
         housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps)
 
         self.updateMotfile()
+
+        self.updateCustomLosses()
 
         self.validateMotfileLosses()
 
@@ -406,22 +408,46 @@ class MotorCADTwinModel:
         # sort based on the node numbers
         return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings))))
 
+    def getExternalCircuitLosses(self):
+        exportFile = os.path.join(self.outputDirectory, "tmp", "externalcircuit.ecf")
+        self.mcad.save_external_circuit(exportFile)
+
+        powerInjections = []
+        powerSources = []
+        with open(exportFile, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("Component_Type=Power_Injection") or line.startswith("Component_Type=Power_Source"):
+                    component = [next(f).strip() for _ in range(10)]
+                    name = component[0].removeprefix("Name=")
+                    value = component[1].removeprefix("Value=")
+                    node = component[2].removeprefix("Node1=")
+                    description = component[7].removeprefix("Description=")
+                    if line.startswith("Component_Type=Power_Injection"):
+                        powerInjections.append((name, value, node, description))
+                    else: # power source
+                        powerSources.append((name, value, node, description))
+
+        return powerInjections, powerSources
+
     # Functions to set and get the losses in the model, used to ensure the calculations are
     # performed with the correct losses and to determine the loss distribution
     def setLosses(self, loss):
+        # Determine loss values to apply
         if isinstance(loss, Number):
             # single loss value has been supplied, apply this to all losses
             lossVector = [loss] * len(self.lossParameters)
+            lossVector_custom = [loss] * len(self.customPowerInjections)
         else:
-            lossVector = loss
+            lossVector = loss[:len(self.lossParameters)]
+            lossVector_custom = loss[len(self.lossParameters):]
+
+        # Apply loss values to default losses and custom losses
         for index, lossParameter in enumerate(self.lossParameters):
             self.mcad.set_variable(lossParameter, lossVector[index])
 
-    def getLosses(self):
-        lossVector = []
-        for lossParameter in self.lossParameters:
-            lossVector.append(self.mcad.get_variable(lossParameter))
-        return lossVector
+        for index, (name, _, node, description) in enumerate(self.customPowerInjections):
+            self.mcad.set_power_injection_value(name, node, lossVector_custom[index], 0, 0, description)
     
     def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
         # rpm must be a non-zero length list of floats (or integers)
@@ -548,11 +574,22 @@ class MotorCADTwinModel:
         usedMotFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
         self.mcad.save_to_file(usedMotFilePath)
 
-    # Verify that the only losses in the mdoel are those that have been defined by Motor-CAD
-    # Custom losses (from Lab or Thermal) are currently not supported. # TODO add custom loss handling
-    def validateMotfileLosses(self):
-        print("Verifying absence of custom losses")
+    # If Power Injection custom losses are present, save these so that they are treated the same as
+    # all other default losses. If Power Source custom losses are present, report an error as these
+    # are not supported
+    def updateCustomLosses(self):
+        self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
+        if len(powerSources) > 0:
+            assert False, f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries."
+
+        if len(self.customPowerInjections) > 0:
+            # Power injections will be treated like default Motor-CAD losses by the TB ROM
+            print("Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses")
+
+    # Validate that all the losses in the model have been determined by checking total loss is zero
+    # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero. 
+    def validateMotfileLosses(self):
         self.setLosses(0)
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
@@ -567,8 +604,7 @@ class MotorCADTwinModel:
             totalLoss = sum(abs(p) for p in powerVector)
 
         if totalLoss > 0:
-            assert False, "Custom losses are present in the thermal model. These are not currently supported. Please remove these custom losses"
-
+            assert False, "Unidentified losses are present in the model. Please contact support"
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -752,21 +788,16 @@ class MotorCADTwinModel:
     # specify a loss value using a name (such as Armature Copper Loss) and have Twin Builder
     # automatically distribute this amongst appropriate nodes.
     def generateLossDistribution(self):
-        numLossParameters = len(self.lossNames)
+        lossNames = self.lossNames + [name for (name, _, _, _) in self.customPowerInjections]
+        
+        numLossParameters = len(lossNames)
         lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames_original)))
 
         # use a small loss value of 1W
         inputLoss = 1
 
         for lossIndex in range(numLossParameters):
-            print(
-                "power distribution "
-                + str(lossIndex + 1)
-                + "/"
-                + str(numLossParameters)
-                + " : "
-                + self.lossNames[lossIndex]
-            )
+            print(f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}")
 
             exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex))
 
@@ -787,7 +818,7 @@ class MotorCADTwinModel:
                 outfile.write(", " + nodeName)
             outfile.write("\n")
 
-            for index, lossName in enumerate(self.lossNames):
+            for index, lossName in enumerate(lossNames):
                 outfile.write(str(lossName))
                 for nodeLoss in lossDistributionMatrix[index]:
                     outfile.write(", " + str(nodeLoss))
