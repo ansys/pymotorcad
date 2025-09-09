@@ -409,7 +409,10 @@ class MotorCADTwinModel:
         return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings))))
 
     def getExternalCircuitLosses(self):
-        exportFile = os.path.join(self.outputDirectory, "tmp", "externalcircuit.ecf")
+        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        if not os.path.isdir(exportDirectory):
+            os.makedirs(exportDirectory)
+        exportFile = os.path.join(exportDirectory, "externalcircuit.ecf")
         self.mcad.save_external_circuit(exportFile)
 
         powerInjections = []
