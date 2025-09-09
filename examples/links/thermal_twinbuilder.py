@@ -451,20 +451,23 @@ class MotorCADTwinModel:
 
         for index, (name, _, node, description) in enumerate(self.customPowerInjections):
             self.mcad.set_power_injection_value(name, node, lossVector_custom[index], 0, 0, description)
-    
+
     def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
+        def validate(condition, exception, message):
+            if not condition:
+                raise exception(message)
         # rpm must be a non-zero length list of floats (or integers)
-        assert(len(rpms) > 0) # TODO fix assert, replace with something more suitable
-        assert(isinstance(rpms, list))
-        assert(all(isinstance(rpm, Number) for rpm in rpms))
+        validate(isinstance(rpms, list), TypeError, "rpms must be a list")
+        validate(len(rpms) > 0, ValueError, "At least one rpm must be specified")
+        validate(all(isinstance(rpm, Number) for rpm in rpms), TypeError, f"rpms must be a list of numbers ({rpms})")
 
         # validate airgap temperatures if not None
         if (airgapTemperatures is None) or (len(airgapTemperatures)==0):
             airGapTempDependency = False
         else:        
             # airgap temperatures must be a list of floats (or integers)
-            assert(isinstance(airgapTemperatures, list))
-            assert(all(isinstance(temp, Number) for temp in airgapTemperatures))
+            validate(isinstance(airgapTemperatures, list), TypeError, "airgapTemperatures must be a list")
+            validate(all(isinstance(temp, Number) for temp in airgapTemperatures), TypeError, f"airgapTemperatures must be a list of numbers ({airgapTemperatures})")
             # ensure the .mot file is suitable for use with airgap temperature dependence
             airGapTempDependency = self.validAirgap()
 
@@ -473,19 +476,17 @@ class MotorCADTwinModel:
             coolingSystemsInputs = False
             hasBlownOver = False
         else:
-            assert(isinstance(coolingSystemsParameterSweeps, dict))
+            validate(isinstance(coolingSystemsParameterSweeps, dict), TypeError, "coolingSystemsParameterSweeps must be a dictionary of type coolingSystemSweepType")
             for (coolingSystem, parameterSweeps) in list(coolingSystemsParameterSweeps.items()):
-                assert(isinstance(coolingSystem, CoolingSystem))
-                if coolingSystem not in coolingSystemNames:
-                    warnings.warn(f"The Cooling System name {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}.")
-                    assert(False)
-                assert(isinstance(parameterSweeps, dict))
+                validate(isinstance(coolingSystem, CoolingSystem), TypeError, f"coolingSystemsParameterSweeps keys must be a CoolingSystem ({coolingSystem})")
+                validate(coolingSystem in coolingSystemNames, ValueError, f"The Cooling System named {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}")
+                validate(isinstance(parameterSweeps, dict), TypeError, f"Key {coolingSystem} values must be a dictionary")
                 for (param, paramValues) in list(parameterSweeps.items()):
-                    assert(isinstance(param, AutomationParam))
-                    assert(isinstance(paramValues, list))
+                    validate(isinstance(param, AutomationParam), TypeError, f"Key must be of type AutomationParam ({param})")
+                    validate(isinstance(paramValues, list), TypeError, f"Key {param} values must be a list")
                     if len(paramValues) == 0:
                         del coolingSystemsParameterSweeps[coolingSystem][param]
-                    assert(all(isinstance(val, Number) for val in paramValues))
+                    validate(all(isinstance(val, Number) for val in paramValues), TypeError, f"Key {param} values must be a list of numbers")
                 if len(parameterSweeps) == 0:
                     del coolingSystemsParameterSweeps[coolingSystem]
 
@@ -506,28 +507,23 @@ class MotorCADTwinModel:
                 hasBlownOver = True
                 if len(blownover) > 1:
                     paramNames = [x.name for x in blownover.keys()]
-                    warnings.warn(f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps. Blown Over variation has not been included in the model.", stacklevel=2)
-                    assert(False)
-
+                    validate(False, ValueError, f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps")
 
         # validate housing ambient temperatures if not None
         # Determine whether to include housing resistance temperature variation based on the presence
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
-        if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):
-            if hasBlownOver:
-                # using Blown Over without specifying Housing Temperatures is not allowed
-                warnings.warn("Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures.")
-                assert(False)
-                
+        if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):            
+            # using Blown Over without specifying Housing Temperatures is not allowed
             housingTempDependency = False
+            validate(not hasBlownOver, ValueError, "Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures")
         else:
-            assert(isinstance(housingAmbientTemperatures, dict))
+            validate(isinstance(housingAmbientTemperatures, dict), TypeError, "housingAmbientTemperatures must be a dictionary with keys = ambient temperature and values = housing temperatures (dict[float, List[float]])")
             for (ambientTemp, housingTempList) in housingAmbientTemperatures.items():
-                assert(isinstance(ambientTemp, Number))
+                validate(isinstance(ambientTemp, Number), TypeError, f"Ambient temperature must be a number ({ambientTemp})")
                 # housing temperatures must be a list of floats (or integers)
-                assert(isinstance(housingTempList, list))
-                assert(len(housingTempList) > 0)
-                assert(all(isinstance(temp, Number) for temp in housingTempList))
+                validate(isinstance(housingTempList, list), TypeError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list")
+                validate(len(housingTempList) > 0, ValueError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list of at least one value")
+                validate(all(isinstance(temp, Number) for temp in housingTempList), TypeError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list of numbers")
 
             housingTempDependency = True
             
@@ -584,7 +580,7 @@ class MotorCADTwinModel:
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
         if len(powerSources) > 0:
-            assert False, f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries."
+            raise NotImplementedError(f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries")
 
         if len(self.customPowerInjections) > 0:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
@@ -607,7 +603,7 @@ class MotorCADTwinModel:
             totalLoss = sum(abs(p) for p in powerVector)
 
         if totalLoss > 0:
-            assert False, "Unidentified losses are present in the model. Please contact support"
+            raise RuntimeError("Unidentified losses are present in the model. Please contact support")
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
