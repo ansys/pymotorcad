@@ -118,7 +118,14 @@ import ansys.motorcad.core as pymotorcad
 class AutomationParam:
     name: str
     automationString: str
-    tbOffset: float = 0
+    isTemperature: bool = False
+
+    @property
+    def tbOffset(self):
+        if self.isTemperature:
+            return 273.15
+        else:
+            return 0.0
 
     def __iter__(self):
         return iter(astuple(self))
@@ -131,31 +138,31 @@ class CoolingSystem:
 # All automation parameters used for the cooling systems are defined here
 rpm = AutomationParam("rpm", "Shaft_Speed")
 Ventilated_FlowRate = AutomationParam("Ventilated_FlowRate", "TVent_Flow_Rate")
-Ventilated_InletTemp = AutomationParam("Ventilated_InletTemp", "TVent_Inlet_Temperature", 273.15)
+Ventilated_InletTemp = AutomationParam("Ventilated_InletTemp", "TVent_Inlet_Temperature", True)
 HousingWJ_FlowRate = AutomationParam("HousingWJ_FlowRate", "WJ_Fluid_Volume_Flow_Rate")
-HousingWJ_InletTemp = AutomationParam("HousingWJ_InletTemp", "HousingWJ_Inlet_Temperature", 273.15)
+HousingWJ_InletTemp = AutomationParam("HousingWJ_InletTemp", "HousingWJ_Inlet_Temperature", True)
 ShaftSG_FlowRate = AutomationParam("ShaftSG_FlowRate", "Shaft_Groove_Fluid_Volume_Flow_Rate")
-ShaftSG_InletTemp = AutomationParam("ShaftSG_InletTemp", "Shaft_Groove_Fluid_Inlet_Temperature", 273.15)
+ShaftSG_InletTemp = AutomationParam("ShaftSG_InletTemp", "Shaft_Groove_Fluid_Inlet_Temperature", True)
 WetRotor_FlowRate = AutomationParam("WetRotor_FlowRate", "Wet_Rotor_Fluid_Volume_Flow_Rate")
-WetRotor_InletTemp = AutomationParam("WetRotor_InletTemp", "Wet_Rotor_Inlet_Temp", 273.15)
+WetRotor_InletTemp = AutomationParam("WetRotor_InletTemp", "Wet_Rotor_Inlet_Temp", True)
 Spray_FlowRate = AutomationParam("Spray_FlowRate", "Spray_Cooling_Fluid_Volume_Flow_Rate")
-Spray_InletTemp = AutomationParam("Spray_InletTemp", "Spray_Cooling_Inlet_Temp", 273.15)
+Spray_InletTemp = AutomationParam("Spray_InletTemp", "Spray_Cooling_Inlet_Temp", True)
 SprayRadialHousing_FlowRate = AutomationParam("SprayRadialHousing_FlowRate", "Spray_RadialHousing_VolumeFlowRate")
 SprayRadialHousing_FrontFlowProportion = AutomationParam("SprayRadialHousing_FrontFlowProportion", "Spray_RadialHousing_FlowProportion_F")
-SprayRadialHousingF_InletTemp = AutomationParam("SprayRadialHousingF_InletTemp", "Spray_RadialHousing_InletTemperature_F", 273.15)
-SprayRadialHousingR_InletTemp = AutomationParam("SprayRadialHousingR_InletTemp", "Spray_RadialHousing_InletTemperature_R", 273.15)
+SprayRadialHousingF_InletTemp = AutomationParam("SprayRadialHousingF_InletTemp", "Spray_RadialHousing_InletTemperature_F", True)
+SprayRadialHousingR_InletTemp = AutomationParam("SprayRadialHousingR_InletTemp", "Spray_RadialHousing_InletTemperature_R", True)
 SprayRadialRotor_FlowRate = AutomationParam("SprayRadialRotor_FlowRate", "Spray_RadialRotor_VolumeFlowRate")
 SprayRadialRotor_FrontFlowProportion = AutomationParam("SprayRadialRotor_FrontFlowProportion", "Spray_RadialRotor_FlowProportion_F")
-SprayRadialRotorF_InletTemp = AutomationParam("SprayRadialRotorF_InletTemp", "Spray_RadialRotor_InletTemperature_F", 273.15)
-SprayRadialRotorR_InletTemp = AutomationParam("SprayRadialRotorR_InletTemp", "Spray_RadialRotor_InletTemperature_R", 273.15)
+SprayRadialRotorF_InletTemp = AutomationParam("SprayRadialRotorF_InletTemp", "Spray_RadialRotor_InletTemperature_F", True)
+SprayRadialRotorR_InletTemp = AutomationParam("SprayRadialRotorR_InletTemp", "Spray_RadialRotor_InletTemperature_R", True)
 SprayAxialEndcap_FlowRate = AutomationParam("SprayAxialEndcap_FlowRate", "Spray_AxialEndcap_VolumeFlowRate")
 SprayAxialEndcap_FrontFlowProportion = AutomationParam("SprayAxialEndcap_FrontFlowProportion", "Spray_AxialEndcap_FlowProportion_F")
-SprayAxialEndcapF_InletTemp = AutomationParam("SprayAxialEndcapF_InletTemp", "Spray_AxialEndcap_InletTemperature_F", 273.15)
-SprayAxialEndcapR_InletTemp = AutomationParam("SprayAxialEndcapR_InletTemp", "Spray_AxialEndcap_InletTemperature_R", 273.15)
+SprayAxialEndcapF_InletTemp = AutomationParam("SprayAxialEndcapF_InletTemp", "Spray_AxialEndcap_InletTemperature_F", True)
+SprayAxialEndcapR_InletTemp = AutomationParam("SprayAxialEndcapR_InletTemp", "Spray_AxialEndcap_InletTemperature_R", True)
 RotorWJ_FlowRate = AutomationParam("RotorWJ_FlowRate", "Rotor_WJ_Fluid_Volume_Flow_Rate")
-RotorWJ_InletTemp = AutomationParam("RotorWJ_InletTemp", "RotorWJ_Inlet_Temp", 273.15)
+RotorWJ_InletTemp = AutomationParam("RotorWJ_InletTemp", "RotorWJ_Inlet_Temp", True)
 SlotWJ_FlowRate = AutomationParam("SlotWJ_FlowRate", "Slot_WJ_Fluid_Volume_Flow_Rate")
-SlotWJ_InletTemp = AutomationParam("SlotWJ_InletTemp", "Slot_WJ_Fluid_inlet_temperature", 273.15)
+SlotWJ_InletTemp = AutomationParam("SlotWJ_InletTemp", "Slot_WJ_Fluid_inlet_temperature", True)
 BlownOver_FlowRate = AutomationParam("BlownOver_FlowRate", "Forced_Conv_Default_Flow_Rate")
 BlownOver_Velocity = AutomationParam("BlownOver_Velocity", "Forced_Conv_Default_Velocity")
 
@@ -271,6 +278,7 @@ class MotorCADTwinModel:
         self.coolingSystemsPresent = dict()
         self.customPowerInjections = []
         
+        self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
@@ -298,20 +306,20 @@ class MotorCADTwinModel:
 
         self.generateCoolingSystemNetwork()
 
-        self.generateFixedTemperatures()
+        self.generateFixedTemperatures(coolingSystemsParameterSweeps)
 
         self.generateRpmSamples(rpms)
 
         self.generateLossDistribution()
+
+        if coolingSystemsInputs:
+            self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         if housingTempDependency:
             self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
 
         if airGapTempDependency:
             self.generateAirgapTempDependency(rpms, airgapTemperatures)
-
-        if coolingSystemsInputs:
-            self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         # write config file
         configFlags = {
@@ -746,23 +754,59 @@ class MotorCADTwinModel:
                     connectedNodesList.append(connectedNode)
 
         return connectedNodesList
-    
+
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-    def generateFixedTemperatures(self): # TODO update with additional node name
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+    def generateFixedTemperatures(self, coolingSystemsParameterSweeps:coolingSystemSweepType):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
         
         temperatureVector = self.getTmfData(exportDirectory)
 
-        fixedTemperatureIndexes = [
-            index
-            for index, temperature in enumerate(temperatureVector)
-            if temperature > -10000000.0
-        ]
+        # Generate list of nodes that have a fixed temperature
+        fixedTemperatureIndices = {index: [] for index, temperature in enumerate(temperatureVector) if temperature > -10000000.0}
+        
+        # Generate list of parameters that may affect fixed temperature nodes
+        temperatureParameterSweeps:list[AutomationParam] = []
+        if coolingSystemsParameterSweeps is not None:
+            for parameters in coolingSystemsParameterSweeps.values():
+                for param in parameters.keys():
+                    if param.isTemperature:
+                        temperatureParameterSweeps.append(param)
+
+        # Identify fixed temperatures controlled by each of the parameter sweeps
+        if len(temperatureParameterSweeps) > 0:
+            # Higher losses helps avoid erroeneously detecting inlet-outlet coupled temperatures 
+            self.setLosses(10)
+            # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
+            testTemperature = round(max(temperatureVector)) + 2
+            for i, parameter in enumerate(temperatureParameterSweeps):
+                fixedTempExportDirectory = os.path.join(exportDirectory, str(i))
+
+                originalValue = self.mcad.get_variable(parameter.automationString)
+                self.mcad.set_variable(parameter.automationString, testTemperature)
+                self.computeMatrices(fixedTempExportDirectory)
+
+                temperatureVector = self.getTmfData(fixedTempExportDirectory)
+                for index, temperature in enumerate(temperatureVector):
+                    if temperature == testTemperature:
+                        fixedTemperatureIndices[index].append(parameter.name)
+                # Reset tested parameter back to original value
+                self.mcad.set_variable(parameter.automationString, originalValue)
+
+        # Special case for Ambient node
+        fixedTemperatureIndices[0].append("Ambient_Temp")
 
         with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
-            for index in fixedTemperatureIndexes:
-                ft.write(str(self.nodeNames[index]) + "\n")
+            for nodeIndex, parameterNames in fixedTemperatureIndices.items():
+                if len(parameterNames) == 0:
+                    # No parameter sweep has been identified, so create an arbitrary port name
+                    parameterName = self.nodeNames[nodeIndex] + "_FixedTemp"
+                elif len(parameterNames) > 1:
+                    # Each fixed temperature can only controlled by a maximum of one parameter
+                    raise RuntimeError(f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled by more than one parameter which is not supported ({parameterNames}). Please contact support")
+                else:
+                    parameterName = parameterNames[0]
+                ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
 
 
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
@@ -842,7 +886,7 @@ class MotorCADTwinModel:
             os.makedirs(os.path.join(exportDirectory))
 
         with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
-            fout.write("Temp_Ambient=[")
+            fout.write("Ambient_Temp=[")
             ambientTemperatures = [tAmbient+273.15 for tAmbient in housingAmbientTemperatures]
             fout.write(",".join(map(str, ambientTemperatures)))
             fout.write("]\n")
@@ -1066,7 +1110,7 @@ class MotorCADTwinModel:
                 resistanceMatrix = self.getRmfData(exportDirectory)
                 r_list = []
                 c_list = []
-
+                # TODO update for new heatflow method
                 with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout, open(
                     os.path.join(exportPath, "r_nodes.txt"), "w"
                 ) as fRout:
