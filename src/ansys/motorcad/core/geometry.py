@@ -258,6 +258,50 @@ class Region(object):
         # Set the region object entities to be the list of replacement region entities
         self._entities = deepcopy(replacement_region.entities)
 
+    def extend_entity(self, entity_index, distance=None, fraction=None, extend_from_end=True):
+        """Extend an Entity of a Region by a given distance.
+
+        The Entity will be extended by keeping
+        the start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead.
+
+        Parameters
+        ----------
+        entity_index : int
+            Index of the Region Entity that is to be extended.
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if extend_from_end:
+            point = self.entities[entity_index].end
+        elif not extend_from_end:
+            point = self.entities[entity_index].start
+        else:
+            raise TypeError(f"The argument 'extend_from_end' must be True or False.")
+
+        if distance:
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, distance=-distance
+            )
+        elif fraction:
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=-fraction
+            )
+        else:
+            raise Exception(f"Please provide either a distance or fraction.")
+
+        if extend_from_end:
+            self.edit_point(self.entities[entity_index].end, new_point)
+        else:
+            self.edit_point(self.entities[entity_index].start, new_point)
+
     # method to receive region from Motor-CAD and create python object
     @classmethod
     def _from_json(cls, json, motorcad_instance=None):
@@ -1346,6 +1390,43 @@ class Entity(object):
                 return None
         else:
             return None
+
+    def extend(self, distance=None, fraction=None, extend_from_end=True):
+        """Extend an Entity object by a given distance.
+
+        The Entity will be extended by keeping the
+        start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead.
+
+        Parameters
+        ----------
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if extend_from_end:
+            point = self.end
+        elif not extend_from_end:
+            point = self.start
+        else:
+            raise TypeError(f"The argument 'extend_from_end' must be True or False.")
+
+        if distance:
+            new_point = self.get_coordinate_from_distance(point, distance=-distance)
+        elif fraction:
+            new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+        else:
+            raise Exception(f"Please provide either a distance or fraction.")
+        if extend_from_end:
+            self.end = new_point
+        else:
+            self.start = new_point
 
 
 class Line(Entity):
