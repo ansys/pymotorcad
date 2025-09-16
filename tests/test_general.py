@@ -287,3 +287,46 @@ def test_upload_mot_file(mc):
     # saving as a new file
     assert file_line_differences(upload_mot_file_path, save_file_path) < 30
     reset_to_default_file(mc)
+
+
+def test_save_load_frf(mc):
+    # reset model state
+    reset_to_default_file(mc)
+
+    # set data
+    mc.set_variable("CustomNVHFRFOrders", 2)
+    mc.set_variable("CustomNVHFRFPoints", 3)
+
+    mc.set_array_variable("CustomNVHFRFModeShape", 0, 0)
+    mc.set_array_variable("CustomNVHFRFModeExcitation", 0, "R")
+
+    mc.set_array_variable("CustomNVHFRFModeShape", 1, 0)
+    mc.set_array_variable("CustomNVHFRFModeExcitation", 1, "T")
+
+    # Frequencies
+    mc.set_array_variable("CustomNVHFRFFrequencies", 0, 20)
+    mc.set_array_variable("CustomNVHFRFFrequencies", 1, 100)
+    mc.set_array_variable("CustomNVHFRFFrequencies", 2, 500)
+
+    # FRF 0 Radial
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 0, 0, 0)
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 1, 0, 10)
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 2, 0, 20)
+
+    # FRF 0 Tangential
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 0, 1, 40)
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 1, 1, 60)
+    mc.set_array_variable_2d("CustomNVHFRFResponse", 2, 1, 80)
+
+    file_path = get_dir_path() + r"\test_files\SaveLoadFRF.txt"
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # save to file, clear and re-load
+    mc.save_nvh_frf(file_path)
+    reset_to_default_file(mc)
+    mc.load_nvh_frf(file_path)
+
+    assert mc.get_array_variable_2d("CustomNVHFRFResponse", 2, 1) == 80
+    assert mc.get_array_variable("CustomNVHFRFModeShape", 1) == 0
+    assert mc.get_array_variable("CustomNVHFRFModeExcitation", 1) == "T"
