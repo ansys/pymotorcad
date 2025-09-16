@@ -321,6 +321,8 @@ class MotorCADTwinModel:
         if airGapTempDependency:
             self.generateAirgapTempDependency(rpms, airgapTemperatures)
 
+        self.generateOutputTemperatures()
+
         # write config file
         configFlags = {
             "HousingTempDependency": 1 if housingTempDependency else 0,
@@ -822,6 +824,62 @@ class MotorCADTwinModel:
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
 
 
+    def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures   
+        def nodesFromGroup(nodeGroup):
+            nodes = [self.nodeNames[index] for index, group in enumerate(self.nodeGroupings) if group == nodeGroup]
+            return nodes
+
+        outputs = []
+
+        armatureA = nodesFromGroup("Armature Winding (Active)")
+        armatureF = nodesFromGroup("Armature Winding (Endwinding Front)")
+        armatureR = nodesFromGroup("Armature Winding (Endwinding Rear)")
+        outputs.append(("avg", "Armature Winding Average", armatureA+armatureF+armatureR))
+        outputs.append(("max", "Armature Winding Maximum", armatureA+armatureF+armatureR))
+        outputs.append(("avg", "Armature Winding (Active) Average", armatureA))
+        outputs.append(("max", "Armature Winding (Active) Maximum", armatureA))
+        outputs.append(("avg", "Armature Endwinding (Front) Average", armatureF))
+        outputs.append(("max", "Armature Endwinding (Front) Maximum", armatureF))
+        outputs.append(("avg", "Armature Endwinding (Rear) Average", armatureR))
+        outputs.append(("max", "Armature Endwinding (Rear) Maximum", armatureR))
+
+        airgap = self.getWindageLossTemperatureNodes()
+        if len(airgap) > 0:
+            outputs.append(("avg", "Airgap Average", airgap))
+
+        magnet = nodesFromGroup("Magnet")
+        outputs.append(("avg", "Magnet Average", magnet, "avg"))
+        outputs.append(("max", "Magnet Maximum", magnet, "max"))
+
+        fieldA = nodesFromGroup("Field Winding (Active)")
+        fieldF = nodesFromGroup("Field Winding (Endwinding Front)")
+        fieldR = nodesFromGroup("Field Winding (Endwinding Rear)")
+        sync = self.mcad.get_variable("Motor_Type") == 6
+        if sync:
+            outputs.append(("avg", "Field Winding Average", fieldA+fieldF+fieldR))
+            outputs.append(("max", "Field Winding Maximum", fieldA+fieldF+fieldR))
+            outputs.append(("avg", "Field Winding (Active) Average", fieldA))
+            outputs.append(("max", "Field Winding (Active) Maximum", fieldA))
+            outputs.append(("avg", "Field Endwinding (Front) Average", fieldF))
+            outputs.append(("max", "Field Endwinding (Front) Maximum", fieldF))
+            outputs.append(("avg", "Field Endwinding (Rear) Average", fieldR))
+            outputs.append(("max", "Field Endwinding (Rear) Maximum", fieldR))
+        else: # IM/IM1PH
+            outputs.append(("avg", "Rotor Cage Average", fieldA+fieldF+fieldR))
+            outputs.append(("max", "Rotor Cage Maximum", fieldA+fieldF+fieldR))
+            outputs.append(("avg", "Rotor Bar Average", fieldA))
+            outputs.append(("max", "Rotor Bar Maximum", fieldA))
+            outputs.append(("avg", "Rotor Endring (Front) Average", fieldF))
+            outputs.append(("max", "Rotor Endring (Front) Maximum", fieldF))
+            outputs.append(("avg", "Rotor Endring (Rear) Average", fieldR))
+            outputs.append(("max", "Rotor Endring (Rear) Maximum", fieldR))
+
+        with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
+            for (type, name, nodeNames) in outputs:
+                if len(nodeNames) > 0:
+                    f.write(f"{type},{name},{nodeNames}\n")
+
+
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
     def generateRpmSamples(self, rpmSamples: list):
         dps = []
@@ -1087,6 +1145,43 @@ class MotorCADTwinModel:
         airgapNodesList = list(zip(airgapNodesStator, airgapNodesRotor))
         
         return airgapNodesList
+    
+    # Get the node names that can be averaged to determine the airgap temperature for calculation
+    # of windage loss. This function needs to work for all machine types and cooling types
+    def getWindageLossTemperatureNodes(self):
+        tVent = self.mcad.get_variable("ThroughVentilation")
+        sVent = self.mcad.get_variable("SelfVentilation")
+        wetrotor = self.mcad.get_variable("Wet_Rotor")
+
+        sleeveThickness = self.mcad.get_variable("Sleeve_Thickness")
+        if sleeveThickness > 0:
+            # sleeve node present on stator side
+            statorNode = 61
+        else:
+            statorNode = 11
+        rotorNode = 12
+
+        centralNodes = []
+        if wetrotor:
+            centralNodes.append(25)
+        elif tVent or sVent:
+            statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
+            if statorCoolingOnly:
+                centralNodes.append(statorNode)
+                centralNodes.append(rotorNode)
+            else:
+                centralNodes.append(60)
+        else:
+            centralNodes.append(statorNode)
+            centralNodes.append(rotorNode)
+
+        airgapNodes = []
+        for centralNode in centralNodes:
+            airgapNodes.extend(self.getAxialSliceNodes(centralNode))
+
+        airgapNodeNames = [self.nodeNames[self.nodeNumbers.index(n)] for n in airgapNodes]
+        return airgapNodeNames
+        
 
     # Function that determines Cooling Systems nodes' resistances/capacitances at
     # different RPM, coolant flow rate and inlet temperatures, the results of which
