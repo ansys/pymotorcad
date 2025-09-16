@@ -848,8 +848,8 @@ class MotorCADTwinModel:
             outputs.append(("avg", "Airgap Average", airgap))
 
         magnet = nodesFromGroup("Magnet")
-        outputs.append(("avg", "Magnet Average", magnet, "avg"))
-        outputs.append(("max", "Magnet Maximum", magnet, "max"))
+        outputs.append(("avg", "Magnet Average", magnet))
+        outputs.append(("max", "Magnet Maximum", magnet))
 
         fieldA = nodesFromGroup("Field Winding (Active)")
         fieldF = nodesFromGroup("Field Winding (Endwinding Front)")
