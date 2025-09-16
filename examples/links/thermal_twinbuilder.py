@@ -416,6 +416,19 @@ class MotorCADTwinModel:
         # sort based on the node numbers
         return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings))))
 
+    def getAxialSliceNodes(self, midSliceNode):
+        axialSliceDefinition = self.mcad.get_variable("AxialSliceDefinition")
+        axialSlices = axialSliceDefinition * 2 + 1
+        axialSliceNodes = []
+
+        # Motor-CAD axial slices use 1-based indexing
+        for axialSlice in range(1, axialSlices+1):
+            sliceNode = self.mcad.get_offset_node_number(midSliceNode, axialSlice, 1)
+            axialSliceNodes.append(sliceNode)
+        
+        axialSliceNodes_valid = [node for node in axialSliceNodes if node in self.nodeNumbers]
+        return axialSliceNodes_valid
+    
     def getExternalCircuitLosses(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         if not os.path.isdir(exportDirectory):
@@ -1002,7 +1015,7 @@ class MotorCADTwinModel:
         fileInd = 0
         
         # Airgap nodes between which there is a temperature dependent resistance
-        airgapNodesList = self.getAirgapNodesList()
+        airgapNodesList = self.getStatorRotorAirgapNodesList()
 
         for rpm in rpmSamples:
             fileInd = fileInd + 1
@@ -1056,9 +1069,10 @@ class MotorCADTwinModel:
 
         return file_content
 
-    def getAirgapNodesList(self):
-        airgapNodesList = []
-        
+    # Function that returns the stator side airgap nodes and rotor side airgap nodes, used as part
+    # of the calculation of the airgap temperature dependent thermal resistances. Not valid for when
+    # a fluid is within the airgap.
+    def getStatorRotorAirgapNodesList(self):        
         sleeveThickness = self.mcad.get_variable("Sleeve_Thickness")
         if sleeveThickness > 0:
             # sleeve node present on stator side
@@ -1067,16 +1081,11 @@ class MotorCADTwinModel:
             airgapNodeStator_midslice = 11
 
         airgapNodeRotor_midslice = 12
-        
-        axialSliceDefinition = self.mcad.get_variable("AxialSliceDefinition")
-        axialSlices = axialSliceDefinition * 2 + 1
-        
-        # Motor-CAD axial slices use 1-based indexing
-        for axialSlice in range(1, axialSlices+1):
-            airgapNodeStator = self.mcad.get_offset_node_number(airgapNodeStator_midslice, axialSlice, 1)
-            airgapNodeRotor = self.mcad.get_offset_node_number(airgapNodeRotor_midslice, axialSlice, 1)
-            airgapNodesList.append((airgapNodeStator, airgapNodeRotor))
 
+        airgapNodesStator = self.getAxialSliceNodes(airgapNodeStator_midslice)
+        airgapNodesRotor = self.getAxialSliceNodes(airgapNodeRotor_midslice)
+        airgapNodesList = list(zip(airgapNodesStator, airgapNodesRotor))
+        
         return airgapNodesList
 
     # Function that determines Cooling Systems nodes' resistances/capacitances at
