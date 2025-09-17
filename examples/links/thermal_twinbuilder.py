@@ -81,12 +81,11 @@ Twin Builder *Motor-CAD ROM* component.
 
 # sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
 import os
-from pathlib import Path
-import warnings
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import itertools
+from pathlib import Path
 from dataclasses import dataclass, astuple
 from typing import Dict, List, Optional
 from numbers import Number
@@ -1044,7 +1043,7 @@ class MotorCADTwinModel:
             file_content.update({housingTemperature + 273.15: housingResistances})
 
         return file_content
-    
+
     def validAirgap(self):
         tVent = self.mcad.get_variable("ThroughVentilation")
         sVent = self.mcad.get_variable("SelfVentilation")
@@ -1053,16 +1052,13 @@ class MotorCADTwinModel:
         valid = True
 
         if wetrotor:
-            warnings.warn("Temperature dependent airgap not supported for wet rotor")
             valid = False
+            raise ValueError("Temperature dependent airgap not supported for wet rotor. Please set airgapTemps to None.")
         elif tVent or sVent:
             statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
             if statorCoolingOnly == False:
-                warnings.warn(
-                    "Temperature dependent airgap not supported for ventilated cooling with airgap"
-                    "flow"
-                )
                 valid = False
+                raise ValueError("Temperature dependent airgap not supported for ventilated cooling with airgap flow. Please set airgapTemps to None.")
         
         return valid
 
