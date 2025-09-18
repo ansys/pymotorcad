@@ -560,10 +560,114 @@ the **Stator** region from the **Wedge**:
 
 
 
+Rounding corners of geometry regions with Adaptive Templates
+------------------------------------------------------------
 
+The Motor-CAD Standard Template geometry has options for automatic corner rounding of the rotor
+lamination and magnets (found on the **Input Data -> Settings -> Geometry** tab). When corner
+rounding is enabled, the sharp corners of regions are modified, inserting Arc entities at the
+corners.
 
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_1.png
+    :width: 750pt
 
+    The e10 IPM template rotor geometry in Motor-CAD without (left) and with (right) corner rounding
+    enabled for the rotor lamination and magnets.
 
+Looking closely at an the e10 IPM Motor-CAD template example, when corner rounding is disabled,
+the **Rotor Pocket** regions have an inner corner formed by two Line entities (entity 3 and 4).
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_2.png
+    :width: 500pt
+
+    A corner made up of two Line entities (entity 3 and 4).
+
+When corner rounding is enabled, the **Rotor Pocket** region is made up of a larger number of
+entities. The same corner is now formed from two Line entities (entity 7 and 9) with an Arc between
+them (entity 8). The lines have been shortened and an Arc has been inserted between them at the
+corner.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_3.png
+    :width: 500pt
+
+    A corner made up of two Line entities (entity 7 and 9) and an Arc (entity 8).
+
+When customising a Motor-CAD geometry with Adaptive Templates, it is much simpler to modify the
+geometry when corner rounding is **disabled**. This is because there will be fewer entities forming the
+regions (such as the rotor pocket and magnet regions). It is recommended to set the
+**Corner Rounding (Rotor Lamination)** and **Corner Rounding (Magnets)** parameters on the
+**Input Data -> Settings -> Geometry** tab to **None (default)**.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_4.png
+    :width: 500pt
+
+    The **Input Data -> Settings -> Geometry** tab in Motor-CAD, showing the corner rounding options
+    for the Standard Template geometry.
+
+The recommended best practice when using Adaptive Templates, is to first create the custom geometry
+with 'sharp' corners, and subsequently round the corners. The ``Region.round_corner()`` and
+``Region.round_corners()`` methods can be used for automatically shortening the adjacent entities of
+a corner, and inserting an Arc.
+
+Considering the :ref:`ref_Trapezoidal_Ducts` example, where a Standard Template geometry is set up
+with rectangular rotor ducts and the ducts are modified with Adaptive Templates to form trapezoid
+shapes. Rectangular ducts in Motor-CAD have a **RDuct Corner Rad** parameter (separate from the
+**Corner Rounding (Rotor Lamination)** parameter discussed earlier), which should be set to **0 mm**
+when the rectangular duct is to be modified with Adaptive Templates. In this example, the ducts are
+modified by shortening the top line of the rectangular duct according to an Adaptive Parameter value
+(**Trapezoid_base_ratio**). For the full example, see :ref:`ref_Trapezoidal_Ducts`.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_5.png
+    :width: 750pt
+
+    Standard Template geometry with a rectangular rotor duct (left) and Adaptive Templates geometry
+    where the duct has been modified into a trapezoid shape (right).
+
+Once the ducts have been modified to form trapezoid shapes, the corners can be rounded using the
+``Region.round_corners()`` method before the updated Region is set in Motor-CAD. This method
+requires two arguments:
+
+* The corner coordinates that are to be rounded
+
+* A corner radius to be applied to all corners
+
+To get a list of all the region points, you can use ``duct_region.points``.
+
+.. code:: python
+
+    # edit the rectangular duct to form trapezoid duct:
+    duct_region.edit_point(entity.start, new_start_point)
+    duct_region.edit_point(entity.end, new_end_point)
+
+    # draw the trapezoidal duct region before rounding the corners
+    draw_objects(duct_region, label_regions=True, draw_points=True)
+
+    # round the trapezoidal duct corners
+    duct_region.round_corners(duct_region.points, 1.5)
+
+    # draw the rounded trapezoidal duct region
+    draw_objects(duct_region, label_regions=True, draw_points=True)
+
+    # set the modified duct region in Motor-CAD
+    mc.set_region(duct_region)
+
+For each of the corner coordinates, the ``Region.round_corners()`` method shortens the entities that
+are adjacent to the corners and inserts Arc entities with the specified corner radius (**1.5 mm**).
+The result is a modified Region with rounded corners.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_6.png
+    :width: 750pt
+
+    Figures plotted using the ``draw_objects()`` function of a trapezoidal rotor duct without (left)
+    and with (right) corners rounded by a radius of **1.5 mm**.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_7.png
+    :width: 400pt
+
+    The updated rotor geometry with trapezoidal rotor duct in Motor-CAD.
+
+To apply different corner radii for each corner, you can use the ``Region.round_corner()`` method
+and round corners individually.
 
 
 
