@@ -165,9 +165,9 @@ default parameter value, in the Adaptive Templates script. To do so, use the
 
     mc.set_adaptive_parameter_default("Notches per Pole", 2)
 
-This will check whether the Adaptive Parameter already exists. If the parameter does not exist, it
+This checks whether the Adaptive Parameter already exists. If the parameter does not exist, it
 creates the parameter and sets the value to the specified default value. If the parameter already
-exists in Motor-CAD, the current value will be kept and it is **not** set to the default value. To
+exists in Motor-CAD, the current value is kept and it is **not** set to the default value. To
 set an Adaptive Parameter value, you can use the ``set_adaptive_parameter_value()`` method from
 ``ansys.motorcad.core``.
 
@@ -308,7 +308,7 @@ a closed region.
         mc.set_region(notch)
 
 Attempting to set a Region in Motor-CAD that is not closed, or where the entities are not in
-anti-clockwise order, will cause issues with the geometry and the FEA calculation will fail.
+anti-clockwise order, may cause issues with the geometry and the FEA calculation may fail.
 
 Using the geometry shapes library
 ---------------------------------
@@ -393,7 +393,7 @@ location, and tick the **Use External IDE** option. The Adaptive Templates scrip
 unavailable to edit within the Motor-CAD GUI when this option is selected.
 
 To open the Adaptive Templates script file in your default IDE, click **Open with default**. To
-choose a specific IDE, click **Open with...**.
+choose a specific IDE, click **Open with**.
 
 .. figure:: ../images/adaptive_templates/user_guide_IDE.png
     :width: 500pt
@@ -406,19 +406,19 @@ Motor-CAD.
 .. code:: python
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
-docstrings and debugging when working on the script. The Adaptive Templates script can be run within
+doc strings and debugging when working on the script. The Adaptive Templates script can be run within
 the IDE, and the commands communicate with the open Motor-CAD instance when the
 ``open_new_instance=False`` option is used.
 
-For example, you can add a breakpoint and run a script in debug mode to investigate the variables.
-In the screenshot below, a breakpoint has been added to pause the script before setting a new notch
+For example, you can add a break point and run a script in debug mode to investigate the variables.
+In the screenshot below, a break point has been added to pause the script before setting a new notch
 region in Motor-CAD. Looking into the variables, you can find the ``notch`` region object and
 investigate its attributes and properties. It has 3 entities (two Line objects and one Arc object).
 
 .. figure:: ../images/adaptive_templates/user_guide_IDE_2.png
     :width: 500pt
 
-    Using a breakpoint in an Adaptive Template script to investigate variables.
+    Using a break point in an Adaptive Template script to investigate variables.
 
 This is a useful tool when working on a Python script, such as an Adaptive Templates script. You can
 look into the properties of the Region object, as well as those of the entities such as the start,
@@ -502,7 +502,7 @@ Best practices for Adaptive Templates scripting
 ***********************************************
 
 Adaptive Templates scripts in Motor-CAD can be used in many different ways to customise the electric
-machine geometry. Some approaches will be more challenging than others. For some types of geometry
+machine geometry. Some approaches are more challenging than others. For some types of geometry
 customisation, there are some recommended approaches and best practices that should be followed.
 
 Modifying stator slot openings
@@ -511,7 +511,7 @@ Modifying stator slot openings
 When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
 practices which may be followed to make the process simpler.
 
-If the modifications will reduce the available space for conductors, then the **Copper Depth [%]**
+If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
 parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
 conductors in the updated slot.
 
