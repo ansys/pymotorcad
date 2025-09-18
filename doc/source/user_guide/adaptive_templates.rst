@@ -157,12 +157,19 @@ Adaptive Parameters. Adaptive Parameters are shown in the
     **Geometry -> Editor -> Adaptive Parameters** tab in Ansys Motor-CAD 2024 R1
 
 Any parameter can be defined, with a name, value, and description. Parameters can be added within
-the Motor-CAD interface, or with a Python script by using the ``set_adaptive_parameter_value()``
-method from ``ansys.motorcad.core``:
+the Motor-CAD interface, or with a Python script. You can define an Adaptive Parameter, along with a
+default parameter value, in the Adaptive Templates script. To do so, use the
+``set_adaptive_parameter_default()`` method from ``ansys.motorcad.core``:
 
 .. code:: python
 
-    mc.set_adaptive_parameter_value("Notches per Pole", 2)
+    mc.set_adaptive_parameter_default("Notches per Pole", 2)
+
+This will check whether the Adaptive Parameter already exists. If the parameter does not exist, it
+creates the parameter and sets the value to the specified default value. If the parameter already
+exists in Motor-CAD, the current value will be kept and it is **not** set to the default value. To
+set an Adaptive Parameter value, you can use the ``set_adaptive_parameter_value()`` method from
+``ansys.motorcad.core``.
 
 Adaptive Parameters also appear in the **Geometry -> Radial** tab, alongside the Standard Template
 parameters.
@@ -187,7 +194,7 @@ As well as the defined Adaptive Parameters, any parameter from Motor-CAD can be 
 Templates script by using the ``get_variable()`` method from PyMotorCAD. Any Motor-CAD API
 accessible by PyMotorCAD is available.
 
-For example, when modifying the rotor geometry, it is often necessary to retrieve the rotor radius:
+For example, when modifying the rotor geometry, it is often useful to retrieve the rotor radius:
 
 .. code:: python
 
@@ -218,6 +225,10 @@ To create a new region to represent the notch, use the Region object from
 
     notch = Region(region_type=RegionType.rotor_air)
 
+When creating new regions, it is recommended to set the
+``RegionType`` to the appropriate type of geometry component. For a full list of available region
+types, see the ``RegionType`` entry under :ref:`ref_geometry_functions`.
+
 Defining region properties and parent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -233,8 +244,8 @@ If the region object of the rotor has been created in Python (``rotor = mc.get_r
 the rotor region object's properties can be obtained and set for the rotor notch.
 
 The ``Region.duplications`` property represents the symmetry of the region. In the example shown
-using the e9 IPM template, ``duplications = 8`` because there are 8 rotor poles of 45 ° symmetry.
-In this example, the notch would have the same symmetry as the rotor.
+using the e9 IPM template, ``duplications = 8`` because there are **8** rotor poles of **45 °**
+symmetry. In this example, the notch would have the same symmetry as the rotor.
 
 The parent region of the notch can be set to the rotor region so that the notch is set as a
 sub-region. Motor-CAD uses implicit subtractions so that the notch subtraction is handled
@@ -249,6 +260,9 @@ automatically. The notch appears as a sub-region of the rotor in tree shown in t
 Adding entities to a region
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The geometry of a Region is made up of entities (Line and Arc objects). When entities are added to
+a Region, they **must** be added in anticlockwise order.
+
 To add two Lines ``line_1, line_2`` and an Arc ``airgap_arc`` to the notch region, use the
 ``Region.add_entity()`` function from ``ansys.motorcad.core.geometry``:
 
@@ -258,7 +272,26 @@ To add two Lines ``line_1, line_2`` and an Arc ``airgap_arc`` to the notch regio
     notch.add_entity(line_2)
     notch.add_entity(airgap_arc)
 
-Line and Arc entities can be defined using Motor-CAD Coordinate objects.
+Line and Arc entities can be defined using Motor-CAD Coordinate objects. The ``Region.add_entity()``
+method adds an entity to the Region at the end of the entity list. Alternatively, the
+``Region.insert_entity()`` method inserts an entity at a specified index of the entity list,
+allowing new entities to be inserted between two existing entities.
+
+.. figure:: ../images/adaptive_templates/user_guide_notch.png
+    :width: 200pt
+
+    Three entities, **e0** (``line_1``), **e1** (``line_2``) and **e2** (``airgap_arc``), making up
+    a triangular notch Region. The entities are in order going anti-clockwise around the Region.
+
+Because the entities have been correctly added in anti-clockwise order:
+
+* The end point ``line_1.end`` is the start point ``line_2.start`` (**p1**),
+
+* the end point ``line_2.end`` is the start point ``airgap_arc.start`` (**p2**) and
+
+* the end point ``airgap_arc.end`` is the start point ``line_1.start`` (**p0**).
+
+This means that the Region is closed and could be set in Motor-CAD.
 
 Setting a region in Motor-CAD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -273,6 +306,9 @@ a closed region.
 
     if notch.is_closed():
         mc.set_region(notch)
+
+Attempting to set a Region in Motor-CAD that is not closed, or where the entities are not in
+anti-clockwise order, will cause issues with the geometry and the FEA calculation will fail.
 
 Using the geometry shapes library
 ---------------------------------
@@ -341,43 +377,90 @@ Motor-CAD scripting interface.
 This is essential when writing complex scripts, allowing issues with the script to be fixed and the
 inspection of Python objects, such as geometry regions from Motor-CAD.
 
-For more information on the Synchronous Reluctance machine geometry with curved flux barriers used
-for this example, see :ref:`ref_SYNC_Curve_Flux_Barriers`.
-
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). When
-using an external IDE, it is important to ensure that the script contains this method before
-getting or setting any Motor-CAD geometry:
+it is important to ensure that the Adaptive Template script contains this method before getting or
+setting any Motor-CAD geometry:
 
 .. code:: python
 
     mc.reset_adaptive_geometry()
 
+Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). To work
+on an Adaptive Templates script in an IDE, go to the **Geometry -> Editor -> Adaptive Templates**
+tab and select **Adaptive** under **Geometry Templates Type**. Save the script to a convenient
+location, and tick the **Use External IDE** option. The Adaptive Templates script is greyed-out and
+unavailable to edit within the Motor-CAD GUI when this option is selected.
+
+To open the Adaptive Templates script file in your default IDE, click **Open with default**. To
+choose a specific IDE, click **Open with...**.
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE.png
+    :width: 500pt
+
+    **Use External IDE** options in the Motor-CAD GUI.
+
+Adaptive Templates scripts should use the ``open_new_instance=False`` option when connecting to
+Motor-CAD.
+
+.. code:: python
+    mc = pymotorcad.MotorCAD(open_new_instance=False)
+Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
+docstrings and debugging when working on the script. The Adaptive Templates script can be run within
+the IDE, and the commands communicate with the open Motor-CAD instance when the
+``open_new_instance=False`` option is used.
+
+For example, you can add a breakpoint and run a script in debug mode to investigate the variables.
+In the screenshot below, a breakpoint has been added to pause the script before setting a new notch
+region in Motor-CAD. Looking into the variables, you can find the ``notch`` region object and
+investigate its attributes and properties. It has 3 entities (two Line objects and one Arc object).
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE_2.png
+    :width: 500pt
+
+    Using a breakpoint in an Adaptive Template script to investigate variables.
+
+This is a useful tool when working on a Python script, such as an Adaptive Templates script. You can
+look into the properties of the Region object, as well as those of the entities such as the start,
+end and midpoint coordinates, the angles of Line objects, the radii of Arc objects.
+
+IDEs such as PyCharm have a lot of useful features for editing Python scripts. It is much easier and
+more efficient to use an IDE to develop Adaptive Templates scripts, rather than the editor within
+the Motor-CAD GUI. The Motor-CAD GUI is best suited for making small edits to a script.
+
 Drawing geometry objects
 ------------------------
 When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
 feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
-the ``draw_objects_debug()`` function, which can be used to plot any region that has been defined in
-Python. This function only plots regions when called from an external IDE to assist with debugging
-scripts. To plot regions from the Motor-CAD scripting interface, use the ``draw_objects()``
-function.
+the ``draw_objects()`` function, which can be used to plot any region that has been defined in
+Python.
+
+By default, this function only plots regions when called from an external IDE to assist with
+debugging scripts. To plot regions from the Motor-CAD scripting interface, use the option
+``draw_objects(objects, draw_internal=True)``.
+
+It can also be useful to draw the points and region labels, which can be enabled using the options
+``draw_objects(objects, label_regions=True, draw_points=True)``. For more information on the
+different options available with the ``draw_objects()`` function, see :ref:`ref_geometry_drawing`.
 
 The geometry drawing package can be imported:
 
 .. code:: python
 
-    from ansys.motorcad.core.geometry_drawing import draw_objects_debug
+    from ansys.motorcad.core.geometry_drawing import draw_objects
 
 In the :ref:`ref_SYNC_Curve_Flux_Barriers` example, curved flux barrier (rotor pockets) region
-objects are added to a list, ``pockets_all_layers``. The ``draw_objects_debug()`` function can be
-used to plot the regions:
+objects are added to a list, ``pockets_all_layers``. For more information on the Synchronous
+Reluctance machine geometry with curved flux barriers used for this example, see
+:ref:`ref_SYNC_Curve_Flux_Barriers`.
+
+The ``draw_objects()`` function can be used to plot the regions:
 
 .. code:: python
 
-    draw_objects_debug(pockets_all_layers)
+    draw_objects(pockets_all_layers, label_regions=True, draw_points=True)
 
-.. figure:: ../images/Adaptive_Geometry_Drawing_all.png
+.. figure:: ../images/Adaptive_Geometry_Drawing_all_updated.png
     :width: 500pt
 
     Plot of rotor pocket regions drawn using the ``draw_objects()`` function.
