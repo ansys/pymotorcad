@@ -85,12 +85,13 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import itertools
+import logging
 from pathlib import Path
 from dataclasses import dataclass, astuple
 from typing import Dict, List, Optional
 from numbers import Number
-
 import ansys.motorcad.core as pymotorcad
+logger = logging.getLogger(__name__)
 
 # %%
 # Define the required Class
@@ -260,6 +261,10 @@ class MotorCADTwinModel:
         os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
         if not os.path.isdir(self.outputDirectory):
             os.makedirs(self.outputDirectory)
+            
+        logging.basicConfig(filename=os.path.join(self.outputDirectory, "pythonlog.txt"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+        logging.getLogger().addHandler(logging.StreamHandler())
+        logger.info("Beginning python script execution ")
 
         print("Motor-CAD input file: " + self.inputMotFilePath)
         print("TB data output dir: " + self.outputDirectory)
