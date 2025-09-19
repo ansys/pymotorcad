@@ -554,18 +554,33 @@ class MotorCADTwinModel:
 
     # Functions to update any mot file settings that need to be set appropriately
     # to ensure the correct calculations performed
-    def updateMotfile(self):
+    def updateMotfile(self):  # TODO warn of model changes
+        def warnLossScaling(parameter, scalingType, lossName):
+            if self.mcad.get_variable(parameter) == 1:
+                self.mcad.set_variable(parameter, 0)
+                print(f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately.")
+
+
         # update the model settings to those needed for the TB export
         # 1 rpm
         ## N/A no need to set RPM, this is done as required
         # 2 set small loss value
         self.setLosses(0.1)
         # 3 speed dependent losses
-        self.mcad.set_variable("Speed_Dependant_Losses", 0)
-        # 4 copper loss variation x2
+        warnLossScaling("Speed_Dependant_Losses", "speed", "")
+        # 4 temperature dependent losses x6
         ## turn off any temperature scaling losses as will affect loss distribution calculation
-        self.mcad.set_variable("StatorCopperLossesVaryWithTemp", 0)
-        self.mcad.set_variable("RotorCopperLossesVaryWithTemp", 0)
+        warnLossScaling("StatorCopperLossesVaryWithTemp", "temperature", "Armature Copper ")
+
+        motorType = self.mcad.get_variable("Motor_Type")
+        if motorType in [1, 6, 7, 8]:  # has rotor copper
+            warnLossScaling("RotorCopperLossesVaryWithTemp", "temperature", "Rotor Copper ")
+            if motorType in [1, 8]:  # IM and IM1PH have stray losses as well
+                warnLossScaling("StatorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Iron ")
+                warnLossScaling("RotorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Iron ")
+                warnLossScaling("StatorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Copper ")
+                warnLossScaling("RotorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Copper ")
+
         # 5 calculation options x3
         ## set calculation type to steadystate thermal-only (no coupling)
         self.mcad.set_variable("ThermalCalcType", 0)
