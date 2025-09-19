@@ -13,6 +13,7 @@ Geometry objects
 .. autosummary::
    :toctree: _autosummary_geometry_methods
 
+   GeometryTree
    Region
    RegionMagnet
    RegionType

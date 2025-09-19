@@ -23,8 +23,9 @@
 """Methods for adaptive geometry."""
 from warnings import warn
 
-from ansys.motorcad.core.geometry import Region, RegionMagnet
-from ansys.motorcad.core.methods.geometry_tree import GeometryTree
+from ansys.motorcad.core.geometry import GeometryTree, Region, RegionMagnet
+
+# from ansys.motorcad.core.methods.geometry_tree import GeometryTree
 from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
