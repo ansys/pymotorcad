@@ -554,7 +554,7 @@ class MotorCADTwinModel:
 
     # Functions to update any mot file settings that need to be set appropriately
     # to ensure the correct calculations performed
-    def updateMotfile(self):  # TODO warn of model changes
+    def updateMotfile(self):
         def warnLossScaling(parameter, scalingType, lossName):
             if self.mcad.get_variable(parameter) == 1:
                 self.mcad.set_variable(parameter, 0)
@@ -564,10 +564,13 @@ class MotorCADTwinModel:
         # update the model settings to those needed for the TB export
         # 1 rpm
         ## N/A no need to set RPM, this is done as required
+
         # 2 set small loss value
         self.setLosses(0.1)
+
         # 3 speed dependent losses
         warnLossScaling("Speed_Dependant_Losses", "speed", "")
+
         # 4 temperature dependent losses x6
         ## turn off any temperature scaling losses as will affect loss distribution calculation
         warnLossScaling("StatorCopperLossesVaryWithTemp", "temperature", "Armature Copper ")
@@ -586,15 +589,22 @@ class MotorCADTwinModel:
         self.mcad.set_variable("ThermalCalcType", 0)
         self.mcad.set_variable("MagneticThermalCoupling", 0)
         self.mcad.set_variable("LabThermalCoupling", 0)
+
         # 6 matrix separator
         ## export relies on semi-colon being used as the separator
         self.mcad.set_variable("ExportTextSeparator", ";")
+
         # 7 windage losses
         ## TB model will not include this logic
-        self.mcad.set_variable("Windage_Loss_Definition", 0)
+        if self.mcad.get_variable("Windage_Loss_Definition") in [1, 2]:
+            self.mcad.set_variable("Windage_Loss_Definition", 0)
+            print(f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin.")
+
         # 8 bearing losses
         ## TB model will not include this logic
-        self.mcad.set_variable("BearingLossSource", 0)
+        if self.mcad.get_variable("BearingLossSource") == 1:
+            self.mcad.set_variable("BearingLossSource", 0)
+            print(f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin.")
 
         # detect heat flow method used (new option in 2024R2)
         try:
