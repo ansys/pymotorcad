@@ -1713,7 +1713,7 @@ housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 # corresponding training data.
 coolingSystemsParameterSweeps: coolingSystemSweepType = {
     Housing_Water_Jacket: {
-        HousingWJ_FlowRate: [2/6e4, 4/6e4, 8/6e4],
+        HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
         HousingWJ_InletTemp: [40, 65],
     }
 }
