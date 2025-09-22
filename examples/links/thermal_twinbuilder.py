@@ -26,6 +26,7 @@ Motor-CAD Thermal Twin Builder ROM
 This example shows how to create the files needed to generate a Motor-CAD Thermal model using the
 Twin Builder *Motor-CAD ROM* component.
 """
+# sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
 # %%
 # Background
 # ----------
@@ -79,17 +80,18 @@ Twin Builder *Motor-CAD ROM* component.
 # Perform required imports
 # ------------------------
 
-# sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
+from dataclasses import astuple, dataclass
+import itertools
+import logging
+from numbers import Number
 import os
+from pathlib import Path
+from typing import Dict, List, Optional
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import itertools
-import logging
-from pathlib import Path
-from dataclasses import dataclass, astuple
-from typing import Dict, List, Optional
-from numbers import Number
+
 import ansys.motorcad.core as pymotorcad
 
 logger = logging.getLogger(__name__)
@@ -599,7 +601,8 @@ class MotorCADTwinModel:
                 validate(
                     coolingSystem in coolingSystemNames,
                     ValueError,
-                    f"The Cooling System named {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}",
+                    f"The Cooling System named {coolingSystem} is not part of the list of Cooling "
+                    f"Systems {coolingSystemNames}",
                 )
                 validate(
                     isinstance(parameterSweeps, dict),
@@ -649,11 +652,13 @@ class MotorCADTwinModel:
                     validate(
                         False,
                         ValueError,
-                        f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps",
+                        f"Blown Over cooling supports only a single parameter sweep, but multiple "
+                        f"have been defined ({paramNames}). Please correct "
+                        f"coolingSystemsParameterSweeps",
                     )
 
         # validate housing ambient temperatures if not None
-        # Determine whether to include housing resistance temperature variation based on the presence
+        # Determine whether to include housing resistance temperature variation based on presence
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
         if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):
             # using Blown Over without specifying Housing Temperatures is not allowed
@@ -661,13 +666,15 @@ class MotorCADTwinModel:
             validate(
                 not hasBlownOver,
                 ValueError,
-                "Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures",
+                "Use of Blown Over cooling system requires specification of Ambient and Housing "
+                "temperatures. Please populate housingAmbientTemperatures",
             )
         else:
             validate(
                 isinstance(housingAmbientTemperatures, dict),
                 TypeError,
-                "housingAmbientTemperatures must be a dictionary with keys = ambient temperature and values = housing temperatures (dict[float, List[float]])",
+                "housingAmbientTemperatures must be a dictionary with keys = ambient temperature "
+                "and values = housing temperatures (dict[float, List[float]])",
             )
             for ambientTemp, housingTempList in housingAmbientTemperatures.items():
                 validate(
@@ -684,12 +691,14 @@ class MotorCADTwinModel:
                 validate(
                     len(housingTempList) > 0,
                     ValueError,
-                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of at least one value",
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of "
+                    f"at least one value",
                 )
                 validate(
                     all(isinstance(temp, Number) for temp in housingTempList),
                     TypeError,
-                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of numbers",
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of "
+                    f"numbers",
                 )
 
             housingTempDependency = True
@@ -704,7 +713,10 @@ class MotorCADTwinModel:
             if self.mcad.get_variable(parameter) == 1:
                 self.mcad.set_variable(parameter, 0)
                 logger.warning(
-                    f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately."
+                    f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}"
+                    f"losses enabled. The generated Twin Builder Thermal ROM will not perform "
+                    f"scaling of the losses. Ensure the loss inputs to the ROM are already scaled "
+                    f"appropriately."
                 )
 
         # update the model settings to those needed for the TB export
@@ -753,7 +765,10 @@ class MotorCADTwinModel:
         if self.mcad.get_variable("Windage_Loss_Definition") in [1, 2]:
             self.mcad.set_variable("Windage_Loss_Definition", 0)
             logger.warning(
-                f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin."
+                f"Warning: The Motor-CAD model includes automatic calculation of the Windage "
+                f"losses. The generated Twin Builder Thermal ROM will not contain this loss model. "
+                f"Manually recreate the Windage loss model in Twin Builder, and assign this to the "
+                f"Windage Loss input pin."
             )
 
         # 8 bearing losses
@@ -761,7 +776,10 @@ class MotorCADTwinModel:
         if self.mcad.get_variable("BearingLossSource") == 1:
             self.mcad.set_variable("BearingLossSource", 0)
             logger.warning(
-                f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin."
+                f"Warning: The Motor-CAD model includes automatic calculation of the Bearing "
+                f"losses. The generated Twin Builder Thermal ROM will not contain this loss model. "
+                f"Manually recreate the Bearing loss model in Twin Builder, and assign this to the "
+                f"Bearing Loss input pin."
             )
 
         # detect heat flow method used (new option in 2024R2)
@@ -785,14 +803,20 @@ class MotorCADTwinModel:
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
         if len(powerSources) > 0:
-            message = f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries"
+            message = (
+                f"Custom loss Power Sources are present in the model but are not supported. "
+                f"Remove the Power Sources {powerSources}. This can be done by opening the .mot "
+                f"file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and "
+                f"using the Remove Component button to remove the appropriate entries"
+            )
             logger.error(message, stack_info=True)
             raise NotImplementedError(message)
 
         if len(self.customPowerInjections) > 0:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
             logger.info(
-                "Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses"
+                "Custom loss Power Injections found in model. These losses will be treated in the "
+                "same way as Motor-CAD defined losses"
             )
 
     # Validate that all the losses in the model have been determined by checking total loss is zero
@@ -835,9 +859,12 @@ class MotorCADTwinModel:
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
 
-        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = (
-            self.getNmfData(exportDirectory)
-        )
+        (
+            self.nodeNumbers,
+            self.nodeNames_original,
+            self.nodeNames,
+            self.nodeGroupings,
+        ) = self.getNmfData(exportDirectory)
 
         # determine which nodes are fluid nodes, and which of those are inlet nodes
         temperatureVector = self.getTmfData(exportDirectory)
@@ -933,7 +960,6 @@ class MotorCADTwinModel:
 
             # write cooling systems config file
             if len(connectedNodesLists) > 0:
-
                 with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
                     k = 0
                     for connectedNodesList in connectedNodesLists:
@@ -1016,7 +1042,11 @@ class MotorCADTwinModel:
                     parameterName = self.nodeNames[nodeIndex] + "_FixedTemp"
                 elif len(parameterNames) > 1:
                     # Each fixed temperature can only controlled by a maximum of one parameter
-                    message = f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled by more than one parameter which is not supported ({parameterNames}). Please contact support"
+                    message = (
+                        f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled "
+                        f"by more than one parameter which is not supported "
+                        f"({parameterNames}). Please contact support."
+                    )
                     logger.error(message, stack_info=True)
                     raise RuntimeError(message)
                 else:
@@ -1159,8 +1189,6 @@ class MotorCADTwinModel:
     def generateHousingTempDependency(
         self, housingAmbientTemperatures, coolingSystemsParameterSweeps: coolingSystemSweepType
     ):
-        # Determine whether to include housing resistance temperature variation based on the presence
-        # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
         exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
         if not os.path.isdir(exportDirectory):
             os.makedirs(os.path.join(exportDirectory))
@@ -1269,14 +1297,20 @@ class MotorCADTwinModel:
 
         if wetrotor:
             valid = False
-            message = "Temperature dependent airgap not supported for wet rotor. Please set airgapTemps to None."
+            message = (
+                "Temperature dependent airgap not supported for wet rotor. Please set "
+                "airgapTemps to None."
+            )
             logger.error(message, stack_info=True)
             raise NotImplementedError(message)
         elif tVent or sVent:
             statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
             if statorCoolingOnly == False:
                 valid = False
-                message = "Temperature dependent airgap not supported for ventilated cooling with airgap flow. Please set airgapTemps to None."
+                message = (
+                    "Temperature dependent airgap not supported for ventilated cooling with "
+                    "airgap flow. Please set airgapTemps to None."
+                )
                 logger.error(message, stack_info=True)
                 raise NotImplementedError(message)
 
@@ -1555,7 +1589,8 @@ class MotorCADTwinModel:
                     fileInd = fileInd + 1
                     paramNames = [param.name for param in paramList]
                     logger.info(
-                        f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}"
+                        f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with "
+                        f"parameters {paramNames} of {paramValues}"
                     )
 
                     [R, C] = self.computeMatricesCoolingSystems(
@@ -1715,8 +1750,24 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
     Housing_Water_Jacket: {
         HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
         HousingWJ_InletTemp: [40, 65],
-    }
+    },
 }
+
+# %%
+# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
+# well as the directory to which the results should be saved.
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
+
+# %%
+# Finally, generate the required data. This function will write the data to the directory
+# specified above. The identified cooling system node flow path is automatically plotted.
+MotorCADTwin.generateTwinData(
+    rpms=speeds,
+    housingAmbientTemperatures=housingAmbientTemps,
+    airgapTemperatures=airgapTemps,
+    coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
+)
+
 
 # %%
 # Generating the *Motor-CAD ROM* component
