@@ -322,9 +322,9 @@ class MotorCADTwinModel:
             format="%(asctime)s - %(levelname)s - %(message)s",
         )
         logging.getLogger().addHandler(logging.StreamHandler())
-        logger.info("Python script execution initiated.")
+        logger.info("Python script execution initiated")
         logger.info("Motor-CAD input file: " + self.inputMotFilePath)
-        logger.info("TB data output dir: " + self.outputDirectory)
+        logger.info("Training data output directory: " + self.outputDirectory)
 
         self.motFileName = None
         self.heatFlowMethod = None
@@ -402,7 +402,7 @@ class MotorCADTwinModel:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
 
-        logger.info("Python script execution completed.")
+        logger.info("Python script execution completed")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
     # ``.rmf`` and .``.tmf``)
@@ -603,7 +603,7 @@ class MotorCADTwinModel:
                     ValueError,
                     f"The Cooling System named {coolingSystem} is not part of the list of Cooling "
                     f"Systems {coolingSystemNames}",
-                )
+                )  # TODO validate spray cooling system choice is correct
                 validate(
                     isinstance(parameterSweeps, dict),
                     TypeError,
@@ -716,7 +716,7 @@ class MotorCADTwinModel:
                     f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}"
                     f"losses enabled. The generated Twin Builder Thermal ROM will not perform "
                     f"scaling of the losses. Ensure the loss inputs to the ROM are already scaled "
-                    f"appropriately."
+                    f"appropriately"
                 )
 
         # update the model settings to those needed for the TB export
@@ -768,7 +768,7 @@ class MotorCADTwinModel:
                 f"Warning: The Motor-CAD model includes automatic calculation of the Windage "
                 f"losses. The generated Twin Builder Thermal ROM will not contain this loss model. "
                 f"Manually recreate the Windage loss model in Twin Builder, and assign this to the "
-                f"Windage Loss input pin."
+                f"Windage Loss input pin"
             )
 
         # 8 bearing losses
@@ -779,7 +779,7 @@ class MotorCADTwinModel:
                 f"Warning: The Motor-CAD model includes automatic calculation of the Bearing "
                 f"losses. The generated Twin Builder Thermal ROM will not contain this loss model. "
                 f"Manually recreate the Bearing loss model in Twin Builder, and assign this to the "
-                f"Bearing Loss input pin."
+                f"Bearing Loss input pin"
             )
 
         # detect heat flow method used (new option in 2024R2)
@@ -836,7 +836,7 @@ class MotorCADTwinModel:
             totalLoss = sum(abs(p) for p in powerVector)
 
         if totalLoss > 0:
-            message = "Unidentified losses are present in the model. Please contact support"
+            message = "Unidentified losses are present in the model - please contact support"
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
 
@@ -855,7 +855,7 @@ class MotorCADTwinModel:
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings,
     # self.nodeNumbers_fluidInlet and self.nodeNumbers_fluid
     def getNodeData(self):
-        logger.info("initialization : compute matrices")
+        logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
 
@@ -885,9 +885,9 @@ class MotorCADTwinModel:
     # resulting data is required by Twin Builder to correctly model the fluid flow
     def generateCoolingSystemNetwork(self):
         if len(self.nodeNumbers_fluid) == 0:
-            logger.info("initialization: no cooling systems found")
+            logger.info("Initialization: No cooling systems found in Motor-CAD model")
         else:
-            logger.info("initialization: cooling systems found")
+            logger.info("Initialization: Cooling systems found in Motor-CAD model")
 
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
             self.computeMatrices(exportDirectory)
@@ -1118,7 +1118,7 @@ class MotorCADTwinModel:
         dps = []
 
         for index, rpm in enumerate(rpmSamples):
-            logger.info("DoE: computing sample point rpm = " + str(rpm))
+            logger.info(f"RPM = {rpm}")
             dpName = "dp" + str(index).zfill(6)
             exportDirectory = os.path.join(self.outputDirectory, dpName)
             self.computeMatrices(exportDirectory, rpm=rpm)
@@ -1145,7 +1145,7 @@ class MotorCADTwinModel:
 
         for lossIndex in range(numLossParameters):
             logger.info(
-                f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}"
+                f"Loss distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}"
             )
 
             exportDirectory = os.path.join(
@@ -1229,18 +1229,18 @@ class MotorCADTwinModel:
         for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
             fileInd = fileInd + 1
 
-            message = f"Tamb = {str(ambientTemperature)}"
+            message = f"Ambient temperature = {ambientTemperature}"
             self.mcad.set_variable("T_Ambient", ambientTemperature)
 
             if hasBlownOver:
                 # blownOverValue is a list of length 1, so get the first/only value
                 blownOverValue = blownOverValue[0]
-                message += f", {param.name} = {str(blownOverValue)}"
+                message += f", {param.name} = {blownOverValue}"
 
                 self.mcad.set_variable(param.automationString, blownOverValue)
-            logger.info(message)
+
             file_content = self.computeMatricesHousingTemps(
-                housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures
+                housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
             )
 
             with open(
@@ -1261,14 +1261,14 @@ class MotorCADTwinModel:
                     fout.write("\n")
 
     def computeMatricesHousingTemps(
-        self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures
+        self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
     ):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         file_content = dict()
 
         for housingTemperature in fixedHousingTemperatures:
-            logger.info("HousingTemp: " + str(housingTemperature))
+            logger.info(message + f", Housing temperature = {housingTemperature}")
 
             # Set the fixed temperature
             for housingNode in housingNodeNumbers:
@@ -1327,8 +1327,6 @@ class MotorCADTwinModel:
 
         for rpm in rpmSamples:
             fileInd = fileInd + 1
-            logger.info("RPM: " + str(rpm))
-
             file_content = self.computeMatricesAirgapTemp(airgapNodesList, airgapTemperatures, rpm)
 
             exportPath = os.path.join(self.outputDirectory, "AirGapTempDependency")
@@ -1350,12 +1348,11 @@ class MotorCADTwinModel:
 
     def computeMatricesAirgapTemp(self, airgapNodesList, airgapTemperatures, rpm):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
-
         file_content = dict()
 
         # Loop over each airgap average temperature
         for airgapTemperature in airgapTemperatures:
-            logger.info("Air Gap average temperature: " + str(airgapTemperature))
+            logger.info(f"RPM = {rpm}, Airgap average temperature = {airgapTemperature}")
 
             # Set the fixed temperature
             for airgapNodeStator, airgapNodeRotor in airgapNodesList:
@@ -1589,8 +1586,8 @@ class MotorCADTwinModel:
                     fileInd = fileInd + 1
                     paramNames = [param.name for param in paramList]
                     logger.info(
-                        f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with "
-                        f"parameters {paramNames} of {paramValues}"
+                        f"Cooling system sweep {fileInd}/{numDPs}: Cooling system "
+                        f"{coolingSystem.name} with parameters {paramNames} = {paramValues}"
                     )
 
                     [R, C] = self.computeMatricesCoolingSystems(
@@ -1720,6 +1717,11 @@ if Path(inputMotFilePath).exists() == False:
     motorcad.quit()
 
 # %%
+# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
+# well as the directory to which the results should be saved.
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
+
+# %%
 # Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
@@ -1752,11 +1754,6 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
         HousingWJ_InletTemp: [40, 65],
     },
 }
-
-# %%
-# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the results should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 
 # %%
 # Finally, generate the required data. This function will write the data to the directory
