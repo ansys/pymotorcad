@@ -1671,8 +1671,8 @@ def temperaturesHousingAmbient(
 
 # %%
 # Specify the input .mot file and the directory to save the output data to.
-working_folder = r"D:\OneDrive - ANSYS, Inc\Projects\Twinbuilder\26R1 updates\py script testing"
-mcad_name = "e8_multicool"
+working_folder = os.getcwd()
+mcad_name = "e8_mobility"
 inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
 outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
