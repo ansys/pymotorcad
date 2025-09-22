@@ -14,6 +14,7 @@
 * [Husain Adam](https://github.com/HusainAdam)
 * [Jack](https://github.com/JackB-Ansys)
 * [James Packer](https://github.com/james-packer)
+* [Jamie MacLeod](https://github.com/jmacleod-ansys)
 * [jgoss30](https://github.com/jgoss30)
 * [Joel H.](https://github.com/Joel-H-dot)
 * [Kathy Pippert](https://github.com/PipKat)

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, path
+from os import environ, getenv, path, putenv, unsetenv
 from pathlib import Path
 import re
 import socket
@@ -206,7 +206,7 @@ class _MotorCADConnection:
         url="",
         timeout=2,
         compatibility_mode=False,
-        use_blackbox_licence=False,
+        use_blackbox_licence=None,
     ):
         """Create a MotorCAD object for communication.
 
@@ -229,8 +229,9 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
-        use_blackbox_licence: Boolean, default: False
-            Ask Motor-CAD to consume blackbox licence.
+        use_blackbox_licence: Boolean, default: None
+            Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
+            behaviour will be used.
 
         Returns
         -------
@@ -258,8 +259,23 @@ class _MotorCADConnection:
         self._url = url
         self._timeout = timeout
 
-        if use_blackbox_licence:
-            environ["MOTORDES_BLACKBOX"] = "1"
+        if use_blackbox_licence is not None:
+            # Use the user specified desired licensing
+            if use_blackbox_licence:
+                putenv("MOTORDES_BLACKBOX", "1")
+            else:
+                putenv("MOTORDES_BLACKBOX", "0")
+        else:
+            # User has not specified a desired licensing, so use default behaviour
+            # Ensure any changes to environment variable made in scripting environment are discarded
+            # Note: value returned by getenv is unaffected by calls to putenv
+            blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
+            if blackbox_env_var_orig is None:
+                # Original blackbox environment variable does not exist, so delete if present
+                unsetenv("MOTORDES_BLACKBOX")
+            else:
+                # Reset environment variable to original value
+                putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
