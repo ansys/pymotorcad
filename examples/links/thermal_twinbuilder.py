@@ -836,7 +836,7 @@ class MotorCADTwinModel:
             totalLoss = sum(abs(p) for p in powerVector)
 
         if totalLoss > 0:
-            message = "Unidentified losses are present in the model - please contact support"
+            message = "Unidentified losses are present in the model. Please contact support"
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
 
