@@ -1713,39 +1713,10 @@ housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 # corresponding training data.
 coolingSystemsParameterSweeps: coolingSystemSweepType = {
     Housing_Water_Jacket: {
-        HousingWJ_FlowRate: [8/6e4],
-        HousingWJ_InletTemp: [75, 85, 95],
-    },
-    Spray_Cooling_Radial_Housing_Front: {
-        rpm: speeds,
-        SprayRadialHousing_FlowRate: [8/6e4],
-        SprayRadialHousingF_InletTemp: [75, 80, 85, 90, 95, 100],
-    },
-    Spray_Cooling_Radial_Housing_Rear: {
-        rpm: speeds,
-        SprayRadialHousing_FlowRate: [8/6e4],
-        SprayRadialHousingR_InletTemp: [75, 80, 85, 90, 95, 100],
-    },
-    Blown_Over: {
-        BlownOver_FlowRate: [8/6e4],
+        HousingWJ_FlowRate: [2/6e4, 4/6e4, 8/6e4],
+        HousingWJ_InletTemp: [40, 65],
     }
 }
-
-# %%
-# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the results should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
-
-# %%
-# Finally, generate the required data. This function will write the data to the directory
-# specified above. The identified cooling system node flow path is automatically plotted.
-MotorCADTwin.generateTwinData(
-    rpms=speeds,
-    housingAmbientTemperatures=housingAmbientTemps,
-    airgapTemperatures=airgapTemps,
-    coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
-)
-
 
 # %%
 # Generating the *Motor-CAD ROM* component
