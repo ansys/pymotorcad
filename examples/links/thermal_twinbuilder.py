@@ -91,6 +91,7 @@ from dataclasses import dataclass, astuple
 from typing import Dict, List, Optional
 from numbers import Number
 import ansys.motorcad.core as pymotorcad
+
 logger = logging.getLogger(__name__)
 
 # %%
@@ -114,6 +115,7 @@ logger = logging.getLogger(__name__)
 # 7. Temperature dependent Airgap heat transfer is characterized and saved to the
 #    ``AirGapTempDependency`` folder
 
+
 @dataclass(eq=True, frozen=True)
 class AutomationParam:
     name: str
@@ -130,10 +132,12 @@ class AutomationParam:
     def __iter__(self):
         return iter(astuple(self))
 
+
 @dataclass(eq=True, frozen=True)
 class CoolingSystem:
     name: str
-    groupName: str|None
+    groupName: str | None
+
 
 # All automation parameters used for the cooling systems are defined here
 rpm = AutomationParam("rpm", "Shaft_Speed")
@@ -142,23 +146,49 @@ Ventilated_InletTemp = AutomationParam("Ventilated_InletTemp", "TVent_Inlet_Temp
 HousingWJ_FlowRate = AutomationParam("HousingWJ_FlowRate", "WJ_Fluid_Volume_Flow_Rate")
 HousingWJ_InletTemp = AutomationParam("HousingWJ_InletTemp", "HousingWJ_Inlet_Temperature", True)
 ShaftSG_FlowRate = AutomationParam("ShaftSG_FlowRate", "Shaft_Groove_Fluid_Volume_Flow_Rate")
-ShaftSG_InletTemp = AutomationParam("ShaftSG_InletTemp", "Shaft_Groove_Fluid_Inlet_Temperature", True)
+ShaftSG_InletTemp = AutomationParam(
+    "ShaftSG_InletTemp", "Shaft_Groove_Fluid_Inlet_Temperature", True
+)
 WetRotor_FlowRate = AutomationParam("WetRotor_FlowRate", "Wet_Rotor_Fluid_Volume_Flow_Rate")
 WetRotor_InletTemp = AutomationParam("WetRotor_InletTemp", "Wet_Rotor_Inlet_Temp", True)
 Spray_FlowRate = AutomationParam("Spray_FlowRate", "Spray_Cooling_Fluid_Volume_Flow_Rate")
 Spray_InletTemp = AutomationParam("Spray_InletTemp", "Spray_Cooling_Inlet_Temp", True)
-SprayRadialHousing_FlowRate = AutomationParam("SprayRadialHousing_FlowRate", "Spray_RadialHousing_VolumeFlowRate")
-SprayRadialHousing_FrontFlowProportion = AutomationParam("SprayRadialHousing_FrontFlowProportion", "Spray_RadialHousing_FlowProportion_F")
-SprayRadialHousingF_InletTemp = AutomationParam("SprayRadialHousingF_InletTemp", "Spray_RadialHousing_InletTemperature_F", True)
-SprayRadialHousingR_InletTemp = AutomationParam("SprayRadialHousingR_InletTemp", "Spray_RadialHousing_InletTemperature_R", True)
-SprayRadialRotor_FlowRate = AutomationParam("SprayRadialRotor_FlowRate", "Spray_RadialRotor_VolumeFlowRate")
-SprayRadialRotor_FrontFlowProportion = AutomationParam("SprayRadialRotor_FrontFlowProportion", "Spray_RadialRotor_FlowProportion_F")
-SprayRadialRotorF_InletTemp = AutomationParam("SprayRadialRotorF_InletTemp", "Spray_RadialRotor_InletTemperature_F", True)
-SprayRadialRotorR_InletTemp = AutomationParam("SprayRadialRotorR_InletTemp", "Spray_RadialRotor_InletTemperature_R", True)
-SprayAxialEndcap_FlowRate = AutomationParam("SprayAxialEndcap_FlowRate", "Spray_AxialEndcap_VolumeFlowRate")
-SprayAxialEndcap_FrontFlowProportion = AutomationParam("SprayAxialEndcap_FrontFlowProportion", "Spray_AxialEndcap_FlowProportion_F")
-SprayAxialEndcapF_InletTemp = AutomationParam("SprayAxialEndcapF_InletTemp", "Spray_AxialEndcap_InletTemperature_F", True)
-SprayAxialEndcapR_InletTemp = AutomationParam("SprayAxialEndcapR_InletTemp", "Spray_AxialEndcap_InletTemperature_R", True)
+SprayRadialHousing_FlowRate = AutomationParam(
+    "SprayRadialHousing_FlowRate", "Spray_RadialHousing_VolumeFlowRate"
+)
+SprayRadialHousing_FrontFlowProportion = AutomationParam(
+    "SprayRadialHousing_FrontFlowProportion", "Spray_RadialHousing_FlowProportion_F"
+)
+SprayRadialHousingF_InletTemp = AutomationParam(
+    "SprayRadialHousingF_InletTemp", "Spray_RadialHousing_InletTemperature_F", True
+)
+SprayRadialHousingR_InletTemp = AutomationParam(
+    "SprayRadialHousingR_InletTemp", "Spray_RadialHousing_InletTemperature_R", True
+)
+SprayRadialRotor_FlowRate = AutomationParam(
+    "SprayRadialRotor_FlowRate", "Spray_RadialRotor_VolumeFlowRate"
+)
+SprayRadialRotor_FrontFlowProportion = AutomationParam(
+    "SprayRadialRotor_FrontFlowProportion", "Spray_RadialRotor_FlowProportion_F"
+)
+SprayRadialRotorF_InletTemp = AutomationParam(
+    "SprayRadialRotorF_InletTemp", "Spray_RadialRotor_InletTemperature_F", True
+)
+SprayRadialRotorR_InletTemp = AutomationParam(
+    "SprayRadialRotorR_InletTemp", "Spray_RadialRotor_InletTemperature_R", True
+)
+SprayAxialEndcap_FlowRate = AutomationParam(
+    "SprayAxialEndcap_FlowRate", "Spray_AxialEndcap_VolumeFlowRate"
+)
+SprayAxialEndcap_FrontFlowProportion = AutomationParam(
+    "SprayAxialEndcap_FrontFlowProportion", "Spray_AxialEndcap_FlowProportion_F"
+)
+SprayAxialEndcapF_InletTemp = AutomationParam(
+    "SprayAxialEndcapF_InletTemp", "Spray_AxialEndcap_InletTemperature_F", True
+)
+SprayAxialEndcapR_InletTemp = AutomationParam(
+    "SprayAxialEndcapR_InletTemp", "Spray_AxialEndcap_InletTemperature_R", True
+)
 RotorWJ_FlowRate = AutomationParam("RotorWJ_FlowRate", "Rotor_WJ_Fluid_Volume_Flow_Rate")
 RotorWJ_InletTemp = AutomationParam("RotorWJ_InletTemp", "RotorWJ_Inlet_Temp", True)
 SlotWJ_FlowRate = AutomationParam("SlotWJ_FlowRate", "Slot_WJ_Fluid_Volume_Flow_Rate")
@@ -172,25 +202,46 @@ Housing_Water_Jacket = CoolingSystem("Housing_Water_Jacket", "Housing Water Jack
 Shaft_Spiral_Groove = CoolingSystem("Shaft_Spiral_Groove", "Shaft Spiral Groove")
 Wet_Rotor = CoolingSystem("Wet_Rotor", "Wet Rotor")
 Spray_Cooling = CoolingSystem("Spray_Cooling", "Spray Cooling")
-Spray_Cooling_Radial_Housing_Front = CoolingSystem("Spray_Cooling_Radial_Housing_Front", "Spray Cooling")
-Spray_Cooling_Radial_Housing_Rear = CoolingSystem("Spray_Cooling_Radial_Housing_Rear", "Spray Cooling")
-Spray_Cooling_Radial_Rotor_Front = CoolingSystem("Spray_Cooling_Radial_Rotor_Front", "Spray Cooling")
+Spray_Cooling_Radial_Housing_Front = CoolingSystem(
+    "Spray_Cooling_Radial_Housing_Front", "Spray Cooling"
+)
+Spray_Cooling_Radial_Housing_Rear = CoolingSystem(
+    "Spray_Cooling_Radial_Housing_Rear", "Spray Cooling"
+)
+Spray_Cooling_Radial_Rotor_Front = CoolingSystem(
+    "Spray_Cooling_Radial_Rotor_Front", "Spray Cooling"
+)
 Spray_Cooling_Radial_Rotor_Rear = CoolingSystem("Spray_Cooling_Radial_Rotor_Rear", "Spray Cooling")
-Spray_Cooling_Axial_Endcap_Front = CoolingSystem("Spray_Cooling_Axial_Endcap_Front", "Spray Cooling")
+Spray_Cooling_Axial_Endcap_Front = CoolingSystem(
+    "Spray_Cooling_Axial_Endcap_Front", "Spray Cooling"
+)
 Spray_Cooling_Axial_Endcap_Rear = CoolingSystem("Spray_Cooling_Axial_Endcap_Rear", "Spray Cooling")
 Rotor_Water_Jacket = CoolingSystem("Rotor_Water_Jacket", "Rotor Water Jacket")
 Slot_Water_Jacket = CoolingSystem("Slot_Water_Jacket", "Slot Water Jacket")
 Blown_Over = CoolingSystem("Blown_Over", None)
 
-coolingSystemNames = [Ventilated, Housing_Water_Jacket, Shaft_Spiral_Groove, Wet_Rotor, 
-                      Spray_Cooling, Spray_Cooling_Radial_Housing_Front, 
-                      Spray_Cooling_Radial_Housing_Rear,Spray_Cooling_Radial_Rotor_Front, 
-                      Spray_Cooling_Radial_Rotor_Rear,Spray_Cooling_Axial_Endcap_Front, 
-                      Spray_Cooling_Axial_Endcap_Rear, Rotor_Water_Jacket,Slot_Water_Jacket, 
-                      Blown_Over]
+coolingSystemNames = [
+    Ventilated,
+    Housing_Water_Jacket,
+    Shaft_Spiral_Groove,
+    Wet_Rotor,
+    Spray_Cooling,
+    Spray_Cooling_Radial_Housing_Front,
+    Spray_Cooling_Radial_Housing_Rear,
+    Spray_Cooling_Radial_Rotor_Front,
+    Spray_Cooling_Radial_Rotor_Rear,
+    Spray_Cooling_Axial_Endcap_Front,
+    Spray_Cooling_Axial_Endcap_Rear,
+    Rotor_Water_Jacket,
+    Slot_Water_Jacket,
+    Blown_Over,
+]
 
 # coolingSystemData
-coolingSystemSweepType = Optional[Dict[CoolingSystem, Dict[AutomationParam, List[float]|List[int]]]]
+coolingSystemSweepType = Optional[
+    Dict[CoolingSystem, Dict[AutomationParam, List[float] | List[int]]]
+]
+
 
 class MotorCADTwinModel:
     # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
@@ -261,9 +312,13 @@ class MotorCADTwinModel:
         os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
         if not os.path.isdir(self.outputDirectory):
             os.makedirs(self.outputDirectory)
-        
+
         pythonLog = os.path.join(self.outputDirectory, "pythonlog.txt")
-        logging.basicConfig(filename=pythonLog, level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+        logging.basicConfig(
+            filename=pythonLog,
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
         logging.getLogger().addHandler(logging.StreamHandler())
         logger.info("Python script execution initiated.")
         logger.info("Motor-CAD input file: " + self.inputMotFilePath)
@@ -281,7 +336,7 @@ class MotorCADTwinModel:
         self.nodeNumbers_fluidInlet = []
         self.coolingSystemsPresent = dict()
         self.customPowerInjections = []
-        
+
         self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
@@ -296,7 +351,9 @@ class MotorCADTwinModel:
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
-        housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps)
+        housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(
+            rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
+        )
 
         self.updateMotfile()
 
@@ -320,7 +377,9 @@ class MotorCADTwinModel:
             self.generateCoolingSystemsParameterDependency(coolingSystemsParameterSweeps)
 
         if housingTempDependency:
-            self.generateHousingTempDependency(housingAmbientTemperatures, coolingSystemsParameterSweeps)
+            self.generateHousingTempDependency(
+                housingAmbientTemperatures, coolingSystemsParameterSweeps
+            )
 
         if airGapTempDependency:
             self.generateAirgapTempDependency(rpms, airgapTemperatures)
@@ -422,7 +481,10 @@ class MotorCADTwinModel:
                         nodeGroupings.append(groupName)
 
         # sort based on the node numbers
-        return (list(t) for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings))))
+        return (
+            list(t)
+            for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings)))
+        )
 
     def getAxialSliceNodes(self, midSliceNode):
         axialSliceDefinition = self.mcad.get_variable("AxialSliceDefinition")
@@ -430,13 +492,13 @@ class MotorCADTwinModel:
         axialSliceNodes = []
 
         # Motor-CAD axial slices use 1-based indexing
-        for axialSlice in range(1, axialSlices+1):
+        for axialSlice in range(1, axialSlices + 1):
             sliceNode = self.mcad.get_offset_node_number(midSliceNode, axialSlice, 1)
             axialSliceNodes.append(sliceNode)
-        
+
         axialSliceNodes_valid = [node for node in axialSliceNodes if node in self.nodeNumbers]
         return axialSliceNodes_valid
-    
+
     def getExternalCircuitLosses(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         if not os.path.isdir(exportDirectory):
@@ -449,7 +511,9 @@ class MotorCADTwinModel:
         with open(exportFile, "r") as f:
             for line in f:
                 line = line.strip()
-                if line.startswith("Component_Type=Power_Injection") or line.startswith("Component_Type=Power_Source"):
+                if line.startswith("Component_Type=Power_Injection") or line.startswith(
+                    "Component_Type=Power_Source"
+                ):
                     component = [next(f).strip() for _ in range(10)]
                     name = component[0].removeprefix("Name=")
                     value = component[1].removeprefix("Value=")
@@ -457,7 +521,7 @@ class MotorCADTwinModel:
                     description = component[7].removeprefix("Description=")
                     if line.startswith("Component_Type=Power_Injection"):
                         powerInjections.append((name, value, node, description))
-                    else: # power source
+                    else:  # power source
                         powerSources.append((name, value, node, description))
 
         return powerInjections, powerSources
@@ -471,17 +535,21 @@ class MotorCADTwinModel:
             lossVector = [loss] * len(self.lossParameters)
             lossVector_custom = [loss] * len(self.customPowerInjections)
         else:
-            lossVector = loss[:len(self.lossParameters)]
-            lossVector_custom = loss[len(self.lossParameters):]
+            lossVector = loss[: len(self.lossParameters)]
+            lossVector_custom = loss[len(self.lossParameters) :]
 
         # Apply loss values to default losses and custom losses
         for index, lossParameter in enumerate(self.lossParameters):
             self.mcad.set_variable(lossParameter, lossVector[index])
 
         for index, (name, _, node, description) in enumerate(self.customPowerInjections):
-            self.mcad.set_power_injection_value(name, node, lossVector_custom[index], 0, 0, description)
+            self.mcad.set_power_injection_value(
+                name, node, lossVector_custom[index], 0, 0, description
+            )
 
-    def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
+    def validateInputs(
+        self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
+    ):
         def validate(condition, exception, message):
             if not condition:
                 logger.error(message, stack_info=True)
@@ -490,15 +558,25 @@ class MotorCADTwinModel:
         # rpm must be a non-zero length list of floats (or integers)
         validate(isinstance(rpms, list), TypeError, "rpms must be a list")
         validate(len(rpms) > 0, ValueError, "At least one rpm must be specified")
-        validate(all(isinstance(rpm, Number) for rpm in rpms), TypeError, f"rpms must be a list of numbers ({rpms})")
+        validate(
+            all(isinstance(rpm, Number) for rpm in rpms),
+            TypeError,
+            f"rpms must be a list of numbers ({rpms})",
+        )
 
         # validate airgap temperatures if not None
-        if (airgapTemperatures is None) or (len(airgapTemperatures)==0):
+        if (airgapTemperatures is None) or (len(airgapTemperatures) == 0):
             airGapTempDependency = False
-        else:        
+        else:
             # airgap temperatures must be a list of floats (or integers)
-            validate(isinstance(airgapTemperatures, list), TypeError, "airgapTemperatures must be a list")
-            validate(all(isinstance(temp, Number) for temp in airgapTemperatures), TypeError, f"airgapTemperatures must be a list of numbers ({airgapTemperatures})")
+            validate(
+                isinstance(airgapTemperatures, list), TypeError, "airgapTemperatures must be a list"
+            )
+            validate(
+                all(isinstance(temp, Number) for temp in airgapTemperatures),
+                TypeError,
+                f"airgapTemperatures must be a list of numbers ({airgapTemperatures})",
+            )
             # ensure the .mot file is suitable for use with airgap temperature dependence
             airGapTempDependency = self.validAirgap()
 
@@ -507,24 +585,54 @@ class MotorCADTwinModel:
             coolingSystemsInputs = False
             hasBlownOver = False
         else:
-            validate(isinstance(coolingSystemsParameterSweeps, dict), TypeError, "coolingSystemsParameterSweeps must be a dictionary of type coolingSystemSweepType")
-            for (coolingSystem, parameterSweeps) in list(coolingSystemsParameterSweeps.items()):
-                validate(isinstance(coolingSystem, CoolingSystem), TypeError, f"coolingSystemsParameterSweeps keys must be a CoolingSystem ({coolingSystem})")
-                validate(coolingSystem in coolingSystemNames, ValueError, f"The Cooling System named {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}")
-                validate(isinstance(parameterSweeps, dict), TypeError, f"Key {coolingSystem} values must be a dictionary")
-                for (param, paramValues) in list(parameterSweeps.items()):
-                    validate(isinstance(param, AutomationParam), TypeError, f"Key must be of type AutomationParam ({param})")
-                    validate(isinstance(paramValues, list), TypeError, f"Key {param} values must be a list")
+            validate(
+                isinstance(coolingSystemsParameterSweeps, dict),
+                TypeError,
+                "coolingSystemsParameterSweeps must be a dictionary of type coolingSystemSweepType",
+            )
+            for coolingSystem, parameterSweeps in list(coolingSystemsParameterSweeps.items()):
+                validate(
+                    isinstance(coolingSystem, CoolingSystem),
+                    TypeError,
+                    f"coolingSystemsParameterSweeps keys must be a CoolingSystem ({coolingSystem})",
+                )
+                validate(
+                    coolingSystem in coolingSystemNames,
+                    ValueError,
+                    f"The Cooling System named {coolingSystem} is not part of the list of Cooling Systems {coolingSystemNames}",
+                )
+                validate(
+                    isinstance(parameterSweeps, dict),
+                    TypeError,
+                    f"Key {coolingSystem} values must be a dictionary",
+                )
+                for param, paramValues in list(parameterSweeps.items()):
+                    validate(
+                        isinstance(param, AutomationParam),
+                        TypeError,
+                        f"Key must be of type AutomationParam ({param})",
+                    )
+                    validate(
+                        isinstance(paramValues, list),
+                        TypeError,
+                        f"Key {param} values must be a list",
+                    )
                     if len(paramValues) == 0:
                         del coolingSystemsParameterSweeps[coolingSystem][param]
-                    validate(all(isinstance(val, Number) for val in paramValues), TypeError, f"Key {param} values must be a list of numbers")
+                    validate(
+                        all(isinstance(val, Number) for val in paramValues),
+                        TypeError,
+                        f"Key {param} values must be a list of numbers",
+                    )
                 if len(parameterSweeps) == 0:
                     del coolingSystemsParameterSweeps[coolingSystem]
 
             if len(coolingSystemsParameterSweeps) == 0:
                 # Check again for length zero, as items may have been deleted
                 coolingSystemsInputs = False
-            elif (len(coolingSystemsParameterSweeps) == 1) and (Blown_Over in coolingSystemsParameterSweeps):
+            elif (len(coolingSystemsParameterSweeps) == 1) and (
+                Blown_Over in coolingSystemsParameterSweeps
+            ):
                 # Only blown over key exists. This is not treated as part of the cooling system
                 coolingSystemsInputs = False
             else:
@@ -538,26 +646,54 @@ class MotorCADTwinModel:
                 hasBlownOver = True
                 if len(blownover) > 1:
                     paramNames = [x.name for x in blownover.keys()]
-                    validate(False, ValueError, f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps")
+                    validate(
+                        False,
+                        ValueError,
+                        f"Blown Over cooling supports only a single parameter sweep, but multiple have been defined ({paramNames}). \nPlease correct coolingSystemsParameterSweeps",
+                    )
 
         # validate housing ambient temperatures if not None
         # Determine whether to include housing resistance temperature variation based on the presence
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
-        if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):            
+        if (housingAmbientTemperatures is None) or (len(housingAmbientTemperatures) == 0):
             # using Blown Over without specifying Housing Temperatures is not allowed
             housingTempDependency = False
-            validate(not hasBlownOver, ValueError, "Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures")
+            validate(
+                not hasBlownOver,
+                ValueError,
+                "Use of Blown Over cooling system requires specification of Ambient and Housing temperatures. Please populate housingAmbientTemperatures",
+            )
         else:
-            validate(isinstance(housingAmbientTemperatures, dict), TypeError, "housingAmbientTemperatures must be a dictionary with keys = ambient temperature and values = housing temperatures (dict[float, List[float]])")
-            for (ambientTemp, housingTempList) in housingAmbientTemperatures.items():
-                validate(isinstance(ambientTemp, Number), TypeError, f"Ambient temperature must be a number ({ambientTemp})")
+            validate(
+                isinstance(housingAmbientTemperatures, dict),
+                TypeError,
+                "housingAmbientTemperatures must be a dictionary with keys = ambient temperature and values = housing temperatures (dict[float, List[float]])",
+            )
+            for ambientTemp, housingTempList in housingAmbientTemperatures.items():
+                validate(
+                    isinstance(ambientTemp, Number),
+                    TypeError,
+                    f"Ambient temperature must be a number ({ambientTemp})",
+                )
                 # housing temperatures must be a list of floats (or integers)
-                validate(isinstance(housingTempList, list), TypeError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list")
-                validate(len(housingTempList) > 0, ValueError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list of at least one value")
-                validate(all(isinstance(temp, Number) for temp in housingTempList), TypeError, f"Housing temperatures for ambient temperature {ambientTemp} must be a list of numbers")
+                validate(
+                    isinstance(housingTempList, list),
+                    TypeError,
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list",
+                )
+                validate(
+                    len(housingTempList) > 0,
+                    ValueError,
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of at least one value",
+                )
+                validate(
+                    all(isinstance(temp, Number) for temp in housingTempList),
+                    TypeError,
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be a list of numbers",
+                )
 
             housingTempDependency = True
-            
+
         # TODO consider coupled cooling system warning
         return housingTempDependency, airGapTempDependency, coolingSystemsInputs
 
@@ -567,7 +703,9 @@ class MotorCADTwinModel:
         def warnLossScaling(parameter, scalingType, lossName):
             if self.mcad.get_variable(parameter) == 1:
                 self.mcad.set_variable(parameter, 0)
-                logger.warning(f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately.")
+                logger.warning(
+                    f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately."
+                )
 
         # update the model settings to those needed for the TB export
         # 1 rpm
@@ -587,10 +725,18 @@ class MotorCADTwinModel:
         if motorType in [1, 6, 7, 8]:  # has rotor copper
             warnLossScaling("RotorCopperLossesVaryWithTemp", "temperature", "Rotor Copper ")
             if motorType in [1, 8]:  # IM and IM1PH have stray losses as well
-                warnLossScaling("StatorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Iron ")
-                warnLossScaling("RotorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Iron ")
-                warnLossScaling("StatorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Copper ")
-                warnLossScaling("RotorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Copper ")
+                warnLossScaling(
+                    "StatorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Iron "
+                )
+                warnLossScaling(
+                    "RotorIronStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Iron "
+                )
+                warnLossScaling(
+                    "StatorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Stator Copper "
+                )
+                warnLossScaling(
+                    "RotorCopperStrayLoadLossesVaryWithTemp", "temperature", "Stray Rotor Copper "
+                )
 
         # 5 calculation options x3
         ## set calculation type to steadystate thermal-only (no coupling)
@@ -606,13 +752,17 @@ class MotorCADTwinModel:
         ## TB model will not include this logic
         if self.mcad.get_variable("Windage_Loss_Definition") in [1, 2]:
             self.mcad.set_variable("Windage_Loss_Definition", 0)
-            logger.warning(f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin.")
+            logger.warning(
+                f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin."
+            )
 
         # 8 bearing losses
         ## TB model will not include this logic
         if self.mcad.get_variable("BearingLossSource") == 1:
             self.mcad.set_variable("BearingLossSource", 0)
-            logger.warning(f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin.")
+            logger.warning(
+                f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin."
+            )
 
         # detect heat flow method used (new option in 2024R2)
         try:
@@ -641,10 +791,12 @@ class MotorCADTwinModel:
 
         if len(self.customPowerInjections) > 0:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
-            logger.info("Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses")
+            logger.info(
+                "Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses"
+            )
 
     # Validate that all the losses in the model have been determined by checking total loss is zero
-    # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero. 
+    # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero.
     def validateMotfileLosses(self):
         self.setLosses(0)
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
@@ -683,14 +835,16 @@ class MotorCADTwinModel:
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
 
-        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = self.getNmfData(exportDirectory)
+        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = (
+            self.getNmfData(exportDirectory)
+        )
 
         # determine which nodes are fluid nodes, and which of those are inlet nodes
         temperatureVector = self.getTmfData(exportDirectory)
 
         coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
 
-        for (index, nodeNumber) in enumerate(self.nodeNumbers):
+        for index, nodeNumber in enumerate(self.nodeNumbers):
             if self.nodeGroupings[index] in coolingsystemGroupings:
                 self.nodeNumbers_fluid.append(nodeNumber)
 
@@ -700,7 +854,6 @@ class MotorCADTwinModel:
                 if isInlet_check1 and isInlet_check2:
                     self.nodeNumbers_fluidInlet.append(nodeNumber)
 
-
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
     def generateCoolingSystemNetwork(self):
@@ -708,7 +861,7 @@ class MotorCADTwinModel:
             logger.info("initialization: no cooling systems found")
         else:
             logger.info("initialization: cooling systems found")
-            
+
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
             self.computeMatrices(exportDirectory)
 
@@ -719,7 +872,7 @@ class MotorCADTwinModel:
             for fluidNode in self.nodeNumbers_fluid:
                 if fluidNode not in graphNodes:
                     graphNodes.append(fluidNode)
-                    
+
                 connectedFluidNodes = self.returnConnectedNodes(
                     fluidNode, self.nodeNumbers_fluid, resistanceMatrix
                 )
@@ -754,7 +907,12 @@ class MotorCADTwinModel:
                         if line[k] > 0 and graphNodes[k] not in covered:
                             # don't consider first connection for the power correction
                             if node != inletNode:
-                                connectedNodesList.append([self.nodeNames[self.nodeNumbers.index(node)], self.nodeNames[self.nodeNumbers.index(graphNodes[k])]])
+                                connectedNodesList.append(
+                                    [
+                                        self.nodeNames[self.nodeNumbers.index(node)],
+                                        self.nodeNames[self.nodeNumbers.index(graphNodes[k])],
+                                    ]
+                                )
                                 connectedNodesInd.append([node, graphNodes[k]])
 
                             curGraphEdges.append([node, graphNodes[k]])
@@ -789,7 +947,7 @@ class MotorCADTwinModel:
                         for connectedNodes in connectedNodesList:
                             cs.write(str(connectedNodes) + "\n")
                         k = k + 1
-    
+
     # Returns the sublist of nodeList that is connected to node
     def returnConnectedNodes(self, node, nodeList, resistanceMatrix):
         nodeIndex = self.nodeNumbers.index(node)
@@ -807,17 +965,21 @@ class MotorCADTwinModel:
         return connectedNodesList
 
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-    def generateFixedTemperatures(self, coolingSystemsParameterSweeps:coolingSystemSweepType):
+    def generateFixedTemperatures(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
-        
+
         temperatureVector = self.getTmfData(exportDirectory)
 
         # Generate list of nodes that have a fixed temperature
-        fixedTemperatureIndices = {index: [] for index, temperature in enumerate(temperatureVector) if temperature > -10000000.0}
-        
+        fixedTemperatureIndices = {
+            index: []
+            for index, temperature in enumerate(temperatureVector)
+            if temperature > -10000000.0
+        }
+
         # Generate list of parameters that may affect fixed temperature nodes
-        temperatureParameterSweeps:list[AutomationParam] = []
+        temperatureParameterSweeps: list[AutomationParam] = []
         if coolingSystemsParameterSweeps is not None:
             for parameters in coolingSystemsParameterSweeps.values():
                 for param in parameters.keys():
@@ -826,7 +988,7 @@ class MotorCADTwinModel:
 
         # Identify fixed temperatures controlled by each of the parameter sweeps
         if len(temperatureParameterSweeps) > 0:
-            # Higher losses helps avoid erroeneously detecting inlet-outlet coupled temperatures 
+            # Higher losses helps avoid erroeneously detecting inlet-outlet coupled temperatures
             self.setLosses(10)
             # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
             testTemperature = round(max(temperatureVector)) + 2
@@ -862,10 +1024,13 @@ class MotorCADTwinModel:
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
         # TODO handle fixed temperature controlled coupled cooling systems
 
-
-    def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures   
+    def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures
         def nodesFromGroup(nodeGroup):
-            nodes = [self.nodeNames[index] for index, group in enumerate(self.nodeGroupings) if group == nodeGroup]
+            nodes = [
+                self.nodeNames[index]
+                for index, group in enumerate(self.nodeGroupings)
+                if group == nodeGroup
+            ]
             return nodes
 
         outputs = []
@@ -873,8 +1038,8 @@ class MotorCADTwinModel:
         armatureA = nodesFromGroup("Armature Winding (Active)")
         armatureF = nodesFromGroup("Armature Winding (Endwinding Front)")
         armatureR = nodesFromGroup("Armature Winding (Endwinding Rear)")
-        outputs.append(("avg", "Armature Winding Average", armatureA+armatureF+armatureR))
-        outputs.append(("max", "Armature Winding Maximum", armatureA+armatureF+armatureR))
+        outputs.append(("avg", "Armature Winding Average", armatureA + armatureF + armatureR))
+        outputs.append(("max", "Armature Winding Maximum", armatureA + armatureF + armatureR))
         outputs.append(("avg", "Armature Winding (Active) Average", armatureA))
         outputs.append(("max", "Armature Winding (Active) Maximum", armatureA))
         outputs.append(("avg", "Armature Endwinding (Front) Average", armatureF))
@@ -895,17 +1060,17 @@ class MotorCADTwinModel:
         fieldR = nodesFromGroup("Field Winding (Endwinding Rear)")
         sync = self.mcad.get_variable("Motor_Type") == 6
         if sync:
-            outputs.append(("avg", "Field Winding Average", fieldA+fieldF+fieldR))
-            outputs.append(("max", "Field Winding Maximum", fieldA+fieldF+fieldR))
+            outputs.append(("avg", "Field Winding Average", fieldA + fieldF + fieldR))
+            outputs.append(("max", "Field Winding Maximum", fieldA + fieldF + fieldR))
             outputs.append(("avg", "Field Winding (Active) Average", fieldA))
             outputs.append(("max", "Field Winding (Active) Maximum", fieldA))
             outputs.append(("avg", "Field Endwinding (Front) Average", fieldF))
             outputs.append(("max", "Field Endwinding (Front) Maximum", fieldF))
             outputs.append(("avg", "Field Endwinding (Rear) Average", fieldR))
             outputs.append(("max", "Field Endwinding (Rear) Maximum", fieldR))
-        else: # IM/IM1PH
-            outputs.append(("avg", "Rotor Cage Average", fieldA+fieldF+fieldR))
-            outputs.append(("max", "Rotor Cage Maximum", fieldA+fieldF+fieldR))
+        else:  # IM/IM1PH
+            outputs.append(("avg", "Rotor Cage Average", fieldA + fieldF + fieldR))
+            outputs.append(("max", "Rotor Cage Maximum", fieldA + fieldF + fieldR))
             outputs.append(("avg", "Rotor Bar Average", fieldA))
             outputs.append(("max", "Rotor Bar Maximum", fieldA))
             outputs.append(("avg", "Rotor Endring (Front) Average", fieldF))
@@ -914,10 +1079,9 @@ class MotorCADTwinModel:
             outputs.append(("max", "Rotor Endring (Rear) Maximum", fieldR))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
-            for (type, name, nodeNames) in outputs:
+            for type, name, nodeNames in outputs:
                 if len(nodeNames) > 0:
                     f.write(f"{type},{name},{nodeNames}\n")
-
 
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
     def generateRpmSamples(self, rpmSamples: list):
@@ -933,7 +1097,7 @@ class MotorCADTwinModel:
         # write doe file
         with open(os.path.join(self.outputDirectory, "doe.csv"), "w") as cf:
             cf.write("Name, rpm\n")
-            for (dpName, rpm) in dps:
+            for dpName, rpm in dps:
                 cf.write(dpName + ", " + str(rpm))
                 cf.write("\n")
 
@@ -942,7 +1106,7 @@ class MotorCADTwinModel:
     # automatically distribute this amongst appropriate nodes.
     def generateLossDistribution(self):
         lossNames = self.lossNames + [name for (name, _, _, _) in self.customPowerInjections]
-        
+
         numLossParameters = len(lossNames)
         lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames_original)))
 
@@ -950,9 +1114,13 @@ class MotorCADTwinModel:
         inputLoss = 1
 
         for lossIndex in range(numLossParameters):
-            logger.info(f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}")
+            logger.info(
+                f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}"
+            )
 
-            exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex))
+            exportDirectory = os.path.join(
+                self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex)
+            )
 
             lossVector = [0.0] * numLossParameters
             lossVector[lossIndex] = inputLoss
@@ -988,8 +1156,10 @@ class MotorCADTwinModel:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
     #       tAmbient2:[tHousingx, ..., tHousingz],
     #       tAmbient3:[tHousingy, ..., tHousingz]}
-    def generateHousingTempDependency(self, housingAmbientTemperatures, coolingSystemsParameterSweeps:coolingSystemSweepType):
-        # Determine whether to include housing resistance temperature variation based on the presence 
+    def generateHousingTempDependency(
+        self, housingAmbientTemperatures, coolingSystemsParameterSweeps: coolingSystemSweepType
+    ):
+        # Determine whether to include housing resistance temperature variation based on the presence
         # of housing ambient temperatures and/or a Blown Over cooling system parameter sweep.
         exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
         if not os.path.isdir(exportDirectory):
@@ -997,28 +1167,30 @@ class MotorCADTwinModel:
 
         with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
             fout.write("Ambient_Temp=[")
-            ambientTemperatures = [tAmbient+273.15 for tAmbient in housingAmbientTemperatures]
+            ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
             fout.write(",".join(map(str, ambientTemperatures)))
             fout.write("]\n")
-        
+
         housingNodeNumbers = []
         housingNodeIndices = []
         housingNodeNames = []
-        for (index, nodeNumber) in enumerate(self.nodeNumbers):
+        for index, nodeNumber in enumerate(self.nodeNumbers):
             # housing node selection includes special case for plate node
             if (self.nodeGroupings[index] == "Housing") or (nodeNumber == 5):
                 housingNodeNumbers.append(nodeNumber)
                 housingNodeIndices.append(index)
                 housingNodeNames.append(self.nodeNames[index])
 
-        if (coolingSystemsParameterSweeps is not None) and (Blown_Over in coolingSystemsParameterSweeps):
+        if (coolingSystemsParameterSweeps is not None) and (
+            Blown_Over in coolingSystemsParameterSweeps
+        ):
             blownover = coolingSystemsParameterSweeps[Blown_Over]
             (param, paramValues) = list(blownover.items())[0]
             with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
-                paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                 fout.write(param.name + "=" + str(paramValuesTB))
                 fout.write("\n")
-                
+
             hasBlownOver = True
             paramValues = itertools.product(list(housingAmbientTemperatures.items()), paramValues)
         else:
@@ -1036,17 +1208,19 @@ class MotorCADTwinModel:
                 # blownOverValue is a list of length 1, so get the first/only value
                 blownOverValue = blownOverValue[0]
                 message += f", {param.name} = {str(blownOverValue)}"
-                
+
                 self.mcad.set_variable(param.automationString, blownOverValue)
             logger.info(message)
-            file_content = self.computeMatricesHousingTemps(housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures)
+            file_content = self.computeMatricesHousingTemps(
+                housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures
+            )
 
             with open(
                 os.path.join(exportDirectory, "Housing_Temp" + str(fileInd) + ".csv"), "w"
             ) as fout:
                 fout.write(str(ambientTemperature + 273.15))
                 fout.write("\n")
-                
+
                 if hasBlownOver:
                     fout.write(str(blownOverValue))
                     fout.write("\n")
@@ -1058,7 +1232,9 @@ class MotorCADTwinModel:
                     fout.write("," + ",".join(map(str, item)))
                     fout.write("\n")
 
-    def computeMatricesHousingTemps(self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures):
+    def computeMatricesHousingTemps(
+        self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures
+    ):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         file_content = dict()
@@ -1103,7 +1279,7 @@ class MotorCADTwinModel:
                 message = "Temperature dependent airgap not supported for ventilated cooling with airgap flow. Please set airgapTemps to None."
                 logger.error(message, stack_info=True)
                 raise NotImplementedError(message)
-        
+
         return valid
 
     # Function that determines the Stator to Rotor airgap resistance at different housing
@@ -1111,7 +1287,7 @@ class MotorCADTwinModel:
     # temperature dependent nature of this resistance
     def generateAirgapTempDependency(self, rpmSamples, airgapTemperatures):
         fileInd = 0
-        
+
         # Airgap nodes between which there is a temperature dependent resistance
         airgapNodesList = self.getStatorRotorAirgapNodesList()
 
@@ -1150,9 +1326,13 @@ class MotorCADTwinModel:
             # Set the fixed temperature
             for airgapNodeStator, airgapNodeRotor in airgapNodesList:
                 name = "Airgap_Stator_Node_" + str(airgapNodeStator)
-                self.mcad.set_fixed_temperature_value(name, airgapNodeStator, airgapTemperature, name)
+                self.mcad.set_fixed_temperature_value(
+                    name, airgapNodeStator, airgapTemperature, name
+                )
                 name = "Airgap_Rotor_Node_" + str(airgapNodeRotor)
-                self.mcad.set_fixed_temperature_value(name, airgapNodeRotor, airgapTemperature, name)
+                self.mcad.set_fixed_temperature_value(
+                    name, airgapNodeRotor, airgapTemperature, name
+                )
 
             self.computeMatrices(exportDirectory, rpm=rpm)
             resistanceMatrix = self.getRmfData(exportDirectory)
@@ -1170,7 +1350,7 @@ class MotorCADTwinModel:
     # Function that returns the stator side airgap nodes and rotor side airgap nodes, used as part
     # of the calculation of the airgap temperature dependent thermal resistances. Not valid for when
     # a fluid is within the airgap.
-    def getStatorRotorAirgapNodesList(self):        
+    def getStatorRotorAirgapNodesList(self):
         sleeveThickness = self.mcad.get_variable("Sleeve_Thickness")
         if sleeveThickness > 0:
             # sleeve node present on stator side
@@ -1183,9 +1363,9 @@ class MotorCADTwinModel:
         airgapNodesStator = self.getAxialSliceNodes(airgapNodeStator_midslice)
         airgapNodesRotor = self.getAxialSliceNodes(airgapNodeRotor_midslice)
         airgapNodesList = list(zip(airgapNodesStator, airgapNodesRotor))
-        
+
         return airgapNodesList
-    
+
     # Get the node names that can be averaged to determine the airgap temperature for calculation
     # of windage loss. This function needs to work for all machine types and cooling types
     def getWindageLossTemperatureNodes(self):
@@ -1221,7 +1401,6 @@ class MotorCADTwinModel:
 
         airgapNodeNames = [self.nodeNames[self.nodeNumbers.index(n)] for n in airgapNodes]
         return airgapNodeNames
-        
 
     # Function that determines Cooling Systems nodes' resistances/capacitances at
     # different RPM, coolant flow rate and inlet temperatures, the results of which
@@ -1229,21 +1408,25 @@ class MotorCADTwinModel:
     # dependencies. coolingSystemsParameterSweeps is a dictionary with keys describing
     # the Cooling System name and value being another dictionary storing
     # the parameter (RPM, Flow Rate, Inlet Temperature) values to evaluate
-    def generateCoolingSystemsParameterDependency(self, coolingSystemsParameterSweeps:coolingSystemSweepType):
+    def generateCoolingSystemsParameterDependency(
+        self, coolingSystemsParameterSweeps: coolingSystemSweepType
+    ):
         if coolingSystemsParameterSweeps is not None:
             for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
                 # skip over Blown Over, as this is handled separately
                 if coolingSystem == Blown_Over:
                     continue
 
-                exportPath = os.path.join(self.outputDirectory, "CoolingSystems", self.unbracket(coolingSystem.name))
+                exportPath = os.path.join(
+                    self.outputDirectory, "CoolingSystems", self.unbracket(coolingSystem.name)
+                )
                 if not os.path.isdir(exportPath):
                     os.makedirs(os.path.join(exportPath))
 
                 numDPs = 0
                 with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
                     for param, paramValues in parameters.items():
-                        paramValuesTB = [paramValue+param.tbOffset for paramValue in paramValues]
+                        paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                         fout.write(param.name + "=" + str(paramValuesTB))
                         fout.write("\n")
                         numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
@@ -1260,7 +1443,10 @@ class MotorCADTwinModel:
                 ) as fRout:
                     covered_nodes = dict()
                     for inNode, conList in self.coolingSystemsPresent.items():
-                        if self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem.groupName:
+                        if (
+                            self.nodeGroupings[self.nodeNumbers.index(inNode)]
+                            == coolingSystem.groupName
+                        ):
                             upnode = inNode
                             coolSys = conList
                             break
@@ -1300,7 +1486,9 @@ class MotorCADTwinModel:
                                         fRout.write(
                                             self.nodeNames[self.nodeNumbers.index(upnode)]
                                             + " "
-                                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
+                                            + self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
                                             + "\n"
                                         )
                                         r_list.append(
@@ -1313,16 +1501,18 @@ class MotorCADTwinModel:
                                         )
                                 if upnode not in self.nodeNumbers_fluidInlet:
                                     fCout.write(
-                                        self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        + "\n"
+                                        self.nodeNames[self.nodeNumbers.index(upnode)] + "\n"
                                     )
                                     c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                                 covered_nodes.update({upnode: connectedNodes})
 
-                    if (len(coolSys) == 0):  
+                    if len(coolSys) == 0:
                         # particular case where the cooling system has only 2 nodes (inlet/outlet)
                         for upnode in connectedNodes:
-                            if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
+                            if (
+                                self.nodeGroupings[self.nodeNumbers.index(upnode)]
+                                == coolingSystem.groupName
+                            ):
                                 # make sure the connected node still belongs to cooling system
                                 connectedNodes = self.returnConnectedNodes(
                                     upnode, self.nodeNumbers, resistanceMatrix
@@ -1335,7 +1525,9 @@ class MotorCADTwinModel:
                                         fRout.write(
                                             self.nodeNames[self.nodeNumbers.index(upnode)]
                                             + " "
-                                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
+                                            + self.nodeNames[
+                                                self.nodeNumbers.index(connectedNodes[i])
+                                            ]
                                             + "\n"
                                         )
                                         r_list.append(
@@ -1348,8 +1540,7 @@ class MotorCADTwinModel:
                                         )
                                 if upnode not in self.nodeNumbers_fluidInlet:
                                     fCout.write(
-                                        self.nodeNames[self.nodeNumbers.index(upnode)]
-                                        + "\n"
+                                        self.nodeNames[self.nodeNumbers.index(upnode)] + "\n"
                                     )
                                     c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
                                 covered_nodes.update({upnode: connectedNodes})
@@ -1363,27 +1554,34 @@ class MotorCADTwinModel:
                     paramValues = list(reversed(paramValues))
                     fileInd = fileInd + 1
                     paramNames = [param.name for param in paramList]
-                    logger.info(f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}")
+                    logger.info(
+                        f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}"
+                    )
 
-                    [R, C] = self.computeMatricesCoolingSystems(paramList, paramValues, r_list, c_list, fileInd)
+                    [R, C] = self.computeMatricesCoolingSystems(
+                        paramList, paramValues, r_list, c_list, fileInd
+                    )
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
-                        with open(os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w") as fout:
+                        with open(
+                            os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w"
+                        ) as fout:
                             for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
-                                paramValueTB = paramValue+paramList[index].tbOffset
+                                paramValueTB = paramValue + paramList[index].tbOffset
                                 fout.write(str(paramValueTB) + "\n")
                             for el in elementList:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
 
-
-    def computeMatricesCoolingSystems(self, paramList:List[AutomationParam], paramValues, r_list, c_list, fileInd):
+    def computeMatricesCoolingSystems(
+        self, paramList: List[AutomationParam], paramValues, r_list, c_list, fileInd
+    ):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
-        for (param, paramVal) in zip(paramList, paramValues):
+        for param, paramVal in zip(paramList, paramValues):
             self.mcad.set_variable(param.automationString, paramVal)
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
@@ -1422,7 +1620,9 @@ class MotorCADTwinModel:
 # function has been defined to return this dictionary. As can be seen in the code comments, more
 # data points are calculated when the housing and ambient temperatures are close together, as this
 # is where the natural convection heat transfer coefficients vary the most.
-def temperaturesHousingAmbient(ambientTemperatures: List[float], housingTemperatureMin: float, housingTemperatureMax: float) -> dict[float, List[float]]: 
+def temperaturesHousingAmbient(
+    ambientTemperatures: List[float], housingTemperatureMin: float, housingTemperatureMax: float
+) -> dict[float, List[float]]:
     # For each ambient temperature run housing nodes sweep between min and max housing temperature
     # abs(dT) <= 5 -> 1 deg => 10 points
     # 5 < abs(dT) <= 40 -> 5 deg => 14 points
@@ -1431,7 +1631,7 @@ def temperaturesHousingAmbient(ambientTemperatures: List[float], housingTemperat
     logger.info("Determining Ambient and Housing temperatures to investigate:")
     temperatures = dict()
 
-    for ambient in ambientTemperatures:    
+    for ambient in ambientTemperatures:
         temps = []
         # downward temperature sweep
         curT = min(ambient, housingTemperatureMax)
