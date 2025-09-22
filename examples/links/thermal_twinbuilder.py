@@ -558,7 +558,7 @@ class MotorCADTwinModel:
 
             housingTempDependency = True
             
-            
+        # TODO consider coupled cooling system warning
         return housingTempDependency, airGapTempDependency, coolingSystemsInputs
 
     # Functions to update any mot file settings that need to be set appropriately
@@ -860,6 +860,7 @@ class MotorCADTwinModel:
                 else:
                     parameterName = parameterNames[0]
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
+        # TODO handle fixed temperature controlled coupled cooling systems
 
 
     def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures   
