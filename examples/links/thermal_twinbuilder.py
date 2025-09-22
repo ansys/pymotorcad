@@ -261,13 +261,13 @@ class MotorCADTwinModel:
         os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
         if not os.path.isdir(self.outputDirectory):
             os.makedirs(self.outputDirectory)
-            
-        logging.basicConfig(filename=os.path.join(self.outputDirectory, "pythonlog.txt"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+        
+        pythonLog = os.path.join(self.outputDirectory, "pythonlog.txt")
+        logging.basicConfig(filename=pythonLog, level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
         logging.getLogger().addHandler(logging.StreamHandler())
-        logger.info("Beginning python script execution ")
-
-        print("Motor-CAD input file: " + self.inputMotFilePath)
-        print("TB data output dir: " + self.outputDirectory)
+        logger.info("Python script execution initiated.")
+        logger.info("Motor-CAD input file: " + self.inputMotFilePath)
+        logger.info("TB data output dir: " + self.outputDirectory)
 
         self.motFileName = None
         self.heatFlowMethod = None
@@ -340,6 +340,8 @@ class MotorCADTwinModel:
         with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
+
+        logger.info("Python script execution completed.")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
     # ``.rmf`` and .``.tmf``)
@@ -482,7 +484,9 @@ class MotorCADTwinModel:
     def validateInputs(self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps):
         def validate(condition, exception, message):
             if not condition:
+                logger.error(message, stack_info=True)
                 raise exception(message)
+
         # rpm must be a non-zero length list of floats (or integers)
         validate(isinstance(rpms, list), TypeError, "rpms must be a list")
         validate(len(rpms) > 0, ValueError, "At least one rpm must be specified")
@@ -563,8 +567,7 @@ class MotorCADTwinModel:
         def warnLossScaling(parameter, scalingType, lossName):
             if self.mcad.get_variable(parameter) == 1:
                 self.mcad.set_variable(parameter, 0)
-                print(f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately.")
-
+                logger.warning(f"Warning: The Motor-CAD model has {scalingType} scaling of the {lossName}losses enabled. The generated Twin Builder Thermal ROM will not perform scaling of the losses. Ensure the loss inputs to the ROM are already scaled appropriately.")
 
         # update the model settings to those needed for the TB export
         # 1 rpm
@@ -603,13 +606,13 @@ class MotorCADTwinModel:
         ## TB model will not include this logic
         if self.mcad.get_variable("Windage_Loss_Definition") in [1, 2]:
             self.mcad.set_variable("Windage_Loss_Definition", 0)
-            print(f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin.")
+            logger.warning(f"Warning: The Motor-CAD model includes automatic calculation of the Windage losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Windage loss model in Twin Builder, and assign this to the Windage Loss input pin.")
 
         # 8 bearing losses
         ## TB model will not include this logic
         if self.mcad.get_variable("BearingLossSource") == 1:
             self.mcad.set_variable("BearingLossSource", 0)
-            print(f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin.")
+            logger.warning(f"Warning: The Motor-CAD model includes automatic calculation of the Bearing losses. The generated Twin Builder Thermal ROM will not contain this loss model. Manually recreate the Bearing loss model in Twin Builder, and assign this to the Bearing Loss input pin.")
 
         # detect heat flow method used (new option in 2024R2)
         try:
@@ -632,11 +635,13 @@ class MotorCADTwinModel:
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
         if len(powerSources) > 0:
-            raise NotImplementedError(f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries")
+            message = f"Custom loss Power Sources are present in the model but are not supported. Remove the Power Sources {powerSources}. This can be done by opening the .mot file, navigating to Thermal > Temperatures > Schematic > Detail > Editor and using the Remove Component button to remove the appropriate entries"
+            logger.error(message, stack_info=True)
+            raise NotImplementedError(message)
 
         if len(self.customPowerInjections) > 0:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
-            print("Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses")
+            logger.info("Custom loss Power Injections found in model. These losses will be treated in the same way as Motor-CAD defined losses")
 
     # Validate that all the losses in the model have been determined by checking total loss is zero
     # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero. 
@@ -655,7 +660,9 @@ class MotorCADTwinModel:
             totalLoss = sum(abs(p) for p in powerVector)
 
         if totalLoss > 0:
-            raise RuntimeError("Unidentified losses are present in the model. Please contact support")
+            message = "Unidentified losses are present in the model. Please contact support"
+            logger.error(message, stack_info=True)
+            raise RuntimeError(message)
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -672,7 +679,7 @@ class MotorCADTwinModel:
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings,
     # self.nodeNumbers_fluidInlet and self.nodeNumbers_fluid
     def getNodeData(self):
-        print("initialization : compute matrices")
+        logger.info("initialization : compute matrices")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
 
@@ -698,9 +705,9 @@ class MotorCADTwinModel:
     # resulting data is required by Twin Builder to correctly model the fluid flow
     def generateCoolingSystemNetwork(self):
         if len(self.nodeNumbers_fluid) == 0:
-            print("initialization : no cooling systems found")
+            logger.info("initialization: no cooling systems found")
         else:
-            print("initialization : cooling systems found")
+            logger.info("initialization: cooling systems found")
             
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
             self.computeMatrices(exportDirectory)
@@ -847,7 +854,9 @@ class MotorCADTwinModel:
                     parameterName = self.nodeNames[nodeIndex] + "_FixedTemp"
                 elif len(parameterNames) > 1:
                     # Each fixed temperature can only controlled by a maximum of one parameter
-                    raise RuntimeError(f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled by more than one parameter which is not supported ({parameterNames}). Please contact support")
+                    message = f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled by more than one parameter which is not supported ({parameterNames}). Please contact support"
+                    logger.error(message, stack_info=True)
+                    raise RuntimeError(message)
                 else:
                     parameterName = parameterNames[0]
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
@@ -914,7 +923,7 @@ class MotorCADTwinModel:
         dps = []
 
         for index, rpm in enumerate(rpmSamples):
-            print("DoE : computing sample point rpm = " + str(rpm))
+            logger.info("DoE: computing sample point rpm = " + str(rpm))
             dpName = "dp" + str(index).zfill(6)
             exportDirectory = os.path.join(self.outputDirectory, dpName)
             self.computeMatrices(exportDirectory, rpm=rpm)
@@ -940,7 +949,7 @@ class MotorCADTwinModel:
         inputLoss = 1
 
         for lossIndex in range(numLossParameters):
-            print(f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}")
+            logger.info(f"power distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}")
 
             exportDirectory = os.path.join(self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex))
 
@@ -1028,7 +1037,7 @@ class MotorCADTwinModel:
                 message += f", {param.name} = {str(blownOverValue)}"
                 
                 self.mcad.set_variable(param.automationString, blownOverValue)
-            print(message)
+            logger.info(message)
             file_content = self.computeMatricesHousingTemps(housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures)
 
             with open(
@@ -1054,7 +1063,7 @@ class MotorCADTwinModel:
         file_content = dict()
 
         for housingTemperature in fixedHousingTemperatures:
-            print("HousingTemp: " + str(housingTemperature))
+            logger.info("HousingTemp: " + str(housingTemperature))
 
             # Set the fixed temperature
             for housingNode in housingNodeNumbers:
@@ -1083,12 +1092,16 @@ class MotorCADTwinModel:
 
         if wetrotor:
             valid = False
-            raise ValueError("Temperature dependent airgap not supported for wet rotor. Please set airgapTemps to None.")
+            message = "Temperature dependent airgap not supported for wet rotor. Please set airgapTemps to None."
+            logger.error(message, stack_info=True)
+            raise NotImplementedError(message)
         elif tVent or sVent:
             statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
             if statorCoolingOnly == False:
                 valid = False
-                raise ValueError("Temperature dependent airgap not supported for ventilated cooling with airgap flow. Please set airgapTemps to None.")
+                message = "Temperature dependent airgap not supported for ventilated cooling with airgap flow. Please set airgapTemps to None."
+                logger.error(message, stack_info=True)
+                raise NotImplementedError(message)
         
         return valid
 
@@ -1103,7 +1116,7 @@ class MotorCADTwinModel:
 
         for rpm in rpmSamples:
             fileInd = fileInd + 1
-            print("RPM : " + str(rpm))
+            logger.info("RPM: " + str(rpm))
 
             file_content = self.computeMatricesAirgapTemp(airgapNodesList, airgapTemperatures, rpm)
 
@@ -1131,7 +1144,7 @@ class MotorCADTwinModel:
 
         # Loop over each airgap average temperature
         for airgapTemperature in airgapTemperatures:
-            print("Air Gap average temperature: " + str(airgapTemperature))
+            logger.info("Air Gap average temperature: " + str(airgapTemperature))
 
             # Set the fixed temperature
             for airgapNodeStator, airgapNodeRotor in airgapNodesList:
@@ -1349,7 +1362,7 @@ class MotorCADTwinModel:
                     paramValues = list(reversed(paramValues))
                     fileInd = fileInd + 1
                     paramNames = [param.name for param in paramList]
-                    print(f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}")
+                    logger.info(f"Run DP {fileInd}/{numDPs} for cooling system {coolingSystem.name} with parameters {paramNames} of {paramValues}")
 
                     [R, C] = self.computeMatricesCoolingSystems(paramList, paramValues, r_list, c_list, fileInd)
 
@@ -1414,7 +1427,7 @@ def temperaturesHousingAmbient(ambientTemperatures: List[float], housingTemperat
     # 5 < abs(dT) <= 40 -> 5 deg => 14 points
     # 40 < abs(dT) -> 10 deg
 
-    print("Determining Ambient and Housing temperatures to investigate:")
+    logger.info("Determining Ambient and Housing temperatures to investigate:")
     temperatures = dict()
 
     for ambient in ambientTemperatures:    
@@ -1451,7 +1464,7 @@ def temperaturesHousingAmbient(ambientTemperatures: List[float], housingTemperat
 
         temperatures.update({ambient: temps})
 
-    print(temperatures)
+    logger.info(temperatures)
     return temperatures
 
 
