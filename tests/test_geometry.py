@@ -36,6 +36,7 @@ from ansys.motorcad.core.geometry import (
     Coordinate,
     EntityList,
     Line,
+    MagnetisationDirection,
     Region,
     RegionMagnet,
     RegionType,
@@ -2858,3 +2859,30 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
+
+
+def test_set_get_magnetisation_directions(mc):
+    magnet_region = mc.get_region("L1_1Magnet2")
+
+    # test case 1
+    magnet_region.magnetisation_direction = MagnetisationDirection.radial
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction == MagnetisationDirection.radial.value
+
+    # test case 2
+    magnet_region.magnetisation_direction = MagnetisationDirection.parallel
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction == MagnetisationDirection.parallel.value
+
+    # test case 3
+    magnet_region.magnetisation_direction = MagnetisationDirection.function
+    magnet_region.magnetisation_function_amplitude = "1.125"
+    magnet_region.magnetisation_function_angle = "(1-Pole_Number / 2) * theta + 180"
+
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction == MagnetisationDirection.function.value
+    assert magnet_region.magnetisation_function_amplitude == "1.125"
+    assert magnet_region.magnetisation_function_angle == "(1-Pole_Number / 2) * theta + 180"
