@@ -34,6 +34,7 @@ from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
     Coordinate,
+    EntityList,
     Line,
     Region,
     RegionMagnet,
@@ -364,6 +365,8 @@ def test_region_from_json():
         "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
+        "linked_regions": ["linked_region", "linked_region_1"],
+        "on_boundary": True,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -379,7 +382,12 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
-    test_region.singular = (False,)
+    test_region.singular = False
+    linked_region = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region"
+    linked_region_1 = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region_1"
+    test_region.linked_regions = [linked_region, linked_region_1]
 
     region = geometry.Region._from_json(raw_region)
 
@@ -402,6 +410,7 @@ def test_region_to_json():
         "region_type": RegionType.stator_copper.value,
         "mesh_length": 0.035,
         "singular": True,
+        "linked_regions": [],
         "on_boundary": False,
     }
 
@@ -418,17 +427,120 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
+    test_region.linked_regions = []
 
     assert test_region._to_json() == raw_region
 
 
 def test_region_is_closed():
     region = generate_constant_region()
-
     assert region.is_closed()
 
 
+def test_EntityList_is_closed():
+    region = generate_constant_region()
+    assert region.entities.is_closed
+
+    # Check an empty list returns as False
+    test_el1 = EntityList()
+    assert test_el1.is_closed == False
+
+    # Test an open polygon is not closed
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el1.is_closed == False
+
+
+def test_EntityList_self_intersecting():
+    # Test that intersection detection works properly on arcs
+    test_el1 = EntityList()
+    test_el1.append(Arc(Coordinate(0, 1), Coordinate(1, 0), centre=Coordinate(0.6, 0.6)))
+    test_el1.append(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
+    assert test_el1.self_intersecting == False
+
+    # Test convex polygons are not detected as intersecting
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 3), Coordinate(0, 0)))
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(2, 0)))
+    test_el2.append(Line(Coordinate(2, 0), Coordinate(2, 1)))
+    test_el2.append(Line(Coordinate(2, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 2)))
+    test_el2.append(Line(Coordinate(1, 2), Coordinate(2, 2)))
+    test_el2.append(Line(Coordinate(2, 2), Coordinate(2, 3)))
+    test_el2.append(Line(Coordinate(2, 3), Coordinate(0, 3)))
+    assert test_el2.self_intersecting == False
+
+    # Test intersections are properly detected
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el3.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el3.self_intersecting == True
+
+
+def test_EntityList_is_anticlockwise():
+    assert generate_constant_region().entities.is_anticlockwise == True
+
+    # Test opposite winding
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(0, 1)))
+    test_el2.append(Line(Coordinate(0, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.is_anticlockwise == False
+
+    # Test that arcs with endpoints that would result in opposite ordering if connected with a line
+    # are correctly accounted for
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
+    test_el3.append(
+        Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
+    )
+    test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
+    assert test_el3.is_anticlockwise == True
+
+    # Test error detection
+    with pytest.raises(Exception, match="Entities must be closed and nonintersecting"):
+        test_el4 = EntityList()
+        test_el4.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+        test_el4.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+        test_el4.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+        test_el4.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+        test_el4.is_anticlockwise
+
+
+def test_EntityList_has_valid_geometry():
+    assert generate_constant_region().entities.has_valid_geometry == True
+
+    # Test self_intersecting
+    test_el1 = EntityList()
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el1.has_valid_geometry == False
+
+    # Test is_anticlockwise
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.has_valid_geometry == False
+
+    # Test is_closed
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el3.has_valid_geometry == False
+
+
 def test_set_linked_region():
+    # depreciated functionality, here for backwards compatibility
     region = generate_constant_region()
 
     region_linked = Region(region_type=RegionType.stator)
@@ -436,8 +548,21 @@ def test_set_linked_region():
     # set linked region
     region.linked_region = region_linked
 
-    assert region._linked_region.name == region_linked.name
-    assert region_linked.linked_region.name == region.name
+    assert region.linked_regions == [region_linked]
+    assert region_linked.linked_regions == [region]
+
+
+def test_set_linked_regions():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_regions.append(region_linked)
+    region_linked.linked_regions.append(region)
+
+    assert region.linked_regions.__contains__(region_linked)
+    assert region_linked.linked_regions.__contains__(region)
 
 
 def test_set_singular_region():
@@ -480,6 +605,11 @@ def test_region_children(mc):
     children = rotor.children
 
     assert len(children) == 16
+
+
+def test_region_linked_regions(mc):
+    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+    assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():
@@ -653,6 +783,12 @@ def test_line_length():
     assert line.length == sqrt(2)
 
 
+def test_line_get_coordinate_distance():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
+    point = Coordinate(1, 1)
+    assert line.get_coordinate_distance(point) == 1
+
+
 def test_arc_get_coordinate_from_fractional_distance():
     arc = geometry.Arc(
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
@@ -780,6 +916,32 @@ def test_arc_length():
     line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
     arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
     assert arc_2.length > line_1.length
+
+
+def test_entities_polygon():
+    expected_square = create_square()
+
+    # test functionality without reordering
+    reg1 = Region(region_type=RegionType.stator)
+    reg1.entities = EntityList.polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    assert expected_square == reg1
+
+    reg2 = Region(region_type=RegionType.stator)
+    reg2.entities = EntityList.polygon(
+        [Coordinate(0, 0), Coordinate(2, 0), Coordinate(2, 2), Coordinate(0, 2)]
+    )
+    assert expected_square == reg2
+
+    # Test warnings given when order is incorrect
+    with pytest.warns(UserWarning) as record:
+        reg3 = Region(region_type=RegionType.stator)
+        reg3.entities = EntityList.polygon([(0, 2), (2, 2), (2, 0), (0, 0)])
+    assert "Entered point order may result in invalid geometry." == record[0].message.args[0]
+
+    # test reordering
+    reg4 = Region(region_type=RegionType.stator)
+    reg4.entities = EntityList.polygon([(0, 0), (2, 2), (0, 2), (2, 0)], sort=True)
+    assert expected_square == reg4
 
 
 def test_convert_entities_to_json():
@@ -1296,7 +1458,7 @@ def test_is_matplotlib_installed(monkeypatch):
     import ansys.motorcad.core.geometry_drawing as geom_import
 
     with pytest.raises(ImportError):
-        geom_import.draw_regions(region)
+        geom_import.draw_objects(region)
 
 
 def test_strings(capsys):
