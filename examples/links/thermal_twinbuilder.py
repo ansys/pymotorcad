@@ -320,6 +320,7 @@ class MotorCADTwinModel:
             filename=pythonLog,
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         logging.getLogger().addHandler(logging.StreamHandler())
         logger.info("Python script execution initiated")
