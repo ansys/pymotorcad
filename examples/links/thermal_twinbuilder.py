@@ -551,7 +551,11 @@ class MotorCADTwinModel:
             )
 
     def validateInputs(
-        self, rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
+        self,
+        rpms,
+        housingAmbientTemperatures,
+        airgapTemperatures,
+        coolingSystemsParameterSweeps: coolingSystemSweepType,
     ):
         def validate(condition, exception, message):
             if not condition:
@@ -647,7 +651,6 @@ class MotorCADTwinModel:
             if blownover is None:
                 hasBlownOver = False
             else:
-                hasBlownOver = True
                 if len(blownover) > 1:
                     paramNames = [x.name for x in blownover.keys()]
                     validate(
@@ -657,6 +660,38 @@ class MotorCADTwinModel:
                         f"have been defined ({paramNames}). Please correct "
                         f"coolingSystemsParameterSweeps",
                     )
+                speedInput = self.mcad.get_variable("Constant_Speed_Fan")
+                if not speedInput:
+                    validate(
+                        False,
+                        ValueError,
+                        f"The Blown Over cooling system in your Motor-CAD model has been set up to "
+                        f"be proportional to the shaft speed. Therefore, it is not possible to "
+                        f"separately control the Blown Over inlet. Please remove the Blown Over "
+                        f"key from coolingSystemsParameterSweeps and ensure the model rpms are "
+                        f"set up to give you your desired resolution",
+                    )
+                flowrateOrVelocity = self.mcad.get_variable("Input_Flow_Rate_or_Velocity")
+                (param, _) = list(blownover.items())[0]
+                if (flowrateOrVelocity == 0) and (param == BlownOver_Velocity):
+                    validate(
+                        False,
+                        ValueError,
+                        f"The Blown Over cooling system in your Motor-CAD model uses Flow Rate as "
+                        f"input, however, you have chosen to perform a sweep over Velocity. Please "
+                        f"amend coolingSystemsParameterSweeps to instead use BlownOver_FlowRate",
+                    )
+                if (flowrateOrVelocity == 1) and (param == BlownOver_FlowRate):
+                    validate(
+                        False,
+                        ValueError,
+                        f"The Blown Over cooling system in your Motor-CAD model uses Velocity as "
+                        f"input, however, you have chosen to perform a sweep over Flow Rate. "
+                        f"Please amend coolingSystemsParameterSweeps to instead use "
+                        f"BlownOver_Velocity",
+                    )
+
+                hasBlownOver = True
 
         # validate housing ambient temperatures if not None
         # Determine whether to include housing resistance temperature variation based on presence
