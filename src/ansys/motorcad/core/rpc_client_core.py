@@ -122,7 +122,7 @@ class MotorCADWarning(Warning):
 
 
 def _get_port_from_motorcad_process(process):
-    connection_list = process.connections()
+    connection_list = process.net_connections()
     if len(connection_list) > 0:
         for connect in connection_list:
             if connect.family == socket.AddressFamily.AF_INET6:
