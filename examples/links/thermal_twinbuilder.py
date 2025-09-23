@@ -1040,7 +1040,7 @@ class MotorCADTwinModel:
             for nodeIndex, parameterNames in fixedTemperatureIndices.items():
                 if len(parameterNames) == 0:
                     # No parameter sweep has been identified, so create an arbitrary port name
-                    parameterName = self.nodeNames[nodeIndex] + "_FixedTemp"
+                    parameterName = "FixedTemp_" + self.nodeNames[nodeIndex]
                 elif len(parameterNames) > 1:
                     # Each fixed temperature can only controlled by a maximum of one parameter
                     message = (
