@@ -404,6 +404,7 @@ Adaptive Templates scripts should use the ``open_new_instance=False`` option whe
 Motor-CAD.
 
 .. code:: python
+
     mc = pymotorcad.MotorCAD(open_new_instance=False)
 
 Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
