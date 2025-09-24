@@ -405,6 +405,7 @@ Motor-CAD.
 
 .. code:: python
     mc = pymotorcad.MotorCAD(open_new_instance=False)
+
 Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
 doc strings and debugging when working on the script. The Adaptive Templates script can be run within
 the IDE, and the commands communicate with the open Motor-CAD instance when the
@@ -574,7 +575,7 @@ corners.
     The e10 IPM template rotor geometry in Motor-CAD without (left) and with (right) corner rounding
     enabled for the rotor lamination and magnets.
 
-Looking closely at an the e10 IPM Motor-CAD template example, when corner rounding is disabled,
+Looking closely at an the e10 IPM Motor-CAD template example, when corner rounding is not enabled,
 the **Rotor Pocket** regions have an inner corner formed by two Line entities (entity 3 and 4).
 
 .. figure:: ../images/adaptive_templates/user_guide_corner_rounding_2.png
@@ -593,8 +594,8 @@ corner.
     A corner made up of two Line entities (entity 7 and 9) and an Arc (entity 8).
 
 When customising a Motor-CAD geometry with Adaptive Templates, it is much simpler to modify the
-geometry when corner rounding is **disabled**. This is because there will be fewer entities forming the
-regions (such as the rotor pocket and magnet regions). It is recommended to set the
+geometry when corner rounding is **not selected**. This is because there will be fewer entities
+forming the regions (such as the rotor pocket and magnet regions). It is recommended to set the
 **Corner Rounding (Rotor Lamination)** and **Corner Rounding (Magnets)** parameters on the
 **Input Data -> Settings -> Geometry** tab to **None (default)**.
 
