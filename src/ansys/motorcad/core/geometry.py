@@ -289,7 +289,9 @@ class Region(object):
             new_region._br_magnet = json["magnet_br_value"]
 
             if "magnetisation_direction" in json:
-                new_region.magnetisation_direction = json["magnetisation_direction"]
+                new_region.magnetisation_direction = MagnetisationDirection(
+                    json["magnetisation_direction"]
+                )
                 new_region.magnetisation_function_amplitude = json[
                     "magnetisation_function_amplitude"
                 ]
