@@ -613,11 +613,11 @@ a corner, and inserting an Arc.
 
 Considering the :ref:`ref_Trapezoidal_Ducts` example, where a Standard Template geometry is set up
 with rectangular rotor ducts and the ducts are modified with Adaptive Templates to form trapezoid
-shapes. Rectangular ducts in Motor-CAD have a **RDuct Corner Rad** parameter (separate from the
+shapes. Rectangular ducts in Motor-CAD have a corner radius parameter (separate from the
 **Corner Rounding (Rotor Lamination)** parameter discussed earlier), which should be set to **0 mm**
 when the rectangular duct is to be modified with Adaptive Templates. In this example, the ducts are
-modified by shortening the top line of the rectangular duct according to an Adaptive Parameter value
-(**Trapezoid_base_ratio**). For the full example, see :ref:`ref_Trapezoidal_Ducts`.
+modified by shortening the top line of the rectangular duct according to an Adaptive Parameter
+value. For the full example, see :ref:`ref_Trapezoidal_Ducts`.
 
 .. figure:: ../images/adaptive_templates/user_guide_corner_rounding_5.png
     :width: 750pt
