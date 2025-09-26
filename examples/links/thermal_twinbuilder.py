@@ -403,6 +403,7 @@ class MotorCADTwinModel:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
 
+        self.mcad.quit()
         logger.info("Python script execution completed")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
