@@ -22,7 +22,7 @@
 
 # import os
 
-from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path, reset_to_default_file
+from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path
 
 
 def test_do_magnetic_thermal_calculation(mc):
