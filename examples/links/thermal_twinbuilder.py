@@ -245,6 +245,7 @@ coolingSystemSweepType = Optional[
 ]
 housingTempSweepType = Optional[dict[float, List[float]]]
 
+
 class MotorCADTwinModel:
     # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
     # ``.nmf`` file), corresponding parameter names for varying flowrate and inlet temperature
@@ -350,7 +351,7 @@ class MotorCADTwinModel:
     def generateTwinData(
         self,
         rpms: list,
-        housingAmbientTemperatures: housingTempSweepType=None,
+        housingAmbientTemperatures: housingTempSweepType = None,
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
@@ -587,8 +588,16 @@ class MotorCADTwinModel:
                 TypeError,
                 f"airgapTemperatures must be a list of numbers ({airgapTemperatures})",
             )
-            validate(len(airgapTemperatures) == len(set(airgapTemperatures)), ValueError, "airgapTemperatures must not have duplicates")
-            validate(sorted(airgapTemperatures) == airgapTemperatures, ValueError, "airgapTemperatures must be sorted in ascending order")
+            validate(
+                len(airgapTemperatures) == len(set(airgapTemperatures)),
+                ValueError,
+                "airgapTemperatures must not have duplicates",
+            )
+            validate(
+                sorted(airgapTemperatures) == airgapTemperatures,
+                ValueError,
+                "airgapTemperatures must be sorted in ascending order",
+            )
 
             # ensure the .mot file is suitable for use with airgap temperature dependence
             airGapTempDependency = self.validAirgap()
@@ -607,7 +616,7 @@ class MotorCADTwinModel:
             validate(
                 len(coolingSystems) == len(set(coolingSystems)),
                 ValueError,
-                "coolingSystemsParameterSweeps must not have duplicate cooling system keys"
+                "coolingSystemsParameterSweeps must not have duplicate cooling system keys",
             )
 
             for coolingSystem, parameterSweeps in list(coolingSystemsParameterSweeps.items()):
@@ -631,7 +640,7 @@ class MotorCADTwinModel:
                 validate(
                     len(params) == len(set(params)),
                     ValueError,
-                    f"Key {coolingSystem} values must not have duplicates ({params})"
+                    f"Key {coolingSystem} values must not have duplicates ({params})",
                 )
 
                 for param, paramValues in list(parameterSweeps.items()):
@@ -655,12 +664,12 @@ class MotorCADTwinModel:
                     validate(
                         len(paramValues) == len(set(paramValues)),
                         ValueError,
-                        f"Key {param} values must not have duplicates"
+                        f"Key {param} values must not have duplicates",
                     )
                     validate(
                         sorted(paramValues) == paramValues,
                         ValueError,
-                        f"Key {param} values must be sorted in ascending order"
+                        f"Key {param} values must be sorted in ascending order",
                     )
 
                 if len(parameterSweeps) == 0:
@@ -747,13 +756,13 @@ class MotorCADTwinModel:
             validate(
                 len(ambientTemps) == len(set(ambientTemps)),
                 ValueError,
-                "housingAmbientTemperatures must not have duplicate ambient temperature keys"
+                "housingAmbientTemperatures must not have duplicate ambient temperature keys",
             )
             validate(
                 sorted(ambientTemps) == ambientTemps,
                 ValueError,
                 "housingAmbientTemperatures ambient temperature keys must be sorted in ascending "
-                "order"
+                "order",
             )
 
             for ambientTemp, housingTempList in housingAmbientTemperatures.items():
@@ -778,13 +787,13 @@ class MotorCADTwinModel:
                     len(housingTempList) == len(set(housingTempList)),
                     ValueError,
                     f"Housing temperatures for ambient temperature {ambientTemp} must not have "
-                    f"duplicates"
+                    f"duplicates",
                 )
                 validate(
                     sorted(housingTempList) == housingTempList,
                     ValueError,
                     f"Housing temperatures for ambient temperature {ambientTemp} must be sorted in "
-                    f"ascending order"
+                    f"ascending order",
                 )
                 validate(
                     all(isinstance(temp, Number) for temp in housingTempList),
@@ -1278,7 +1287,11 @@ class MotorCADTwinModel:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
     #       tAmbient2:[tHousingx, ..., tHousingz],
     #       tAmbient3:[tHousingy, ..., tHousingz]}
-    def generateHousingTempDependency(self, housingAmbientTemperatures: housingTempSweepType, coolingSystemsParameterSweeps: coolingSystemSweepType):
+    def generateHousingTempDependency(
+        self,
+        housingAmbientTemperatures: housingTempSweepType,
+        coolingSystemsParameterSweeps: coolingSystemSweepType,
+    ):
         if housingAmbientTemperatures is not None:
             exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
             if not os.path.isdir(exportDirectory):
@@ -1311,7 +1324,9 @@ class MotorCADTwinModel:
                     fout.write("\n")
 
                 hasBlownOver = True
-                paramValues = itertools.product(list(housingAmbientTemperatures.items()), paramValues)
+                paramValues = itertools.product(
+                    list(housingAmbientTemperatures.items()), paramValues
+                )
             else:
                 hasBlownOver = False
                 paramValues = itertools.product(list(housingAmbientTemperatures.items()))
