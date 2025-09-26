@@ -239,11 +239,11 @@ coolingSystemNames = [
     Blown_Over,
 ]
 
-# coolingSystemData
+# types
 coolingSystemSweepType = Optional[
     Dict[CoolingSystem, Dict[AutomationParam, List[float] | List[int]]]
 ]
-
+housingTempSweepType = Optional[dict[float, List[float]]]
 
 class MotorCADTwinModel:
     # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
@@ -350,7 +350,7 @@ class MotorCADTwinModel:
     def generateTwinData(
         self,
         rpms: list,
-        housingAmbientTemperatures=None,
+        housingAmbientTemperatures: housingTempSweepType=None,
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
@@ -554,7 +554,7 @@ class MotorCADTwinModel:
     def validateInputs(
         self,
         rpms,
-        housingAmbientTemperatures,
+        housingAmbientTemperatures: housingTempSweepType,
         airgapTemperatures,
         coolingSystemsParameterSweeps: coolingSystemSweepType,
     ):
@@ -571,6 +571,8 @@ class MotorCADTwinModel:
             TypeError,
             f"rpms must be a list of numbers ({rpms})",
         )
+        validate(len(rpms) == len(set(rpms)), ValueError, "rpms must not have duplicates")
+        validate(sorted(rpms) == rpms, ValueError, "rpms must be sorted in ascending order")
 
         # validate airgap temperatures if not None
         if (airgapTemperatures is None) or (len(airgapTemperatures) == 0):
@@ -585,6 +587,9 @@ class MotorCADTwinModel:
                 TypeError,
                 f"airgapTemperatures must be a list of numbers ({airgapTemperatures})",
             )
+            validate(len(airgapTemperatures) == len(set(airgapTemperatures)), ValueError, "airgapTemperatures must not have duplicates")
+            validate(sorted(airgapTemperatures) == airgapTemperatures, ValueError, "airgapTemperatures must be sorted in ascending order")
+
             # ensure the .mot file is suitable for use with airgap temperature dependence
             airGapTempDependency = self.validAirgap()
 
@@ -598,6 +603,13 @@ class MotorCADTwinModel:
                 TypeError,
                 "coolingSystemsParameterSweeps must be a dictionary of type coolingSystemSweepType",
             )
+            coolingSystems = list(coolingSystemsParameterSweeps.keys())
+            validate(
+                len(coolingSystems) == len(set(coolingSystems)),
+                ValueError,
+                "coolingSystemsParameterSweeps must not have duplicate cooling system keys"
+            )
+
             for coolingSystem, parameterSweeps in list(coolingSystemsParameterSweeps.items()):
                 validate(
                     isinstance(coolingSystem, CoolingSystem),
@@ -615,6 +627,13 @@ class MotorCADTwinModel:
                     TypeError,
                     f"Key {coolingSystem} values must be a dictionary",
                 )
+                params = list(parameterSweeps.keys())
+                validate(
+                    len(params) == len(set(params)),
+                    ValueError,
+                    f"Key {coolingSystem} values must not have duplicates ({params})"
+                )
+
                 for param, paramValues in list(parameterSweeps.items()):
                     validate(
                         isinstance(param, AutomationParam),
@@ -633,6 +652,17 @@ class MotorCADTwinModel:
                         TypeError,
                         f"Key {param} values must be a list of numbers",
                     )
+                    validate(
+                        len(paramValues) == len(set(paramValues)),
+                        ValueError,
+                        f"Key {param} values must not have duplicates"
+                    )
+                    validate(
+                        sorted(paramValues) == paramValues,
+                        ValueError,
+                        f"Key {param} values must be sorted in ascending order"
+                    )
+
                 if len(parameterSweeps) == 0:
                     del coolingSystemsParameterSweeps[coolingSystem]
 
@@ -713,6 +743,19 @@ class MotorCADTwinModel:
                 "housingAmbientTemperatures must be a dictionary with keys = ambient temperature "
                 "and values = housing temperatures (dict[float, List[float]])",
             )
+            ambientTemps = list(housingAmbientTemperatures.keys())
+            validate(
+                len(ambientTemps) == len(set(ambientTemps)),
+                ValueError,
+                "housingAmbientTemperatures must not have duplicate ambient temperature keys"
+            )
+            validate(
+                sorted(ambientTemps) == ambientTemps,
+                ValueError,
+                "housingAmbientTemperatures ambient temperature keys must be sorted in ascending "
+                "order"
+            )
+
             for ambientTemp, housingTempList in housingAmbientTemperatures.items():
                 validate(
                     isinstance(ambientTemp, Number),
@@ -730,6 +773,18 @@ class MotorCADTwinModel:
                     ValueError,
                     f"Housing temperatures for ambient temperature {ambientTemp} must be a list of "
                     f"at least one value",
+                )
+                validate(
+                    len(housingTempList) == len(set(housingTempList)),
+                    ValueError,
+                    f"Housing temperatures for ambient temperature {ambientTemp} must not have "
+                    f"duplicates"
+                )
+                validate(
+                    sorted(housingTempList) == housingTempList,
+                    ValueError,
+                    f"Housing temperatures for ambient temperature {ambientTemp} must be sorted in "
+                    f"ascending order"
                 )
                 validate(
                     all(isinstance(temp, Number) for temp in housingTempList),
@@ -1223,79 +1278,78 @@ class MotorCADTwinModel:
     # e.g. {tAmbient1:[tHousingx, ..., tHousingy],
     #       tAmbient2:[tHousingx, ..., tHousingz],
     #       tAmbient3:[tHousingy, ..., tHousingz]}
-    def generateHousingTempDependency(
-        self, housingAmbientTemperatures, coolingSystemsParameterSweeps: coolingSystemSweepType
-    ):
-        exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
-        if not os.path.isdir(exportDirectory):
-            os.makedirs(os.path.join(exportDirectory))
+    def generateHousingTempDependency(self, housingAmbientTemperatures: housingTempSweepType, coolingSystemsParameterSweeps: coolingSystemSweepType):
+        if housingAmbientTemperatures is not None:
+            exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
+            if not os.path.isdir(exportDirectory):
+                os.makedirs(os.path.join(exportDirectory))
 
-        with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
-            fout.write("Ambient_Temp=[")
-            ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
-            fout.write(",".join(map(str, ambientTemperatures)))
-            fout.write("]\n")
+            with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
+                fout.write("Ambient_Temp=[")
+                ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
+                fout.write(",".join(map(str, ambientTemperatures)))
+                fout.write("]\n")
 
-        housingNodeNumbers = []
-        housingNodeIndices = []
-        housingNodeNames = []
-        for index, nodeNumber in enumerate(self.nodeNumbers):
-            # housing node selection includes special case for plate node
-            if (self.nodeGroupings[index] == "Housing") or (nodeNumber == 5):
-                housingNodeNumbers.append(nodeNumber)
-                housingNodeIndices.append(index)
-                housingNodeNames.append(self.nodeNames[index])
+            housingNodeNumbers = []
+            housingNodeIndices = []
+            housingNodeNames = []
+            for index, nodeNumber in enumerate(self.nodeNumbers):
+                # housing node selection includes special case for plate node
+                if (self.nodeGroupings[index] == "Housing") or (nodeNumber == 5):
+                    housingNodeNumbers.append(nodeNumber)
+                    housingNodeIndices.append(index)
+                    housingNodeNames.append(self.nodeNames[index])
 
-        if (coolingSystemsParameterSweeps is not None) and (
-            Blown_Over in coolingSystemsParameterSweeps
-        ):
-            blownover = coolingSystemsParameterSweeps[Blown_Over]
-            (param, paramValues) = list(blownover.items())[0]
-            with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
-                paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
-                fout.write(param.name + "=" + str(paramValuesTB))
-                fout.write("\n")
+            if (coolingSystemsParameterSweeps is not None) and (
+                Blown_Over in coolingSystemsParameterSweeps
+            ):
+                blownover = coolingSystemsParameterSweeps[Blown_Over]
+                (param, paramValues) = list(blownover.items())[0]
+                with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                    paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
+                    fout.write(param.name + "=" + str(paramValuesTB))
+                    fout.write("\n")
 
-            hasBlownOver = True
-            paramValues = itertools.product(list(housingAmbientTemperatures.items()), paramValues)
-        else:
-            hasBlownOver = False
-            paramValues = itertools.product(list(housingAmbientTemperatures.items()))
+                hasBlownOver = True
+                paramValues = itertools.product(list(housingAmbientTemperatures.items()), paramValues)
+            else:
+                hasBlownOver = False
+                paramValues = itertools.product(list(housingAmbientTemperatures.items()))
 
-        fileInd = 0
-        for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
-            fileInd = fileInd + 1
+            fileInd = 0
+            for (ambientTemperature, fixedHousingTemperatures), *blownOverValue in paramValues:
+                fileInd = fileInd + 1
 
-            message = f"Ambient temperature = {ambientTemperature}"
-            self.mcad.set_variable("T_Ambient", ambientTemperature)
-
-            if hasBlownOver:
-                # blownOverValue is a list of length 1, so get the first/only value
-                blownOverValue = blownOverValue[0]
-                message += f", {param.name} = {blownOverValue}"
-
-                self.mcad.set_variable(param.automationString, blownOverValue)
-
-            file_content = self.computeMatricesHousingTemps(
-                housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
-            )
-
-            with open(
-                os.path.join(exportDirectory, "Housing_Temp" + str(fileInd) + ".csv"), "w"
-            ) as fout:
-                fout.write(str(ambientTemperature + 273.15))
-                fout.write("\n")
+                message = f"Ambient temperature = {ambientTemperature}"
+                self.mcad.set_variable("T_Ambient", ambientTemperature)
 
                 if hasBlownOver:
-                    fout.write(str(blownOverValue))
+                    # blownOverValue is a list of length 1, so get the first/only value
+                    blownOverValue = blownOverValue[0]
+                    message += f", {param.name} = {blownOverValue}"
+
+                    self.mcad.set_variable(param.automationString, blownOverValue)
+
+                file_content = self.computeMatricesHousingTemps(
+                    housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
+                )
+
+                with open(
+                    os.path.join(exportDirectory, "Housing_Temp" + str(fileInd) + ".csv"), "w"
+                ) as fout:
+                    fout.write(str(ambientTemperature + 273.15))
                     fout.write("\n")
 
-                fout.write("," + ",".join(map(str, housingNodeNames)))
-                fout.write("\n")
-                for key, item in file_content.items():
-                    fout.write(str(key))
-                    fout.write("," + ",".join(map(str, item)))
+                    if hasBlownOver:
+                        fout.write(str(blownOverValue))
+                        fout.write("\n")
+
+                    fout.write("," + ",".join(map(str, housingNodeNames)))
                     fout.write("\n")
+                    for key, item in file_content.items():
+                        fout.write(str(key))
+                        fout.write("," + ",".join(map(str, item)))
+                        fout.write("\n")
 
     def computeMatricesHousingTemps(
         self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
