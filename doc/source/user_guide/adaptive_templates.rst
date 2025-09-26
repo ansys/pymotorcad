@@ -366,6 +366,11 @@ For a full Adaptive Templates example using the workflow described here, see
 Details on the Geometry Shapes functions within ``ansys.motorcad.core.geometry_shapes`` are
 available in the :ref:`ref_API_Reference` under :ref:`ref_geometry_shapes`.
 
+Subtracting and uniting regions
+-------------------------------
+
+Section to be added.
+
 Create and modify adaptive templates scripts
 ********************************************
 
