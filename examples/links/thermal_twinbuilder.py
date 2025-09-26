@@ -1760,7 +1760,7 @@ class MotorCADTwinModel:
 # is where the natural convection heat transfer coefficients vary the most.
 def temperaturesHousingAmbient(
     ambientTemperatures: List[float], housingTemperatureMin: float, housingTemperatureMax: float
-) -> dict[float, List[float]]:
+) -> housingTempSweepType:
     # For each ambient temperature run housing nodes sweep between min and max housing temperature
     # abs(dT) <= 5 -> 1 deg => 10 points
     # 5 < abs(dT) <= 40 -> 5 deg => 14 points
