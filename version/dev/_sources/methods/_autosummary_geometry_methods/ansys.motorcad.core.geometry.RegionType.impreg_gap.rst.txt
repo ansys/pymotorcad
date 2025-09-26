@@ -1,0 +1,6 @@
+impreg\_gap
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.impreg_gap
