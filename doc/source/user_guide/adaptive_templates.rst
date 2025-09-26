@@ -223,6 +223,8 @@ To create a new region to represent the notch, use the Region object from
 
 .. code:: python
 
+    from ansys.motorcad.core.geometry import Region, RegionType
+
     notch = Region(region_type=RegionType.rotor_air)
 
 When creating new regions, it is recommended to set the
@@ -370,9 +372,9 @@ Create and modify adaptive templates scripts
 ********************************************
 
 Adaptive Template Scripts should be created outside Motor-CAD, using a Python Integrated Development
-Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the script, allowing
-access to autocompletion, code correction and other features which are not available in the
-Motor-CAD scripting interface.
+Environment (IDE) (for example PyCharm or VSCode). Using an IDE allows for faster creation of the
+script, allowing access to autocompletion, code correction and other features which are not
+available in the Motor-CAD scripting interface.
 
 This is essential when writing complex scripts, allowing issues with the script to be fixed and the
 inspection of Python objects, such as geometry regions from Motor-CAD.
@@ -386,11 +388,12 @@ setting any Motor-CAD geometry:
 
     mc.reset_adaptive_geometry()
 
-Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). To work
-on an Adaptive Templates script in an IDE, go to the **Geometry -> Editor -> Adaptive Templates**
-tab and select **Adaptive** under **Geometry Templates Type**. Save the script to a convenient
-location, and tick the **Use External IDE** option. The Adaptive Templates script is greyed-out and
-unavailable to edit within the Motor-CAD GUI when this option is selected.
+Adaptive Templates scripts can be edited from an external IDE (for example PyCharm or VSCode). To
+work on an Adaptive Templates script in an IDE, go to the
+**Geometry -> Editor -> Adaptive Templates** tab and select **Adaptive** under
+**Geometry Templates Type**. Save the script to a convenient location, and tick the
+**Use External IDE** option. The Adaptive Templates script is greyed-out and unavailable to edit
+within the Motor-CAD GUI when this option is selected.
 
 To open the Adaptive Templates script file in your default IDE, click **Open with default**. To
 choose a specific IDE, click **Open with**.
@@ -426,9 +429,10 @@ This is a useful tool when working on a Python script, such as an Adaptive Templ
 look into the properties of the Region object, as well as those of the entities such as the start,
 end and midpoint coordinates, the angles of Line objects, the radii of Arc objects.
 
-IDEs such as PyCharm have a lot of useful features for editing Python scripts. It is much easier and
-more efficient to use an IDE to develop Adaptive Templates scripts, rather than the editor within
-the Motor-CAD GUI. The Motor-CAD GUI is best suited for making small edits to a script.
+IDEs (for example PyCharm or VSCode) have a lot of useful features for editing Python scripts. It is
+much easier and more efficient to use an IDE to develop Adaptive Templates scripts, rather than the
+editor within the Motor-CAD GUI. The Motor-CAD GUI is best suited for making small edits to a
+script.
 
 Drawing geometry objects
 ------------------------
