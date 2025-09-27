@@ -237,12 +237,16 @@ e_deg, flux_a = mc.get_magnetic_graph("FluxLinkageOCPh1")
 # Plot results
 # ~~~~~~~~~~~~
 # Plot flux linkage in the A phase.
+#
+# By default, this script displays the figures and saves them to the results folder. Comment out the
+# ``plt.show`` line if you do not want the figure to be displayed when the script is run.
 plt.figure(1)
 plt.plot(e_deg, flux_a)
 plt.xlabel("Position [EDeg]")
 plt.ylabel("FluxLinkageA")
 plt.title("A_Phase Flux Linkage")
-plt.show()
+plt.savefig(os.path.join(results_folder, "A_Phase Flux Linkage.png"))
+plt.show()  # comment out this line if you do not want the image to be displayed in a new window
 
 # %%
 # Calculate the alignment angle
@@ -439,7 +443,8 @@ plt.xlabel("Points")
 plt.ylabel("Flux [Vs]")
 plt.legend(["Psid", "Psiq"], loc="lower right")
 plt.title("D-Q Flux")
-plt.show()
+plt.savefig(os.path.join(results_folder, "D-Q Flux.png"))
+plt.show()  # comment out this line if you do not want the image to be displayed in a new window
 
 # %%
 # Plot the torque.
@@ -448,11 +453,12 @@ plt.plot(index_1, torque_5, "r", linewidth=2.0)
 plt.ylabel("Torque [Nm]")
 plt.xlabel("Points")
 plt.title("Torque")
-plt.show()
+plt.savefig(os.path.join(results_folder, "Torque.png"))
+plt.show()  # comment out this line if you do not want the image to be displayed in a new window
 
 # %%
 # Plot D-flux linkages versus the q-axis current.
-plt.figure(3)
+plt.figure(4)
 for i in range(d_values):
     plt.plot(
         iq_peak[0, :], angular_flux_linkage_q[i, :, skip], label="Id=" + str(id_peak[i, 0]) + "A"
@@ -461,11 +467,12 @@ plt.ylabel("Flux [Vs]")
 plt.xlabel("Iq [A]")
 plt.legend(fontsize=8, loc="lower right")
 plt.title("D-Flux vs Iq")
-plt.show()
+plt.savefig(os.path.join(results_folder, "D-Flux vs Iq"))
+plt.show()  # comment out this line if you do not want the image to be displayed in a new window
 
 # %%
 # Plot Q-flux linkages versus the q-axis current.
-plt.figure(4)
+plt.figure(5)
 for i in range(d_values):
     plt.plot(
         iq_peak[0, :], angular_flux_linkage_d[:, i, skip], label="Id=" + str(id_peak[i, 0]) + "A"
@@ -474,7 +481,8 @@ plt.legend(fontsize=8, loc="lower right")
 plt.ylabel("Flux [Vs]")
 plt.xlabel("Iq [A]")
 plt.title("Q-Flux vs Iq")
-plt.show()
+plt.savefig(os.path.join(results_folder, "Q-Flux vs Iq"))
+plt.show()  # comment out this line if you do not want the image to be displayed in a new window
 
 # %%
 # Write TXT and SML files
@@ -687,10 +695,10 @@ file_id.write("INTERN  VM" "" "       VM_Erad  N1:=N_26, N2:=GND  ;\r\n\n")
 file_id.write(
     f"INTERN  NDSRC    PECE_{file_name}  N0:=GND,"
     " N1:=N_16, N2:=GND, N3:=N_17,"
-    " N4:=GND, N5:=N_18, N6:=N_22, N7:=N_23 \ \r\n"
+    " N4:=GND, N5:=N_18, N6:=N_22, N7:=N_23 \\ \r\n"
 )
 file_id.write(
-    " ( QUANT:={ AM0.I, AM1.I, AM2.I }," ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\ \r\n'
+    " ( QUANT:={ AM0.I, AM1.I, AM2.I }," ' SRC:={ isrc, isrc, isrc, isrc }, TableData:="\\ \r\n'
 )
 file_id.write(f".MODEL ECE_{file_name}_table pwl TABLE=(")
 file_id.write(f" {d_values},")
@@ -701,7 +709,7 @@ for i in range(d_values):
     file_id.write(f" {id_peak[i, 0]}")
     file_id.write(",")
     if i == (d_values - 1):
-        file_id.write("\ \n")
+        file_id.write("\\ \n")
         file_id.write(" 0,")
 
 for r in range(d_values):
@@ -710,7 +718,7 @@ for r in range(d_values):
         file_id.write(f" {iq_peak[0, i]}")
         file_id.write(",")
         if i == (q_values - 1):
-            file_id.write("\ \n")
+            file_id.write("\\ \n")
             file_id.write(" 0,")
 
     for k in range(q_values):
@@ -719,7 +727,7 @@ for r in range(d_values):
             file_id.write(f" {i * mec_deg:.3f}")
             file_id.write(",")
             if i == (map_points - 1):
-                file_id.write("\ \n")
+                file_id.write("\\ \n")
                 file_id.write(" 4,")
 
         for j in range(1, 5):
@@ -727,11 +735,11 @@ for r in range(d_values):
                 file_id.write(f" {final_table[int(j), int(index + i)]:.6f}")
                 file_id.write(",")
                 if r == (d_values - 1) and k == (q_values - 1) and j == 4 and i == (map_points - 1):
-                    file_id.write(") LINEAR LINEAR PERIODIC\ \r\n")
+                    file_id.write(") LINEAR LINEAR PERIODIC\\ \r\n")
                     file_id.write(' DEEPSPLINE" );\r\n')
                     file_id.write("}\r\n")
                 elif i == (map_points - 1):
-                    file_id.write("\ \n")
+                    file_id.write("\\ \n")
         index = index + map_points
 
 file_id.close()
