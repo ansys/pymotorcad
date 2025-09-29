@@ -1917,6 +1917,64 @@ def test_do_not_round_corner():
     assert triangle_3.entities[3].end == triangle_2.entities[2].end
 
 
+def test_extend_entity_region_method():
+    # Draw a square and extend its vertical lines to form a rectangle
+    square_1 = square(4, 0, 0)
+
+    # extend the lines using the fraction option
+    rectangle_1 = deepcopy(square_1)
+    rectangle_1.extend_entity(0, fraction=1, extend_from_end=False)
+    rectangle_1.extend_entity(2, fraction=1)
+
+    # check that the vertical lines have been doubled in length and the horizontal lines remain the
+    # same lengths
+    assert rectangle_1.is_closed()
+    assert rectangle_1.entities[0].length == square_1.entities[0].length * 2
+    assert rectangle_1.entities[2].length == square_1.entities[2].length * 2
+    assert rectangle_1.entities[1].length == square_1.entities[1].length
+    assert rectangle_1.entities[3].length == square_1.entities[3].length
+
+    # Extend all 4 lines using the absolute distance option. Extend both ends of each line to form
+    # a square with width larger than square_1 by the extension value and centred on the same point.
+    square_2 = deepcopy(square_1)
+    extension = 2.2
+    square_2.extend_entity(0, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(2, distance=extension / 2)
+    square_2.extend_entity(0, distance=extension / 2)
+    square_2.extend_entity(2, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(1, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(3, distance=extension / 2)
+    square_2.extend_entity(1, distance=extension / 2)
+    square_2.extend_entity(3, distance=extension / 2, extend_from_end=False)
+
+    # check that all lines have been increased in length by the extension value
+    assert square_2.is_closed()
+    assert isclose(
+        square_2.entities[0].length, square_1.entities[0].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[2].length, square_1.entities[2].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[1].length, square_1.entities[1].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[3].length, square_1.entities[3].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+
+
+def test_extend_entity_method():
+    # test extending a line
+    line_1 = Line(Coordinate(0, 0), Coordinate(5, 0))
+    line_2 = deepcopy(line_1)
+
+    extension = 2
+    line_2.extend(distance=extension)
+
+    assert isclose(line_2.length, line_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    assert line_2.end == Coordinate(line_1.end.x + extension, line_1.end.y)
+
+
 def test_limit_arc_chord():
     # Draw a square, round its corners, and then limit the radii,
     # and check we have the right number of entities
