@@ -761,6 +761,38 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
+    def consolidate_lines(self):
+        """Consolidate separate Line objects into a single Line object where possible.
+
+        If the current and previous entities are both Line entity types with the same angle, the
+        current entity is removed and the previous entity is extended to the end point of the
+        removed entity.
+
+        """
+        entities_to_remove = []
+        # last entity of the region
+        entity_n = self._entities[-1]
+        # for each entity in the region
+        for entity in self._entities:
+            # if the entity is a line
+            if isinstance(entity, Line) and isinstance(entity_n, Line):
+                if (
+                    isclose(entity.angle, entity_n.angle, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle - 180, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle + 180, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle - 360, abs_tol=1e-6)
+                    or isclose(entity.angle, entity_n.angle + 360, abs_tol=1e-6)
+                ):
+                    entity_n.end = entity.end
+                    entities_to_remove.append(entity)
+                else:
+                    entity_n = entity
+            else:
+                entity_n = entity
+
+        for entity in entities_to_remove:
+            self.remove_entity(entity)
+
     def round_corner(self, corner_coordinate, radius):
         """Round the corner of a region.
 
