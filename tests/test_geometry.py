@@ -608,7 +608,7 @@ def test_region_children(mc):
 
 
 def test_region_linked_regions(mc):
-    duct = mc.get_region("RotorDuctFluidRegion_1")
+    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
     assert len(duct.linked_regions) == 1
 
 
@@ -1458,7 +1458,7 @@ def test_is_matplotlib_installed(monkeypatch):
     import ansys.motorcad.core.geometry_drawing as geom_import
 
     with pytest.raises(ImportError):
-        geom_import.draw_regions(region)
+        geom_import.draw_objects(region)
 
 
 def test_strings(capsys):
