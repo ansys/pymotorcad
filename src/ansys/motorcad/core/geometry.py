@@ -771,7 +771,7 @@ class Region(object):
         """
         entities_to_remove = []
         # last entity of the region
-        entity_n = self._entities[len(self._entities) - 1]
+        entity_n = self._entities[-1]
         # for each entity in the region
         for entity in self._entities:
             # if the entity is a line
@@ -819,33 +819,29 @@ class Region(object):
         # Find adjacent entities. There should be 2 entities adjacent to the corner. Going
         # anti-clockwise around the region, the entities before and after the corner will be
         # adj_entity[0] and adj_entity[1] respectively.
-        adj_entities = []
-        adj_entity_indices = []
+        adj_entities = [None, None]
+        adj_entity_indices = [None, None]
         for index in range(len(self._entities)):
             entity = self._entities[index]
-            if entity.coordinate_on_entity(corner_coordinate):
-                adj_entities.append(entity)
-                adj_entity_indices.append(index)
+            if entity.end == corner_coordinate:
+                adj_entities[0] = entity
+                adj_entity_indices[0] = index
+            elif entity.start == corner_coordinate:
+                adj_entities[1] = entity
+                adj_entity_indices[1] = index
+
         # If no adjacent entities are found, the point provided is not a corner
-        if not adj_entities:
+        if not adj_entities[0] and not adj_entities[1]:
             raise Exception(
                 "Failed to find point on entity in region. "
                 "You must specify a corner in this region."
             )
         # If only one adjacent entity is found, the point provided is not a corner
-        if len(adj_entities) == 1:
+        if not adj_entities[0] or not adj_entities[1]:
             raise Exception(
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
-        # If the adj_entities are the first and last entities of the region, then the entity after
-        # the corner will be found first (entity 0). In this case, swap the entities around so that
-        # adj_entity[0] is always the entity before the corner (corner is adj_entity[0].end).
-        if corner_coordinate == self._entities[len(self._entities) - 1].end:
-            adj_entities[0] = self._entities[len(self._entities) - 1]
-            adj_entities[1] = self._entities[0]
-            adj_entity_indices[0] = len(self._entities) - 1
-            adj_entity_indices[1] = 0
 
         # If we have arc rounding, we need to find the angle at the intersection of the arc and the
         # rounding arc. We don't know this position in advance, so iterate up to 100 times to find
@@ -954,7 +950,7 @@ class Region(object):
         # get the lengths of the original adjacent entities before any corner rounding
         adj_entity_lengths = []
         for entity in self._entities:
-            if entity.coordinate_on_entity(corner_coordinate):
+            if entity.end == corner_coordinate or entity.start == corner_coordinate:
                 adj_entity_lengths.append(entity.length)
         # find the limit for how much an adjacent entity may be shortened by:
         distance_limit = 10000
@@ -1024,7 +1020,7 @@ class Region(object):
                 adj_entity_lengths = []
                 for index in range(len(entities_orig)):
                     entity = entities_orig[index]
-                    if entity.coordinate_on_entity(corner):
+                    if entity.end == corner or entity.start == corner:
                         adj_entity_lengths.append(entity.length)
 
                 # find the distance limit that the adjacent entities can be shortened by
@@ -1034,7 +1030,7 @@ class Region(object):
                         distance_limit = adj_entity_lengths[index]
 
                 # round the corner
-                self._round_corner(corner, radius, distance_limit)
+                self._round_corner(corner, radius, distance_limit / 2)
         # if the corner radius is too large, maximise the corner radius that is short enough for
         # the adjacent entities. The adjacent entities can only be shortened to half the original
         # entity length before any corner rounding
@@ -1047,7 +1043,7 @@ class Region(object):
                 adj_entity_lengths = []
                 for index in range(len(entities_orig)):
                     entity = entities_orig[index]
-                    if entity.coordinate_on_entity(corner):
+                    if entity.end == corner or entity.start == corner:
                         adj_entity_lengths.append(entity.length)
                 # find the distance limit that the adjacent entities can be shortened by
                 distance_limit = 10000

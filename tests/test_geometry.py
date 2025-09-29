@@ -1534,8 +1534,8 @@ def test_round_corner():
     assert triangle_1.is_closed()
     for i in range(3):
         # check that the entities making up the rounded triangle are of the expected types
-        assert type(triangle_1.entities[2 * i]) == Line
-        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        assert isinstance(triangle_1.entities[2 * i], Line)
+        assert isinstance(triangle_1.entities[2 * i + 1], Arc)
         # check that the midpoints of the shortened lines are the same as the original lines
         assert isclose(
             triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
@@ -1561,8 +1561,19 @@ def test_round_corner():
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    # * Check this using the maximise = False option
+    large_radius = 5
+    with pytest.raises(ValueError):
+        triangle_2.round_corner(triangle_2.entities[0].end, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
         triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    triangle_2.round_corner(triangle_2.entities[0].end, large_radius)  # by default, maximise = True
+    assert triangle_2.entities[1].radius < large_radius
 
     # check the case when corner internal angle is negative
     corner_1 = Coordinate(0, 0)
@@ -1605,7 +1616,7 @@ def test_round_corner():
     # draw_objects_debug([region, region_rounded])
     assert centre not in region_rounded.points
     assert len(region_rounded.entities) == len(region.entities) + 1
-    assert type(region_rounded.entities[3]) == Arc
+    assert isinstance(region_rounded.entities[3], Arc)
     # print(region_rounded.entities[3].midpoint.y)
     assert region_rounded.entities[3].midpoint.y < centre.y
 
@@ -1621,8 +1632,8 @@ def test_round_corners():
     assert triangle_1.is_closed()
     for i in range(3):
         # check that the entities making up the rounded triangle are of the expected types
-        assert type(triangle_1.entities[2 * i]) == Line
-        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        assert isinstance(triangle_1.entities[2 * i], Line)
+        assert isinstance(triangle_1.entities[2 * i + 1], Arc)
         # check that the midpoints of the shortened lines are the same as the original lines
         assert isclose(
             triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
@@ -1641,15 +1652,33 @@ def test_round_corners():
 
     # check exception is raised when a point that is not a corner is specified
     with pytest.raises(Exception):
-        triangle_1.round_corner(corners[0], radius)
+        triangle_1.round_corners(corners, corner_radius)
     with pytest.raises(Exception):
-        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+        triangle_1.round_corners(
+            [
+                triangle_1.entities[0].midpoint,
+                triangle_1.entities[1].midpoint,
+                triangle_1.entities[2].midpoint,
+            ],
+            corner_radius,
+        )
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
-        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+    # * Check this using the maximise = False option
+    large_radius = 1.7
+    with pytest.raises(ValueError):
+        triangle_2.round_corners(triangle_2.points, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        triangle_2.round_corners(triangle_2.points, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    triangle_2.round_corners(triangle_2.points, large_radius)  # by default, maximise = True
+    assert triangle_2.entities[1].radius < large_radius
 
 
 def test_round_corner_2():
@@ -1699,8 +1728,19 @@ def test_round_corner_2():
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    # * Check this using the maximise = False option
+    large_radius = 11
+    with pytest.raises(ValueError):
+        notch_2.round_corner(notch_2.entities[0].end, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
         notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    notch_2.round_corner(notch_2.entities[0].end, large_radius)  # by default, maximise = True
+    assert notch_2.entities[1].radius < large_radius
 
 
 def test_round_corners_2():
@@ -1742,15 +1782,38 @@ def test_round_corners_2():
 
     # check exception is raised when a point that is not a corner is specified
     with pytest.raises(Exception):
-        notch_1.round_corner(corners[0], corner_radius)
+        notch_1.round_corners(corners, corner_radius)
     with pytest.raises(Exception):
-        notch_1.round_corner(notch_1.entities[0].midpoint, corner_radius)
+        notch_1.round_corners(
+            [
+                notch_1.entities[0].midpoint,
+                notch_1.entities[1].midpoint,
+                notch_1.entities[2].midpoint,
+            ],
+            corner_radius,
+        )
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
     with pytest.raises(Exception):
         notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 6
+    with pytest.raises(ValueError):
+        notch_2.round_corners(notch_2.points, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        notch_2.round_corners(notch_2.points, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    notch_2.round_corners(notch_2.points, large_radius)  # by default, maximise = True
+    assert notch_2.entities[1].radius < large_radius
 
 
 def test_round_corner_3():
@@ -1808,6 +1871,17 @@ def test_round_corner_3():
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
     with pytest.raises(Exception):
+        shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 11
+    with pytest.raises(ValueError):
+        shape_2.round_corner(shape_2.entities[0].end, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
         shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
 
     # check that the corners are rounded correctly when the original entity start coordinates are
