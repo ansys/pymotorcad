@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.12'
   LIBRARY_NAME: ansys-motorcad-core
   LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11'] 
+        python-version: ['3.9', '3.10', '3.11', '3.12']
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v8
@@ -77,7 +77,7 @@ jobs:
           
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        run: tox -e py310-coverage  
+        run: tox -e py312-coverage
         
       - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
