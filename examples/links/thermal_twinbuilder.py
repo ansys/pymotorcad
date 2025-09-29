@@ -1580,10 +1580,32 @@ class MotorCADTwinModel:
                 ) as fRout:
                     covered_nodes = dict()
                     for inNode, conList in self.coolingSystemsPresent.items():
-                        if (
+
+                        groupedSprayToInletNode = [
+                            (Spray_Cooling_Radial_Housing_Front, 192),
+                            (Spray_Cooling_Radial_Housing_Rear, 193),
+                            (Spray_Cooling_Radial_Rotor_Front, 194),
+                            (Spray_Cooling_Radial_Rotor_Rear, 195),
+                            (Spray_Cooling_Axial_Endcap_Front, 196),
+                            (Spray_Cooling_Axial_Endcap_Rear, 197),
+                        ]
+                        groupedSpray = [x for x, _ in groupedSprayToInletNode]
+                        if coolingSystem in groupedSpray:
+                            # special case for grouped spray cooling - directly link node numbers to
+                            # cooling system
+                            if (coolingSystem, inNode) in groupedSprayToInletNode:
+                                found = True
+                            else:
+                                found = False
+                        elif (
                             self.nodeGroupings[self.nodeNumbers.index(inNode)]
                             == coolingSystem.groupName
                         ):
+                            found = True
+                        else:
+                            found = False
+
+                        if found:
                             upnode = inNode
                             coolSys = conList
                             break
