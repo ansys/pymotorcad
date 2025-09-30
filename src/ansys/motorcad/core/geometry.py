@@ -304,18 +304,26 @@ class Region(object):
                 point, fraction=-fraction
             )
         elif distance:
+            if distance <= -self.entities[entity_index].length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
             new_point = self.entities[entity_index].get_coordinate_from_distance(
                 point, distance=-distance
             )
         elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
             new_point = self.entities[entity_index].get_coordinate_from_distance(
                 point, fraction=-fraction
             )
         elif factor:
             if factor < 0:
                 factor = -factor
-            # factor = 0.8 # shorten by 0.2
-            # fraction = 1-0.8 = 0.2
             new_point = self.entities[entity_index].get_coordinate_from_distance(
                 point, fraction=1 - factor
             )
@@ -1454,8 +1462,18 @@ class Entity(object):
             warn(f"More than one optional argument provided, using fraction = {fraction}.")
             new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
         elif distance:
+            if distance <= -self.length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
             new_point = self.get_coordinate_from_distance(point, distance=-distance)
         elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
             new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
         elif factor:
             if factor < 0:

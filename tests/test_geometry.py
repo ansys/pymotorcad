@@ -2011,12 +2011,13 @@ def test_extend_entity_region_method():
     parallelogram_2.extend_entity(1, factor=extension_factor)
     parallelogram_2.extend_entity(3, factor=extension_factor)
 
-    # check that the parallelogram is closed
+    # check that the parallelogram is closed and that the lines are the same as for the positive
+    # factor
     assert parallelogram_2.is_closed()
     for i in range(len(parallelogram_2.entities)):
         assert parallelogram_2.entities[i] == parallelogram_1.entities[i]
 
-    # check that the correct warnings appear when multiple arguments are provides
+    # check that the correct warnings appear when multiple arguments are provided
     parallelogram_3 = deepcopy(square_1)
     extension_distance = 2
     extension_fractional_distance = 0.6
@@ -2059,44 +2060,99 @@ def test_extend_entity_region_method():
         abs_tol=GEOM_TOLERANCE,
     )
 
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    square_3 = deepcopy(square_1)  # square of width = 4 mm
+    extension = -5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+
 
 def test_extend_entity_method():
-    # test extending a line
+    # test extending a line using the distance definition
     line_1 = Line(Coordinate(0, 0), Coordinate(5, 0))
     line_2 = deepcopy(line_1)
 
     extension = 2
     line_2.extend(distance=extension)
 
+    # check that the line has been extended by the correct amount and the end has been moved to the
+    # expected coordinate
     assert isclose(line_2.length, line_1.length + extension, abs_tol=GEOM_TOLERANCE)
     assert line_2.end == Coordinate(line_1.end.x + extension, line_1.end.y)
+    # check that the start of the line is unchanged
     assert line_2.start == line_1.start
 
+    # test extending a line using the fraction definition
     line_3 = deepcopy(line_1)
+    extension_fractional_distance = 0.5
+    line_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
 
-    extension_factor = 0.5
-    line_3.extend(fraction=extension_factor, extend_from_end=False)
-
-    assert isclose(line_3.length, line_1.length * (1 + extension_factor), abs_tol=GEOM_TOLERANCE)
-    assert line_3.start == Coordinate(
-        line_1.start.x - line_1.length * extension_factor, line_1.start.y
+    # check that the line has been extended by the correct amount and that the start point has been
+    # moved as expected
+    assert isclose(
+        line_3.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
     )
+    assert line_3.start == Coordinate(
+        line_1.start.x - line_1.length * extension_fractional_distance, line_1.start.y
+    )
+    # check that the end point is unchanged
     assert line_3.end == line_1.end
 
-    # test extending an arc
+    # test extending an arc with the distance definition
     arc_1 = Arc(Coordinate(-4, 0), Coordinate(4, 0), radius=-8)
     arc_2 = deepcopy(arc_1)
     extension = 0.75
 
     arc_2.extend(distance=extension)
+    # check that the arc has been extended by the correct amount
     assert isclose(arc_2.length, arc_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
     assert arc_2.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
     assert isclose(arc_2.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
     assert arc_2.centre == arc_1.centre
 
+    # test extending an arc with the fraction definition
     arc_3 = deepcopy(arc_1)
-    extension_factor = 2
-    arc_3.extend(fraction=extension_factor)
+    extension_fractional_distance = 2
+    arc_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(
+        arc_3.length, arc_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+    # check that the end point is unchanged
+    assert arc_3.end == arc_1.end
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_3.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_3.centre == arc_1.centre
+
+    # test extending an arc with the factor definition
+    arc_4 = deepcopy(arc_1)
+    extension_factor = 1.5
+    arc_4.extend(factor=extension_factor)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(arc_4.length, arc_1.length * extension_factor, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
+    assert arc_4.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_4.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_4.centre == arc_1.centre
+
+    # test that extending an arc with a negative factor gives the same result
+    arc_5 = deepcopy(arc_1)
+    extension_factor = -1.5
+    arc_5.extend(factor=extension_factor)
+    assert arc_5 == arc_4
 
 
 def test_limit_arc_chord():
