@@ -2022,6 +2022,12 @@ def test_extend_entity_region_method():
     extension_distance = 2
     extension_fractional_distance = 0.6
     extension_factor = 1.7
+
+    # test that ValueError is raised when no optional argument is given
+    with pytest.raises(ValueError) as e_info:
+        parallelogram_3.extend_entity(0)
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
     # test that warnings are raised when multiple arguments are given
     # distance and fraction
     with pytest.warns(UserWarning) as record:
@@ -2073,6 +2079,10 @@ def test_extend_entity_region_method():
     with pytest.raises(ValueError) as e_info:
         square_3.extend_entity(0, fraction=extension_fractional_distance)
     assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        square_3.extend_entity(0, distance=1, extend_from_end="no")
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
 
 
 def test_extend_entity_method():
@@ -2153,6 +2163,59 @@ def test_extend_entity_method():
     extension_factor = -1.5
     arc_5.extend(factor=extension_factor)
     assert arc_5 == arc_4
+
+    # test that ValueError is raised when no optional argument is given
+    line_4 = deepcopy(line_1)
+    with pytest.raises(ValueError) as e_info:
+        line_4.extend()
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
+    # check that the correct warnings appear when multiple arguments are provided
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, fraction=extension_fractional_distance)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + 2 * extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    line_5 = deepcopy(line_1)
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        line_5.extend(fraction=extension_fractional_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        line_5.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    arc_5 = deepcopy(arc_1)  # arc length 8.4 mm
+    extension = -9
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        arc_5.extend(distance=1, extend_from_end=None)
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
 
 
 def test_limit_arc_chord():

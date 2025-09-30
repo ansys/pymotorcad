@@ -284,12 +284,15 @@ class Region(object):
             unchanged and start point is fixed.
 
         """
-        if extend_from_end:
-            point = self.entities[entity_index].end
-        elif not extend_from_end:
-            point = self.entities[entity_index].start
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.entities[entity_index].end
+            else:
+                point = self.entities[entity_index].start
         else:
-            raise TypeError(f"The argument 'extend_from_end' must be True or False.")
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or " f"False)."
+            )
 
         # if multiple optional arguments are provided, precedence is taken in the order: distance,
         # fraction, factor:
@@ -328,7 +331,7 @@ class Region(object):
                 point, fraction=1 - factor
             )
         else:
-            raise Exception(f"Please provide either a distance or fraction.")
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
 
         if extend_from_end:
             self.edit_point(self.entities[entity_index].end, new_point)
@@ -1446,12 +1449,15 @@ class Entity(object):
             unchanged and start point is fixed.
 
         """
-        if extend_from_end:
-            point = self.end
-        elif not extend_from_end:
-            point = self.start
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.end
+            else:
+                point = self.start
         else:
-            raise TypeError(f"The argument 'extend_from_end' must be True or False.")
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or " f"False)."
+            )
 
         # if multiple optional arguments are provided, precedence is taken in the order: distance,
         # fraction, factor:
@@ -1480,7 +1486,7 @@ class Entity(object):
                 factor = -factor
             new_point = self.get_coordinate_from_distance(point, fraction=1 - factor)
         else:
-            raise Exception(f"Please provide either a distance, fraction or factor.")
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
         if extend_from_end:
             self.end = new_point
         else:
