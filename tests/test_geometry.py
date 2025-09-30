@@ -1962,6 +1962,103 @@ def test_extend_entity_region_method():
         square_2.entities[3].length, square_1.entities[3].length + extension, abs_tol=GEOM_TOLERANCE
     )
 
+    # check the factor definition with a <1 factor that shortens two lines to form a parallelogram:
+    parallelogram_1 = deepcopy(square_1)
+    extension_factor = 0.8
+
+    parallelogram_1.extend_entity(1, factor=extension_factor)
+    parallelogram_1.extend_entity(3, factor=extension_factor)
+    # check that the parallelogram is closed
+    assert parallelogram_1.is_closed()
+    # check that the unchanged points are unchanged
+    assert parallelogram_1.entities[0].end == square_1.entities[0].end
+    assert parallelogram_1.entities[2].end == square_1.entities[2].end
+    # check that the horizontal lines are still horizontal
+    assert isclose(
+        parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE
+    )
+    # check that the horizontal lines have been shortened by the correct amount
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        square_1.entities[1].length * extension_factor,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        parallelogram_1.entities[3].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal (previously vertical) lines are still equal lengths
+    assert isclose(
+        parallelogram_1.entities[0].length,
+        parallelogram_1.entities[2].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal lines are still parallel
+    assert isclose(
+        parallelogram_1.entities[0].angle,
+        parallelogram_1.entities[2].angle - 180,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # check that negative factor gives same result
+    parallelogram_2 = deepcopy(square_1)
+    extension_factor = -0.8
+
+    parallelogram_2.extend_entity(1, factor=extension_factor)
+    parallelogram_2.extend_entity(3, factor=extension_factor)
+
+    # check that the parallelogram is closed
+    assert parallelogram_2.is_closed()
+    for i in range(len(parallelogram_2.entities)):
+        assert parallelogram_2.entities[i] == parallelogram_1.entities[i]
+
+    # check that the correct warnings appear when multiple arguments are provides
+    parallelogram_3 = deepcopy(square_1)
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, distance=extension_distance, fraction=extension_fractional_distance
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        square_1.entities[0].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(2, distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[2].length,
+        square_1.entities[2].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, fraction=extension_fractional_distance, factor=extension_factor
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        (square_1.entities[0].length + extension_distance) * (1 + extension_fractional_distance),
+        abs_tol=GEOM_TOLERANCE,
+    )
+
 
 def test_extend_entity_method():
     # test extending a line
@@ -1973,6 +2070,33 @@ def test_extend_entity_method():
 
     assert isclose(line_2.length, line_1.length + extension, abs_tol=GEOM_TOLERANCE)
     assert line_2.end == Coordinate(line_1.end.x + extension, line_1.end.y)
+    assert line_2.start == line_1.start
+
+    line_3 = deepcopy(line_1)
+
+    extension_factor = 0.5
+    line_3.extend(fraction=extension_factor, extend_from_end=False)
+
+    assert isclose(line_3.length, line_1.length * (1 + extension_factor), abs_tol=GEOM_TOLERANCE)
+    assert line_3.start == Coordinate(
+        line_1.start.x - line_1.length * extension_factor, line_1.start.y
+    )
+    assert line_3.end == line_1.end
+
+    # test extending an arc
+    arc_1 = Arc(Coordinate(-4, 0), Coordinate(4, 0), radius=-8)
+    arc_2 = deepcopy(arc_1)
+    extension = 0.75
+
+    arc_2.extend(distance=extension)
+    assert isclose(arc_2.length, arc_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    assert arc_2.start == arc_1.start
+    assert isclose(arc_2.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_2.centre == arc_1.centre
+
+    arc_3 = deepcopy(arc_1)
+    extension_factor = 2
+    arc_3.extend(fraction=extension_factor)
 
 
 def test_limit_arc_chord():

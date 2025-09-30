@@ -258,13 +258,15 @@ class Region(object):
         # Set the region object entities to be the list of replacement region entities
         self._entities = deepcopy(replacement_region.entities)
 
-    def extend_entity(self, entity_index, distance=None, fraction=None, extend_from_end=True):
+    def extend_entity(
+        self, entity_index, distance=None, fraction=None, factor=None, extend_from_end=True
+    ):
         """Extend an Entity of a Region by a given distance.
 
         The Entity will be extended by keeping
         the start point fixed and shifting the end point unless extend_from_end is False. If
         extend_from_end is False, the end point will be kept fixed and the start point will be
-        shifted instead.
+        shifted instead. Tip: to extend from both ends, you can use the method twice.
 
         Parameters
         ----------
@@ -274,6 +276,9 @@ class Region(object):
             Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
         fraction : float
             Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
         extend_from_end : bool
             If True, start point is unchanged and end point is shifted. If False, end point is
             unchanged and start point is fixed.
@@ -286,13 +291,33 @@ class Region(object):
         else:
             raise TypeError(f"The argument 'extend_from_end' must be True or False.")
 
-        if distance:
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, distance=-distance
+            )
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=-fraction
+            )
+        elif distance:
             new_point = self.entities[entity_index].get_coordinate_from_distance(
                 point, distance=-distance
             )
         elif fraction:
             new_point = self.entities[entity_index].get_coordinate_from_distance(
                 point, fraction=-fraction
+            )
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            # factor = 0.8 # shorten by 0.2
+            # fraction = 1-0.8 = 0.2
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=1 - factor
             )
         else:
             raise Exception(f"Please provide either a distance or fraction.")
@@ -1391,13 +1416,13 @@ class Entity(object):
         else:
             return None
 
-    def extend(self, distance=None, fraction=None, extend_from_end=True):
+    def extend(self, distance=None, fraction=None, factor=None, extend_from_end=True):
         """Extend an Entity object by a given distance.
 
         The Entity will be extended by keeping the
         start point fixed and shifting the end point unless extend_from_end is False. If
         extend_from_end is False, the end point will be kept fixed and the start point will be
-        shifted instead.
+        shifted instead. Tip: To extend from both ends, you can use the method twice.
 
         Parameters
         ----------
@@ -1405,6 +1430,9 @@ class Entity(object):
             Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
         fraction : float
             Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
         extend_from_end : bool
             If True, start point is unchanged and end point is shifted. If False, end point is
             unchanged and start point is fixed.
@@ -1417,12 +1445,24 @@ class Entity(object):
         else:
             raise TypeError(f"The argument 'extend_from_end' must be True or False.")
 
-        if distance:
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            new_point = self.get_coordinate_from_distance(point, distance=-distance)
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+        elif distance:
             new_point = self.get_coordinate_from_distance(point, distance=-distance)
         elif fraction:
             new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            new_point = self.get_coordinate_from_distance(point, fraction=1 - factor)
         else:
-            raise Exception(f"Please provide either a distance or fraction.")
+            raise Exception(f"Please provide either a distance, fraction or factor.")
         if extend_from_end:
             self.end = new_point
         else:
