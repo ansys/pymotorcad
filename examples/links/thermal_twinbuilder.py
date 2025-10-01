@@ -1165,49 +1165,49 @@ class MotorCADTwinModel:
             return nodes
 
         outputs = []
-
+        # Only alphanumeric and underscores allowed as the string name in Twin Builder
         armatureA = nodesFromGroup("Armature Winding (Active)")
         armatureF = nodesFromGroup("Armature Winding (Endwinding Front)")
         armatureR = nodesFromGroup("Armature Winding (Endwinding Rear)")
-        outputs.append(("avg", "Armature Winding Average", armatureA + armatureF + armatureR))
-        outputs.append(("max", "Armature Winding Maximum", armatureA + armatureF + armatureR))
-        outputs.append(("avg", "Armature Winding (Active) Average", armatureA))
-        outputs.append(("max", "Armature Winding (Active) Maximum", armatureA))
-        outputs.append(("avg", "Armature Endwinding (Front) Average", armatureF))
-        outputs.append(("max", "Armature Endwinding (Front) Maximum", armatureF))
-        outputs.append(("avg", "Armature Endwinding (Rear) Average", armatureR))
-        outputs.append(("max", "Armature Endwinding (Rear) Maximum", armatureR))
+        outputs.append(("avg", "Armature_Winding_Average", armatureA + armatureF + armatureR))
+        outputs.append(("max", "Armature_Winding_Maximum", armatureA + armatureF + armatureR))
+        outputs.append(("avg", "Armature_Winding_Active_Average", armatureA))
+        outputs.append(("max", "Armature_Winding_Active_Maximum", armatureA))
+        outputs.append(("avg", "Armature_Endwinding_Front_Average", armatureF))
+        outputs.append(("max", "Armature_Endwinding_Front_Maximum", armatureF))
+        outputs.append(("avg", "Armature_Endwinding_Rear_Average", armatureR))
+        outputs.append(("max", "Armature_Endwinding_Rear_Maximum", armatureR))
 
         airgap = self.getWindageLossTemperatureNodes()
         if len(airgap) > 0:
-            outputs.append(("avg", "Airgap Average", airgap))
+            outputs.append(("avg", "Airgap_Average", airgap))
 
         magnet = nodesFromGroup("Magnet")
-        outputs.append(("avg", "Magnet Average", magnet))
-        outputs.append(("max", "Magnet Maximum", magnet))
+        outputs.append(("avg", "Magnet_Average", magnet))
+        outputs.append(("max", "Magnet_Maximum", magnet))
 
         fieldA = nodesFromGroup("Field Winding (Active)")
         fieldF = nodesFromGroup("Field Winding (Endwinding Front)")
         fieldR = nodesFromGroup("Field Winding (Endwinding Rear)")
         sync = self.mcad.get_variable("Motor_Type") == 6
         if sync:
-            outputs.append(("avg", "Field Winding Average", fieldA + fieldF + fieldR))
-            outputs.append(("max", "Field Winding Maximum", fieldA + fieldF + fieldR))
-            outputs.append(("avg", "Field Winding (Active) Average", fieldA))
-            outputs.append(("max", "Field Winding (Active) Maximum", fieldA))
-            outputs.append(("avg", "Field Endwinding (Front) Average", fieldF))
-            outputs.append(("max", "Field Endwinding (Front) Maximum", fieldF))
-            outputs.append(("avg", "Field Endwinding (Rear) Average", fieldR))
-            outputs.append(("max", "Field Endwinding (Rear) Maximum", fieldR))
+            outputs.append(("avg", "Field_Winding_Average", fieldA + fieldF + fieldR))
+            outputs.append(("max", "Field_Winding_Maximum", fieldA + fieldF + fieldR))
+            outputs.append(("avg", "Field_Winding_Active_Average", fieldA))
+            outputs.append(("max", "Field_Winding_Active_Maximum", fieldA))
+            outputs.append(("avg", "Field_Endwinding_Front_Average", fieldF))
+            outputs.append(("max", "Field_Endwinding_Front_Maximum", fieldF))
+            outputs.append(("avg", "Field_Endwinding_Rear_Average", fieldR))
+            outputs.append(("max", "Field_Endwinding_Rear_Maximum", fieldR))
         else:  # IM/IM1PH
-            outputs.append(("avg", "Rotor Cage Average", fieldA + fieldF + fieldR))
-            outputs.append(("max", "Rotor Cage Maximum", fieldA + fieldF + fieldR))
-            outputs.append(("avg", "Rotor Bar Average", fieldA))
-            outputs.append(("max", "Rotor Bar Maximum", fieldA))
-            outputs.append(("avg", "Rotor Endring (Front) Average", fieldF))
-            outputs.append(("max", "Rotor Endring (Front) Maximum", fieldF))
-            outputs.append(("avg", "Rotor Endring (Rear) Average", fieldR))
-            outputs.append(("max", "Rotor Endring (Rear) Maximum", fieldR))
+            outputs.append(("avg", "Rotor_Cage_Average", fieldA + fieldF + fieldR))
+            outputs.append(("max", "Rotor_Cage_Maximum", fieldA + fieldF + fieldR))
+            outputs.append(("avg", "Rotor_Bar_Average", fieldA))
+            outputs.append(("max", "Rotor_Bar_Maximum", fieldA))
+            outputs.append(("avg", "Rotor_Endring_Front_Average", fieldF))
+            outputs.append(("max", "Rotor_Endring_Front_Maximum", fieldF))
+            outputs.append(("avg", "Rotor_Endring_Rear_Average", fieldR))
+            outputs.append(("max", "Rotor_Endring_Rear_Maximum", fieldR))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
