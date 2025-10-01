@@ -619,6 +619,14 @@ class MotorCADTwinModel:
                 "coolingSystemsParameterSweeps must not have duplicate cooling system keys",
             )
 
+            groupedSprays = [
+                Spray_Cooling_Radial_Housing_Front,
+                Spray_Cooling_Radial_Housing_Rear,
+                Spray_Cooling_Radial_Rotor_Front,
+                Spray_Cooling_Radial_Rotor_Rear,
+                Spray_Cooling_Axial_Endcap_Front,
+                Spray_Cooling_Axial_Endcap_Rear,
+            ]
             for coolingSystem, parameterSweeps in list(coolingSystemsParameterSweeps.items()):
                 validate(
                     isinstance(coolingSystem, CoolingSystem),
@@ -628,9 +636,28 @@ class MotorCADTwinModel:
                 validate(
                     coolingSystem in coolingSystemNames,
                     ValueError,
-                    f"The Cooling System named {coolingSystem} is not part of the list of Cooling "
+                    f"The {coolingSystem} cooling system is not part of the list of Cooling "
                     f"Systems {coolingSystemNames}",
-                )  # TODO validate spray cooling system choice is correct
+                )
+                try:
+                    sprayType = self.mcad.get_variable("SprayCoolingNozzleDefinition")
+                except:
+                    sprayType = 0
+                validate(
+                    not (sprayType == 0) and (coolingSystem in groupedSprays),
+                    ValueError,
+                    f"The {coolingSystem} cooling system is not present in your Motor-CAD model. "
+                    f"If your Motor-CAD model contains Spray Cooling, use the {Spray_Cooling} key "
+                    f"in coolingSystemsParameterSweeps instead.",
+                )
+                validate(
+                    not (sprayType == 1) and (coolingSystem in [Spray_Cooling]),
+                    ValueError,
+                    f"The {coolingSystem} cooling system is not present in your Motor-CAD model. "
+                    f"If your Motor-CAD model contains Spray Cooling, you will need to use one or "
+                    f"more of the following cooling system keys in coolingSystemsParameterSweeps "
+                    f"instead: {groupedSprays}.",
+                )
                 validate(
                     isinstance(parameterSweeps, dict),
                     TypeError,
