@@ -1197,13 +1197,13 @@ class MotorCADTwinModel:
         armatureA = nodesFromGroup("Armature Winding (Active)")
         armatureF = nodesFromGroup("Armature Winding (Endwinding Front)")
         armatureR = nodesFromGroup("Armature Winding (Endwinding Rear)")
-        outputs.append(("avg", "Armature_Winding_Average", armatureA + armatureF + armatureR))
+        outputs.append(("avg_cap", "Armature_Winding_Average", armatureA + armatureF + armatureR))
         outputs.append(("max", "Armature_Winding_Maximum", armatureA + armatureF + armatureR))
-        outputs.append(("avg", "Armature_Winding_Active_Average", armatureA))
+        outputs.append(("avg_cap", "Armature_Winding_Active_Average", armatureA))
         outputs.append(("max", "Armature_Winding_Active_Maximum", armatureA))
-        outputs.append(("avg", "Armature_Endwinding_Front_Average", armatureF))
+        outputs.append(("avg_cap", "Armature_Endwinding_Front_Average", armatureF))
         outputs.append(("max", "Armature_Endwinding_Front_Maximum", armatureF))
-        outputs.append(("avg", "Armature_Endwinding_Rear_Average", armatureR))
+        outputs.append(("avg_cap", "Armature_Endwinding_Rear_Average", armatureR))
         outputs.append(("max", "Armature_Endwinding_Rear_Maximum", armatureR))
 
         airgap = self.getWindageLossTemperatureNodes()
@@ -1211,7 +1211,7 @@ class MotorCADTwinModel:
             outputs.append(("avg", "Airgap_Average", airgap))
 
         magnet = nodesFromGroup("Magnet")
-        outputs.append(("avg", "Magnet_Average", magnet))
+        outputs.append(("avg_cap", "Magnet_Average", magnet))
         outputs.append(("max", "Magnet_Maximum", magnet))
 
         fieldA = nodesFromGroup("Field Winding (Active)")
@@ -1219,23 +1219,26 @@ class MotorCADTwinModel:
         fieldR = nodesFromGroup("Field Winding (Endwinding Rear)")
         sync = self.mcad.get_variable("Motor_Type") == 6
         if sync:
-            outputs.append(("avg", "Field_Winding_Average", fieldA + fieldF + fieldR))
+            outputs.append(("avg_cap", "Field_Winding_Average", fieldA + fieldF + fieldR))
             outputs.append(("max", "Field_Winding_Maximum", fieldA + fieldF + fieldR))
-            outputs.append(("avg", "Field_Winding_Active_Average", fieldA))
+            outputs.append(("avg_cap", "Field_Winding_Active_Average", fieldA))
             outputs.append(("max", "Field_Winding_Active_Maximum", fieldA))
-            outputs.append(("avg", "Field_Endwinding_Front_Average", fieldF))
+            outputs.append(("avg_cap", "Field_Endwinding_Front_Average", fieldF))
             outputs.append(("max", "Field_Endwinding_Front_Maximum", fieldF))
-            outputs.append(("avg", "Field_Endwinding_Rear_Average", fieldR))
+            outputs.append(("avg_cap", "Field_Endwinding_Rear_Average", fieldR))
             outputs.append(("max", "Field_Endwinding_Rear_Maximum", fieldR))
         else:  # IM/IM1PH
-            outputs.append(("avg", "Rotor_Cage_Average", fieldA + fieldF + fieldR))
+            outputs.append(("avg_cap", "Rotor_Cage_Average", fieldA + fieldF + fieldR))
             outputs.append(("max", "Rotor_Cage_Maximum", fieldA + fieldF + fieldR))
-            outputs.append(("avg", "Rotor_Bar_Average", fieldA))
+            outputs.append(("avg_cap", "Rotor_Bar_Average", fieldA))
             outputs.append(("max", "Rotor_Bar_Maximum", fieldA))
-            outputs.append(("avg", "Rotor_Endring_Front_Average", fieldF))
+            outputs.append(("avg_cap", "Rotor_Endring_Front_Average", fieldF))
             outputs.append(("max", "Rotor_Endring_Front_Maximum", fieldF))
-            outputs.append(("avg", "Rotor_Endring_Rear_Average", fieldR))
+            outputs.append(("avg_cap", "Rotor_Endring_Rear_Average", fieldR))
             outputs.append(("max", "Rotor_Endring_Rear_Maximum", fieldR))
+
+        # remove any outputs with no nodes
+        outputs = [x for x in outputs if len(x[2]) > 0]
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
