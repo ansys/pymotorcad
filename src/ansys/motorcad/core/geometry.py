@@ -131,7 +131,7 @@ class Region(object):
         self._name = ""
         self._base_name = ""
         self._material = "air"
-        self._colour = (0, 0, 0)
+        self._colour = (255, 255, 255)
         self._area = 0.0
         self._centroid = Coordinate(0, 0)
         self._region_coordinate = Coordinate(0, 0)
