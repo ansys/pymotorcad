@@ -285,7 +285,10 @@ def test_upload_mot_file(mc):
 
     # File might have slight differences (paths etc.) since we are uploading and
     # saving as a new file
-    assert file_line_differences(upload_mot_file_path, save_file_path) < 30
+    # 30 line differences is not enough if running on self-hosted runner.
+    # materials database sometimes saves copies of materials so we can get many more lines.
+    # files are ~14000 lines long so 200 is still a small amount of changes
+    assert file_line_differences(upload_mot_file_path, save_file_path) < 200
     reset_to_default_file(mc)
 
 
