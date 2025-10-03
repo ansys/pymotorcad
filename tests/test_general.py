@@ -289,7 +289,7 @@ def test_upload_mot_file(mc):
     reset_to_default_file(mc)
 
 
-def test_save_load_frf(mc):
+def test_save_load_custom_response(mc):
     # reset model state
     reset_to_default_file(mc)
 
@@ -318,14 +318,14 @@ def test_save_load_frf(mc):
     mc.set_array_variable_2d("CustomNVHFRFResponse", 1, 1, 60)
     mc.set_array_variable_2d("CustomNVHFRFResponse", 2, 1, 80)
 
-    file_path = get_dir_path() + r"\test_files\SaveLoadFRF.txt"
+    file_path = get_dir_path() + r"\test_files\SaveLoadNVHResponse.txt"
     if os.path.exists(file_path):
         os.remove(file_path)
 
     # save to file, clear and re-load
-    mc.save_nvh_frf(file_path)
+    mc.save_nvh_custom_response(file_path)
     reset_to_default_file(mc)
-    mc.load_nvh_frf(file_path)
+    mc.load_nvh_custom_response(file_path)
 
     assert mc.get_array_variable_2d("CustomNVHFRFResponse", 2, 1) == 80
     assert mc.get_array_variable("CustomNVHFRFModeShape", 1) == 0

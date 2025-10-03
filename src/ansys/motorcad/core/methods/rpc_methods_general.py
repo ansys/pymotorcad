@@ -545,8 +545,8 @@ class _RpcMethodsGeneral:
         params = [file_contents]
         self.connection.send_and_receive(method, params)
 
-    def load_nvh_frf(self, file_name):
-        """Load custom NVH frequency response functions from a text file.
+    def load_nvh_custom_response(self, file_name):
+        """Load custom characteristic noise response functions from space/tab delimited text file.
 
         Parameters
         ----------
@@ -554,12 +554,12 @@ class _RpcMethodsGeneral:
             Full path to the text file
         """
         self.connection.ensure_version_at_least("2026.0")
-        method = "LoadNVHFRF"
+        method = "LoadNVHResponse"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def save_nvh_frf(self, file_name):
-        """Save custom NVH frequency response functions to tab delimited text file.
+    def save_nvh_custom_response(self, file_name):
+        """Save custom characteristic noise response functions to tab delimited text file.
 
         Parameters
         ----------
@@ -567,6 +567,6 @@ class _RpcMethodsGeneral:
             Full path for the text file
         """
         self.connection.ensure_version_at_least("2026.0")
-        method = "SaveNVHFRF"
+        method = "SaveNVHResponse"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
