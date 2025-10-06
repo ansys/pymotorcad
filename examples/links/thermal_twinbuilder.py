@@ -1199,26 +1199,26 @@ class MotorCADTwinModel:
         armatureF = self.nodesFromGroup("Armature Winding (Endwinding Front)")
         armatureR = self.nodesFromGroup("Armature Winding (Endwinding Rear)")
         initialisations.append(("T_Initial_Armature_Winding", armatureA + armatureF + armatureR))
-        initialisedNodes.append(armatureA + armatureF + armatureR)
+        initialisedNodes.extend(armatureA + armatureF + armatureR)
 
         magnet = self.nodesFromGroup("Magnet")
         initialisations.append(("T_Initial_Magnet", magnet))
-        initialisedNodes.append(magnet)
+        initialisedNodes.extend(magnet)
 
         stator = self.nodesFromGroup("Stator Lamination")
         initialisations.append(("T_Initial_Stator_Lamination", stator))
-        initialisedNodes.append(stator)
+        initialisedNodes.extend(stator)
 
         rotor = self.nodesFromGroup("Rotor Lamination")
         initialisations.append(("T_Initial_Rotor_Lamination", rotor))
-        initialisedNodes.append(rotor)
+        initialisedNodes.extend(rotor)
 
         housing = self.nodesFromGroup("Housing")
         initialisations.append(("T_Initial_Housing", housing))
-        initialisedNodes.append(housing)
+        initialisedNodes.extend(housing)
         
         initialisations.append(("T_Initial_Flange", ["Plate"])) # TODO check format
-        initialisedNodes.append(["Plate"])
+        initialisedNodes.extend(["Plate"])
 
         fieldA = self.nodesFromGroup("Field Winding (Active)")
         fieldF = self.nodesFromGroup("Field Winding (Endwinding Front)")
@@ -1228,7 +1228,7 @@ class MotorCADTwinModel:
             initialisations.append(("T_Initial_Field_Winding", fieldA + fieldF + fieldR))
         else:  # IM/IM1PH
             initialisations.append(("T_Initial_Rotor_Cage", fieldA + fieldF + fieldR))
-        initialisedNodes.append(fieldA + fieldF + fieldR)
+        initialisedNodes.extend(fieldA + fieldF + fieldR)
 
         remainingNodes = [x for x in self.nodeNames if x not in initialisedNodes]
         initialisations.append(("T_Initial_Other", remainingNodes))
