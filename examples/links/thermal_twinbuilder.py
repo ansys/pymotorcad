@@ -1187,12 +1187,7 @@ class MotorCADTwinModel:
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
         # TODO handle fixed temperature controlled coupled cooling systems
 
-    def generateInitialTemperatures(self):  # TODO add fluid outlet temperatures
-
-    #   kGroupName_EndSpace, kGroupName_Ventilated, kGroupName_HousingWJ, kGroupName_ShaftSG,
-    #   kGroupName_WetRotor, kGroupName_SprayCooling, kGroupName_RotorWJ, kGroupName_SlotWJ,
-    #   kGroupName_HeatExchanger,
-
+    def generateInitialTemperatures(self):  # TODO add fluid temperatures
         initialisations = []
         initialisedNodes = []
         armatureA = self.nodesFromGroup("Armature Winding (Active)")
@@ -1216,8 +1211,8 @@ class MotorCADTwinModel:
         housing = self.nodesFromGroup("Housing")
         initialisations.append(("T_Initial_Housing", housing))
         initialisedNodes.extend(housing)
-        
-        initialisations.append(("T_Initial_Flange", ["Plate"])) # TODO check format
+
+        initialisations.append(("T_Initial_Flange", ["Plate"]))
         initialisedNodes.extend(["Plate"])
 
         fieldA = self.nodesFromGroup("Field Winding (Active)")
@@ -1239,7 +1234,6 @@ class MotorCADTwinModel:
                     f.write(f"{name},{nodeNames}\n")
 
     def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures
-
         outputs = []
         # Only alphanumeric and underscores allowed as the string name in Twin Builder
         armatureA = self.nodesFromGroup("Armature Winding (Active)")
@@ -1656,7 +1650,6 @@ class MotorCADTwinModel:
                 ) as fRout:
                     covered_nodes = dict()
                     for inNode, conList in self.coolingSystemsPresent.items():
-
                         groupedSprayToInletNode = [
                             (Spray_Cooling_Radial_Housing_Front, 192),
                             (Spray_Cooling_Radial_Housing_Rear, 193),
