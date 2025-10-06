@@ -360,9 +360,7 @@ class MotorCADTwinModel:
         )
 
         self.updateMotfile()
-
         self.updateCustomLosses()
-
         self.validateMotfileLosses()
 
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.nodeNumbers_fluid,
@@ -370,11 +368,8 @@ class MotorCADTwinModel:
         self.getNodeData()
 
         self.generateCoolingSystemNetwork()
-
         self.generateFixedTemperatures(coolingSystemsParameterSweeps)
-
         self.generateRpmSamples(rpms)
-
         self.generateLossDistribution()
 
         if coolingSystemsInputs:
@@ -388,6 +383,7 @@ class MotorCADTwinModel:
         if airGapTempDependency:
             self.generateAirgapTempDependency(rpms, airgapTemperatures)
 
+        self.generateInitialTemperatures()
         self.generateOutputTemperatures()
 
         # write config file
@@ -490,6 +486,14 @@ class MotorCADTwinModel:
             list(t)
             for t in zip(*sorted(zip(nodeNumbers, nodeNames_original, nodeNames, nodeGroupings)))
         )
+
+    def nodesFromGroup(self, nodeGroup):
+        nodes = [
+            self.nodeNames[index]
+            for index, group in enumerate(self.nodeGroupings)
+            if group == nodeGroup
+        ]
+        return nodes
 
     def getAxialSliceNodes(self, midSliceNode):
         axialSliceDefinition = self.mcad.get_variable("AxialSliceDefinition")
@@ -1183,20 +1187,64 @@ class MotorCADTwinModel:
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
         # TODO handle fixed temperature controlled coupled cooling systems
 
+    def generateInitialTemperatures(self):  # TODO add fluid outlet temperatures
+
+    #   kGroupName_EndSpace, kGroupName_Ventilated, kGroupName_HousingWJ, kGroupName_ShaftSG,
+    #   kGroupName_WetRotor, kGroupName_SprayCooling, kGroupName_RotorWJ, kGroupName_SlotWJ,
+    #   kGroupName_HeatExchanger,
+
+        initialisations = []
+        initialisedNodes = []
+        armatureA = self.nodesFromGroup("Armature Winding (Active)")
+        armatureF = self.nodesFromGroup("Armature Winding (Endwinding Front)")
+        armatureR = self.nodesFromGroup("Armature Winding (Endwinding Rear)")
+        initialisations.append(("T_Initial_Armature_Winding", armatureA + armatureF + armatureR))
+        initialisedNodes.append(armatureA + armatureF + armatureR)
+
+        magnet = self.nodesFromGroup("Magnet")
+        initialisations.append(("T_Initial_Magnet", magnet))
+        initialisedNodes.append(magnet)
+
+        stator = self.nodesFromGroup("Stator Lamination")
+        initialisations.append(("T_Initial_Stator_Lamination", stator))
+        initialisedNodes.append(stator)
+
+        rotor = self.nodesFromGroup("Rotor Lamination")
+        initialisations.append(("T_Initial_Rotor_Lamination", rotor))
+        initialisedNodes.append(rotor)
+
+        housing = self.nodesFromGroup("Housing")
+        initialisations.append(("T_Initial_Housing", housing))
+        initialisedNodes.append(housing)
+        
+        initialisations.append(("T_Initial_Flange", ["Plate"])) # TODO check format
+        initialisedNodes.append(["Plate"])
+
+        fieldA = self.nodesFromGroup("Field Winding (Active)")
+        fieldF = self.nodesFromGroup("Field Winding (Endwinding Front)")
+        fieldR = self.nodesFromGroup("Field Winding (Endwinding Rear)")
+        sync = self.mcad.get_variable("Motor_Type") == 6
+        if sync:
+            initialisations.append(("T_Initial_Field_Winding", fieldA + fieldF + fieldR))
+        else:  # IM/IM1PH
+            initialisations.append(("T_Initial_Rotor_Cage", fieldA + fieldF + fieldR))
+        initialisedNodes.append(fieldA + fieldF + fieldR)
+
+        remainingNodes = [x for x in self.nodeNames if x not in initialisedNodes]
+        initialisations.append(("T_Initial_Other", remainingNodes))
+
+        with open(os.path.join(outputDir, "TemperatureInitialization.csv"), "w") as f:
+            for name, nodeNames in initialisations:
+                if len(nodeNames) > 0:
+                    f.write(f"{name},{nodeNames}\n")
+
     def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures
-        def nodesFromGroup(nodeGroup):
-            nodes = [
-                self.nodeNames[index]
-                for index, group in enumerate(self.nodeGroupings)
-                if group == nodeGroup
-            ]
-            return nodes
 
         outputs = []
         # Only alphanumeric and underscores allowed as the string name in Twin Builder
-        armatureA = nodesFromGroup("Armature Winding (Active)")
-        armatureF = nodesFromGroup("Armature Winding (Endwinding Front)")
-        armatureR = nodesFromGroup("Armature Winding (Endwinding Rear)")
+        armatureA = self.nodesFromGroup("Armature Winding (Active)")
+        armatureF = self.nodesFromGroup("Armature Winding (Endwinding Front)")
+        armatureR = self.nodesFromGroup("Armature Winding (Endwinding Rear)")
         outputs.append(("avg_cap", "Armature_Winding_Average", armatureA + armatureF + armatureR))
         outputs.append(("max", "Armature_Winding_Maximum", armatureA + armatureF + armatureR))
         outputs.append(("avg_cap", "Armature_Winding_Active_Average", armatureA))
@@ -1210,13 +1258,13 @@ class MotorCADTwinModel:
         if len(airgap) > 0:
             outputs.append(("avg", "Airgap_Average", airgap))
 
-        magnet = nodesFromGroup("Magnet")
+        magnet = self.nodesFromGroup("Magnet")
         outputs.append(("avg_cap", "Magnet_Average", magnet))
         outputs.append(("max", "Magnet_Maximum", magnet))
 
-        fieldA = nodesFromGroup("Field Winding (Active)")
-        fieldF = nodesFromGroup("Field Winding (Endwinding Front)")
-        fieldR = nodesFromGroup("Field Winding (Endwinding Rear)")
+        fieldA = self.nodesFromGroup("Field Winding (Active)")
+        fieldF = self.nodesFromGroup("Field Winding (Endwinding Front)")
+        fieldR = self.nodesFromGroup("Field Winding (Endwinding Rear)")
         sync = self.mcad.get_variable("Motor_Type") == 6
         if sync:
             outputs.append(("avg_cap", "Field_Winding_Average", fieldA + fieldF + fieldR))
@@ -1236,9 +1284,6 @@ class MotorCADTwinModel:
             outputs.append(("max", "Rotor_Endring_Front_Maximum", fieldF))
             outputs.append(("avg_cap", "Rotor_Endring_Rear_Average", fieldR))
             outputs.append(("max", "Rotor_Endring_Rear_Maximum", fieldR))
-
-        # remove any outputs with no nodes
-        outputs = [x for x in outputs if len(x[2]) > 0]
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
@@ -1270,7 +1315,7 @@ class MotorCADTwinModel:
         lossNames = self.lossNames + [name for (name, _, _, _) in self.customPowerInjections]
 
         numLossParameters = len(lossNames)
-        lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames_original)))
+        lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames)))
 
         # use a small loss value of 1W
         inputLoss = 1
