@@ -367,7 +367,6 @@ class MotorCADTwinModel:
         # and self.nodeNumbers_fluidInlet
         self.getNodeData()
 
-        self.generateCoolingSystemNetwork()
         self.generateFixedTemperatures(coolingSystemsParameterSweeps)
         self.generateRpmSamples(rpms)
         self.generateLossDistribution()
@@ -1013,6 +1012,9 @@ class MotorCADTwinModel:
 
                 if isInlet_check1 and isInlet_check2:
                     self.nodeNumbers_fluidInlet.append(nodeNumber)
+        
+        self.generateCoolingSystemNetwork()
+
 
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
