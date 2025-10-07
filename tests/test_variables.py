@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,7 +25,7 @@ from os import path, remove
 import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
-from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core import MotorCAD, MotorCADError, rpc_client_core
 
 
 def test_get_variable(mc):
@@ -143,3 +143,56 @@ def test_get_file_name():
     mc.save_to_file(file_path)
     assert mc.get_file_name() == file_path
     remove(file_path)
+
+
+def test_get_file_name_fallback():
+    mc = MotorCAD()
+    # Pretend to be an older version
+    mc.connection.program_version = "2024.2.3.1"
+    save_DONT_CHECK_MOTORCAD_VERSION = rpc_client_core.DONT_CHECK_MOTORCAD_VERSION
+    rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = False
+
+    try:
+        file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+
+        if path.exists(file_path):
+            remove(file_path)
+
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
+        remove(file_path)
+    finally:
+        rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = save_DONT_CHECK_MOTORCAD_VERSION
+
+
+# TODO - introduce testing for datastore class (not functional at the moment).
+# def test_get_datastore(mc):
+#     """Incomplete testing"""
+#     datastore = mc.get_datastore()
+#
+#     test = datastore.get_variable("slot_width")
+#     test_rec = datastore.get_variable_record("test_int")
+#
+#     test_array = datastore.get_variable("IMInductance_CurrentProp")
+#     test_array_2d = datastore.get_variable("ConductorCentre_L_x")
+#
+#     test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
+#     test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
+#
+#     arrays = [
+#         datastore[item]
+#         for item in datastore
+#         if (datastore[item].is_array) and (datastore[item].dynamic)
+#     ]
+#     arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
+#
+#     datastore.pop("slot_width")
+#     datastore.pop("test_int")
+#     filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
+#     datastore_json = datastore.to_json()
+#     datastore_dict = datastore.to_dict()

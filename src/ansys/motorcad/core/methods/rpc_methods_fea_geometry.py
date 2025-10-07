@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -194,7 +194,27 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
-        """Save raw data for the open FEA solution."""
+        """Save raw data for the current FEA solution.
+
+        Parameters
+        ----------
+        file : str
+            File location to write to.
+        first_step : int
+            First step of results required (for transient calculation).
+        final_step : int
+            Final step of results required (for transient calculation).
+        outputs : str
+            FEA data requested, for example RegCode, B, Pt. Multiple outputs be passed as a
+            comma-separated string, for example 'RegCode,B,Pt'.
+        regions : str
+            FEA region names that data is wanted for, for example L1_1Magnet1N1, Rotor,
+            ArmatureSlotR2. Multiple regions must be passed as a comma-separated string,
+            for example 'L1_1Magnet1N1,Rotor,ArmatureSlotR2'.
+            An empty string will include all FEA regions.
+        separator : str
+            Separator used in writing the output file.
+        """
         method = "SaveFEAData"
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
@@ -223,6 +243,10 @@ class _RpcMethodsFEAGeometry:
     def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
         """Edit a magnet region.
 
+        .. deprecated:: 0.6.0
+          `edit_magnet_region` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         region_name : str
@@ -233,10 +257,6 @@ class _RpcMethodsFEAGeometry:
             Br angle of the magnet.
         br_multiplier : float
             Br multiplier for the magnet.
-
-        .. deprecated:: 0.6.0
-          `edit_magnet_region` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("edit_magnet_region")
         method = "EditMagnetRegion"
@@ -246,6 +266,10 @@ class _RpcMethodsFEAGeometry:
     def delete_regions(self, region_name):
         """Delete a comma-separated list of named regions or all regions.
 
+        .. deprecated:: 0.6.0
+          `delete_regions` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         region_name: list
@@ -253,10 +277,6 @@ class _RpcMethodsFEAGeometry:
            all regions are deleted. If the name of a region to delete contains
            a space, enclose the name in double quotation marks. For example,
            ``"Rotor Pocket"``.
-
-        .. deprecated:: 0.6.0
-          `delete_regions` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("delete_regions")
         method = "DeleteRegions"
@@ -315,6 +335,10 @@ class _RpcMethodsFEAGeometry:
     def add_line_xy(self, x_start, y_start, x_end, y_end):
         """Add a line to the Motor-CAD axial geometry with an x, y coordinate system.
 
+        .. deprecated:: 0.6.0
+          `add_line_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         x_start : float
@@ -325,10 +349,6 @@ class _RpcMethodsFEAGeometry:
             End position for the x coordinate.
         y_end : float
             End position for the y coordinate.
-
-        .. deprecated:: 0.6.0
-          `add_line_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_line_xy")
         method = "AddLine_XY"
@@ -340,6 +360,10 @@ class _RpcMethodsFEAGeometry:
 
         Use degrees for angles.
 
+        .. deprecated:: 0.6.0
+          `add_line_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         radius_start : float
@@ -350,10 +374,6 @@ class _RpcMethodsFEAGeometry:
             End position for the radial coordinate.
         theta_end : float
             End position for the angular coordinate in degrees.
-
-        .. deprecated:: 0.6.0
-          `add_line_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_line_rt")
         method = "AddLine_RT"
@@ -364,6 +384,10 @@ class _RpcMethodsFEAGeometry:
         """Add an arc to the Motor-CAD axial geometry with an x, y coordinate system.
 
         This method uses the center point, radius, and angles. Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_arc_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -377,10 +401,6 @@ class _RpcMethodsFEAGeometry:
             Angular coordinate of the arc end point in degrees.
         radius : float
             Radius of the arc from the center point.
-
-        .. deprecated:: 0.6.0
-          `add_arc_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_xy")
         method = "AddArc_XY"
@@ -391,6 +411,10 @@ class _RpcMethodsFEAGeometry:
         """Add an arc to the Motor-CAD axial geometry with an r, t (polar) coordinate system.
 
         This method uses the center point, radius, and angles. Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_arc_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -404,10 +428,6 @@ class _RpcMethodsFEAGeometry:
             Angular coordinate of the arc end point in degrees.
         radius : float
             Radius of the arc from the center point.
-
-        .. deprecated:: 0.6.0
-          `add_arc_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_rt")
         method = "AddArc_RT"
@@ -418,6 +438,10 @@ class _RpcMethodsFEAGeometry:
         """Add an arc to the Motor-CAD axial geometry with an r, t (polar) coordinate system.
 
         This method uses start, end, and center coordinates. Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_arc_centre_start_end_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -433,10 +457,6 @@ class _RpcMethodsFEAGeometry:
             End position for the x coordinate.
         y_end : float
             End position for the y coordinate.
-
-        .. deprecated:: 0.6.0
-          `add_arc_centre_start_end_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_centre_start_end_xy")
         method = "AddArc_CentreStartEnd_XY"
@@ -449,6 +469,10 @@ class _RpcMethodsFEAGeometry:
         """Add an arc to the Motor-CAD axial geometry with an r, t (polar) coordinate system.
 
         This method uses start, end, and center coordinates. Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_arc_centre_start_end_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -464,10 +488,6 @@ class _RpcMethodsFEAGeometry:
             end position radial coordinate
         theta_end : float
             End position for the angular coordinate in degrees.
-
-        .. deprecated:: 0.6.0
-          `add_arc_centre_start_end_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_centre_start_end_rt")
         method = "AddArc_CentreStartEnd_RT"
@@ -479,6 +499,10 @@ class _RpcMethodsFEAGeometry:
 
         If a region already exists, this method overwrites the existing region.
 
+        .. deprecated:: 0.6.0
+          `add_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         x : float
@@ -487,10 +511,6 @@ class _RpcMethodsFEAGeometry:
             Region position for the y coordinate.
         region_name : string
             Name of the region.
-
-        .. deprecated:: 0.6.0
-          `add_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_region_xy")
         method = "AddRegion_XY"
@@ -504,6 +524,10 @@ class _RpcMethodsFEAGeometry:
 
         Use degrees for angles.
 
+        .. deprecated:: 0.6.0
+          `add_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         radius : float
@@ -512,10 +536,6 @@ class _RpcMethodsFEAGeometry:
             Region position for the angular coordinate in degrees.
         region_name : string
             Name of the region.
-
-        .. deprecated:: 0.6.0
-          `add_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_region_rt")
         method = "AddRegion_RT"
@@ -531,6 +551,10 @@ class _RpcMethodsFEAGeometry:
 
         Use degrees for angles.
 
+        .. deprecated:: 0.6.0
+          `add_magnet_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         x : float
@@ -547,10 +571,6 @@ class _RpcMethodsFEAGeometry:
             Magnet Br multiplier. The default is ``1``.
         polarity_code : integer
             Magnet polarity, where ``0`` is north and ``1`` is south.
-
-        .. deprecated:: 0.6.0
-          `add_magnet_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_magnet_region_xy")
         method = "AddMagnetRegion_XY"
@@ -565,6 +585,10 @@ class _RpcMethodsFEAGeometry:
         If a region already exists, this method overwrites the existing region.
 
         Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_magnet_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -582,10 +606,6 @@ class _RpcMethodsFEAGeometry:
             Magnet Br multiplier. The default is ``1``.
         polarity_code : integer
             Magnet polarity, where ``0`` is north and ``1`` is south.
-
-        .. deprecated:: 0.6.0
-          `add_magnet_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_magnet_region_rt")
         method = "AddMagnetRegion_RT"
@@ -616,6 +636,10 @@ class _RpcMethodsFEAGeometry:
         .. note::
            Do not use this method to add a magnet. Use the ``add_magnet_region_xy`` method.
 
+        .. deprecated:: 0.6.0
+          `add_point_custom_material_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
+
         Parameters
         ----------
         x : float
@@ -632,10 +656,6 @@ class _RpcMethodsFEAGeometry:
             VCL color. For more information, see https://wiki.freepascal.org/Colors.
             The color can be designaed as a hexadecimal value, such as ``"$008000"``
             or a color name such as ``"clGreen"``.
-
-        .. deprecated:: 0.6.0
-          `add_point_custom_material_xy` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_point_custom_material_xy")
         method = "AddPoint_CustomMaterial_XY"
@@ -649,6 +669,10 @@ class _RpcMethodsFEAGeometry:
            Do not use this method to add a magnet. Use the ``add_magnet_region_rt`` method.
 
         Use degrees for angles.
+
+        .. deprecated:: 0.6.0
+          `add_point_custom_material_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          Functionality replaced by adaptive templates.
 
         Parameters
         ----------
@@ -666,10 +690,6 @@ class _RpcMethodsFEAGeometry:
             VCL color. For more information, see https://wiki.freepascal.org/Colors.
             The color can be designaed as a hexadecimal value, such as ``"$008000"``
             or a color name such as ``"clGreen"``.
-
-        .. deprecated:: 0.6.0
-          `add_point_custom_material_rt` will be removed with Motor-CAD 2025R2 (tentative).
-          Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_point_custom_material_rt")
         method = "AddPoint_CustomMaterial_RT"

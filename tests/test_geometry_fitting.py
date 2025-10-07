@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,7 @@
 import numpy as np
 import pytest
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionType
 from ansys.motorcad.core.geometry_fitting import _EntityPointValidation, return_entity_list
 
 
@@ -206,7 +206,7 @@ def test_egg_shape():
     arctolerance = 0.001
     egg_entities = return_entity_list(xypoints, linetolerance, arctolerance)
 
-    egg_shaped_duct = Region()
+    egg_shaped_duct = Region(RegionType.stator_air)
     egg_shaped_duct.name = "Egg_shaped_duct"
 
     arccount = 0

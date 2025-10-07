@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,6 +34,7 @@ from ansys.motorcad.core.methods.rpc_methods_graphs import _RpcMethodsGraphs
 from ansys.motorcad.core.methods.rpc_methods_internal_scripting import _RpcMethodsInternalScripting
 from ansys.motorcad.core.methods.rpc_methods_lab import _RpcMethodsLab
 from ansys.motorcad.core.methods.rpc_methods_materials import _RpcMethodsMaterials
+from ansys.motorcad.core.methods.rpc_methods_testing import _RpcMethodsTesting
 from ansys.motorcad.core.methods.rpc_methods_thermal import _RpcMethodsThermal
 from ansys.motorcad.core.methods.rpc_methods_ui import _RpcMethodsUI
 from ansys.motorcad.core.methods.rpc_methods_variables import _RpcMethodsVariables
@@ -52,6 +53,7 @@ class _RpcMethodsCore(
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
     _RpcMethodsAdaptiveGeometry,
+    _RpcMethodsTesting,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -68,3 +70,4 @@ class _RpcMethodsCore(
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
         _RpcMethodsAdaptiveGeometry.__init__(self, self.connection)
+        _RpcMethodsTesting.__init__(self, self.connection)

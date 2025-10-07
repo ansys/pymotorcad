@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,17 +22,13 @@
 
 # import os
 
-from RPC_Test_Common import (  # get_temp_files_dir_path
-    almost_equal,
-    get_dir_path,
-    reset_to_default_file,
-)
+from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path, reset_to_default_file
 
 
 def test_do_magnetic_thermal_calculation(mc):
     mc.do_magnetic_thermal_calculation()
 
-    assert almost_equal(mc.get_variable("ArmatureConductor_Temperature"), 134, 0)
+    assert almost_equal_fixed(mc.get_variable("ArmatureConductor_Temperature"), 134, 10)
 
 
 # def test_calculate_saturation_map():

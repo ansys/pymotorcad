@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,6 +31,37 @@ k_num_custom_losses_external_lab = "NumCustomLossesExternal_Lab"
 k_custom_loss_name_external_lab = "CustomLoss_Name_External_Lab"
 k_custom_loss_power_function_external_lab = "CustomLoss_PowerFunction_External_Lab"
 k_custom_loss_voltage_function_external_lab = "CustomLoss_VoltageFunction_External_Lab"
+
+
+from openpyxl import Workbook
+
+try:
+    import numpy as np
+    from scipy.io import loadmat
+
+    Num_Sci_py_AVAILABLE = True
+except ImportError:
+    Num_Sci_py_AVAILABLE = False
+
+
+def _write_excel(data, sheets, DC_voltage_list, i, wb, reset_speeds):
+    i_len, j_len = data["Speed"].shape
+    for sheet in sheets:
+        ws = wb.create_sheet("Newsheet")
+        ws.title = "Voltages"
+        if len(DC_voltage_list) > 1:
+            ws.title = sheet + str(i + 1)
+        else:
+            ws.title = sheet
+        for jj, col in enumerate(ws.iter_cols(min_col=0, max_col=j_len, max_row=i_len)):
+            for ii, cell in enumerate(col):
+                if reset_speeds and sheet == "Speed" and data[sheet][ii][jj] == 1:
+                    # Special case for induction motor, where we want to
+                    # change speed from 1 RPM to 0 RPM
+                    ws[cell.coordinate] = 0
+                else:
+                    ws[cell.coordinate] = data[sheet][ii][jj]
+    return wb
 
 
 class _RpcMethodsLab:
@@ -304,3 +335,145 @@ class _RpcMethodsLab:
         method = "ExportLabModel"
         params = [file_path]
         return self.connection.send_and_receive(method, params)
+
+    def _set_model_parameters(self, **kwargs):
+        if "Max_speed" in kwargs:
+            self.set_variable("SpeedMax_MotorLAB", kwargs["Max_speed"])
+        if "Min_speed" in kwargs:
+            if self.get_variable("Motor_Type") == 1 and kwargs["Min_speed"] == 0:
+                self.set_variable("SpeedMin_MotorLAB", 1)
+            else:
+                self.set_variable("SpeedMin_MotorLAB", kwargs["Min_speed"])
+        if "Speed_step" in kwargs:
+            self.set_variable("Speedinc_MotorLAB", kwargs["Speed_step"])
+
+        Current_def = self.get_variable("CurrentSpec_MotorLAB")
+        if Current_def == 0:  # peak
+            if "I_max" in kwargs:
+                if self.get_variable("Motor_Type") == 6:  # Sync
+                    self.set_variable("Sync_StatorCurrentMax_Lab", kwargs["I_max"])
+                else:
+                    self.set_variable("Imax_MotorLAB", kwargs["I_max"])
+            if "I_min" in kwargs:
+                self.set_variable("Imin_MotorLAB", kwargs["I_min"])
+        else:  # RMS
+            if "I_max" in kwargs:
+                if self.get_variable("Motor_Type") == 6:  # Sync
+                    self.set_variable("Sync_StatorCurrentMax_RMS_Lab", kwargs["I_max"])
+                else:
+                    self.set_variable("Imax_RMS_MotorLAB", kwargs["I_max"])
+            if "I_min" in kwargs:
+                self.set_variable("Imin_RMS_MotorLAB", kwargs["I_min"])
+
+        if "I_inc" in kwargs:
+            if self.get_variable("Motor_Type") == 6:  # Sync machine
+                print("sync executed")
+                self.set_variable("Sync_CurrentIncs_Lab", kwargs["I_inc"])
+            else:
+                self.set_variable("Iinc_MotorLAB", kwargs["I_inc"])
+
+        # choose motoring, generating or both modes
+        if "Rotor_current_max" in kwargs:
+            self.set_variable("Sync_RotorCurrentMax_Lab", kwargs["Rotor_current_max"])
+
+        if "Op_mode" in kwargs:
+            self.set_variable("OperatingMode_Lab", kwargs["Op_mode"])
+
+    def export_concept_ev_model(self, **kwargs):
+        """Export efficiency map in concept ev excel format.
+
+        This will run an efficiency map calculation in Motor-CAD Lab and export the
+        results for use in ConceptEV. Lab variables such as maximum and minimum
+        speed and current will be changed by this method.
+
+        Parameters
+        ----------
+        Max_speed : int
+            Maximum speed in electromagnetic calculation
+        Min_speed : int
+            Minimum speed in electromagnetic calculation
+        Speed_step : int
+            Speed increment in electromagnetic calculation
+        I_max : float
+            Maximum current (peak or rms based on settings)
+        I_min : float
+            Minimum current (peak or rms based on settings)
+        I_inc : float
+            Current increment in electromagnetic calculation
+        Rotor_current_max: float
+            Maximum rotor current in electromagnetic calculation (only in Sync machines)
+        Op_mode: int
+            0 Motor, 1 Generator, 2 Motor / Generator mode
+        DC_voltage_list: list
+            List of DC bus voltages
+        """
+        if not Num_Sci_py_AVAILABLE:
+            raise ImportError(
+                "Failed to export concept_ev_model. Please ensure Numpy and Scipy are installed"
+            )
+
+        save_message_display_state = self.get_variable("MessageDisplayState")
+        try:
+            self.set_variable("MessageDisplayState", 2)
+            self.set_motorlab_context()
+            file_path = self.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
+            # set model parameters
+            _RpcMethodsLab._set_model_parameters(self, **kwargs)
+            wb = Workbook()
+            # choose number of DC bus voltages (list as user input)
+            if "DC_voltage_list" in kwargs:
+                DC_voltage_list = kwargs["DC_voltage_list"]
+            else:
+                DC_voltage_list = [self.get_variable("DCBusVoltage")]
+
+            ws = wb.active
+            ws.title = "Voltages"
+            ws["A1"] = "Index"
+            ws["B1"] = "Voltages"
+            for i, DC_voltage in enumerate(DC_voltage_list):
+                ws["A" + str(i + 2)] = i + 1
+                ws["B" + str(i + 2)] = DC_voltage_list[i]
+
+            # Units sheet
+
+            # set _calcualtion type  Efficiency Map
+            self.set_variable("EmagneticCalcType_Lab", 1)
+            sheets = [
+                "Speed",
+                "Shaft_Torque",
+                "Stator_Current_Line_RMS",
+                "Total_Loss",
+                "Power_Factor",
+            ]
+            for i, DC_voltage in enumerate(DC_voltage_list):
+                self.set_variable("DCBusVoltage", DC_voltage)
+                # run Efficiency Map calculation
+                self.calculate_magnetic_lab()
+                # read the lab data .mat file
+                data_file_path = self.get_variable("ResultsPath_MotorLAB") + "MotorLAB_elecdata.mat"
+                data = loadmat(data_file_path)
+                if (
+                    "Min_speed" in kwargs
+                    and self.get_variable("Motor_Type") == 1
+                    and kwargs["Min_speed"] == 0
+                ):
+                    wb = _write_excel(data, sheets, DC_voltage_list, i, wb, True)
+                else:
+                    wb = _write_excel(data, sheets, DC_voltage_list, i, wb, False)
+
+            units = [
+                "Power_Factor",
+                "Total_Loss",
+                "Stator_Current_Line_RMS",
+                "Shaft_Torque",
+                "Speed",
+            ]
+            ws = wb.create_sheet("Newsheet")
+            ws.title = "Units"
+            for i, unit in enumerate(units):
+                ws["A" + str(i + 1)] = unit
+                index = np.where(np.strings.find(data["varStr"], unit) == 0)[0]
+                ws["B" + str(i + 1)] = data["varUnits"][index][0]
+            wb.save(file_path)
+        finally:
+            self.set_variable("MessageDisplayState", save_message_display_state)
