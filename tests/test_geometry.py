@@ -608,7 +608,7 @@ def test_region_children(mc):
 
 
 def test_region_linked_regions(mc):
-    duct = mc.get_region("RotorDuctFluidRegion_1")
+    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
     assert len(duct.linked_regions) == 1
 
 
