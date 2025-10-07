@@ -62,12 +62,10 @@ def test_do_mechanical_calculation(mc):
     mc.do_mechanical_calculation()
 
 
-def test_calculate_im_saturation_model(mc):
-    mc.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
+def test_calculate_im_saturation_model(mc_reset_to_default_on_teardown):
+    mc_reset_to_default_on_teardown.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
 
-    mc.calculate_im_saturation_model()
-
-    reset_to_default_file(mc)
+    mc_reset_to_default_on_teardown.calculate_im_saturation_model()
 
 
 def test_calculate_force_harmonics_spatial(mc):

@@ -2813,9 +2813,9 @@ def test_set_lamination_type(mc_reset_to_default_on_teardown):
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
