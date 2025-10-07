@@ -1,4 +1,27 @@
+# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from RPC_Test_Common import almost_equal_percentage, get_dir_path
+
 
 def test_winding_stranded(mc):
     # Starting from the e9 template, change a bunch of winding parameters
@@ -36,7 +59,7 @@ def test_winding_stranded(mc):
         "Volume_WireIns_A": 93302.58,
         "Weight_Internal_Calc_Copper_Total": 5.801,
     }
-    auto_dict = {param : mc.get_variable(param) for param in ui_dict.keys()}
+    auto_dict = {param: mc.get_variable(param) for param in ui_dict.keys()}
 
     for param in ui_dict.keys():
         assert almost_equal_percentage(ui_dict[param], auto_dict[param], 10)
@@ -45,7 +68,7 @@ def test_winding_stranded(mc):
 def test_winding_hairpin(mc):
     # Starting from the e2 template, change a bunch of winding parameters
     mc.load_template("e2")
-    mc.set_variable("Armature_WindingType", 3) # solid rect upper/lower
+    mc.set_variable("Armature_WindingType", 3)  # solid rect upper/lower
 
     # Set rectangular winding definition.
     mc.set_variable("Armature_Winding_Definition_Hairpin", 1)
@@ -76,7 +99,7 @@ def test_winding_hairpin(mc):
         "Volume_WireIns_A": 457912,
         "Weight_Internal_Calc_Copper_Total": 7.2446,
     }
-    auto_dict = {param : mc.get_variable(param) for param in ui_dict.keys()}
+    auto_dict = {param: mc.get_variable(param) for param in ui_dict.keys()}
 
     for param in ui_dict.keys():
         assert almost_equal_percentage(ui_dict[param], auto_dict[param], 10)
@@ -84,9 +107,7 @@ def test_winding_hairpin(mc):
 
 def test_winding_IM1PH(mc):
     # Load default IM1PH file as there is no template.
-    default_file = (
-        get_dir_path() + r"\test_files\default_IM1PH.mot"
-    )
+    default_file = get_dir_path() + r"\test_files\default_IM1PH.mot"
     mc.load_from_file(default_file)
 
     mc.set_variable("AWG_WireGaugeIndex", 53)
@@ -112,8 +133,7 @@ def test_winding_IM1PH(mc):
         "Volume_WireIns_A": 4693.7,
         "Weight_Internal_Calc_Copper_Total": 0.577065,
     }
-    auto_dict = {param : mc.get_variable(param) for param in ui_dict.keys()}
+    auto_dict = {param: mc.get_variable(param) for param in ui_dict.keys()}
 
     for param in ui_dict.keys():
         assert almost_equal_percentage(ui_dict[param], auto_dict[param], 10)
-
