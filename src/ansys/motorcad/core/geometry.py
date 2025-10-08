@@ -44,8 +44,10 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
+    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
+    stator_frame = "Stator Support Frame"
     stator_impreg = "Stator Impreg"
     impreg_gap = "Impreg Gap"
     stator_copper = "Stator Copper"
@@ -55,6 +57,7 @@ class RegionType(Enum):
     stator_separator = "Stator slot separator"
     coil_insulation = "Coil Insulation"
     stator_air = "Stator Air"
+    endwinding = "End Winding"
     rotor_hub = "Rotor hub"
     rotor_air = "Rotor Air"
     rotor_air_exc_liner = "Rotor Air (excluding liner area)"
@@ -139,7 +142,7 @@ class Region(object):
         self._name = ""
         self._base_name = ""
         self._material = "air"
-        self._colour = (0, 0, 0)
+        self._colour = (255, 255, 255)
         self._area = 0.0
         self._centroid = Coordinate(0, 0)
         self._region_coordinate = Coordinate(0, 0)
