@@ -294,3 +294,45 @@ def test_upload_mot_file(mc_reset_to_default_on_teardown):
     # materials database sometimes saves copies of materials so we can get many more lines.
     # files are ~14000 lines long so 200 is still a small amount of changes
     assert file_line_differences(upload_mot_file_path, save_file_path) < 200
+
+
+def test_save_load_custom_response(mc_reset_to_default_on_teardown):
+    # set data
+    mc_reset_to_default_on_teardown.set_variable("CustomNVHFRFOrders", 2)
+    mc_reset_to_default_on_teardown.set_variable("CustomNVHFRFPoints", 3)
+
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFModeShape", 0, 0)
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFModeExcitation", 0, "R")
+
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFModeShape", 1, 0)
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFModeExcitation", 1, "T")
+
+    # Frequencies
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFFrequencies", 0, 20)
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFFrequencies", 1, 100)
+    mc_reset_to_default_on_teardown.set_array_variable("CustomNVHFRFFrequencies", 2, 500)
+
+    # FRF 0 Radial
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 0, 0, 0)
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 1, 0, 10)
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 2, 0, 20)
+
+    # FRF 0 Tangential
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 0, 1, 40)
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 1, 1, 60)
+    mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 2, 1, 80)
+
+    file_path = get_dir_path() + r"\test_files\SaveLoadNVHResponse.txt"
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # save to file, clear and re-load
+    mc_reset_to_default_on_teardown.save_nvh_custom_response(file_path)
+    reset_to_default_file(mc_reset_to_default_on_teardown)
+    mc_reset_to_default_on_teardown.load_nvh_custom_response(file_path)
+
+    assert mc_reset_to_default_on_teardown.get_array_variable_2d("CustomNVHFRFResponse", 2, 1) == 80
+    assert mc_reset_to_default_on_teardown.get_array_variable("CustomNVHFRFModeShape", 1) == 0
+    assert (
+        mc_reset_to_default_on_teardown.get_array_variable("CustomNVHFRFModeExcitation", 1) == "T"
+    )
