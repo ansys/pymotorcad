@@ -434,7 +434,7 @@ def test_region_to_json():
 
 def test_region_is_closed():
     region = generate_constant_region()
-    assert region.is_closed() 
+    assert region.is_closed()
 
 
 def test_EntityList_is_closed():
