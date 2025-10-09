@@ -513,7 +513,7 @@ def test_EntityList_is_anticlockwise():
         test_el4.is_anticlockwise
 
 
-def test_EntityList_has_valid_geometry(): 
+def test_EntityList_has_valid_geometry():
     assert generate_constant_region().entities.has_valid_geometry == True
 
     # Test self_intersecting
