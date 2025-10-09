@@ -145,7 +145,7 @@ class Region(object):
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
         self._mesh_length = 0
-        self._linked_region = None
+        self._linked_region_names = []
         self._singular = False
         self._lamination_type = ""
 
@@ -351,7 +351,7 @@ class Region(object):
             "parent_name": self._parent_name,
             "region_type": self._region_type.value,
             "mesh_length": self._mesh_length,
-            "on_boundary": False if self._linked_region is None else True,
+            "linked_regions" : self._linked_region_names,
             "singular": self._singular,
             "lamination_type": lamination_type,
         }
