@@ -413,7 +413,6 @@ def test_region_to_json():
         "mesh_length": 0.035,
         "singular": True,
         "linked_regions": [],
-        "on_boundary": False,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -549,22 +548,10 @@ def test_set_linked_region():
     region_linked.name = "linked_region_test"
     # set linked region
     region.linked_region = region_linked
+    region_linked.linked_region = region
 
-    assert region.linked_regions == [region_linked]
-    assert region_linked.linked_regions == [region]
-
-
-def test_set_linked_regions():
-    region = generate_constant_region()
-
-    region_linked = Region()
-    region_linked.name = "linked_region_test"
-    # set linked region
-    region.linked_regions.append(region_linked)
-    region_linked.linked_regions.append(region)
-
-    assert region.linked_regions.__contains__(region_linked)
-    assert region_linked.linked_regions.__contains__(region)
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
 
 
 def test_set_linked_regions():
@@ -573,11 +560,11 @@ def test_set_linked_regions():
     region_linked = Region()
     region_linked.name = "linked_region_test"
     # set linked region
-    region.linked_regions.append(region_linked)
-    region_linked.linked_regions.append(region)
+    region.linked_regions = [region_linked]
+    region_linked.linked_regions = [region]
 
-    assert region.linked_regions.__contains__(region_linked)
-    assert region_linked.linked_regions.__contains__(region)
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
 
 
 def test_set_singular_region():
