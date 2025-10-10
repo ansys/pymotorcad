@@ -27,6 +27,7 @@ from enum import Enum
 from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
 from warnings import warn
+
 from geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
@@ -2419,7 +2420,6 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
-
 
 
 def _convert_entities_to_json(entities):

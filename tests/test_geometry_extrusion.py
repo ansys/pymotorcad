@@ -28,7 +28,7 @@ def test_extrusion_block_to_json():
         "extrusion_block_start": 100.1,
         "extrusion_block_end": 200.2,
         "extrusion_block_angle_step": 1.5,
-        "extrusion_block_continuous_rotation": 0
+        "extrusion_block_continuous_rotation": 0,
     }
 
     block = ExtrusionBlock()
@@ -45,7 +45,7 @@ def test_extrusion_block_from_json():
         "extrusion_block_start": 100,
         "extrusion_block_end": 200,
         "extrusion_block_angle_step": 0,
-        "extrusion_block_continuous_rotation": 20
+        "extrusion_block_continuous_rotation": 20,
     }
     block = ExtrusionBlock()
     block._from_json(block_dict)
@@ -60,7 +60,7 @@ def test_extrusion_block_list_to_json():
             "extrusion_block_start": 100,
             "extrusion_block_end": 200,
             "extrusion_block_angle_step": 0,
-            "extrusion_block_continuous_rotation": 10
+            "extrusion_block_continuous_rotation": 10,
         }
     ]
 
@@ -77,7 +77,7 @@ def test_extrusion_block_list_from_json():
             "extrusion_block_start": 100,
             "extrusion_block_end": 200,
             "extrusion_block_angle_step": 0,
-            "extrusion_block_continuous_rotation": 20
+            "extrusion_block_continuous_rotation": 20,
         }
     ]
     blocks = ExtrusionBlockList()

@@ -2619,7 +2619,7 @@ def test_region_find_entity_from_coordinates():
     assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
 
     assert (
-            c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
     )
 
 
@@ -2819,19 +2819,19 @@ def test_set_lamination_type(mc_reset_to_default_on_teardown):
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
-            get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
     )
     lam_rotor_section_file = (
-            get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
     )
 
     solid_rotor_section_result = (
-            get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
-                             r"\FEResultsData\StaticLoadInductance_result_1.mes"
+        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
     )
     lam_rotor_section_result = (
-            get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
-                             r"\FEResultsData\StaticLoadInductance_result_1.mes"
+        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
+        r"\FEResultsData\StaticLoadInductance_result_1.mes"
     )
 
     # load file into Motor-CAD
@@ -2855,6 +2855,3 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
-
-
-

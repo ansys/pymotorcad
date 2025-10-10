@@ -1,6 +1,7 @@
+"""Geometry extrusion classes."""
+
 # Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
-#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 
 class ExtrusionBlock:
     """Generic class for storing 3D extrusion data."""
@@ -105,7 +107,7 @@ class ExtrusionBlock:
             "extrusion_block_start": self.start_pos,
             "extrusion_block_end": self.end_pos,
             "extrusion_block_angle_step": self.angle_step,
-            "extrusion_block_continuous_rotation": self.angle_continuous
+            "extrusion_block_continuous_rotation": self.angle_continuous,
         }
 
         return block_dict
