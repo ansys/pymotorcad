@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.12'
   LIBRARY_NAME: ansys-motorcad-core
   LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys code style checks
-        uses: ansys/actions/code-style@v8
+        uses: ansys/actions/code-style@v10
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys documentation style checks
-        uses: ansys/actions/doc-style@v8
+        uses: ansys/actions/doc-style@v10
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -47,10 +47,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        python-version: ['3.10', '3.11', '3.12'] 
+        python-version: ['3.9', '3.10', '3.11', '3.12']
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
+        uses: ansys/actions/build-wheelhouse@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           operating-system: ${{ matrix.os }}
@@ -61,10 +61,10 @@ jobs:
     needs: smoke-tests
     runs-on: [self-hosted, pymotorcad, tests]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           
@@ -74,7 +74,7 @@ jobs:
           
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        run: tox -e py310-coverage  
+        run: tox -e py312-coverage
         
       - uses: codecov/codecov-action@v4
         name: 'Upload coverage to Codecov'
@@ -85,10 +85,10 @@ jobs:
     runs-on: [self-hosted, pymotorcad, docs]
     needs: doc-style
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -113,7 +113,7 @@ jobs:
     needs: package
     steps:
       - name: "Deploy development documentation"
-        uses: ansys/actions/doc-deploy-dev@v8
+        uses: ansys/actions/doc-deploy-dev@v10
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -127,7 +127,7 @@ jobs:
     needs: release
     steps:
       - name: "Deploy stable documentation"
-        uses: ansys/actions/doc-deploy-stable@v8
+        uses: ansys/actions/doc-deploy-stable@v10
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -140,7 +140,7 @@ jobs:
     needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@v8
+        uses: ansys/actions/build-library@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -152,14 +152,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to PyPI repository
-        uses: ansys/actions/release-pypi-public@v8
+        uses: ansys/actions/release-pypi-public@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           twine-username: __token__
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
 
       - name: Display structure of downloaded files
         run: ls -R

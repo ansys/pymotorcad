@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 """
+.. _ref_Trapezoidal_Ducts:
+
 Trapezoidal ducts
 =================
 This script applies the adaptive templates functionality to modify rectangular ducts
