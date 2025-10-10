@@ -53,11 +53,10 @@ jobs:
         uses: ansys/actions/build-wheelhouse@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
-          library-namespace: ${{ env.LIBRARY_NAMESPACE }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-
-          check-licenses: false
+          # License check requires 3.10 or above
+          check-licenses: ${{ matrix.python-version != '3.9' }}
 
   tests:
     name: Tests and coverage
