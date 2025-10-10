@@ -56,7 +56,7 @@ class GeometryTree(dict):
         """Define ordering according to tree structure."""
         well_ordered = []
 
-        def dive(node=self.start):
+        def dive(node=self._start):
             well_ordered.append(node)
             for child in node.children:
                 dive(child)
@@ -104,7 +104,7 @@ class GeometryTree(dict):
                 return False
             return True
 
-        return dive(self.start.key)
+        return dive(self._start.key)
 
     def __ne__(self, other):
         """Define inequality."""
@@ -341,8 +341,8 @@ class GeometryTree(dict):
             Parent object or parent key (must be already within tree)
         children: list
              List of children objects or children keys (must be already within tree)
-
         """
+        # Add some proper conversion here at some point. Using __class__ is unsatisfactory
         if not isinstance(region, TreeRegion):
             raise TypeError(
                 "region must be of type ansys.motorcad.core.geometry.TreeRegion or "
@@ -424,8 +424,10 @@ class GeometryTree(dict):
         return dict((node.key.lower(), node.key) for node in self)
 
     @property
-    def start(self):
+    def _start(self):
         """Return the start of the tree."""
+        start = None
+
         # Find starting point
         for node in self.values():
             if node.parent is None:
@@ -436,6 +438,7 @@ class GeometryTree(dict):
                     self[node.parent.key]
                 except KeyError:
                     start = node
+
         return start
 
 
@@ -445,7 +448,7 @@ class TreeRegion(Region):
     Nodes should not have a parent or children unless they are part of a tree.
     """
 
-    def __init__(self, region_type=RegionType.adaptive):
+    def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
         """Initialize the geometry region.
 
         Parent and children are defined when the region is added to a tree.
@@ -454,7 +457,10 @@ class TreeRegion(Region):
         ----------
         region_type: RegionType
         """
-        super().__init__(region_type=region_type)
+        super().__init__(region_type=region_type, motorcad_instance=motorcad_instance)
+        self._init_treeregion_properties()
+
+    def _init_treeregion_properties(self):
         self.children = list()
         self.parent = None
         self.key = None
@@ -486,7 +492,7 @@ class TreeRegion(Region):
         TreeRegion
         """
         if region_json["name_unique"] == "root":
-            new_region = TreeRegion(region_type=RegionType.airgap)
+            new_region = TreeRegion(region_type=RegionType.airgap, motorcad_instance=mc)
             new_region.name = "root"
             new_region.key = "root"
             # Protected linked_region_names attribute used only when first initializing the tree
@@ -496,7 +502,7 @@ class TreeRegion(Region):
             is_magnet = region_json["region_type"] == RegionType.magnet.value
 
             if is_magnet:
-                new_region = TreeRegionMagnet(RegionType(region_json["region_type"]))
+                new_region = TreeRegionMagnet(motorcad_instance=mc)
             else:
                 new_region = cls(RegionType(region_json["region_type"]))
 
@@ -624,4 +630,14 @@ class TreeRegionMagnet(TreeRegion, RegionMagnet):
     Inherit behaviour from both TreeRegions and RegionMagnet.
     """
 
-    pass
+    def __init__(self, motorcad_instance=None):
+        """Initialize the geometry region.
+
+        Parent and children are defined when the region is added to a tree.
+
+        Parameters
+        ----------
+        region_type: RegionType
+        """
+        RegionMagnet.__init__(self, motorcad_instance=motorcad_instance)
+        self._init_treeregion_properties()

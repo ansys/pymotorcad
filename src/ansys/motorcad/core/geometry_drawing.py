@@ -26,7 +26,7 @@ import warnings
 from warnings import warn
 
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
-from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree, TreeRegion
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:
@@ -104,7 +104,7 @@ class _RegionDrawing:
     @staticmethod
     def get_label(object):
         # Make certain label is appropriate for regions that might not be a part of trees
-        if isinstance(object, Region) and not isinstance(object, GeometryNode):
+        if isinstance(object, Region) and not isinstance(object, TreeRegion):
             return object.name
         # Tuples used to draw lists of entities. The second value input is an integer used to
         # grant unique labels
@@ -329,7 +329,7 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def _draw_duplicates(self, region: GeometryNode, colour, labels):
+    def _draw_duplicates(self, region: TreeRegion, colour, labels):
         """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
 
@@ -345,7 +345,7 @@ class _RegionDrawing:
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
-        if isinstance(region, GeometryNode):
+        if isinstance(region, TreeRegion):
             legend_key = region.key
         else:
             legend_key = region.name
@@ -665,7 +665,7 @@ def draw_objects(
                 region_drawing.bounds[legend_key] = entity.get_bounds()
 
     # Draw a sole region
-    if isinstance(objects, Region) or isinstance(objects, GeometryNode):
+    if isinstance(objects, Region) or isinstance(objects, TreeRegion):
         if draw_points is None:
             draw_points = False
         if isinstance(objects, Region):
