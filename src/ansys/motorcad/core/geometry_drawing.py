@@ -602,7 +602,7 @@ def draw_objects(
         if optimise:
             for node in objects:
                 if not node.key in drawn_nodes and node.key != "root":
-                    objects.remove_node(node)
+                    objects.remove_region(node)
 
         for node in objects:
             legend_key = node.key
@@ -664,7 +664,7 @@ def draw_objects(
                 )
                 region_drawing.bounds[legend_key] = entity.get_bounds()
 
-    # Draw a sole region/node
+    # Draw a sole region
     if isinstance(objects, Region) or isinstance(objects, GeometryNode):
         if draw_points is None:
             draw_points = False

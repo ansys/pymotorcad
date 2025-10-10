@@ -42,7 +42,7 @@ class GeometryTree(dict):
             super().__init__()
 
         else:
-            root = GeometryNode(region_type=RegionType.airgap)
+            root = TreeRegion(region_type=RegionType.airgap)
             root.parent = None
             root.children = list()
             root.name = "root"
@@ -87,14 +87,14 @@ class GeometryTree(dict):
         """Define equality operator.
 
         Equality for trees requires both trees have the same structure.
-        Also requires that each node with the same key is equal.
+        Also requires that each region with the same key is equal.
         """
 
         def dive(key):
             if len(self[key].children) != len(other[key].children):
                 return False
             for child in self[key].children:
-                # Making sure each child is in the other corresponding node's children
+                # Making sure each child is in the other corresponding region's children
                 if not child.key in other[key].child_keys:
                     return False
                 if not dive(child.key):
@@ -160,22 +160,28 @@ class GeometryTree(dict):
                     regions[node.key] = Region._to_json(node)
         return {"regions": regions}
 
-    def get_node(self, key):
-        """Get a region from the tree (case-insensitive)."""
-        if isinstance(key, str):
-            if key.lower() in self.lowercase_keys:
-                lower_key = key.lower()
+    def get_region(self, region_name):
+        """Get a region from the tree (case-insensitive).
+
+        Parameters
+        ----------
+        region_name: str
+            Name of the region to get.
+        """
+        if isinstance(region_name, str):
+            if region_name.lower() in self.lowercase_keys:
+                lower_key = region_name.lower()
                 return self[self.lowercase_keys[lower_key]]
             raise KeyError()
-        elif isinstance(key, GeometryNode):
-            return key
+        elif isinstance(region_name, TreeRegion):
+            return region_name
         else:
-            raise TypeError("key must be a string or GeometryNode")
+            raise TypeError("key must be a string or TreeRegion")
 
-    def get_subtree(self, node):
+    def get_subtree(self, region):
         """Get all GeometryTree consisting of all nodes descended from the supplied one."""
-        node = self.get_node(node)
-        if node.key == "root":
+        region = self.get_region(region)
+        if region.key == "root":
             return self
         subtree = GeometryTree(empty=True)
 
@@ -184,22 +190,22 @@ class GeometryTree(dict):
             for child in node.children:
                 dive(child)
 
-        dive(node)
+        dive(region)
         return subtree
 
-    def get_nodes_from_type(self, node_type):
-        """Return all nodes in the tree of the supplied region type.
+    def get_regions_of_type(self, region_type):
+        """Return all regions in the tree of the supplied region type.
 
         Parameters
         ----------
-        node_type: str or RegionType
+        region_type: str or RegionType
             Region type to be fetched
         """
-        if isinstance(node_type, RegionType):
-            node_type = node_type.value
+        if isinstance(region_type, RegionType):
+            region_type = region_type.value
         nodes = []
         for node in self:
-            if node.region_type.value == node_type and node.key != "root":
+            if node.region_type.value == region_type and node.key != "root":
                 nodes.append(node)
         return nodes
 
@@ -212,10 +218,10 @@ class GeometryTree(dict):
             Dictionary containing region dicts
         node: dict
             Information of current region
-        parent: None or GeometryNode
+        parent: None or TreeRegion
         """
-        # Convert current node to GeometryNode and add it to tree
-        self[node["name_unique"]] = GeometryNode.from_json(self, node, parent, mc)
+        # Convert current region to TreeRegion and add it to tree
+        self[node["name_unique"]] = TreeRegion.from_json(self, node, parent, mc)
 
         # Recur for each child.
         if node["child_names"] != []:
@@ -231,14 +237,14 @@ class GeometryTree(dict):
 
         Parameters
         ----------
-        node: node representing region to be fixed
+        node: region representing region to be fixed
 
         Returns
         -------
         Bool: bool representing whether splitting occurred
         """
         # Splits regions apart, if necessary, to enforce valid geometry
-        node = self.get_node(node)
+        node = self.get_region(node)
         name = node.key
         duplication_angle = 360 / node.duplications
 
@@ -272,7 +278,7 @@ class GeometryTree(dict):
             else:
                 for i, new_valid_region in enumerate(valid_regions_upper):
                     new_valid_region.name = f"{name}_{i + 1}"
-                    self.add_node(new_valid_region, parent=node.parent)
+                    self.add_region(new_valid_region, parent=node.parent)
                 # now perform the upper check
                 # brush4 used to find the invalid portion just above duplication angle
                 brush4 = Region(region_type=RegionType.airgap)
@@ -288,15 +294,15 @@ class GeometryTree(dict):
                     for valid_region_upper in valid_regions_upper:
                         new_lower_valid_region.linked_regions.append(valid_region_upper)
                         valid_region_upper.linked_regions.append(new_lower_valid_region)
-                    self.add_node(new_lower_valid_region, parent=node.parent)
-                self.remove_node(node)
+                    self.add_region(new_lower_valid_region, parent=node.parent)
+                self.remove_region(node)
                 return True
         # Case where lower slicing necessary
         else:
             # first, handle the valid regions returned
             for i, new_valid_region in enumerate(valid_regions_lower):
                 new_valid_region.name = f"{name}_{i+1}"
-                self.add_node(new_valid_region, parent=node.parent)
+                self.add_region(new_valid_region, parent=node.parent)
 
             # brush2 used to find the invalid portion just below angle 0
             brush2 = Region(region_type=RegionType.airgap)
@@ -315,30 +321,33 @@ class GeometryTree(dict):
                 for valid_region_lower in valid_regions_lower:
                     new_upper_valid_region.linked_regions.append(valid_region_lower)
                     valid_region_lower.linked_regions.append(new_upper_valid_region)
-                self.add_node(new_upper_valid_region, parent=node.parent)
-            self.remove_node(node)
+                self.add_region(new_upper_valid_region, parent=node.parent)
+            self.remove_region(node)
             return True
 
-    def add_node(self, region, key=None, parent=None, children=None):
-        """Add node to tree.
+    def add_region(self, region, key=None, parent=None, children=None):
+        """Add region to tree.
 
-        Note that any children specified will be 'reassigned' to the added node, with no
+        Note that any children specified will be 'reassigned' to the added region, with no
         connection to their previous parent.
 
         Parameters
         ----------
-        region: ansys.motorcad.core.geometry.Region
+        region: ansys.motorcad.core.geometry.TreeRegion|ansys.motorcad.core.geometry.TreeRegionMagnet # noqa: E501
             Region to convert and add to tree
         key: str
-            Key to be used for dict
-        parent: GeometryNode or str
+            Key to be used for dicts
+        parent: TreeRegion or str
             Parent object or parent key (must be already within tree)
         children: list
              List of children objects or children keys (must be already within tree)
 
         """
-        if not isinstance(region, GeometryNode):
-            region.__class__ = GeometryNode
+        if not isinstance(region, TreeRegion):
+            raise TypeError(
+                "region must be of type ansys.motorcad.core.geometry.TreeRegion or "
+                "ansys.motorcad.core.geometry.TreeRegionMagnet"
+            )
 
         if key is None:
             region.key = region.name
@@ -347,7 +356,7 @@ class GeometryTree(dict):
 
         # Make certain any nodes being replaced are properly removed
         try:
-            self.remove_node(region.key)
+            self.remove_region(region.key)
         except KeyError:
             pass
 
@@ -357,15 +366,15 @@ class GeometryTree(dict):
             if all(isinstance(child, Region) for child in children):
                 region.children = children
             elif all(isinstance(child, str) for child in children):
-                direct_children = list(self.get_node(child) for child in children)
+                direct_children = list(self.get_region(child) for child in children)
                 region.children = direct_children
             else:
-                raise TypeError("Children must be a GeometryNode or str")
-            # Essentially, slotting the given node in between the given parent and children
+                raise TypeError("Children must be a TreeRegion or str")
+            # Essentially, slotting the given region in between the given parent and children
             # Children are removed from their old spot and placed in the new one
             # Children's children become assigned to child's old parent
             for child in region.children:
-                self.remove_node(child)
+                self.remove_region(child)
                 child.parent = region
                 child.children = list()
                 self[child.key] = child
@@ -374,21 +383,21 @@ class GeometryTree(dict):
             region.parent = self["root"]
             self["root"].children.append(region)
         else:
-            if isinstance(parent, GeometryNode):
+            if isinstance(parent, TreeRegion):
                 region.parent = parent
                 parent.children.append(region)
             elif isinstance(parent, str):
-                region.parent = self.get_node(parent)
+                region.parent = self.get_region(parent)
                 self[parent].children.append(region)
             else:
-                raise TypeError("Parent must be a GeometryNode or str")
+                raise TypeError("Parent must be a TreeRegion or str")
         region._motorcad_instance = self._motorcad_instance
         self[region.key] = region
 
-    def remove_node(self, node):
-        """Remove Node from tree, attach children of removed node to parent."""
+    def remove_region(self, node):
+        """Remove Node from tree, attach children of removed region to parent."""
         if type(node) is str:
-            node = self.get_node(node)
+            node = self.get_region(node)
         for child in node.children:
             child.parent = node.parent
             node.parent.children.append(child)
@@ -398,7 +407,7 @@ class GeometryTree(dict):
     def remove_branch(self, node):
         """Remove Node and all descendants from tree."""
         if type(node) == str:
-            node = self.get_node(node)
+            node = self.get_region(node)
 
         # Recursive inner function to find and remove all descendants
         def dive(node):
@@ -430,16 +439,16 @@ class GeometryTree(dict):
         return start
 
 
-class GeometryNode(Region):
+class TreeRegion(Region):
     """Subclass of Region used for entries in GeometryTree.
 
     Nodes should not have a parent or children unless they are part of a tree.
     """
 
     def __init__(self, region_type=RegionType.adaptive):
-        """Initialize the geometry node.
+        """Initialize the geometry region.
 
-        Parent and children are defined when the node is added to a tree.
+        Parent and children are defined when the region is added to a tree.
 
         Parameters
         ----------
@@ -451,54 +460,66 @@ class GeometryNode(Region):
         self.key = None
 
     def __repr__(self):
-        """Return string representation of GeometryNode."""
+        """Return string representation of TreeRegion."""
         try:
             return self.key
         except AttributeError:
             return self.name
 
     @classmethod
-    def from_json(cls, gt, node_json, parent, mc):
-        """Create a GeometryNode from JSON data.
+    def from_json(cls, geometry_tree, region_json, parent_region, mc):
+        """Create a RegionTree from JSON data.
 
         Parameters
         ----------
-        node_json: dict
-        parent: GeometryNode
+        geometry_tree : GeometryTree
+            Geometry tree that region belongs to.
+        region_json: dict
+            JSON representation of region.
+        parent_region: TreeRegion
+            Parent region of current region.
         mc: Motorcad
+            Motor-CADinstance.
 
         Returns
         -------
-        GeometryNode
+        TreeRegion
         """
-        if node_json["name_unique"] == "root":
-            new_region = GeometryNode(region_type=RegionType.airgap)
+        if region_json["name_unique"] == "root":
+            new_region = TreeRegion(region_type=RegionType.airgap)
             new_region.name = "root"
             new_region.key = "root"
             # Protected linked_region_names attribute used only when first initializing the tree
             new_region._linked_region_names = []
 
         else:
-            new_region = Region._from_json(node_json)
-            new_region.__class__ = GeometryNode
-            new_region.parent = parent
+            is_magnet = region_json["region_type"] == RegionType.magnet.value
+
+            if is_magnet:
+                new_region = TreeRegionMagnet(RegionType(region_json["region_type"]))
+            else:
+                new_region = cls(RegionType(region_json["region_type"]))
+
+            new_region._add_pameters_from_json(region_json)
+
+            new_region.parent = parent_region
             new_region.children = list()
-            parent.children.append(new_region)
-            new_region.key = node_json["name_unique"]
+            parent_region.children.append(new_region)
+            new_region.key = region_json["name_unique"]
             # Protected linked_region_names attribute used only when first initializing the tree
-            new_region._linked_region_names = node_json["linked_regions"]
+            new_region._linked_region_names = region_json["linked_regions"]
 
         new_region._motorcad_instance = mc
-        new_region.geometry_tree = gt
+        new_region.geometry_tree = geometry_tree
         return new_region
 
     def duplicate(self):
         """
-        Return a copy of the GeometryNode.
+        Return a copy of the TreeRegion.
 
          Duplicates all data except for its pointers to parent and children.
         """
-        node_copy = GeometryNode()
+        node_copy = TreeRegion()
         forbidden = ["_parent", "_children", "_entities"]
         for att in vars(self):
             if not att in forbidden:
@@ -509,7 +530,7 @@ class GeometryNode(Region):
 
     @property
     def depth(self):
-        """Depth of node."""
+        """Depth of region."""
         depth = 0
         node = self
 
@@ -562,7 +583,7 @@ class GeometryNode(Region):
 
     @property
     def parent_key(self):
-        """Get key corresponding to parent node.
+        """Get key corresponding to parent region.
 
         Returns
         -------
@@ -585,7 +606,7 @@ class GeometryNode(Region):
 
     @property
     def parent_name(self):
-        """Get name corresponding to parent node.
+        """Get name corresponding to parent region.
 
         Returns
         -------
@@ -595,3 +616,12 @@ class GeometryNode(Region):
             return ""
         else:
             return self.parent.name
+
+
+class TreeRegionMagnet(TreeRegion, RegionMagnet):
+    """Class for magnets in tree.
+
+    Inherit behaviour from both TreeRegions and RegionMagnet.
+    """
+
+    pass
