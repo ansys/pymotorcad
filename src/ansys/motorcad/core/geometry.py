@@ -278,10 +278,6 @@ class Region(object):
 
         if is_magnet:
             new_region = RegionMagnet(motorcad_instance)
-            new_region._magnet_angle = json["magnet_angle"]
-            new_region._br_multiplier = json["magnet_magfactor"]
-            new_region._magnet_polarity = json["magnet_polarity"]
-            new_region._br_magnet = json["magnet_br_value"]
         else:
             if has_region_type:
                 new_region = cls(
@@ -290,39 +286,40 @@ class Region(object):
             else:
                 new_region = cls(motorcad_instance=motorcad_instance)
 
-        # self.Entities = json.Entities
-
-        if "name_unique" in json:
-            new_region.name = json["name_unique"]
-        else:
-            new_region.name = json["name"]
-
-        new_region._base_name = json["name"]
-        new_region.material = json["material"]
-        new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
-        new_region._area = json["area"]
-
-        new_region._centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
-        new_region._region_coordinate = Coordinate(
-            json["region_coordinate"]["x"], json["region_coordinate"]["y"]
-        )
-        new_region._duplications = json["duplications"]
-        new_region._entities = _convert_entities_from_json(json["entities"])
-        new_region._parent_name = json["parent_name"]
-        new_region._child_names = json["child_names"]
-
-        if "mesh_length" in json:
-            new_region._mesh_length = json["mesh_length"]
-
-        if "singular" in json:
-            new_region._singular = json["singular"]
-
-        if "lamination_type" in json:
-            new_region._lamination_type = json["lamination_type"]
-
-        new_region._raw_region = json
+        new_region._add_pameters_from_json(json)
 
         return new_region
+
+    def _add_pameters_from_json(self, json):
+        if "name_unique" in json:
+            self.name = json["name_unique"]
+        else:
+            self.name = json["name"]
+
+        self._base_name = json["name"]
+        self.material = json["material"]
+        self._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        self._area = json["area"]
+
+        self._centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        self._region_coordinate = Coordinate(
+            json["region_coordinate"]["x"], json["region_coordinate"]["y"]
+        )
+        self._duplications = json["duplications"]
+        self._entities = _convert_entities_from_json(json["entities"])
+        self._parent_name = json["parent_name"]
+        self._child_names = json["child_names"]
+
+        if "mesh_length" in json:
+            self._mesh_length = json["mesh_length"]
+
+        if "singular" in json:
+            self._singular = json["singular"]
+
+        if "lamination_type" in json:
+            self._lamination_type = json["lamination_type"]
+
+        self._raw_region = json
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -1025,6 +1022,14 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+
+    def _add_pameters_from_json(self, json):
+        self._magnet_angle = json["magnet_angle"]
+        self._br_multiplier = json["magnet_magfactor"]
+        self._magnet_polarity = json["magnet_polarity"]
+        self._br_magnet = json["magnet_br_value"]
+
+        super()._add_pameters_from_json(json)
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
