@@ -2423,12 +2423,12 @@ class EntityList(list):
 class ExtrusionBlock:
     """Generic class for storing 3D extrusion data."""
 
-    def __init__(self):
+    def __init__(self, start_pos=0, end_pos=0, angle_step=0, angle_continuous=0):
         """Initialise extrusion block."""
-        self._start_pos = 0
-        self._end_pos = 0
-        self._angle_step = 0
-        self._angle_continuous = 0
+        self._start_pos = start_pos
+        self._end_pos = end_pos
+        self._angle_step = angle_step
+        self._angle_continuous = angle_continuous
 
     def __eq__(self, other):
         """Compare equality of 2 ExtrusionBlock objects."""
@@ -2480,7 +2480,7 @@ class ExtrusionBlock:
         """Set start position of block."""
         self._angle_continuous = pos
 
-    def from_json(self, json):
+    def _from_json(self, json):
         """Convert the class from a JSON object.
 
         Parameters
@@ -2493,7 +2493,7 @@ class ExtrusionBlock:
         self._angle_step = json["extrusion_block_angle_step"]
         self._angle_continuous = json["extrusion_block_continuous_rotation"]
 
-    def to_json(self):
+    def _to_json(self):
         """Convert from a Python class to a JSON object.
 
         Returns
@@ -2525,6 +2525,18 @@ class ExtrusionBlock:
 class ExtrusionBlockList(list):
     """Generic class for list of Entities."""
 
+    def __eq__(self, other):
+        """Compare equality of 2 ExtrusionBlockList objects."""
+        if isinstance(other, ExtrusionBlockList):
+            is_equal = True
+            for block_1, block_2 in zip(self, other):
+                if block_1 != block_2:
+                    is_equal = False
+                    break
+            return is_equal
+        else:
+            return False
+
     def _to_json(self):
         """Convert from a Python class to a JSON object.
 
@@ -2533,7 +2545,7 @@ class ExtrusionBlockList(list):
         list
             List of the extrusion blocks represented as JSON.
         """
-        return [block.to_json for block in self]
+        return [block._to_json() for block in self]
 
     def _from_json(self, json_list):
         """Convert the class from a JSON object.
@@ -2545,7 +2557,7 @@ class ExtrusionBlockList(list):
         """
         for json_object in json_list:
             block = ExtrusionBlock()
-            block.from_json(json_object)
+            block._from_json(json_object)
             self.append(block)
 
 
