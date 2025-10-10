@@ -28,7 +28,7 @@ from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, 
 import warnings
 from warnings import warn
 
-from geometry_extrusion import ExtrusionBlockList
+from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
 
