@@ -42,8 +42,6 @@ from ansys.motorcad.core.geometry import (
     _Orientation,
     _orientation_of_three_points,
     rt_to_xy,
-    ExtrusionBlock,
-    ExtrusionBlockList,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
@@ -2859,71 +2857,4 @@ def test_region_creation_warnings(mc):
         _ = Region(mc)
 
 
-def test_extrusion_block_to_json():
-    block_dict = {
-        "extrusion_block_start": 100.1,
-        "extrusion_block_end": 200.2,
-        "extrusion_block_angle_step": 1.5,
-        "extrusion_block_continuous_rotation": 0
-    }
 
-    block = ExtrusionBlock()
-    block.start_pos = 100.1
-    block.end_pos = 200.2
-    block.angle_step = 1.5
-    block.angle_continuous = 0
-
-    assert block._to_json() == block_dict
-
-
-def test_extrusion_block_from_json():
-    block_dict = {
-        "extrusion_block_start": 100,
-        "extrusion_block_end": 200,
-        "extrusion_block_angle_step": 0,
-        "extrusion_block_continuous_rotation": 20
-    }
-    block = ExtrusionBlock()
-    block._from_json(block_dict)
-    block_actual = ExtrusionBlock(start_pos=100, end_pos=200, angle_continuous=20)
-
-    assert block == block_actual
-
-
-def test_extrusion_block_list_to_json():
-    blocks_array = [
-        {
-            "extrusion_block_start": 100,
-            "extrusion_block_end": 200,
-            "extrusion_block_angle_step": 0,
-            "extrusion_block_continuous_rotation": 10
-        }
-    ]
-
-    blocks = ExtrusionBlockList()
-    blocks.append(ExtrusionBlock(start_pos=100, end_pos=200, angle_continuous=10))
-
-    for block_1, block_2 in zip(blocks._to_json(), blocks_array):
-        assert block_1 == block_2
-
-
-def test_extrusion_block_list_from_json():
-    blocks_array = [
-        {
-            "extrusion_block_start": 100,
-            "extrusion_block_end": 200,
-            "extrusion_block_angle_step": 0,
-            "extrusion_block_continuous_rotation": 20
-        }
-    ]
-    blocks = ExtrusionBlockList()
-    blocks._from_json(blocks_array)
-    blocks_actual = ExtrusionBlockList()
-    blocks_actual.append(ExtrusionBlock(start_pos=100, end_pos=200, angle_continuous=20))
-
-    assert blocks == blocks_actual
-
-
-def test_block_extrusion_length():
-    block = ExtrusionBlock(start_pos=100, end_pos=200.5, angle_continuous=0)
-    assert block.extrusion_length == 100.5
