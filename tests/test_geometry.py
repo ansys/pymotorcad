@@ -28,12 +28,13 @@ import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path, reset_to_default_file
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
     Coordinate,
+    EntityList,
     Line,
     Region,
     RegionMagnet,
@@ -364,8 +365,8 @@ def test_region_from_json():
         "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
-        "region_temperature": 25,
-        "weight_reduction_factor": 0.5,
+        "linked_regions": ["linked_region", "linked_region_1"],
+        "on_boundary": True,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -381,9 +382,12 @@ def test_region_from_json():
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
-    test_region.singular = (False,)
-    test_region._temperature = 25
-    test_region.weight_reduction_factor = 0.5
+    test_region.singular = False
+    linked_region = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region"
+    linked_region_1 = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region_1"
+    test_region.linked_regions = [linked_region, linked_region_1]
 
     region = geometry.Region._from_json(raw_region)
 
@@ -406,9 +410,8 @@ def test_region_to_json():
         "region_type": RegionType.stator_copper.value,
         "mesh_length": 0.035,
         "singular": True,
+        "linked_regions": [],
         "on_boundary": False,
-        "region_temperature": 35,
-        "weight_reduction_factor" : 0.75,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -424,19 +427,120 @@ def test_region_to_json():
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
-    test_region._temperature = 35
-    test_region._weight_reduction_factor = 0.75
+    test_region.linked_regions = []
 
     assert test_region._to_json() == raw_region
 
 
 def test_region_is_closed():
     region = generate_constant_region()
-
     assert region.is_closed()
 
 
+def test_EntityList_is_closed():
+    region = generate_constant_region()
+    assert region.entities.is_closed
+
+    # Check an empty list returns as False
+    test_el1 = EntityList()
+    assert test_el1.is_closed == False
+
+    # Test an open polygon is not closed
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el1.is_closed == False
+
+
+def test_EntityList_self_intersecting():
+    # Test that intersection detection works properly on arcs
+    test_el1 = EntityList()
+    test_el1.append(Arc(Coordinate(0, 1), Coordinate(1, 0), centre=Coordinate(0.6, 0.6)))
+    test_el1.append(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
+    assert test_el1.self_intersecting == False
+
+    # Test convex polygons are not detected as intersecting
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 3), Coordinate(0, 0)))
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(2, 0)))
+    test_el2.append(Line(Coordinate(2, 0), Coordinate(2, 1)))
+    test_el2.append(Line(Coordinate(2, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 2)))
+    test_el2.append(Line(Coordinate(1, 2), Coordinate(2, 2)))
+    test_el2.append(Line(Coordinate(2, 2), Coordinate(2, 3)))
+    test_el2.append(Line(Coordinate(2, 3), Coordinate(0, 3)))
+    assert test_el2.self_intersecting == False
+
+    # Test intersections are properly detected
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el3.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el3.self_intersecting == True
+
+
+def test_EntityList_is_anticlockwise():
+    assert generate_constant_region().entities.is_anticlockwise == True
+
+    # Test opposite winding
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(0, 1)))
+    test_el2.append(Line(Coordinate(0, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.is_anticlockwise == False
+
+    # Test that arcs with endpoints that would result in opposite ordering if connected with a line
+    # are correctly accounted for
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
+    test_el3.append(
+        Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
+    )
+    test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
+    assert test_el3.is_anticlockwise == True
+
+    # Test error detection
+    with pytest.raises(Exception, match="Entities must be closed and nonintersecting"):
+        test_el4 = EntityList()
+        test_el4.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+        test_el4.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+        test_el4.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+        test_el4.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+        test_el4.is_anticlockwise
+
+
+def test_EntityList_has_valid_geometry():
+    assert generate_constant_region().entities.has_valid_geometry == True
+
+    # Test self_intersecting
+    test_el1 = EntityList()
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el1.has_valid_geometry == False
+
+    # Test is_anticlockwise
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.has_valid_geometry == False
+
+    # Test is_closed
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el3.has_valid_geometry == False
+
+
 def test_set_linked_region():
+    # depreciated functionality, here for backwards compatibility
     region = generate_constant_region()
 
     region_linked = Region(region_type=RegionType.stator)
@@ -444,8 +548,21 @@ def test_set_linked_region():
     # set linked region
     region.linked_region = region_linked
 
-    assert region._linked_region.name == region_linked.name
-    assert region_linked.linked_region.name == region.name
+    assert region.linked_regions == [region_linked]
+    assert region_linked.linked_regions == [region]
+
+
+def test_set_linked_regions():
+    region = generate_constant_region()
+
+    region_linked = Region()
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_regions.append(region_linked)
+    region_linked.linked_regions.append(region)
+
+    assert region.linked_regions.__contains__(region_linked)
+    assert region_linked.linked_regions.__contains__(region)
 
 
 def test_set_singular_region():
@@ -490,6 +607,11 @@ def test_region_children(mc):
     assert len(children) == 16
 
 
+def test_region_linked_regions(mc):
+    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+    assert len(duct.linked_regions) == 1
+
+
 def test_reverse_entity():
     entity = geometry.Entity(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
     expected_entity = geometry.Entity(geometry.Coordinate(1, 1), geometry.Coordinate(0, 0))
@@ -515,6 +637,15 @@ def test_reverse_arc():
     arc.reverse()
 
     assert arc == expected_line
+
+
+def test_entities_same_subset():
+    arc1 = Arc(Coordinate(1, 0), Coordinate(0, 1), radius=1)
+    arc2 = Arc(Coordinate(0, 1), Coordinate(-1, 0), radius=1)
+    ent1 = geometry.EntityList([arc1, arc2])
+    ent2 = geometry.EntityList([arc1])
+
+    assert ent1 != ent2
 
 
 def test_entities_same():
@@ -652,6 +783,12 @@ def test_line_length():
     assert line.length == sqrt(2)
 
 
+def test_line_get_coordinate_distance():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
+    point = Coordinate(1, 1)
+    assert line.get_coordinate_distance(point) == 1
+
+
 def test_arc_get_coordinate_from_fractional_distance():
     arc = geometry.Arc(
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
@@ -779,6 +916,32 @@ def test_arc_length():
     line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
     arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
     assert arc_2.length > line_1.length
+
+
+def test_entities_polygon():
+    expected_square = create_square()
+
+    # test functionality without reordering
+    reg1 = Region(region_type=RegionType.stator)
+    reg1.entities = EntityList.polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    assert expected_square == reg1
+
+    reg2 = Region(region_type=RegionType.stator)
+    reg2.entities = EntityList.polygon(
+        [Coordinate(0, 0), Coordinate(2, 0), Coordinate(2, 2), Coordinate(0, 2)]
+    )
+    assert expected_square == reg2
+
+    # Test warnings given when order is incorrect
+    with pytest.warns(UserWarning) as record:
+        reg3 = Region(region_type=RegionType.stator)
+        reg3.entities = EntityList.polygon([(0, 2), (2, 2), (2, 0), (0, 0)])
+    assert "Entered point order may result in invalid geometry." == record[0].message.args[0]
+
+    # test reordering
+    reg4 = Region(region_type=RegionType.stator)
+    reg4.entities = EntityList.polygon([(0, 0), (2, 2), (0, 2), (2, 0)], sort=True)
+    assert expected_square == reg4
 
 
 def test_convert_entities_to_json():
@@ -1127,16 +1290,15 @@ def test_check_collisions_3(mc):
     assert collisions[0] == triangle
 
 
-def test_delete_region(mc):
-    stator = mc.get_region("Stator")
+def test_delete_region(mc_reset_to_default_on_teardown):
+    stator = mc_reset_to_default_on_teardown.get_region("Stator")
 
-    mc.delete_region(stator)
+    mc_reset_to_default_on_teardown.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region("Stator")
+        mc_reset_to_default_on_teardown.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
-    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -1295,7 +1457,7 @@ def test_is_matplotlib_installed(monkeypatch):
     import ansys.motorcad.core.geometry_drawing as geom_import
 
     with pytest.raises(ImportError):
-        geom_import.draw_regions(region)
+        geom_import.draw_objects(region)
 
 
 def test_strings(capsys):
@@ -2644,16 +2806,16 @@ def test_region_material_assignment(mc):
     assert rotor == mc.get_region("Rotor")
 
 
-def test_set_lamination_type(mc):
-    rotor = mc.get_region("Rotor")
+def test_set_lamination_type(mc_reset_to_default_on_teardown):
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Laminated"
 
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
@@ -2673,21 +2835,19 @@ def test_set_lamination_type(mc):
     )
 
     # load file into Motor-CAD
-    mc.load_from_file(solid_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(solid_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(solid_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(solid_rotor_section_result, 1)
     # Check eddy current to make sure rotor is solid
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res != 0
 
-    mc.load_from_file(lam_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(lam_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(lam_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(lam_rotor_section_result, 1)
     # Check eddy current to make sure rotor is laminated
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res == 0
-
-    reset_to_default_file(mc)
 
 
 def test_region_creation_warnings(mc):
@@ -2695,19 +2855,3 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
-
-
-def test_get_temperature():
-    region_temp = 100
-    test_region = Region()
-    test_region._temperature = region_temp
-
-    assert test_region.temperature == region_temp
-
-
-def test_get_weight_reduction_factor():
-    factor = 0.789
-    test_region = Region()
-    test_region.weight_reduction_factor = factor
-
-    assert test_region.weight_reduction_factor == factor

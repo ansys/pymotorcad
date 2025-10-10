@@ -42,6 +42,13 @@ def mc():
     return motorcad_instance
 
 
+@pytest.fixture(scope="function")
+def mc_reset_to_default_on_teardown(mc):
+    """Set up test environment for whole unit of tests"""
+    yield mc
+    reset_to_default_file(mc)
+
+
 @pytest.fixture(scope="session")
 def mc_fea_old():
     """Old fea geometry tests cause lots of conflicts - use a new MotorCAD"""
