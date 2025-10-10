@@ -56,7 +56,7 @@ jobs:
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           # License check requires 3.10 or above
-          check-licenses: ${{ ! matrix.python-version == '3.9' }}
+          check-licenses: ${{ matrix.python-version != '3.9' }}
 
   tests:
     name: Tests and coverage
