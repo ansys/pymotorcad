@@ -2425,17 +2425,60 @@ class ExtrusionBlock:
 
     def __init__(self):
         """Initialise extrusion block."""
-        self.start_pos = 0
-        self.end_pos = 0
-        self.angle_shift = 0
+        self._start_pos = 0
+        self._end_pos = 0
+        self._angle_step = 0
+        self._angle_continuous = 0
 
     def __eq__(self, other):
         """Compare equality of 2 ExtrusionBlock objects."""
         return (
-            (self.start_pos == other.start_pos)
+            isinstance(other, ExtrusionBlock)
+            & (self.start_pos == other.start_pos)
             & (self.end_pos == other.end_pos)
-            & (self.start_pos == other.end_pos)
+            & (self.angle_step == other.angle_step)
+            & (self.angle_continuous == other.angle_continuous)
         )
+
+    @property
+    def start_pos(self):
+        """Get start position of block."""
+        return self._start_pos
+
+    @start_pos.setter
+    def start_pos(self, pos):
+        """Set start position of block."""
+        self._start_pos = pos
+
+    @property
+    def end_pos(self):
+        """Get end position of block."""
+        return self._end_pos
+
+    @end_pos.setter
+    def end_pos(self, pos):
+        """Set start position of block."""
+        self._end_pos = pos
+
+    @property
+    def angle_step(self):
+        """Get end position of block."""
+        return self._angle_step
+
+    @angle_step.setter
+    def angle_step(self, pos):
+        """Set start position of block."""
+        self._angle_step = pos
+
+    @property
+    def angle_continuous(self):
+        """Get end position of block."""
+        return self._angle_continuous
+
+    @angle_continuous.setter
+    def angle_continuous(self, pos):
+        """Set start position of block."""
+        self._angle_continuous = pos
 
     def from_json(self, json):
         """Convert the class from a JSON object.
@@ -2445,9 +2488,10 @@ class ExtrusionBlock:
         json: dict
             Dictionary representing the extrusion block.
         """
-        self.start_pos = json["extrusion_block_start"]
-        self.end_pos = json["extrusion_block_end"]
-        self.angle_shift = json["extrusion_block_angle_step"]
+        self._start_pos = json["extrusion_block_start"]
+        self._end_pos = json["extrusion_block_end"]
+        self._angle_step = json["extrusion_block_angle_step"]
+        self._angle_continuous = json["extrusion_block_continuous_rotation"]
 
     def to_json(self):
         """Convert from a Python class to a JSON object.
@@ -2460,7 +2504,8 @@ class ExtrusionBlock:
         block_dict = {
             "extrusion_block_start": self.start_pos,
             "extrusion_block_end": self.end_pos,
-            "extrusion_block_angle_step": self.start_pos,
+            "extrusion_block_angle_step": self.angle_step,
+            "extrusion_block_continuous_rotation": self.angle_continuous
         }
 
         return block_dict
