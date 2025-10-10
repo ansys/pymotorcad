@@ -449,6 +449,7 @@ class GeometryNode(Region):
         self.children = list()
         self.parent = None
         self.key = None
+        self.geometry_tree = None
 
     def __repr__(self):
         """Return string representation of GeometryNode."""
@@ -595,3 +596,8 @@ class GeometryNode(Region):
             return ""
         else:
             return self.parent.name
+
+    @property
+    def linked_regions(self):
+        """Get linked region objects for duplication/unite operations."""
+        return [self.geometry_tree[name] for name in self._linked_region_names]
