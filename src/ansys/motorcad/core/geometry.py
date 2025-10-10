@@ -147,8 +147,6 @@ class Region(object):
         self.mesh_length = 0
         self._linked_regions = []
         self._extrusion_blocks = ExtrusionBlockList()
-        self._temperature = 0
-        self._weight_reduction_factor = 1
         self._singular = False
         self._lamination_type = ""
 
