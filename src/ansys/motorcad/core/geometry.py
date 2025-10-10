@@ -374,7 +374,7 @@ class Region(object):
         self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = lamination_type
-        self._raw_region["extrusion_blocks"] = self._extrusion_blocks._to_json,
+        self._raw_region["extrusion_blocks"] = (self._extrusion_blocks._to_json,)
 
         return self._raw_region
 
