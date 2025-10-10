@@ -55,7 +55,8 @@ jobs:
           library-name: ${{ env.LIBRARY_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          check-licenses: ${{ matrix.python-version == '3.9' && false || true }}
+          # License check requires 3.10 or above
+          check-licenses: ${{ ! matrix.python-version == '3.9' }}
 
   tests:
     name: Tests and coverage
