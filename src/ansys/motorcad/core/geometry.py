@@ -333,11 +333,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        if self._region_type == RegionType.adaptive:
-            lamination_type = self._lamination_type
-        else:
-            lamination_type = ""
-
         try:
             self._raw_region
         except AttributeError:
@@ -370,7 +365,7 @@ class Region(object):
         self._raw_region["linked_regions"] = self.linked_region_names
         self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
         self._raw_region["singular"] = self._singular
-        self._raw_region["lamination_type"] = lamination_type
+        self._raw_region["lamination_type"] = self._lamination_type
 
         return self._raw_region
 
@@ -504,12 +499,7 @@ class Region(object):
 
     @lamination_type.setter
     def lamination_type(self, lamination_type):
-        if self.region_type == RegionType.adaptive:
-            self._lamination_type = lamination_type
-        else:
-            raise Exception(
-                "It is currently only possible to set lamination type for adaptive regions"
-            )
+        self._lamination_type = lamination_type
 
     @property
     def name(self):
