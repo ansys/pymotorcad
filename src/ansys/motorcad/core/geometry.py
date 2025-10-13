@@ -150,6 +150,8 @@ class Region(object):
         self._singular = False
         self._lamination_type = ""
 
+        self._raw_region = dict()
+
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
         return (
@@ -164,6 +166,31 @@ class Region(object):
             and self._duplications == other._duplications
             and self._entities == other._entities
         )
+
+    def __copy__(self):
+        """Override default copy behaviour."""
+        copied_object = type(self)()
+        copied_object.__dict__.update(self.__dict__)
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        return copied_object
+
+    def __deepcopy__(self, memo):
+        """Override default deepcopy behaviour."""
+        copied_object = type(self)()
+
+        memo[id(self)] = copied_object
+        for k, v in self.__dict__.items():
+            setattr(copied_object, k, deepcopy(v, memo))  # Copy over attributes
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        return copied_object
 
     @classmethod
     def from_coordinate_list(cls):
@@ -333,10 +360,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        try:
-            self._raw_region
-        except AttributeError:
-            self._raw_region = dict()
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
