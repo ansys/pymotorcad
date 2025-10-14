@@ -801,13 +801,13 @@ class Region(object):
                 adj_entity_indices.append(index)
         # If no adjacent entities are found, the point provided is not a corner
         if not adj_entities:
-            raise Exception(
+            raise ValueError(
                 "Failed to find point on entity in region. "
                 "You must specify a corner in this region."
             )
         # If only one adjacent entity is found, the point provided is not a corner
         if len(adj_entities) == 1:
-            raise Exception(
+            raise ValueError(
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
@@ -881,14 +881,14 @@ class Region(object):
 
         # Raise assertion if not converged, as radius probably not valid
         if converged == False:
-            raise Exception("Cannot find intersection. Check if radius is too large")
+            raise ValueError("Cannot find intersection. Check if radius is too large")
 
         # check that the  distances by which the adjacent entities are shortened are less than the
         # lengths of the adjacent entities.
         for index in range(len(adj_entities)):
             j = adj_entities[index]
             if j.length < distance:
-                raise Exception(
+                raise ValueError(
                     "Corner radius is too large for these entities. "
                     "You must specify a smaller radius."
                 )
