@@ -176,6 +176,10 @@ class Region(object):
         # This could contain settings not visible or editable from PyMotorCAD object
         copied_object._raw_region = dict()
 
+        # Motor-CAD instance should not be duplicated.
+        # Don't want this getting closed if this region goes out of scope.
+        copied_object.motorcad_instance = self._motorcad_instance
+
         return copied_object
 
     def __deepcopy__(self, memo):
@@ -189,6 +193,10 @@ class Region(object):
         # We don't want to copy raw json to a new region
         # This could contain settings not visible or editable from PyMotorCAD object
         copied_object._raw_region = dict()
+
+        # Motor-CAD instance should not be duplicated.
+        # Don't want this getting closed if this region goes out of scope.
+        copied_object.motorcad_instance = self._motorcad_instance
 
         return copied_object
 
