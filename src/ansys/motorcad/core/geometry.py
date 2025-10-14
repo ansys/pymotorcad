@@ -196,10 +196,11 @@ class Region(object):
 
         # Motor-CAD instance should not be duplicated.
         # Don't want this getting closed if this region goes out of scope.
-        copied_object._motorcad_instance.connection._close_motorcad_on_exit = (
-            override_close_motorcad_on_exit
-        )
-        copied_object._motorcad_instance = self._motorcad_instance
+        if copied_object._motorcad_instance is not None:
+            copied_object._motorcad_instance.connection._close_motorcad_on_exit = (
+                override_close_motorcad_on_exit
+            )
+            copied_object._motorcad_instance = self._motorcad_instance
 
         return copied_object
 
