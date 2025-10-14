@@ -26,7 +26,7 @@ import warnings
 from warnings import warn
 
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
-from ansys.motorcad.core.methods.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:

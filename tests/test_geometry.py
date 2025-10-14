@@ -28,7 +28,7 @@ import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path, reset_to_default_file
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
@@ -1290,16 +1290,15 @@ def test_check_collisions_3(mc):
     assert collisions[0] == triangle
 
 
-def test_delete_region(mc):
-    stator = mc.get_region("Stator")
+def test_delete_region(mc_reset_to_default_on_teardown):
+    stator = mc_reset_to_default_on_teardown.get_region("Stator")
 
-    mc.delete_region(stator)
+    mc_reset_to_default_on_teardown.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region("Stator")
+        mc_reset_to_default_on_teardown.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
-    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -1640,16 +1639,16 @@ def test_round_corners():
             assert not entity.coordinate_on_entity(corners[i])
 
     # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
-        triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
-        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, corner_radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
-        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+    with pytest.raises(ValueError):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * corner_radius)
 
 
 def test_round_corner_2():
@@ -2807,16 +2806,16 @@ def test_region_material_assignment(mc):
     assert rotor == mc.get_region("Rotor")
 
 
-def test_set_lamination_type(mc):
-    rotor = mc.get_region("Rotor")
+def test_set_lamination_type(mc_reset_to_default_on_teardown):
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Laminated"
 
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
@@ -2836,21 +2835,19 @@ def test_set_lamination_type(mc):
     )
 
     # load file into Motor-CAD
-    mc.load_from_file(solid_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(solid_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(solid_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(solid_rotor_section_result, 1)
     # Check eddy current to make sure rotor is solid
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res != 0
 
-    mc.load_from_file(lam_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(lam_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(lam_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(lam_rotor_section_result, 1)
     # Check eddy current to make sure rotor is laminated
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res == 0
-
-    reset_to_default_file(mc)
 
 
 def test_region_creation_warnings(mc):
