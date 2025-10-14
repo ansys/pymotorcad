@@ -44,8 +44,10 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
+    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
+    stator_frame = "Stator Support Frame"
     stator_impreg = "Stator Impreg"
     impreg_gap = "Impreg Gap"
     stator_copper = "Stator Copper"
@@ -55,6 +57,7 @@ class RegionType(Enum):
     stator_separator = "Stator slot separator"
     coil_insulation = "Coil Insulation"
     stator_air = "Stator Air"
+    endwinding = "End Winding"
     rotor_hub = "Rotor hub"
     rotor_air = "Rotor Air"
     rotor_air_exc_liner = "Rotor Air (excluding liner area)"
@@ -131,7 +134,7 @@ class Region(object):
         self._name = ""
         self._base_name = ""
         self._material = "air"
-        self._colour = (0, 0, 0)
+        self._colour = (255, 255, 255)
         self._area = 0.0
         self._centroid = Coordinate(0, 0)
         self._region_coordinate = Coordinate(0, 0)
@@ -328,31 +331,41 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        if self._region_type == RegionType.adaptive:
-            lamination_type = self._lamination_type
-        else:
-            lamination_type = ""
+        try:
+            self._raw_region
+        except AttributeError:
+            self._raw_region = dict()
+        # Previous implementations had users only generally interact with the unique name,
+        # assigning it as the name attribute if possible. This behaviour is maintained for
+        # now, though it is a piece of information lost that future users may want control over
 
-        region_dict = {
-            "name": self._name,
-            "name_base": self._base_name,
-            "material": self._material,
-            "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
-            "area": self._area,
-            "centroid": {"x": self._centroid.x, "y": self._centroid.y},
-            "region_coordinate": {"x": self._region_coordinate.x, "y": self._region_coordinate.y},
-            "duplications": self._duplications,
-            "entities": _convert_entities_to_json(self.entities),
-            "parent_name": self._parent_name,
-            "region_type": self._region_type.value,
-            "mesh_length": self.mesh_length,
-            "linked_regions": self.linked_region_names,
-            "on_boundary": False if len(self.linked_regions) == 0 else True,
-            "singular": self._singular,
-            "lamination_type": lamination_type,
+        self._raw_region["name"] = self._name
+        if "name_unique" in self._raw_region:
+            self._raw_region["name_unique"] = self._name
+        self._raw_region["name_base"] = self._base_name
+        self._raw_region["material"] = self._material
+        self._raw_region["colour"] = {
+            "r": self._colour[0],
+            "g": self._colour[1],
+            "b": self._colour[2],
         }
+        self._raw_region["area"] = self._area
+        self._raw_region["centroid"] = {"x": self._centroid.x, "y": self._centroid.y}
+        self._raw_region["region_coordinate"] = {
+            "x": self._region_coordinate.x,
+            "y": self._region_coordinate.y,
+        }
+        self._raw_region["duplications"] = self._duplications
+        self._raw_region["entities"] = _convert_entities_to_json(self.entities)
+        self._raw_region["parent_name"] = self.parent_name
+        self._raw_region["region_type"] = self._region_type.value
+        self._raw_region["mesh_length"] = self.mesh_length
+        self._raw_region["linked_regions"] = self.linked_region_names
+        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
+        self._raw_region["singular"] = self._singular
+        self._raw_region["lamination_type"] = self._lamination_type
 
-        return region_dict
+        return self._raw_region
 
     @property
     def parent_name(self):
@@ -484,12 +497,7 @@ class Region(object):
 
     @lamination_type.setter
     def lamination_type(self, lamination_type):
-        if self.region_type == RegionType.adaptive:
-            self._lamination_type = lamination_type
-        else:
-            raise Exception(
-                "It is currently only possible to set lamination type for adaptive regions"
-            )
+        self._lamination_type = lamination_type
 
     @property
     def name(self):

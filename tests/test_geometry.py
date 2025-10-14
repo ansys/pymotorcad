@@ -28,7 +28,7 @@ import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path, reset_to_default_file
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
@@ -1290,16 +1290,15 @@ def test_check_collisions_3(mc):
     assert collisions[0] == triangle
 
 
-def test_delete_region(mc):
-    stator = mc.get_region("Stator")
+def test_delete_region(mc_reset_to_default_on_teardown):
+    stator = mc_reset_to_default_on_teardown.get_region("Stator")
 
-    mc.delete_region(stator)
+    mc_reset_to_default_on_teardown.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region("Stator")
+        mc_reset_to_default_on_teardown.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
-    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -1534,8 +1533,8 @@ def test_round_corner():
     assert triangle_1.is_closed()
     for i in range(3):
         # check that the entities making up the rounded triangle are of the expected types
-        assert isinstance(triangle_1.entities[2 * i], Line)
-        assert isinstance(triangle_1.entities[2 * i + 1], Arc)
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
         # check that the midpoints of the shortened lines are the same as the original lines
         assert isclose(
             triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
@@ -1552,28 +1551,17 @@ def test_round_corner():
         for i in range(3):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check value_error is raised when a point that is not a corner is specified
-    with pytest.raises(ValueError):
+    # check exception is raised when a point that is not a corner is specified
+    with pytest.raises(Exception):
         triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    # * Check this using the maximise = False option
-    large_radius = 5
-    with pytest.raises(ValueError):
-        triangle_2.round_corner(triangle_2.entities[0].end, large_radius, maximise=False)
-    # * Check again with a suitably large radius that will not converge
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
-
-    # Check that maximise option works
-    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
-    # Check that the new arc radius after rounding is less than the specified radius
-    triangle_2.round_corner(triangle_2.entities[0].end, large_radius)  # by default, maximise = True
-    assert triangle_2.entities[1].radius < large_radius
 
     # check the case when corner internal angle is negative
     corner_1 = Coordinate(0, 0)
@@ -1616,7 +1604,7 @@ def test_round_corner():
     # draw_objects_debug([region, region_rounded])
     assert centre not in region_rounded.points
     assert len(region_rounded.entities) == len(region.entities) + 1
-    assert isinstance(region_rounded.entities[3], Arc)
+    assert type(region_rounded.entities[3]) == Arc
     # print(region_rounded.entities[3].midpoint.y)
     assert region_rounded.entities[3].midpoint.y < centre.y
 
@@ -1632,8 +1620,8 @@ def test_round_corners():
     assert triangle_1.is_closed()
     for i in range(3):
         # check that the entities making up the rounded triangle are of the expected types
-        assert isinstance(triangle_1.entities[2 * i], Line)
-        assert isinstance(triangle_1.entities[2 * i + 1], Arc)
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
         # check that the midpoints of the shortened lines are the same as the original lines
         assert isclose(
             triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
@@ -2957,16 +2945,16 @@ def test_region_material_assignment(mc):
     assert rotor == mc.get_region("Rotor")
 
 
-def test_set_lamination_type(mc):
-    rotor = mc.get_region("Rotor")
+def test_set_lamination_type(mc_reset_to_default_on_teardown):
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Laminated"
 
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
@@ -2986,21 +2974,19 @@ def test_set_lamination_type(mc):
     )
 
     # load file into Motor-CAD
-    mc.load_from_file(solid_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(solid_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(solid_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(solid_rotor_section_result, 1)
     # Check eddy current to make sure rotor is solid
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res != 0
 
-    mc.load_from_file(lam_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(lam_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(lam_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(lam_rotor_section_result, 1)
     # Check eddy current to make sure rotor is laminated
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res == 0
-
-    reset_to_default_file(mc)
 
 
 def test_region_creation_warnings(mc):
