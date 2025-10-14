@@ -1639,16 +1639,16 @@ def test_round_corners():
             assert not entity.coordinate_on_entity(corners[i])
 
     # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
-        triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
-        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, corner_radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
-        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+    with pytest.raises(ValueError):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * corner_radius)
 
 
 def test_round_corner_2():
