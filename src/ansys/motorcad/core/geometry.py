@@ -800,13 +800,13 @@ class Region(object):
 
         # If no adjacent entities are found, the point provided is not a corner
         if not adj_entities[0] and not adj_entities[1]:
-            raise Exception(
+            raise ValueError(
                 "Failed to find point on entity in region. "
                 "You must specify a corner in this region."
             )
         # If only one adjacent entity is found, the point provided is not a corner
         if not adj_entities[0] or not adj_entities[1]:
-            raise Exception(
+            raise ValueError(
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )

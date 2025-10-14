@@ -1552,10 +1552,10 @@ def test_round_corner():
         for i in range(3):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check value_error is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
 
     # check exception is raised when the corner radius is too large
@@ -1650,10 +1650,10 @@ def test_round_corners():
         for i in range(3):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check value error is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         triangle_1.round_corners(corners, corner_radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corners(
             [
                 triangle_1.entities[0].midpoint,
@@ -1719,10 +1719,10 @@ def test_round_corner_2():
         for i in range(3):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         notch_1.round_corner(corners[0], corner_radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         notch_1.round_corner(notch_1.entities[0].midpoint, corner_radius)
 
     # check exception is raised when the corner radius is too large
@@ -1780,10 +1780,10 @@ def test_round_corners_2():
         for i in range(3):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         notch_1.round_corners(corners, corner_radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         notch_1.round_corners(
             [
                 notch_1.entities[0].midpoint,
@@ -1793,12 +1793,12 @@ def test_round_corners_2():
             corner_radius,
         )
 
-    # check exception is raised when the corner radius is too large
+    # check ValueError is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
-    # check exception is raised when the corner radius is too large
+    # check ValueError is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
     # * Check this using the maximise = False option
@@ -1861,16 +1861,16 @@ def test_round_corner_3():
         for i in range(2):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         shape_1.round_corner(corners[0], corner_radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
 
-    # check exception is raised when the corner radius is too large
+    # check ValueError is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
 
     # check exception is raised when the corner radius is too large
@@ -1939,13 +1939,13 @@ def test_round_corners_3():
         for i in range(2):
             assert not entity.coordinate_on_entity(corners[i])
 
-    # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
         shape_1.round_corner(corners[0], corner_radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
 
-    # check exception is raised when the corner radius is too large
+    # check ValueError is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
     # * Check this using the maximise = False option
