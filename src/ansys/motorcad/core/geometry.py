@@ -340,14 +340,14 @@ class Region(object):
         # fraction, factor:
         if distance and fraction or distance and factor:
             warn(f"More than one optional argument provided, using distance = {distance} mm.")
-            new_point = self.entities[entity_index].get_coordinate_from_distance(
-                point, distance=-distance
-            )
+            self.extend_entity(entity_index, distance=distance, extend_from_end=extend_from_end)
+            return
+
         elif fraction and factor:
             warn(f"More than one optional argument provided, using fraction = {fraction}.")
-            new_point = self.entities[entity_index].get_coordinate_from_distance(
-                point, fraction=-fraction
-            )
+            self.extend_entity(entity_index, fraction=fraction, extend_from_end=extend_from_end)
+            return
+
         elif distance:
             if distance <= -self.entities[entity_index].length:
                 raise ValueError(
@@ -1501,17 +1501,19 @@ class Entity(object):
                 point = self.start
         else:
             raise TypeError(
-                f"The argument 'extend_from_end' must be a boolean type (True or " f"False)."
+                f"The argument 'extend_from_end' must be a boolean type (True or False)."
             )
 
         # if multiple optional arguments are provided, precedence is taken in the order: distance,
         # fraction, factor:
         if distance and fraction or distance and factor:
             warn(f"More than one optional argument provided, using distance = {distance} mm.")
-            new_point = self.get_coordinate_from_distance(point, distance=-distance)
+            self.extend(distance=distance, extend_from_end=extend_from_end)
+            return
         elif fraction and factor:
             warn(f"More than one optional argument provided, using fraction = {fraction}.")
-            new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+            self.extend(fraction=fraction, extend_from_end=extend_from_end)
+            return
         elif distance:
             if distance <= -self.length:
                 raise ValueError(
