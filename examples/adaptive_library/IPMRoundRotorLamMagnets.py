@@ -90,7 +90,6 @@ import ansys.motorcad.core as pymotorcad
 # folder. To keep a new Motor-CAD instance open after executing the script, use the
 # ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively, use the
 # ``MotorCAD()`` method, which closes the Motor-CAD instance after the script is executed.
-# os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
 if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
