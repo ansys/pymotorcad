@@ -176,14 +176,14 @@ class Region(object):
         # This could contain settings not visible or editable from PyMotorCAD object
         copied_object._raw_region = dict()
 
-        # Motor-CAD instance should not be duplicated.
-        # Don't want this getting closed if this region goes out of scope.
-        copied_object.motorcad_instance = self._motorcad_instance
-
         return copied_object
 
     def __deepcopy__(self, memo):
         """Override default deepcopy behaviour."""
+
+        def override_close_motorcad_on_exit():
+            return False
+
         copied_object = type(self)()
 
         memo[id(self)] = copied_object
@@ -196,7 +196,10 @@ class Region(object):
 
         # Motor-CAD instance should not be duplicated.
         # Don't want this getting closed if this region goes out of scope.
-        copied_object.motorcad_instance = self._motorcad_instance
+        copied_object._motorcad_instance.connection._close_motorcad_on_exit = (
+            override_close_motorcad_on_exit
+        )
+        copied_object._motorcad_instance = self._motorcad_instance
 
         return copied_object
 
