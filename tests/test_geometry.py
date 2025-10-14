@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 import builtins
-from copy import deepcopy
+from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
@@ -2855,3 +2855,16 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
+
+
+def test_copying(mc):
+    stator = mc.get_region("stator")
+
+    copy_region = copy(stator)
+
+    assert copy_region == stator
+    assert copy_region._raw_region == dict()
+    deepcopy_region = deepcopy(stator)
+
+    assert deepcopy_region == stator
+    assert deepcopy_region._raw_region == dict()
