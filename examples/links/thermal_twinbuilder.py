@@ -346,8 +346,8 @@ class MotorCADTwinModel:
         self.nodeNumbers = []
         self.nodeGroupings = []
 
-        self.coolingSystemsPresent = dict()  # only valid for old heat flow method
-        self.fluidPaths = []  # only valid for new heat flow method
+        self.coolingSystemsPresent = dict()  # used for old heat flow method
+        self.fluidPaths: List[MotorCADTwinModel.FluidPath] = []  # used for new heatflow method
 
         self.customPowerInjections = []
 
@@ -1760,17 +1760,23 @@ class MotorCADTwinModel:
                         numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
                 # identify all the impacted resistances and capacitances
-                r_list, c_list = self.affectedRtsCaps(coolingSystem)
+                if self.heatFlowMethod == 1:
+                    r_list, c_list = self.affectedRtsCaps_Improved(coolingSystem)
+                else:
+                    r_list, c_list = self.affectedRtsCaps_Original(coolingSystem)
 
                 with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
-                    for nodeIndex1, nodeIndex2 in r_list:
+                    for node1, node2 in r_list:
                         fRout.write(
-                            self.nodeNames[nodeIndex1] + " " + self.nodeNames[nodeIndex2] + "\n"
+                            self.nodeNames[self.nodeNumbers.index(node1)]
+                            + " "
+                            + self.nodeNames[self.nodeNumbers.index(node2)]
+                            + "\n"
                         )
 
                 with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout:
-                    for nodeIndex in c_list:
-                        fCout.write(self.nodeNames[nodeIndex] + "\n")
+                    for node in c_list:
+                        fCout.write(self.nodeNames[self.nodeNumbers.index(node)] + "\n")
 
                 # run the DoE
                 fileInd = 0
@@ -1802,7 +1808,21 @@ class MotorCADTwinModel:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
 
-    def affectedRtsCaps(self, coolingSystem):
+    def affectedRtsCaps_Improved(self, coolingSystem):
+        r_list = []
+        c_list = []
+
+        for fluidPath in self.fluidPaths:
+            if fluidPath.coolingSystem == coolingSystem:
+                r_list.extend(fluidPath.rtsFluidFluid)
+                r_list.extend(fluidPath.rtsFluidSolid)
+                # identify all fluid nodes that are not the inlet node
+                nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
+                c_list.extend(nodes)
+
+        return r_list, c_list  # TODO test incl. new spray
+
+    def affectedRtsCaps_Original(self, coolingSystem):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         resistanceMatrix = self.getRmfData(exportDirectory)
@@ -1840,11 +1860,9 @@ class MotorCADTwinModel:
         connectedNodes = self.returnConnectedNodes(upnode, self.nodeNumbers, resistanceMatrix)
         # inlet node
         for i in range(0, len(connectedNodes)):
-            r_list.append(
-                (self.nodeNumbers.index(upnode), self.nodeNumbers.index(connectedNodes[i]))
-            )
+            r_list.append((upnode, connectedNodes[i]))
             if upnode not in self.coolingSystemsPresent.keys():
-                c_list.append(self.nodeNumbers.index(upnode))
+                c_list.append(upnode)
         covered_nodes.update({upnode: connectedNodes})
 
         for item in coolSys:  # following downstream nodes of the cooling system
@@ -1858,14 +1876,9 @@ class MotorCADTwinModel:
                             connectedNodes[i] in list(covered_nodes.keys())
                             and upnode in covered_nodes[connectedNodes[i]]
                         ):  # avoid taking the symmetric counterpart of the resistance
-                            r_list.append(
-                                (
-                                    self.nodeNumbers.index(upnode),
-                                    self.nodeNumbers.index(connectedNodes[i]),
-                                )
-                            )
+                            r_list.append((upnode, connectedNodes[i]))
                     if upnode not in self.coolingSystemsPresent.keys():
-                        c_list.append(self.nodeNumbers.index(upnode))
+                        c_list.append(upnode)
                     covered_nodes.update({upnode: connectedNodes})
 
         if len(coolSys) == 0:
@@ -1881,14 +1894,9 @@ class MotorCADTwinModel:
                             connectedNodes[i] in list(covered_nodes.keys())
                             and upnode in covered_nodes[connectedNodes[i]]
                         ):  # avoid taking the symmetric counterpart of the resistance
-                            r_list.append(
-                                (
-                                    self.nodeNumbers.index(upnode),
-                                    self.nodeNumbers.index(connectedNodes[i]),
-                                )
-                            )
+                            r_list.append((upnode, connectedNodes[i]))
                     if upnode not in self.coolingSystemsPresent.keys():
-                        c_list.append(self.nodeNumbers.index(upnode))
+                        c_list.append(upnode)
                     covered_nodes.update({upnode: connectedNodes})
 
         return r_list, c_list
@@ -1909,13 +1917,16 @@ class MotorCADTwinModel:
         capacitanceMatrix = self.getCmfData(exportDirectory)
 
         R = []
-        for nodeIndex1, nodeIndex2 in r_list:
-            resistance = resistanceMatrix[nodeIndex1][nodeIndex2]
+        for node1, node2 in r_list:
+            index1 = self.nodeNumbers.index(node1)
+            index2 = self.nodeNumbers.index(node2)
+            resistance = resistanceMatrix[index1][index2]
             R.append(resistance)
 
         C = []
-        for nodeIndex in c_list:
-            capacitance = capacitanceMatrix[nodeIndex]
+        for node in c_list:
+            index = self.nodeNumbers.index(node)
+            capacitance = capacitanceMatrix[index]
             C.append(capacitance)
 
         return [R, C]
