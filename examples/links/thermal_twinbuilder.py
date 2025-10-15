@@ -305,8 +305,17 @@ class MotorCADTwinModel:
         "Brush_Friction_Loss_@Ref_Speed",
         "Brush_VI_Loss_@Ref_Speed",
     ]
+
     # Stator_Iron_Loss_@Ref_Speed_[Tooth_Tip] is not included as this is an unused Motor-CAD
     # parameter
+    @dataclass
+    class FluidPath:
+        graph: nx.Graph
+        fluidNodes: list
+        inletNodes: list
+        coolingSystem: CoolingSystem | None
+        rtsFluidFluid: list
+        rtsFluidSolid: list
 
     # Initialization function for objects of this class.
     def __init__(self, inputMotFilePath: str, outputDir: str):
@@ -363,7 +372,7 @@ class MotorCADTwinModel:
         self.updateCustomLosses()
         self.validateMotfileLosses()
 
-        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.nodeNumbers_fluid,
+        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings,
         # and self.nodeNumbers_fluidInlet
         self.getNodeData()
 
@@ -985,7 +994,7 @@ class MotorCADTwinModel:
         self.mcad.export_matrices(exportDirectory)
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings,
-    # self.nodeNumbers_fluidInlet and self.nodeNumbers_fluid
+    # self.nodeNumbers_fluidInlet
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
