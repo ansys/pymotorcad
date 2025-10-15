@@ -345,7 +345,7 @@ class MotorCADTwinModel:
         self.nodeNames_original = []
         self.nodeNumbers = []
         self.nodeGroupings = []
-        self.nodeNumbers_fluidInlet = []  # only valid for old heat flow method
+
         self.coolingSystemsPresent = dict()  # only valid for old heat flow method
         self.fluidPaths = []  # only valid for new heat flow method
 
@@ -374,7 +374,6 @@ class MotorCADTwinModel:
         self.validateMotfileLosses()
 
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings,
-        # and self.nodeNumbers_fluidInlet
         self.getNodeData()
 
         self.generateFixedTemperatures(coolingSystemsParameterSweeps)
@@ -995,8 +994,7 @@ class MotorCADTwinModel:
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
 
-    # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings,
-    # self.nodeNumbers_fluidInlet
+    # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
@@ -1014,6 +1012,7 @@ class MotorCADTwinModel:
 
         coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
         fluidNodeNumbers = []
+        fluidInletNodeNumbers = []
 
         for index, nodeNumber in enumerate(self.nodeNumbers):
             if self.nodeGroupings[index] in coolingsystemGroupings:
@@ -1023,12 +1022,12 @@ class MotorCADTwinModel:
                 isInlet_check2 = temperatureVector[index] > -10000000.0
 
                 if isInlet_check1 and isInlet_check2:
-                    self.nodeNumbers_fluidInlet.append(nodeNumber)
+                    fluidInletNodeNumbers.append(nodeNumber)
 
         if self.heatFlowMethod == 1:
             self.generateCoolingSystemNetwork_Improved()
 
-        self.generateCoolingSystemNetwork_Original(fluidNodeNumbers)
+        self.generateCoolingSystemNetwork_Original(fluidNodeNumbers, fluidInletNodeNumbers)
 
     def generateCoolingSystemNetwork_Improved(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
@@ -1160,7 +1159,7 @@ class MotorCADTwinModel:
 
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
-    def generateCoolingSystemNetwork_Original(self, fluidNodeNumbers):
+    def generateCoolingSystemNetwork_Original(self, fluidNodeNumbers, fluidInletNodeNumbers):
         if len(fluidNodeNumbers) == 0:
             logger.info("Initialization: No cooling systems found in Motor-CAD model")
         else:
@@ -1168,15 +1167,11 @@ class MotorCADTwinModel:
 
             exportDirectory = os.path.join(self.outputDirectory, "tmp")
             self.computeMatrices(exportDirectory)
-
             resistanceMatrix = self.getRmfData(exportDirectory)
-            graphNodes = []
+
             graphEdges = []
 
             for fluidNode in fluidNodeNumbers:
-                if fluidNode not in graphNodes:
-                    graphNodes.append(fluidNode)
-
                 connectedFluidNodes = self.returnConnectedNodes(
                     fluidNode, fluidNodeNumbers, resistanceMatrix
                 )
@@ -1184,18 +1179,13 @@ class MotorCADTwinModel:
                     graphEdges.append([fluidNode, connectedNode])
 
             G = nx.DiGraph()
-            G.add_nodes_from(graphNodes)
+            G.add_nodes_from(fluidNodeNumbers)
             G.add_edges_from(graphEdges)
             M = nx.adjacency_matrix(G).todense()
 
-            inletNodes = []
             connectedNodesLists = []
 
-            for graphNode in graphNodes:
-                if graphNode in self.nodeNumbers_fluidInlet:
-                    inletNodes.append(graphNode)
-
-            for index, inletNode in enumerate(inletNodes):
+            for index, inletNode in enumerate(fluidInletNodeNumbers):
                 connectedNodesList = []
                 connectedNodesInd = []
 
@@ -1206,27 +1196,27 @@ class MotorCADTwinModel:
 
                 while len(next) > 0:
                     node = next[0]
-                    line = M[graphNodes.index(node)]
+                    line = M[fluidNodeNumbers.index(node)]
                     for k in range(0, len(line)):
-                        if line[k] > 0 and graphNodes[k] not in covered:
+                        if line[k] > 0 and fluidNodeNumbers[k] not in covered:
                             # don't consider first connection for the power correction
                             if node != inletNode:
                                 connectedNodesList.append(
                                     [
                                         self.nodeNames[self.nodeNumbers.index(node)],
-                                        self.nodeNames[self.nodeNumbers.index(graphNodes[k])],
+                                        self.nodeNames[self.nodeNumbers.index(fluidNodeNumbers[k])],
                                     ]
                                 )
-                                connectedNodesInd.append([node, graphNodes[k]])
+                                connectedNodesInd.append([node, fluidNodeNumbers[k]])
 
-                            curGraphEdges.append([node, graphNodes[k]])
-                            if graphNodes[k] not in next:
-                                next.append(graphNodes[k])
+                            curGraphEdges.append([node, fluidNodeNumbers[k]])
+                            if fluidNodeNumbers[k] not in next:
+                                next.append(fluidNodeNumbers[k])
                     next.remove(node)
                     covered.append(node)
 
                 curG = nx.DiGraph()
-                curG.add_nodes_from(graphNodes)
+                curG.add_nodes_from(fluidNodeNumbers)
                 curG.add_edges_from(curGraphEdges)
                 connectedNodesLists.append(connectedNodesList)
                 self.coolingSystemsPresent.update({inletNode: connectedNodesInd})
@@ -1242,9 +1232,9 @@ class MotorCADTwinModel:
                     for connectedNodesList in connectedNodesLists:
                         cs.write(
                             "inlet : "
-                            + str(inletNodes[k])
+                            + str(fluidInletNodeNumbers[k])
                             + " - "
-                            + str(self.nodeNames[self.nodeNumbers.index(inletNodes[k])])
+                            + str(self.nodeNames[self.nodeNumbers.index(fluidInletNodeNumbers[k])])
                             + "\n"
                         )
                         for connectedNodes in connectedNodesList:
@@ -1786,7 +1776,7 @@ class MotorCADTwinModel:
                 r_list, c_list = self.affectedRtsCaps(coolingSystem)
 
                 with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
-                    for (nodeIndex1, nodeIndex2) in r_list:
+                    for nodeIndex1, nodeIndex2 in r_list:
                         fRout.write(
                             self.nodeNames[nodeIndex1] + " " + self.nodeNames[nodeIndex2] + "\n"
                         )
@@ -1866,7 +1856,7 @@ class MotorCADTwinModel:
             r_list.append(
                 (self.nodeNumbers.index(upnode), self.nodeNumbers.index(connectedNodes[i]))
             )
-            if upnode not in self.nodeNumbers_fluidInlet:
+            if upnode not in self.coolingSystemsPresent.keys():
                 c_list.append(self.nodeNumbers.index(upnode))
         covered_nodes.update({upnode: connectedNodes})
 
@@ -1887,7 +1877,7 @@ class MotorCADTwinModel:
                                     self.nodeNumbers.index(connectedNodes[i]),
                                 )
                             )
-                    if upnode not in self.nodeNumbers_fluidInlet:
+                    if upnode not in self.coolingSystemsPresent.keys():
                         c_list.append(self.nodeNumbers.index(upnode))
                     covered_nodes.update({upnode: connectedNodes})
 
@@ -1910,7 +1900,7 @@ class MotorCADTwinModel:
                                     self.nodeNumbers.index(connectedNodes[i]),
                                 )
                             )
-                    if upnode not in self.nodeNumbers_fluidInlet:
+                    if upnode not in self.coolingSystemsPresent.keys():
                         c_list.append(self.nodeNumbers.index(upnode))
                     covered_nodes.update({upnode: connectedNodes})
 
@@ -1932,7 +1922,7 @@ class MotorCADTwinModel:
         capacitanceMatrix = self.getCmfData(exportDirectory)
 
         R = []
-        for (nodeIndex1, nodeIndex2) in r_list:
+        for nodeIndex1, nodeIndex2 in r_list:
             resistance = resistanceMatrix[nodeIndex1][nodeIndex2]
             R.append(resistance)
 
