@@ -901,9 +901,6 @@ class Region(object):
             Radius to round the corner by.
         distance_limit : float
             Maximum distance that the adjacent entities can be shortened by.
-        adj_entity_lengths : list of float
-            List of lengths of the original region entities that are adjacent to the corner to
-            round.
         """
         # If radius is 0, do nothing
         if radius == 0:
@@ -1101,7 +1098,8 @@ class Region(object):
         radius : float
             Radius to round the corners by.
         maximise : bool
-            Whether to maximise the possible radius if the radius provided is too large.
+            Whether to maximise the possible radius of each corner if the radius provided is too
+            large.
         """
         # if the corner radius is too large, an exception will be raised
         if not maximise:
