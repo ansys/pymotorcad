@@ -439,6 +439,8 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        new_region._raw_region = json
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
