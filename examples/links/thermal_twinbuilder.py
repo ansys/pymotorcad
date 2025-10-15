@@ -345,9 +345,10 @@ class MotorCADTwinModel:
         self.nodeNames_original = []
         self.nodeNumbers = []
         self.nodeGroupings = []
-        self.nodeNumbers_fluid = []
-        self.nodeNumbers_fluidInlet = []
-        self.coolingSystemsPresent = dict()
+        self.nodeNumbers_fluidInlet = []  # only valid for old heat flow method
+        self.coolingSystemsPresent = dict()  # only valid for old heat flow method
+        self.fluidPaths = []  # only valid for new heat flow method
+
         self.customPowerInjections = []
 
         self.mcad = pymotorcad.MotorCAD()
@@ -451,7 +452,8 @@ class MotorCADTwinModel:
 
     def getCmfData(self, exportDirectory):
         cmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".cmf")
-        capacitanceMatrix = self.getExportedVector(cmfFile)
+        # exported capacitance vector does not contain ambient, so add on
+        capacitanceMatrix = [0.0] + self.getExportedVector(cmfFile)
         return capacitanceMatrix
 
     def getRmfData(self, exportDirectory):
@@ -1011,24 +1013,155 @@ class MotorCADTwinModel:
         temperatureVector = self.getTmfData(exportDirectory)
 
         coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
+        fluidNodeNumbers = []
 
         for index, nodeNumber in enumerate(self.nodeNumbers):
             if self.nodeGroupings[index] in coolingsystemGroupings:
-                self.nodeNumbers_fluid.append(nodeNumber)
+                fluidNodeNumbers.append(nodeNumber)
 
                 isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
                 isInlet_check2 = temperatureVector[index] > -10000000.0
 
                 if isInlet_check1 and isInlet_check2:
                     self.nodeNumbers_fluidInlet.append(nodeNumber)
-        
-        self.generateCoolingSystemNetwork()
 
+        if self.heatFlowMethod == 1:
+            self.generateCoolingSystemNetwork_Improved()
+
+        self.generateCoolingSystemNetwork_Original(fluidNodeNumbers)
+
+    def generateCoolingSystemNetwork_Improved(self):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        self.computeMatrices(
+            exportDirectory
+        )  # TODO ensure resistance matrix is using non-zero values as inputs
+        resistanceMatrix = self.getRmfData(exportDirectory)
+
+        resistances = set()
+        # get all the resistances
+        for i, resistanceRow in enumerate(resistanceMatrix):
+            for j, resistance in enumerate(resistanceRow):
+                if (i != j) and (resistance < 1000000000.0):
+                    resistances.add((self.nodeNumbers[i], self.nodeNumbers[j]))
+
+        # find fluid-fluid resistances by looking at one-directional resistances
+        fluidFluidResistances = set()
+        for i, j in resistances:
+            if (j, i) not in resistances:
+                fluidFluidResistances.add((i, j))
+
+        # add any isolated fluid nodes which aren't captured by above loop
+        coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
+        fluidNodes = [
+            self.nodeNumbers[i]
+            for i, group in enumerate(self.nodeGroupings)
+            if group in coolingsystemGroupings
+        ]
+
+        G = nx.DiGraph()
+        G.add_edges_from(fluidFluidResistances)
+        G.add_nodes_from(fluidNodes)
+
+        if len(G) > 0:
+            plt.figure()
+            nx.draw(G, with_labels=True)
+            plt.savefig(os.path.join(self.outputDirectory, "cooling.png"))
+
+            # Get all fluid subgraphs
+            subgraphs = [
+                G.subgraph(nodeSet).to_directed() for nodeSet in nx.weakly_connected_components(G)
+            ]
+
+            for graph in subgraphs:
+                # 1. All nodes in the subgraph
+                nodes = list(graph)
+
+                # 2. Inlet nodes in the subgraph (0, 1, or more)
+                inletNodes = [n for n, d in graph.in_degree if d == 0]
+
+                # 3. Cooling system associated with this subgraph
+                if len(inletNodes) > 0:
+                    # If there are inlet nodes, only use the inlet nodes to determine the cooling
+                    # system
+                    groupings = [self.nodeGroupings[self.nodeNumbers.index(i)] for i in inletNodes]
+                else:
+                    # No inlet nodes. Use all the fluid nodes to try to determine the cooling system
+                    groupings = [self.nodeGroupings[self.nodeNumbers.index(i)] for i in nodes]
+
+                if len(set(groupings)) == 1:
+                    # All groupings are the same, check if a cooling system
+                    found = False
+
+                    # Special case for grouped spray cooling - directly link node numbers to
+                    # cooling system
+                    groupedSprayToInletNode = [
+                        (Spray_Cooling_Radial_Housing_Front, 192),
+                        (Spray_Cooling_Radial_Housing_Rear, 193),
+                        (Spray_Cooling_Radial_Rotor_Front, 194),
+                        (Spray_Cooling_Radial_Rotor_Rear, 195),
+                        (Spray_Cooling_Axial_Endcap_Front, 196),
+                        (Spray_Cooling_Axial_Endcap_Rear, 197),
+                    ]
+                    if len(inletNodes) == 1:
+                        for coolingSystem, inletNode in groupedSprayToInletNode:
+                            if (groupings[0] == coolingSystem.groupName) and (
+                                inletNodes[0] == inletNode
+                            ):
+                                cooling = coolingSystem
+                                found = True
+                                break
+
+                    if not found:
+                        for coolingSystem in coolingSystemNames:
+                            if groupings[0] == coolingSystem.groupName:
+                                cooling = coolingSystem
+                                found = True
+                                break
+                else:
+                    # More than one node group, cannot determine a cooling system for this flow path
+                    cooling = None
+
+                # 4. All connected Rts
+                rtsFluidFluid = []
+                rtsFluidSolid = []
+                for i, j in resistances:
+                    if ((j, i) not in rtsFluidFluid) and ((j, i) not in rtsFluidSolid):
+                        if (i in nodes) and (j in nodes):
+                            rtsFluidFluid.append((i, j))
+                        elif (i in nodes) or (j in nodes):
+                            rtsFluidSolid.append((i, j))
+
+                fluidPath = self.FluidPath(
+                    graph, nodes, inletNodes, cooling, rtsFluidFluid, rtsFluidSolid
+                )
+                self.fluidPaths.append(fluidPath)
+
+        # write cooling systems config file
+        coolingFile = []
+        for fluidPath in self.fluidPaths:
+            for inletNode in fluidPath.inletNodes:
+                coolingFile.append(
+                    f"inlet : {inletNode} - "
+                    f"{self.nodeNames[self.nodeNumbers.index(inletNode)]}\n"
+                )
+
+            for i, j in fluidPath.rtsFluidFluid:
+                if (i not in fluidPath.inletNodes) and (j not in fluidPath.inletNodes):
+                    l = [
+                        self.nodeNames[self.nodeNumbers.index(i)],
+                        self.nodeNames[self.nodeNumbers.index(j)],
+                    ]
+                    coolingFile.append(f"{l}\n")
+
+        if coolingFile:
+            with open(os.path.join(self.outputDirectory, "CoolingSystems2.csv"), "w") as cs:
+                for line in coolingFile:
+                    cs.write(line)
 
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
-    def generateCoolingSystemNetwork(self):
-        if len(self.nodeNumbers_fluid) == 0:
+    def generateCoolingSystemNetwork_Original(self, fluidNodeNumbers):
+        if len(fluidNodeNumbers) == 0:
             logger.info("Initialization: No cooling systems found in Motor-CAD model")
         else:
             logger.info("Initialization: Cooling systems found in Motor-CAD model")
@@ -1040,12 +1173,12 @@ class MotorCADTwinModel:
             graphNodes = []
             graphEdges = []
 
-            for fluidNode in self.nodeNumbers_fluid:
+            for fluidNode in fluidNodeNumbers:
                 if fluidNode not in graphNodes:
                     graphNodes.append(fluidNode)
 
                 connectedFluidNodes = self.returnConnectedNodes(
-                    fluidNode, self.nodeNumbers_fluid, resistanceMatrix
+                    fluidNode, fluidNodeNumbers, resistanceMatrix
                 )
                 for connectedNode in connectedFluidNodes:
                     graphEdges.append([fluidNode, connectedNode])
@@ -1650,139 +1783,17 @@ class MotorCADTwinModel:
                         numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
                 # identify all the impacted resistances and capacitances
-                exportDirectory = os.path.join(self.outputDirectory, "tmp")
+                r_list, c_list = self.affectedRtsCaps(coolingSystem)
 
-                resistanceMatrix = self.getRmfData(exportDirectory)
-                r_list = []
-                c_list = []
-                # TODO update for new heatflow method
-                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout, open(
-                    os.path.join(exportPath, "r_nodes.txt"), "w"
-                ) as fRout:
-                    covered_nodes = dict()
-                    for inNode, conList in self.coolingSystemsPresent.items():
-                        groupedSprayToInletNode = [
-                            (Spray_Cooling_Radial_Housing_Front, 192),
-                            (Spray_Cooling_Radial_Housing_Rear, 193),
-                            (Spray_Cooling_Radial_Rotor_Front, 194),
-                            (Spray_Cooling_Radial_Rotor_Rear, 195),
-                            (Spray_Cooling_Axial_Endcap_Front, 196),
-                            (Spray_Cooling_Axial_Endcap_Rear, 197),
-                        ]
-                        groupedSpray = [x for x, _ in groupedSprayToInletNode]
-                        if coolingSystem in groupedSpray:
-                            # special case for grouped spray cooling - directly link node numbers to
-                            # cooling system
-                            if (coolingSystem, inNode) in groupedSprayToInletNode:
-                                found = True
-                            else:
-                                found = False
-                        elif (
-                            self.nodeGroupings[self.nodeNumbers.index(inNode)]
-                            == coolingSystem.groupName
-                        ):
-                            found = True
-                        else:
-                            found = False
-
-                        if found:
-                            upnode = inNode
-                            coolSys = conList
-                            break
-
-                    connectedNodes = self.returnConnectedNodes(
-                        upnode, self.nodeNumbers, resistanceMatrix
-                    )  # inlet node
-                    for i in range(0, len(connectedNodes)):
+                with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
+                    for (nodeIndex1, nodeIndex2) in r_list:
                         fRout.write(
-                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                            + " "
-                            + self.nodeNames[self.nodeNumbers.index(connectedNodes[i])]
-                            + "\n"
+                            self.nodeNames[nodeIndex1] + " " + self.nodeNames[nodeIndex2] + "\n"
                         )
-                        r_list.append(
-                            [
-                                self.nodeNames[self.nodeNumbers.index(upnode)],
-                                self.nodeNames[self.nodeNumbers.index(connectedNodes[i])],
-                            ]
-                        )
-                        if upnode not in self.nodeNumbers_fluidInlet:
-                            fCout.write(self.nodeNames[self.nodeNumbers.index(upnode)] + "\n")
-                            c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                    covered_nodes.update({upnode: connectedNodes})
 
-                    for item in coolSys:  # following downstream nodes of the cooling system
-                        for upnode in item:
-                            if upnode not in list(covered_nodes.keys()):
-                                connectedNodes = self.returnConnectedNodes(
-                                    upnode, self.nodeNumbers, resistanceMatrix
-                                )
-                                for i in range(0, len(connectedNodes)):
-                                    if not (
-                                        connectedNodes[i] in list(covered_nodes.keys())
-                                        and upnode in covered_nodes[connectedNodes[i]]
-                                    ):  # avoid taking the symmetric counterpart of the resistance
-                                        fRout.write(
-                                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                                            + " "
-                                            + self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ]
-                                            + "\n"
-                                        )
-                                        r_list.append(
-                                            [
-                                                self.nodeNames[self.nodeNumbers.index(upnode)],
-                                                self.nodeNames[
-                                                    self.nodeNumbers.index(connectedNodes[i])
-                                                ],
-                                            ]
-                                        )
-                                if upnode not in self.nodeNumbers_fluidInlet:
-                                    fCout.write(
-                                        self.nodeNames[self.nodeNumbers.index(upnode)] + "\n"
-                                    )
-                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                                covered_nodes.update({upnode: connectedNodes})
-
-                    if len(coolSys) == 0:
-                        # particular case where the cooling system has only 2 nodes (inlet/outlet)
-                        for upnode in connectedNodes:
-                            if (
-                                self.nodeGroupings[self.nodeNumbers.index(upnode)]
-                                == coolingSystem.groupName
-                            ):
-                                # make sure the connected node still belongs to cooling system
-                                connectedNodes = self.returnConnectedNodes(
-                                    upnode, self.nodeNumbers, resistanceMatrix
-                                )
-                                for i in range(0, len(connectedNodes)):
-                                    if not (
-                                        connectedNodes[i] in list(covered_nodes.keys())
-                                        and upnode in covered_nodes[connectedNodes[i]]
-                                    ):  # avoid taking the symmetric counterpart of the resistance
-                                        fRout.write(
-                                            self.nodeNames[self.nodeNumbers.index(upnode)]
-                                            + " "
-                                            + self.nodeNames[
-                                                self.nodeNumbers.index(connectedNodes[i])
-                                            ]
-                                            + "\n"
-                                        )
-                                        r_list.append(
-                                            [
-                                                self.nodeNames[self.nodeNumbers.index(upnode)],
-                                                self.nodeNames[
-                                                    self.nodeNumbers.index(connectedNodes[i])
-                                                ],
-                                            ]
-                                        )
-                                if upnode not in self.nodeNumbers_fluidInlet:
-                                    fCout.write(
-                                        self.nodeNames[self.nodeNumbers.index(upnode)] + "\n"
-                                    )
-                                    c_list.append([self.nodeNames[self.nodeNumbers.index(upnode)]])
-                                covered_nodes.update({upnode: connectedNodes})
+                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout:
+                    for nodeIndex in c_list:
+                        fCout.write(self.nodeNames[nodeIndex] + "\n")
 
                 # run the DoE
                 fileInd = 0
@@ -1814,6 +1825,97 @@ class MotorCADTwinModel:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
 
+    def affectedRtsCaps(self, coolingSystem):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+
+        resistanceMatrix = self.getRmfData(exportDirectory)
+        r_list = []
+        c_list = []
+
+        covered_nodes = dict()
+        for inNode, conList in self.coolingSystemsPresent.items():
+            groupedSprayToInletNode = [
+                (Spray_Cooling_Radial_Housing_Front, 192),
+                (Spray_Cooling_Radial_Housing_Rear, 193),
+                (Spray_Cooling_Radial_Rotor_Front, 194),
+                (Spray_Cooling_Radial_Rotor_Rear, 195),
+                (Spray_Cooling_Axial_Endcap_Front, 196),
+                (Spray_Cooling_Axial_Endcap_Rear, 197),
+            ]
+            groupedSpray = [x for x, _ in groupedSprayToInletNode]
+            if coolingSystem in groupedSpray:
+                # special case for grouped spray cooling - directly link node numbers to
+                # cooling system
+                if (coolingSystem, inNode) in groupedSprayToInletNode:
+                    found = True
+                else:
+                    found = False
+            elif self.nodeGroupings[self.nodeNumbers.index(inNode)] == coolingSystem.groupName:
+                found = True
+            else:
+                found = False
+
+            if found:
+                upnode = inNode
+                coolSys = conList
+                break
+
+        connectedNodes = self.returnConnectedNodes(upnode, self.nodeNumbers, resistanceMatrix)
+        # inlet node
+        for i in range(0, len(connectedNodes)):
+            r_list.append(
+                (self.nodeNumbers.index(upnode), self.nodeNumbers.index(connectedNodes[i]))
+            )
+            if upnode not in self.nodeNumbers_fluidInlet:
+                c_list.append(self.nodeNumbers.index(upnode))
+        covered_nodes.update({upnode: connectedNodes})
+
+        for item in coolSys:  # following downstream nodes of the cooling system
+            for upnode in item:
+                if upnode not in list(covered_nodes.keys()):
+                    connectedNodes = self.returnConnectedNodes(
+                        upnode, self.nodeNumbers, resistanceMatrix
+                    )
+                    for i in range(0, len(connectedNodes)):
+                        if not (
+                            connectedNodes[i] in list(covered_nodes.keys())
+                            and upnode in covered_nodes[connectedNodes[i]]
+                        ):  # avoid taking the symmetric counterpart of the resistance
+                            r_list.append(
+                                (
+                                    self.nodeNumbers.index(upnode),
+                                    self.nodeNumbers.index(connectedNodes[i]),
+                                )
+                            )
+                    if upnode not in self.nodeNumbers_fluidInlet:
+                        c_list.append(self.nodeNumbers.index(upnode))
+                    covered_nodes.update({upnode: connectedNodes})
+
+        if len(coolSys) == 0:
+            # particular case where the cooling system has only 2 nodes (inlet/outlet)
+            for upnode in connectedNodes:
+                if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
+                    # make sure the connected node still belongs to cooling system
+                    connectedNodes = self.returnConnectedNodes(
+                        upnode, self.nodeNumbers, resistanceMatrix
+                    )
+                    for i in range(0, len(connectedNodes)):
+                        if not (
+                            connectedNodes[i] in list(covered_nodes.keys())
+                            and upnode in covered_nodes[connectedNodes[i]]
+                        ):  # avoid taking the symmetric counterpart of the resistance
+                            r_list.append(
+                                (
+                                    self.nodeNumbers.index(upnode),
+                                    self.nodeNumbers.index(connectedNodes[i]),
+                                )
+                            )
+                    if upnode not in self.nodeNumbers_fluidInlet:
+                        c_list.append(self.nodeNumbers.index(upnode))
+                    covered_nodes.update({upnode: connectedNodes})
+
+        return r_list, c_list
+
     def computeMatricesCoolingSystems(
         self, paramList: List[AutomationParam], paramValues, r_list, c_list, fileInd
     ):
@@ -1830,17 +1932,13 @@ class MotorCADTwinModel:
         capacitanceMatrix = self.getCmfData(exportDirectory)
 
         R = []
-        for r in r_list:
-            index1 = self.nodeNames.index(r[0])
-            index2 = self.nodeNames.index(r[1])
-            resistance = resistanceMatrix[index1][index2]
+        for (nodeIndex1, nodeIndex2) in r_list:
+            resistance = resistanceMatrix[nodeIndex1][nodeIndex2]
             R.append(resistance)
 
         C = []
-        for c in c_list:
-            # -1 since capacitance matrix does not have ambient node
-            index = self.nodeNames.index(c[0]) - 1
-            capacitance = capacitanceMatrix[index]
+        for nodeIndex in c_list:
+            capacitance = capacitanceMatrix[nodeIndex]
             C.append(capacitance)
 
         return [R, C]
