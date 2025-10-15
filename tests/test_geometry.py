@@ -2054,7 +2054,7 @@ def test_round_corners_4_extra_points():
     assert triangle_2.entities[4].end == triangle_1.entities[2].midpoint
     assert triangle_2.entities[5].start == triangle_1.entities[2].midpoint
 
-    
+
 def test_extend_entity_region_method():
     # Draw a square and extend its vertical lines to form a rectangle
     square_1 = square(4, 0, 0)
