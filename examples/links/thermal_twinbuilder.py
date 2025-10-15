@@ -998,44 +998,21 @@ class MotorCADTwinModel:
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
-        self.computeMatrices(exportDirectory)
+        self.computeMatrices(exportDirectory)  # TODO ensure non-zero input values are used here
 
-        (
-            self.nodeNumbers,
-            self.nodeNames_original,
-            self.nodeNames,
-            self.nodeGroupings,
-        ) = self.getNmfData(exportDirectory)
+        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = (
+            self.getNmfData(exportDirectory)
+        )
 
-        # determine which nodes are fluid nodes, and which of those are inlet nodes
+        resistanceMatrix = self.getRmfData(exportDirectory)
         temperatureVector = self.getTmfData(exportDirectory)
 
-        coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
-        fluidNodeNumbers = []
-        fluidInletNodeNumbers = []
-
-        for index, nodeNumber in enumerate(self.nodeNumbers):
-            if self.nodeGroupings[index] in coolingsystemGroupings:
-                fluidNodeNumbers.append(nodeNumber)
-
-                isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
-                isInlet_check2 = temperatureVector[index] > -10000000.0
-
-                if isInlet_check1 and isInlet_check2:
-                    fluidInletNodeNumbers.append(nodeNumber)
-
         if self.heatFlowMethod == 1:
-            self.generateCoolingSystemNetwork_Improved()
+            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
+        else:
+            self.generateCoolingSystemNetwork_Original(resistanceMatrix, temperatureVector)
 
-        self.generateCoolingSystemNetwork_Original(fluidNodeNumbers, fluidInletNodeNumbers)
-
-    def generateCoolingSystemNetwork_Improved(self):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
-        self.computeMatrices(
-            exportDirectory
-        )  # TODO ensure resistance matrix is using non-zero values as inputs
-        resistanceMatrix = self.getRmfData(exportDirectory)
-
+    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
         resistances = set()
         # get all the resistances
         for i, resistanceRow in enumerate(resistanceMatrix):
@@ -1159,16 +1136,26 @@ class MotorCADTwinModel:
 
     # Function that determines the nodes used for the cooling system and their connections. The
     # resulting data is required by Twin Builder to correctly model the fluid flow
-    def generateCoolingSystemNetwork_Original(self, fluidNodeNumbers, fluidInletNodeNumbers):
+    def generateCoolingSystemNetwork_Original(self, resistanceMatrix, temperatureVector):
+        # determine which nodes are fluid nodes, and which of those are inlet nodes
+        coolingsystemGroupings = [cs.groupName for cs in coolingSystemNames]
+        fluidNodeNumbers = []
+        fluidInletNodeNumbers = []
+
+        for index, nodeNumber in enumerate(self.nodeNumbers):
+            if self.nodeGroupings[index] in coolingsystemGroupings:
+                fluidNodeNumbers.append(nodeNumber)
+
+                isInlet_check1 = "inlet".lower() in self.nodeNames[index].lower()
+                isInlet_check2 = temperatureVector[index] > -10000000.0
+
+                if isInlet_check1 and isInlet_check2:
+                    fluidInletNodeNumbers.append(nodeNumber)
+
         if len(fluidNodeNumbers) == 0:
             logger.info("Initialization: No cooling systems found in Motor-CAD model")
         else:
             logger.info("Initialization: Cooling systems found in Motor-CAD model")
-
-            exportDirectory = os.path.join(self.outputDirectory, "tmp")
-            self.computeMatrices(exportDirectory)
-            resistanceMatrix = self.getRmfData(exportDirectory)
-
             graphEdges = []
 
             for fluidNode in fluidNodeNumbers:
