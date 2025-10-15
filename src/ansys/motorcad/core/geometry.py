@@ -150,6 +150,8 @@ class Region(object):
         self._singular = False
         self._lamination_type = ""
 
+        self._raw_region = dict()
+
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
         return (
@@ -164,6 +166,43 @@ class Region(object):
             and self._duplications == other._duplications
             and self._entities == other._entities
         )
+
+    def __copy__(self):
+        """Override default copy behaviour."""
+        copied_object = type(self)()
+        copied_object.__dict__.update(self.__dict__)
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        return copied_object
+
+    def __deepcopy__(self, memo):
+        """Override default deepcopy behaviour."""
+
+        def override_close_motorcad_on_exit():
+            return False
+
+        copied_object = type(self)()
+
+        memo[id(self)] = copied_object
+        for k, v in self.__dict__.items():
+            setattr(copied_object, k, deepcopy(v, memo))  # Copy over attributes
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        # Motor-CAD instance should not be duplicated.
+        # Don't want this getting closed if this region goes out of scope.
+        if copied_object._motorcad_instance is not None:
+            copied_object._motorcad_instance.connection._close_motorcad_on_exit = (
+                override_close_motorcad_on_exit
+            )
+            copied_object._motorcad_instance = self._motorcad_instance
+
+        return copied_object
 
     @classmethod
     def from_coordinate_list(cls):
@@ -261,6 +300,86 @@ class Region(object):
         # Set the region object entities to be the list of replacement region entities
         self._entities = deepcopy(replacement_region.entities)
 
+    def extend_entity(
+        self, entity_index, distance=None, fraction=None, factor=None, extend_from_end=True
+    ):
+        """Extend an Entity of a Region by a given distance.
+
+        The Entity will be extended by keeping
+        the start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead. Tip: to extend from both ends, you can use the method twice.
+
+        Parameters
+        ----------
+        entity_index : int
+            Index of the Region Entity that is to be extended.
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.entities[entity_index].end
+            else:
+                point = self.entities[entity_index].start
+        else:
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or " f"False)."
+            )
+
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            self.extend_entity(entity_index, distance=distance, extend_from_end=extend_from_end)
+            return
+
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            self.extend_entity(entity_index, fraction=fraction, extend_from_end=extend_from_end)
+            return
+
+        elif distance:
+            if distance <= -self.entities[entity_index].length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, distance=-distance
+            )
+        elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=-fraction
+            )
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=1 - factor
+            )
+        else:
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
+
+        if extend_from_end:
+            self.edit_point(self.entities[entity_index].end, new_point)
+        else:
+            self.edit_point(self.entities[entity_index].start, new_point)
+
     # method to receive region from Motor-CAD and create python object
     @classmethod
     def _from_json(cls, json, motorcad_instance=None):
@@ -331,10 +450,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        try:
-            self._raw_region
-        except AttributeError:
-            self._raw_region = dict()
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
@@ -1483,6 +1598,73 @@ class Entity(object):
                 return None
         else:
             return None
+
+    def extend(self, distance=None, fraction=None, factor=None, extend_from_end=True):
+        """Extend an Entity object by a given distance.
+
+        The Entity will be extended by keeping the
+        start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead. Tip: To extend from both ends, you can use the method twice.
+
+        Parameters
+        ----------
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.end
+            else:
+                point = self.start
+        else:
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or False)."
+            )
+
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            self.extend(distance=distance, extend_from_end=extend_from_end)
+            return
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            self.extend(fraction=fraction, extend_from_end=extend_from_end)
+            return
+        elif distance:
+            if distance <= -self.length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.get_coordinate_from_distance(point, distance=-distance)
+        elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            new_point = self.get_coordinate_from_distance(point, fraction=1 - factor)
+        else:
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
+        if extend_from_end:
+            self.end = new_point
+        else:
+            self.start = new_point
 
 
 class Line(Entity):
