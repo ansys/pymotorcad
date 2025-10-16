@@ -1326,7 +1326,7 @@ class MotorCADTwinModel:
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
         # TODO handle fixed temperature controlled coupled cooling systems
 
-    def generateInitialTemperatures(self):  # TODO add fluid temperatures
+    def generateInitialTemperatures(self):
         initialisations = []
         initialisedNodes = []
         armatureA = self.nodesFromGroup("Armature Winding (Active)")
@@ -1363,6 +1363,21 @@ class MotorCADTwinModel:
         else:  # IM/IM1PH
             initialisations.append(("T_Initial_Rotor_Cage", fieldA + fieldF + fieldR))
         initialisedNodes.extend(fieldA + fieldF + fieldR)
+
+        # When using improved heat flow method, include the fluid nodes
+        if self.heatFlowMethod == 1:
+            csNodes: Dict[CoolingSystem, List[int]] = dict()
+            for fluidpath in self.fluidPaths:
+                if fluidpath.coolingSystem is not None:
+                    # add the fluid nodes to the dictionary
+                    csNodes[fluidpath.coolingSystem] = (
+                        csNodes.get(fluidpath.coolingSystem, []) + fluidpath.fluidNodes
+                    )
+
+            for cs, nodes in csNodes.items():
+                if len(nodes) > 0:
+                    fluidNodenames = [self.nodeNames[self.nodeNumbers.index(n)] for n in nodes]
+                    initialisations.append(("T_Initial_" + cs.name, fluidNodenames))
 
         remainingNodes = [x for x in self.nodeNames if x not in initialisedNodes]
         initialisations.append(("T_Initial_Other", remainingNodes))
@@ -1420,17 +1435,19 @@ class MotorCADTwinModel:
 
         # When using improved heat flow method, include the fluid outlet temperatures
         if self.heatFlowMethod == 1:
-            outlets: Dict[CoolingSystem, List[int]] = dict()
+            csOutlets: Dict[CoolingSystem, List[int]] = dict()
             for fluidpath in self.fluidPaths:
                 if fluidpath.coolingSystem is not None:
                     # add the outlet node to the dictionary
-                    outlets[fluidpath.coolingSystem] = (
-                        outlets.get(fluidpath.coolingSystem, []) + fluidpath.outletNodes
+                    csOutlets[fluidpath.coolingSystem] = (
+                        csOutlets.get(fluidpath.coolingSystem, []) + fluidpath.outletNodes
                     )
 
-            for cs, outletNodes in outlets.items():
+            for cs, outletNodes in csOutlets.items():
                 if len(outletNodes) > 0:
-                    outletNodeNames = [self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes]
+                    outletNodeNames = [
+                        self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
+                    ]
                     outputs.append(("avg_fluid", "T_" + cs.name + "_Outlet", outletNodeNames))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
