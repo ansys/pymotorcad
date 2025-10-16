@@ -1016,9 +1016,12 @@ class MotorCADTwinModel:
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)  # TODO ensure non-zero input values are used here
 
-        self.nodeNumbers, self.nodeNames_original, self.nodeNames, self.nodeGroupings = (
-            self.getNmfData(exportDirectory)
-        )
+        (
+            self.nodeNumbers,
+            self.nodeNames_original,
+            self.nodeNames,
+            self.nodeGroupings,
+        ) = self.getNmfData(exportDirectory)
 
         resistanceMatrix = self.getRmfData(exportDirectory)
         temperatureVector = self.getTmfData(exportDirectory)
