@@ -1130,7 +1130,7 @@ class MotorCADTwinModel:
                     coolingFile.append(f"{l}\n")
 
         if coolingFile:
-            with open(os.path.join(self.outputDirectory, "CoolingSystems2.csv"), "w") as cs:
+            with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
                 for line in coolingFile:
                     cs.write(line)
 
@@ -1761,9 +1761,9 @@ class MotorCADTwinModel:
 
                 # identify all the impacted resistances and capacitances
                 if self.heatFlowMethod == 1:
-                    r_list, c_list = self.affectedRtsCaps_Improved(coolingSystem)
+                    r_list, c_list = self.coolingSystemRCs_Improved(coolingSystem)
                 else:
-                    r_list, c_list = self.affectedRtsCaps_Original(coolingSystem)
+                    r_list, c_list = self.coolingSystemRCs_Original(coolingSystem)
 
                 with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
                     for node1, node2 in r_list:
@@ -1808,7 +1808,7 @@ class MotorCADTwinModel:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
 
-    def affectedRtsCaps_Improved(self, coolingSystem):
+    def coolingSystemRCs_Improved(self, coolingSystem):
         r_list = []
         c_list = []
 
@@ -1820,9 +1820,9 @@ class MotorCADTwinModel:
                 nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
                 c_list.extend(nodes)
 
-        return r_list, c_list  # TODO test incl. new spray
+        return r_list, c_list
 
-    def affectedRtsCaps_Original(self, coolingSystem):
+    def coolingSystemRCs_Original(self, coolingSystem):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         resistanceMatrix = self.getRmfData(exportDirectory)
