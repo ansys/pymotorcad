@@ -38,7 +38,6 @@ from ansys.motorcad.core.methods.rpc_methods_testing import _RpcMethodsTesting
 from ansys.motorcad.core.methods.rpc_methods_thermal import _RpcMethodsThermal
 from ansys.motorcad.core.methods.rpc_methods_ui import _RpcMethodsUI
 from ansys.motorcad.core.methods.rpc_methods_variables import _RpcMethodsVariables
-from ansys.motorcad.core.methods.maxwell_udm_geometry import _RpcMethodsMaxwellUDM
 
 
 class _RpcMethodsCore(
@@ -54,7 +53,6 @@ class _RpcMethodsCore(
     _RpcMethodsFEAGeometry,
     _RpcMethodsMaterials,
     _RpcMethodsAdaptiveGeometry,
-    _RpcMethodsMaxwellUDM,
     _RpcMethodsTesting,
 ):
     def __init__(self, mc_connection):
@@ -72,5 +70,4 @@ class _RpcMethodsCore(
         _RpcMethodsFEAGeometry.__init__(self, self.connection)
         _RpcMethodsMaterials.__init__(self, self.connection)
         _RpcMethodsAdaptiveGeometry.__init__(self, self.connection)
-        _RpcMethodsMaxwellUDM.__init__(self, self.connection)
         _RpcMethodsTesting.__init__(self, self.connection)
