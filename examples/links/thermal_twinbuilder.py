@@ -1443,7 +1443,7 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    outputs.append(("avg_fluid", "T_" + cs.name + "_Outlet", outletNodeNames))
+                    outputs.append(("avg_fluid", "T_Outlet_" + cs.name, outletNodeNames))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
