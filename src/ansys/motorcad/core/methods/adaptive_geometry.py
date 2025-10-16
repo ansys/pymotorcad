@@ -322,3 +322,9 @@ class _RpcMethodsAdaptiveGeometry:
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
+
+    def get_geometry_tree_maxwell_udm(self):
+        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor."""
+        method = "GetGeometryTree_Maxwell_UDM"
+        json = self.connection.send_and_receive(method)
+        return GeometryTree._from_json(json, self)
