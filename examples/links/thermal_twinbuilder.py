@@ -310,9 +310,10 @@ class MotorCADTwinModel:
     # parameter
     @dataclass
     class FluidPath:
-        graph: nx.Graph
+        graph: nx.DiGraph
         fluidNodes: list
         inletNodes: list
+        outletNodes: list
         coolingSystem: CoolingSystem | None
         rtsFluidFluid: list
         rtsFluidSolid: list
@@ -927,10 +928,25 @@ class MotorCADTwinModel:
         # detect heat flow method used (new option in 2024R2)
         try:
             self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
+            if self.heatFlowMethod == 0:
+                logger.warning(
+                    "The Motor-CAD model is using the Original Fluid Heat Flow Method. It is "
+                    "recommended to use the Improved calculation method, which will also provide "
+                    "additional features for the Twin Builder Thermal ROM. To update the "
+                    "calculation method, in Motor-CAD, go to Defaults > Default Settings and "
+                    "change the Fluid Heat Flow Method to Improved. This may affect calculation "
+                    "results."
+                )
         except:
             # variable does not exist due to using older version of Motor-CAD
             # set parameter to 0 which signifies use of the old method
             self.heatFlowMethod = 0
+            logger.warning(
+                "The Motor-CAD version in use does not support the Improved Fluid Heat Flow "
+                "Method. We recommend upgrading to the latest version of Motor-CAD to make use of "
+                "this setting, which will also enable additional features for the Twin Builder "
+                "Thermal ROM."
+            )
 
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
@@ -1052,8 +1068,9 @@ class MotorCADTwinModel:
                 # 1. All nodes in the subgraph
                 nodes = list(graph)
 
-                # 2. Inlet nodes in the subgraph (0, 1, or more)
+                # 2. Inlet and outlet nodes in the subgraph (0, 1, or more)
                 inletNodes = [n for n, d in graph.in_degree if d == 0]
+                outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
 
                 # 3. Cooling system associated with this subgraph
                 if len(inletNodes) > 0:
@@ -1108,7 +1125,7 @@ class MotorCADTwinModel:
                             rtsFluidSolid.append((i, j))
 
                 fluidPath = self.FluidPath(
-                    graph, nodes, inletNodes, cooling, rtsFluidFluid, rtsFluidSolid
+                    graph, nodes, inletNodes, outletNodes, cooling, rtsFluidFluid, rtsFluidSolid
                 )
                 self.fluidPaths.append(fluidPath)
 
@@ -1245,6 +1262,7 @@ class MotorCADTwinModel:
         return connectedNodesList
 
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
+    # TODO improve logic for improved fluid heat flow method
     def generateFixedTemperatures(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
@@ -1354,7 +1372,7 @@ class MotorCADTwinModel:
                 if len(nodeNames) > 0:
                     f.write(f"{name},{nodeNames}\n")
 
-    def generateOutputTemperatures(self):  # TODO add fluid outlet temperatures
+    def generateOutputTemperatures(self):
         outputs = []
         # Only alphanumeric and underscores allowed as the string name in Twin Builder
         armatureA = self.nodesFromGroup("Armature Winding (Active)")
@@ -1399,6 +1417,21 @@ class MotorCADTwinModel:
             outputs.append(("max", "Rotor_Endring_Front_Maximum", fieldF))
             outputs.append(("avg_cap", "Rotor_Endring_Rear_Average", fieldR))
             outputs.append(("max", "Rotor_Endring_Rear_Maximum", fieldR))
+
+        # When using improved heat flow method, include the fluid outlet temperatures
+        if self.heatFlowMethod == 1:
+            outlets: Dict[CoolingSystem, List[int]] = dict()
+            for fluidpath in self.fluidPaths:
+                if fluidpath.coolingSystem is not None:
+                    # add the outlet node to the dictionary
+                    outlets[fluidpath.coolingSystem] = (
+                        outlets.get(fluidpath.coolingSystem, []) + fluidpath.outletNodes
+                    )
+
+            for cs, outletNodes in outlets.items():
+                if len(outletNodes) > 0:
+                    outletNodeNames = [self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes]
+                    outputs.append(("avg_fluid", cs.name + "_Outlet", outletNodeNames))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
