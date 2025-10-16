@@ -26,7 +26,7 @@ from copy import copy, deepcopy
 import pytest
 
 from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
-from ansys.motorcad.core.methods.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
 
 
 @pytest.fixture(scope="session")

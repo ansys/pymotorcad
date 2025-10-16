@@ -21,14 +21,14 @@
 # SOFTWARE.
 
 import builtins
-from copy import deepcopy
+from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path, reset_to_default_file
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
@@ -1290,16 +1290,15 @@ def test_check_collisions_3(mc):
     assert collisions[0] == triangle
 
 
-def test_delete_region(mc):
-    stator = mc.get_region("Stator")
+def test_delete_region(mc_reset_to_default_on_teardown):
+    stator = mc_reset_to_default_on_teardown.get_region("Stator")
 
-    mc.delete_region(stator)
+    mc_reset_to_default_on_teardown.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region("Stator")
+        mc_reset_to_default_on_teardown.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
-    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -1640,16 +1639,16 @@ def test_round_corners():
             assert not entity.coordinate_on_entity(corners[i])
 
     # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
-        triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
-        triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corner(triangle_1.entities[0].midpoint, corner_radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
-        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+    with pytest.raises(ValueError):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * corner_radius)
 
 
 def test_round_corner_2():
@@ -1915,6 +1914,307 @@ def test_do_not_round_corner():
     assert triangle_3.entities[2].end == triangle_2.entities[2].midpoint
     assert triangle_3.entities[3].start == triangle_2.entities[2].midpoint
     assert triangle_3.entities[3].end == triangle_2.entities[2].end
+
+
+def test_extend_entity_region_method():
+    # Draw a square and extend its vertical lines to form a rectangle
+    square_1 = square(4, 0, 0)
+
+    # extend the lines using the fraction option
+    rectangle_1 = deepcopy(square_1)
+    rectangle_1.extend_entity(0, fraction=1, extend_from_end=False)
+    rectangle_1.extend_entity(2, fraction=1)
+
+    # check that the vertical lines have been doubled in length and the horizontal lines remain the
+    # same lengths
+    assert rectangle_1.is_closed()
+    assert rectangle_1.entities[0].length == square_1.entities[0].length * 2
+    assert rectangle_1.entities[2].length == square_1.entities[2].length * 2
+    assert rectangle_1.entities[1].length == square_1.entities[1].length
+    assert rectangle_1.entities[3].length == square_1.entities[3].length
+
+    # Extend all 4 lines using the absolute distance option. Extend both ends of each line to form
+    # a square with width larger than square_1 by the extension value and centred on the same point.
+    square_2 = deepcopy(square_1)
+    extension = 2.2
+    square_2.extend_entity(0, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(2, distance=extension / 2)
+    square_2.extend_entity(0, distance=extension / 2)
+    square_2.extend_entity(2, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(1, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(3, distance=extension / 2)
+    square_2.extend_entity(1, distance=extension / 2)
+    square_2.extend_entity(3, distance=extension / 2, extend_from_end=False)
+
+    # check that all lines have been increased in length by the extension value
+    assert square_2.is_closed()
+    assert isclose(
+        square_2.entities[0].length, square_1.entities[0].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[2].length, square_1.entities[2].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[1].length, square_1.entities[1].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[3].length, square_1.entities[3].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+
+    # check the factor definition with a <1 factor that shortens two lines to form a parallelogram:
+    parallelogram_1 = deepcopy(square_1)
+    extension_factor = 0.8
+
+    parallelogram_1.extend_entity(1, factor=extension_factor)
+    parallelogram_1.extend_entity(3, factor=extension_factor)
+    # check that the parallelogram is closed
+    assert parallelogram_1.is_closed()
+    # check that the unchanged points are unchanged
+    assert parallelogram_1.entities[0].end == square_1.entities[0].end
+    assert parallelogram_1.entities[2].end == square_1.entities[2].end
+    # check that the horizontal lines are still horizontal
+    assert isclose(
+        parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE
+    )
+    # check that the horizontal lines have been shortened by the correct amount
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        square_1.entities[1].length * extension_factor,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        parallelogram_1.entities[3].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal (previously vertical) lines are still equal lengths
+    assert isclose(
+        parallelogram_1.entities[0].length,
+        parallelogram_1.entities[2].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal lines are still parallel
+    assert isclose(
+        parallelogram_1.entities[0].angle,
+        parallelogram_1.entities[2].angle - 180,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # check that negative factor gives same result
+    parallelogram_2 = deepcopy(square_1)
+    extension_factor = -0.8
+
+    parallelogram_2.extend_entity(1, factor=extension_factor)
+    parallelogram_2.extend_entity(3, factor=extension_factor)
+
+    # check that the parallelogram is closed and that the lines are the same as for the positive
+    # factor
+    assert parallelogram_2.is_closed()
+    for i in range(len(parallelogram_2.entities)):
+        assert parallelogram_2.entities[i] == parallelogram_1.entities[i]
+
+    # check that the correct warnings appear when multiple arguments are provided
+    parallelogram_3 = deepcopy(square_1)
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+
+    # test that ValueError is raised when no optional argument is given
+    with pytest.raises(ValueError) as e_info:
+        parallelogram_3.extend_entity(0)
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, distance=extension_distance, fraction=extension_fractional_distance
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        square_1.entities[0].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(2, distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[2].length,
+        square_1.entities[2].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, fraction=extension_fractional_distance, factor=extension_factor
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        (square_1.entities[0].length + extension_distance) * (1 + extension_fractional_distance),
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    square_3 = deepcopy(square_1)  # square of width = 4 mm
+    extension = -5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        square_3.extend_entity(0, distance=1, extend_from_end="no")
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
+
+
+def test_extend_entity_method():
+    # test extending a line using the distance definition
+    line_1 = Line(Coordinate(0, 0), Coordinate(5, 0))
+    line_2 = deepcopy(line_1)
+
+    extension = 2
+    line_2.extend(distance=extension)
+
+    # check that the line has been extended by the correct amount and the end has been moved to the
+    # expected coordinate
+    assert isclose(line_2.length, line_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    assert line_2.end == Coordinate(line_1.end.x + extension, line_1.end.y)
+    # check that the start of the line is unchanged
+    assert line_2.start == line_1.start
+
+    # test extending a line using the fraction definition
+    line_3 = deepcopy(line_1)
+    extension_fractional_distance = 0.5
+    line_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
+
+    # check that the line has been extended by the correct amount and that the start point has been
+    # moved as expected
+    assert isclose(
+        line_3.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+    assert line_3.start == Coordinate(
+        line_1.start.x - line_1.length * extension_fractional_distance, line_1.start.y
+    )
+    # check that the end point is unchanged
+    assert line_3.end == line_1.end
+
+    # test extending an arc with the distance definition
+    arc_1 = Arc(Coordinate(-4, 0), Coordinate(4, 0), radius=-8)
+    arc_2 = deepcopy(arc_1)
+    extension = 0.75
+
+    arc_2.extend(distance=extension)
+    # check that the arc has been extended by the correct amount
+    assert isclose(arc_2.length, arc_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
+    assert arc_2.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_2.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_2.centre == arc_1.centre
+
+    # test extending an arc with the fraction definition
+    arc_3 = deepcopy(arc_1)
+    extension_fractional_distance = 2
+    arc_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(
+        arc_3.length, arc_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+    # check that the end point is unchanged
+    assert arc_3.end == arc_1.end
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_3.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_3.centre == arc_1.centre
+
+    # test extending an arc with the factor definition
+    arc_4 = deepcopy(arc_1)
+    extension_factor = 1.5
+    arc_4.extend(factor=extension_factor)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(arc_4.length, arc_1.length * extension_factor, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
+    assert arc_4.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_4.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_4.centre == arc_1.centre
+
+    # test that extending an arc with a negative factor gives the same result
+    arc_5 = deepcopy(arc_1)
+    extension_factor = -1.5
+    arc_5.extend(factor=extension_factor)
+    assert arc_5 == arc_4
+
+    # test that ValueError is raised when no optional argument is given
+    line_4 = deepcopy(line_1)
+    with pytest.raises(ValueError) as e_info:
+        line_4.extend()
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
+    # check that the correct warnings appear when multiple arguments are provided
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, fraction=extension_fractional_distance)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + 2 * extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    line_5 = deepcopy(line_1)
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        line_5.extend(fraction=extension_fractional_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        line_5.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    arc_5 = deepcopy(arc_1)  # arc length 8.4 mm
+    extension = -9
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        arc_5.extend(distance=1, extend_from_end=None)
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
 
 
 def test_limit_arc_chord():
@@ -2807,16 +3107,16 @@ def test_region_material_assignment(mc):
     assert rotor == mc.get_region("Rotor")
 
 
-def test_set_lamination_type(mc):
-    rotor = mc.get_region("Rotor")
+def test_set_lamination_type(mc_reset_to_default_on_teardown):
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Laminated"
 
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
@@ -2836,21 +3136,19 @@ def test_set_lamination_type(mc):
     )
 
     # load file into Motor-CAD
-    mc.load_from_file(solid_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(solid_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(solid_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(solid_rotor_section_result, 1)
     # Check eddy current to make sure rotor is solid
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res != 0
 
-    mc.load_from_file(lam_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(lam_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(lam_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(lam_rotor_section_result, 1)
     # Check eddy current to make sure rotor is laminated
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res == 0
-
-    reset_to_default_file(mc)
 
 
 def test_region_creation_warnings(mc):
@@ -2858,3 +3156,16 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
+
+
+def test_copying(mc):
+    stator = mc.get_region("stator")
+
+    copy_region = copy(stator)
+
+    assert copy_region == stator
+    assert copy_region._raw_region == dict()
+    deepcopy_region = deepcopy(stator)
+
+    assert deepcopy_region == stator
+    assert deepcopy_region._raw_region == dict()
