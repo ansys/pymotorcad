@@ -26,7 +26,7 @@ from copy import copy, deepcopy
 import pytest
 
 from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
-from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree, TreeRegion
 
 
 @pytest.fixture(scope="session")
@@ -45,7 +45,7 @@ def basic_tree():
     line2 = Line(p2, p3)
     line3 = Line(p3, p1)
     triangle = Region(region_type=RegionType.airgap)
-    triangle.__class__ = GeometryNode
+    triangle.__class__ = TreeRegion
     triangle.entities.append(line1)
     triangle.entities.append(line2)
     triangle.entities.append(line3)
@@ -74,7 +74,7 @@ def split_tree():
     line2 = Line(p2, p3)
     line3 = Line(p3, p1)
     triangle1 = Region(region_type=RegionType.airgap)
-    triangle1.__class__ = GeometryNode
+    triangle1.__class__ = TreeRegion
     triangle1.entities.append(line1)
     triangle1.entities.append(line2)
     triangle1.entities.append(line3)
@@ -88,7 +88,7 @@ def split_tree():
     line2 = Line(p3, p4)
     line3 = Line(p4, p1)
     triangle2 = Region(region_type=RegionType.airgap)
-    triangle2.__class__ = GeometryNode
+    triangle2.__class__ = TreeRegion
     triangle2.entities.append(line1)
     triangle2.entities.append(line2)
     triangle2.entities.append(line3)
@@ -133,7 +133,7 @@ def test_get_node(sample_tree):
     with pytest.raises(TypeError) as e_info:
         sample_tree.get_region(5)
 
-    assert "key must be a string or GeometryNode" in str(e_info.value)
+    assert "key must be a string or TreeRegion" in str(e_info.value)
 
 
 def test_get_region_type(sample_tree):
@@ -152,7 +152,7 @@ def test_tostring(sample_tree):
 
 def test_add_node(basic_tree):
     # Tests the basic functionality of adding a region
-    new_node = GeometryNode()
+    new_node = TreeRegion()
     new_node.parent = basic_tree["root"]
     new_node.name = "region"
     new_node.key = "region"
@@ -160,7 +160,7 @@ def test_add_node(basic_tree):
     basic_tree["region"] = new_node
 
     function_tree = deepcopy(basic_tree)
-    new_node2 = GeometryNode()
+    new_node2 = TreeRegion()
     new_node2.name = "region"
     function_tree.add_region(new_node2, parent=function_tree["root"])
 
@@ -180,7 +180,7 @@ def test_get_subtree(basic_tree):
 def test_add_node_with_children(basic_tree):
     # Tests the parent and child reassignment performed when including those values
     test_tree = deepcopy(basic_tree)
-    new_node = GeometryNode()
+    new_node = TreeRegion()
     new_node.parent = test_tree["root"]
     new_node.children.append(test_tree["Triangle"])
     new_node.name = "region"
@@ -201,7 +201,7 @@ def test_add_node_with_children(basic_tree):
 def test_add_node_with_children_2(basic_tree):
     # Same test as above, but testing different mode of function input
     test_tree = deepcopy(basic_tree)
-    new_node = GeometryNode()
+    new_node = TreeRegion()
     new_node.parent = test_tree["root"]
     new_node.children.append(test_tree["Triangle"])
     new_node.name = "region"
@@ -225,10 +225,10 @@ def test_add_node_errors(basic_tree):
     new_node2 = Region()
     new_node2.name = "region"
 
-    with pytest.raises(TypeError, match="Parent must be a GeometryNode or str"):
+    with pytest.raises(TypeError, match="Parent must be a TreeRegion or str"):
         basic_tree.add_region(new_node2, parent=0)
 
-    with pytest.raises(TypeError, match="Children must be a GeometryNode or str"):
+    with pytest.raises(TypeError, match="Children must be a TreeRegion or str"):
         basic_tree.add_region(new_node2, children=[0, "root"])
 
 
@@ -237,7 +237,7 @@ def test_remove_node(basic_tree):
     test_tree = deepcopy(basic_tree)
 
     function_tree = deepcopy(basic_tree)
-    new_node2 = GeometryNode()
+    new_node2 = TreeRegion()
     new_node2.name = "region"
     function_tree.add_region(new_node2, children=["Triangle"])
     function_tree.remove_region(new_node2)
@@ -255,12 +255,12 @@ def test_equality_1(basic_tree):
 def test_equality_2(basic_tree):
     # Test trees with the same nodes that only differ in structure are detected
     test_tree1 = deepcopy(basic_tree)
-    new_node1 = GeometryNode()
+    new_node1 = TreeRegion()
     new_node1.name = "region"
     test_tree1.add_region(new_node1, parent="root", children=["Triangle"])
 
     test_tree2 = deepcopy(basic_tree)
-    new_node2 = GeometryNode()
+    new_node2 = TreeRegion()
     new_node2.name = "region"
     test_tree2.add_region(new_node2, parent=test_tree2["Triangle"])
 
@@ -270,18 +270,18 @@ def test_equality_2(basic_tree):
 def test_equality_3(basic_tree):
     # Further test that similar but distinct structures are detected
     test_tree1 = deepcopy(basic_tree)
-    new_node1 = GeometryNode()
+    new_node1 = TreeRegion()
     new_node1.name = "node1"
     test_tree1.add_region(new_node1, parent="root")
-    new_node2 = GeometryNode()
+    new_node2 = TreeRegion()
     new_node2.name = "node2"
     test_tree1.add_region(new_node2, parent="node1", children=["Triangle"])
 
     test_tree2 = deepcopy(basic_tree)
-    new_node3 = GeometryNode()
+    new_node3 = TreeRegion()
     new_node3.name = "node1"
     test_tree2.add_region(new_node3, parent="root", children=["Triangle"])
-    new_node4 = GeometryNode()
+    new_node4 = TreeRegion()
     new_node4.name = "node2"
     test_tree2.add_region(new_node4, parent="Triangle")
 
@@ -301,13 +301,13 @@ def test_remove_branch(basic_tree):
     test_tree.remove_region("Triangle")
 
     function_tree1 = deepcopy(basic_tree)
-    new_node1 = GeometryNode()
+    new_node1 = TreeRegion()
     new_node1.name = "region"
     function_tree1.add_region(new_node1, parent=function_tree1["root"], children=["Triangle"])
     function_tree1.remove_branch(new_node1)
 
     function_tree2 = deepcopy(basic_tree)
-    new_node2 = GeometryNode()
+    new_node2 = TreeRegion()
     new_node2.name = "region"
     function_tree2.add_region(new_node2, parent=function_tree2["root"], children=["Triangle"])
     function_tree2.remove_branch("region")
@@ -322,7 +322,7 @@ def test_remove_branch2(basic_tree):
     test_tree.remove_region(test_tree["Triangle"])
 
     function_tree = deepcopy(basic_tree)
-    new_node = GeometryNode()
+    new_node = TreeRegion()
     new_node.name = "region"
     function_tree.add_region(new_node, children=["Triangle"])
     function_tree.remove_branch(function_tree["region"])
