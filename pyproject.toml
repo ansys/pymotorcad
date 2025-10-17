@@ -51,7 +51,6 @@ doc = [
     "matplotlib",
     "scipy",
     "pypandoc==1.15",
-    "bezier>=2023.7.28",
     "networkx"
 ]
 
