@@ -2777,7 +2777,7 @@ def _bernstein(n, i, x):
 
 
 def get_bezier_points(control_points, num_output_points):
-    """Find a list of coordinates a Bezier curve.
+    """Find a list of coordinates along a Bezier curve.
 
     Parameters
     ----------
