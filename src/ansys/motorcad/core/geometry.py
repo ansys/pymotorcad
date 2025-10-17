@@ -2757,23 +2757,22 @@ def _orientation_of_three_points(c1, c2, c3):
         return _Orientation.collinear
 
 
-def _bernstein(n, i, x):
+def _bernstein(n, v, t):
     """Find the Bernstein polynomial value.
 
     Parameters
     ----------
     n : int
         Degree of Bernstein polynomial
-    i : int
+    v : int
         Index of Bernstein polynomial
-    x : float
+    t : float
         Value to calculate in range 0-1
     Returns
     -------
         float
     """
-    p = comb(n, i)
-    return p * x**i * (1 - x) ** (n - i)
+    return comb(n, v) * t**v * (1 - t) ** (n - v)
 
 
 def get_bezier_points(control_points, num_output_points):
