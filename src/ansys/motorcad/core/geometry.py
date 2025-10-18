@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
 from warnings import warn
 
@@ -2755,3 +2755,60 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
+
+
+def _bernstein(n, v, t):
+    """Find the Bernstein polynomial value.
+
+    Parameters
+    ----------
+    n : int
+        Degree of Bernstein polynomial
+    v : int
+        Index of Bernstein polynomial
+    t : float
+        Value to calculate in range 0-1
+    Returns
+    -------
+        float
+    """
+    return comb(n, v) * t**v * (1 - t) ** (n - v)
+
+
+def get_bezier_points(control_points, num_output_points):
+    """Find a list of coordinates along a Bezier curve.
+
+    Parameters
+    ----------
+    control points : List of Coordinate
+        The control points for the Bezier curve
+    num_output_points : int
+        The number of samples along the curve
+    Returns
+    -------
+        List of Coordinate
+    """
+    points = []
+    num_control = len(control_points)
+
+    for output_point in range(num_output_points):
+        t = float(output_point) / (num_output_points - 1)
+        bernstein_values = []
+
+        for control_point_index in range(num_control):
+            bernstein_values.append(_bernstein(num_control - 1, control_point_index, t))
+
+        point = []
+        # Coordinates are two-dimensional
+        for dimension in range(2):
+            value = 0
+            for control_point_index, control_point in enumerate(control_points):
+                if dimension == 0:
+                    control_point_value = control_point.x
+                else:
+                    control_point_value = control_point.y
+                value = value + control_point_value * bernstein_values[control_point_index]
+            point.append(value)
+        coordinate = Coordinate(point[0], point[1])
+        points.append(coordinate)
+    return points
