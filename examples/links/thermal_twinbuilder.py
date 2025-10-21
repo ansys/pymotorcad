@@ -370,11 +370,11 @@ class MotorCADTwinModel:
             rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
         )
 
-        self.updateMotfile()
-        self.updateCustomLosses()
-        self.validateMotfileLosses()
+        self.updateMotfileSettings()
+        self.incorporateCustomLosses()
+        self.validateLossIdentification()
 
-        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings,
+        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings
         self.getNodeData()
 
         self.generateFixedTemperatures(coolingSystemsParameterSweeps)
@@ -851,7 +851,7 @@ class MotorCADTwinModel:
 
     # Functions to update any mot file settings that need to be set appropriately
     # to ensure the correct calculations performed
-    def updateMotfile(self):
+    def updateMotfileSettings(self):
         def warnLossScaling(parameter, scalingType, lossName):
             if self.mcad.get_variable(parameter) == 1:
                 self.mcad.set_variable(parameter, 0)
@@ -957,7 +957,7 @@ class MotorCADTwinModel:
     # If Power Injection custom losses are present, save these so that they are treated the same as
     # all other default losses. If Power Source custom losses are present, report an error as these
     # are not supported
-    def updateCustomLosses(self):
+    def incorporateCustomLosses(self):
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
         if len(powerSources) > 0:
@@ -979,7 +979,7 @@ class MotorCADTwinModel:
 
     # Validate that all the losses in the model have been determined by checking total loss is zero
     # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero.
-    def validateMotfileLosses(self):
+    def validateLossIdentification(self):
         self.setLosses(0)
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
         self.computeMatrices(exportDirectory)
@@ -1014,7 +1014,7 @@ class MotorCADTwinModel:
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
-        self.computeMatrices(exportDirectory)  # TODO ensure non-zero input values are used here
+        self.computeMatrices(exportDirectory)
 
         (
             self.nodeNumbers,
