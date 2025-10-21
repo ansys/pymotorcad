@@ -371,6 +371,7 @@ class MotorCADTwinModel:
         )
 
         self.updateMotfileSettings()
+        self.saveTwinMotfile()
         self.incorporateCustomLosses()
         self.validateLossIdentification()
 
@@ -948,6 +949,7 @@ class MotorCADTwinModel:
                 "Thermal ROM."
             )
 
+    def saveTwinMotfile(self):
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
