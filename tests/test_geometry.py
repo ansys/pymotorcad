@@ -41,6 +41,7 @@ from ansys.motorcad.core.geometry import (
     RegionType,
     _Orientation,
     _orientation_of_three_points,
+    get_bezier_points,
     rt_to_xy,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
@@ -3308,3 +3309,20 @@ def test_copying(mc):
 
     assert deepcopy_region == stator
     assert deepcopy_region._raw_region == dict()
+
+
+def test_get_bezier_points():
+    # Control points make a triangle with a height of 1
+    control_points = [Coordinate(0, 0), Coordinate(0.5, 1), Coordinate(1, 0)]
+    result_points = get_bezier_points(control_points, 3)
+
+    # End points should match control points
+    assert isclose(result_points[0].x, control_points[0].x)
+    assert isclose(result_points[0].y, control_points[0].y)
+
+    assert isclose(result_points[2].x, control_points[2].x)
+    assert isclose(result_points[2].y, control_points[2].y)
+
+    # Mid point should be half the height of the triangle
+    assert isclose(result_points[1].x, 0.5)
+    assert isclose(result_points[1].y, 0.5)
