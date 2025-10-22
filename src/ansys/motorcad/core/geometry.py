@@ -102,6 +102,14 @@ class RegionType(Enum):
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
 
 
+class MagnetisationDirection(Enum):
+    """Provides an enumeration for storing Motor-CAD magnetisation direction."""
+
+    parallel = 0
+    radial = 1
+    function = 2
+
+
 class Region(object):
     """Create geometry region.
 
@@ -401,6 +409,16 @@ class Region(object):
             new_region._br_multiplier = json["magnet_magfactor"]
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
+
+            if "magnetisation_direction" in json:
+                new_region.magnetisation_direction = MagnetisationDirection(
+                    json["magnetisation_direction"]
+                )
+                new_region.magnetisation_function_amplitude = json[
+                    "magnetisation_function_amplitude"
+                ]
+                new_region.magnetisation_function_angle = json["magnetisation_function_angle"]
+
         else:
             if has_region_type:
                 new_region = cls(
@@ -1130,6 +1148,9 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+        self.magnetisation_direction = MagnetisationDirection.parallel
+        self.magnetisation_function_amplitude = ""
+        self.magnetisation_function_angle = ""
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -1144,6 +1165,9 @@ class RegionMagnet(Region):
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
         region_dict["magnet_polarity"] = self._magnet_polarity
+        region_dict["magnetisation_direction"] = self.magnetisation_direction.value
+        region_dict["magnetisation_function_amplitude"] = self.magnetisation_function_amplitude
+        region_dict["magnetisation_function_angle"] = self.magnetisation_function_angle
 
         return region_dict
 
