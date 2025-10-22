@@ -152,9 +152,8 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self.mesh_length = 0
-        self._linked_regions = []
-
+        self._mesh_length = 0
+        self._linked_region_names = []
         self._singular = False
         self._lamination_type = ""
 
@@ -457,6 +456,9 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        if "linked_regions" in json:
+            new_region._linked_region_names = json["linked_regions"]
+
         new_region._raw_region = json
 
         return new_region
@@ -496,7 +498,6 @@ class Region(object):
         self._raw_region["region_type"] = self._region_type.value
         self._raw_region["mesh_length"] = self.mesh_length
         self._raw_region["linked_regions"] = self.linked_region_names
-        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = self._lamination_type
 
@@ -515,7 +516,11 @@ class Region(object):
     def linked_region(self):
         """Get linked duplication/unite region."""
         warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
-        return self.linked_regions[0] if len(self.linked_regions) > 0 else None
+        return (
+            self.motorcad_instance.get_region(self._linked_region_names[0])
+            if len(self._linked_region_names) > 0
+            else None
+        )
 
     @linked_region.setter
     def linked_region(self, region):
@@ -523,28 +528,29 @@ class Region(object):
             "linked_region property is deprecated. Use linked_regions.append(region)",
             DeprecationWarning,
         )
-        self.linked_regions.append(region)
-        region.linked_regions.append(self)
+        self._linked_region_names.append(region.name)
+        region._linked_region_names.append(self.name)
 
     @property
     def linked_regions(self):
-        """
-        Get linked region objects for duplication/unite operations.
-
-        Entirely original regions (that is, linkages to or from regions that are not named within
-        the default geometry) must be established using GeometryTrees.
-        """
-        return self._linked_regions
+        """Get linked region objects for duplication/unite operations."""
+        self._check_connection()
+        return [self.motorcad_instance.get_region(name) for name in self._linked_region_names]
 
     @linked_regions.setter
     def linked_regions(self, regions):
         """Set linked regions for duplication/unite operations."""
-        self._linked_regions = regions
+        self._linked_region_names = [region.name for region in regions]
 
     @property
     def linked_region_names(self):
         """Get linked region names for duplication/unite operations."""
-        return [linked_region.name for linked_region in self.linked_regions]
+        return self._linked_region_names
+
+    @linked_region_names.setter
+    def linked_region_names(self, names):
+        """Set linked region names for duplication/unite operations."""
+        self._linked_region_names = names
 
     @property
     def singular(self):
