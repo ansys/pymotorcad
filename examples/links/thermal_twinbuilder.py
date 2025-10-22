@@ -1291,7 +1291,6 @@ class MotorCADTwinModel:
         return connectedNodesList
 
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-    # TODO improve logic for improved fluid heat flow method
     def generateFixedTemperatures(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
