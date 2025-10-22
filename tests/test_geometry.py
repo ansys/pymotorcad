@@ -3167,13 +3167,13 @@ def test_set_get_magnetisation_directions(mc):
     magnet_region.magnetisation_direction = MagnetisationDirection.radial
     mc.set_region(magnet_region)
     magnet_region = mc.get_region("L1_1Magnet2")
-    assert magnet_region.magnetisation_direction == MagnetisationDirection.radial.value
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.radial.value
 
     # test case 2
     magnet_region.magnetisation_direction = MagnetisationDirection.parallel
     mc.set_region(magnet_region)
     magnet_region = mc.get_region("L1_1Magnet2")
-    assert magnet_region.magnetisation_direction == MagnetisationDirection.parallel.value
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.parallel.value
 
     # test case 3
     magnet_region.magnetisation_direction = MagnetisationDirection.function
@@ -3182,7 +3182,7 @@ def test_set_get_magnetisation_directions(mc):
 
     mc.set_region(magnet_region)
     magnet_region = mc.get_region("L1_1Magnet2")
-    assert magnet_region.magnetisation_direction == MagnetisationDirection.function.value
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.function.value
     assert magnet_region.magnetisation_function_amplitude == "1.125"
     assert magnet_region.magnetisation_function_angle == "(1-Pole_Number / 2) * theta + 180"
 
