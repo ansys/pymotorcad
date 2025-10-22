@@ -2770,6 +2770,7 @@ def _orientation_of_three_points(c1, c2, c3):
         Coordinate 2
     c3 : ansys.motorcad.core.geometry.Coordinate
         Coordinate 3
+
     Returns
     -------
         _Orientation
@@ -2814,6 +2815,7 @@ def get_bezier_points(control_points, num_output_points):
         The control points for the Bezier curve
     num_output_points : int
         The number of samples along the curve
+
     Returns
     -------
         List of Coordinate
