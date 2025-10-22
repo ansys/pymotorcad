@@ -142,7 +142,7 @@ class CoolingSystem:
 
 
 # All automation parameters used for the cooling systems are defined here
-rpm = AutomationParam("rpm", "Shaft_Speed")
+RPM = AutomationParam("rpm", "ShaftSpeed")
 Ventilated_FlowRate = AutomationParam("Ventilated_FlowRate", "TVent_Flow_Rate")
 Ventilated_InletTemp = AutomationParam("Ventilated_InletTemp", "TVent_Inlet_Temperature", True)
 HousingWJ_FlowRate = AutomationParam("HousingWJ_FlowRate", "WJ_Fluid_Volume_Flow_Rate")
@@ -1007,7 +1007,7 @@ class MotorCADTwinModel:
             os.makedirs(exportDirectory)
 
         if rpm is not None:
-            self.mcad.set_variable("Shaft_Speed_[RPM]", rpm)
+            self.mcad.set_variable(RPM.automationString, rpm)
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
