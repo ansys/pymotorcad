@@ -24,7 +24,7 @@
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Region, RegionMagnet
-from ansys.motorcad.core.methods.geometry_tree import GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree
 from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
@@ -322,3 +322,8 @@ class _RpcMethodsAdaptiveGeometry:
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
+
+    def get_maxwell_udm_geometry_json(self):
+        """Fetch a dict defining Maxwell UDM geometry."""
+        method = "GetGeometryTree_Maxwell_UDM"
+        return self.connection.send_and_receive(method)

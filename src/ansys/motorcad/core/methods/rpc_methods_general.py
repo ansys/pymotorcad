@@ -558,3 +558,29 @@ class _RpcMethodsGeneral:
         method = "SetCurrentFileJSON"
         params = [file_contents]
         self.connection.send_and_receive(method, params)
+
+    def load_nvh_custom_response(self, file_name):
+        """Load custom characteristic noise response functions from space/tab delimited text file.
+
+        Parameters
+        ----------
+        file_name: str
+            Full path to the text file
+        """
+        self.connection.ensure_version_at_least("2026.0")
+        method = "LoadNVHResponse"
+        params = [file_name]
+        return self.connection.send_and_receive(method, params)
+
+    def save_nvh_custom_response(self, file_name):
+        """Save custom characteristic noise response functions to tab delimited text file.
+
+        Parameters
+        ----------
+        file_name: str
+            Full path for the text file
+        """
+        self.connection.ensure_version_at_least("2026.0")
+        method = "SaveNVHResponse"
+        params = [file_name]
+        return self.connection.send_and_receive(method, params)

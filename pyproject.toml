@@ -21,10 +21,12 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "psutil >= 5.9.0",
@@ -36,8 +38,8 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "pytest==8.3.5",
-    "pytest-cov==6.2.1",
+    "pytest==8.4.2",
+    "pytest-cov==7.0.0",
     "ansys.platform.instancemanagement>=1.0.2",
     "matplotlib>=3.6.3",
     "scipy"
@@ -51,7 +53,6 @@ doc = [
     "matplotlib",
     "scipy",
     "pypandoc==1.15",
-    "bezier>=2023.7.28",
     "networkx"
 ]
 

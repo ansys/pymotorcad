@@ -24,7 +24,7 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import acos, atan2, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
 from warnings import warn
 
@@ -44,8 +44,10 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
+    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
+    stator_frame = "Stator Support Frame"
     stator_impreg = "Stator Impreg"
     impreg_gap = "Impreg Gap"
     stator_copper = "Stator Copper"
@@ -55,6 +57,7 @@ class RegionType(Enum):
     stator_separator = "Stator slot separator"
     coil_insulation = "Coil Insulation"
     stator_air = "Stator Air"
+    endwinding = "End Winding"
     rotor_hub = "Rotor hub"
     rotor_air = "Rotor Air"
     rotor_air_exc_liner = "Rotor Air (excluding liner area)"
@@ -131,7 +134,7 @@ class Region(object):
         self._name = ""
         self._base_name = ""
         self._material = "air"
-        self._colour = (0, 0, 0)
+        self._colour = (255, 255, 255)
         self._area = 0.0
         self._centroid = Coordinate(0, 0)
         self._region_coordinate = Coordinate(0, 0)
@@ -147,6 +150,8 @@ class Region(object):
         self._singular = False
         self._lamination_type = ""
 
+        self._raw_region = dict()
+
     def __eq__(self, other):
         """Override the default equals implementation for Region."""
         return (
@@ -161,6 +166,43 @@ class Region(object):
             and self._duplications == other._duplications
             and self._entities == other._entities
         )
+
+    def __copy__(self):
+        """Override default copy behaviour."""
+        copied_object = type(self)()
+        copied_object.__dict__.update(self.__dict__)
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        return copied_object
+
+    def __deepcopy__(self, memo):
+        """Override default deepcopy behaviour."""
+
+        def override_close_motorcad_on_exit():
+            return False
+
+        copied_object = type(self)()
+
+        memo[id(self)] = copied_object
+        for k, v in self.__dict__.items():
+            setattr(copied_object, k, deepcopy(v, memo))  # Copy over attributes
+
+        # We don't want to copy raw json to a new region
+        # This could contain settings not visible or editable from PyMotorCAD object
+        copied_object._raw_region = dict()
+
+        # Motor-CAD instance should not be duplicated.
+        # Don't want this getting closed if this region goes out of scope.
+        if copied_object._motorcad_instance is not None:
+            copied_object._motorcad_instance.connection._close_motorcad_on_exit = (
+                override_close_motorcad_on_exit
+            )
+            copied_object._motorcad_instance = self._motorcad_instance
+
+        return copied_object
 
     @classmethod
     def from_coordinate_list(cls):
@@ -258,6 +300,86 @@ class Region(object):
         # Set the region object entities to be the list of replacement region entities
         self._entities = deepcopy(replacement_region.entities)
 
+    def extend_entity(
+        self, entity_index, distance=None, fraction=None, factor=None, extend_from_end=True
+    ):
+        """Extend an Entity of a Region by a given distance.
+
+        The Entity will be extended by keeping
+        the start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead. Tip: to extend from both ends, you can use the method twice.
+
+        Parameters
+        ----------
+        entity_index : int
+            Index of the Region Entity that is to be extended.
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.entities[entity_index].end
+            else:
+                point = self.entities[entity_index].start
+        else:
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or " f"False)."
+            )
+
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            self.extend_entity(entity_index, distance=distance, extend_from_end=extend_from_end)
+            return
+
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            self.extend_entity(entity_index, fraction=fraction, extend_from_end=extend_from_end)
+            return
+
+        elif distance:
+            if distance <= -self.entities[entity_index].length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, distance=-distance
+            )
+        elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=-fraction
+            )
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            new_point = self.entities[entity_index].get_coordinate_from_distance(
+                point, fraction=1 - factor
+            )
+        else:
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
+
+        if extend_from_end:
+            self.edit_point(self.entities[entity_index].end, new_point)
+        else:
+            self.edit_point(self.entities[entity_index].start, new_point)
+
     # method to receive region from Motor-CAD and create python object
     @classmethod
     def _from_json(cls, json, motorcad_instance=None):
@@ -317,6 +439,8 @@ class Region(object):
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
 
+        new_region._raw_region = json
+
         return new_region
 
     # method to convert python object to send to Motor-CAD
@@ -328,31 +452,37 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        if self._region_type == RegionType.adaptive:
-            lamination_type = self._lamination_type
-        else:
-            lamination_type = ""
+        # Previous implementations had users only generally interact with the unique name,
+        # assigning it as the name attribute if possible. This behaviour is maintained for
+        # now, though it is a piece of information lost that future users may want control over
 
-        region_dict = {
-            "name": self._name,
-            "name_base": self._base_name,
-            "material": self._material,
-            "colour": {"r": self._colour[0], "g": self._colour[1], "b": self._colour[2]},
-            "area": self._area,
-            "centroid": {"x": self._centroid.x, "y": self._centroid.y},
-            "region_coordinate": {"x": self._region_coordinate.x, "y": self._region_coordinate.y},
-            "duplications": self._duplications,
-            "entities": _convert_entities_to_json(self.entities),
-            "parent_name": self._parent_name,
-            "region_type": self._region_type.value,
-            "mesh_length": self.mesh_length,
-            "linked_regions": self.linked_region_names,
-            "on_boundary": False if len(self.linked_regions) == 0 else True,
-            "singular": self._singular,
-            "lamination_type": lamination_type,
+        self._raw_region["name"] = self._name
+        if "name_unique" in self._raw_region:
+            self._raw_region["name_unique"] = self._name
+        self._raw_region["name_base"] = self._base_name
+        self._raw_region["material"] = self._material
+        self._raw_region["colour"] = {
+            "r": self._colour[0],
+            "g": self._colour[1],
+            "b": self._colour[2],
         }
+        self._raw_region["area"] = self._area
+        self._raw_region["centroid"] = {"x": self._centroid.x, "y": self._centroid.y}
+        self._raw_region["region_coordinate"] = {
+            "x": self._region_coordinate.x,
+            "y": self._region_coordinate.y,
+        }
+        self._raw_region["duplications"] = self._duplications
+        self._raw_region["entities"] = _convert_entities_to_json(self.entities)
+        self._raw_region["parent_name"] = self.parent_name
+        self._raw_region["region_type"] = self._region_type.value
+        self._raw_region["mesh_length"] = self.mesh_length
+        self._raw_region["linked_regions"] = self.linked_region_names
+        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
+        self._raw_region["singular"] = self._singular
+        self._raw_region["lamination_type"] = self._lamination_type
 
-        return region_dict
+        return self._raw_region
 
     @property
     def parent_name(self):
@@ -484,12 +614,7 @@ class Region(object):
 
     @lamination_type.setter
     def lamination_type(self, lamination_type):
-        if self.region_type == RegionType.adaptive:
-            self._lamination_type = lamination_type
-        else:
-            raise Exception(
-                "It is currently only possible to set lamination type for adaptive regions"
-            )
+        self._lamination_type = lamination_type
 
     @property
     def name(self):
@@ -791,13 +916,13 @@ class Region(object):
                 adj_entity_indices.append(index)
         # If no adjacent entities are found, the point provided is not a corner
         if not adj_entities:
-            raise Exception(
+            raise ValueError(
                 "Failed to find point on entity in region. "
                 "You must specify a corner in this region."
             )
         # If only one adjacent entity is found, the point provided is not a corner
         if len(adj_entities) == 1:
-            raise Exception(
+            raise ValueError(
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
@@ -871,14 +996,14 @@ class Region(object):
 
         # Raise assertion if not converged, as radius probably not valid
         if converged == False:
-            raise Exception("Cannot find intersection. Check if radius is too large")
+            raise ValueError("Cannot find intersection. Check if radius is too large")
 
         # check that the  distances by which the adjacent entities are shortened are less than the
         # lengths of the adjacent entities.
         for index in range(len(adj_entities)):
             j = adj_entities[index]
             if j.length < distance:
-                raise Exception(
+                raise ValueError(
                     "Corner radius is too large for these entities. "
                     "You must specify a smaller radius."
                 )
@@ -1346,6 +1471,73 @@ class Entity(object):
                 return None
         else:
             return None
+
+    def extend(self, distance=None, fraction=None, factor=None, extend_from_end=True):
+        """Extend an Entity object by a given distance.
+
+        The Entity will be extended by keeping the
+        start point fixed and shifting the end point unless extend_from_end is False. If
+        extend_from_end is False, the end point will be kept fixed and the start point will be
+        shifted instead. Tip: To extend from both ends, you can use the method twice.
+
+        Parameters
+        ----------
+        distance : float
+            Absolute distance to extend the Entity by. If negative, the Entity will be shortened.
+        fraction : float
+            Fractional distance to extend the Entity by. If negative, the Entity will be shortened.
+        factor : float
+            Factor to extend the Entity length to. The new Entity length will be the original
+            length multiplied by the factor. If less than 1, the Entity will be shortened.
+        extend_from_end : bool
+            If True, start point is unchanged and end point is shifted. If False, end point is
+            unchanged and start point is fixed.
+
+        """
+        if type(extend_from_end) == bool:
+            if extend_from_end:
+                point = self.end
+            else:
+                point = self.start
+        else:
+            raise TypeError(
+                f"The argument 'extend_from_end' must be a boolean type (True or False)."
+            )
+
+        # if multiple optional arguments are provided, precedence is taken in the order: distance,
+        # fraction, factor:
+        if distance and fraction or distance and factor:
+            warn(f"More than one optional argument provided, using distance = {distance} mm.")
+            self.extend(distance=distance, extend_from_end=extend_from_end)
+            return
+        elif fraction and factor:
+            warn(f"More than one optional argument provided, using fraction = {fraction}.")
+            self.extend(fraction=fraction, extend_from_end=extend_from_end)
+            return
+        elif distance:
+            if distance <= -self.length:
+                raise ValueError(
+                    "Invalid distance provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.get_coordinate_from_distance(point, distance=-distance)
+        elif fraction:
+            if fraction <= -1:
+                raise ValueError(
+                    "Invalid fraction provided. Cannot shorten entity by more than "
+                    "original length."
+                )
+            new_point = self.get_coordinate_from_distance(point, fraction=-fraction)
+        elif factor:
+            if factor < 0:
+                factor = -factor
+            new_point = self.get_coordinate_from_distance(point, fraction=1 - factor)
+        else:
+            raise ValueError(f"Please provide either a distance, fraction or factor.")
+        if extend_from_end:
+            self.end = new_point
+        else:
+            self.start = new_point
 
 
 class Line(Entity):
@@ -2563,3 +2755,60 @@ def _orientation_of_three_points(c1, c2, c3):
     else:
         # Collinear orientation
         return _Orientation.collinear
+
+
+def _bernstein(n, v, t):
+    """Find the Bernstein polynomial value.
+
+    Parameters
+    ----------
+    n : int
+        Degree of Bernstein polynomial
+    v : int
+        Index of Bernstein polynomial
+    t : float
+        Value to calculate in range 0-1
+    Returns
+    -------
+        float
+    """
+    return comb(n, v) * t**v * (1 - t) ** (n - v)
+
+
+def get_bezier_points(control_points, num_output_points):
+    """Find a list of coordinates along a Bezier curve.
+
+    Parameters
+    ----------
+    control points : List of Coordinate
+        The control points for the Bezier curve
+    num_output_points : int
+        The number of samples along the curve
+    Returns
+    -------
+        List of Coordinate
+    """
+    points = []
+    num_control = len(control_points)
+
+    for output_point in range(num_output_points):
+        t = float(output_point) / (num_output_points - 1)
+        bernstein_values = []
+
+        for control_point_index in range(num_control):
+            bernstein_values.append(_bernstein(num_control - 1, control_point_index, t))
+
+        point = []
+        # Coordinates are two-dimensional
+        for dimension in range(2):
+            value = 0
+            for control_point_index, control_point in enumerate(control_points):
+                if dimension == 0:
+                    control_point_value = control_point.x
+                else:
+                    control_point_value = control_point.y
+                value = value + control_point_value * bernstein_values[control_point_index]
+            point.append(value)
+        coordinate = Coordinate(point[0], point[1])
+        points.append(coordinate)
+    return points
