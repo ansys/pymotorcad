@@ -1126,10 +1126,10 @@ class Region(object):
         # the adjacent entities. The adjacent entities can only be shortened to half the original
         # entity length before any corner rounding
         else:
+            # get the original entities before any corner rounding has been done
+            entities_orig = deepcopy(self._entities)
             # apply the rounding to each corner in turn
             for corner in corner_coordinates:
-                # get the original entities before any corner rounding has been done
-                entities_orig = deepcopy(self._entities)
                 # get the lengths of the original adjacent entities before any corner rounding
                 adj_entity_lengths = []
                 for index in range(len(entities_orig)):
@@ -1143,7 +1143,7 @@ class Region(object):
                         distance_limit = adj_entity_lengths[index]
                 try:
                     # try to round the corner with the specified radius
-                    self._round_corner(corner, radius, distance_limit)
+                    self._round_corner(corner, radius, distance_limit / 2)
                 except ValueError as e:
                     if "Corner radius is too large for these entities" in str(e):
                         new_corner_radius = round(radius, 1)
@@ -1153,7 +1153,7 @@ class Region(object):
                             new_corner_radius -= 0.1
                             try:
                                 # try to round the corner with the new shorter radius
-                                self._round_corner(corner, new_corner_radius, distance_limit)
+                                self._round_corner(corner, new_corner_radius, distance_limit / 2)
                                 break
                             except ValueError as e:
                                 if "Corner radius is too large for these entities" in str(e):
