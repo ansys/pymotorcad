@@ -56,9 +56,9 @@ results_dir = working_dir / mot_name / "results"
 results_dir.mkdir(parents=True, exist_ok=True)
 
 # Inputs: Rated voltage (V), Rated kVA, Power Factor and DC current array
-rated_voltage = 5000
-rated_VA = 7200000
-rated_pf = 0.8
+rated_voltage = 6800
+rated_VA = 416000
+rated_pf = 0.9
 rated_power = rated_VA * rated_pf
 rated_current = rated_power / (np.sqrt(3 / 2) * rated_voltage * rated_pf)  # peak value
 r_load = rated_power / (3 / 2) / (np.power(rated_current, 2))  # AC load resistance
