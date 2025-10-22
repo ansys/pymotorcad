@@ -369,8 +369,10 @@ class MotorCADTwinModel:
         housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(
             rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
         )
-
+        
+        # .mot file set up
         self.updateMotfileSettings()
+        self.setMinimumParameterValues(rpms, coolingSystemsParameterSweeps)
         self.saveTwinMotfile()
         self.incorporateCustomLosses()
         self.validateLossIdentification()
@@ -948,6 +950,28 @@ class MotorCADTwinModel:
                 "this setting, which will also enable additional features for the Twin Builder "
                 "Thermal ROM."
             )
+
+    # Set minimum values (as long as they are non-zero) for each of the parameters in the parameter
+    # sweep. This is done to ensure all data extracted from mot file (node numbers present, which
+    # cooling resistances exist, etc) is present.
+    def setMinimumParameterValues(
+        self, rpms, coolingSystemsParameterSweeps: coolingSystemSweepType
+    ):
+        combinedParameters: Dict[AutomationParam, float | int] = dict()
+
+        minRpm = min(rpms)
+        if minRpm > 0:
+            combinedParameters[RPM] = minRpm
+
+        if coolingSystemsParameterSweeps is not None:
+            for parameters in coolingSystemsParameterSweeps.values():
+                for param, value in parameters.items():
+                    minValue = min(value)
+                    if minValue > 0:
+                        combinedParameters[param] = minValue
+
+        for param, value in combinedParameters.items():
+            self.mcad.set_variable(param.automationString, value)
 
     def saveTwinMotfile(self):
         # save the updated model so it is clear which Motor-CAD file can be used to validate
