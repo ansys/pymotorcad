@@ -369,7 +369,7 @@ class MotorCADTwinModel:
         housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(
             rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
         )
-        
+
         # .mot file set up
         self.updateMotfileSettings()
         self.setMinimumParameterValues(rpms, coolingSystemsParameterSweeps)
