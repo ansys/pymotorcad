@@ -36,6 +36,7 @@ from ansys.motorcad.core.geometry import (
     Coordinate,
     EntityList,
     Line,
+    MagnetisationDirection,
     Region,
     RegionMagnet,
     RegionType,
@@ -384,6 +385,8 @@ def test_region_from_json():
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
     test_region.singular = False
+    test_region._linked_region_names = ["linked_region", "linked_region_1"]
+    test_region.singular = False
     linked_region = geometry.Region(region_type=RegionType.stator_copper)
     linked_region.name = "linked_region"
     linked_region_1 = geometry.Region(region_type=RegionType.stator_copper)
@@ -412,7 +415,6 @@ def test_region_to_json():
         "mesh_length": 0.035,
         "singular": True,
         "linked_regions": [],
-        "on_boundary": False,
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
@@ -548,9 +550,10 @@ def test_set_linked_region():
     region_linked.name = "linked_region_test"
     # set linked region
     region.linked_region = region_linked
+    region_linked.linked_region = region
 
-    assert region.linked_regions == [region_linked]
-    assert region_linked.linked_regions == [region]
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
 
 
 def test_set_linked_regions():
@@ -559,11 +562,11 @@ def test_set_linked_regions():
     region_linked = Region()
     region_linked.name = "linked_region_test"
     # set linked region
-    region.linked_regions.append(region_linked)
-    region_linked.linked_regions.append(region)
+    region.linked_regions = [region_linked]
+    region_linked.linked_regions = [region]
 
-    assert region.linked_regions.__contains__(region_linked)
-    assert region_linked.linked_regions.__contains__(region)
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
 
 
 def test_set_singular_region():
@@ -3296,6 +3299,33 @@ def test_region_creation_warnings(mc):
         _ = Region()
     with pytest.warns():
         _ = Region(mc)
+
+
+def test_set_get_magnetisation_directions(mc):
+    magnet_region = mc.get_region("L1_1Magnet2")
+
+    # test case 1
+    magnet_region.magnetisation_direction = MagnetisationDirection.radial
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.radial.value
+
+    # test case 2
+    magnet_region.magnetisation_direction = MagnetisationDirection.parallel
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.parallel.value
+
+    # test case 3
+    magnet_region.magnetisation_direction = MagnetisationDirection.function
+    magnet_region.magnetisation_function_amplitude = "1.125"
+    magnet_region.magnetisation_function_angle = "(1-Pole_Number / 2) * theta + 180"
+
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.function.value
+    assert magnet_region.magnetisation_function_amplitude == "1.125"
+    assert magnet_region.magnetisation_function_angle == "(1-Pole_Number / 2) * theta + 180"
 
 
 def test_copying(mc):

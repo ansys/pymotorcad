@@ -102,6 +102,14 @@ class RegionType(Enum):
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
 
 
+class MagnetisationDirection(Enum):
+    """Provides an enumeration for storing Motor-CAD magnetisation direction."""
+
+    parallel = 0
+    radial = 1
+    function = 2
+
+
 class Region(object):
     """Create geometry region.
 
@@ -144,9 +152,8 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self.mesh_length = 0
-        self._linked_regions = []
-
+        self._mesh_length = 0
+        self._linked_region_names = []
         self._singular = False
         self._lamination_type = ""
 
@@ -401,6 +408,16 @@ class Region(object):
             new_region._br_multiplier = json["magnet_magfactor"]
             new_region._magnet_polarity = json["magnet_polarity"]
             new_region._br_magnet = json["magnet_br_value"]
+
+            if "magnetisation_direction" in json:
+                new_region.magnetisation_direction = MagnetisationDirection(
+                    json["magnetisation_direction"]
+                )
+                new_region.magnetisation_function_amplitude = json[
+                    "magnetisation_function_amplitude"
+                ]
+                new_region.magnetisation_function_angle = json["magnetisation_function_angle"]
+
         else:
             if has_region_type:
                 new_region = cls(
@@ -438,6 +455,9 @@ class Region(object):
 
         if "lamination_type" in json:
             new_region._lamination_type = json["lamination_type"]
+
+        if "linked_regions" in json:
+            new_region._linked_region_names = json["linked_regions"]
 
         new_region._raw_region = json
 
@@ -478,7 +498,6 @@ class Region(object):
         self._raw_region["region_type"] = self._region_type.value
         self._raw_region["mesh_length"] = self.mesh_length
         self._raw_region["linked_regions"] = self.linked_region_names
-        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = self._lamination_type
 
@@ -497,7 +516,11 @@ class Region(object):
     def linked_region(self):
         """Get linked duplication/unite region."""
         warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
-        return self.linked_regions[0] if len(self.linked_regions) > 0 else None
+        return (
+            self.motorcad_instance.get_region(self._linked_region_names[0])
+            if len(self._linked_region_names) > 0
+            else None
+        )
 
     @linked_region.setter
     def linked_region(self, region):
@@ -505,28 +528,29 @@ class Region(object):
             "linked_region property is deprecated. Use linked_regions.append(region)",
             DeprecationWarning,
         )
-        self.linked_regions.append(region)
-        region.linked_regions.append(self)
+        self._linked_region_names.append(region.name)
+        region._linked_region_names.append(self.name)
 
     @property
     def linked_regions(self):
-        """
-        Get linked region objects for duplication/unite operations.
-
-        Entirely original regions (that is, linkages to or from regions that are not named within
-        the default geometry) must be established using GeometryTrees.
-        """
-        return self._linked_regions
+        """Get linked region objects for duplication/unite operations."""
+        self._check_connection()
+        return [self.motorcad_instance.get_region(name) for name in self._linked_region_names]
 
     @linked_regions.setter
     def linked_regions(self, regions):
         """Set linked regions for duplication/unite operations."""
-        self._linked_regions = regions
+        self._linked_region_names = [region.name for region in regions]
 
     @property
     def linked_region_names(self):
         """Get linked region names for duplication/unite operations."""
-        return [linked_region.name for linked_region in self.linked_regions]
+        return self._linked_region_names
+
+    @linked_region_names.setter
+    def linked_region_names(self, names):
+        """Set linked region names for duplication/unite operations."""
+        self._linked_region_names = names
 
     @property
     def singular(self):
@@ -1257,6 +1281,9 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+        self.magnetisation_direction = MagnetisationDirection.parallel
+        self.magnetisation_function_amplitude = ""
+        self.magnetisation_function_angle = ""
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -1271,6 +1298,9 @@ class RegionMagnet(Region):
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
         region_dict["magnet_polarity"] = self._magnet_polarity
+        region_dict["magnetisation_direction"] = self.magnetisation_direction.value
+        region_dict["magnetisation_function_amplitude"] = self.magnetisation_function_amplitude
+        region_dict["magnetisation_function_angle"] = self.magnetisation_function_angle
 
         return region_dict
 
@@ -2867,6 +2897,7 @@ def _orientation_of_three_points(c1, c2, c3):
         Coordinate 2
     c3 : ansys.motorcad.core.geometry.Coordinate
         Coordinate 3
+
     Returns
     -------
         _Orientation
@@ -2911,6 +2942,7 @@ def get_bezier_points(control_points, num_output_points):
         The control points for the Bezier curve
     num_output_points : int
         The number of samples along the curve
+
     Returns
     -------
         List of Coordinate
