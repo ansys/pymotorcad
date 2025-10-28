@@ -23,45 +23,70 @@
 """Methods for building geometry trees."""
 from copy import deepcopy
 
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionMagnet, RegionType
+from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
 
 
 class GeometryTree(dict):
     """Class used to build geometry trees."""
 
-    def __init__(self, empty=False, mc=None):
+    def __init__(self, mc=None, create_root_node=True):
         """Initialise the geometry tree.
 
         Parameters
         ----------
-        empty: bool
-            Return an empty geometry tree, mostly used for the purposes of debugging and
-            internal construction.
+        create_root_node: bool
+            Create the root node of the geometry tree.
         """
-        if empty:
-            super().__init__()
-
-        else:
-            root = TreeRegion(region_type=RegionType.airgap)
-            root.parent = None
-            root.children = list()
-            root.name = "root"
-            root.key = "root"
-            pair = [("root", root)]
-            super().__init__(pair)
-
+        super().__init__()
+        # increment every time we add a region so that we can automatically assign a
+        # unique name to regions on creation
         self._motorcad_instance = mc
+        self.unique_region_number = 0
+
+        if create_root_node:
+            root = self.create_region(RegionType.no_type)
+            self["root"] = root
+            root.tree = self
+            root.parent = None
+
+        # Reset back to 0 after initialising root node
+        self.unique_region_number = 0
+
+        # Tree has root node different to standard tree root
+        self._custom_root_node = None
+
+    def __setitem__(self, key, value):
+        """Override __setitem___."""
+        # Increment unique number if a new region has been added
+        self.unique_region_number += 1
+        super().__setitem__(key, value)
 
     def __iter__(self):
         """Define ordering according to tree structure."""
         well_ordered = []
 
-        def dive(node=self._start):
-            well_ordered.append(node)
-            for child in node.children:
-                dive(child)
+        # Update hardcoded child names so we can add to list by recursively searching children
 
-        dive()
+        for key in self.keys():
+            region = self[key]
+            region._child_names = []
+
+        for key in self.keys():
+            region = self[key]
+            if region.parent is not None:
+                region.parent._child_names += [region.name]
+
+        for key in self.keys():
+            region = self[key]
+            region._child_names = sorted(region._child_names)
+
+        def dive(list_to_append, current_region):
+            list_to_append.append(current_region)
+            for child_name in current_region._child_names:
+                dive(list_to_append, self[child_name])
+
+        dive(well_ordered, self.root_node)
+
         return iter(well_ordered)
 
     def __str__(self):
@@ -90,64 +115,80 @@ class GeometryTree(dict):
         Also requires that each region with the same key is equal.
         """
 
-        def dive(key):
-            if len(self[key].children) != len(other[key].children):
+        def dive(node):
+            if len(node.children) != len(other[node.key].children):
                 return False
-            for child in self[key].children:
+            for child in node.children:
                 # Making sure each child is in the other corresponding region's children
-                if not child.key in other[key].child_keys:
+                if not child.key in other[node.key].child_keys:
                     return False
-                if not dive(child.key):
+                if not dive(child):
                     return False
             # Actual equality check of nodes
-            if self[key] != other[key]:
+            if node != other[node.key]:
                 return False
             return True
 
-        return dive(self._start.key)
+        return dive(self.root_node)
 
     def __ne__(self, other):
         """Define inequality."""
         return not self.__eq__(other)
 
+    @property
+    def root_node(self):
+        """Get the root node of the geometry tree."""
+        if self._custom_root_node:
+            return self._custom_root_node
+        else:
+            return self["root"]
+
+    @root_node.setter
+    def root_node(self, value):
+        self._custom_root_node = value
+
     @classmethod
-    def _from_json(cls, tree, mc):
+    def _from_json(cls, tree_json, mc):
         """Return a GeometryTree representation of the geometry defined within a JSON.
 
         Parameters
         ----------
-        tree: dict
+        tree_json: dict
             JSON to create a tree from (generally, the output of get_geometry_tree()).
         Returns
         -------
         GeometryTree
         """
-        self = cls(empty=True)
+        geometry_tree = cls()
         """Initialize tree.
 
         Parameters
         ----------
         tree: dict
         """
-        root = dict()
-        root["name_unique"] = "root"
-        root["parent_name"] = ""
-        root["child_names"] = list()
-        tree_json = tree["regions"]
+        tree_json = tree_json["regions"]
 
-        # properly connect the json file before tree is constructed
-        for region in tree_json.values():
-            if region["parent_name"] == "":
-                region["parent_name"] = "root"
-                root["child_names"].append(region["name_unique"])
+        geometry_tree._motorcad_instance = mc
 
-        self._build_tree(tree_json, root, mc)
-        self._motorcad_instance = mc
+        for region_name in tree_json:
+            # Add all regions as children of root node
+            region = TreeRegion.from_json(geometry_tree, tree_json[region_name], mc)
+            geometry_tree._add_region(region)
+
+        # Don't use for x in y syntax yet as this uses __iter__
+        # Not sure on this behaviour until parents are set
+
         # Establish linkages between linked regions
-        for node in self:
-            for linked_region_name in node._linked_region_names:
-                node.linked_regions.append(self[linked_region_name])
-        return self
+        for key in geometry_tree.keys():
+            for linked_region_name in geometry_tree[key]._linked_region_names:
+                geometry_tree[key].linked_regions.append(geometry_tree[linked_region_name])
+
+        # Do parenting
+        for key in geometry_tree.keys():
+            if geometry_tree[key]._parent_name != "":
+                geometry_tree[key].parent = geometry_tree[geometry_tree[key]._parent_name]
+
+        return geometry_tree
 
     def _to_json(self):
         """Return a dict object used to set geometry."""
@@ -155,9 +196,9 @@ class GeometryTree(dict):
         for node in self:
             if node.key != "root":
                 if node.region_type == "Magnet":
-                    regions[node.key] = RegionMagnet._to_json(node)
+                    regions[node.key] = TreeRegionMagnet._to_json(node)
                 else:
-                    regions[node.key] = Region._to_json(node)
+                    regions[node.key] = TreeRegion._to_json(node)
         return {"regions": regions}
 
     def get_region(self, region_name):
@@ -183,7 +224,7 @@ class GeometryTree(dict):
         region = self.get_region(region)
         if region.key == "root":
             return self
-        subtree = GeometryTree(empty=True)
+        subtree = GeometryTree(create_root_node=False)
 
         def dive(node):
             subtree[node.key] = node
@@ -191,6 +232,7 @@ class GeometryTree(dict):
                 dive(child)
 
         dive(region)
+        subtree.root_node = region
         return subtree
 
     def get_regions_of_type(self, region_type):
@@ -209,123 +251,105 @@ class GeometryTree(dict):
                 nodes.append(node)
         return nodes
 
-    def _build_tree(self, tree_json, node, mc, parent=None):
-        """Recursively builds tree.
+    # TODO: Revisit this at a later date
+    # def fix_duct_geometry(self, node):
+    #     """Fix geometry to work with FEA.
+    #
+    #     Check if a region crosses over its upper or lower duplication angle, and splits it
+    #     apart into two regions within the valid sector. Meant primarily for ducts; splitting
+    #     apart magnet or other regions in this way can result in errors when solving.
+    #
+    #     Parameters
+    #     ----------
+    #     node: region representing region to be fixed
+    #
+    #     Returns
+    #     -------
+    #     Bool: bool representing whether splitting occurred
+    #     """
+    #     # Splits regions apart, if necessary, to enforce valid geometry
+    #     node = self.get_region(node)
+    #     name = node.key
+    #     duplication_angle = 360 / node.duplications
+    #
+    #     # brush1 used to find the valid portion just above angle 0
+    #     brush1 = Region(region_type=RegionType.airgap)
+    #     brush_length = self._motorcad_instance.get_variable("Stator_Lam_Dia")
+    #     p1 = Coordinate(0, 0)
+    #     p2 = Coordinate(brush_length, 0)
+    #     brush1.entities.append(Line(p2, p1))
+    #
+    #     brush1.entities.append(Arc(p1, p2, centre=Coordinate(brush_length / 2, 1)))
+    #     valid_regions_lower = self._motorcad_instance.subtract_region(node, brush1)
+    #
+    #     # Case where there is no lower intersection
+    #     if (len(valid_regions_lower) == 1) and (valid_regions_lower[0].entities == node.entities):
+    #         # now perform the upper check
+    #         # brush3 used to find the valid portion just below duplication angle
+    #         brush3 = Region(region_type=RegionType.airgap)
+    #         p1 = Coordinate(0, 0)
+    #         p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
+    #         brush3.entities.append(Line(p1, p2))
+    #         brush3.entities.append(Arc(p2, p1, radius=brush_length / 2))
+    #         valid_regions_upper = self._motorcad_instance.subtract_region(node, brush3)
+    #
+    #         # Case where no slicing necessary
+    #         if (len(valid_regions_upper) == 1) and (
+    #             valid_regions_upper[0].entities == node.entities
+    #         ):
+    #             return False
+    #         # Case where upper slicing necessary
+    #         else:
+    #             for i, new_valid_region in enumerate(valid_regions_upper):
+    #                 new_valid_region.name = f"{name}_{i + 1}"
+    #                 self._add_region(new_valid_region, parent=node.parent)
+    #             # now perform the upper check
+    #             # brush4 used to find the invalid portion just above duplication angle
+    #             brush4 = Region(region_type=RegionType.airgap)
+    #             p1 = Coordinate(0, 0)
+    #             p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
+    #             brush4.entities.append(Line(p2, p1))
+    #             brush4.entities.append(Arc(p1, p2, radius=brush_length / 2))
+    #             invalid_regions_upper = self._motorcad_instance.subtract_region(node, brush4)
+    #             for i, new_lower_valid_region in enumerate(invalid_regions_upper):
+    #                 new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
+    #                 new_lower_valid_region.name = f"{name}_{i + len(valid_regions_upper) + 1}"
+    #                 # Make sure regions are appropriately linked
+    #                 for valid_region_upper in valid_regions_upper:
+    #                     new_lower_valid_region.linked_regions.append(valid_region_upper)
+    #                     valid_region_upper.linked_regions.append(new_lower_valid_region)
+    #                 self._add_region(new_lower_valid_region, parent=node.parent)
+    #             self.remove_region(node)
+    #             return True
+    #     # Case where lower slicing necessary
+    #     else:
+    #         # first, handle the valid regions returned
+    #         for i, new_valid_region in enumerate(valid_regions_lower):
+    #             new_valid_region.name = f"{name}_{i+1}"
+    #             self._add_region(new_valid_region, parent=node.parent)
+    #
+    #         # brush2 used to find the invalid portion just below angle 0
+    #         brush2 = Region(region_type=RegionType.airgap)
+    #         p1 = Coordinate(0, 0)
+    #         p2 = Coordinate(brush_length, 0)
+    #         brush2.entities.append(Line(p1, p2))
+    #         brush2.entities.append(Arc(p2, p1, centre=Coordinate(brush_length / 2, -1)))
+    #         # Upper in this case referring to the fact that this region will
+    #         # form the upper half of the ellipse.
+    #         # It will be below the other half in terms of relative positioning
+    #         invalid_regions_lower = self._motorcad_instance.subtract_region(node, brush2)
+    #         for i, new_upper_valid_region in enumerate(invalid_regions_lower):
+    #             new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
+    #             new_upper_valid_region.name = f"{name}_{i + len(valid_regions_lower) + 1}"
+    #             # Make sure regions are appropriately linked
+    #             for valid_region_lower in valid_regions_lower:
+    #                 new_upper_valid_region.linked_regions.append(valid_region_lower)
+    #                 valid_region_lower.linked_regions.append(new_upper_valid_region)
+    #             self._add_region(new_upper_valid_region, parent=node.parent)
+    #         self.remove_region(node)
+    #         return True
 
-        Parameters
-        ----------
-        tree_json: dict
-            Dictionary containing region dicts
-        node: dict
-            Information of current region
-        parent: None or TreeRegion
-        """
-        # Convert current region to TreeRegion and add it to tree
-        self[node["name_unique"]] = TreeRegion.from_json(self, node, parent, mc)
-
-        # Recur for each child.
-        if node["child_names"] != []:
-            for child_name in node["child_names"]:
-                self._build_tree(tree_json, tree_json[child_name], mc, self[node["name_unique"]])
-
-    def fix_duct_geometry(self, node):
-        """Fix geometry to work with FEA.
-
-        Check if a region crosses over its upper or lower duplication angle, and splits it
-        apart into two regions within the valid sector. Meant primarily for ducts; splitting
-        apart magnet or other regions in this way can result in errors when solving.
-
-        Parameters
-        ----------
-        node: region representing region to be fixed
-
-        Returns
-        -------
-        Bool: bool representing whether splitting occurred
-        """
-        # Splits regions apart, if necessary, to enforce valid geometry
-        node = self.get_region(node)
-        name = node.key
-        duplication_angle = 360 / node.duplications
-
-        # brush1 used to find the valid portion just above angle 0
-        brush1 = Region(region_type=RegionType.airgap)
-        brush_length = self._motorcad_instance.get_variable("Stator_Lam_Dia")
-        p1 = Coordinate(0, 0)
-        p2 = Coordinate(brush_length, 0)
-        brush1.entities.append(Line(p2, p1))
-
-        brush1.entities.append(Arc(p1, p2, centre=Coordinate(brush_length / 2, 1)))
-        valid_regions_lower = self._motorcad_instance.subtract_region(node, brush1)
-
-        # Case where there is no lower intersection
-        if (len(valid_regions_lower) == 1) and (valid_regions_lower[0].entities == node.entities):
-            # now perform the upper check
-            # brush3 used to find the valid portion just below duplication angle
-            brush3 = Region(region_type=RegionType.airgap)
-            p1 = Coordinate(0, 0)
-            p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
-            brush3.entities.append(Line(p1, p2))
-            brush3.entities.append(Arc(p2, p1, radius=brush_length / 2))
-            valid_regions_upper = self._motorcad_instance.subtract_region(node, brush3)
-
-            # Case where no slicing necessary
-            if (len(valid_regions_upper) == 1) and (
-                valid_regions_upper[0].entities == node.entities
-            ):
-                return False
-            # Case where upper slicing necessary
-            else:
-                for i, new_valid_region in enumerate(valid_regions_upper):
-                    new_valid_region.name = f"{name}_{i + 1}"
-                    self.add_region(new_valid_region, parent=node.parent)
-                # now perform the upper check
-                # brush4 used to find the invalid portion just above duplication angle
-                brush4 = Region(region_type=RegionType.airgap)
-                p1 = Coordinate(0, 0)
-                p2 = Coordinate.from_polar_coords(brush_length, duplication_angle)
-                brush4.entities.append(Line(p2, p1))
-                brush4.entities.append(Arc(p1, p2, radius=brush_length / 2))
-                invalid_regions_upper = self._motorcad_instance.subtract_region(node, brush4)
-                for i, new_lower_valid_region in enumerate(invalid_regions_upper):
-                    new_lower_valid_region.rotate(Coordinate(0, 0), -duplication_angle)
-                    new_lower_valid_region.name = f"{name}_{i + len(valid_regions_upper) + 1}"
-                    # Make sure regions are appropriately linked
-                    for valid_region_upper in valid_regions_upper:
-                        new_lower_valid_region.linked_regions.append(valid_region_upper)
-                        valid_region_upper.linked_regions.append(new_lower_valid_region)
-                    self.add_region(new_lower_valid_region, parent=node.parent)
-                self.remove_region(node)
-                return True
-        # Case where lower slicing necessary
-        else:
-            # first, handle the valid regions returned
-            for i, new_valid_region in enumerate(valid_regions_lower):
-                new_valid_region.name = f"{name}_{i+1}"
-                self.add_region(new_valid_region, parent=node.parent)
-
-            # brush2 used to find the invalid portion just below angle 0
-            brush2 = Region(region_type=RegionType.airgap)
-            p1 = Coordinate(0, 0)
-            p2 = Coordinate(brush_length, 0)
-            brush2.entities.append(Line(p1, p2))
-            brush2.entities.append(Arc(p2, p1, centre=Coordinate(brush_length / 2, -1)))
-            # Upper in this case referring to the fact that this region will
-            # form the upper half of the ellipse.
-            # It will be below the other half in terms of relative positioning
-            invalid_regions_lower = self._motorcad_instance.subtract_region(node, brush2)
-            for i, new_upper_valid_region in enumerate(invalid_regions_lower):
-                new_upper_valid_region.rotate(Coordinate(0, 0), duplication_angle)
-                new_upper_valid_region.name = f"{name}_{i + len(valid_regions_lower) + 1}"
-                # Make sure regions are appropriately linked
-                for valid_region_lower in valid_regions_lower:
-                    new_upper_valid_region.linked_regions.append(valid_region_lower)
-                    valid_region_lower.linked_regions.append(new_upper_valid_region)
-                self.add_region(new_upper_valid_region, parent=node.parent)
-            self.remove_region(node)
-            return True
-
-    def add_region(self, region, key=None, parent=None, children=None):
+    def _add_region(self, region, parent=None):
         """Add region to tree.
 
         Note that any children specified will be 'reassigned' to the added region, with no
@@ -339,8 +363,6 @@ class GeometryTree(dict):
             Key to be used for dicts
         parent: TreeRegion or str
             Parent object or parent key (must be already within tree)
-        children: list
-             List of children objects or children keys (must be already within tree)
         """
         # Add some proper conversion here at some point. Using __class__ is unsatisfactory
         if not isinstance(region, TreeRegion):
@@ -349,48 +371,27 @@ class GeometryTree(dict):
                 "ansys.motorcad.core.geometry.TreeRegionMagnet"
             )
 
-        if key is None:
-            region.key = region.name
-        else:
-            region.key = key
-
         # Make certain any nodes being replaced are properly removed
         try:
-            self.remove_region(region.key)
+            self.remove_region(self[region.key])
         except KeyError:
             pass
 
-        if children is None:
-            region.children = list()
-        else:
-            if all(isinstance(child, Region) for child in children):
-                region.children = children
-            elif all(isinstance(child, str) for child in children):
-                direct_children = list(self.get_region(child) for child in children)
-                region.children = direct_children
-            else:
-                raise TypeError("Children must be a TreeRegion or str")
-            # Essentially, slotting the given region in between the given parent and children
-            # Children are removed from their old spot and placed in the new one
-            # Children's children become assigned to child's old parent
-            for child in region.children:
-                self.remove_region(child)
-                child.parent = region
-                child.children = list()
-                self[child.key] = child
+        if not "root" in self.keys():
+            # Tree has no root - must be being created
+            region._name = "root"
+            self["root"] = region
 
-        if parent is None:
+        elif parent is None:
             region.parent = self["root"]
-            self["root"].children.append(region)
         else:
             if isinstance(parent, TreeRegion):
                 region.parent = parent
-                parent.children.append(region)
             elif isinstance(parent, str):
                 region.parent = self.get_region(parent)
-                self[parent].children.append(region)
             else:
                 raise TypeError("Parent must be a TreeRegion or str")
+
         region._motorcad_instance = self._motorcad_instance
         self[region.key] = region
 
@@ -400,9 +401,31 @@ class GeometryTree(dict):
             node = self.get_region(node)
         for child in node.children:
             child.parent = node.parent
-            node.parent.children.append(child)
-        node.parent.children.remove(node)
+
         self.pop(node.key)
+
+    def create_region(self, region_type, parent=None):
+        """Create a region in the tree.
+
+        Parameters
+        ----------
+        region_type : ansys.motorcad.core.geometry.RegionType
+            Type of region to create
+        parent : TreeRegion|TreeRegionMagnet
+            parent object (must be already within tree)
+        children : list of TreeRegion|list of TreeRegionMagnet
+            child objects (must be already within tree)
+        Returns
+        -------
+        TreeRegion|TreeRegionMagnet
+        """
+        if region_type == RegionType.magnet:
+            region = TreeRegionMagnet(self, motorcad_instance=self._motorcad_instance)
+        else:
+            region = TreeRegion(self, region_type, motorcad_instance=self._motorcad_instance)
+
+        self._add_region(region, parent=parent)
+        return region
 
     def remove_branch(self, node):
         """Remove Node and all descendants from tree."""
@@ -416,30 +439,11 @@ class GeometryTree(dict):
             self.pop(node.key)
 
         dive(node)
-        node.parent.children.remove(node)
 
     @property
     def lowercase_keys(self):
         """Return a dict of lowercase keys and their corresponding real keys."""
         return dict((node.key.lower(), node.key) for node in self)
-
-    @property
-    def _start(self):
-        """Return the start of the tree."""
-        start = None
-
-        # Find starting point
-        for node in self.values():
-            if node.parent is None:
-                start = node
-                break
-            else:
-                try:
-                    self[node.parent.key]
-                except KeyError:
-                    start = node
-
-        return start
 
 
 class TreeRegion(Region):
@@ -448,33 +452,59 @@ class TreeRegion(Region):
     Nodes should not have a parent or children unless they are part of a tree.
     """
 
-    def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
+    def __init__(self, tree, region_type, motorcad_instance=None):
         """Initialize the geometry region.
 
         Parent and children are defined when the region is added to a tree.
 
         Parameters
         ----------
+        tree : GeometryTree
+            Tree which region belongs to
         region_type: RegionType
+            Type of region to create
+        motorcad_instance: ansys.motorcad.core.geometry.MotorCAD
+            MotorCAD instance
         """
         super().__init__(region_type=region_type, motorcad_instance=motorcad_instance)
-        self._init_treeregion_properties()
+        self._init_treeregion_properties(tree)
 
-    def _init_treeregion_properties(self):
-        self.children = list()
+        self._name = "region_" + str(self.tree.unique_region_number)
+
+    def _init_treeregion_properties(self, tree):
+        """Initialise params for TreeRegion.
+
+        Parameters
+        ----------
+        tree : GeometryTree
+            Tree which region belongs to
+        """
         self.parent = None
-        self.key = None
+        self.tree = tree
+        self._linked_region_names = []
 
     def __repr__(self):
         """Return string representation of TreeRegion."""
-        try:
-            return self.key
-        except AttributeError:
-            return self.name
+        return self.key
+
+    @property
+    def name(self):
+        """Name of Region."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self.tree[value] = self.tree.pop(self.key)
+        self._name = value
+
+    @property
+    def key(self):
+        """Get key of Region in dict."""
+        return self._name
 
     @classmethod
-    def from_json(cls, geometry_tree, region_json, parent_region, mc):
-        """Create a RegionTree from JSON data.
+    def from_json(cls, geometry_tree, region_json, mc):
+        """Create a RegionTree from JSON data, must link parent once whole tree is available.
 
         Parameters
         ----------
@@ -482,41 +512,27 @@ class TreeRegion(Region):
             Geometry tree that region belongs to.
         region_json: dict
             JSON representation of region.
-        parent_region: TreeRegion
-            Parent region of current region.
-        mc: Motorcad
-            Motor-CADinstance.
+        mc: ansys.motorcad.core.geometry.MotorCAD
+            Motor-CAD instance.
 
         Returns
         -------
         TreeRegion
         """
-        if region_json["name_unique"] == "root":
-            new_region = TreeRegion(region_type=RegionType.airgap, motorcad_instance=mc)
-            new_region.name = "root"
-            new_region.key = "root"
-            # Protected linked_region_names attribute used only when first initializing the tree
-            new_region._linked_region_names = []
+        is_magnet = region_json["region_type"] == RegionType.magnet.value
 
+        if is_magnet:
+            new_region = TreeRegionMagnet(geometry_tree, motorcad_instance=mc)
         else:
-            is_magnet = region_json["region_type"] == RegionType.magnet.value
+            new_region = cls(
+                geometry_tree, RegionType(region_json["region_type"]), motorcad_instance=mc
+            )
 
-            if is_magnet:
-                new_region = TreeRegionMagnet(motorcad_instance=mc)
-            else:
-                new_region = cls(RegionType(region_json["region_type"]))
+        new_region._add_parameters_from_json(region_json)
 
-            new_region._add_pameters_from_json(region_json)
+        # Protected linked_region_names attribute used only when first initializing the tree
+        new_region._linked_region_names = region_json["linked_regions"]
 
-            new_region.parent = parent_region
-            new_region.children = list()
-            parent_region.children.append(new_region)
-            new_region.key = region_json["name_unique"]
-            # Protected linked_region_names attribute used only when first initializing the tree
-            new_region._linked_region_names = region_json["linked_regions"]
-
-        new_region._motorcad_instance = mc
-        new_region.geometry_tree = geometry_tree
         return new_region
 
     def duplicate(self):
@@ -525,7 +541,7 @@ class TreeRegion(Region):
 
          Duplicates all data except for its pointers to parent and children.
         """
-        node_copy = TreeRegion()
+        node_copy = self.tree._add_region()
         forbidden = ["_parent", "_children", "_entities"]
         for att in vars(self):
             if not att in forbidden:
@@ -571,11 +587,17 @@ class TreeRegion(Region):
         list of ansys.motorcad.core.geometry.Region
             list of Motor-CAD region object
         """
-        return self._children
+        children = []
+
+        for region in self.tree:
+            if region.parent == self:
+                children += [region]
+
+        return children
 
     @children.setter
-    def children(self, children):
-        self._children = children
+    def children(self, value):
+        raise NotImplementedError
 
     @property
     def child_keys(self):
@@ -630,7 +652,7 @@ class TreeRegionMagnet(TreeRegion, RegionMagnet):
     Inherit behaviour from both TreeRegions and RegionMagnet.
     """
 
-    def __init__(self, motorcad_instance=None):
+    def __init__(self, tree, motorcad_instance=None):
         """Initialize the geometry region.
 
         Parent and children are defined when the region is added to a tree.
@@ -640,4 +662,6 @@ class TreeRegionMagnet(TreeRegion, RegionMagnet):
         region_type: RegionType
         """
         RegionMagnet.__init__(self, motorcad_instance=motorcad_instance)
-        self._init_treeregion_properties()
+        self._init_treeregion_properties(tree)
+
+        self._name = "magnet_region_" + str(self.tree.unique_region_number)

@@ -97,6 +97,7 @@ class RegionType(Enum):
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
+    no_type = "No type"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
@@ -286,15 +287,15 @@ class Region(object):
             else:
                 new_region = cls(motorcad_instance=motorcad_instance)
 
-        new_region._add_pameters_from_json(json)
+        new_region._add_parameters_from_json(json)
 
         return new_region
 
-    def _add_pameters_from_json(self, json):
+    def _add_parameters_from_json(self, json):
         if "name_unique" in json:
-            self.name = json["name_unique"]
+            self._name = json["name_unique"]
         else:
-            self.name = json["name"]
+            self._name = json["name"]
 
         self._base_name = json["name"]
         self.material = json["material"]
@@ -343,9 +344,9 @@ class Region(object):
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
 
-        self._raw_region["name"] = self._name
+        self._raw_region["name"] = self.name
         if "name_unique" in self._raw_region:
-            self._raw_region["name_unique"] = self._name
+            self._raw_region["name_unique"] = self.name
         self._raw_region["name_base"] = self._base_name
         self._raw_region["material"] = self._material
         self._raw_region["colour"] = {
@@ -370,6 +371,15 @@ class Region(object):
         self._raw_region["lamination_type"] = lamination_type
 
         return self._raw_region
+
+    @property
+    def name(self):
+        """Name of Region."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def parent_name(self):
@@ -1023,13 +1033,13 @@ class RegionMagnet(Region):
         self._br_magnet = 0.0
         self._magnet_polarity = ""
 
-    def _add_pameters_from_json(self, json):
+    def _add_parameters_from_json(self, json):
         self._magnet_angle = json["magnet_angle"]
         self._br_multiplier = json["magnet_magfactor"]
         self._magnet_polarity = json["magnet_polarity"]
         self._br_magnet = json["magnet_br_value"]
 
-        super()._add_pameters_from_json(json)
+        super()._add_parameters_from_json(json)
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
