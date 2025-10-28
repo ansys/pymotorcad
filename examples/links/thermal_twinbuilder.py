@@ -380,7 +380,7 @@ class MotorCADTwinModel:
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings
         self.getNodeData()
 
-        self.generateFixedTemperatures(coolingSystemsParameterSweeps)
+        self.generateTemperatureControls()
         self.generateRpmSamples(rpms)
         self.generateLossDistribution()
 
@@ -849,7 +849,9 @@ class MotorCADTwinModel:
 
             housingTempDependency = True
 
-        # TODO consider coupled cooling system warning
+        # TODO For original, warn if coupled cooling system
+        # TODO For improved, ensure coupled systems are not controlled.
+        # TODO warn if heat exchanger is being used
         return housingTempDependency, airGapTempDependency, coolingSystemsInputs
 
     # Functions to update any mot file settings that need to be set appropriately
@@ -1023,6 +1025,9 @@ class MotorCADTwinModel:
             message = "Unidentified losses are present in the model. Please contact support"
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
+        
+        # reset the losses to a small value
+        self.setLosses(0.1)
 
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
@@ -1139,6 +1144,10 @@ class MotorCADTwinModel:
                                 cooling = coolingSystem
                                 found = True
                                 break
+
+                    if not found:
+                        # Unknown cooling system
+                        cooling = None
                 else:
                     # More than one node group, cannot determine a cooling system for this flow path
                     cooling = None
@@ -1289,6 +1298,10 @@ class MotorCADTwinModel:
                     connectedNodesList.append(connectedNode)
 
         return connectedNodesList
+    
+    def generateTemperatureControls(self):
+        fixedTemperatureMapping = self.generateFixedTemperatures(coolingSystemsParameterSweeps)
+        self.generateTemperatureCoupledNodes(fixedTemperatureMapping)
 
     # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
     def generateFixedTemperatures(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
@@ -1331,6 +1344,9 @@ class MotorCADTwinModel:
                         fixedTemperatureIndices[index].append(parameter.name)
                 # Reset tested parameter back to original value
                 self.mcad.set_variable(parameter.automationString, originalValue)
+    
+            # reset the losses to a small value
+            self.setLosses(0.1)
 
         # Special case for Ambient node
         fixedTemperatureIndices[0].append("Ambient_Temp")
@@ -1352,7 +1368,10 @@ class MotorCADTwinModel:
                 else:
                     parameterName = parameterNames[0]
                 ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
-        # TODO handle fixed temperature controlled coupled cooling systems
+
+    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file
+    def generateTemperatureCoupledNodes(self, fixedTemperatureMapping):
+        pass
 
     def generateInitialTemperatures(self):
         initialisations = []
