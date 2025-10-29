@@ -334,8 +334,7 @@ class _RegionDrawing:
         duplication_angle = 360 / region.duplications
 
         for duplicate_number in range(0, region.duplications):
-            duplicate = region.duplicate()
-            duplicate.parent = region.parent
+            duplicate = deepcopy(region)
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
             self._draw_region(duplicate, colour, labels, full_geometry=True)
 

@@ -21,8 +21,6 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
-from copy import deepcopy
-
 from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
 
 
@@ -539,21 +537,6 @@ class TreeRegion(Region):
 
         return new_region
 
-    def duplicate(self):
-        """
-        Return a copy of the TreeRegion.
-
-         Duplicates all data except for its pointers to parent and children.
-        """
-        node_copy = self.tree._add_region()
-        forbidden = ["_parent", "_children", "_entities"]
-        for att in vars(self):
-            if not att in forbidden:
-                node_copy.__setattr__(att, getattr(self, att))
-        for entity in self.entities:
-            node_copy.entities.append(deepcopy(entity))
-        return node_copy
-
     @property
     def depth(self):
         """Depth of region."""
@@ -674,3 +657,7 @@ class TreeRegionMagnet(TreeRegion, RegionMagnet):
         self._init_treeregion_properties(tree)
 
         self._name = "magnet_region_" + str(self.tree.unique_region_number)
+
+    def _get_new_object_of_type_self(self):
+        """Return self object."""
+        return type(self)(self.tree, motorcad_instance=self._motorcad_instance)
