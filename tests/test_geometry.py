@@ -3356,3 +3356,20 @@ def test_get_bezier_points():
     # Mid point should be half the height of the triangle
     assert isclose(result_points[1].x, 0.5)
     assert isclose(result_points[1].y, 0.5)
+
+
+def test_region_creation_type(mc):
+    new_region_1 = Region("rotor_air")
+    assert new_region_1.region_type == RegionType.rotor_air
+
+    with pytest.warns():
+        # This should give us a warning that the region type is the first argument
+        new_region_2 = Region(mc)
+
+    with pytest.raises(Exception):
+        # This should give us an exception that the region name isn't valid
+        new_region_2 = Region("not_a_motorcad_region")
+
+    with pytest.raises(Exception):
+        # Passing in something that's not a string or motorcad object should give an exception
+        new_region_3 = Region(1)
