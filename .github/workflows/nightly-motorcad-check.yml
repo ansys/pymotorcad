@@ -3,7 +3,7 @@ name: Nightly MotorCAD check
 on:
   workflow_dispatch:
   schedule:  # UTC at 0400
-    - cron:  '0 4 * * *'
+    - cron:  '0 22 * * *'
 
 env:
   PACKAGE_NAME: ansys-motorcad-core
