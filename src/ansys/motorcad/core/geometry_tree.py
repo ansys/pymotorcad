@@ -90,12 +90,12 @@ class GeometryTree(dict):
     def __str__(self):
         """Return string representation of the geometry tree."""
         string = ""
-        starting_depth = list(self.values())[0].depth
+        starting_level = list(self.values())[0].level
 
         for node in self:
-            relative_depth = node.depth - starting_depth
-            string += "│   " * (relative_depth - 1)
-            if relative_depth == 0:
+            relative_level = node.level - starting_level
+            string += "│   " * (relative_level - 1)
+            if relative_level == 0:
                 cap = ""
             elif node == node.parent.children[-1]:
                 cap = "└── "
@@ -538,18 +538,18 @@ class TreeRegion(Region):
         return new_region
 
     @property
-    def depth(self):
-        """Depth of region."""
-        depth = 0
+    def level(self):
+        """Level of region in tree."""
+        level = 0
         node = self
 
         while True:
             if node.key == "root":
                 break
-            depth += 1
+            level += 1
             node = node.parent
 
-        return depth
+        return level
 
     @property
     def parent(self):
