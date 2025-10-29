@@ -312,7 +312,13 @@ class _RpcMethodsAdaptiveGeometry:
             return self.connection.send_and_receive(method)
 
     def get_geometry_tree(self):
-        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor."""
+        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.GeometryTree
+            Motor-CAD geometry tree
+        """
         method = "GetGeometryTree"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
@@ -322,3 +328,8 @@ class _RpcMethodsAdaptiveGeometry:
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
+
+    def get_maxwell_udm_geometry_json(self):
+        """Fetch a dict defining Maxwell UDM geometry."""
+        method = "GetGeometryTree_Maxwell_UDM"
+        return self.connection.send_and_receive(method)

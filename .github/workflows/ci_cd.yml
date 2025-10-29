@@ -47,17 +47,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v10
         with:
           library-name: ${{ env.LIBRARY_NAME }}
-          library-namespace: ${{ env.LIBRARY_NAMESPACE }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-
-          check-licenses: false
+          # License check requires 3.10 or above
+          check-licenses: ${{ matrix.python-version != '3.9' }}
 
   tests:
     name: Tests and coverage

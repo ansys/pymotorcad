@@ -645,6 +645,11 @@ class TreeRegion(Region):
         else:
             return self.parent.name
 
+    @property
+    def linked_regions(self):
+        """Get linked region objects for duplication/unite operations."""
+        return [self.tree[name] for name in self._linked_region_names]
+
 
 class TreeRegionMagnet(TreeRegion, RegionMagnet):
     """Class for magnets in tree.
