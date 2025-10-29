@@ -21,58 +21,69 @@
 # SOFTWARE.
 
 """
-SYNC Short circuit current iterative calculation.
+.. _ref_sync_potier_diagram:
 
-This script allows a correct short-circuit calculation such that:
-the input current used to get DQ axis parameters is equal to the short circuit current
-Recommended to be used with SYNC generators
-User has to provide input values for DC field current, relaxation (damping) factor and tolerance
+SYNC Short circuit current and Vacuum curve Potier diagram.
+===========================================================
+This example script allows a correct short-circuit calculation such that:
+the input current used to get DQ axis parameters is equal to the short circuit current.
+Recommended to be used with SYNC generators.
+User has to provide input values for DC field current, relaxation (damping) factor and tolerance.
+The script also calculates the Vacuum curve (Open circuit Back-EMF) and plots both of them to create
+the Potier diagram.
+The script also searches for the optimal field current for a certain generator operating point.
 """
-
+# %%
+# Perform required imports
+# ------------------------
 import csv
 import os
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
-
-# Need to import pymotorcad to access Motor-CAD
 import ansys.motorcad.core as pymotorcad
 
-# Connect to Motor-CAD
+# %%
+# Launch Motor-CAD
+# ----------------
 mc = pymotorcad.MotorCAD()
 
-# Define working directory
+# %%
+# Setup calculation
+# -----------------
+# We will define the working and results directory and make sure the results directory exists
 full_path = mc.get_file_name()
 path = Path(full_path)
 working_dir = path.parent
 mot_name = path.stem
 
-# Defing results directory
+results_dir = working_dir / mot_name / "results"    # Define results directory
+results_dir.mkdir(parents=True, exist_ok=True)  # Ensure "results" directory exists
 
-results_dir = working_dir / mot_name / "results"
-
-# Ensure "results" directory exists
-results_dir.mkdir(parents=True, exist_ok=True)
-
-# Inputs: Rated voltage (V), Rated kVA, Power Factor and DC current array
-rated_voltage = 6800
-rated_VA = 416000
-rated_pf = 0.9
-rated_power = rated_VA * rated_pf
+# %%
+# We will define the inputs for the calculation of the short circuit and vacuum curve:
+# Rated voltage (Vrms), Rated (VA), Power Factor (-), DC current array (A), and relaxation factor
+# as well as the settings for the optimal field current search function:
+# tolerance, max_iter, and current_step.
+rated_voltage = 6800    # Rated voltage (Vrms)
+rated_VA = 416000   # Rated apparent power (VA)
+rated_pf = 0.9  # Rated power factor (-)
+rated_power = rated_VA * rated_pf   # Rated power (W)
 rated_current = rated_power / (np.sqrt(3 / 2) * rated_voltage * rated_pf)  # peak value
 r_load = rated_power / (3 / 2) / (np.power(rated_current, 2))  # AC load resistance
 load_impedance = r_load / rated_pf  # AC load impedance
 x_load = np.sqrt(np.power(load_impedance, 2) - np.power(r_load, 2))  # AC load reactance
 
-dc_current = [10, 20, 40, 50, 80, 100, 150]
-relaxation_factor = 0.2
-tolerance = 0.01
-max_iter = 200
-current_step = 1
+dc_current = [10, 20, 40, 50, 80, 100, 150] # DC current array that will be used to calculate the short circuit currents and open circuit voltage
+relaxation_factor = 0.2 # relaxation factor used in the calculation of the short circuit current
+tolerance = 0.01 # Tolerance used to find optimal field current for a certain rated voltage in (=1%)
+max_iter = 200  # Maximum number of iteration possible in the optimal field current search function
+current_step = 1 # Current step used in the optimal field current search function (A)
 
-
-# This function is called when "Run" is pressed
+# %%
+# Optimal field current search function
+# -------------------------------------
+# We will define a function to find the optimal field current for a certain operating point
 def find_field_current_simple(
     mc, rated_voltage, if0, ifk, step=current_step, tol=tolerance, max_iter=max_iter
 ):
@@ -123,7 +134,9 @@ def find_field_current_simple(
 
     raise RuntimeError(f"Failed to converge: last i_f={i_f:.1f} A, Vt={Vt:.1f} V")
 
-
+# %%
+# Main function
+# -------------
 # This function is called when "Run" is pressed
 def main():
     """Call when Run is pressed."""
@@ -133,6 +146,7 @@ def main():
     short_circuit_currents = []
     back_emf_voltages = []
 
+    # Short circuit calculation
     for DCC in dc_current:
         mc.set_variable("DCFieldCurrent", DCC)
         mc.set_variable("PhaseAdvance", 90)
@@ -165,6 +179,7 @@ def main():
                 ) * peakCurrent + relaxation_factor * shortCircuitCurrent
                 mc.set_variable("PeakCurrent", new_peak_current)
 
+    # Open circuit Back-EMF calculation
     for DCC in dc_current:
         mc.set_variable("DCFieldCurrent", DCC)
         mc.set_variable("PhaseAdvance", 0)
