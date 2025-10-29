@@ -487,6 +487,10 @@ class TreeRegion(Region):
         """Return string representation of TreeRegion."""
         return self.key
 
+    def _get_new_object_of_type_self(self):
+        """Return self object."""
+        return type(self)(self.tree, self.region_type, motorcad_instance=self._motorcad_instance)
+
     @property
     def name(self):
         """Name of Region."""

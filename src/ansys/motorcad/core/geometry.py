@@ -175,9 +175,13 @@ class Region(object):
             and self._entities == other._entities
         )
 
+    def _get_new_object_of_type_self(self):
+        """Return self object."""
+        return type(self)()
+
     def __copy__(self):
         """Override default copy behaviour."""
-        copied_object = type(self)()
+        copied_object = self._get_new_object_of_type_self()
         copied_object.__dict__.update(self.__dict__)
 
         # We don't want to copy raw json to a new region
@@ -192,7 +196,7 @@ class Region(object):
         def override_close_motorcad_on_exit():
             return False
 
-        copied_object = type(self)()
+        copied_object = self._get_new_object_of_type_self()
 
         memo[id(self)] = copied_object
         for k, v in self.__dict__.items():
