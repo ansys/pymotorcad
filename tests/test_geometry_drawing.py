@@ -184,8 +184,75 @@ def test_check(mc):
 def test_draw_entity(mc):
     gt = mc.get_geometry_tree()
     with tempfile.TemporaryDirectory() as temp_dir:
-        path = os.path.join(temp_dir, "region_list.png")
+        path = os.path.join(temp_dir, "entity.png")
         draw_objects(gt["Rotor"].entities[0], save=path)
+
+
+def test_draw_coordinate(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate.png")
+        draw_objects(gt["Rotor"].points[0], save=path)
+
+
+def test_draw_list_of_coordinates(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate_list.png")
+        # path = r"C:\Workspace\pymotorcad\tests\test_files\temp_files\coordinate_list.png"
+        draw_objects(gt["Rotor"].points, save=path)
+
+
+def test_draw_list_of_coordinate_and_entity(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate_entity_list.png")
+        draw_objects([gt["Rotor"].points[0], gt["Rotor"].entities[1]], save=path)
+
+
+def test_draw_list_of_coordinates_and_entities(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate_entity_list.png")
+        to_draw = []
+        to_draw.extend(gt["Rotor"].points)
+        to_draw.extend(gt["Rotor"].entities)
+        draw_objects(to_draw, save=path)
+
+
+def test_draw_list_of_coordinate_and_region(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate_region.png")
+        # path = r"C:\Workspace\pymotorcad\tests\test_files\temp_files\coordinate_region_list.png"
+        draw_objects([gt["Rotor"].points[0], gt["Rotor"]], save=path)
+
+
+def test_draw_list_of_coordinate_and_region_and_entity(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinate_entity_region.png")
+        draw_objects([gt["Rotor"].points[0], gt["Rotor"], gt["Shaft"].entities[2]], save=path)
+
+
+def test_draw_list_of_region_and_entity(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "entity_region.png")
+        draw_objects([gt["Rotor"], gt["Shaft"].entities[2]], save=path)
+
+
+def test_draw_list_of_coordinates_and_regions_and_entities(mc):
+    gt = mc.get_geometry_tree()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        path = os.path.join(temp_dir, "coordinates_entities_regions_list.png")
+        to_draw = []
+        to_draw.extend(gt["Rotor"].points)
+        to_draw.extend(gt["Shaft"].entities)
+        to_draw.append(gt["Rotor"])
+        to_draw.append(gt["RotorDuctFluidRegion"])
+        to_draw.append(gt["RotorDuctFluidRegion_1"])
+        draw_objects(to_draw, save=path)
 
 
 def test_bidict():
