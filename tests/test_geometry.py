@@ -415,6 +415,7 @@ def test_region_to_json():
         "mesh_length": 0.035,
         "singular": True,
         "linked_regions": [],
+        "extrusion_blocks": [],
     }
 
     test_region = geometry.Region(region_type=RegionType.stator_copper)
