@@ -39,7 +39,9 @@ def mc():
     motorcad_instance.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance)
 
-    return motorcad_instance
+    yield motorcad_instance
+
+    motorcad_instance.quit()
 
 
 @pytest.fixture(scope="function")
@@ -57,4 +59,6 @@ def mc_fea_old():
     motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance_fea_old)
 
-    return motorcad_instance_fea_old
+    yield motorcad_instance_fea_old
+
+    motorcad_instance_fea_old.quit()

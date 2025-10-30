@@ -26,7 +26,7 @@ import warnings
 from warnings import warn
 
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
-from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree, TreeRegion
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:
@@ -104,7 +104,7 @@ class _RegionDrawing:
     @staticmethod
     def get_label(object):
         # Make certain label is appropriate for regions that might not be a part of trees
-        if isinstance(object, Region) and not isinstance(object, GeometryNode):
+        if isinstance(object, Region) and not isinstance(object, TreeRegion):
             return object.name
         # Tuples used to draw lists of entities. The second value input is an integer used to
         # grant unique labels
@@ -114,8 +114,8 @@ class _RegionDrawing:
         if object.key == "root":
             return "root"
         label = ""
-        label += "│   " * (object.depth - 2)
-        if object.depth == 1:
+        label += "│   " * (object.level - 2)
+        if object.level == 1:
             cap = ""
         elif object == object.parent.children[-1]:
             cap = "└── "
@@ -329,13 +329,12 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def _draw_duplicates(self, region: GeometryNode, colour, labels):
+    def _draw_duplicates(self, region: TreeRegion, colour, labels):
         """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
 
         for duplicate_number in range(0, region.duplications):
-            duplicate = region.duplicate()
-            duplicate.parent = region.parent
+            duplicate = deepcopy(region)
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
             self._draw_region(duplicate, colour, labels, full_geometry=True)
 
@@ -345,7 +344,7 @@ class _RegionDrawing:
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
-        if isinstance(region, GeometryNode):
+        if isinstance(region, TreeRegion):
             legend_key = region.key
         else:
             legend_key = region.name
@@ -607,7 +606,7 @@ def draw_objects(
         if optimise:
             for node in objects:
                 if not node.key in drawn_nodes and node.key != "root":
-                    objects.remove_node(node)
+                    objects.remove_region(node)
 
         for node in objects:
             legend_key = node.key
@@ -685,8 +684,8 @@ def draw_objects(
                     object.y,
                 )
 
-    # Draw a sole region/node
-    if isinstance(objects, Region) or isinstance(objects, GeometryNode):
+    # Draw a sole region
+    if isinstance(objects, Region) or isinstance(objects, TreeRegion):
         if draw_points is None:
             draw_points = False
         if isinstance(objects, Region):

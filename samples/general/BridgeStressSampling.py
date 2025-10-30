@@ -42,6 +42,7 @@ mcApp = pymotorcad.MotorCAD()
 # Users should run this script from the scripting tab after the stress calculation
 # Trigger this automatically for the automated documentation build
 if "PYMOTORCAD_DOCS_BUILD" in os.environ:
+    mcApp.set_variable("MessageDisplayState", 2)
     mcApp.load_template("e10")
     mcApp.do_mechanical_calculation()
 
