@@ -114,8 +114,8 @@ class _RegionDrawing:
         if object.key == "root":
             return "root"
         label = ""
-        label += "│   " * (object.depth - 2)
-        if object.depth == 1:
+        label += "│   " * (object.level - 2)
+        if object.level == 1:
             cap = ""
         elif object == object.parent.children[-1]:
             cap = "└── "

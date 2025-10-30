@@ -316,7 +316,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         Returns
         -------
-        ansys.motorcad.core.geometry.GeometryTree
+        ansys.motorcad.core.geometry_tree.GeometryTree
             Motor-CAD geometry tree
         """
         method = "GetGeometryTree"

@@ -357,8 +357,6 @@ class GeometryTree(dict):
         ----------
         region: ansys.motorcad.core.geometry.TreeRegion|ansys.motorcad.core.geometry.TreeRegionMagnet # noqa: E501
             Region to convert and add to tree
-        key: str
-            Key to be used for dicts
         parent: TreeRegion or str
             Parent object or parent key (must be already within tree)
         """
@@ -411,8 +409,6 @@ class GeometryTree(dict):
             Type of region to create
         parent : TreeRegion|TreeRegionMagnet
             parent object (must be already within tree)
-        children : list of TreeRegion|list of TreeRegionMagnet
-            child objects (must be already within tree)
         Returns
         -------
         TreeRegion|TreeRegionMagnet
@@ -465,8 +461,8 @@ class TreeRegion(Region):
             MotorCAD instance
         """
         super().__init__(region_type=region_type, motorcad_instance=motorcad_instance)
-        self._init_treeregion_properties(tree)
 
+        self._init_treeregion_properties(tree)
         self._name = "region_" + str(self.tree.unique_region_number)
 
     def _init_treeregion_properties(self, tree):
@@ -477,7 +473,7 @@ class TreeRegion(Region):
         tree : GeometryTree
             Tree which region belongs to
         """
-        self.parent = None
+        self._parent = None
         self.tree = tree
         self._linked_region_names = []
 
@@ -557,7 +553,7 @@ class TreeRegion(Region):
 
         Returns
         -------
-        ansys.motorcad.core.geometry.Region
+        ansys.motorcad.core.geometry_tree.TreeRegion
         """
         return self._parent
 
@@ -571,7 +567,7 @@ class TreeRegion(Region):
 
         Returns
         -------
-        list of ansys.motorcad.core.geometry.Region
+        list of ansys.motorcad.core.geometry_tree.TreeRegion
             list of Motor-CAD region object
         """
         children = []
