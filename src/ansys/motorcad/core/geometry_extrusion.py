@@ -149,7 +149,8 @@ class ExtrusionBlockList(list):
         """
         return [block._to_json() for block in self]
 
-    def _from_json(self, json_list):
+    @classmethod
+    def _from_json(cls, json_list):
         """Convert the class from a JSON object.
 
         Parameters
@@ -157,7 +158,11 @@ class ExtrusionBlockList(list):
         json: list
             List of extrusion blocks in json.
         """
+        new_block_list = cls()
+
         for json_object in json_list:
             block = ExtrusionBlock()
             block._from_json(json_object)
-            self.append(block)
+            new_block_list.append(block)
+
+        return new_block_list

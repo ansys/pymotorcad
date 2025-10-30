@@ -478,7 +478,7 @@ class Region(object):
             self._linked_region_names = json["linked_regions"]
 
         if "extrusion_blocks" in json:
-            self._extrusion_blocks._from_json(json["extrusion_blocks"])
+            self._extrusion_blocks = ExtrusionBlockList._from_json(json["extrusion_blocks"])
 
         self._raw_region = json
 
@@ -519,7 +519,7 @@ class Region(object):
         self._raw_region["linked_regions"] = self.linked_region_names
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = self._lamination_type
-        self._raw_region["extrusion_blocks"] = (self._extrusion_blocks._to_json,)
+        self._raw_region["extrusion_blocks"] = self._extrusion_blocks._to_json()
 
         return self._raw_region
 
