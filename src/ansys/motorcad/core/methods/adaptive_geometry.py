@@ -319,17 +319,20 @@ class _RpcMethodsAdaptiveGeometry:
         ansys.motorcad.core.geometry.GeometryTree
             Motor-CAD geometry tree
         """
+        self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
 
     def set_geometry_tree(self, tree: GeometryTree):
         """Use a GeometryTree object to set the defining geometry of the loaded motor."""
+        self.connection.ensure_version_at_least("2026.0")
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
 
     def get_maxwell_udm_geometry_json(self):
         """Fetch a dict defining Maxwell UDM geometry."""
+        self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
