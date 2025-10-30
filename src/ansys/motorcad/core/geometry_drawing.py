@@ -678,10 +678,10 @@ def draw_objects(
                 )
                 region_drawing.bounds[legend_key] = (
                     Coordinate.get_polar_coords_deg(object)[0],
-                    object.x,
-                    object.x,
-                    object.y,
-                    object.y,
+                    object.x + 1,
+                    object.x - 1,
+                    object.y + 1,
+                    object.y - 1,
                 )
 
     # Draw a sole region
@@ -712,6 +712,7 @@ def draw_objects(
 
     # Draw a sole coordinate
     if isinstance(objects, Coordinate):
+        print("drawing a coordinate")
         if draw_points is None:
             draw_points = True
         legend_key = str(objects.__class__).split(".")[-1][0:-2]
@@ -719,14 +720,14 @@ def draw_objects(
         region_drawing.object_states[legend_key] = True
         region_drawing.keys_and_labels.insert(legend_key, legend_key)
         region_drawing.legend_objects[legend_key].append(
-            region_drawing._draw_coordinate(object, "black")
+            region_drawing._draw_coordinate(objects, "black")
         )
         region_drawing.bounds[legend_key] = (
-            Coordinate.get_polar_coords_deg(object)[0],
-            object.x,
-            object.x,
-            object.y,
-            object.y,
+            Coordinate.get_polar_coords_deg(objects)[0],
+            objects.x + 1,
+            objects.x - 1,
+            objects.y + 1,
+            objects.y - 1,
         )
 
     # Create an interactable legend to label and change displayed regions
