@@ -153,7 +153,7 @@ class _RpcMethodsAdaptiveGeometry:
             if not self.connection.check_version_at_least("2025"):
                 warn("Setting region mesh length is only available in Motor-CAD 2025R1 or later")
 
-        raw_region = region._to_json()
+        raw_region = region._to_json(self.connection)
 
         method = "SetRegion"
         params = [raw_region]
@@ -182,8 +182,10 @@ class _RpcMethodsAdaptiveGeometry:
             list of Motor-CAD region object
         """
         self.connection.ensure_version_at_least("2024.0")
-        raw_region = region._to_json()
-        raw_regions = [region_to_check._to_json() for region_to_check in regions_to_check]
+        raw_region = region._to_json(self.connection)
+        raw_regions = [
+            region_to_check._to_json(self.connection) for region_to_check in regions_to_check
+        ]
 
         method = "Check_Collisions"
         params = [raw_region, raw_regions]
@@ -242,8 +244,8 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
 
-        raw_region = region._to_json()
-        raw_regions = [region_internal._to_json() for region_internal in regions]
+        raw_region = region._to_json(self.connection)
+        raw_regions = [region_internal._to_json(self.connection) for region_internal in regions]
 
         method = "UniteRegions"
         params = [raw_region, raw_regions]
@@ -266,7 +268,7 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
 
-        raw_region = region._to_json()
+        raw_region = region._to_json(self.connection)
 
         method = "DeleteRegion"
         params = [raw_region, remove_children]
@@ -290,8 +292,8 @@ class _RpcMethodsAdaptiveGeometry:
         """
         self.connection.ensure_version_at_least("2024.0")
 
-        raw_region = region._to_json()
-        raw_region_subtract = region_subtract._to_json()
+        raw_region = region._to_json(self.connection)
+        raw_region_subtract = region_subtract._to_json(self.connection)
 
         method = "SubtractRegion"
         params = [raw_region, raw_region_subtract]
@@ -327,7 +329,7 @@ class _RpcMethodsAdaptiveGeometry:
     def set_geometry_tree(self, tree: GeometryTree):
         """Use a GeometryTree object to set the defining geometry of the loaded motor."""
         self.connection.ensure_version_at_least("2026.0")
-        params = [tree._to_json()]
+        params = [tree._to_json(self.connection)]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
 

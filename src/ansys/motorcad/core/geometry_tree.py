@@ -149,15 +149,15 @@ class GeometryTree(dict):
                 node.linked_regions.append(self[linked_region_name])
         return self
 
-    def _to_json(self):
+    def _to_json(self, mc):
         """Return a dict object used to set geometry."""
         regions = dict()
         for node in self:
             if node.key != "root":
                 if node.region_type == "Magnet":
-                    regions[node.key] = RegionMagnet._to_json(node)
+                    regions[node.key] = RegionMagnet._to_json(node, mc)
                 else:
-                    regions[node.key] = Region._to_json(node)
+                    regions[node.key] = Region._to_json(node, mc)
         return {"regions": regions}
 
     def get_node(self, key):

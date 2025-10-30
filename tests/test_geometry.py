@@ -398,7 +398,7 @@ def test_region_from_json():
     assert region == test_region
 
 
-def test_region_to_json():
+def test_region_to_json(mc):
     raw_region = {
         "name": "test_region",
         "name_base": "test_region_base",
@@ -432,7 +432,7 @@ def test_region_to_json():
     test_region.singular = True
     test_region.linked_regions = []
 
-    assert test_region._to_json() == raw_region
+    assert test_region._to_json(mc.connection) == raw_region
 
 
 def test_region_is_closed():
