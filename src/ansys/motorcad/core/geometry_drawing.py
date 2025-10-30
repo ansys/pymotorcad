@@ -522,15 +522,16 @@ def draw_objects(
     """Draw geometry objects on a plot.
 
     Parameters
-    objects : List of objects
-        Objects to draw
-    labels : bool
+    ----------
+    objects : list of Coordinate or Entity or Region
+        Geometry objects to draw
+    label_regions : bool
         Whether labels should be drawn. Default is False
     full_geometry : bool
         Whether duplications of regions should be drawn
     draw_points : bool
-        Whether to draw end and mid points of entities. Default is False, except for sole entities.
-    save: str
+        Whether to draw end and midpoints of entities. Default is False, except for sole entities.
+    save : str
         Path to save file to. Default is None.
     dpi : int
         Resolution of figure (used primarily when exporting images as pngs)
@@ -541,9 +542,9 @@ def draw_objects(
     toggle_regions : list of str
         Used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
-    title: str
+    title : str
         Title of figure
-    optimise: bool
+    optimise : bool
         Whether geometry tree drawing should be optimized or not. Default is False. Incompatible
         with toggle_regions, as prevents regions that are not by default displayed from being
         calculated.
@@ -553,7 +554,7 @@ def draw_objects(
     draw_internal : bool
         Whether to draw interactive region drawing when running internally. Has no effect if saving
          to file. Default is False.
-    display:
+    display : bool
         Whether to draw interactive plot. Useful to set as false when planning on further
         modifications to the figure before drawing.
     """
