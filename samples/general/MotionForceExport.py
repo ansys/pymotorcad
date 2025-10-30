@@ -691,6 +691,7 @@ slice_centre_z = 0
 # Alternatively, this could be changed to pymotorcad.MotorCAD(open_new_instance=False) to connect
 # to an existing instance if running from an external IDE.
 mc = pymotorcad.MotorCAD()
+mc.set_variable("MessageDisplayState", 2)
 
 if mc.get_variable("SkewType") == 2:
     # Rotor skew type

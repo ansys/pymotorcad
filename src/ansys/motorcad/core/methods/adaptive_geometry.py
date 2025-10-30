@@ -24,7 +24,7 @@
 from warnings import warn
 
 from ansys.motorcad.core.geometry import Region, RegionMagnet
-from ansys.motorcad.core.methods.geometry_tree import GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree
 from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
 
@@ -312,13 +312,27 @@ class _RpcMethodsAdaptiveGeometry:
             return self.connection.send_and_receive(method)
 
     def get_geometry_tree(self):
-        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor."""
+        """Fetch a GeometryTree object containing all the defining geometry of the loaded motor.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry_tree.GeometryTree
+            Motor-CAD geometry tree
+        """
+        self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
 
     def set_geometry_tree(self, tree: GeometryTree):
         """Use a GeometryTree object to set the defining geometry of the loaded motor."""
+        self.connection.ensure_version_at_least("2026.0")
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
+
+    def get_maxwell_udm_geometry_json(self):
+        """Fetch a dict defining Maxwell UDM geometry."""
+        self.connection.ensure_version_at_least("2026.0")
+        method = "GetGeometryTree_Maxwell_UDM"
+        return self.connection.send_and_receive(method)

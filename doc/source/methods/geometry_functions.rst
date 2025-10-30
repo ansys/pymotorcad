@@ -30,3 +30,4 @@ Geometry functions
    get_entities_have_common_coordinate
    xy_to_rt
    rt_to_xy
+   get_bezier_points
