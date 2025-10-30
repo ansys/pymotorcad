@@ -316,7 +316,7 @@ class _RpcMethodsAdaptiveGeometry:
 
         Returns
         -------
-        ansys.motorcad.core.geometry.GeometryTree
+        ansys.motorcad.core.geometry_tree.GeometryTree
             Motor-CAD geometry tree
         """
         self.connection.ensure_version_at_least("2026.0")
