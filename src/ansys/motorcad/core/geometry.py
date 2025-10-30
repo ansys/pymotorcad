@@ -486,7 +486,7 @@ class Region(object):
         return new_region
 
     # method to convert python object to send to Motor-CAD
-    def _to_json(self):
+    def _to_json(self, connection):
         """Convert from Python class to Json object.
 
         Returns
@@ -1307,7 +1307,7 @@ class RegionMagnet(Region):
         self.magnetisation_function_amplitude = ""
         self.magnetisation_function_angle = ""
 
-    def _to_json(self):
+    def _to_json(self, connection):
         """Convert from a Python class to a JSON object.
 
         Returns
@@ -1315,7 +1315,7 @@ class RegionMagnet(Region):
         dict
             Dictionary of the geometry region represented as JSON.
         """
-        region_dict = super()._to_json()
+        region_dict = super()._to_json(connection)
 
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
@@ -1323,6 +1323,16 @@ class RegionMagnet(Region):
         region_dict["magnetisation_direction"] = self.magnetisation_direction.value
         region_dict["magnetisation_function_amplitude"] = self.magnetisation_function_amplitude
         region_dict["magnetisation_function_angle"] = self.magnetisation_function_angle
+
+        if not connection.check_version_at_least("2026.0"):
+            if (
+                (self.magnetisation_direction != MagnetisationDirection.parallel)
+                or (self.magnetisation_function_amplitude != "")
+                or (self.magnetisation_function_angle != "")
+            ):
+                warnings.warn(
+                    "Motor-CAD version 2026.1 or later is required to set magnetisation properties"
+                )
 
         return region_dict
 
