@@ -29,6 +29,7 @@ import warnings
 from warnings import warn
 
 import ansys.motorcad.core
+from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
 
@@ -177,6 +178,7 @@ class Region(object):
         self._region_type = region_type
         self._mesh_length = 0
         self._linked_region_names = []
+        self._extrusion_blocks = ExtrusionBlockList()
         self._singular = False
         self._lamination_type = ""
 
@@ -475,6 +477,9 @@ class Region(object):
         if "linked_regions" in json:
             self._linked_region_names = json["linked_regions"]
 
+        if "extrusion_blocks" in json:
+            self._extrusion_blocks = ExtrusionBlockList._from_json(json["extrusion_blocks"])
+
         self._raw_region = json
 
     # method to convert python object to send to Motor-CAD
@@ -514,6 +519,7 @@ class Region(object):
         self._raw_region["linked_regions"] = self.linked_region_names
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = self._lamination_type
+        self._raw_region["extrusion_blocks"] = self._extrusion_blocks._to_json()
 
         return self._raw_region
 
@@ -583,6 +589,16 @@ class Region(object):
     @singular.setter
     def singular(self, singular):
         self._singular = singular
+
+    @property
+    def extrusion_blocks(self):
+        """Get extrusion blocks list.
+
+        Returns
+        -------
+        list of ExtrusionBlock
+        """
+        return self._extrusion_blocks
 
     @property
     def child_names(self):
@@ -731,6 +747,11 @@ class Region(object):
     def region_coordinate(self):
         """Get the reference coordinate within the region."""
         return self._region_coordinate
+
+    @property
+    def duplication_angle(self):
+        """Get linked Motor-CAD instance."""
+        return 360 / self.duplications
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
