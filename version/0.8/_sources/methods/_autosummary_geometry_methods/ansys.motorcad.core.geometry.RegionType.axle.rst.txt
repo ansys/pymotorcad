@@ -1,0 +1,6 @@
+axle
+====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.axle

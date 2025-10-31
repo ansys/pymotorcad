@@ -1,0 +1,6 @@
+housing\_wj\_wall
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.housing_wj_wall
