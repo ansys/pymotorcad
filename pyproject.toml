@@ -7,7 +7,7 @@ name="ansys-motorcad-core"
 version = "0.9.dev0"
 description = "Pythonic interface to Ansys Motor-CAD."
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [
     {name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"},
