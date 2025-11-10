@@ -1371,6 +1371,7 @@ class MotorCADTwinModel:
 
     # Add any node couplings via fixed temperatures to the CoupledNodes.csv file
     def generateTemperatureCoupledNodes(self, fixedTemperatureMapping):
+        # TODO
         pass
 
     def generateInitialTemperatures(self):
@@ -1539,7 +1540,7 @@ class MotorCADTwinModel:
             lossVector = [0.0] * numLossParameters
             lossVector[lossIndex] = inputLoss
             self.setLosses(lossVector)
-            self.computeMatrices(exportDirectory)
+            self.computeMatrices(exportDirectory)  # TODO lower iteration count
 
             powerVector = self.getPmfData(exportDirectory)
             for nodeIndex, nodePower in enumerate(powerVector):
