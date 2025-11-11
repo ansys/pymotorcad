@@ -1948,6 +1948,29 @@ class Line(Entity):
 
         return Coordinate(x, y)
 
+    def get_parallel_line(self, start, length=None):
+        """Get the coordinate at the specified distance along the line from the reference.
+
+        Parameters
+        ----------
+        start : Coordinate
+            Coordinate object defining the new line start point.
+        length : float
+            Length of the new line. If None, use length of self (the original line).
+
+        Returns
+        -------
+        Line
+            Line object parallel to self.
+        """
+        if not length:
+            length = self.length
+        gradient = self.gradient
+        new_y_intercept = start.y - gradient * start.x
+        end_x = start.x + (length / (1 + gradient**2) ** (1 / 2))
+        end_y = gradient * end_x + new_y_intercept
+        return Line(start, Coordinate(end_x, end_y))
+
     @property
     def length(self):
         """Get length of line.
