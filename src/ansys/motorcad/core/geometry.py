@@ -1949,7 +1949,7 @@ class Line(Entity):
         return Coordinate(x, y)
 
     def get_parallel_line(self, start, length=None):
-        """Get the coordinate at the specified distance along the line from the reference.
+        """Get a new line parallel to self.
 
         Parameters
         ----------
