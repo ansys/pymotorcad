@@ -807,6 +807,67 @@ def test_get_parallel_line():
     assert isclose(line.gradient, parallel_line_3.gradient, abs_tol=GEOM_TOLERANCE)
 
 
+def test_get_perpendicular_line():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
+    start = geometry.Coordinate(0, 1)
+
+    # test perpendicular line of equal length
+    perpendicular_line = line.get_perpendicular_line(start)
+    assert isclose(line.angle - 90, perpendicular_line.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle + 270, perpendicular_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length, perpendicular_line.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, perpendicular_line.gradient, abs_tol=GEOM_TOLERANCE)
+
+    # test perpendicular line of 2* length
+    perpendicular_line_2 = line.get_perpendicular_line(start, length=line.length * 2)
+    assert isclose(line.angle - 90, perpendicular_line.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle + 270, perpendicular_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length * 2, perpendicular_line_2.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, perpendicular_line_2.gradient, abs_tol=GEOM_TOLERANCE)
+
+    # test perpendicular line where length is -ve (line drawn in +90° direction).
+    perpendicular_line_3 = line.get_perpendicular_line(start, length=-line.length)
+    assert isclose(line.angle + 90, perpendicular_line_3.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle - 270, perpendicular_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length, perpendicular_line_3.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, perpendicular_line_3.gradient, abs_tol=GEOM_TOLERANCE)
+
+
+def test_get_bisecting_line():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
+    start = geometry.Coordinate(0, 1)
+
+    # test perpendicular line of equal length
+    bisecting_line = line.get_bisecting_line()
+    assert isclose(line.angle - 90, bisecting_line.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle + 270, bisecting_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length, bisecting_line.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, bisecting_line.gradient, abs_tol=GEOM_TOLERANCE)
+    assert line.midpoint == bisecting_line.midpoint
+
+    # test bisecting line of 2* length
+    bisecting_line_2 = line.get_bisecting_line(length=line.length * 2)
+    assert isclose(line.angle - 90, bisecting_line.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle + 270, bisecting_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length * 2, bisecting_line_2.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, bisecting_line_2.gradient, abs_tol=GEOM_TOLERANCE)
+    assert line.midpoint == bisecting_line_2.midpoint
+
+    # test perpendicular line where length is -ve (line drawn in +90° direction).
+    bisecting_line_3 = line.get_bisecting_line(length=-line.length)
+    assert isclose(line.angle + 90, bisecting_line_3.angle, abs_tol=GEOM_TOLERANCE) or isclose(
+        line.angle - 270, bisecting_line.angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(line.length, bisecting_line_3.length, abs_tol=GEOM_TOLERANCE)
+    assert isclose(-1 / line.gradient, bisecting_line_3.gradient, abs_tol=GEOM_TOLERANCE)
+    assert line.midpoint == bisecting_line_3.midpoint
+
+
 def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
 

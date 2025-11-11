@@ -1973,6 +1973,55 @@ class Line(Entity):
         end_y = gradient * end_x + new_y_intercept
         return Line(start, Coordinate(end_x, end_y))
 
+    def get_perpendicular_line(self, start, length=None):
+        """Get a new line perpendicular to self.
+
+        Parameters
+        ----------
+        start : Coordinate
+            Coordinate object defining the new line start point.
+        length : float
+            Length of the new line. If None, use length of self (the original line). If positive,
+            the angle of the new line is 90° less than the angle of self. If negative, the angle of
+            the new line is 90° more than the angle of self.
+            opposite direction to self.
+
+        Returns
+        -------
+        Line
+            Line object perpendicular to self.
+        """
+        if not length:
+            length = self.length
+        gradient = -1 / self.gradient
+        new_y_intercept = start.y - gradient * start.x
+        end_x = start.x + (length / (1 + gradient**2) ** (1 / 2))
+        end_y = gradient * end_x + new_y_intercept
+        return Line(start, Coordinate(end_x, end_y))
+
+    def get_bisecting_line(self, length=None):
+        """Get a new line that bisects self.
+
+        Parameters
+        ----------
+        length : float
+            Length of the new line. If None, use length of self (the original line).
+
+        Returns
+        -------
+        Line
+            Line object perpendicular to self.
+        """
+        if not length:
+            length = self.length
+        gradient = -1 / self.gradient
+        new_y_intercept = self.midpoint.y - gradient * self.midpoint.x
+        start_x = self.midpoint.x + ((-length / 2) / (1 + gradient**2) ** (1 / 2))
+        start_y = gradient * start_x + new_y_intercept
+        end_x = self.midpoint.x + ((length / 2) / (1 + gradient**2) ** (1 / 2))
+        end_y = gradient * end_x + new_y_intercept
+        return Line(Coordinate(start_x, start_y), Coordinate(end_x, end_y))
+
     @property
     def length(self):
         """Get length of line.
