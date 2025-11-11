@@ -1956,7 +1956,9 @@ class Line(Entity):
         start : Coordinate
             Coordinate object defining the new line start point.
         length : float
-            Length of the new line. If None, use length of self (the original line).
+            Length of the new line. If None, use length of self (the original line). If positive,
+            the new line goes in the same direction as self. If negative, the new line goes in the
+            opposite direction to self.
 
         Returns
         -------
