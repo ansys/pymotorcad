@@ -78,7 +78,7 @@ jobs:
         # Only the tox environment specified in the tox.ini gh-actions is run
         run: tox -e py312-coverage
         
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         name: 'Upload coverage to Codecov'
 
 
