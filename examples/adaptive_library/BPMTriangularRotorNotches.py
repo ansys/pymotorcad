@@ -80,6 +80,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.geometry import RegionType
 from ansys.motorcad.core.geometry_shapes import triangular_notch
 
 # %%
@@ -231,7 +232,13 @@ for notch_loop in range(0, number_notches):
         notch_centre_angle = notch_centre_angle + notch_angle
 
     # generate a triangular notch region
-    notch = triangular_notch(rotor_radius, notch_angular_width, notch_centre_angle, notch_depth)
+    notch = triangular_notch(
+        rotor_radius,
+        notch_angular_width,
+        notch_centre_angle,
+        notch_depth,
+        region_type=RegionType.rotor_air,
+    )
 
     # notch properties
     notch.name = notch_name
