@@ -1,0 +1,6 @@
+region\_type
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.region_type

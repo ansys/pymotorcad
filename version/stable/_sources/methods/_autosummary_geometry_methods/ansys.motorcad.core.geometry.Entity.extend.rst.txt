@@ -1,0 +1,6 @@
+extend
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Entity.extend
