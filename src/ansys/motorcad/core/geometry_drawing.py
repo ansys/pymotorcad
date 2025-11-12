@@ -26,7 +26,7 @@ import warnings
 from warnings import warn
 
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Coordinate, Entity, Line, Region
-from ansys.motorcad.core.geometry_tree import GeometryNode, GeometryTree
+from ansys.motorcad.core.geometry_tree import GeometryTree, TreeRegion
 from ansys.motorcad.core.rpc_client_core import is_running_in_internal_scripting
 
 try:
@@ -104,7 +104,7 @@ class _RegionDrawing:
     @staticmethod
     def get_label(object):
         # Make certain label is appropriate for regions that might not be a part of trees
-        if isinstance(object, Region) and not isinstance(object, GeometryNode):
+        if isinstance(object, Region) and not isinstance(object, TreeRegion):
             return object.name
         # Tuples used to draw lists of entities. The second value input is an integer used to
         # grant unique labels
@@ -114,8 +114,8 @@ class _RegionDrawing:
         if object.key == "root":
             return "root"
         label = ""
-        label += "│   " * (object.depth - 2)
-        if object.depth == 1:
+        label += "│   " * (object.level - 2)
+        if object.level == 1:
             cap = ""
         elif object == object.parent.children[-1]:
             cap = "└── "
@@ -329,13 +329,12 @@ class _RegionDrawing:
                 color=colour,
             )
 
-    def _draw_duplicates(self, region: GeometryNode, colour, labels):
+    def _draw_duplicates(self, region: TreeRegion, colour, labels):
         """Draw all region duplications."""
         duplication_angle = 360 / region.duplications
 
         for duplicate_number in range(0, region.duplications):
-            duplicate = region.duplicate()
-            duplicate.parent = region.parent
+            duplicate = deepcopy(region)
             duplicate.rotate(Coordinate(0, 0), duplication_angle * duplicate_number)
             self._draw_region(duplicate, colour, labels, full_geometry=True)
 
@@ -345,7 +344,7 @@ class _RegionDrawing:
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
-        if isinstance(region, GeometryNode):
+        if isinstance(region, TreeRegion):
             legend_key = region.key
         else:
             legend_key = region.name
@@ -482,6 +481,11 @@ class _RegionDrawing:
 
         return drawn_entity
 
+    def _draw_coordinate(self, coordinate, colour):
+        """Draw coordinate onto plot."""
+        drawn_coordinate = plt.plot(coordinate.x, coordinate.y, "x", color=colour)
+        return drawn_coordinate
+
 
 def draw_objects_debug(objects):
     """Draw regions on plot if not being run in Motor-CAD.
@@ -518,15 +522,16 @@ def draw_objects(
     """Draw geometry objects on a plot.
 
     Parameters
-    objects : List of objects
-        Objects to draw
-    labels : bool
+    ----------
+    objects : list of Coordinate or Entity or Region
+        Geometry objects to draw
+    label_regions : bool
         Whether labels should be drawn. Default is False
     full_geometry : bool
         Whether duplications of regions should be drawn
     draw_points : bool
-        Whether to draw end and mid points of entities. Default is False, except for sole entities.
-    save: str
+        Whether to draw end and midpoints of entities. Default is False, except for sole entities.
+    save : str
         Path to save file to. Default is None.
     dpi : int
         Resolution of figure (used primarily when exporting images as pngs)
@@ -537,9 +542,9 @@ def draw_objects(
     toggle_regions : list of str
         Used for GeometryTrees: provided regions will be drawn if not already, and not if
         already drawn.
-    title: str
+    title : str
         Title of figure
-    optimise: bool
+    optimise : bool
         Whether geometry tree drawing should be optimized or not. Default is False. Incompatible
         with toggle_regions, as prevents regions that are not by default displayed from being
         calculated.
@@ -549,7 +554,7 @@ def draw_objects(
     draw_internal : bool
         Whether to draw interactive region drawing when running internally. Has no effect if saving
          to file. Default is False.
-    display:
+    display : bool
         Whether to draw interactive plot. Useful to set as false when planning on further
         modifications to the figure before drawing.
     """
@@ -602,7 +607,7 @@ def draw_objects(
         if optimise:
             for node in objects:
                 if not node.key in drawn_nodes and node.key != "root":
-                    objects.remove_node(node)
+                    objects.remove_region(node)
 
         for node in objects:
             legend_key = node.key
@@ -641,31 +646,47 @@ def draw_objects(
 
     # Draw a list of entities or nodes
     elif isinstance(objects, list):
-        if all(isinstance(object, Region) for object in objects):
-            if draw_points is None:
-                draw_points = False
-            for region in objects:
-                legend_key = region.name
+        # mix of regions and entities
+        if draw_points is None:
+            draw_points = False
+        for i, object in enumerate(objects):
+            if isinstance(object, Region):
+                legend_key = object.name
                 region_drawing.legend_objects[legend_key] = []
                 region_drawing.object_states[legend_key] = True
-                region_drawing.keys_and_labels.insert(legend_key, region_drawing.get_label(region))
+                region_drawing.keys_and_labels.insert(legend_key, region_drawing.get_label(object))
                 region_drawing._draw_region(
-                    region, region.colour, label_regions, draw_points=draw_points
+                    object, object.colour, label_regions, draw_points=draw_points
                 )
 
-        if all(isinstance(object, Entity) for object in objects):
-            for i, entity in enumerate(objects):
-                legend_key = str(entity.__class__).split(".")[-1][0:-2] + str(i)
+            elif isinstance(object, Entity):
+                legend_key = str(object.__class__).split(".")[-1][0:-2] + str(i)
                 region_drawing.legend_objects[legend_key] = []
                 region_drawing.object_states[legend_key] = True
                 region_drawing.keys_and_labels.insert(legend_key, legend_key)
                 region_drawing.legend_objects[legend_key].append(
-                    region_drawing._draw_entity(entity, "black", draw_points)
+                    region_drawing._draw_entity(object, "black", draw_points)
                 )
-                region_drawing.bounds[legend_key] = entity.get_bounds()
+                region_drawing.bounds[legend_key] = object.get_bounds()
 
-    # Draw a sole region/node
-    if isinstance(objects, Region) or isinstance(objects, GeometryNode):
+            elif isinstance(object, Coordinate):
+                legend_key = str(object.__class__).split(".")[-1][0:-2] + str(i)
+                region_drawing.legend_objects[legend_key] = []
+                region_drawing.object_states[legend_key] = True
+                region_drawing.keys_and_labels.insert(legend_key, legend_key)
+                region_drawing.legend_objects[legend_key].append(
+                    region_drawing._draw_coordinate(object, "black")
+                )
+                region_drawing.bounds[legend_key] = (
+                    Coordinate.get_polar_coords_deg(object)[0],
+                    object.x + 1,
+                    object.x - 1,
+                    object.y + 1,
+                    object.y - 1,
+                )
+
+    # Draw a sole region
+    if isinstance(objects, Region) or isinstance(objects, TreeRegion):
         if draw_points is None:
             draw_points = False
         if isinstance(objects, Region):
@@ -689,6 +710,26 @@ def draw_objects(
             region_drawing._draw_entity(objects, "black", draw_points)
         )
         region_drawing.bounds[legend_key] = objects.get_bounds()
+
+    # Draw a sole coordinate
+    if isinstance(objects, Coordinate):
+        print("drawing a coordinate")
+        if draw_points is None:
+            draw_points = True
+        legend_key = str(objects.__class__).split(".")[-1][0:-2]
+        region_drawing.legend_objects[legend_key] = []
+        region_drawing.object_states[legend_key] = True
+        region_drawing.keys_and_labels.insert(legend_key, legend_key)
+        region_drawing.legend_objects[legend_key].append(
+            region_drawing._draw_coordinate(objects, "black")
+        )
+        region_drawing.bounds[legend_key] = (
+            Coordinate.get_polar_coords_deg(objects)[0],
+            objects.x + 1,
+            objects.x - 1,
+            objects.y + 1,
+            objects.y - 1,
+        )
 
     # Create an interactable legend to label and change displayed regions
     if legend:
