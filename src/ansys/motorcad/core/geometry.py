@@ -28,6 +28,9 @@ from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, rad
 import warnings
 from warnings import warn
 
+import ansys.motorcad.core
+from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
+
 GEOM_TOLERANCE = 1e-6
 
 
@@ -97,9 +100,18 @@ class RegionType(Enum):
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
+    no_type = "No type"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
+
+
+class MagnetisationDirection(Enum):
+    """Provides an enumeration for storing Motor-CAD magnetisation direction."""
+
+    parallel = 0
+    radial = 1
+    function = 2
 
 
 class Region(object):
@@ -107,24 +119,44 @@ class Region(object):
 
     Parameters
     ----------
-    region_type: RegionType
-        Type of region
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
     motorcad_instance: ansys.motorcad.core.MotorCAD
         Motor-CAD instance currently connected
     """
 
     def __init__(self, region_type=RegionType.adaptive, motorcad_instance=None):
         """Initialise Region."""
+        # handle the case where region_type is not a RegionType
         if not isinstance(region_type, RegionType):
-            warnings.warn(
-                "The first parameter of creating a new region has changed to region_type."
-                " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
-                " region type"
-            )
-            # Try and catch case where user has added Motor-CAD instance without using named param
-            motorcad_instance = region_type
-            region_type = None
+            # if a string has been provided, try to set the region_type to this string
+            if isinstance(region_type, str):
+                try:
+                    # valid RegionType attributes will be set based on the string
+                    region_type = getattr(RegionType, region_type)
+                except Exception as e:
+                    raise Exception(
+                        f"{region_type} is not a valid RegionType. Please provide"
+                        f" a valid RegionType."
+                    )
+            # Try and catch case where user has added Motor-CAD instance without using named
+            # parameters
+            elif isinstance(region_type, ansys.motorcad.core.MotorCAD):
+                warnings.warn(
+                    "The first parameter of creating a new region has changed to region_type."
+                    " Please use named parameters ```Region(motorcad_instance=mc``` and add a"
+                    " region type"
+                )
+                motorcad_instance = region_type
+                region_type = region_type = RegionType.adaptive
+            # if any other type of object is provided, raise an exception.
+            else:
+                raise Exception(
+                    f"{region_type} is not a valid RegionType. Please provide a valid "
+                    f"RegionType."
+                )
 
+        # warn the user if they have not provided a specific region_type other than adaptive
         elif region_type == RegionType.adaptive:
             warnings.warn(
                 "It is strongly recommended to set a region_type when creating new regions."
@@ -144,9 +176,9 @@ class Region(object):
         self._child_names = []
         self._motorcad_instance = motorcad_instance
         self._region_type = region_type
-        self.mesh_length = 0
-        self._linked_regions = []
-
+        self._mesh_length = 0
+        self._linked_region_names = []
+        self._extrusion_blocks = ExtrusionBlockList()
         self._singular = False
         self._lamination_type = ""
 
@@ -167,9 +199,16 @@ class Region(object):
             and self._entities == other._entities
         )
 
+    def _get_new_object_of_type_self(self):
+        """Return self object."""
+        if self.region_type:
+            return type(self)(region_type=self.region_type)
+        else:
+            return type(self)()
+
     def __copy__(self):
         """Override default copy behaviour."""
-        copied_object = type(self)()
+        copied_object = self._get_new_object_of_type_self()
         copied_object.__dict__.update(self.__dict__)
 
         # We don't want to copy raw json to a new region
@@ -184,7 +223,7 @@ class Region(object):
         def override_close_motorcad_on_exit():
             return False
 
-        copied_object = type(self)()
+        copied_object = self._get_new_object_of_type_self()
 
         memo[id(self)] = copied_object
         for k, v in self.__dict__.items():
@@ -397,10 +436,6 @@ class Region(object):
 
         if is_magnet:
             new_region = RegionMagnet(motorcad_instance)
-            new_region._magnet_angle = json["magnet_angle"]
-            new_region._br_multiplier = json["magnet_magfactor"]
-            new_region._magnet_polarity = json["magnet_polarity"]
-            new_region._br_magnet = json["magnet_br_value"]
         else:
             if has_region_type:
                 new_region = cls(
@@ -409,39 +444,46 @@ class Region(object):
             else:
                 new_region = cls(motorcad_instance=motorcad_instance)
 
-        # self.Entities = json.Entities
-
-        if "name_unique" in json:
-            new_region.name = json["name_unique"]
-        else:
-            new_region.name = json["name"]
-
-        new_region._base_name = json["name"]
-        new_region.material = json["material"]
-        new_region._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
-        new_region._area = json["area"]
-
-        new_region._centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
-        new_region._region_coordinate = Coordinate(
-            json["region_coordinate"]["x"], json["region_coordinate"]["y"]
-        )
-        new_region._duplications = json["duplications"]
-        new_region._entities = _convert_entities_from_json(json["entities"])
-        new_region._parent_name = json["parent_name"]
-        new_region._child_names = json["child_names"]
-
-        if "mesh_length" in json:
-            new_region._mesh_length = json["mesh_length"]
-
-        if "singular" in json:
-            new_region._singular = json["singular"]
-
-        if "lamination_type" in json:
-            new_region._lamination_type = json["lamination_type"]
-
-        new_region._raw_region = json
+        new_region._add_parameters_from_json(json)
 
         return new_region
+
+    def _add_parameters_from_json(self, json):
+        if "name_unique" in json:
+            self._name = json["name_unique"]
+        else:
+            self._name = json["name"]
+
+        self._base_name = json["name"]
+        self.material = json["material"]
+        self._colour = (json["colour"]["r"], json["colour"]["g"], json["colour"]["b"])
+        self._area = json["area"]
+
+        self._centroid = Coordinate(json["centroid"]["x"], json["centroid"]["y"])
+        self._region_coordinate = Coordinate(
+            json["region_coordinate"]["x"], json["region_coordinate"]["y"]
+        )
+        self._duplications = json["duplications"]
+        self._entities = _convert_entities_from_json(json["entities"])
+        self._parent_name = json["parent_name"]
+        self._child_names = json["child_names"]
+
+        if "mesh_length" in json:
+            self._mesh_length = json["mesh_length"]
+
+        if "singular" in json:
+            self._singular = json["singular"]
+
+        if "lamination_type" in json:
+            self._lamination_type = json["lamination_type"]
+
+        if "linked_regions" in json:
+            self._linked_region_names = json["linked_regions"]
+
+        if "extrusion_blocks" in json:
+            self._extrusion_blocks = ExtrusionBlockList._from_json(json["extrusion_blocks"])
+
+        self._raw_region = json
 
     # method to convert python object to send to Motor-CAD
     def _to_json(self):
@@ -456,9 +498,9 @@ class Region(object):
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
 
-        self._raw_region["name"] = self._name
+        self._raw_region["name"] = self.name
         if "name_unique" in self._raw_region:
-            self._raw_region["name_unique"] = self._name
+            self._raw_region["name_unique"] = self.name
         self._raw_region["name_base"] = self._base_name
         self._raw_region["material"] = self._material
         self._raw_region["colour"] = {
@@ -478,11 +520,20 @@ class Region(object):
         self._raw_region["region_type"] = self._region_type.value
         self._raw_region["mesh_length"] = self.mesh_length
         self._raw_region["linked_regions"] = self.linked_region_names
-        self._raw_region["on_boundary"] = False if len(self.linked_regions) == 0 else True
         self._raw_region["singular"] = self._singular
         self._raw_region["lamination_type"] = self._lamination_type
+        self._raw_region["extrusion_blocks"] = self._extrusion_blocks._to_json()
 
         return self._raw_region
+
+    @property
+    def name(self):
+        """Name of Region."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def parent_name(self):
@@ -497,7 +548,11 @@ class Region(object):
     def linked_region(self):
         """Get linked duplication/unite region."""
         warn("linked_region property is deprecated. Use linked_regions array", DeprecationWarning)
-        return self.linked_regions[0] if len(self.linked_regions) > 0 else None
+        return (
+            self.motorcad_instance.get_region(self._linked_region_names[0])
+            if len(self._linked_region_names) > 0
+            else None
+        )
 
     @linked_region.setter
     def linked_region(self, region):
@@ -505,28 +560,29 @@ class Region(object):
             "linked_region property is deprecated. Use linked_regions.append(region)",
             DeprecationWarning,
         )
-        self.linked_regions.append(region)
-        region.linked_regions.append(self)
+        self._linked_region_names.append(region.name)
+        region._linked_region_names.append(self.name)
 
     @property
     def linked_regions(self):
-        """
-        Get linked region objects for duplication/unite operations.
-
-        Entirely original regions (that is, linkages to or from regions that are not named within
-        the default geometry) must be established using GeometryTrees.
-        """
-        return self._linked_regions
+        """Get linked region objects for duplication/unite operations."""
+        self._check_connection()
+        return [self.motorcad_instance.get_region(name) for name in self._linked_region_names]
 
     @linked_regions.setter
     def linked_regions(self, regions):
         """Set linked regions for duplication/unite operations."""
-        self._linked_regions = regions
+        self._linked_region_names = [region.name for region in regions]
 
     @property
     def linked_region_names(self):
         """Get linked region names for duplication/unite operations."""
-        return [linked_region.name for linked_region in self.linked_regions]
+        return self._linked_region_names
+
+    @linked_region_names.setter
+    def linked_region_names(self, names):
+        """Set linked region names for duplication/unite operations."""
+        self._linked_region_names = names
 
     @property
     def singular(self):
@@ -536,6 +592,16 @@ class Region(object):
     @singular.setter
     def singular(self, singular):
         self._singular = singular
+
+    @property
+    def extrusion_blocks(self):
+        """Get extrusion blocks list.
+
+        Returns
+        -------
+        list of ExtrusionBlock
+        """
+        return self._extrusion_blocks
 
     @property
     def child_names(self):
@@ -684,6 +750,11 @@ class Region(object):
     def region_coordinate(self):
         """Get the reference coordinate within the region."""
         return self._region_coordinate
+
+    @property
+    def duplication_angle(self):
+        """Get linked Motor-CAD instance."""
+        return 360 / self.duplications
 
     def subtract(self, region):
         """Subtract region from self, returning any additional regions.
@@ -886,7 +957,7 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
-    def round_corner(self, corner_coordinate, radius):
+    def _round_corner(self, corner_coordinate, radius, distance_limit):
         """Round the corner of a region.
 
         The corner coordinates must already exist on two entities belonging to the region.
@@ -899,6 +970,8 @@ class Region(object):
             Coordinate of the corner to round.
         radius : float
             Radius to round the corner by.
+        distance_limit : float
+            Maximum distance that the adjacent entities can be shortened by.
         """
         # If radius is 0, do nothing
         if radius == 0:
@@ -907,33 +980,29 @@ class Region(object):
         # Find adjacent entities. There should be 2 entities adjacent to the corner. Going
         # anti-clockwise around the region, the entities before and after the corner will be
         # adj_entity[0] and adj_entity[1] respectively.
-        adj_entities = []
-        adj_entity_indices = []
+        adj_entities = [None, None]
+        adj_entity_indices = [None, None]
         for index in range(len(self._entities)):
             entity = self._entities[index]
-            if entity.coordinate_on_entity(corner_coordinate):
-                adj_entities.append(entity)
-                adj_entity_indices.append(index)
+            if entity.end == corner_coordinate:
+                adj_entities[0] = entity
+                adj_entity_indices[0] = index
+            elif entity.start == corner_coordinate:
+                adj_entities[1] = entity
+                adj_entity_indices[1] = index
+
         # If no adjacent entities are found, the point provided is not a corner
-        if not adj_entities:
+        if not adj_entities[0] and not adj_entities[1]:
             raise ValueError(
                 "Failed to find point on entity in region. "
                 "You must specify a corner in this region."
             )
         # If only one adjacent entity is found, the point provided is not a corner
-        if len(adj_entities) == 1:
+        if not adj_entities[0] or not adj_entities[1]:
             raise ValueError(
                 "Point found on only one entity in region. "
                 "You must specify a corner in this region."
             )
-        # If the adj_entities are the first and last entities of the region, then the entity after
-        # the corner will be found first (entity 0). In this case, swap the entities around so that
-        # adj_entity[0] is always the entity before the corner (corner is adj_entity[0].end).
-        if corner_coordinate == self._entities[len(self._entities) - 1].end:
-            adj_entities[0] = self._entities[len(self._entities) - 1]
-            adj_entities[1] = self._entities[0]
-            adj_entity_indices[0] = len(self._entities) - 1
-            adj_entity_indices[1] = 0
 
         # If we have arc rounding, we need to find the angle at the intersection of the arc and the
         # rounding arc. We don't know this position in advance, so iterate up to 100 times to find
@@ -998,15 +1067,13 @@ class Region(object):
         if converged == False:
             raise ValueError("Cannot find intersection. Check if radius is too large")
 
-        # check that the  distances by which the adjacent entities are shortened are less than the
-        # lengths of the adjacent entities.
-        for index in range(len(adj_entities)):
-            j = adj_entities[index]
-            if j.length < distance:
-                raise ValueError(
-                    "Corner radius is too large for these entities. "
-                    "You must specify a smaller radius."
-                )
+        # check that the  distances by which the adjacent entities are shortened are less than
+        # the distance_limit.
+        if distance_limit < distance:
+            raise ValueError(
+                "Corner radius is too large for these entities. "
+                "You must specify a smaller radius."
+            )
         # get and set the new start and end coordinates for the adjacent entities
         adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
             corner_coordinate, distance
@@ -1025,7 +1092,70 @@ class Region(object):
         corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
         self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
 
-    def round_corners(self, corner_coordinates, radius):
+    def round_corner(self, corner_coordinate, radius, maximise=True):
+        """Round the corner of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and an arc is created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to round.
+        radius : float
+            Radius to round the corner by.
+        maximise : bool
+            Whether to maximise the possible radius if the radius provided is too large.
+        """
+        # get the lengths of the original adjacent entities before any corner rounding
+        adj_entity_lengths = []
+        for entity in self._entities:
+            if entity.end == corner_coordinate or entity.start == corner_coordinate:
+                adj_entity_lengths.append(entity.length)
+        # find the limit for how much an adjacent entity may be shortened by:
+        distance_limit = 10000
+        for length in adj_entity_lengths:
+            if length < distance_limit:
+                distance_limit = length
+
+        # if the corner radius is too large, an exception will be raised
+        if not maximise:
+            # round the corner
+            self._round_corner(corner_coordinate, radius, distance_limit)
+        # if the corner radius is too large, maximise the corner radius that is short enough for
+        # the adjacent entities. The adjacent entities can only be shortened to half the original
+        # entity length before any corner rounding
+        else:
+            try:
+                # try to round the corner with the specified radius
+                self._round_corner(corner_coordinate, radius, distance_limit)
+            except ValueError as e:
+                if "Corner radius is too large for these entities" in str(e):
+                    new_corner_radius = round(radius, 1)
+                    # iterate 100 times to find a maximum suitable corner radius
+                    for iteration in range(100):
+                        # subtract 0.1 mm from the previous corner radius that was tried
+                        new_corner_radius -= 0.1
+                        try:
+                            # try to round the corner with the new shorter radius
+                            self._round_corner(corner_coordinate, new_corner_radius, distance_limit)
+                            break
+                        except ValueError as e:
+                            if "Corner radius is too large for these entities" in str(e):
+                                # try 100 iterations
+                                if iteration < 99:
+                                    pass
+                                # if the radius is still too large on the final iteration, raise
+                                # the exception
+                                else:
+                                    raise e
+                # if any other exception is raised by the corner rounding attempt, raise the
+                # exception
+                else:
+                    raise e
+
+    def round_corners(self, corner_coordinates, radius, maximise=True):
         """Round multiple corners of a region.
 
         Each corner coordinate must already exist on two entities belonging to the region.
@@ -1038,9 +1168,77 @@ class Region(object):
             List of coordinates of the corners to round.
         radius : float
             Radius to round the corners by.
+        maximise : bool
+            Whether to maximise the possible radius of each corner if the radius provided is too
+            large.
         """
-        for corner in corner_coordinates:
-            self.round_corner(corner, radius)
+        # if the corner radius is too large, an exception will be raised
+        if not maximise:
+            # get the original entities before any corner rounding has been done
+            entities_orig = deepcopy(self._entities)
+            # apply the rounding to each corner in turn
+            for corner in corner_coordinates:
+                # get the lengths of the original adjacent entities before any corner rounding
+                adj_entity_lengths = []
+                for index in range(len(entities_orig)):
+                    entity = entities_orig[index]
+                    if entity.end == corner or entity.start == corner:
+                        adj_entity_lengths.append(entity.length)
+
+                # find the distance limit that the adjacent entities can be shortened by
+                distance_limit = 10000
+                for index in range(len(adj_entity_lengths)):
+                    if adj_entity_lengths[index] < distance_limit:
+                        distance_limit = adj_entity_lengths[index]
+
+                # round the corner
+                self._round_corner(corner, radius, distance_limit / 2)
+        # if the corner radius is too large, maximise the corner radius that is short enough for
+        # the adjacent entities. The adjacent entities can only be shortened to half the original
+        # entity length before any corner rounding
+        else:
+            # get the original entities before any corner rounding has been done
+            entities_orig = deepcopy(self._entities)
+            # apply the rounding to each corner in turn
+            for corner in corner_coordinates:
+                # get the lengths of the original adjacent entities before any corner rounding
+                adj_entity_lengths = []
+                for index in range(len(entities_orig)):
+                    entity = entities_orig[index]
+                    if entity.end == corner or entity.start == corner:
+                        adj_entity_lengths.append(entity.length)
+                # find the distance limit that the adjacent entities can be shortened by
+                distance_limit = 10000
+                for index in range(len(adj_entity_lengths)):
+                    if adj_entity_lengths[index] < distance_limit:
+                        distance_limit = adj_entity_lengths[index]
+                try:
+                    # try to round the corner with the specified radius
+                    self._round_corner(corner, radius, distance_limit / 2)
+                except ValueError as e:
+                    if "Corner radius is too large for these entities" in str(e):
+                        new_corner_radius = round(radius, 1)
+                        # iterate 100 times to find a maximum suitable corner radius
+                        for iteration in range(100):
+                            # subtract 0.1 mm from the previous corner radius that was tried
+                            new_corner_radius -= 0.1
+                            try:
+                                # try to round the corner with the new shorter radius
+                                self._round_corner(corner, new_corner_radius, distance_limit / 2)
+                                break
+                            except ValueError as e:
+                                if "Corner radius is too large for these entities" in str(e):
+                                    # try 100 iterations
+                                    if iteration < 99:
+                                        pass
+                                    # if the radius is still too large on the final iteration, raise
+                                    # the exception
+                                    else:
+                                        raise e
+                    # if any other exception is raised by the corner rounding attempt, raise the
+                    # exception
+                    else:
+                        raise e
 
     def limit_arc_chord(self, max_chord_height):
         """Limit the chord height for arcs in a region.
@@ -1130,6 +1328,22 @@ class RegionMagnet(Region):
         self._br_multiplier = 0.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
+        self.magnetisation_direction = MagnetisationDirection.parallel
+        self.magnetisation_function_amplitude = ""
+        self.magnetisation_function_angle = ""
+
+    def _add_parameters_from_json(self, json):
+        self._magnet_angle = json["magnet_angle"]
+        self._br_multiplier = json["magnet_magfactor"]
+        self._magnet_polarity = json["magnet_polarity"]
+        self._br_magnet = json["magnet_br_value"]
+
+        if "magnetisation_direction" in json:
+            self.magnetisation_direction = MagnetisationDirection(json["magnetisation_direction"])
+            self.magnetisation_function_amplitude = json["magnetisation_function_amplitude"]
+            self.magnetisation_function_angle = json["magnetisation_function_angle"]
+
+        super()._add_parameters_from_json(json)
 
     def _to_json(self):
         """Convert from a Python class to a JSON object.
@@ -1144,6 +1358,9 @@ class RegionMagnet(Region):
         region_dict["magnet_magfactor"] = self._br_multiplier
         region_dict["magnet_angle"] = self._magnet_angle
         region_dict["magnet_polarity"] = self._magnet_polarity
+        region_dict["magnetisation_direction"] = self.magnetisation_direction.value
+        region_dict["magnetisation_function_amplitude"] = self.magnetisation_function_amplitude
+        region_dict["magnetisation_function_angle"] = self.magnetisation_function_angle
 
         return region_dict
 
@@ -2740,6 +2957,7 @@ def _orientation_of_three_points(c1, c2, c3):
         Coordinate 2
     c3 : ansys.motorcad.core.geometry.Coordinate
         Coordinate 3
+
     Returns
     -------
         _Orientation
@@ -2784,6 +3002,7 @@ def get_bezier_points(control_points, num_output_points):
         The control points for the Bezier curve
     num_output_points : int
         The number of samples along the curve
+
     Returns
     -------
         List of Coordinate
