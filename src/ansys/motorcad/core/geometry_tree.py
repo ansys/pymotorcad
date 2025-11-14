@@ -193,7 +193,7 @@ class GeometryTree(dict):
         regions = dict()
         for node in self:
             if node.key != "root":
-                if node.region_type == "Magnet":
+                if node.region_type == RegionType.magnet:
                     regions[node.key] = TreeRegionMagnet._to_json(node)
                 else:
                     regions[node.key] = TreeRegion._to_json(node)
