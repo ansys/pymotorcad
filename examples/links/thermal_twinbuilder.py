@@ -848,10 +848,20 @@ class MotorCADTwinModel:
                 )
 
             housingTempDependency = True
+        
+        # check if Heat Exchanger is enabled and coupled to a cooling system
+        heatExchanger = self.mcad.get_variable("HeatExchanger")
+        heatExchangerCoupling = self.mcad.get_variable("HeatExOutletCoupling")
+        validate(
+            not ((heatExchanger == 1) and (heatExchangerCoupling != 0)),
+            NotImplementedError,
+            f"The Motor-CAD model makes use of the Heat Exchanger cooling system. This is not "
+            f"supported. Please disable the Heat Exchanger cooling system in the Motor-CAD model, "
+            f"generate the ROM, and manually recreate the heat exchanger model in Twin Builder",
+        )
 
         # TODO For original, warn if coupled cooling system
         # TODO For improved, ensure coupled systems are not controlled.
-        # TODO warn if heat exchanger is being used
         return housingTempDependency, airGapTempDependency, coolingSystemsInputs
 
     # Functions to update any mot file settings that need to be set appropriately
