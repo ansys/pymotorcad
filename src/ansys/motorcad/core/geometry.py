@@ -201,7 +201,10 @@ class Region(object):
 
     def _get_new_object_of_type_self(self):
         """Return self object."""
-        return type(self)()
+        if self.region_type:
+            return type(self)(region_type=self.region_type)
+        else:
+            return type(self)()
 
     def __copy__(self):
         """Override default copy behaviour."""
