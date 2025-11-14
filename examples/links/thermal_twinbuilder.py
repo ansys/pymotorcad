@@ -1520,8 +1520,15 @@ class MotorCADTwinModel:
     # specify a loss value using a name (such as Armature Copper Loss) and have Twin Builder
     # automatically distribute this amongst appropriate nodes.
     def generateLossDistribution(self):
+        # temporarily reduce iterations whilst loss generation is running to speed up
+        # note: message display state is already set to 2 at start of script, so convergence 
+        # iterations will not interrupt workflow
+        minIter = self.mcad.get_variable("SteadyStateMinIterations")
+        maxIter = self.mcad.get_variable("Steady_State_Max_Iterations")
+        self.mcad.set_variable("SteadyStateMinIterations", 1)
+        self.mcad.set_variable("Steady_State_Max_Iterations", 2)
+        
         lossNames = self.lossNames + [name for (name, _, _, _) in self.customPowerInjections]
-
         numLossParameters = len(lossNames)
         lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames)))
 
@@ -1540,7 +1547,7 @@ class MotorCADTwinModel:
             lossVector = [0.0] * numLossParameters
             lossVector[lossIndex] = inputLoss
             self.setLosses(lossVector)
-            self.computeMatrices(exportDirectory)  # TODO lower iteration count
+            self.computeMatrices(exportDirectory)
 
             powerVector = self.getPmfData(exportDirectory)
             for nodeIndex, nodePower in enumerate(powerVector):
@@ -1562,6 +1569,10 @@ class MotorCADTwinModel:
 
         # reset the losses to a small value
         self.setLosses(0.1)
+        
+        # reset to user defined iteration value
+        self.mcad.set_variable("SteadyStateMinIterations", minIter)
+        self.mcad.set_variable("Steady_State_Max_Iterations", maxIter)
 
     # Function that determines the Housing to Ambient resistances as a function of the Ambient
     # temperatures, the Housing temperatures, and Blown Over cooling system parameters. The results
