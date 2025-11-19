@@ -776,6 +776,27 @@ class Region(object):
             self.update(regions[0])
             return regions[1 : len(regions)]
 
+    def overlap(self, region):
+        """Subtract the part of self that does not overlap with region.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+        """
+        self._check_connection()
+        extra = deepcopy(self)
+        extras = extra.subtract(region)
+        if len(extras) > 0:
+            extras = [extra] + extras
+            for region in extras:
+                self.subtract(region)
+        else:
+            if self == extra:
+                raise Exception("Regions do not overlap.")
+            else:
+                self.subtract(extra)
+
     def unite(self, regions):
         """Unite one or more other regions with self.
 

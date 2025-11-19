@@ -2596,6 +2596,217 @@ def test_subtract_region_4(mc):
     assert subtracted_regions[0].child_names[0] == inner_square.name
 
 
+def test_overlap_region_0(mc):
+    """Test create smaller rectangle by subtracting the area of the square that doesn't overlap with
+    the rectangle. Get only the region where the square and rectangle overlap, as shown below."""
+    #   Before         After
+    # |--------|
+    # |  |--|  |       |--|
+    # |  |  |  | ->    |  |
+    # |--|--|--|       |--|
+    #    |  |
+    #    |--|
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
+
+    points_a = [
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+    ]
+    # create and add line entities to region from their respective points
+    region_a.entities += create_lines_from_points(points_a)
+
+    points_b = [
+        geometry.Coordinate(-0.5, -2),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -2),
+    ]
+    # create and add line entities to region from their respective points
+    region_b.entities += create_lines_from_points(points_b)
+
+    points_expected = [
+        geometry.Coordinate(-0.5, -1),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -1),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region.entities += create_lines_from_points(points_expected)
+
+    region_a.motorcad_instance = mc
+    region_b.motorcad_instance = mc
+
+    region_a.overlap(region_b)
+
+    assert region_a == expected_region
+
+
+def test_overlap_region_1(mc):
+    """Test modify a long rectangle by subtracting regions that do not overlap with a square.
+    Generate the smaller rectangular region where the long rectangle and square overlap as shown
+    below."""
+    #      Before           After
+    #      |---|
+    #      |   |
+    #   |--|---|--|         |---|
+    #   |  |   |  |  ->     |   |
+    #   |  |   |  |         |   |
+    #   |--|---|--|         |---|
+    #      |   |
+    #      |---|
+    #
+    square = create_square()
+    rectangle = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
+
+    points_rectangle = [
+        geometry.Coordinate(0.5, -1),
+        geometry.Coordinate(1.5, -1),
+        geometry.Coordinate(1.5, 3),
+        geometry.Coordinate(0.5, 3),
+    ]
+    # create and add line entities to region from their respective points
+    rectangle.entities += create_lines_from_points(points_rectangle)
+
+    points_expected = [
+        geometry.Coordinate(0.5, 2),
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(1.5, 0),
+        geometry.Coordinate(1.5, 2),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region.entities += create_lines_from_points(points_expected)
+
+    square.motorcad_instance = mc
+
+    square.overlap(rectangle)
+
+    assert square == expected_region
+
+
+def test_overlap_region_2(mc):
+    """Test get overlapping region of square and triangle. Subtract the parts of square that do not
+    overlap the triangle."""
+    #     Before             After
+    #      \------|
+    # |-----\-|   |               \-|
+    # |      \|   |                \|
+    # |       \   |  ->             '
+    # |-------|\  |
+    #           \ |
+    #            \|
+    #
+    square = create_square()
+    triangle = create_triangle()
+    expected_region = geometry.Region(RegionType.stator_air)
+
+    points = [
+        geometry.Coordinate(2, 1.2),
+        geometry.Coordinate(2, 2),
+        geometry.Coordinate(1.2, 2),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region.entities += create_lines_from_points(points)
+    square.motorcad_instance = mc
+    square.overlap(triangle)
+
+    assert square == expected_region
+
+
+def test_overlap_region_3(mc):
+    """Test get overlap of two squares."""
+    #   Before         After
+    # |--------|
+    # |   |----|        |----|
+    # |   |    | ->     |    |
+    # |---|----|        |----|
+    #
+    square = create_square()
+    inner_square = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
+
+    points = [
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0),
+    ]
+    # create and add line entities to region from their respective points
+    inner_square.entities += create_lines_from_points(points)
+    expected_points = [
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.5),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region.entities += create_lines_from_points(expected_points)
+    square.motorcad_instance = mc
+
+    square.overlap(inner_square)
+
+    assert square == expected_region
+
+
+def test_overlap_region_4(mc):
+    """Test check that exception is raises when trying to find overlap of two regions that do not
+    overlap. One square is a subregion of the other."""
+    #   Before         After
+    # |--------|    |--------|
+    # | |----| |    | |----| |
+    # | |    | | -> | |    | |
+    # | |----| |    | |----| |
+    # |--------|    |--------|
+    #
+    square = create_square()
+    inner_square = geometry.Region(RegionType.stator_air)
+    inner_square.name = "Subtraction Region"
+
+    points = [
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0.5),
+        geometry.Coordinate(1.5, 0.5),
+        geometry.Coordinate(1.5, 1.5),
+    ]
+    # create and add line entities to region from their respective points
+    inner_square.entities += create_lines_from_points(points)
+
+    square.motorcad_instance = mc
+    inner_square.motorcad_instance = mc
+
+    with pytest.raises(Exception) as e_info:
+        square.overlap(inner_square)
+
+    assert "Regions do not overlap" in str(e_info.value)
+
+
+def test_overlap_region_5(mc):
+    """Test check that exception is raises when trying to find overlap of two regions that do not
+    overlap. One square is next to the other"""
+    #   Before         After
+    #
+    #   |----|   |----|        |----|   |----|
+    #   |    |   |    |   ->   |    |   |    |
+    #   |----|   |----|        |----|   |----|
+    #
+    #
+    square_1 = create_square()
+    square_2 = deepcopy(square_1)
+    square_2.translate(3, 0)
+
+    square_1.motorcad_instance = mc
+    square_2.motorcad_instance = mc
+
+    with pytest.raises(Exception) as e_info:
+        square_1.overlap(square_2)
+
+    assert "Regions do not overlap" in str(e_info.value)
+
+
 def test_region_mirror():
     square = create_square()
     square.name = "square"
