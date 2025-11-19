@@ -95,16 +95,33 @@ mc.reset_adaptive_geometry()
 # From Motor-CAD, get the adaptive parameters and their values.
 #
 # Use the ``set_adaptive_parameter_default`` method to set the required symmetry factor
-# (``Symmetry Factor``) and asymmetric magnet offset angle (``Magnet Offset Angle x``, where x is
-# the magnet number) parameters if undefined.
-mc.set_adaptive_parameter_default("Symmetry factor", 4)
+# (``Symmetry Factor``) parameter if undefined, and get the value.
+#
+# In this example, the 28 pole rotor is split into quarters, with each quarter containing 7 magnets.
+# The default symmetry factor value is set to 7.
+mc.set_adaptive_parameter_default("Symmetry factor", 7)
 symmetry_factor = mc.get_adaptive_parameter_value("Symmetry factor")
 
-offset_angle_default_values = [1, 2, 3]
+# %%
+# Define some default values for the offset angles that each magnet will be shifted by. Include a
+# check for the case where the ``symmetry factor`` is set to a higher number than the length of the
+# ``offset_angle_default_values`` list. In this case, append some zeros to the list.
+
+offset_angle_default_values = [0, 0, 0, 0, 0, 0, 0]
+extra_values_req = symmetry_factor - len(offset_angle_default_values)
+if extra_values_req > 0:
+    for i in range(extra_values_req):
+        offset_angle_default_values.append(0)
+# %%
+# Set the required asymmetric magnet offset angle (``Magnet Offset Angle x``, where x is
+# the magnet number) parameters if undefined, and get the values. Append the offset angle parameters
+# to the ``offset_angles`` list.
 offset_angles = []
-for i in range(symmetry_factor - 1):
-    mc.set_adaptive_parameter_default(f"Magnet Offset Angle {i+1}", offset_angle_default_values[i])
-    offset_angles.append(mc.get_adaptive_parameter_value(f"Magnet Offset Angle {i+1}"))
+for i in range(symmetry_factor):
+    mc.set_adaptive_parameter_default(
+        f"Rotor Pole Offset Angle {i+1}", offset_angle_default_values[i]
+    )
+    offset_angles.append(mc.get_adaptive_parameter_value(f"Rotor Pole Offset Angle {i+1}"))
 
 # %%
 # Get the standard template regions to be modified. This example works using the geometry tree
@@ -161,38 +178,66 @@ full_rotor_air_entities = [
     Line(p3, p4),
     Arc(p4, p1, centre=Coordinate(0, 0)),
 ]
-# full_rotor_air_boundary_lower = Line(p1, p2)
-# full_rotor_air_arc_outer = Arc(p2, p3, centre=Coordinate(0, 0))
-# full_rotor_air_boundary_upper = Line(p3, p4)
-# full_rotor_air_arc_inner = Arc(p4, p1, centre=Coordinate(0, 0))
 
 # %%
 # Create copies of the original magnet region and rotate the magnets based on the 'offset_angles'.
+#
+# For each additional magnet, use the ``create_region`` method to create a new region in the ``gt``
+# geometry tree. The ``create_region`` method requires ``region_type`` and ``parent`` parameters.
+# Set the ``region_type=RegionType.magnet`` to create a magnet region, and set the ``parent`` to
+# the original magnet region's parent.
+#
+# Set the material, colour, symmetry and Br multiplier properties of the new magnet region. Give the
+# new magnet region a name.
+#
+# Use the ``replace`` method to replace the new magnet region's entities with those of the original
+# magnet, then rotate the region around the origin. The rotation angle can be calculated from the
+# duplication number (symmetry) and  adaptive parameters (symmetry factor and the offset angle for
+# the particular magnet).
+#
+# Calculate and set the new magnet angle, which defines the direction in which the magnet is
+# polarised.
+# For even numbered magnets, set the polarity to ``S`` and switch the magnetisation to the opposite
+# direction by subtracting 180 ° from the ``magnet_angle``. For odd numbered magnets, set the
+# polarity to ``N``.
+#
+# Append all magnets to the ``new_magnets`` list.
 new_magnets = []
 for magnet in magnets:
     new_magnets.append(magnet)
     for i in range(symmetry_factor - 1):
         new_magnet = gt.create_region(region_type=RegionType.magnet, parent=magnet.parent)
-        new_magnet.update(magnet)
-        new_magnet.name = f"{new_magnet.name}_{i + 1}Offset"
+
+        new_magnet.material = magnet.material
+        new_magnet.colour = magnet.colour
+        new_magnet.duplications = magnet.duplications
+        new_magnet.br_multiplier = magnet.br_multiplier
+        new_magnet.name = f"{magnet.name}_{i + 1}Offset"
+
+        new_magnet.replace(magnet)
         rot_angle = ((i + 1) * 360 / (magnet.duplications * symmetry_factor)) + offset_angles[i + 1]
         new_magnet.rotate(Coordinate(0, 0), rot_angle)
-        new_magnet.magnet_angle = new_magnet.magnet_angle + rot_angle
+        new_magnet.magnet_angle = magnet.magnet_angle + rot_angle
+
         if i % 2 == 0:
             new_magnet.magnet_polarity = "S"
-            new_magnet.magnet_angle += 180
-        # gt._add_region(new_magnet, magnet.parent)
+            new_magnet.magnet_angle -= 180
+        else:
+            new_magnet.magnet_polarity = "N"
         new_magnets.append(new_magnet)
-        # to_draw.append(new_magnet)
 
 # %%
-# Set the edited regions in Motor-CAD.
-mc.set_region(stator)
-mc.set_region(stator_slot)
-mc.set_region(winding_1)
-mc.set_region(winding_2)
-mc.set_region(liner)
-mc.set_region(impreg)
+# Rotate the original magnet by its offset angle (if non-zero). Do this last so that the original
+# magnet's position could be used for calculating the new magnet positions.
+if offset_angles[0] != 0:
+    new_magnets[0].rotate(Coordinate(0, 0), offset_angles[0])
+    new_magnets[0].magnet_angle += offset_angles[0]
+
+# %%
+# subtract the modified magnets from the full rotor air region
+full_rotor_air = gt.create_region(RegionType.rotor_air, rotor_air[0].parent)
+full_rotor_air.duplications = rotor_air[0].duplications
+full_rotor_air.entities = full_rotor_air_entities
 
 # %%
 # .. image:: ../../images/adaptive_templates/RoundParSlotBttm.png
