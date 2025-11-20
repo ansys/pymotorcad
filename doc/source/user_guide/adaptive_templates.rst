@@ -620,6 +620,86 @@ The result is a modified Region with rounded corners.
 To apply different corner radii for each corner, you can use the ``Region.round_corner()`` method
 and round corners individually.
 
+Modifying the airgap shape
+--------------------------
+
+When using Adaptive Templates to modify the shape of the airgap, either by modifying the rotor
+surface or the stator surface, there are some best practices which should be followed to avoid
+problems with FEA meshing in Motor-CAD.
+
+The airgap (space between the rotor and stator) itself should always be defined by a band of uniform
+thickness in Motor-CAD. Take the default Surface Permanent Magnet motor topology as an example.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_1.png
+    :width: 600pt
+
+    The default Motor-CAD SPM motor topology, showing the distance between stator lamination
+    surface and rotor lamination surface and the distance between stator lamination surface and
+    magnet surface.
+
+This motor has raised magnets that sit on top of the rotor lamination surface. There is a larger gap
+between the stator lamination surface and that of the the rotor lamination than there is between the
+stator lamination surface and the magnet surface. The rotor geometry is defined by including the
+**RotorAir** and **RotorAir_1** regions on either side of the magnet, so that the total group of
+rotor regions has a continuous outer boundary of equal radius.
+
+Similarly, the stator geometry includes a **StatorAir** region that fills the slot opening. The
+total group of stator regions has a continuous inner boundary of equal radius.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_2.png
+    :width: 600pt
+
+    The default Motor-CAD SPM motor topology, showing the rotor outer boundary with constant radius
+    and the stator inner boundary with constant radius.
+
+The outer boundary of the rotor regions and the inner boundary of the stator regions define the
+airgap, and it is important that these boundaries remain arcs of continuous radius, despite any
+Adaptive Templates modifications to the Motor-CAD model geometry. Any changes to the airgap shape
+should be carried out by inserting new **Rotor Air** or **Stator Air** type regions (or by modifying
+existing ones) and the original boundary arc shapes should be preserved. If the rotor outer or
+stator inner boundaries are changed, so that they do not form an arc of specific radius, the
+Motor-CAD model may fail to mesh, or FEA calculation results may be unreliable due to the mesh.
+
+Another best practice to follow when modifying the airgap shape, is to ensure that the regions do
+not have any very sharp corners or very narrow geometry features. For example, if the rotor is
+modified by adding rotor notches, the edges of the notches can be rounded to form very narrow
+**Rotor Air** regions at the rotor boundary.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_3.png
+    :width: 600pt
+
+    An IPM motor topology with rounded notches at the rotor boundary.
+
+In this example, the notch region becomes vanishingly narrow  at the rotor outer boundary. This
+Motor-CAD model fails to mesh due to these geometry features and the FEA calculation cannot be
+solved. This problem can be addressed by adding a band of air at the rotor outer boundary.
+
+Motor-CAD uses this approach in the Standard Template geometry for SPM topologies with a non-zero
+**Magnet Reduction** value. A **RotorAir** region is included in the geometry, forming the outer
+boundary of the group of rotor regions. The minimum thickness of the air region is 0.1 mm.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_4.png
+    :width: 600pt
+
+    A SPM motor topology with **Magnet Reduction = 4**. A **RotorAir** region sits
+    above the magnet surface, forming the rotor outer boundary. The air region is 0.1 mm thick at
+    its narrowest point.
+
+For the rounded rotor notches example, an air band of specified thickness (at least 0.1 mm) should
+be added at the rotor outer boundary. This air band can be united with the notch regions to form a
+single **Rotor Air** region.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_5.png
+    :width: 600pt
+
+    An IPM motor topology with rounded notches and a band of air at the rotor boundary. The air
+    region is 0.1 mm thick at its narrowest point.
+
+It is best practice to take this approach when modifying the shape of the airgap. If you ensure that
+any new regions at the airgap boundary are at least 0.1 mm thick as a minimum, problems with the
+the airgap mesh should be avoided.
+
+
 Modifying stator slot openings
 ------------------------------
 
