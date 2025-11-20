@@ -505,7 +505,7 @@ class Region(object):
             self._raw_region["name_unique"] = self.name
         self._raw_region["name_base"] = self._base_name
 
-        if (self._raw_region["material"] != self._material) or (self._material == ""):
+        if (("material" in self._raw_region) and (self._raw_region["material"] != self._material)) or (self._material == ""):
             self._raw_region["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
 
         self._raw_region["material"] = self._material
