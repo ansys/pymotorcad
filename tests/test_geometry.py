@@ -403,6 +403,8 @@ def test_region_to_json():
         "name": "test_region",
         "name_base": "test_region_base",
         "material": "copper",
+        "material_weight_component_type": 2,
+        "material_weight_material_type": "Any",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
         "centroid": {"x": 0.0, "y": 1.0},
@@ -432,6 +434,19 @@ def test_region_to_json():
     test_region.mesh_length = 0.035
     test_region.singular = True
     test_region.linked_regions = []
+
+    assert test_region._to_json() == raw_region
+
+    # test no material specified
+    raw_region["material"] = ""
+    del test_region._raw_region["material"]
+    test_region.material = ""
+
+    assert test_region._to_json() == raw_region
+
+    # test changing material with a previous material specified
+    raw_region["material"] = "M350-35A"
+    test_region.material = "M350-35A"
 
     assert test_region._to_json() == raw_region
 

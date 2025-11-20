@@ -494,14 +494,28 @@ class Region(object):
         dict
             Geometry region json representation
         """
+        # const for material component owner in geometry engine
+        COMPONENTOWNER_GEOMETRYENGINE = 2
+
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
-
         self._raw_region["name"] = self.name
         if "name_unique" in self._raw_region:
             self._raw_region["name_unique"] = self.name
         self._raw_region["name_base"] = self._base_name
+
+        if (
+            (("material" in self._raw_region) and (self._raw_region["material"] != self._material))
+            or ("material" not in self._raw_region)
+            or (self._material == "")
+        ):
+            # material has changed from original material, update material component owner for
+            # geometry engine to create custom material component for this region
+            self._raw_region["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+            # unable to assume material type from user material name, set to default of "Any"
+            self._raw_region["material_weight_material_type"] = "Any"
+
         self._raw_region["material"] = self._material
         self._raw_region["colour"] = {
             "r": self._colour[0],
