@@ -506,8 +506,10 @@ class Region(object):
         self._raw_region["name_base"] = self._base_name
 
         if (
-            ("material" in self._raw_region) and (self._raw_region["material"] != self._material)
-        ) or ("material" not in self._raw_region) or (self._material == ""):
+            (("material" in self._raw_region) and (self._raw_region["material"] != self._material))
+            or ("material" not in self._raw_region)
+            or (self._material == "")
+        ):
             # material has changed from original material, update material component owner for
             # geometry engine to create custom material component for this region
             self._raw_region["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
