@@ -1339,7 +1339,7 @@ class RegionMagnet(Region):
         """Initialise Magnet Region."""
         super().__init__(RegionType.magnet, motorcad_instance)
         self._magnet_angle = 0.0
-        self._br_multiplier = 0.0
+        self._br_multiplier = 1.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
         self.magnetisation_direction = MagnetisationDirection.parallel
