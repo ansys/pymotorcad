@@ -511,61 +511,6 @@ Adaptive Templates scripts in Motor-CAD can be used in many different ways to cu
 machine geometry. Some approaches are more challenging than others. For some types of geometry
 customisation, there are some recommended approaches and best practices that should be followed.
 
-Modifying stator slot openings
-------------------------------
-
-When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
-practices which may be followed to make the process simpler.
-
-If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
-parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
-conductors in the updated slot.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_1.png
-    :width: 600pt
-
-    A Motor-CAD stator geometry where the stator slot has been modified to be narrower at the slot
-    opening. The **Stator** region (red, shaded) intersects the **ArmatureSlot** regions (yellow)
-    and the **Wedge** region (grey). The **Copper Depth [%]** is still set to **100 %**, so the
-    **ArmatureSlot** regions are still being drawn based on the unmodified Standard Template
-    geometry.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_2.png
-    :width: 500pt
-
-    The **Winding -> Definition** tab in Motor-CAD. Setting the **Copper Depth [%]** to **84 %**
-    means that the conductors, impregnation and slot liner now only fill 84 % of the slot. This
-    reflects the amount of space available in the modified slot.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_3.png
-    :width: 600pt
-
-    With the updated **Copper Depth [%]**, the **Stator** region (red, shaded) no longer intersects
-    the **ArmatureSlot** regions, only the **Wedge** region (grey).
-
-To modify the shape of the **Wedge** region based on a modified **Stator** slot geometry, subtract
-the **Stator** region from the **Wedge**:
-
-.. code:: python
-
-    wedge = mc.get_region("Wedge")
-    wedge.subtract(modified_stator)
-    mc.set_region(wedge)
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_4.png
-    :width: 600pt
-
-    When the **Wedge** region has been modified by subtracting the modified **Stator** region, the
-    custom stator slot geometry is complete.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_5.png
-    :width: 500pt
-
-    The updated stator slot can also be visualised in the **Winding -> Definition** tab, now that
-    the wedge has been updated.
-
-
-
 Rounding corners of geometry regions with Adaptive Templates
 ------------------------------------------------------------
 
@@ -674,6 +619,61 @@ The result is a modified Region with rounded corners.
 
 To apply different corner radii for each corner, you can use the ``Region.round_corner()`` method
 and round corners individually.
+
+Modifying stator slot openings
+------------------------------
+
+When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
+practices which may be followed to make the process simpler.
+
+If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
+parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
+conductors in the updated slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_1.png
+    :width: 600pt
+
+    A Motor-CAD stator geometry where the stator slot has been modified to be narrower at the slot
+    opening. The **Stator** region (red, shaded) intersects the **ArmatureSlot** regions (yellow)
+    and the **Wedge** region (grey). The **Copper Depth [%]** is still set to **100 %**, so the
+    **ArmatureSlot** regions are still being drawn based on the unmodified Standard Template
+    geometry.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_2.png
+    :width: 500pt
+
+    The **Winding -> Definition** tab in Motor-CAD. Setting the **Copper Depth [%]** to **84 %**
+    means that the conductors, impregnation and slot liner now only fill 84 % of the slot. This
+    reflects the amount of space available in the modified slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_3.png
+    :width: 600pt
+
+    With the updated **Copper Depth [%]**, the **Stator** region (red, shaded) no longer intersects
+    the **ArmatureSlot** regions, only the **Wedge** region (grey).
+
+To modify the shape of the **Wedge** region based on a modified **Stator** slot geometry, subtract
+the **Stator** region from the **Wedge**:
+
+.. code:: python
+
+    wedge = mc.get_region("Wedge")
+    wedge.subtract(modified_stator)
+    mc.set_region(wedge)
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_4.png
+    :width: 600pt
+
+    When the **Wedge** region has been modified by subtracting the modified **Stator** region, the
+    custom stator slot geometry is complete.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_5.png
+    :width: 500pt
+
+    The updated stator slot can also be visualised in the **Winding -> Definition** tab, now that
+    the wedge has been updated.
+
+
 
 
 
