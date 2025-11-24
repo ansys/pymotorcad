@@ -73,6 +73,7 @@ else:
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
     mc.load_template("a2")
+    mc.set_variable("MagneticSymmetry", 3)
     mc.set_variable("Magnet_Arc_[ED]", 100)
 
     # Open relevant file
@@ -234,10 +235,63 @@ if offset_angles[0] != 0:
     new_magnets[0].magnet_angle += offset_angles[0]
 
 # %%
-# subtract the modified magnets from the full rotor air region
+# Add the full rotor air region to the geometry tree using the ``create_region`` geometry tree
+# method. Specify the ``RegionType`` (rotor air) and the parent region of the rotor air region (the
+# same as the parent of the original rotor air region). Set the duplication number and set the
+# entities to the ``full_rotor_air_entities`` list that was defined earlier.
 full_rotor_air = gt.create_region(RegionType.rotor_air, rotor_air[0].parent)
 full_rotor_air.duplications = rotor_air[0].duplications
 full_rotor_air.entities = full_rotor_air_entities
+
+# %%
+# Subtract the magnet regions from the full rotor air region to get the separate rotor air regions
+# that will sit between the magnets. Use the ``subtract`` region method, which returns a list of
+# additional regions in the case where subtracting a magnet from the air region results in more than
+# one region. Name the additional air regions and store them in the ``all_extras`` list.
+
+all_extras = []
+i = 0
+for magnet in new_magnets:
+    extras = full_rotor_air.subtract(magnet)
+    for extra in extras:
+        extra.name = f"RotorAir_{i}"
+        all_extras.extend(extras)
+        i += 1
+
+# %%
+# The original air region must also be renamed. It is no longer the full rotor air region. It is now
+# the last individual rotor air region going clockwise from the x-axis.
+full_rotor_air.name = f"RotorAir_{i}"
+
+# %%
+# Now that the new rotor air regions have been created, remove the original ``rotor_air`` regions
+# from the geometry tree.
+for region in rotor_air:
+    gt.remove_region(region)
+
+# %%
+# So far, only the last air region ``full_rotor_air`` has been added to the geometry tree. Add the
+# other rotor air regions (stored in the ``all_extras`` list) to the geometry tree using the
+# ``create_region`` geometry tree method. For each new rotor air ``TreeRegion``: create the new
+# ``TreeRegion``, set the name, entities and duplication number.
+#
+# Link the first and last rotor air regions (going clockwise from the x-axis). These are the
+# regions either side of the symmetry boundary, and will form a continuous region in the full motor
+# model. Use the ``linked_region`` method to set the linked region of the first rotor air region to
+# be the ``full_rotor_air`` region (the last rotor air region).
+i = 0
+for region in all_extras:
+    new_air_region = gt.create_region(full_rotor_air.region_type, full_rotor_air.parent)
+    new_air_region.name = region.name
+    new_air_region.entities = region.entities
+    new_air_region.duplications = full_rotor_air.duplications
+    if i == 0:
+        new_air_region.linked_region = full_rotor_air
+    i += 1
+
+# %%
+# Set the modified geometry tree in Motor-CAD.
+mc.set_geometry_tree(gt)
 
 # %%
 # .. image:: ../../images/adaptive_templates/RoundParSlotBttm.png
