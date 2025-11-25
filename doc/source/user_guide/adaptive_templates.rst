@@ -426,8 +426,17 @@ investigate its attributes and properties. It has 3 entities (two Line objects a
     Using a break point in an Adaptive Template script to investigate variables.
 
 This is a useful tool when working on a Python script, such as an Adaptive Templates script. You can
-look into the properties of the Region object, as well as those of the entities such as the start,
-end and midpoint coordinates, the angles of Line objects, the radii of Arc objects.
+look into the properties of the Region object or the properties of entities such as:
+
+* the start coordinate,
+
+* end coordinate,
+
+* the midpoint coordinate,
+
+* the angles of Line objects,
+
+* the radii of Arc objects.
 
 IDEs (for example PyCharm or VSCode) have a lot of useful features for editing Python scripts. It is
 much easier and more efficient to use an IDE to develop Adaptive Templates scripts, rather than the
@@ -544,8 +553,8 @@ corner.
     A corner made up of two Line entities (entity 7 and 9) and an Arc (entity 8).
 
 When customising a Motor-CAD geometry with Adaptive Templates, it is much simpler to modify the
-geometry when corner rounding is **not selected**. This is because there will be fewer entities
-forming the regions (such as the rotor pocket and magnet regions). It is recommended to set the
+geometry when corner rounding is **not selected**. This is because fewer entities form the regions
+(such as the rotor pocket and magnet regions). It is recommended to set the
 **Corner Rounding (Rotor Lamination)** and **Corner Rounding (Magnets)** parameters on the
 **Input Data -> Settings -> Geometry** tab to **None (default)**.
 
@@ -638,7 +647,7 @@ thickness in Motor-CAD. Take the default Surface Permanent Magnet motor topology
     magnet surface.
 
 This motor has raised magnets that sit on top of the rotor lamination surface. There is a larger gap
-between the stator lamination surface and that of the the rotor lamination than there is between the
+between the stator lamination surface and that of the rotor lamination than there is between the
 stator lamination surface and the magnet surface. The rotor geometry is defined by including the
 **RotorAir** and **RotorAir_1** regions on either side of the magnet, so that the total group of
 rotor regions has a continuous outer boundary of equal radius.
@@ -681,8 +690,8 @@ boundary of the group of rotor regions. The minimum thickness of the air region 
 .. figure:: ../images/adaptive_templates/user_guide_airgap_4.png
     :width: 600pt
 
-    A SPM motor topology with **Magnet Reduction = 4**. A **RotorAir** region sits
-    above the magnet surface, forming the rotor outer boundary. The air region is 0.1 mm thick at
+    A SPM motor topology with **Magnet Reduction = 4**. A **RotorAir** region sits on top of the
+    magnet surface, forming the rotor outer boundary. The air region is 0.1 mm thick at
     its narrowest point.
 
 For the rounded rotor notches example, an air band of specified thickness (at least 0.1 mm) should
