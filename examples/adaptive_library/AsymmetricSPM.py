@@ -188,7 +188,7 @@ full_rotor_air_entities = [
 # Set the ``region_type=RegionType.magnet`` to create a magnet region, and set the ``parent`` to
 # the original magnet region's parent.
 #
-# Set the material, colour, symmetry and Br multiplier properties of the new magnet region. Give the
+# Set the material, colour and symmetry properties of the new magnet region. Give the
 # new magnet region a name.
 #
 # Use the ``replace`` method to replace the new magnet region's entities with those of the original
@@ -212,7 +212,6 @@ for magnet in magnets:
         new_magnet.material = magnet.material
         new_magnet.colour = magnet.colour
         new_magnet.duplications = magnet.duplications
-        new_magnet.br_multiplier = magnet.br_multiplier
         new_magnet.name = f"{magnet.name}_{i + 1}Offset"
 
         new_magnet.replace(magnet)
