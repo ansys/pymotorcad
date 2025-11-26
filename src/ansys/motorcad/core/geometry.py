@@ -99,6 +99,7 @@ class RegionType(Enum):
     airgap = "Airgap"
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
 
