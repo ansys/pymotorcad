@@ -1,0 +1,6 @@
+get
+===
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: GeometryTree.get

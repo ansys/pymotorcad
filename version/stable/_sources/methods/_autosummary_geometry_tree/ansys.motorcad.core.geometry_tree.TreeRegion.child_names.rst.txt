@@ -1,0 +1,6 @@
+child\_names
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.child_names

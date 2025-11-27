@@ -1,0 +1,6 @@
+﻿set\_server\_ip
+===============
+
+.. currentmodule:: ansys.motorcad.core.rpc_client_core
+
+.. autofunction:: set_server_ip
