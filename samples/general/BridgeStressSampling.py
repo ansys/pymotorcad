@@ -39,6 +39,10 @@ import numpy as np
 
 import ansys.motorcad.core as pymotorcad
 
+# %%
+# Utility functions to check non-linear material data
+# ---------------------------------------------------
+
 
 def check_youngs_modulus(non_linear_strain, non_linear_stress, youngs_modulus):
     """Check the initial slope of the non-linear stress strain curve matches the Young's modulus.
@@ -101,6 +105,11 @@ def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
             return non_linear_stress[i - 1]
     # Return maximum stress in list if no divergence found
     return non_linear_stress[-1]
+
+
+# %%
+# Functions to estimate plastic results
+# -------------------------------------
 
 
 def apply_neuber_correction(elastic_stress, youngs_modulus, non_linear_strain, non_linear_stress):
@@ -235,20 +244,121 @@ def apply_glinka_correction(elastic_stress, youngs_modulus, non_linear_strain, n
     }
 
 
+# %%
+# Functions to find stress sample points for average stresses
+# -----------------------------------------------------------
+
+
+def find_bridge_stress_sample_points(mc):
+    all_points = []
+
+    # Sample points is hardcoded to 15 in Motor-CAD for stress averaging
+    sample_points = 15
+
+    # Check the rotor type
+    rotor_type = mc.get_variable("BPMRotor")
+    # U shape is 13, V web is 11
+    if rotor_type == 11:
+        layers = mc.get_variable("VMagnet_Layers")
+    elif rotor_type == 13:
+        layers = mc.get_variable("Magnet_Layers")
+    else:
+        sys.exit("Stress sampling only available for V web and U templates")
+
+    # Get variables independent of the rotor type
+    average_stress_location_bridge = mc.get_variable("AvStressRadialLocation_Bridge")
+    rotor_diameter = mc.get_variable("RotorDiameter")
+    poles = mc.get_variable("Pole_Number")
+    pole_pairs = poles / 2
+
+    for layer in range(layers):
+        if rotor_type == 11:
+            # V Web template
+            bridge_thickness = mc.get_array_variable("BridgeThickness_Array", layer)
+            web_thickness = mc.get_array_variable("WebThickness_Array", layer)
+            pole_arc = math.radians(mc.get_array_variable("PoleArc_Array", layer) / pole_pairs)
+            theta_4 = math.asin(web_thickness / (2 * (rotor_diameter / 2 - bridge_thickness)))
+            theta_0 = math.radians(180 / poles) + pole_arc / 2
+            theta_1 = math.radians(360 / poles) - theta_4
+            theta_bridge_span = theta_1 - theta_0
+            # Arc covers half the bridge
+            delta_theta = theta_bridge_span / 2 / sample_points
+            theta = theta_0 + theta_bridge_span / 2
+        elif rotor_type == 13:
+            # U template
+            bridge_thickness = mc.get_array_variable("UShape_BridgeThickness_Array", layer)
+            web_thickness = mc.get_array_variable("UShape_WebThickness_Array", layer)
+            outer_thickness = mc.get_array_variable("UShape_Thickness_Outer_Array", layer)
+            theta_offset = math.radians(
+                mc.get_array_variable("UShape_OuterAngleOffset_Array", layer)
+            )
+            inner_rad = rotor_diameter / 2 - bridge_thickness
+
+            # The start angle of the FEA model
+            theta_0 = math.radians(360 / poles)
+
+            # The angle to the end of the web
+            theta_1 = math.asin(web_thickness / (2 * inner_rad))
+
+            # We now need to solve for phi (the arc angle from the centre) with
+            # cos(theta_offset - theta_1 - phi/2) * sin(phi/2) = outer_thickness / (2 * inner_rad)
+            # This is non-trivial, so do this numerically
+            test_phi = 0
+            found_phi = False
+            phi_step = math.radians(0.01)
+            iteration = 0
+            last_err = math.cos(theta_offset - theta_1 - test_phi / 2) * math.sin(
+                test_phi / 2
+            ) - outer_thickness / (2 * inner_rad)
+            while found_phi == False and iteration < 36000:
+                test_phi = test_phi + phi_step
+                iteration = iteration + 1
+                err = math.cos(theta_offset - theta_1 - test_phi / 2) * math.sin(
+                    test_phi / 2
+                ) - outer_thickness / (2 * inner_rad)
+                # Check if error has changed sign, if so we are close to the correct solution
+                if err * last_err < 0:
+                    found_phi = True
+                else:
+                    last_err = err
+            theta_bridge_span = test_phi
+
+            # Arc covers half the bridge
+            delta_theta = theta_bridge_span / 2 / sample_points
+            theta = theta_0 - (theta_1 + theta_bridge_span / 2)
+
+        # Common logic for both rotor types
+        r0 = rotor_diameter / 2 - bridge_thickness * (1 - average_stress_location_bridge)
+
+        layer_points = []
+        for point in range(sample_points):
+            this_theta = theta + point * delta_theta
+            x = r0 * math.cos(this_theta)
+            y = r0 * math.sin(this_theta)
+            layer_points.append([x, y])
+
+        all_points.append(layer_points)
+    return all_points
+
+
+#########################
+# Main script starts here
+#########################
+
 # Option whether to overwrite output values
 overwrite_stress_outputs = True
 
 # Connect to Motor-CAD
-mcApp = pymotorcad.MotorCAD()
+mc = pymotorcad.MotorCAD()
 
 # Users should run this script from the scripting tab after the stress calculation
 # Trigger this automatically for the automated documentation build
 if "PYMOTORCAD_DOCS_BUILD" in os.environ:
-    mcApp.set_variable("MessageDisplayState", 2)
-    mcApp.load_template("e10")
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e10")
     # Set extreme overspeed condition to show yield
-    mcApp.set_variable("ShaftSpeed", 25000)
-    mcApp.do_mechanical_calculation()
+    mc.set_variable("ShaftSpeed", 25000)
+    mc.do_mechanical_calculation()
 
 # Non-linear material data for later post-processing
 # %%
@@ -326,103 +436,25 @@ non_linear_stress = np.array(
 )
 
 # The material properties of the rotor
-rotor_youngs_modulus = mcApp.get_variable("YoungsCoefficient_RotorLam")
+rotor_youngs_modulus = mc.get_variable("YoungsCoefficient_RotorLam")
 
-# Sample points is hardcoded to 15 in Motor-CAD for stress averaging
-sample_points = 15
+# Find points to sample for bridge
+bridge_samples = find_bridge_stress_sample_points(mc)
 
-# Check the rotor type
-rotor_type = mcApp.get_variable("BPMRotor")
-# U shape is 13, V web is 11
-if rotor_type == 11:
-    layers = mcApp.get_variable("VMagnet_Layers")
-elif rotor_type == 13:
-    layers = mcApp.get_variable("Magnet_Layers")
-else:
-    sys.exit("Stress sampling only available for V web and U templates")
-
-# Get variables independent of the rotor type
-average_stress_location_bridge = mcApp.get_variable("AvStressRadialLocation_Bridge")
-rotor_diameter = mcApp.get_variable("RotorDiameter")
-poles = mcApp.get_variable("Pole_Number")
-pole_pairs = poles / 2
-
-for layer in range(layers):
-    if rotor_type == 11:
-        # V Web template
-        bridge_thickness = mcApp.get_array_variable("BridgeThickness_Array", layer)
-        web_thickness = mcApp.get_array_variable("WebThickness_Array", layer)
-        pole_arc = math.radians(mcApp.get_array_variable("PoleArc_Array", layer) / pole_pairs)
-        theta_4 = math.asin(web_thickness / (2 * (rotor_diameter / 2 - bridge_thickness)))
-        theta_0 = math.radians(180 / poles) + pole_arc / 2
-        theta_1 = math.radians(360 / poles) - theta_4
-        theta_bridge_span = theta_1 - theta_0
-        # Arc covers half the bridge
-        delta_theta = theta_bridge_span / 2 / sample_points
-        theta = theta_0 + theta_bridge_span / 2
-    elif rotor_type == 13:
-        # U template
-        bridge_thickness = mcApp.get_array_variable("UShape_BridgeThickness_Array", layer)
-        web_thickness = mcApp.get_array_variable("UShape_WebThickness_Array", layer)
-        outer_thickness = mcApp.get_array_variable("UShape_Thickness_Outer_Array", layer)
-        theta_offset = math.radians(
-            mcApp.get_array_variable("UShape_OuterAngleOffset_Array", layer)
-        )
-        inner_rad = rotor_diameter / 2 - bridge_thickness
-
-        # The start angle of the FEA model
-        theta_0 = math.radians(360 / poles)
-
-        # The angle to the end of the web
-        theta_1 = math.asin(web_thickness / (2 * inner_rad))
-
-        # We now need to solve for phi (the arc angle from the centre) with
-        # cos(theta_offset - theta_1 - phi/2) * sin(phi/2) = outer_thickness / (2 * inner_rad)
-        # This is non-trivial, so do this numerically
-        test_phi = 0
-        found_phi = False
-        phi_step = math.radians(0.01)
-        iteration = 0
-        last_err = math.cos(theta_offset - theta_1 - test_phi / 2) * math.sin(
-            test_phi / 2
-        ) - outer_thickness / (2 * inner_rad)
-        while found_phi == False and iteration < 36000:
-            test_phi = test_phi + phi_step
-            iteration = iteration + 1
-            err = math.cos(theta_offset - theta_1 - test_phi / 2) * math.sin(
-                test_phi / 2
-            ) - outer_thickness / (2 * inner_rad)
-            # Check if error has changed sign, if so we are close to the correct solution
-            if err * last_err < 0:
-                found_phi = True
-            else:
-                last_err = err
-        theta_bridge_span = test_phi
-
-        # Arc covers half the bridge
-        delta_theta = theta_bridge_span / 2 / sample_points
-        theta = theta_0 - (theta_1 + theta_bridge_span / 2)
-
-    # Common logic for both rotor types
-    r0 = rotor_diameter / 2 - bridge_thickness * (1 - average_stress_location_bridge)
+# Iterate over layers and then points to get results
+for layer_index, layer_samples in enumerate(bridge_samples):
     stresses = []
     non_linear_stresses = []
-    points = []
-    for point in range(sample_points):
-        this_theta = theta + point * delta_theta
-        x = r0 * math.cos(this_theta)
-        y = r0 * math.sin(this_theta)
-        stress_von_mises = mcApp.get_point_value("SVM", x, y)[0]
-        # Apply a plastic stress post-processing correction here
+    for xy_point in layer_samples:
+        stress_von_mises = mc.get_point_value("SVM", xy_point[0], xy_point[1])[0]
         non_linear_result = apply_neuber_correction(
             stress_von_mises, rotor_youngs_modulus, non_linear_strain, non_linear_stress
         )
-        points.append([x, y])
         stresses.append(stress_von_mises)
         non_linear_stresses.append(non_linear_result["nonlinear_stress"])
 
     # Display results for this layer
-    print("Point positions: " + str(points))
+    print("Point positions: " + str(layer_samples))
     print("Stress at points (original) : " + str(stresses))
     print("Stress at points (corrected): " + str(non_linear_stresses))
     print("Mean stress (original) : " + str(sum(stresses) / len(stresses)))
@@ -430,4 +462,4 @@ for layer in range(layers):
     print("Mean stress (corrected): " + str(corrected_mean_stress))
 
     if overwrite_stress_outputs:
-        mcApp.set_array_variable("AvStress_MagnetBridge", layer, corrected_mean_stress)
+        mc.set_array_variable("AvStress_MagnetBridge", layer_index, corrected_mean_stress)
