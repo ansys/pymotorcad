@@ -97,6 +97,7 @@ class RegionType(Enum):
     bearings = "Bearings"
     commutator = "Commutator"
     airgap = "Airgap"
+    surrounding_air = "Surrounding air"
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
     adaptive = "Adaptive Region"
