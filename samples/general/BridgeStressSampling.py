@@ -25,11 +25,17 @@ Stress sampling example
 =======================
 This example shows how to sample the stresses in the rotor bridges.
 
+In addition to calculating the average rotor bridge stress, it also allows post-processing
+to consider non-linear plastic effects. Optionally, the results from the non-linear calculation
+are used to replace the standard result in the outputs tab.
+
 This script should be run from the scripting tab after the stress calculation
 has been run in Motor-CAD.
 """
 
+# %%
 # Standard imports
+# ----------------
 
 import math
 import os
@@ -341,31 +347,12 @@ def find_bridge_stress_sample_points(mc):
     return all_points
 
 
-#########################
-# Main script starts here
-#########################
-
-# Option whether to overwrite output values
-overwrite_stress_outputs = True
-
-# Connect to Motor-CAD
-mc = pymotorcad.MotorCAD()
-
-# Users should run this script from the scripting tab after the stress calculation
-# Trigger this automatically for the automated documentation build
-if "PYMOTORCAD_DOCS_BUILD" in os.environ:
-    mc.set_variable("MessageDisplayState", 2)
-    mc.load_template("e10")
-    # Set extreme overspeed condition to show yield
-    mc.set_variable("ShaftSpeed", 25000)
-    mc.do_mechanical_calculation()
-
-# Non-linear material data for later post-processing
 # %%
-# Non-linear stress strain data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Non-linear stress strain data for rotor material
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Our non-linear stress-strain data, in this case for a region with
 # Young's modulus of 185 GPa, and with plastic deformation above 480 MPa.
+# Strain is a ratio (dimensionless), Stress is in MPa.
 non_linear_strain = np.array(
     [
         0,
@@ -434,6 +421,26 @@ non_linear_stress = np.array(
         640,
     ]
 )
+
+
+# %%
+# Main script using the functions defined previously
+# --------------------------------------------------
+
+# Option whether to overwrite output values
+overwrite_stress_outputs = True
+
+# Connect to Motor-CAD
+mc = pymotorcad.MotorCAD()
+
+# Users should run this script from the scripting tab after the stress calculation
+# Trigger this automatically for the automated documentation build
+if "PYMOTORCAD_DOCS_BUILD" in os.environ:
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e10")
+    # Set extreme overspeed condition to show yield
+    mc.set_variable("ShaftSpeed", 25000)
+    mc.do_mechanical_calculation()
 
 # The material properties of the rotor
 rotor_youngs_modulus = mc.get_variable("YoungsCoefficient_RotorLam")
