@@ -36,6 +36,19 @@ This script applies the adaptive templates functionality to modify the stator in
 #    that the **Symmetry** setting under **Model Size** on the
 #    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Full Non-Symmetry**
 #    for the FEA calculation to solve.
+#
+# .. note::
+#    This example modifies the stator back iron so that it is larger than the original round stator.
+#    This means that the **Air region boundary** setting under **Surrounding Air Region** on the
+#    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Circle** and the
+#    **Circle Diameter** should be set to at least **300 mm** for the FEA calculation to solve. This
+#    is to ensure that the stator is surrounded by air when the FEA calculation is solved. In this
+#    example, if the **Square fillet** is 0 mm and the **Stator Lam Dia** is kept at the default
+#    198 mm, the outermost point of the stator is at a radius of around 140 mm. Therefore, the
+#    surrounding air **Circle Diameter** must be more than 280 mm.
+#
+# .. image:: ../../images/adaptive_templates/square_stator_surrounding_air.png
+#     :width: 600pt
 
 
 # %%
@@ -49,7 +62,7 @@ This script applies the adaptive templates functionality to modify the stator in
 
 from copy import deepcopy
 
-# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/halbach_custom_angles_thumbnail.png'
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/square_stator_4.png'
 import os
 import shutil
 import sys
@@ -74,6 +87,13 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # * set the **Symmetry** setting under **Model Size** to **Full Non-Symmetry**
 #   (**Input Data -> Settings -> Calculation** tab),
 #
+# * set the **Air region boundary** setting under **Surrounding Air Region** to **Circle**
+#   (**Input Data -> Settings -> Calculation** tab),
+#
+# * set the **Circle Diameter** to **300 mm**,
+#
+# * set the **Housing** type to **Square**,
+#
 # * save the file to a temporary folder.
 # To keep a new Motor-CAD instance open after executing the script, use the
 # ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively, use the
@@ -90,6 +110,9 @@ else:
         mc.set_visible(True)
     mc.load_template("e10")
     mc.set_variable("MagneticSymmetry", 3)  # set Full Non-Symmetry
+    mc.set_variable("SurroundingAirRegion_Boundary", 1)  # set Square Housing
+    mc.set_variable("SurroundingAirRegion_CircleDiameter", 300)  # set Square Housing
+    mc.set_variable("HousingType", 1)  # set Square Housing
 
     # Open relevant file
     working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
@@ -195,7 +218,7 @@ for entity in stator.entities:
 # Rotate entities around the origin (centre of the motor) by the appropriate angle.
 #
 # Append the copied entities to a list. The first entity in the list is closest to the lower
-# boundary line (at 0Â°). The last entity in the list is closest to the upper boundary line.
+# boundary line (at 0°). The last entity in the list is closest to the upper boundary line.
 copied_entities = []
 for i in range(int((stator.duplications / 4) - 1)):
     for entity in reversed(entities_to_copy_and_rotate):
@@ -233,30 +256,45 @@ stator.insert_entity(0, upper_boundary_line)
 draw_objects(stator.entities)
 
 # %%
-# The only missing entities are the square stator outer edges.
-new_point = Coordinate(stator.entities[-1].end.x, stator.entities[0].start.y)
-new_line_vert = Line(stator.entities[-1].end, new_point)
-new_line_horiz = Line(new_point, stator.entities[0].start)
+# The only missing entities are the square stator outer edges. The corner is at the same
+# x-coordinate as the lower boundary line (the last entity) end point and the same y-coordinate as
+# the upper boundary line (the first entity) start point. Create the new vertical and horizontal
+# lines (edges of the square stator) using the corner coordinate and the boundary line start and end
+# points. Insert the new horizontal line as the first entity, and add the vertical entity as the
+# last entity in the stator region entity list.
+
+corner_point = Coordinate(stator.entities[-1].end.x, stator.entities[0].start.y)
+new_line_vert = Line(stator.entities[-1].end, corner_point)
+new_line_horiz = Line(corner_point, stator.entities[0].start)
 stator.insert_entity(0, new_line_horiz)
 stator.add_entity(new_line_vert)
 
 # %%
-# fillet square
-fillet(stator, new_point, fillet_distance)
+# Use the ``fillet`` function to fillet the corner of the square. Use the adaptive parameter value
+# ``fillet_distance`` to define the distance to shorten the adjacent sides of the square region by.
+fillet(stator, corner_point, fillet_distance)
 
 # %%
-# Set the number of stator duplications to 4 and set the modified region in Motor-CAD
-
+# Set the number of stator duplications to 4 from the original 48.
 stator.duplications = 4
-# mc.set_region(stator)
 
+# %%
+# Use the ``subtract`` method to subtract the new square stator region from the original housing, to
+# update the cut-out shape in the housing.
 housing = gt.get_regions_of_type(RegionType.housing)[0]
+
+draw_objects([stator, housing])
+
 housing.subtract(stator)
+
+draw_objects([stator, housing])
+
+# %% Set the modified geometry tree in Motor-CAD.
 mc.set_geometry_tree(gt)
 
 # %%
-# .. image:: ../../images/adaptive_templates/halbach_custom_angles_2.png
-#     :width: 600pt
+# Draw the updated geometry tree.
+draw_objects(gt)
 
 # %%
 # Load in Adaptive Templates script if required
