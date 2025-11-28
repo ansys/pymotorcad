@@ -31,6 +31,9 @@ This script applies the adaptive templates functionality to modify the stator in
 # corners are filleted by a distance defined by a new adaptive parameter (**Square fillet**).
 #
 # .. note::
+#    This example requires Motor-CAD v2026R1 or later.
+#
+# .. note::
 #    This example modifies the symmetry of the stator region. By default, Motor-CAD standard
 #    template geometry uses 1 stator region per slot. This example modifies the symmetry so that
 #    the model geometry has 4 stator regions, each spanning a quarter of the machine. This means
