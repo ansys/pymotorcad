@@ -237,7 +237,7 @@ for notch_loop in range(0, number_notches):
         notch_angular_width,
         notch_centre_angle,
         notch_depth,
-        region_type=RegionType.rotor_air,
+        region_type=RegionType.rotor_pocket,
     )
 
     # notch properties

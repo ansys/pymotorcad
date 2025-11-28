@@ -49,7 +49,15 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, Region, rt_to_xy
+from ansys.motorcad.core.geometry import (
+    Arc,
+    Coordinate,
+    EntityList,
+    Line,
+    Region,
+    RegionType,
+    rt_to_xy,
+)
 
 # %%
 # Connect to Motor-CAD
@@ -136,7 +144,7 @@ arc_rt = Arc(p4, p3, centre=None, radius=-rt_band_radius)
 # Create rotor band region with material and mesh properties
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-rt_band = Region()
+rt_band = Region(region_type=RegionType.rotor)
 rt_band.name = "rotor band"
 rt_band.entities = EntityList([line_1, arc_mag, line_2, arc_rt])
 rt_band.duplications = rt_region.duplications
