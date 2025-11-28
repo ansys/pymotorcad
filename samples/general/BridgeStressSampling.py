@@ -426,6 +426,15 @@ non_linear_stress = np.array(
 # %%
 # Main script using the functions defined previously
 # --------------------------------------------------
+#
+# .. note::
+#    To run the calculation automatically when a stress calculation is completed, the
+#    code below can be placed in method called `final(self)` within a `mechanical_stress()`
+#    class. For example::
+#       class mechanical_stress():
+#           def final(self):
+#           # Code below goes here
+
 
 # Option whether to overwrite output values
 overwrite_stress_outputs = True
