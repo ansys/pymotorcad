@@ -161,3 +161,20 @@ class _RpcMethodsMaterials:
         method = "SaveMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
+
+    def _get_solid_database(self):
+        """BETA - get the solid database from Motor-CAD."""
+        method = "GetSolidDatabase"
+        return self.connection.send_and_receive(method)
+
+    def select_material_database(self, database_file_path):
+        """Select and load a material database to be used in Motor-CAD.
+
+        Parameters
+        __________
+        database_file_path : str
+            File path pointing to the material database (.mdb) to be used in Motor-CAD.
+        """
+        method = "SetSolidDatabase"
+        params = [database_file_path]
+        return self.connection.send_and_receive(method, params)
