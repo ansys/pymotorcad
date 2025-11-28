@@ -29,6 +29,7 @@ This script applies the adaptive templates functionality to modify the stator in
 # The modified stator is a square of width and height equal to the original round stator diameter.
 # To adjust the size, change the **Stator Lam Dia** standard template parameter value. The square
 # corners are filleted by a distance defined by a new adaptive parameter (**Square fillet**).
+#
 # .. note::
 #    This example modifies the symmetry of the stator region. By default, Motor-CAD standard
 #    template geometry uses 1 stator region per slot. This example modifies the symmetry so that
@@ -48,7 +49,7 @@ This script applies the adaptive templates functionality to modify the stator in
 #    surrounding air **Circle Diameter** must be more than 280 mm.
 #
 # .. image:: ../../images/adaptive_templates/square_stator_surrounding_air.png
-#     :width: 600pt
+#      :width: 300pt
 
 
 # %%
@@ -82,7 +83,7 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 #
 # * open a new Motor-CAD instance,
 #
-# * load the e10 SPM motor template,
+# * load the e10 IPM motor template,
 #
 # * set the **Symmetry** setting under **Model Size** to **Full Non-Symmetry**
 #   (**Input Data -> Settings -> Calculation** tab),
@@ -90,7 +91,7 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # * set the **Air region boundary** setting under **Surrounding Air Region** to **Circle**
 #   (**Input Data -> Settings -> Calculation** tab),
 #
-# * set the **Circle Diameter** to **300 mm**,
+# * set the **Circle Diameter** to **300 mm** (**Input Data -> Settings -> Calculation** tab),
 #
 # * set the **Housing** type to **Square**,
 #
@@ -179,7 +180,7 @@ stator = gt.get_regions_of_type(RegionType.stator)[0]
 
 # %%
 # .. image:: ../../images/adaptive_templates/square_stator_1.png
-#     :width: 600pt
+#     :width: 800pt
 
 # %%
 # A square stator has 4-fold symmetry, so the adaptive templates geometry needs to be
@@ -187,8 +188,9 @@ stator = gt.get_regions_of_type(RegionType.stator)[0]
 
 # %%
 # .. image:: ../../images/adaptive_templates/square_stator_2.png
-#     :width: 600pt
+#     :width: 800pt
 
+# %%
 # Remove the outer arc and upper boundary of the original stator. These are the first and second
 # entities in the list. Use the ``draw_objects`` function to visualise the change.
 draw_objects(stator, draw_points=True)
@@ -289,12 +291,13 @@ housing.subtract(stator)
 
 draw_objects([stator, housing])
 
-# %% Set the modified geometry tree in Motor-CAD.
+# %%
+# Set the modified geometry tree in Motor-CAD.
 mc.set_geometry_tree(gt)
 
 # %%
 # Draw the updated geometry tree.
-draw_objects(gt)
+draw_objects(gt, legend=False, axes=False)
 
 # %%
 # Load in Adaptive Templates script if required
