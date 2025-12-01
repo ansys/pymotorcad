@@ -1265,7 +1265,7 @@ class Region(object):
         Parameters
         ----------
         corner_coordinate : ansys.motorcad.core.geometry.Coordinate
-            Coordinate of the corner to round.
+            Coordinate of the corner to chamfer.
         distance : float or list of float
             Distance to shorten the adjacent entities by. If list: The fist element will be the
             distance the entity before the corner is shortened by, the second element will be the
@@ -1345,6 +1345,27 @@ class Region(object):
                     f"({corner_coordinate.x}, {corner_coordinate.y}) on entities in "
                     f"region. You must specify a corner in this region."
                 )
+
+    def chamfer_corners(self, corner_coordinates, distance, maximise=True):
+        """Chamfer multiple corners of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to each corner are shortened, and lines are created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinates : list of ansys.motorcad.core.geometry.Coordinate
+            Coordinates of the corners to chamfer.
+        distance : float or list of float
+            Distance to shorten the adjacent entities by. If list: The fist element will be the
+            distance the entity before the corner is shortened by, the second element will be the
+            distance the entity after the corner is shortened by.
+        maximise : bool
+            Whether to maximise the possible distance if the distance provided is too large.
+        """
+        for corner in corner_coordinates:
+            self.chamfer_corner(corner, distance, maximise=maximise)
 
     def limit_arc_chord(self, max_chord_height):
         """Limit the chord height for arcs in a region.
