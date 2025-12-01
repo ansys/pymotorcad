@@ -1255,6 +1255,97 @@ class Region(object):
                     else:
                         raise e
 
+    def chamfer_corner(self, corner_coordinate, distance, maximise=True):
+        """Chamfer the corner of a region.
+
+        The corner coordinates must already exist on two entities belonging to the region.
+        The two entities adjacent to the corner are shortened, and a line is created between
+        them.
+
+        Parameters
+        ----------
+        corner_coordinate : ansys.motorcad.core.geometry.Coordinate
+            Coordinate of the corner to round.
+        distance : float or list of float
+            Distance to shorten the adjacent entities by. If list: The fist element will be the
+            distance the entity before the corner is shortened by, the second element will be the
+            distance the entity after the corner is shortened by.
+        maximise : bool
+            Whether to maximise the possible distance if the distance provided is too large.
+        """
+        # check whether distance is a list of values or a single value
+        if isinstance(distance, list):
+            if len(distance) > 1:
+                # only shorten entities. Use the absolute distance if negative
+                distance[0] = abs(distance[0])
+                distance[1] = abs(distance[1])
+            else:
+                # If there is only 1 value in the list, use the same distance for both entities.
+                # Only shorten entities. Use the absolute distance if negative.
+                distance[0] = abs(distance[0])
+                distance.append(distance[0])
+        else:
+            # if distance is provided as a single float, use the same distance for both entities.
+            # Only shorten entities. Use the absolute distance if negative.
+            distance = [abs(distance), abs(distance)]
+
+        minimum_distance = 0.1  # minimum distance entities will be shortened by.
+        for distance_i in distance:
+            if distance_i < minimum_distance:
+                warn(
+                    f"Distance ({distance_i} mm) is less than the minimum distance to shorten "
+                    f"adjacent entities by ({minimum_distance} mm). Please provide a distance of "
+                    f"at least {minimum_distance} mm."
+                )
+                return
+        else:
+            new_entity_start = None
+            new_entity_end = None
+            new_entity_index = None
+            i = 0
+            for entity in self.entities:
+                if entity.end == corner_coordinate:
+                    if distance[0] > (entity.length - minimum_distance):
+                        if maximise:
+                            distance[0] = entity.length - minimum_distance
+                        else:
+                            raise ValueError(
+                                f"Distance ({distance[0]} mm) is close to or larger "
+                                f"than the original length of {entity} "
+                                f"({entity.length} mm). Please provide a shorter "
+                                f"distance or use 'maximise = True'."
+                            )
+                    new_entity_end = entity.get_coordinate_from_distance(
+                        entity.end, distance=distance[0]
+                    )
+                    entity.end = new_entity_end
+                elif entity.start == corner_coordinate:
+                    if distance[1] > (entity.length - minimum_distance):
+                        if maximise:
+                            distance[1] = entity.length - minimum_distance
+                        else:
+                            raise ValueError(
+                                f"Distance ({distance[1]} mm) is close to or larger "
+                                f"than the original length of {entity} "
+                                f"({entity.length} mm). Please provide a shorter "
+                                f"distance or use 'maximise = True'."
+                            )
+                    new_entity_start = entity.get_coordinate_from_distance(
+                        entity.start, distance=distance[1]
+                    )
+                    entity.start = new_entity_start
+                    new_entity_index = i
+                i += 1
+            if new_entity_start and new_entity_end:
+                new_line = Line(new_entity_end, new_entity_start)
+                self.insert_entity(new_entity_index, new_line)
+            else:
+                raise ValueError(
+                    f"Failed to find corner "
+                    f"({corner_coordinate.x}, {corner_coordinate.y}) on entities in "
+                    f"region. You must specify a corner in this region."
+                )
+
     def limit_arc_chord(self, max_chord_height):
         """Limit the chord height for arcs in a region.
 
