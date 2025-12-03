@@ -24,7 +24,21 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+from math import (
+    acos,
+    atan2,
+    comb,
+    cos,
+    degrees,
+    fabs,
+    floor,
+    inf,
+    isclose,
+    isnan,
+    radians,
+    sin,
+    sqrt,
+)
 import warnings
 from warnings import warn
 
@@ -1987,8 +2001,18 @@ class Line(Entity):
             length = self.length
         gradient = self.gradient
         new_y_intercept = start.y - gradient * start.x
-        end_x = start.x + (length / (1 + gradient**2) ** (1 / 2))
-        end_y = gradient * end_x + new_y_intercept
+        if new_y_intercept == inf:
+            end_x = start.x
+            end_y = start.y - length
+        elif new_y_intercept == -inf:
+            end_x = start.x
+            end_y = start.y + length
+        else:
+            e = self.angle / abs(
+                self.angle
+            )  # (gradient/abs(gradient))*(self.angle/abs(self.angle))
+            end_x = start.x + e * (length / (1 + gradient**2) ** (1 / 2))
+            end_y = gradient * end_x + new_y_intercept
         return Line(start, Coordinate(end_x, end_y))
 
     def get_perpendicular_line(self, start, length=None):
@@ -2011,10 +2035,18 @@ class Line(Entity):
         """
         if not length:
             length = self.length
-        gradient = -1 / self.gradient
+        if self.gradient == 0:
+            gradient = inf
+        else:
+            gradient = -1 / self.gradient
         new_y_intercept = start.y - gradient * start.x
-        end_x = start.x + (length / (1 + gradient**2) ** (1 / 2))
-        end_y = gradient * end_x + new_y_intercept
+        if abs(new_y_intercept) == inf or isnan(new_y_intercept):
+            end_x = start.x
+            end_y = start.y - length
+        else:
+            e = self.angle / abs(self.angle)
+            end_x = start.x + e * (length / (1 + gradient**2) ** (1 / 2))
+            end_y = gradient * end_x + new_y_intercept
         return Line(start, Coordinate(end_x, end_y))
 
     def get_bisecting_line(self, length=None):
