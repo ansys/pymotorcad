@@ -161,7 +161,7 @@ jobs:
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
 
       - name: Display structure of downloaded files
         run: ls -R
