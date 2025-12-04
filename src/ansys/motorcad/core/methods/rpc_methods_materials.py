@@ -161,3 +161,8 @@ class _RpcMethodsMaterials:
         method = "SaveMagnetParameters"
         params = [material_name]
         return self.connection.send_and_receive(method, params)
+
+    def _get_solid_database(self):
+        """BETA - get the solid database from Motor-CAD."""
+        method = "GetSolidDatabase"
+        return self.connection.send_and_receive(method)
