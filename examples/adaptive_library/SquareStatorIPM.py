@@ -28,7 +28,7 @@ This script applies the adaptive templates functionality to modify the stator in
 # %%
 # The modified stator is a square of width and height equal to the original round stator diameter.
 # To adjust the size, change the **Stator Lam Dia** standard template parameter value. The square
-# corners are filleted by a distance defined by a new adaptive parameter (**Square fillet**).
+# corners are chamfered by a distance defined by a new adaptive parameter (**Square chamfer**).
 #
 # .. note::
 #    This example requires Motor-CAD v2026R1 or later.
@@ -47,7 +47,7 @@ This script applies the adaptive templates functionality to modify the stator in
 #    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Circle** and the
 #    **Circle Diameter** should be set to at least **300 mm** for the FEA calculation to solve. This
 #    is to ensure that the stator is surrounded by air when the FEA calculation is solved. In this
-#    example, if the **Square fillet** is 0 mm and the **Stator Lam Dia** is kept at the default
+#    example, if the **Square chamfer** is 0 mm and the **Stator Lam Dia** is kept at the default
 #    198 mm, the outermost point of the stator is at a radius of around 140 mm. Therefore, the
 #    surrounding air **Circle Diameter** must be more than 280 mm.
 #
@@ -135,9 +135,9 @@ mc.reset_adaptive_geometry()
 # %%
 # Define necessary functions
 # --------------------------
-# Define a function to modify a region by filleting corners. Shorten entities that are adjacent to
+# Define a function to modify a region by chamfering corners. Shorten entities that are adjacent to
 # the corner by a specified distance, and insert a new line between the shortened entities.
-def fillet(region, corner, distance):
+def chamfer(region, corner, distance):
     if distance < 0.1:
         return
     new_entity_start = None
@@ -163,10 +163,11 @@ def fillet(region, corner, distance):
 # -----------------------------------
 # From Motor-CAD, get the required standard template objects and the adaptive parameter values.
 #
-# Use the ``set_adaptive_parameter_default`` method to set the required ``Square fillet`` parameters
-# if undefined. This will be used to define the distance to fillet the square stator corners by.
-mc.set_adaptive_parameter_default("Square fillet", 25)
-fillet_distance = mc.get_adaptive_parameter_value("Square fillet")
+# Use the ``set_adaptive_parameter_default`` method to set the required ``Square chamfer``
+# parameters if undefined. This will be used to define the distance to chamfer the square stator
+# corners by.
+mc.set_adaptive_parameter_default("Square chamfer", 25)
+chamfer_distance = mc.get_adaptive_parameter_value("Square chamfer")
 
 # %%
 # Get the geometry tree. Use the ``get_regions_of_type`` method to get the original stator region.
@@ -275,9 +276,9 @@ stator.insert_entity(0, new_line_horiz)
 stator.add_entity(new_line_vert)
 
 # %%
-# Use the ``fillet`` function to fillet the corner of the square. Use the adaptive parameter value
-# ``fillet_distance`` to define the distance to shorten the adjacent sides of the square region by.
-fillet(stator, corner_point, fillet_distance)
+# Use the ``chamfer`` function to chamfer the corner of the square. Use the adaptive parameter value
+# ``chamfer_distance`` to define the distance to shorten the adjacent sides of the square region by.
+chamfer(stator, corner_point, chamfer_distance)
 
 # %%
 # Set the number of stator duplications to 4 from the original 48.
