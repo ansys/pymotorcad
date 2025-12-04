@@ -1,0 +1,6 @@
+no\_type
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.no_type

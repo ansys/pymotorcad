@@ -1,0 +1,6 @@
+duplication\_angle
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.duplication_angle
