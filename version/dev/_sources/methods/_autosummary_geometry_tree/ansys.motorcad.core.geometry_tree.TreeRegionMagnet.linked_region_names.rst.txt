@@ -1,0 +1,6 @@
+linked\_region\_names
+=====================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.linked_region_names

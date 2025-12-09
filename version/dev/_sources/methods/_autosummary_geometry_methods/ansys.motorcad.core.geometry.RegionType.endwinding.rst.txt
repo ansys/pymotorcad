@@ -1,0 +1,6 @@
+endwinding
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.endwinding
