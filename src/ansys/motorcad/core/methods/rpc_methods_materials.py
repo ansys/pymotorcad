@@ -167,14 +167,17 @@ class _RpcMethodsMaterials:
         method = "GetSolidDatabase"
         return self.connection.send_and_receive(method)
 
-    def select_material_database(self, database_file_path):
+    def select_material_database(self, database_file_path, set_as_default):
         """Select and load a material database to be used in Motor-CAD.
 
         Parameters
         __________
         database_file_path : str
             File path pointing to the material database (.mdb) to be used in Motor-CAD.
+
+        set_as_default : bool
+            Whether specified database should be used as the default solids database.
         """
         method = "SetSolidDatabase"
-        params = [database_file_path]
+        params = [database_file_path, set_as_default]
         return self.connection.send_and_receive(method, params)
