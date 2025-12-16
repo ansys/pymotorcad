@@ -63,7 +63,7 @@ jobs:
     needs: smoke-tests
     runs-on: [self-hosted, pymotorcad, tests]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v6
@@ -87,7 +87,7 @@ jobs:
     runs-on: [self-hosted, pymotorcad, docs]
     needs: doc-style
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v6
@@ -102,7 +102,7 @@ jobs:
         run: tox -e doc
 
       - name: Upload HTML documentation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-html
           path: .tox/doc_out/
@@ -160,8 +160,8 @@ jobs:
           twine-username: __token__
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v6
 
       - name: Display structure of downloaded files
         run: ls -R
