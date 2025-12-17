@@ -1,0 +1,23 @@
+[Header]
+Creation Date=17 Dec 2025
+
+[AAA]
+Type=Fixed_Solid
+Solid Type=Steel
+Thermal Conductivity=30
+Specific Heat=1000
+Density=400
+
+[MMM]
+Type=Fixed_Solid
+Solid Type=Steel
+Thermal Conductivity=40
+Specific Heat=2000
+Density=500
+
+[ZZZ]
+Type=Fixed_Solid
+Solid Type=Steel
+Thermal Conductivity=50
+Specific Heat=3000
+Density=600
