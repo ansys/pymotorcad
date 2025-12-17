@@ -1,0 +1,6 @@
+midpoint
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.midpoint
