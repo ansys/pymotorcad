@@ -249,6 +249,128 @@ class GeometryTree(dict):
                 nodes.append(node)
         return nodes
 
+    def get_magnet_segment_regions(self):
+        """Return all magnet regions in the tree with magnet segment regions grouped into lists.
+
+        If a magnet has more than one segment, the magnet segment regions will be
+        returned as a list of lists of magnet segment regions.
+
+        For example, if there are 2 full magnets, each with 2 segments, return a list with two
+        indices, where each index is a list of two regions (the individual magnet segment regions).
+
+        Returns
+        -------
+        magnet_segments: list of lists of TreeRegionObject
+            List of lists that represent full magnets. Full magnet lists contain magnet segment
+            regions.
+        """
+        # get all magnet regions (these can be full magnets or magnet segments)
+        magnets = self.get_regions_of_type(RegionType.magnet)
+
+        all_magnet_segments_ungrouped = []
+        all_magnet_segments_grouped = []
+
+        # loop through all magnet regions
+        for magnet in magnets:
+            # check whether the magnet has already been found and identified as a magnet segment.
+            if magnet not in all_magnet_segments_ungrouped:
+                # create a copy of the magnet to be united with other magnet segments.
+                magnet_copy = Region(region_type=RegionType.magnet)
+                magnet_copy.replace(magnet)
+                magnet_copy.motorcad_instance = self._motorcad_instance
+                # create list of magnet segments with the magnet as first element.
+                magnet_segments = [magnet]
+                # loop through other magnets from 1 -> n
+                for other_magnet in magnets:
+                    # check that other magnet is not the same as magnet.
+                    if other_magnet != magnet:
+                        # create a copy of the other magnet to be united with magnet
+                        other_magnet_copy = Region(region_type=RegionType.magnet)
+                        other_magnet_copy.replace(other_magnet)
+                        other_magnet_copy.motorcad_instance = self._motorcad_instance
+                        # Identify corresponding magnet segments from the same full magnet by
+                        # attempting to unite. If magnets can be united, then they are segments of
+                        # the same full magnet.
+                        try:
+                            magnet_copy.unite(other_magnet_copy)
+                            # if uniting the regions is successful, append other magnet to the list.
+                            magnet_segments.append(other_magnet)
+                        except:
+                            # if the magnets cannot be united, then do nothing.
+                            pass
+                # loop through magnets from n -> 1
+                # Try looping through magnets in the other direction to account for the list being
+                # in a different order.
+                for other_magnet in reversed(magnets):
+                    # check that other magnet is not the same as magnet.
+                    # check whether the magnet has already been found and identified as a magnet
+                    # segment.
+                    if other_magnet != magnet and other_magnet not in magnet_segments:
+                        # create a copy of the other magnet to be united with magnet
+                        other_magnet_copy = Region(region_type=RegionType.magnet)
+                        other_magnet_copy.replace(other_magnet)
+                        other_magnet_copy.motorcad_instance = self._motorcad_instance
+                        # Identify corresponding magnet segments from the same full magnet by
+                        # attempting to unite. If magnets can be united, then they are segments of
+                        # the same full magnet.
+                        try:
+                            magnet_copy.unite(other_magnet_copy)
+                            # if uniting the regions is successful, append other magnet to the list.
+                            magnet_segments.append(other_magnet)
+                        except:
+                            # if the magnets cannot be united, then do nothing.
+                            pass
+                # add the list of corresponding magnet segments to a list
+                all_magnet_segments_grouped.append(magnet_segments)
+                # add all magnet segments that have been identified so far to a list
+                all_magnet_segments_ungrouped.extend(magnet_segments)
+
+        # return the all_magnet_segments_grouped list. Corresponding magnet segments that make up a
+        # full magnet are stored in lists. all_magnet_segments_grouped is a list of these lists.
+        return all_magnet_segments_grouped
+
+    def get_full_magnet_regions(self):
+        """Return magnets in the tree as a list of full magnet regions.
+
+        If a magnet has more than one segment, unite the magnet segment regions to form a full
+        magnet region. Returns a list of magnet regions.
+
+        For example, if there are 2 full magnets, each with 2 segments, return a list of two full
+        magnet regions, where each full magnet region is the result of uniting the magnet's two
+        individual magnet segment regions.
+
+        Returns
+        -------
+        full_magnets: list of TreeRegionObject
+            List of full magnet regions.
+        """
+        # get the magnet segments from the geometry tree. These are grouped so that magnet_segments
+        # is a list of full magnets and each full magnet is a list of magnet segments.
+        magnet_segments = self.get_magnet_segment_regions()
+
+        # create a list to add the full magnets to.
+        full_magnets = []
+
+        # loop through the magnet_segments list where each element is a list of one or more magnets.
+        for magnet_list in magnet_segments:
+            # if this magnet_list contains more than 1 magnet region, it is a segmented magnet.
+            if len(magnet_list) > 1:
+                # take the first magnet segment region in the list
+                full_magnet = magnet_list[0]
+                # loop through the remaining magnet segment regions in the list
+                for i in range(len(magnet_list) - 1):
+                    segment = magnet_list[i + 1]
+                    # unite the magnet segments to form the full magnet
+                    full_magnet.unite(segment)
+                # when all segments have been united, append the full_magnet to the list
+                full_magnets.append(full_magnet)
+            # if this magnet_list contains only 1 magnet region, it is not segmented.
+            else:
+                # append the full (not segmented) magnet to the list
+                full_magnets.append(magnet_list[0])
+        # return the list of full magnet regions, where any segmented magnets have been united.
+        return full_magnets
+
     # TODO: Revisit this at a later date
     # def fix_duct_geometry(self, node):
     #     """Fix geometry to work with FEA.
