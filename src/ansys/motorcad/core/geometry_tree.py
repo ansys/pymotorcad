@@ -356,7 +356,7 @@ class GeometryTree(dict):
 
         If a magnet has more than one segment, unite the magnet segment regions to form a new full
         magnet region. Returns a list of magnet regions. The new full magnet regions are not added
-        to the geometry tree.
+        to the geometry tree and original magnet segment regions are unaffected.
 
         For example, if there are 2 full magnets, each with 2 segments, return a list of two full
         magnet regions, where each full magnet region is the result of uniting the magnet's two
