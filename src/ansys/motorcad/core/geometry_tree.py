@@ -265,7 +265,7 @@ class GeometryTree(dict):
 
         Returns
         -------
-        magnet_segments: list of lists of TreeRegionObject
+        list of lists of TreeRegionMagnet or RegionMagnet
             List of lists that represent full magnets. Full magnet lists contain magnet segment
             regions.
         """
@@ -356,7 +356,7 @@ class GeometryTree(dict):
 
         If a magnet has more than one segment, unite the magnet segment regions to form a new full
         magnet region. Returns a list of magnet regions. The new full magnet regions are not added
-        to the geometry tree and original magnet segment regions are unaffected.
+        to the geometry tree. Original magnet segment regions are unaffected.
 
         For example, if there are 2 full magnets, each with 2 segments, return a list of two full
         magnet regions, where each full magnet region is the result of uniting the magnet's two
@@ -369,7 +369,7 @@ class GeometryTree(dict):
 
         Returns
         -------
-        full_magnets: list of RegionMagnet
+        list of RegionMagnet
             List of full magnet regions.
         """
         # get the magnet segments from the geometry tree. These are grouped so that magnet_segments
@@ -420,6 +420,118 @@ class GeometryTree(dict):
                 full_magnets.append(magnet_list[0])
         # return the list of full magnet regions, where any segmented magnets have been united.
         return full_magnets
+
+    def get_full_rotor_pocket_and_magnet_regions_grouped(self):
+        """Return lists of full rotor pocket, rotor pocket and magnet regions from the tree.
+
+        Unite the rotor pocket and magnet regions to form a new full rotor pocket region. The new
+        full rotor pocket regions are not added to the geometry tree. Original rotor pocket and
+        magnet regions are unaffected.
+
+        Returns
+        -------
+        full_rotor_pockets : list of Region
+            List of full rotor pocket regions.
+        rotor_pockets_grouped : list of lists of TreeRegion
+            List of lists of rotor pocket regions, grouped by corresponding full rotor pocket.
+        magnets_grouped : list of lists of TreeRegionMagnet
+            List of lists of magnet regions (for non-segmented magnets), grouped by corresponding
+            full rotor pocket. For segmented magnets, list of lists of full magnets. Full magnets
+            are represented by lists of magnet segment regions. Full magnets are grouped by
+            corresponding full rotor pocket.
+
+        """
+        # get all magnet and rotor pocket regions from the geometry tree
+        magnets = self.get_regions_of_type(RegionType.magnet)
+        rotor_pockets = self.get_regions_of_type(RegionType.rotor_pocket)
+
+        # create a list of all magnet and rotor pocket regions
+        pockets_and_magnets = []
+        pockets_and_magnets.extend(magnets)
+        pockets_and_magnets.extend(rotor_pockets)
+
+        # create lists for storing:
+        # - the new full rotor pocket regions,
+        # - all original rotor pocket regions (grouped by full rotor pocket)
+        # - all original magnet regions (grouped by full rotor pocket)
+        # - all regions that have been successfully united so far
+        full_rotor_pockets = []
+        rotor_pockets_grouped = []
+        all_magnets_grouped = []
+        united_regions = []
+
+        # loop through the rotor pocket regions
+        i = 0
+        for pocket in rotor_pockets:
+            # only consider rotor pocket regions that have not already been successfully united to
+            # form a full rotor pocket
+            if pocket not in united_regions:
+                united_regions.append(pocket)
+
+                # create lists for rotor pocket regions and magnet regions that form this full rotor
+                # pocket
+                rotor_pockets_list = [pocket]
+                magnets_list = []
+
+                # create the full rotor pocket region, with entities from the current pocket and a
+                # unique name
+                full_rotor_pocket = Region(RegionType.rotor_pocket)
+                full_rotor_pocket.replace(pocket)
+                full_rotor_pocket.motorcad_instance = self._motorcad_instance
+                full_rotor_pocket.name = f"Full Rotor Pocket_{i + 1}"
+
+                # loop through other rotor pocket and magnet regions
+                for region in pockets_and_magnets:
+                    # if the region has not yet been successfully united to form a full rotor pocket
+                    if region != pocket and region not in united_regions:
+                        # try to unite the region with the full rotor pocket
+                        try:
+                            full_rotor_pocket.unite(region)
+                            # if the regions can be united, append the region to united_regions
+                            united_regions.append(region)
+
+                            # if the region is a rotor pocket, append it to the rotor_pockets_list
+                            if region.region_type == RegionType.rotor_pocket:
+                                rotor_pockets_list.append(region)
+                            # if the region is a magnet, append it to the magnets_list
+                            elif region.region_type == RegionType.magnet:
+                                magnets_list.append(region)
+                        # if the region cannot be united with the full rotor pocket, do nothing
+                        except:
+                            pass
+                # append the new full rotor pocket region to the list of full rotor pockets
+                full_rotor_pockets.append(full_rotor_pocket)
+                # append the lists of rotor pockets and magnets that form the full rotor pocket to
+                # rotor_pockets_grouped and magnets_grouped
+                rotor_pockets_grouped.append(rotor_pockets_list)
+                all_magnets_grouped.append(magnets_list)
+                i += 1
+
+        # for magnets that are segmented, sort the magnet regions into lists of magnet segments
+        # grouped by full magnet and full rotor pocket
+        magnets_grouped = []
+        # for each full rotor pocket
+        for i in range(len(full_rotor_pockets)):
+            # get the list of magnet segment regions from the unsorted list of magnet regions
+            magnets_grouped.append(self.get_magnet_segment_regions(magnets=all_magnets_grouped[i]))
+
+        # return the list of full rotor pockets, the list of rotor pockets and the list of magnets
+        return full_rotor_pockets, rotor_pockets_grouped, magnets_grouped
+
+    def get_full_rotor_pocket_regions(self):
+        """Return a list of new full rotor pocket regions for rotor pockets and magnets in the tree.
+
+        Unite the rotor pocket and magnet regions to form a new full rotor pocket region. The new
+        full rotor pocket regions are not added to the geometry tree. Original rotor pocket and
+        magnet regions are unaffected.
+
+        Returns
+        -------
+        list of Region
+            List of full rotor pocket regions.
+        """
+        full_rotor_pockets = self.get_full_rotor_pocket_and_magnet_regions_grouped()
+        return full_rotor_pockets
 
     # TODO: Revisit this at a later date
     # def fix_duct_geometry(self, node):
