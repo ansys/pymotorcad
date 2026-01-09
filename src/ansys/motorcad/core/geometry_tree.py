@@ -249,7 +249,7 @@ class GeometryTree(dict):
                 nodes.append(node)
         return nodes
 
-    def get_magnet_segment_regions(self):
+    def get_magnet_segment_regions(self, magnets=None):
         """Return all magnet regions in the tree with magnet segment regions grouped into lists.
 
         If a magnet has more than one segment, the magnet segment regions will be
@@ -258,14 +258,36 @@ class GeometryTree(dict):
         For example, if there are 2 full magnets, each with 2 segments, return a list with two
         indices, where each index is a list of two regions (the individual magnet segment regions).
 
+        Parameters
+        ----------
+        magnets: list of magnet regions. If 'None', all magnet regions in the geometry tree will be
+            used.
+
         Returns
         -------
         magnet_segments: list of lists of TreeRegionObject
             List of lists that represent full magnets. Full magnet lists contain magnet segment
             regions.
         """
-        # get all magnet regions (these can be full magnets or magnet segments)
-        magnets = self.get_regions_of_type(RegionType.magnet)
+        # get all magnet regions from the tree (these can be full magnets or magnet segments)
+        if not magnets:
+            magnets = self.get_regions_of_type(RegionType.magnet)
+        # if a magnets parameter was provided, check magnets is a list of magnet regions
+        else:
+            is_list = True
+            all_magnets = True
+            # check 'magnets' is a list
+            if not isinstance(magnets, list):
+                is_list = False
+            # check all elements are magnet type region objects
+            else:
+                for region in magnets:
+                    if not region.region_type == RegionType.magnet:
+                        all_magnets = False
+            if not is_list or not all_magnets:
+                raise TypeError(
+                    "The parameter 'magnets' must be a list of magnet type region objects."
+                )
 
         all_magnet_segments_ungrouped = []
         all_magnet_segments_grouped = []
@@ -329,34 +351,61 @@ class GeometryTree(dict):
         # full magnet are stored in lists. all_magnet_segments_grouped is a list of these lists.
         return all_magnet_segments_grouped
 
-    def get_full_magnet_regions(self):
-        """Return magnets in the tree as a list of full magnet regions.
+    def get_full_magnet_regions(self, magnets=None):
+        """Return a list of new full magnet regions for magnets in the tree.
 
-        If a magnet has more than one segment, unite the magnet segment regions to form a full
-        magnet region. Returns a list of magnet regions.
+        If a magnet has more than one segment, unite the magnet segment regions to form a new full
+        magnet region. Returns a list of magnet regions. The new full magnet regions are not added
+        to the geometry tree.
 
         For example, if there are 2 full magnets, each with 2 segments, return a list of two full
         magnet regions, where each full magnet region is the result of uniting the magnet's two
         individual magnet segment regions.
 
+        Parameters
+        ----------
+        magnets: list of magnet regions. If 'None', all magnet regions in the geometry tree will be
+            used.
+
         Returns
         -------
-        full_magnets: list of TreeRegionObject
+        full_magnets: list of RegionMagnet
             List of full magnet regions.
         """
         # get the magnet segments from the geometry tree. These are grouped so that magnet_segments
         # is a list of full magnets and each full magnet is a list of magnet segments.
-        magnet_segments = self.get_magnet_segment_regions()
+        magnet_segments = self.get_magnet_segment_regions(magnets=magnets)
 
         # create a list to add the full magnets to.
         full_magnets = []
 
         # loop through the magnet_segments list where each element is a list of one or more magnets.
+        i = 0
         for magnet_list in magnet_segments:
             # if this magnet_list contains more than 1 magnet region, it is a segmented magnet.
             if len(magnet_list) > 1:
                 # take the first magnet segment region in the list
-                full_magnet = magnet_list[0]
+                # full_magnet = magnet_list[0]
+                full_magnet = RegionMagnet()
+                full_magnet.replace(magnet_list[0])
+                full_magnet.name = f"Full Magnet_{i+1}"
+                full_magnet.motorcad_instance = self._motorcad_instance
+                full_magnet.parent = magnet_list[0].parent
+                full_magnet.material = magnet_list[0].material
+                full_magnet.colour = magnet_list[0].colour
+                full_magnet.duplications = magnet_list[0].duplications
+                full_magnet.magnet_angle = magnet_list[0].magnet_angle
+                full_magnet.br_multiplier = magnet_list[0].br_multiplier
+                full_magnet.magnet_polarity = magnet_list[0].magnet_polarity
+
+                if magnet_list[0].magnetisation_direction:
+                    full_magnet.magnetisation_direction = magnet_list[0].magnetisation_direction
+                    full_magnet.magnetisation_function_amplitude = magnet_list[
+                        0
+                    ].magnetisation_function_amplitude
+                    full_magnet.magnetisation_function_angle = magnet_list[
+                        0
+                    ].magnetisation_function_angle
                 # loop through the remaining magnet segment regions in the list
                 for i in range(len(magnet_list) - 1):
                     segment = magnet_list[i + 1]
@@ -364,6 +413,7 @@ class GeometryTree(dict):
                     full_magnet.unite(segment)
                 # when all segments have been united, append the full_magnet to the list
                 full_magnets.append(full_magnet)
+                i += 1
             # if this magnet_list contains only 1 magnet region, it is not segmented.
             else:
                 # append the full (not segmented) magnet to the list
