@@ -21,7 +21,15 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
-from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
+from ansys.motorcad.core.geometry import (
+    Arc,
+    Coordinate,
+    Line,
+    Region,
+    RegionMagnet,
+    RegionType,
+    UniquePoint,
+)
 
 
 class GeometryTree(dict):
@@ -38,6 +46,7 @@ class GeometryTree(dict):
         super().__init__()
         # increment every time we add a region so that we can automatically assign a
         # unique name to regions on creation
+        self.unique_points_list = []
         self._motorcad_instance = mc
         self.unique_region_number = 0
 
@@ -52,6 +61,8 @@ class GeometryTree(dict):
 
         # Tree has root node different to standard tree root
         self._custom_root_node = None
+
+        self.unique_id_counter = 0
 
     def __setitem__(self, key, value):
         """Override __setitem___."""
@@ -197,6 +208,21 @@ class GeometryTree(dict):
                     regions[node.key] = TreeRegionMagnet._to_json(node)
                 else:
                     regions[node.key] = TreeRegion._to_json(node)
+
+        return {"regions": regions}
+
+    def _to_json_constraints(self):
+        """Return a dict object used to set geometry."""
+        regions = dict()
+
+        self.reset_unique_id()
+
+        for node in self:
+            if node.key != "root":
+                if node.region_type == RegionType.magnet:
+                    regions[node.key] = TreeRegionMagnet._to_json_constraints(node)
+                else:
+                    regions[node.key] = TreeRegion._to_json_constraints(node)
         return {"regions": regions}
 
     def get_region(self, region_name):
@@ -439,6 +465,15 @@ class GeometryTree(dict):
         """Return a dict of lowercase keys and their corresponding real keys."""
         return dict((node.key.lower(), node.key) for node in self)
 
+    def get_unique_id(self):
+        """Get a unique ID number."""
+        self.unique_id_counter += 1
+        return self.unique_id_counter
+
+    def reset_unique_id(self):
+        """Reset unique ID counter to zero."""
+        self.unique_id_counter = 0
+
 
 class TreeRegion(Region):
     """Subclass of Region used for entries in GeometryTree.
@@ -632,6 +667,78 @@ class TreeRegion(Region):
     def linked_regions(self):
         """Get linked region objects for duplication/unite operations."""
         return [self.tree[name] for name in self._linked_region_names]
+
+    def create_points(self):
+        """Create unique points for region entities."""
+        self.unique_points_list = []
+
+        for point in self.points:
+            new_point = UniquePoint(point, self.tree.get_unique_id())
+            self.unique_points_list.append(new_point)
+            self.tree.unique_points_list.append(new_point)
+
+        for entity in self.entities:
+            if isinstance(entity, Arc):
+                new_point = UniquePoint(entity.centre, self.tree.get_unique_id())
+                self.unique_points_list.append(new_point)
+                self.tree.unique_points_list.append(new_point)
+
+    # method to convert python object to send to Motor-CAD
+    def _to_json_constraints(self):
+        """Convert from Python class to Json object.
+
+        Returns
+        -------
+        dict
+            Geometry region json representation
+        """
+        self._to_json()
+
+        # self.points
+        self.create_points()
+
+        json_entities = []
+        for entity in self.entities:
+            if isinstance(entity, Line):
+                json_entities.append(
+                    {
+                        "type": "line",
+                        "start_id": self.get_unique_point_from_coord(entity.start).id,
+                        "end_id": self.get_unique_point_from_coord(entity.end).id,
+                    }
+                )
+            elif isinstance(entity, Arc):
+                json_entities.append(
+                    {
+                        "type": "arc",
+                        "start_id": self.get_unique_point_from_coord(entity.start).id,
+                        "end_id": self.get_unique_point_from_coord(entity.end).id,
+                        "centre_id": self.get_unique_point_from_coord(entity.centre).id,
+                    }
+                )
+
+        point_dict = []
+        for point in self.unique_points_list:
+            point_dict.append(
+                {
+                    "id": point.id,
+                    "x": point.coordinate.x,
+                    "y": point.coordinate.y,
+                }
+            )
+
+        self._raw_region["points"] = point_dict
+        self._raw_region["entities"] = json_entities
+
+        return self._raw_region
+
+    def get_unique_point_from_coord(self, coordinate: Coordinate) -> UniquePoint:
+        """Get unique point corresponding to given coordinate."""
+        for unique_point in self.unique_points_list:
+            if unique_point.coordinate == coordinate:
+                return unique_point
+        else:
+            raise ValueError("Coordinate not found in unique points list.")
 
 
 class TreeRegionMagnet(TreeRegion, RegionMagnet):

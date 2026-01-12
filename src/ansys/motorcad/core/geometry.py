@@ -23,6 +23,7 @@
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
 from cmath import polar, rect
 from copy import deepcopy
+import dataclasses
 from enum import Enum
 from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
 import warnings
@@ -1590,6 +1591,14 @@ class Coordinate(object):
         Coordinate
         """
         return cls(*rt_to_xy(radius, theta))
+
+
+@dataclasses.dataclass
+class UniquePoint:
+    """Class for storing unique points with an ID."""
+
+    coordinate: Coordinate
+    id: int
 
 
 class Entity(object):
