@@ -26,7 +26,7 @@ from copy import deepcopy
 import numpy as np
 from scipy.interpolate import splev, splrep
 
-from ansys.motorcad.core.geometry import Arc, Coordinate
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionType
 from ansys.motorcad.core.geometry_fitting import return_entity_list
 
 GEOM_TOLERANCE = 1e-6
@@ -107,3 +107,60 @@ class Spline:
         spline_points = self.get_spline_points_from_x_values(x_new)
 
         return return_entity_list(spline_points, line_tolerance, arc_tolerance)
+
+
+class Rectangle(Region):
+    """Create rectangular geometry region.
+
+    Parameters
+    ----------
+    width: float
+        width of rectangle
+    height: float
+        height of rectangle
+    centre: ansys.motorcad.core.geometry.Coordinate
+        Centre of rectangle
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected
+    """
+
+    def __init__(
+        self, width, height, centre, region_type=RegionType.adaptive, motorcad_instance=None
+    ):
+        """Initialise Rectangle."""
+        super().__init__(region_type, motorcad_instance)
+        is_square = False
+        if width == height:
+            is_square = True
+        w_start_x = centre.x - width / 2
+        w_end_x = centre.x + width / 2
+
+        h_start_y = centre.y - height / 2
+        h_end_y = centre.y + height / 2
+
+        self.add_entity(
+            Line(
+                Coordinate(centre.x - width / 2, centre.y - height / 2),
+                Coordinate(centre.x + width / 2, centre.y - height / 2),
+            )
+        )
+        self.add_entity(
+            Line(
+                Coordinate(centre.x + width / 2, centre.y - height / 2),
+                Coordinate(centre.x + width / 2, centre.y + height / 2),
+            )
+        )
+        self.add_entity(
+            Line(
+                Coordinate(centre.x + width / 2, centre.y + height / 2),
+                Coordinate(centre.x - width / 2, centre.y + height / 2),
+            )
+        )
+        self.add_entity(
+            Line(
+                Coordinate(centre.x - width / 2, centre.y + height / 2),
+                Coordinate(centre.x - width / 2, centre.y - height / 2),
+            )
+        )
