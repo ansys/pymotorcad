@@ -729,7 +729,8 @@ class TreeRegion(Region):
                         "centre_id": self.get_unique_point_from_coord(
                             unique_entity.entity.centre
                         ).id,
-                        "radius": unique_entity.entity.radius,
+                        "direction": unique_entity.entity.radius
+                        / (abs(unique_entity.entity.radius)),
                     }
                 )
 
