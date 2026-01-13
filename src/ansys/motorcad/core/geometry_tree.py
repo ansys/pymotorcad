@@ -24,10 +24,12 @@
 from ansys.motorcad.core.geometry import (
     Arc,
     Coordinate,
+    Entity,
     Line,
     Region,
     RegionMagnet,
     RegionType,
+    UniqueEntity,
     UniquePoint,
 )
 
@@ -47,6 +49,7 @@ class GeometryTree(dict):
         # increment every time we add a region so that we can automatically assign a
         # unique name to regions on creation
         self.unique_points_list = []
+        self.unique_entity_list = []
         self._motorcad_instance = mc
         self.unique_region_number = 0
 
@@ -668,9 +671,10 @@ class TreeRegion(Region):
         """Get linked region objects for duplication/unite operations."""
         return [self.tree[name] for name in self._linked_region_names]
 
-    def create_points(self):
-        """Create unique points for region entities."""
+    def create_entities_and_points(self):
+        """Create unique entities and points for region."""
         self.unique_points_list = []
+        self.unique_entity_list = []
 
         for point in self.points:
             new_point = UniquePoint(point, self.tree.get_unique_id())
@@ -678,6 +682,9 @@ class TreeRegion(Region):
             self.tree.unique_points_list.append(new_point)
 
         for entity in self.entities:
+            new_entity = UniqueEntity(entity, self.tree.get_unique_id())
+            self.unique_entity_list.append(new_entity)
+            self.tree.unique_entity_list.append(new_entity)
             if isinstance(entity, Arc):
                 new_point = UniquePoint(entity.centre, self.tree.get_unique_id())
                 self.unique_points_list.append(new_point)
@@ -695,25 +702,34 @@ class TreeRegion(Region):
         self._to_json()
 
         # self.points
-        self.create_points()
+        self.create_entities_and_points()
 
         json_entities = []
         for entity in self.entities:
-            if isinstance(entity, Line):
-                json_entities.append(
+            json_entities.append({"entity_id": self.get_unique_entity_from_entity(entity).id})
+
+        entity_dict = []
+        for unique_entity in self.unique_entity_list:
+            if isinstance(unique_entity.entity, Line):
+                entity_dict.append(
                     {
+                        "id": self.get_unique_entity_from_entity(unique_entity.entity).id,
                         "type": "line",
-                        "start_id": self.get_unique_point_from_coord(entity.start).id,
-                        "end_id": self.get_unique_point_from_coord(entity.end).id,
+                        "start_id": self.get_unique_point_from_coord(unique_entity.entity.start).id,
+                        "end_id": self.get_unique_point_from_coord(unique_entity.entity.end).id,
                     }
                 )
-            elif isinstance(entity, Arc):
-                json_entities.append(
+            elif isinstance(unique_entity.entity, Arc):
+                entity_dict.append(
                     {
+                        "id": self.get_unique_entity_from_entity(unique_entity.entity).id,
                         "type": "arc",
-                        "start_id": self.get_unique_point_from_coord(entity.start).id,
-                        "end_id": self.get_unique_point_from_coord(entity.end).id,
-                        "centre_id": self.get_unique_point_from_coord(entity.centre).id,
+                        "start_id": self.get_unique_point_from_coord(unique_entity.entity.start).id,
+                        "end_id": self.get_unique_point_from_coord(unique_entity.entity.end).id,
+                        "centre_id": self.get_unique_point_from_coord(
+                            unique_entity.entity.centre
+                        ).id,
+                        "radius": unique_entity.entity.radius,
                     }
                 )
 
@@ -728,6 +744,7 @@ class TreeRegion(Region):
             )
 
         self._raw_region["points"] = point_dict
+        self._raw_region["entity_def"] = entity_dict
         self._raw_region["entities"] = json_entities
 
         return self._raw_region
@@ -739,6 +756,12 @@ class TreeRegion(Region):
                 return unique_point
         else:
             raise ValueError("Coordinate not found in unique points list.")
+
+    def get_unique_entity_from_entity(self, entity: Entity) -> UniqueEntity:
+        """Get unique entity corresponding to given entity."""
+        for unique_entity in self.unique_entity_list:
+            if unique_entity.entity == entity:
+                return unique_entity
 
 
 class TreeRegionMagnet(TreeRegion, RegionMagnet):
