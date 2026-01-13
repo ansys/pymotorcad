@@ -705,13 +705,9 @@ class TreeRegion(Region):
         self.create_entities_and_points()
 
         json_entities = []
-        for entity in self.entities:
-            json_entities.append({"entity_id": self.get_unique_entity_from_entity(entity).id})
-
-        entity_dict = []
         for unique_entity in self.unique_entity_list:
             if isinstance(unique_entity.entity, Line):
-                entity_dict.append(
+                json_entities.append(
                     {
                         "id": self.get_unique_entity_from_entity(unique_entity.entity).id,
                         "type": "line",
@@ -720,7 +716,7 @@ class TreeRegion(Region):
                     }
                 )
             elif isinstance(unique_entity.entity, Arc):
-                entity_dict.append(
+                json_entities.append(
                     {
                         "id": self.get_unique_entity_from_entity(unique_entity.entity).id,
                         "type": "arc",
@@ -746,7 +742,6 @@ class TreeRegion(Region):
             )
 
         self._raw_region["points"] = point_dict
-        self._raw_region["entity_def"] = entity_dict
         self._raw_region["entities"] = json_entities
 
         return self._raw_region
