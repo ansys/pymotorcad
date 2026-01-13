@@ -1781,6 +1781,14 @@ class Entity(object):
             self.start = new_point
 
 
+@dataclasses.dataclass
+class UniqueEntity:
+    """Class for storing unique entities with an ID."""
+
+    entity: Entity
+    id: int
+
+
 class Line(Entity):
     """Python representation of Motor-CAD line entity based upon start and end coordinates.
 
