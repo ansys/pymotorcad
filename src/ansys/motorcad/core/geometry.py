@@ -1599,6 +1599,7 @@ class UniquePoint:
 
     coordinate: Coordinate
     id: int
+    is_arc_centre: bool = False
 
 
 class Entity(object):

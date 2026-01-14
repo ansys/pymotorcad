@@ -686,7 +686,9 @@ class TreeRegion(Region):
             self.unique_entity_list.append(new_entity)
             self.tree.unique_entity_list.append(new_entity)
             if isinstance(entity, Arc):
-                new_point = UniquePoint(entity.centre, self.tree.get_unique_id())
+                new_point = UniquePoint(
+                    entity.centre, self.tree.get_unique_id(), is_arc_centre=True
+                )
                 self.unique_points_list.append(new_point)
                 self.tree.unique_points_list.append(new_point)
 
@@ -723,7 +725,7 @@ class TreeRegion(Region):
                         "start_id": self.get_unique_point_from_coord(unique_entity.entity.start).id,
                         "end_id": self.get_unique_point_from_coord(unique_entity.entity.end).id,
                         "centre_id": self.get_unique_point_from_coord(
-                            unique_entity.entity.centre
+                            unique_entity.entity.centre, is_arc_centre=True
                         ).id,
                         "direction": int(
                             unique_entity.entity.radius / (abs(unique_entity.entity.radius))
@@ -746,11 +748,17 @@ class TreeRegion(Region):
 
         return self._raw_region
 
-    def get_unique_point_from_coord(self, coordinate: Coordinate) -> UniquePoint:
+    def get_unique_point_from_coord(
+        self, coordinate: Coordinate, is_arc_centre: bool = False
+    ) -> UniquePoint:
         """Get unique point corresponding to given coordinate."""
         for unique_point in self.unique_points_list:
             if unique_point.coordinate == coordinate:
-                return unique_point
+                if is_arc_centre:
+                    if unique_point.is_arc_centre:
+                        return unique_point
+                else:
+                    return unique_point
         else:
             raise ValueError("Coordinate not found in unique points list.")
 
