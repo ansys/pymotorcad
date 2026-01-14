@@ -2096,27 +2096,27 @@ class Circle:
         Radius of the circle.
     """
 
-    def __init__(self, centre, radius):
+    def __init__(self, centre: Coordinate, radius: int):
         """Initialise Circle object."""
         self.centre = centre
         self.radius = abs(radius)
-        self.entities = EntityList
-        self.entities.append(
-            Arc(
-                Coordinate(self.centre.x, self.centre.y - radius),
-                Coordinate(self.centre.x, self.centre.y + radius),
-                radius=self.radius,
-                centre=self.centre,
-            )
-        )
-        self.entities.append(
-            Arc(
-                Coordinate(self.centre.x, self.centre.y + radius),
-                Coordinate(self.centre.x, self.centre.y - radius),
-                radius=self.radius,
-                centre=self.centre,
-            )
-        )
+        # self.entities = EntityList()
+        # self.entities.append(
+        #     Arc(
+        #         Coordinate(self.centre.x, self.centre.y - radius),
+        #         Coordinate(self.centre.x, self.centre.y + radius),
+        #         radius=self.radius,
+        #         centre=self.centre,
+        #     )
+        # )
+        # self.entities.append(
+        #     Arc(
+        #         Coordinate(self.centre.x, self.centre.y + radius),
+        #         Coordinate(self.centre.x, self.centre.y - radius),
+        #         radius=self.radius,
+        #         centre=self.centre,
+        #     )
+        # )
 
 
 class _BaseArc(Entity):
