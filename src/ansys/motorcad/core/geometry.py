@@ -2100,6 +2100,23 @@ class Circle:
         """Initialise Circle object."""
         self.centre = centre
         self.radius = abs(radius)
+        self.entities = EntityList
+        self.entities.append(
+            Arc(
+                Coordinate(self.centre.x, self.centre.y - radius),
+                Coordinate(self.centre.x, self.centre.y + radius),
+                radius=self.radius,
+                centre=self.centre,
+            )
+        )
+        self.entities.append(
+            Arc(
+                Coordinate(self.centre.x, self.centre.y + radius),
+                Coordinate(self.centre.x, self.centre.y - radius),
+                radius=self.radius,
+                centre=self.centre,
+            )
+        )
 
 
 class _BaseArc(Entity):
