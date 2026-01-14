@@ -65,7 +65,7 @@ class GeometryTree(dict):
         # Tree has root node different to standard tree root
         self._custom_root_node = None
 
-        self.unique_id_counter = 0
+        self.unique_id_counter = 100
 
     def __setitem__(self, key, value):
         """Override __setitem___."""
