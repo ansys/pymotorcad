@@ -475,7 +475,7 @@ class GeometryTree(dict):
 
     def reset_unique_id(self):
         """Reset unique ID counter to zero."""
-        self.unique_id_counter = 0
+        self.unique_id_counter = 100
 
 
 class TreeRegion(Region):

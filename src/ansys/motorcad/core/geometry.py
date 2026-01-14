@@ -2084,6 +2084,24 @@ class Line(Entity):
         return sqrt((coordinate.x - nearest_point.x) ** 2 + (coordinate.y - nearest_point.y) ** 2)
 
 
+class Circle:
+    """Python representation of circle entity based upon centre and radius.
+
+    Parameters
+    ----------
+    centre : Coordinate
+        Centre coordinate.
+
+    radius : float
+        Radius of the circle.
+    """
+
+    def __init__(self, centre, radius):
+        """Initialise Circle object."""
+        self.centre = centre
+        self.radius = abs(radius)
+
+
 class _BaseArc(Entity):
     """Internal class to allow creation of Arcs."""
 
