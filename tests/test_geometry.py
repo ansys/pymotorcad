@@ -796,9 +796,14 @@ def test_line_get_coordinate_from_distance():
         coord = line.get_coordinate_from_distance(line.start)
     assert "provide either a distance, fraction or percentage" in str(e_info)
 
-    # Test if reference coordinate isn't start or end
+    # Test if reference coordinate isn't start or end (ref coordinate near start)
     assert line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0), 1) == geometry.Coordinate(
         1.5, 0
+    )
+
+    # Test if reference coordinate isn't start or end (ref coordinate near end)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(1.5, 0), 1) == geometry.Coordinate(
+        0.5, 0
     )
 
     # Test that reference coordinate not on the line raises an exception
