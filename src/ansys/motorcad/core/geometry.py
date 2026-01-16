@@ -2640,6 +2640,20 @@ class EntityList(list):
         for entity in self:
             entity.reverse()
 
+    def rotate(self, centre: Coordinate, angle: float):
+        """Rotate EntityList around centre Coordinate by angle.
+
+        Parameters
+        ----------
+        centre: Coordinate
+            Coordinate to rotate entities in EntityList around
+        angle: float
+            Angle to rotate entities in EntityList by.
+
+        """
+        for entity in self:
+            entity.rotate(centre, angle)
+
     @classmethod
     def polygon(cls, points, sort=False):
         """Create an EntityList from a list of points, connecting them with lines.
@@ -2696,6 +2710,13 @@ class EntityList(list):
         if not final_list.has_valid_geometry:
             warnings.warn("Entered point order may result in invalid geometry.")
         return final_list
+
+    def get_region(self, region_type=RegionType.adaptive, motorcad_instance=None) -> Region:
+        """Return a Motor-CAD Region object from the EntityList."""
+        region = Region(region_type, motorcad_instance)
+        for entity in self:
+            region.add_entity(entity)
+        return region
 
     @property
     def is_closed(self):
