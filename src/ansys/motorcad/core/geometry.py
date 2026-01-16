@@ -1587,10 +1587,7 @@ class Coordinate(object):
         -------
         float
         """
-        if type(other) == Coordinate:
-            return sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
-        else:
-            raise TypeError(f"The argument 'other' must be a coordinate.")
+        return abs(other - self)
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
