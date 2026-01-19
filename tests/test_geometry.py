@@ -471,6 +471,77 @@ def test_EntityList_is_closed():
     assert test_el1.is_closed == False
 
 
+def test_EntityList_rotate():
+    origin = geometry.Coordinate(0, 0)
+    rot_angle = 60
+
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+    points_rotated = []
+    for point in points:
+        point_rotated = geometry.Coordinate(point.x, point.y)
+        point_rotated.rotate(origin, rot_angle)
+        points_rotated.append(point_rotated)
+
+    triangle = geometry.EntityList()
+    for i in range(len(points)):
+        point_a = points[i]
+        if i == len(points) - 1:
+            point_b = points[0]
+        else:
+            point_b = points[i + 1]
+        triangle.append(geometry.Line(point_a, point_b))
+
+    triangle.rotate(origin, rot_angle)
+
+    # check EntityList points are the same as rotate points
+    assert triangle.points == points_rotated
+
+
+def test_EntityList_translate():
+    shift_vector_x = 5
+    shift_vector_y = 4
+
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+    points_translated = []
+    for point in points:
+        point_translated = geometry.Coordinate(point.x, point.y)
+        point_translated.translate(shift_vector_x, shift_vector_y)
+        points_translated.append(point_translated)
+
+    triangle = geometry.EntityList()
+    for i in range(len(points)):
+        point_a = points[i]
+        if i == len(points) - 1:
+            point_b = points[0]
+        else:
+            point_b = points[i + 1]
+        triangle.append(geometry.Line(point_a, point_b))
+
+    triangle.translate(shift_vector_x, shift_vector_y)
+
+    # check EntityList points are the same as rotate points
+    assert triangle.points == points_translated
+
+
+def test_EntityList_get_region():
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+
+    triangle = geometry.EntityList()
+    for i in range(len(points)):
+        point_a = points[i]
+        if i == len(points) - 1:
+            point_b = points[0]
+        else:
+            point_b = points[i + 1]
+        triangle.append(geometry.Line(point_a, point_b))
+
+    triangle_region = triangle.get_region(region_type=geometry.RegionType.rotor_duct)
+
+    # check EntityList points are the same as rotate points
+    assert isinstance(triangle_region, geometry.Region)
+    assert triangle_region.entities == triangle
+
+
 def test_EntityList_self_intersecting():
     # Test that intersection detection works properly on arcs
     test_el1 = EntityList()
