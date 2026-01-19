@@ -247,7 +247,7 @@ def triangular_notch(
 
 
 class Circle(EntityList):
-    """Python representation of circle entity based upon centre and radius.
+    """Python representation of circle object based upon centre and radius.
 
     Parameters
     ----------
@@ -261,24 +261,86 @@ class Circle(EntityList):
     def __init__(self, centre: Coordinate, radius: int):
         """Initialise Circle object."""
         super().__init__()
-        self.centre = centre
-        self.radius = abs(radius)
         self.append(
             Arc(
-                Coordinate(self.centre.x, self.centre.y - radius),
-                Coordinate(self.centre.x, self.centre.y + radius),
-                radius=self.radius,
-                centre=self.centre,
+                Coordinate(centre.x, centre.y - abs(radius)),
+                Coordinate(centre.x, centre.y + abs(radius)),
+                radius=abs(radius),
+                centre=centre,
             )
         )
         self.append(
             Arc(
-                Coordinate(self.centre.x, self.centre.y + radius),
-                Coordinate(self.centre.x, self.centre.y - radius),
-                radius=self.radius,
-                centre=self.centre,
+                Coordinate(centre.x, centre.y + abs(radius)),
+                Coordinate(centre.x, centre.y - abs(radius)),
+                radius=abs(radius),
+                centre=centre,
             )
         )
+
+    @property
+    def centroid(self) -> Coordinate:
+        """Centroid Coordinate of the Circle."""
+        diameter = Line(self[0].start, self[1].start)
+        return diameter.midpoint
+
+    @property
+    def radius(self) -> float:
+        """Radius of the Circle."""
+        return abs(self[0].start - self[1].start)
+
+
+class ConvexPolygon(EntityList):
+    """Python representation of a regular convex polygon object with N sides.
+
+    A regular shape with N lines of equal length.
+
+    Parameters
+    ----------
+    centre : Coordinate
+        Centre coordinate.
+
+    number_of_sides : int
+        Number of sides of the shape.
+
+    side_length : float
+        Length of each side of the shape.
+    """
+
+    def __init__(self, centre: Coordinate, number_of_sides, side_length: float):
+        """Initialise N-sided convex polygon object."""
+        super().__init__()
+        if number_of_sides < 3:
+            raise TypeError("Polygon must have at least 3 sides.")
+        y_diff = (side_length / 2) * (1 / math.tan(math.pi / number_of_sides))
+        ref_point = Coordinate(centre.x - side_length / 2, centre.y - y_diff)
+        last_point = ref_point
+        for i in range(number_of_sides):
+            new_point = Coordinate(ref_point.x, ref_point.y)
+            new_point.rotate(centre, (i + 1) * (360 / number_of_sides))
+            self.append(Line(last_point, new_point))
+            last_point = new_point
+
+    @property
+    def centroid(self) -> Coordinate:
+        """Centroid Coordinate of the Convex Polygon."""
+        # if even number of sides
+        n = len(self)
+        if n % 2 == 0:
+            y = Line(self[0].midpoint, self[int(n / 2)].midpoint)
+            return y.midpoint
+        else:
+            line_a = Line(self[0].midpoint, self[int((n / 2) + 0.5)].start)
+            line_b = Line(self[0].end, self[int((n / 2) + 0.5)].midpoint)
+            return line_a.get_line_intersection(line_b)
+
+    @property
+    def angle(self) -> float:
+        """Angle of the Convex Polygon.
+
+        Zero when the base is parallel to the x-axis.
+        """
+        return self[0].angle
 
 
 class Rectangle(EntityList):
@@ -519,3 +581,32 @@ def create_triangle_from_dimensions(corner: Coordinate, width=None, height=None)
         Coordinate(corner.x + width, corner.y),
         Coordinate(corner.x + width / 2, corner.y + height),
     )
+
+
+class Hexagon(ConvexPolygon):
+    """Python representation of a regular hexagon object based upon centre and length of each side.
+
+    A regular hexagon with 6 lines of equal length.
+
+    Parameters
+    ----------
+    centre : Coordinate
+        Centre coordinate.
+
+    side_length : float
+        Length of each side of the hexagon.
+    """
+
+    def __init__(self, centre: Coordinate, side_length: float):
+        """Initialise Hexagon object."""
+        super().__init__(centre, 6, side_length)
+
+    @property
+    def width(self) -> float:
+        """Width of Hexagon in the direction parallel to the base."""
+        return 2 * self[0].length
+
+    @property
+    def height(self) -> float:
+        """Height of Hexagon in the direction perpendicular to the base."""
+        return sqrt(3) * self[0].length
