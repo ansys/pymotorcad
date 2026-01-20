@@ -24,7 +24,21 @@
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum
-from math import acos, atan2, comb, cos, degrees, fabs, floor, inf, isclose, radians, sin, sqrt
+from math import (
+    acos,
+    atan2,
+    comb,
+    cos,
+    degrees,
+    fabs,
+    floor,
+    inf,
+    isclose,
+    isnan,
+    radians,
+    sin,
+    sqrt,
+)
 import warnings
 from warnings import warn
 
@@ -1989,6 +2003,98 @@ class Line(Entity):
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 
         return Coordinate(x, y)
+
+    def get_parallel_line(self, start, length=None):
+        """Get a new line parallel to self.
+
+        Parameters
+        ----------
+        start : Coordinate
+            Coordinate object defining the new line start point.
+        length : float
+            Length of the new line. If None, use length of self (the original line). If positive,
+            the new line goes in the same direction as self. If negative, the new line goes in the
+            opposite direction to self.
+
+        Returns
+        -------
+        Line
+            Line object parallel to self.
+        """
+        if not length:
+            length = self.length
+        gradient = self.gradient
+        new_y_intercept = start.y - gradient * start.x
+        if new_y_intercept == inf:
+            end_x = start.x
+            end_y = start.y - length
+        elif new_y_intercept == -inf:
+            end_x = start.x
+            end_y = start.y + length
+        else:
+            e = self.angle / abs(
+                self.angle
+            )  # (gradient/abs(gradient))*(self.angle/abs(self.angle))
+            end_x = start.x + e * (length / (1 + gradient**2) ** (1 / 2))
+            end_y = gradient * end_x + new_y_intercept
+        return Line(start, Coordinate(end_x, end_y))
+
+    def get_perpendicular_line(self, start, length=None):
+        """Get a new line perpendicular to self.
+
+        Parameters
+        ----------
+        start : Coordinate
+            Coordinate object defining the new line start point.
+        length : float
+            Length of the new line. If None, use length of self (the original line). If positive,
+            the angle of the new line is 90° less than the angle of self. If negative, the angle of
+            the new line is 90° more than the angle of self.
+            opposite direction to self.
+
+        Returns
+        -------
+        Line
+            Line object perpendicular to self.
+        """
+        if not length:
+            length = self.length
+        if self.gradient == 0:
+            gradient = inf
+        else:
+            gradient = -1 / self.gradient
+        new_y_intercept = start.y - gradient * start.x
+        if abs(new_y_intercept) == inf or isnan(new_y_intercept):
+            end_x = start.x
+            end_y = start.y - length
+        else:
+            e = self.angle / abs(self.angle)
+            end_x = start.x + e * (length / (1 + gradient**2) ** (1 / 2))
+            end_y = gradient * end_x + new_y_intercept
+        return Line(start, Coordinate(end_x, end_y))
+
+    def get_bisecting_line(self, length=None):
+        """Get a new line that bisects self.
+
+        Parameters
+        ----------
+        length : float
+            Length of the new line. If None, use length of self (the original line).
+
+        Returns
+        -------
+        Line
+            Line object perpendicular to self.
+        """
+        if not length:
+            length = self.length
+        gradient = -1 / self.gradient
+        new_y_intercept = self.midpoint.y - gradient * self.midpoint.x
+        start_x = self.midpoint.x + ((-length / 2) / (1 + gradient**2) ** (1 / 2))
+        start_y = gradient * start_x + new_y_intercept
+        end_x = self.midpoint.x + ((length / 2) / (1 + gradient**2) ** (1 / 2))
+        end_y = gradient * end_x + new_y_intercept
+        return Line(Coordinate(start_x, start_y), Coordinate(end_x, end_y))
 
     @property
     def length(self):
