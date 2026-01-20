@@ -72,6 +72,7 @@ sphinx_gallery_conf = {
     "image_scrapers": "matplotlib",
     "ignore_pattern": "flycheck*|temp_example_file.*",
     "remove_config_comments": True,
+    "parallel": 4,
 }
 
 # Intersphinx mapping
