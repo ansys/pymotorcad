@@ -339,6 +339,7 @@ class MotorCADTwinModel:
         logger.info("Training data output directory: " + self.outputDirectory)
 
         self.motFileName = None
+        self.motFilePath = None
         self.heatFlowMethod = None
 
         # self.nodeNames has no spaces or (curved brackets), self.nodeNames_original maintains these
@@ -377,7 +378,7 @@ class MotorCADTwinModel:
         self.incorporateCustomLosses()
         self.validateLossIdentification()
 
-        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings
+        # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.fluidPaths
         self.getNodeData()
 
         self.generateTemperatureControls()
@@ -848,7 +849,7 @@ class MotorCADTwinModel:
                 )
 
             housingTempDependency = True
-        
+
         # check if Heat Exchanger is enabled and coupled to a cooling system
         heatExchanger = self.mcad.get_variable("HeatExchanger")
         heatExchangerCoupling = self.mcad.get_variable("HeatExOutletCoupling")
@@ -989,8 +990,12 @@ class MotorCADTwinModel:
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
         self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
-        usedMotFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
-        self.mcad.save_to_file(usedMotFilePath)
+        self.motFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
+        self.mcad.save_to_file(self.motFilePath)
+
+    def loadTwinMotfile(self):
+        # re-load the model used to generate the Twin Builder Motor-CAD ROM component
+        self.mcad.load_from_file(self.motFilePath)
 
     # If Power Injection custom losses are present, save these so that they are treated the same as
     # all other default losses. If Power Source custom losses are present, report an error as these
@@ -1035,7 +1040,7 @@ class MotorCADTwinModel:
             message = "Unidentified losses are present in the model. Please contact support"
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
-        
+
         # reset the losses to a small value
         self.setLosses(0.1)
 
@@ -1051,7 +1056,7 @@ class MotorCADTwinModel:
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
 
-    # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings
+    # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
@@ -1531,13 +1536,13 @@ class MotorCADTwinModel:
     # automatically distribute this amongst appropriate nodes.
     def generateLossDistribution(self):
         # temporarily reduce iterations whilst loss generation is running to speed up
-        # note: message display state is already set to 2 at start of script, so convergence 
+        # note: message display state is already set to 2 at start of script, so convergence
         # iterations will not interrupt workflow
         minIter = self.mcad.get_variable("SteadyStateMinIterations")
         maxIter = self.mcad.get_variable("Steady_State_Max_Iterations")
         self.mcad.set_variable("SteadyStateMinIterations", 1)
         self.mcad.set_variable("Steady_State_Max_Iterations", 2)
-        
+
         lossNames = self.lossNames + [name for (name, _, _, _) in self.customPowerInjections]
         numLossParameters = len(lossNames)
         lossDistributionMatrix = np.zeros((numLossParameters, len(self.nodeNames)))
@@ -1579,7 +1584,7 @@ class MotorCADTwinModel:
 
         # reset the losses to a small value
         self.setLosses(0.1)
-        
+
         # reset to user defined iteration value
         self.mcad.set_variable("SteadyStateMinIterations", minIter)
         self.mcad.set_variable("Steady_State_Max_Iterations", maxIter)
