@@ -1313,24 +1313,86 @@ class MotorCADTwinModel:
                     connectedNodesList.append(connectedNode)
 
         return connectedNodesList
-    
-    def generateTemperatureControls(self):
-        fixedTemperatureMapping = self.generateFixedTemperatures(coolingSystemsParameterSweeps)
-        self.generateTemperatureCoupledNodes(fixedTemperatureMapping)
 
-    # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-    def generateFixedTemperatures(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
+    def generateTemperatureControls(self):
+        parameterFixedTempMapping = self.getParameterNodeTempMapping(coolingSystemsParameterSweeps)
+        coupledTemperatureMapping = self.getCoupledNodeTempMapping()
+
+        # Verify that no node is controlled by more than one parameter
+        for nodeIndex, parameterNames in parameterFixedTempMapping.items():
+            if len(parameterNames) > 1:
+                # Each fixed temperature can only be controlled by a maximum of one parameter
+                message = (
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled "
+                    f"by more than one parameter which is not supported "
+                    f"({parameterNames}). Please contact support."
+                )
+                logger.error(message, stack_info=True)
+                raise RuntimeError(message)
+        
+        # Verify that no node is controlled by more than one node
+        for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
+            if len(controllingNodeIndex) > 1:
+                # Each node can only be coupled by a maximum of one node
+                controllingNodes = [self.nodeNames[x] for x in controllingNodeIndex]
+                message = (
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is coupled "
+                    f"to more than one node which is not supported "
+                    f"({controllingNodes}). Please contact support."
+                )
+                logger.error(message, stack_info=True)
+                raise RuntimeError(message)
+
+            # Verify that no node that is controlled by a node is also controlled by a parameter
+            elif controllingNodeIndex and parameterFixedTempMapping[nodeIndex]:
+                # Node is controlled by node and also by parameter which is not allowed
+                controllingNodes = [self.nodeNames[controllingNodeIndex[0]], 
+                                    self.nodeNames[parameterFixedTempMapping[nodeIndex][0]]]
+                message = (
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is  "
+                    f"coupled to both a node and a parameter. This is not supported. "
+                    f"({controllingNodes}) Please contact support."
+                )
+                logger.error(message, stack_info=True)
+                raise RuntimeError(message)
+
+        # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
+        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
+            for nodeIndex, parameterNames in parameterFixedTempMapping.items():
+                if (not parameterNames):
+                    if (not coupledTemperatureMapping[nodeIndex]):
+                        # No parameter sweep or coupled node, so create an arbitrary port to control
+                        parameterName = "FixedTemp_" + self.nodeNames[nodeIndex]
+                        ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
+                else:
+                    parameterName = parameterNames[0]
+                    ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
+
+        # Create CoupledNodes.csv
+        with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
+            for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
+                if len(controllingNodeIndex) == 1:
+                    ft.write(f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex[0]]}\n")
+
+        # TODO 3. 10 Nov details
+
+    # Generate mapping between the user chosen input pins and the fixed temperature nodes they
+    # control
+    def getParameterNodeTempMapping(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
 
         temperatureVector = self.getTmfData(exportDirectory)
 
         # Generate list of nodes that have a fixed temperature
-        fixedTemperatureIndices = {
+        fixedNodeTempMapping = {
             index: []
             for index, temperature in enumerate(temperatureVector)
             if temperature > -10000000.0
         }
+
+        # Special case for Ambient node
+        fixedNodeTempMapping[0].append("Ambient_Temp") # TODO check if fixed string name
 
         # Generate list of parameters that may affect fixed temperature nodes
         temperatureParameterSweeps: list[AutomationParam] = []
@@ -1356,38 +1418,59 @@ class MotorCADTwinModel:
                 temperatureVector = self.getTmfData(fixedTempExportDirectory)
                 for index, temperature in enumerate(temperatureVector):
                     if temperature == testTemperature:
-                        fixedTemperatureIndices[index].append(parameter.name)
+                        fixedNodeTempMapping[index].append(parameter.name)
                 # Reset tested parameter back to original value
                 self.mcad.set_variable(parameter.automationString, originalValue)
-    
+
             # reset the losses to a small value
             self.setLosses(0.1)
+        
+        return fixedNodeTempMapping
 
-        # Special case for Ambient node
-        fixedTemperatureIndices[0].append("Ambient_Temp")
 
-        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
-            for nodeIndex, parameterNames in fixedTemperatureIndices.items():
-                if len(parameterNames) == 0:
-                    # No parameter sweep has been identified, so create an arbitrary port name
-                    parameterName = "FixedTemp_" + self.nodeNames[nodeIndex]
-                elif len(parameterNames) > 1:
-                    # Each fixed temperature can only controlled by a maximum of one parameter
-                    message = (
-                        f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled "
-                        f"by more than one parameter which is not supported "
-                        f"({parameterNames}). Please contact support."
-                    )
-                    logger.error(message, stack_info=True)
-                    raise RuntimeError(message)
-                else:
-                    parameterName = parameterNames[0]
-                ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
+    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file  # TODO
+    def getCoupledNodeTempMapping(self):
+        exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
+        self.computeMatrices(exportDirectory)
 
-    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file
-    def generateTemperatureCoupledNodes(self, fixedTemperatureMapping):
-        # TODO
-        pass
+        temperatureVector = self.getTmfData(exportDirectory)
+
+        # Generate list of nodes that have a fixed temperature
+        coupledTemperatureMapping = {
+            index: []
+            for index, temperature in enumerate(temperatureVector)
+            if temperature > -10000000.0
+        }
+
+        if len(self.fluidPaths) > 1:
+            testTemperature = round(max(temperatureVector)) + 2
+            for i, fluidPath in enumerate(self.fluidPaths):
+                # Reload .mot file to remove any circuit editing modifications
+                self.loadTwinMotfile()
+                nodeTemperatureMapping = {}
+
+                # Set all nodes in this fluid path to have fixed temperatures of different values
+                for fluidNode in fluidPath.fluidNodes:
+                    fluidNodeIndex = self.nodeNumbers.index(fluidNode)
+                    name = "fixed_temp_check_" + self.nodeNames[fluidNodeIndex]
+                    self.mcad.set_fixed_temperature_value(name, fluidNode, testTemperature, name)
+                    nodeTemperatureMapping[fluidNodeIndex] = testTemperature
+                    testTemperature += 1
+
+                # Check if any other nodes have the same fixed temperature, to identify any
+                # couplings via fixed temperature
+                coupledTempExportDirectory = os.path.join(exportDirectory, str(i))
+                self.computeMatrices(coupledTempExportDirectory)
+
+                temperatureVector = self.getTmfData(coupledTempExportDirectory)
+                for index, temperature in enumerate(temperatureVector):
+                    if self.nodeNumbers[index] not in fluidPath.fluidNodes:
+                        controllingNodes = [nodeIndex for nodeIndex, value in nodeTemperatureMapping.items() if value == temperature]
+                        if controllingNodes:
+                            coupledTemperatureMapping[index].extend(controllingNodes)
+
+        return coupledTemperatureMapping
+
 
     def generateInitialTemperatures(self):
         initialisations = []
