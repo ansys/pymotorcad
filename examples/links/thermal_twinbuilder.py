@@ -1329,7 +1329,7 @@ class MotorCADTwinModel:
                 )
                 logger.error(message, stack_info=True)
                 raise RuntimeError(message)
-        
+
         # Verify that no node is controlled by more than one node
         for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
             if len(controllingNodeIndex) > 1:
@@ -1346,8 +1346,10 @@ class MotorCADTwinModel:
             # Verify that no node that is controlled by a node is also controlled by a parameter
             elif controllingNodeIndex and parameterFixedTempMapping[nodeIndex]:
                 # Node is controlled by node and also by parameter which is not allowed
-                controllingNodes = [self.nodeNames[controllingNodeIndex[0]], 
-                                    self.nodeNames[parameterFixedTempMapping[nodeIndex][0]]]
+                controllingNodes = [
+                    self.nodeNames[controllingNodeIndex[0]],
+                    self.nodeNames[parameterFixedTempMapping[nodeIndex][0]],
+                ]
                 message = (
                     f"Fixed temperature node {self.nodeNames[nodeIndex]} is  "
                     f"coupled to both a node and a parameter. This is not supported. "
@@ -1359,8 +1361,8 @@ class MotorCADTwinModel:
         # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
         with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
             for nodeIndex, parameterNames in parameterFixedTempMapping.items():
-                if (not parameterNames):
-                    if (not coupledTemperatureMapping[nodeIndex]):
+                if not parameterNames:
+                    if not coupledTemperatureMapping[nodeIndex]:
                         # No parameter sweep or coupled node, so create an arbitrary port to control
                         parameterName = "FixedTemp_" + self.nodeNames[nodeIndex]
                         ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
@@ -1372,7 +1374,9 @@ class MotorCADTwinModel:
         with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
             for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
                 if len(controllingNodeIndex) == 1:
-                    ft.write(f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex[0]]}\n")
+                    ft.write(
+                        f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex[0]]}\n"
+                    )
 
         # TODO 3. 10 Nov details
 
@@ -1392,7 +1396,7 @@ class MotorCADTwinModel:
         }
 
         # Special case for Ambient node
-        fixedNodeTempMapping[0].append("Ambient_Temp") # TODO check if fixed string name
+        fixedNodeTempMapping[0].append("Ambient_Temp")  # TODO check if fixed string name
 
         # Generate list of parameters that may affect fixed temperature nodes
         temperatureParameterSweeps: list[AutomationParam] = []
@@ -1424,11 +1428,10 @@ class MotorCADTwinModel:
 
             # reset the losses to a small value
             self.setLosses(0.1)
-        
+
         return fixedNodeTempMapping
 
-
-    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file  # TODO
+    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file
     def getCoupledNodeTempMapping(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
         self.computeMatrices(exportDirectory)
@@ -1465,12 +1468,15 @@ class MotorCADTwinModel:
                 temperatureVector = self.getTmfData(coupledTempExportDirectory)
                 for index, temperature in enumerate(temperatureVector):
                     if self.nodeNumbers[index] not in fluidPath.fluidNodes:
-                        controllingNodes = [nodeIndex for nodeIndex, value in nodeTemperatureMapping.items() if value == temperature]
+                        controllingNodes = [
+                            nodeIndex
+                            for nodeIndex, value in nodeTemperatureMapping.items()
+                            if value == temperature
+                        ]
                         if controllingNodes:
                             coupledTemperatureMapping[index].extend(controllingNodes)
 
         return coupledTemperatureMapping
-
 
     def generateInitialTemperatures(self):
         initialisations = []
