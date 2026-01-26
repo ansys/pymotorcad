@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,7 +39,16 @@ def mc():
     motorcad_instance.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance)
 
-    return motorcad_instance
+    yield motorcad_instance
+
+    motorcad_instance.quit()
+
+
+@pytest.fixture(scope="function")
+def mc_reset_to_default_on_teardown(mc):
+    """Set up test environment for whole unit of tests"""
+    yield mc
+    reset_to_default_file(mc)
 
 
 @pytest.fixture(scope="session")
@@ -50,4 +59,6 @@ def mc_fea_old():
     motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance_fea_old)
 
-    return motorcad_instance_fea_old
+    yield motorcad_instance_fea_old
+
+    motorcad_instance_fea_old.quit()

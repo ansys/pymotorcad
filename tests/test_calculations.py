@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 
 # import os
 
-from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path, reset_to_default_file
+from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path
 
 
 def test_do_magnetic_thermal_calculation(mc):
@@ -62,12 +62,10 @@ def test_do_mechanical_calculation(mc):
     mc.do_mechanical_calculation()
 
 
-def test_calculate_im_saturation_model(mc):
-    mc.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
+def test_calculate_im_saturation_model(mc_reset_to_default_on_teardown):
+    mc_reset_to_default_on_teardown.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
 
-    mc.calculate_im_saturation_model()
-
-    reset_to_default_file(mc)
+    mc_reset_to_default_on_teardown.calculate_im_saturation_model()
 
 
 def test_calculate_force_harmonics_spatial(mc):
