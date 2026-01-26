@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -68,9 +68,8 @@ regions from having sharp corners to round corners.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 
-from copy import deepcopy
-
 # sphinx_gallery_thumbnail_path = 'images/adaptive_templates/IPM_rounded.png'
+from copy import deepcopy
 import os
 import shutil
 import sys
@@ -133,6 +132,9 @@ mc.reset_adaptive_geometry()
 #     :width: 600pt
 
 
+# %%
+# Define a function to find the points in ``region_to_round`` that are not shared with
+# ``other_regions``.
 def corners_to_round(region_to_round, other_regions):
     corner_list = []
     other_region_points = []
@@ -166,7 +168,8 @@ def get_magnet_cutout(magnets, pocket):
     # Keep pocket properties but replace pocket entities with magnet entities
     if type(magnets) == list:
         magnets_utd = deepcopy(magnets[0])
-        magnets_utd.unite(magnets[1])
+        for i in range(len(magnets) - 1):
+            magnets_utd.unite(magnets[i + 1])
         magnet_cut_out.replace(magnets_utd)
     else:
         magnet_cut_out.replace(magnets)
