@@ -3,7 +3,7 @@ name: Nightly MotorCAD check
 on:
   workflow_dispatch:
   schedule:  # UTC at 0400
-    - cron:  '0 4 * * *'
+    - cron:  '0 22 * * *'
 
 env:
   PACKAGE_NAME: ansys-motorcad-core
@@ -22,14 +22,15 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           
@@ -38,4 +39,4 @@ jobs:
           python -m pip install --upgrade pip tox tox-gh-actions
           
       - name: Test with tox
-        run: tox -e py310-coverage  
+        run: tox

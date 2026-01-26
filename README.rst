@@ -6,7 +6,7 @@ PyMotorCAD
    :target: https://docs.pyansys.com/
    :alt: PyAnsys
 
-.. |python| image:: https://img.shields.io/badge/Python-%3E%3D3.7-blue
+.. |python| image:: https://img.shields.io/badge/Python-%3E%3D3.9-blue
    :target: https://pypi.org/project/ansys-motorcad-core/
    :alt: Python
 
@@ -101,6 +101,7 @@ To install in developer mode, complete these steps:
     .. code:: bash
 
         git clone https://github.com/ansys/pymotorcad
+        cd pymotorcad
 
 #. Create a fresh-clean Python environment and then activate it with these
    commands:
@@ -130,7 +131,7 @@ To install in developer mode, complete these steps:
 
     .. code:: bash
     
-        python -m pip install --editable ansys-motorcad-core
+        python -m pip install --editable .[tests,doc]
     
 #. Verify your development installation with this command:
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,16 +21,17 @@
 # SOFTWARE.
 
 import os
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 
 
 def run_emag_demo(mc):
     mc.set_variable("MessageDisplayState", 2)
+    # Ensure that the BPM Motor Type is set
+    mc.set_variable("Motor_Type", 0)
 
-    script_path = Path(os.getcwd()).parent / "emag.py"
-    mc.load_script(str(script_path))
+    script_path = os.getcwd().split("examples")[0] + "examples\\internal_scripting\\emag.py"
+    mc.load_script(script_path)
 
     # %%
     # Enable internal scripting and set shaft speed outside limit specified by script
@@ -60,8 +61,10 @@ def run_mech_force_demo(mc):
     # Load e9 template
     mc.load_template("e9")
 
-    script_path = Path(os.getcwd()).parent / "mechanical_force.py"
-    mc.load_script(str(script_path))
+    script_path = (
+        os.getcwd().split("examples")[0] + "examples\\internal_scripting\\mechanical_force.py"
+    )
+    mc.load_script(script_path)
 
     # %%
     # Enable internal scripting
@@ -87,8 +90,10 @@ def run_mech_stress_demo(mc):
     mc.load_template("e9")
     # %%
     # Load script into Motor-CAD
-    script_path = Path(os.getcwd()).parent / "mechanical_stress.py"
-    mc.load_script(str(script_path))
+    script_path = (
+        os.getcwd().split("examples")[0] + "examples\\internal_scripting\\mechanical_stress.py"
+    )
+    mc.load_script(script_path)
 
     # %%
     # Enable internal scripting
@@ -109,10 +114,14 @@ def run_mech_stress_demo(mc):
 
 def run_thermal_steady_demo(mc):
     mc.set_variable("MessageDisplayState", 2)
+    # Ensure that the BPM Motor Type is set
+    mc.set_variable("Motor_Type", 0)
     # %%
     # Load script into Motor-CAD
-    script_path = Path(os.getcwd()).parent / "thermal_steady_state.py"
-    mc.load_script(str(script_path))
+    script_path = (
+        os.getcwd().split("examples")[0] + "examples\\internal_scripting\\thermal_steady_state.py"
+    )
+    mc.load_script(script_path)
 
     # %%
     # Solve thermal model to create node numbers
@@ -148,8 +157,10 @@ def run_thermal_transient_demo(mc):
 
     # %%
     # Load script into Motor-CAD
-    script_path = Path(os.getcwd()).parent / "thermal_transient.py"
-    mc.load_script(str(script_path))
+    script_path = (
+        os.getcwd().split("examples")[0] + "examples\\internal_scripting\\thermal_transient.py"
+    )
+    mc.load_script(script_path)
 
     # %%
     # Enable internal scripting

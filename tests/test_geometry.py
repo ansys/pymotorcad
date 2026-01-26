@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,34 +21,37 @@
 # SOFTWARE.
 
 import builtins
-from copy import deepcopy
+from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
 import tempfile
 
 import pytest
 
-from RPC_Test_Common import get_dir_path, reset_to_default_file
+from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
     Coordinate,
+    EntityList,
     Line,
+    MagnetisationDirection,
     Region,
     RegionMagnet,
     RegionType,
     _Orientation,
     _orientation_of_three_points,
+    get_bezier_points,
     rt_to_xy,
 )
-from ansys.motorcad.core.geometry_shapes import eq_triangle_h
+from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
 import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
 def generate_constant_region():
-    region = geometry.Region()
+    region = geometry.Region(region_type=RegionType.stator_air)
     region.name = "testing_region"
     region.colour = (0, 0, 255)
     region.material = "Air"
@@ -72,7 +75,7 @@ def create_square():
         geometry.Coordinate(2, 0),
     ]
 
-    square = geometry.Region()
+    square = geometry.Region(region_type=RegionType.stator)
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -86,7 +89,7 @@ def create_square():
 def create_triangle():
     points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
 
-    triangle = geometry.Region()
+    triangle = geometry.Region(region_type=RegionType.stator)
 
     for count, point in enumerate(points):
         if count == len(points) - 1:
@@ -189,6 +192,14 @@ def test_get_adaptive_parameter_value_does_not_exist(mc):
     assert "No adaptive parameter found with name" in str(e_info.value)
 
 
+def test_set_adaptive_parameter_default(mc):
+    mc.set_adaptive_parameter_default("testing_parameter_default", 100)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
+    # As parameter already exists, this should not change the value
+    mc.set_adaptive_parameter_default("testing_parameter_default", 200)
+    assert mc.get_adaptive_parameter_value("testing_parameter_default") == 100
+
+
 def test_get_region(mc):
     expected_region = generate_constant_region()
     mc.set_region(expected_region)
@@ -204,7 +215,7 @@ def test_get_region(mc):
 
 def test_get_region_dxf(mc):
     mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
-    expected_region = geometry.Region()
+    expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
     expected_region.duplications = 8
@@ -343,6 +354,7 @@ def test_region_remove_entity():
 def test_region_from_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
@@ -352,24 +364,34 @@ def test_region_from_json():
         "entities": [],
         "parent_name": "Insulation",
         "child_names": ["Duct", "Duct_1"],
-        "region type": "Adaptive Region",
+        "region type": RegionType.stator_copper,
         "mesh_length": 0.035,
         "singular": False,
+        "linked_regions": ["linked_region", "linked_region_1"],
+        "on_boundary": True,
     }
 
-    test_region = geometry.Region()
+    test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
-    test_region.area = 5.1
-    test_region.centroid = geometry.Coordinate(0.0, 1.0)
-    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
+    test_region._area = 5.1
+    test_region._centroid = geometry.Coordinate(0.0, 1.0)
+    test_region._region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region._child_names = ["Duct", "Duct_1"]
     test_region.mesh_length = (0.035,)
-    test_region.singular = (False,)
+    test_region.singular = False
+    test_region._linked_region_names = ["linked_region", "linked_region_1"]
+    test_region.singular = False
+    linked_region = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region"
+    linked_region_1 = geometry.Region(region_type=RegionType.stator_copper)
+    linked_region.name = "linked_region_1"
+    test_region.linked_regions = [linked_region, linked_region_1]
 
     region = geometry.Region._from_json(raw_region)
 
@@ -379,7 +401,10 @@ def test_region_from_json():
 def test_region_to_json():
     raw_region = {
         "name": "test_region",
+        "name_base": "test_region_base",
         "material": "copper",
+        "material_weight_component_type": 2,
+        "material_weight_material_type": "Any",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
         "centroid": {"x": 0.0, "y": 1.0},
@@ -388,44 +413,176 @@ def test_region_to_json():
         "entities": [],
         "lamination_type": "",
         "parent_name": "Insulation",
-        "region_type": "Adaptive Region",
+        "region_type": RegionType.stator_copper.value,
         "mesh_length": 0.035,
         "singular": True,
-        "on_boundary": False,
+        "linked_regions": [],
+        "extrusion_blocks": [],
     }
 
-    test_region = geometry.Region()
+    test_region = geometry.Region(region_type=RegionType.stator_copper)
     test_region.name = "test_region"
+    test_region._base_name = "test_region_base"
     test_region.material = "copper"
     test_region.colour = (240, 0, 0)
-    test_region.area = 5.1
-    test_region.centroid = geometry.Coordinate(0.0, 1.0)
-    test_region.region_coordinate = geometry.Coordinate(0.0, 1.1)
+    test_region._area = 5.1
+    test_region._centroid = geometry.Coordinate(0.0, 1.0)
+    test_region._region_coordinate = geometry.Coordinate(0.0, 1.1)
     test_region.duplications = 10
     test_region.entities = []
     test_region.parent_name = "Insulation"
     test_region.mesh_length = 0.035
     test_region.singular = True
+    test_region.linked_regions = []
+
+    assert test_region._to_json() == raw_region
+
+    # test no material specified
+    raw_region["material"] = ""
+    del test_region._raw_region["material"]
+    test_region.material = ""
+
+    assert test_region._to_json() == raw_region
+
+    # test changing material with a previous material specified
+    raw_region["material"] = "M350-35A"
+    test_region.material = "M350-35A"
 
     assert test_region._to_json() == raw_region
 
 
 def test_region_is_closed():
     region = generate_constant_region()
-
     assert region.is_closed()
 
 
+def test_EntityList_is_closed():
+    region = generate_constant_region()
+    assert region.entities.is_closed
+
+    # Check an empty list returns as False
+    test_el1 = EntityList()
+    assert test_el1.is_closed == False
+
+    # Test an open polygon is not closed
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el1.is_closed == False
+
+
+def test_EntityList_self_intersecting():
+    # Test that intersection detection works properly on arcs
+    test_el1 = EntityList()
+    test_el1.append(Arc(Coordinate(0, 1), Coordinate(1, 0), centre=Coordinate(0.6, 0.6)))
+    test_el1.append(Line(Coordinate(0.4, 0.4), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0.4, 0.4)))
+    assert test_el1.self_intersecting == False
+
+    # Test convex polygons are not detected as intersecting
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 3), Coordinate(0, 0)))
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(2, 0)))
+    test_el2.append(Line(Coordinate(2, 0), Coordinate(2, 1)))
+    test_el2.append(Line(Coordinate(2, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 2)))
+    test_el2.append(Line(Coordinate(1, 2), Coordinate(2, 2)))
+    test_el2.append(Line(Coordinate(2, 2), Coordinate(2, 3)))
+    test_el2.append(Line(Coordinate(2, 3), Coordinate(0, 3)))
+    assert test_el2.self_intersecting == False
+
+    # Test intersections are properly detected
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el3.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el3.self_intersecting == True
+
+
+def test_EntityList_is_anticlockwise():
+    assert generate_constant_region().entities.is_anticlockwise == True
+
+    # Test opposite winding
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(0, 1)))
+    test_el2.append(Line(Coordinate(0, 1), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.is_anticlockwise == False
+
+    # Test that arcs with endpoints that would result in opposite ordering if connected with a line
+    # are correctly accounted for
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
+    test_el3.append(
+        Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
+    )
+    test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
+    assert test_el3.is_anticlockwise == True
+
+    # Test error detection
+    with pytest.raises(Exception, match="Entities must be closed and nonintersecting"):
+        test_el4 = EntityList()
+        test_el4.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+        test_el4.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+        test_el4.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+        test_el4.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+        test_el4.is_anticlockwise
+
+
+def test_EntityList_has_valid_geometry():
+    assert generate_constant_region().entities.has_valid_geometry == True
+
+    # Test self_intersecting
+    test_el1 = EntityList()
+    test_el1.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el1.append(Line(Coordinate(1, 1), Coordinate(0, 1)))
+    test_el1.append(Line(Coordinate(0, 1), Coordinate(1, 0)))
+    test_el1.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el1.has_valid_geometry == False
+
+    # Test is_anticlockwise
+    test_el2 = EntityList()
+    test_el2.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el2.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el2.append(Line(Coordinate(1, 0), Coordinate(0, 0)))
+    assert test_el2.has_valid_geometry == False
+
+    # Test is_closed
+    test_el3 = EntityList()
+    test_el3.append(Line(Coordinate(0, 0), Coordinate(1, 1)))
+    test_el3.append(Line(Coordinate(1, 1), Coordinate(1, 0)))
+    test_el3.append(Line(Coordinate(1, 0), Coordinate(0.5, 0)))
+    assert test_el3.has_valid_geometry == False
+
+
 def test_set_linked_region():
+    # depreciated functionality, here for backwards compatibility
+    region = generate_constant_region()
+
+    region_linked = Region(region_type=RegionType.stator)
+    region_linked.name = "linked_region_test"
+    # set linked region
+    region.linked_region = region_linked
+    region_linked.linked_region = region
+
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
+
+
+def test_set_linked_regions():
     region = generate_constant_region()
 
     region_linked = Region()
     region_linked.name = "linked_region_test"
     # set linked region
-    region.linked_region = region_linked
+    region.linked_regions = [region_linked]
+    region_linked.linked_regions = [region]
 
-    assert region._linked_region.name == region_linked.name
-    assert region_linked.linked_region.name == region.name
+    assert region_linked.name in region.linked_region_names
+    assert region.name in region_linked.linked_region_names
 
 
 def test_set_singular_region():
@@ -470,6 +627,11 @@ def test_region_children(mc):
     assert len(children) == 16
 
 
+def test_region_linked_regions(mc):
+    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+    assert len(duct.linked_regions) == 1
+
+
 def test_reverse_entity():
     entity = geometry.Entity(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
     expected_entity = geometry.Entity(geometry.Coordinate(1, 1), geometry.Coordinate(0, 0))
@@ -497,6 +659,15 @@ def test_reverse_arc():
     assert arc == expected_line
 
 
+def test_entities_same_subset():
+    arc1 = Arc(Coordinate(1, 0), Coordinate(0, 1), radius=1)
+    arc2 = Arc(Coordinate(0, 1), Coordinate(-1, 0), radius=1)
+    ent1 = geometry.EntityList([arc1, arc2])
+    ent2 = geometry.EntityList([arc1])
+
+    assert ent1 != ent2
+
+
 def test_entities_same():
     region = generate_constant_region()
     region_expected = generate_constant_region()
@@ -512,7 +683,7 @@ def test_entities_same_1():
     entities = [entities_list_duplicate[i] for i in range(1, len(entities_list_duplicate))] + [
         entities_list_duplicate[i] for i in range(0, 1)
     ]
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(region_type=RegionType.stator)
     region_2.entities = entities
 
     assert region_1.entities == region_2.entities
@@ -521,7 +692,7 @@ def test_entities_same_1():
 def test_entities_same_reverse():
     region_1 = generate_constant_region()
 
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(RegionType.stator_air)
     region_2.entities = deepcopy(region_1.entities)
     region_2.entities.reverse()
 
@@ -553,7 +724,7 @@ def test_reverse_entities():
 
 def test_reverse_entities_2():
     region_1 = generate_constant_region()
-    region_2 = geometry.Region()
+    region_2 = geometry.Region(RegionType.stator_air)
 
     region_2.entities = deepcopy(region_1.entities)
     region_2.entities.reverse()
@@ -574,9 +745,70 @@ def test_line_get_coordinate_from_percentage_distance():
 def test_line_get_coordinate_from_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
+    # test using the 'distance' argument
     assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(
         1, 0
     )
+    # test using the 'fraction' argument
+    assert line.get_coordinate_from_distance(
+        geometry.Coordinate(0, 0), fraction=0.5
+    ) == geometry.Coordinate(1, 0)
+    # test using the 'percentage' argument
+    assert line.get_coordinate_from_distance(
+        geometry.Coordinate(0, 0), percentage=50
+    ) == geometry.Coordinate(1, 0)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, fraction=0.6)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # distance and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, percentage=40)
+    assert "Both distance and percentage provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(
+            geometry.Coordinate(0, 0), fraction=0.6, percentage=40
+        )
+    assert "Both fraction and percentage provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6)
+
+    # distance, fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1, 0.6, 40)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that both warnings are given
+    assert "Both distance and percentage provided" in record[1].message.args[0]
+    # check that distance is used
+    assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1)
+
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = line.get_coordinate_from_distance(line.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
+
+    # Test if reference coordinate isn't start or end (ref coordinate near start)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0), 1) == geometry.Coordinate(
+        1.5, 0
+    )
+
+    # Test if reference coordinate isn't start or end (ref coordinate near end)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(1.5, 0), 1) == geometry.Coordinate(
+        0.5, 0
+    )
+
+    # Test that reference coordinate not on the line raises an exception
+    with pytest.raises(ValueError):
+        line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0.5), 1)
 
 
 def test_line_length():
@@ -585,14 +817,30 @@ def test_line_length():
     assert line.length == sqrt(2)
 
 
-def test_arc_get_coordinate_from_percentage_distance():
+def test_line_get_coordinate_distance():
+    line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
+    point = Coordinate(1, 1)
+    assert line.get_coordinate_distance(point) == 1
+
+
+def test_coordinate_distance():
+    coordinate_1 = geometry.Coordinate(0, 1)
+    coordinate_2 = geometry.Coordinate(0, 2)
+    assert coordinate_1.distance(coordinate_2) == 1
+
+    # Make sure type error is raised if we try to find distance to something that isn't a coordinate
+    with pytest.raises(TypeError):
+        coordinate_1.distance(1)
+
+
+def test_arc_get_coordinate_from_fractional_distance():
     arc = geometry.Arc(
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
     )
 
-    coord = arc.get_coordinate_from_percentage_distance(geometry.Coordinate(-1, 0), 0.5)
-    assert isclose(coord.x, 0, abs_tol=1e-12)
-    assert isclose(coord.y, -1, abs_tol=1e-12)
+    coord_1 = arc.get_coordinate_from_percentage_distance(geometry.Coordinate(-1, 0), 0.5)
+    assert isclose(coord_1.x, 0, abs_tol=1e-12)
+    assert isclose(coord_1.y, -1, abs_tol=1e-12)
 
     # test an arc that failed with the old definition of get_coordinate_from_percentage_distance()
     arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
@@ -604,12 +852,19 @@ def test_arc_get_coordinate_from_percentage_distance():
     assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
     # test arc drawn clockwise
     arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
-    coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-13)
+    coord_4 = arc_4.get_coordinate_from_percentage_distance(arc_4.end, 1e-13)
     assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
     assert math.isclose(arc_4.end.y, coord_4.y, abs_tol=1e-12)
-    coord_5 = arc_4.get_coordinate_from_distance(arc_4.start, 1e-13)
+    coord_5 = arc_4.get_coordinate_from_percentage_distance(arc_4.start, 1e-13)
     assert math.isclose(arc_4.start.x, coord_5.x, abs_tol=1e-12)
     assert math.isclose(arc_4.start.y, coord_5.y, abs_tol=1e-12)
+    # test arc with negative radius
+    arc_6 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_6 = arc_6.get_coordinate_from_percentage_distance(Coordinate(-1, 0), 0.5)
+    assert math.isclose(coord_6.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_6.y, 1, abs_tol=1e-12)
 
 
 def test_arc_get_coordinate_from_distance():
@@ -617,11 +872,21 @@ def test_arc_get_coordinate_from_distance():
         geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
     )
 
+    # test using the 'distance' argument
     coord = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
     assert math.isclose(coord.x, 0, abs_tol=1e-12)
     assert math.isclose(coord.y, -1, abs_tol=1e-12)
 
-    # test an arc that failed with the old definition of get_coordinate_from_distance()
+    # test for an arc with negative radius using the 'distance' argument
+    arc_1 = geometry.Arc(
+        geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), -1
+    )
+    coord_1 = arc_1.get_coordinate_from_distance(geometry.Coordinate(-1, 0), math.pi / 2)
+    assert math.isclose(coord_1.x, 0, abs_tol=1e-12)
+    assert math.isclose(coord_1.y, 1, abs_tol=1e-12)
+
+    # test an arc that failed with the old definition of get_coordinate_from_distance() using the
+    # 'distance' argument
     arc_2 = geometry.Arc(geometry.Coordinate(62, 20), geometry.Coordinate(56, 33), radius=45)
     coord_2 = arc_2.get_coordinate_from_distance(arc_2.end, 1e-15)
     assert math.isclose(arc_2.end.x, coord_2.x, abs_tol=1e-12)
@@ -629,7 +894,7 @@ def test_arc_get_coordinate_from_distance():
     coord_3 = arc_2.get_coordinate_from_distance(arc_2.start, 1e-15)
     assert math.isclose(arc_2.start.x, coord_3.x, abs_tol=1e-12)
     assert math.isclose(arc_2.start.y, coord_3.y, abs_tol=1e-12)
-    # test arc drawn clockwise
+    # test arc drawn clockwise using the 'distance' argument
     arc_4 = geometry.Arc(geometry.Coordinate(56, 33), geometry.Coordinate(62, 20), radius=45)
     coord_4 = arc_4.get_coordinate_from_distance(arc_4.end, 1e-15)
     assert math.isclose(arc_4.end.x, coord_4.x, abs_tol=1e-12)
@@ -640,6 +905,48 @@ def test_arc_get_coordinate_from_distance():
     coord_6 = arc_2.get_coordinate_from_distance(arc_2.start, 5)
     assert math.isclose(60.389142028418, coord_6.x, abs_tol=1e-12)
     assert math.isclose(24.730689908764, coord_6.y, abs_tol=1e-12)
+
+    # test using the 'fraction' argument
+    coord_7 = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), fraction=0.5)
+    assert isclose(coord_7.x, 0, abs_tol=1e-12)
+    assert isclose(coord_7.y, -1, abs_tol=1e-12)
+
+    # test using the 'percentage' argument
+    coord_8 = arc.get_coordinate_from_distance(geometry.Coordinate(-1, 0), percentage=50)
+    assert isclose(coord_8.x, 0, abs_tol=1e-12)
+    assert isclose(coord_8.y, -1, abs_tol=1e-12)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, fraction=0.6)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # distance and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, percentage=40)
+    assert "Both distance and percentage provided" in record[0].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, fraction=0.6, percentage=40)
+    assert "Both fraction and percentage provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, fraction=0.6)
+    # distance, fraction and percentage
+    with pytest.warns(UserWarning) as record:
+        coord = arc.get_coordinate_from_distance(arc.start, 1, 0.6, 40)
+    assert "Both distance and fraction provided" in record[0].message.args[0]
+    # check that both warnings are given
+    assert "Both distance and percentage provided" in record[1].message.args[0]
+    # check that distance is used
+    assert coord == arc.get_coordinate_from_distance(arc.start, 1)
+    # neither distance, fraction or percentage are provided
+    with pytest.raises(Exception) as e_info:
+        coord = arc.get_coordinate_from_distance(arc.start)
+    assert "provide either a distance, fraction or percentage" in str(e_info)
 
 
 def test_arc_length():
@@ -653,6 +960,32 @@ def test_arc_length():
     line_1 = Line(Coordinate(62, 20), Coordinate(56, 33))
     arc_2 = Arc(Coordinate(62, 20), Coordinate(56, 33), radius=radius)
     assert arc_2.length > line_1.length
+
+
+def test_entities_polygon():
+    expected_square = create_square()
+
+    # test functionality without reordering
+    reg1 = Region(region_type=RegionType.stator)
+    reg1.entities = EntityList.polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    assert expected_square == reg1
+
+    reg2 = Region(region_type=RegionType.stator)
+    reg2.entities = EntityList.polygon(
+        [Coordinate(0, 0), Coordinate(2, 0), Coordinate(2, 2), Coordinate(0, 2)]
+    )
+    assert expected_square == reg2
+
+    # Test warnings given when order is incorrect
+    with pytest.warns(UserWarning) as record:
+        reg3 = Region(region_type=RegionType.stator)
+        reg3.entities = EntityList.polygon([(0, 2), (2, 2), (2, 0), (0, 0)])
+    assert "Entered point order may result in invalid geometry." == record[0].message.args[0]
+
+    # test reordering
+    reg4 = Region(region_type=RegionType.stator)
+    reg4.entities = EntityList.polygon([(0, 0), (2, 2), (0, 2), (2, 0)], sort=True)
+    assert expected_square == reg4
 
 
 def test_convert_entities_to_json():
@@ -726,9 +1059,9 @@ def test_unite_regions(mc):
     # |--|--|--|    |--|  |--|
     #    |  |          |  |
     #    |--|          |--|
-    region_a = geometry.Region()
-    region_b = geometry.Region()
-    expected_region = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
@@ -757,8 +1090,8 @@ def test_unite_regions(mc):
     region_b.entities += create_lines_from_points(points_b)
     expected_region.entities += create_lines_from_points(points_expected)
 
-    expected_region.centroid = geometry.Coordinate(0, -0.3)
-    expected_region.region_coordinate = geometry.Coordinate(0, -0.3)
+    expected_region._centroid = geometry.Coordinate(0, -0.3)
+    expected_region._region_coordinate = geometry.Coordinate(0, -0.3)
     expected_region.duplications = 1
 
     united_region = mc.unite_regions(region_a, [region_b])
@@ -775,13 +1108,13 @@ def test_unite_regions_1(mc):
     # |        |    |---|           Regions have no mutual interceptions
     # |--------|
 
-    region_a = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, -1), geometry.Coordinate(-1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(-1, 1), geometry.Coordinate(1, 1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(1, -1)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, -1), geometry.Coordinate(-1, -1)))
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
@@ -820,9 +1153,9 @@ def test_unite_regions_2(mc):
         geometry.Coordinate(0, 0),
     ]
 
-    expected_region = geometry.Region()
-    expected_region.centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
-    expected_region.region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+    expected_region = geometry.Region(RegionType.stator_air)
+    expected_region._centroid = geometry.Coordinate(1.57886178861789, 1.57886178861789)
+    expected_region._region_coordinate = geometry.Coordinate(1.57886178861789, 1.57886178861789)
 
     # create and add line entities to region from their respective points
     expected_region.entities += create_lines_from_points(points)
@@ -834,13 +1167,13 @@ def test_unite_regions_2(mc):
 
 def test_replace_region(mc):
     """Test replace region entities with entities from another region."""
-    region_a = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
     region_a.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 10)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(5, 10), geometry.Coordinate(10, 10)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(10, 10), geometry.Coordinate(10, 5)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(10, 5), geometry.Coordinate(5, 5)))
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(5, 8)))
     region_b.add_entity(
         geometry.Arc(
@@ -886,7 +1219,7 @@ def test_check_collisions(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(0, -2), geometry.Coordinate(1, 2)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(1, 2), geometry.Coordinate(5, -3)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, -3), geometry.Coordinate(0, -2)))
@@ -912,7 +1245,7 @@ def test_check_collisions_1(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(
         geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
     )
@@ -943,7 +1276,7 @@ def test_check_collisions_2(mc):
     #
     region_a = generate_constant_region()
 
-    region_b = geometry.Region()
+    region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0), geometry.Coordinate(0.2, 0)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0), geometry.Coordinate(0.2, -2)))
@@ -978,7 +1311,7 @@ def test_check_collisions_3(mc):
         geometry.Coordinate(2, 0),
     ]
 
-    square = geometry.Region()
+    square = geometry.Region(RegionType.stator_air)
     # create and add line entities to region from their respective points
     square.entities += create_lines_from_points(points_square)
 
@@ -988,7 +1321,7 @@ def test_check_collisions_3(mc):
         geometry.Coordinate(4, 4),
     ]
 
-    triangle = geometry.Region()
+    triangle = geometry.Region(RegionType.stator_air)
     # create and add line entities to region from their respective points
     triangle.entities += create_lines_from_points(points_triangle)
 
@@ -1001,16 +1334,15 @@ def test_check_collisions_3(mc):
     assert collisions[0] == triangle
 
 
-def test_delete_region(mc):
-    stator = mc.get_region("Stator")
+def test_delete_region(mc_reset_to_default_on_teardown):
+    stator = mc_reset_to_default_on_teardown.get_region("Stator")
 
-    mc.delete_region(stator)
+    mc_reset_to_default_on_teardown.delete_region(stator)
 
     with pytest.raises(Exception) as e_info:
-        mc.get_region("Stator")
+        mc_reset_to_default_on_teardown.get_region("Stator")
 
     assert "Failed to find region with name" in str(e_info.value)
-    reset_to_default_file(mc)
 
 
 def test_coordinate_operators():
@@ -1169,7 +1501,7 @@ def test_is_matplotlib_installed(monkeypatch):
     import ansys.motorcad.core.geometry_drawing as geom_import
 
     with pytest.raises(ImportError):
-        geom_import.draw_regions(region)
+        geom_import.draw_objects(region)
 
 
 def test_strings(capsys):
@@ -1234,6 +1566,7 @@ def test_edit_point():
 
 
 def test_round_corner():
+    # test for rounding corners of a triangle (3 lines)
     radius = 0.5
     triangle_1 = eq_triangle_h(5, 15, 45)
     triangle_2 = eq_triangle_h(5, 15, 45)
@@ -1247,7 +1580,12 @@ def test_round_corner():
         assert type(triangle_1.entities[2 * i]) == Line
         assert type(triangle_1.entities[2 * i + 1]) == Arc
         # check that the midpoints of the shortened lines are the same as the original lines
-        assert triangle_1.entities[2 * i].midpoint == triangle_2.entities[i].midpoint
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
+        )
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.y, triangle_2.entities[i].midpoint.y, abs_tol=1e-6
+        )
 
     # check that the original corner coordinates are not on any of the rounded triangle's entities
     corners = []
@@ -1263,6 +1601,837 @@ def test_round_corner():
     with pytest.raises(Exception):
         triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
 
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(Exception):
+        triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
+
+    # check the case when corner internal angle is negative
+    corner_1 = Coordinate(0, 0)
+    corner_2 = Coordinate(-3, 2)
+    corner_3 = Coordinate(-3, 0)
+    line_1 = Line(corner_1, corner_3)
+    line_2 = Line(corner_3, corner_2)
+    line_3 = Line(corner_2, corner_1)
+    region = Region(RegionType.stator_air)
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region.add_entity(line_3)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(corner_1, 0.1)
+    # draw_objects_debug([region, region_rounded])
+    assert corner_1 not in region_rounded.points
+    assert len(region_rounded.entities) == 4
+    assert type(region_rounded.entities[3]) == Arc
+    print(region_rounded.entities[3].midpoint.x)
+    assert region_rounded.entities[3].midpoint.x < corner_1.x
+
+    # test the case when corner internal angle is more than 180 degrees
+    radius = 5
+    centre = Coordinate(0, 0)
+    start_angle = -15
+    end_angle = 195
+    coord_1 = Coordinate(*rt_to_xy(radius, start_angle))
+    coord_2 = Coordinate(*rt_to_xy(radius, start_angle + 180))
+    arc_1 = Arc(coord_1, coord_2, centre=centre)
+    arc_2 = Arc(arc_1.end, Coordinate(*rt_to_xy(radius, end_angle)), centre=centre)
+    line_1 = Line(arc_2.end, centre)
+    line_2 = Line(centre, arc_1.start)
+    region = Region(RegionType.stator_air)
+    region.add_entity(arc_1)
+    region.add_entity(arc_2)
+    region.add_entity(line_1)
+    region.add_entity(line_2)
+    region_rounded = deepcopy(region)
+    region_rounded.round_corner(centre, 2)
+    # draw_objects_debug([region, region_rounded])
+    assert centre not in region_rounded.points
+    assert len(region_rounded.entities) == len(region.entities) + 1
+    assert type(region_rounded.entities[3]) == Arc
+    # print(region_rounded.entities[3].midpoint.y)
+    assert region_rounded.entities[3].midpoint.y < centre.y
+
+
+def test_round_corners():
+    # test for rounding corners of a triangle (3 lines)
+    corner_radius = 0.5
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    triangle_1.round_corners(triangle_1.points, corner_radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the rounded triangle are of the expected types
+        assert type(triangle_1.entities[2 * i]) == Line
+        assert type(triangle_1.entities[2 * i + 1]) == Arc
+        # check that the midpoints of the shortened lines are the same as the original lines
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.x, triangle_2.entities[i].midpoint.x, abs_tol=1e-6
+        )
+        assert isclose(
+            triangle_1.entities[2 * i].midpoint.y, triangle_2.entities[i].midpoint.y, abs_tol=1e-6
+        )
+
+    # check that the original corner coordinates are not on any of the rounded triangle's entities
+    corners = []
+    for i in range(3):
+        corners.append(triangle_2.entities[i].end)
+    for entity in triangle_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check value error is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
+        triangle_1.round_corners(corners, corner_radius)
+    with pytest.raises(ValueError):
+        triangle_1.round_corners(
+            [
+                triangle_1.entities[0].midpoint,
+                triangle_1.entities[1].midpoint,
+                triangle_1.entities[2].midpoint,
+            ],
+            corner_radius,
+        )
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 1.7
+    with pytest.raises(ValueError):
+        triangle_2.round_corners(triangle_2.points, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        triangle_2.round_corners(triangle_2.points, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    triangle_2.round_corners(triangle_2.points, large_radius)  # by default, maximise = True
+    assert triangle_2.entities[1].radius < large_radius
+
+
+def test_round_corner_2():
+    # test for rounding corner between an arc and a line
+
+    corner_radius = 0.5
+    notch_radius = 50
+    notch_sweep = 22.5
+    notch_depth = 20
+    notch_angle = 45
+    notch_1 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+    notch_2 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+
+    for index in reversed(range(3)):
+        notch_1.round_corner(notch_1.entities[index].end, corner_radius)
+    # draw_objects([notch_1, notch_2])
+
+    assert notch_1.is_closed()
+    # check that the entities making up the rounded notch are of the expected types
+    assert type(notch_1.entities[0]) == Line
+    assert type(notch_1.entities[1]) == Arc
+    assert type(notch_1.entities[2]) == Line
+    assert type(notch_1.entities[3]) == Arc
+    assert type(notch_1.entities[4]) == Arc
+    assert type(notch_1.entities[5]) == Arc
+    # check that the gradients of the shortened lines are the same as the original lines
+    assert isclose(notch_1.entities[0].gradient, notch_2.entities[0].gradient, abs_tol=1e-6)
+    assert isclose(notch_1.entities[2].gradient, notch_2.entities[1].gradient, abs_tol=1e-6)
+    # check that the centre of the shortened arc is the same as that of the original arc
+    assert isclose(notch_1.entities[4].centre.x, notch_2.entities[2].centre.x, abs_tol=1e-6)
+    assert isclose(notch_1.entities[4].centre.y, notch_2.entities[2].centre.y, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded notch's entities
+    corners = []
+    for i in range(3):
+        corners.append(notch_2.entities[i].end)
+    for entity in notch_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
+        notch_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        notch_1.round_corner(notch_1.entities[0].midpoint, corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 11
+    with pytest.raises(ValueError):
+        notch_2.round_corner(notch_2.entities[0].end, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    notch_2.round_corner(notch_2.entities[0].end, large_radius)  # by default, maximise = True
+    assert notch_2.entities[1].radius < large_radius
+
+
+def test_round_corners_2():
+    # test for rounding corner between an arc and a line
+
+    corner_radius = 0.5
+    notch_radius = 50
+    notch_sweep = 22.5
+    notch_depth = 20
+    notch_angle = 45
+    notch_1 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+    notch_2 = triangular_notch(notch_radius, notch_sweep, notch_angle, notch_depth)
+
+    notch_1.round_corners(notch_1.points, corner_radius)
+    # draw_objects([notch_1, notch_2])
+
+    assert notch_1.is_closed()
+    # check that the entities making up the rounded notch are of the expected types
+    assert type(notch_1.entities[0]) == Line
+    assert type(notch_1.entities[1]) == Arc
+    assert type(notch_1.entities[2]) == Line
+    assert type(notch_1.entities[3]) == Arc
+    assert type(notch_1.entities[4]) == Arc
+    assert type(notch_1.entities[5]) == Arc
+    # check that the gradients of the shortened lines are the same as the original lines
+    assert isclose(notch_1.entities[0].gradient, notch_2.entities[0].gradient, abs_tol=1e-6)
+    assert isclose(notch_1.entities[2].gradient, notch_2.entities[1].gradient, abs_tol=1e-6)
+    # check that the centre of the shortened arc is the same as that of the original arc
+    assert isclose(notch_1.entities[4].centre.x, notch_2.entities[2].centre.x, abs_tol=1e-6)
+    assert isclose(notch_1.entities[4].centre.y, notch_2.entities[2].centre.y, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded notch's entities
+    corners = []
+    for i in range(3):
+        corners.append(notch_2.entities[i].end)
+    for entity in notch_1.entities:
+        for i in range(3):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
+        notch_1.round_corners(corners, corner_radius)
+    with pytest.raises(ValueError):
+        notch_1.round_corners(
+            [
+                notch_1.entities[0].midpoint,
+                notch_1.entities[1].midpoint,
+                notch_1.entities[2].midpoint,
+            ],
+            corner_radius,
+        )
+
+    # check ValueError is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(ValueError):
+        notch_2.round_corner(notch_2.entities[0].end, 100 * corner_radius)
+    # check ValueError is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 6
+    with pytest.raises(ValueError):
+        notch_2.round_corners(notch_2.points, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        notch_2.round_corners(notch_2.points, 100 * corner_radius)
+
+    # Check that maximise option works
+    # When a radius that is too large is given, iterate up to 100 times to find smaller radius
+    # Check that the new arc radius after rounding is less than the specified radius
+    notch_2.round_corners(notch_2.points, large_radius)  # by default, maximise = True
+    assert notch_2.entities[1].radius < large_radius
+
+
+def test_round_corner_3():
+    # test for rounding corners between two arcs
+
+    corner_radius = 0.5
+    point_1 = Coordinate(0, 15)
+    point_2 = Coordinate(0, 0)
+    shape_radius = 10
+    arc_1 = Arc(point_1, point_2, radius=shape_radius)
+    arc_2 = Arc(point_2, point_1, radius=shape_radius)
+    shape_1 = Region(RegionType.stator_air)
+    shape_1.add_entity(arc_1)
+    shape_1.add_entity(arc_2)
+
+    shape_2 = deepcopy(shape_1)
+
+    for index in reversed(range(2)):
+        shape_1.round_corner(shape_1.entities[index].end, corner_radius)
+    # draw_objects([shape_1, shape_2])
+
+    assert shape_1.is_closed()
+    # check that the entities making up the rounded shape are of the expected types
+    assert type(shape_1.entities[0]) == Arc
+    assert type(shape_1.entities[1]) == Arc
+    assert type(shape_1.entities[2]) == Arc
+    assert type(shape_1.entities[3]) == Arc
+    # check that the centres of the shortened arcs are the same as those of the original arcs
+    assert isclose(shape_1.entities[0].centre.x, shape_2.entities[0].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[0].centre.y, shape_2.entities[0].centre.y, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.x, shape_2.entities[1].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.y, shape_2.entities[1].centre.y, abs_tol=1e-6)
+
+    # check that the arc radii are correct for each arc
+    assert isclose(shape_1.entities[0].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[1].radius, corner_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[3].radius, corner_radius, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded shape's entities
+    corners = []
+    for i in range(2):
+        corners.append(shape_2.entities[i].end)
+    for entity in shape_1.entities:
+        for i in range(2):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
+        shape_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
+
+    # check ValueError is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    with pytest.raises(ValueError):
+        shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
+
+    # check exception is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 2
+    with pytest.raises(ValueError):
+        shape_2.round_corner(shape_2.entities[0].end, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        shape_2.round_corner(shape_2.entities[0].end, 100 * corner_radius)
+
+    # check that the corners are rounded correctly when the original entity start coordinates are
+    # set as the corners, instead of the end coordinates
+    for index in reversed(range(2)):
+        shape_2.round_corner(shape_2.entities[index].start, corner_radius)
+
+    assert shape_2.entities[0] == shape_1.entities[0]
+    assert shape_1.entities[1] == shape_2.entities[1]
+    assert shape_1.entities[2] == shape_2.entities[2]
+    assert shape_1.entities[3] == shape_2.entities[3]
+
+
+def test_round_corners_3():
+    # test for rounding corners between two arcs
+
+    corner_radius = 0.5
+    point_1 = Coordinate(0, 15)
+    point_2 = Coordinate(0, 0)
+    shape_radius = 10
+    arc_1 = Arc(point_1, point_2, radius=shape_radius)
+    arc_2 = Arc(point_2, point_1, radius=shape_radius)
+    shape_1 = Region(RegionType.stator_air)
+    shape_1.add_entity(arc_1)
+    shape_1.add_entity(arc_2)
+
+    shape_2 = deepcopy(shape_1)
+
+    shape_1.round_corners(shape_1.points, corner_radius)
+    # draw_objects([shape_1, shape_2])
+
+    assert shape_1.is_closed()
+    # check that the entities making up the rounded shape are of the expected types
+    assert type(shape_1.entities[0]) == Arc
+    assert type(shape_1.entities[1]) == Arc
+    assert type(shape_1.entities[2]) == Arc
+    assert type(shape_1.entities[3]) == Arc
+    # check that the centres of the shortened arcs are the same as those of the original arcs
+    assert isclose(shape_1.entities[0].centre.x, shape_2.entities[0].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[0].centre.y, shape_2.entities[0].centre.y, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.x, shape_2.entities[1].centre.x, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].centre.y, shape_2.entities[1].centre.y, abs_tol=1e-6)
+
+    # check that the arc radii are correct for each arc
+    assert isclose(shape_1.entities[0].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[1].radius, corner_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[2].radius, shape_radius, abs_tol=1e-6)
+    assert isclose(shape_1.entities[3].radius, corner_radius, abs_tol=1e-6)
+
+    # check that the original corner coordinates are not on any of the rounded shape's entities
+    corners = []
+    for i in range(2):
+        corners.append(shape_2.entities[i].end)
+    for entity in shape_1.entities:
+        for i in range(2):
+            assert not entity.coordinate_on_entity(corners[i])
+
+    # check ValueError is raised when a point that is not a corner is specified
+    with pytest.raises(ValueError):
+        shape_1.round_corner(corners[0], corner_radius)
+    with pytest.raises(ValueError):
+        shape_1.round_corner(shape_1.entities[0].midpoint, corner_radius)
+
+    # check ValueError is raised when the corner radius is too large
+    # this is the case when the distance by which an original entity is to be shortened is larger
+    # than the entity's original length
+    # * Check this using the maximise = False option
+    large_radius = 2
+    with pytest.raises(ValueError):
+        shape_2.round_corners(shape_2.points, large_radius, maximise=False)
+    # * Check again with a suitably large radius that will not converge
+    with pytest.raises(ValueError):
+        shape_2.round_corners(shape_2.points, 100 * corner_radius)
+
+
+def test_do_not_round_corner():
+    # test for when round_corner method is given a radius of zero
+    radius = 0
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+    # Repeat the test using the maximise = False option
+    for index in reversed(range(3)):
+        triangle_1.round_corner(triangle_1.entities[index].end, radius, maximise=False)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+    # draw a new triangle where the 3rd side is made up of 2 parallel lines. The region will have a
+    # point here, but it is not a corner because the two lines are parallel and have an angle of
+    # zero between them.
+    triangle_3 = deepcopy(triangle_2)
+    new_line_1 = Line(triangle_3.entities[2].start, triangle_3.entities[2].midpoint)
+    new_line_2 = Line(triangle_3.entities[2].midpoint, triangle_3.entities[2].end)
+
+    triangle_3.remove_entity(triangle_3.entities[2])
+    triangle_3.add_entity(new_line_1)
+    triangle_3.add_entity(new_line_2)
+    # draw_objects([triangle_3, triangle_3.points[3]])
+    radius_2 = 0.5
+
+    triangle_3.round_corner(triangle_3.points[3], radius_2, maximise=False)
+
+    # check that the entities making up the triangle are unchanged
+    assert triangle_3.is_closed()
+    for i in range(2):
+        assert triangle_3.entities[i] == triangle_2.entities[i]
+    assert triangle_3.entities[2].start == triangle_2.entities[2].start
+    assert triangle_3.entities[2].end == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].start == triangle_2.entities[2].midpoint
+    assert triangle_3.entities[3].end == triangle_2.entities[2].end
+
+
+def test_do_not_round_corners():
+    # test for when round_corners method is given a radius of zero
+    radius = 0
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = eq_triangle_h(5, 15, 45)
+    triangle_1.round_corners(triangle_1.points, radius)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+    # Repeat the test using the maximise = False option
+    triangle_1.round_corners(triangle_1.points, radius, maximise=False)
+    # draw_objects([triangle_1, triangle_2])
+
+    assert triangle_1.is_closed()
+    for i in range(3):
+        # check that the entities making up the triangle are unchanged
+        assert triangle_1.entities[i] == triangle_2.entities[i]
+
+
+def test_round_corners_4_extra_points():
+    # draw a triangle where the 3rd side is made up of 2 parallel lines. The region will have a
+    # point here, but it is not a corner because the two lines are parallel and have an angle of
+    # zero between them.
+    triangle_1 = eq_triangle_h(5, 15, 45)
+    triangle_2 = deepcopy(triangle_1)
+    new_line_1 = Line(triangle_2.entities[2].start, triangle_2.entities[2].midpoint)
+    new_line_2 = Line(triangle_2.entities[2].midpoint, triangle_2.entities[2].end)
+
+    triangle_2.remove_entity(triangle_2.entities[2])
+    triangle_2.add_entity(new_line_1)
+    triangle_2.add_entity(new_line_2)
+    # draw_objects([triangle_3, triangle_3.points[3]])
+    radius_2 = 0.5
+
+    # check that rounding the triangle's points leaves the point between the two parallel lines
+    # unchanged
+    triangle_2.round_corners(triangle_2.points, radius_2, maximise=False)
+
+    # check that the triangle has been correctly rounded
+    assert triangle_2.is_closed()
+    # Check that triangle 3 has 4 more entities than triangle 2 (1 extra line + the 3 new arcs)
+    assert len(triangle_2.entities) == len(triangle_1.entities) + 4
+
+    # check that the triangle entities are the expected types
+    assert isinstance(triangle_2.entities[0], Line)
+    assert isinstance(triangle_2.entities[1], Arc)
+    assert isinstance(triangle_2.entities[2], Line)
+    assert isinstance(triangle_2.entities[3], Arc)
+    assert isinstance(triangle_2.entities[4], Line)
+    assert isinstance(triangle_2.entities[5], Line)
+    assert isinstance(triangle_2.entities[6], Arc)
+
+    # check that the point between the two parallel lines is unchanged.
+    assert triangle_2.entities[4].end == triangle_1.entities[2].midpoint
+    assert triangle_2.entities[5].start == triangle_1.entities[2].midpoint
+
+
+def test_extend_entity_region_method():
+    # Draw a square and extend its vertical lines to form a rectangle
+    square_1 = square(4, 0, 0)
+
+    # extend the lines using the fraction option
+    rectangle_1 = deepcopy(square_1)
+    rectangle_1.extend_entity(0, fraction=1, extend_from_end=False)
+    rectangle_1.extend_entity(2, fraction=1)
+
+    # check that the vertical lines have been doubled in length and the horizontal lines remain the
+    # same lengths
+    assert rectangle_1.is_closed()
+    assert rectangle_1.entities[0].length == square_1.entities[0].length * 2
+    assert rectangle_1.entities[2].length == square_1.entities[2].length * 2
+    assert rectangle_1.entities[1].length == square_1.entities[1].length
+    assert rectangle_1.entities[3].length == square_1.entities[3].length
+
+    # Extend all 4 lines using the absolute distance option. Extend both ends of each line to form
+    # a square with width larger than square_1 by the extension value and centred on the same point.
+    square_2 = deepcopy(square_1)
+    extension = 2.2
+    square_2.extend_entity(0, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(2, distance=extension / 2)
+    square_2.extend_entity(0, distance=extension / 2)
+    square_2.extend_entity(2, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(1, distance=extension / 2, extend_from_end=False)
+    square_2.extend_entity(3, distance=extension / 2)
+    square_2.extend_entity(1, distance=extension / 2)
+    square_2.extend_entity(3, distance=extension / 2, extend_from_end=False)
+
+    # check that all lines have been increased in length by the extension value
+    assert square_2.is_closed()
+    assert isclose(
+        square_2.entities[0].length, square_1.entities[0].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[2].length, square_1.entities[2].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[1].length, square_1.entities[1].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        square_2.entities[3].length, square_1.entities[3].length + extension, abs_tol=GEOM_TOLERANCE
+    )
+
+    # check the factor definition with a <1 factor that shortens two lines to form a parallelogram:
+    parallelogram_1 = deepcopy(square_1)
+    extension_factor = 0.8
+
+    parallelogram_1.extend_entity(1, factor=extension_factor)
+    parallelogram_1.extend_entity(3, factor=extension_factor)
+    # check that the parallelogram is closed
+    assert parallelogram_1.is_closed()
+    # check that the unchanged points are unchanged
+    assert parallelogram_1.entities[0].end == square_1.entities[0].end
+    assert parallelogram_1.entities[2].end == square_1.entities[2].end
+    # check that the horizontal lines are still horizontal
+    assert isclose(
+        parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE
+    )
+    # check that the horizontal lines have been shortened by the correct amount
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        square_1.entities[1].length * extension_factor,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    assert isclose(
+        parallelogram_1.entities[1].length,
+        parallelogram_1.entities[3].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal (previously vertical) lines are still equal lengths
+    assert isclose(
+        parallelogram_1.entities[0].length,
+        parallelogram_1.entities[2].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    # check that the diagonal lines are still parallel
+    assert isclose(
+        parallelogram_1.entities[0].angle,
+        parallelogram_1.entities[2].angle - 180,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # check that negative factor gives same result
+    parallelogram_2 = deepcopy(square_1)
+    extension_factor = -0.8
+
+    parallelogram_2.extend_entity(1, factor=extension_factor)
+    parallelogram_2.extend_entity(3, factor=extension_factor)
+
+    # check that the parallelogram is closed and that the lines are the same as for the positive
+    # factor
+    assert parallelogram_2.is_closed()
+    for i in range(len(parallelogram_2.entities)):
+        assert parallelogram_2.entities[i] == parallelogram_1.entities[i]
+
+    # check that the correct warnings appear when multiple arguments are provided
+    parallelogram_3 = deepcopy(square_1)
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+
+    # test that ValueError is raised when no optional argument is given
+    with pytest.raises(ValueError) as e_info:
+        parallelogram_3.extend_entity(0)
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, distance=extension_distance, fraction=extension_fractional_distance
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        square_1.entities[0].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(2, distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        parallelogram_3.entities[2].length,
+        square_1.entities[2].length + extension_distance,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        parallelogram_3.extend_entity(
+            0, fraction=extension_fractional_distance, factor=extension_factor
+        )
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that fraction is used
+    assert isclose(
+        parallelogram_3.entities[0].length,
+        (square_1.entities[0].length + extension_distance) * (1 + extension_fractional_distance),
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    square_3 = deepcopy(square_1)  # square of width = 4 mm
+    extension = -5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        square_3.extend_entity(0, fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        square_3.extend_entity(0, distance=1, extend_from_end="no")
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
+
+
+def test_extend_entity_method():
+    # test extending a line using the distance definition
+    line_1 = Line(Coordinate(0, 0), Coordinate(5, 0))
+    line_2 = deepcopy(line_1)
+
+    extension = 2
+    line_2.extend(distance=extension)
+
+    # check that the line has been extended by the correct amount and the end has been moved to the
+    # expected coordinate
+    assert isclose(line_2.length, line_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    assert line_2.end == Coordinate(line_1.end.x + extension, line_1.end.y)
+    # check that the start of the line is unchanged
+    assert line_2.start == line_1.start
+
+    # test extending a line using the fraction definition
+    line_3 = deepcopy(line_1)
+    extension_fractional_distance = 0.5
+    line_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
+
+    # check that the line has been extended by the correct amount and that the start point has been
+    # moved as expected
+    assert isclose(
+        line_3.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+    assert line_3.start == Coordinate(
+        line_1.start.x - line_1.length * extension_fractional_distance, line_1.start.y
+    )
+    # check that the end point is unchanged
+    assert line_3.end == line_1.end
+
+    # test extending an arc with the distance definition
+    arc_1 = Arc(Coordinate(-4, 0), Coordinate(4, 0), radius=-8)
+    arc_2 = deepcopy(arc_1)
+    extension = 0.75
+
+    arc_2.extend(distance=extension)
+    # check that the arc has been extended by the correct amount
+    assert isclose(arc_2.length, arc_1.length + extension, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
+    assert arc_2.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_2.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_2.centre == arc_1.centre
+
+    # test extending an arc with the fraction definition
+    arc_3 = deepcopy(arc_1)
+    extension_fractional_distance = 2
+    arc_3.extend(fraction=extension_fractional_distance, extend_from_end=False)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(
+        arc_3.length, arc_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+    # check that the end point is unchanged
+    assert arc_3.end == arc_1.end
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_3.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_3.centre == arc_1.centre
+
+    # test extending an arc with the factor definition
+    arc_4 = deepcopy(arc_1)
+    extension_factor = 1.5
+    arc_4.extend(factor=extension_factor)
+
+    # check that the arc has been extended by the correct amount
+    assert isclose(arc_4.length, arc_1.length * extension_factor, abs_tol=GEOM_TOLERANCE)
+    # check that the start point is unchanged
+    assert arc_4.start == arc_1.start
+    # check that the extended arc still has the same radius and centre
+    assert isclose(arc_4.radius, arc_1.radius, abs_tol=GEOM_TOLERANCE)
+    assert arc_4.centre == arc_1.centre
+
+    # test that extending an arc with a negative factor gives the same result
+    arc_5 = deepcopy(arc_1)
+    extension_factor = -1.5
+    arc_5.extend(factor=extension_factor)
+    assert arc_5 == arc_4
+
+    # test that ValueError is raised when no optional argument is given
+    line_4 = deepcopy(line_1)
+    with pytest.raises(ValueError) as e_info:
+        line_4.extend()
+    assert "provide either a distance, fraction or factor" in str(e_info.value)
+
+    # check that the correct warnings appear when multiple arguments are provided
+    extension_distance = 2
+    extension_fractional_distance = 0.6
+    extension_factor = 1.7
+    # test that warnings are raised when multiple arguments are given
+    # distance and fraction
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, fraction=extension_fractional_distance)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    # distance and factor
+    with pytest.warns(UserWarning) as record:
+        line_4.extend(distance=extension_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(line_4.length, line_1.length + 2 * extension_distance, abs_tol=GEOM_TOLERANCE)
+
+    line_5 = deepcopy(line_1)
+    # fraction and factor
+    with pytest.warns(UserWarning) as record:
+        line_5.extend(fraction=extension_fractional_distance, factor=extension_factor)
+    assert "More than one optional argument provided" in record[0].message.args[0]
+    # check that distance is used
+    assert isclose(
+        line_5.length, line_1.length * (1 + extension_fractional_distance), abs_tol=GEOM_TOLERANCE
+    )
+
+    # test invalid arguments
+    # Check ValueError is raised when asked to shorten an entity by more than its original length
+    # distance definition
+    arc_5 = deepcopy(arc_1)  # arc length 8.4 mm
+    extension = -9
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(distance=extension)
+    assert "Invalid distance provided" in str(e_info.value)
+    # fraction definition
+    extension_fractional_distance = -1.5
+    with pytest.raises(ValueError) as e_info:
+        arc_5.extend(fraction=extension_fractional_distance)
+    assert "Invalid fraction provided" in str(e_info.value)
+    # check TypeError raised when invalid argument is provided for extend_from_end
+    with pytest.raises(TypeError) as e_info:
+        arc_5.extend(distance=1, extend_from_end=None)
+    assert "'extend_from_end' must be a boolean" in str(e_info.value)
+
+
+def test_limit_arc_chord():
+    # Draw a square, round its corners, and then limit the radii,
+    # and check we have the right number of entities
+    square_1 = square(20, 0, 0)
+    square_2 = square(20, 0, 0)
+    square_3 = square(20, 0, 0)
+    assert len(square_1.entities) == 4
+    assert len(square_2.entities) == 4
+    assert len(square_3.entities) == 4
+    corner_radius = 5
+    square_1.round_corners(square_1.points, corner_radius)
+    square_2.round_corners(square_2.points, corner_radius)
+    square_3.round_corners(square_3.points, corner_radius)
+    assert len(square_1.entities) == 8
+    assert len(square_2.entities) == 8
+    assert len(square_3.entities) == 8
+
+    # This should split the corners into three
+    chord_tolerance = 0.1
+    square_1.limit_arc_chord(chord_tolerance)
+    assert len(square_1.entities) == 16
+
+    # This should not split the corners
+    chord_tolerance = 8
+    square_2.limit_arc_chord(chord_tolerance)
+    assert len(square_2.entities) == 8
+
+    # This should not split the corners (invalid input)
+    chord_tolerance = 0
+    square_3.limit_arc_chord(chord_tolerance)
+    assert len(square_3.entities) == 8
+
 
 def test_subtract_regions(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
@@ -1273,9 +2442,9 @@ def test_subtract_regions(mc):
     # |--|--|--|    |--|  |--|
     #    |  |
     #    |--|
-    region_a = geometry.Region()
-    region_b = geometry.Region()
-    expected_region = geometry.Region()
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points_a = [
         geometry.Coordinate(-1, -1),
@@ -1327,9 +2496,9 @@ def test_subtract_region_1(mc):
     #      |---|
     #
     square = create_square()
-    rectangle = geometry.Region()
-    expected_region_1 = geometry.Region()
-    expected_region_2 = geometry.Region()
+    rectangle = geometry.Region(RegionType.stator_air)
+    expected_region_1 = geometry.Region(RegionType.stator_air)
+    expected_region_2 = geometry.Region(RegionType.stator_air)
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
@@ -1379,7 +2548,7 @@ def test_subtract_region_2(mc):
     #
     square = create_square()
     triangle = create_triangle()
-    expected_region = geometry.Region()
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(0, 2),
@@ -1405,8 +2574,8 @@ def test_subtract_region_3(mc):
     # |---|----|    |---|
     #
     square = create_square()
-    inner_square = geometry.Region()
-    expected_region = geometry.Region()
+    inner_square = geometry.Region(RegionType.stator_air)
+    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(2, 0),
@@ -1444,7 +2613,7 @@ def test_subtract_region_4(mc):
     # |--------|    |--------|
     #
     square = create_square()
-    inner_square = geometry.Region()
+    inner_square = geometry.Region(RegionType.stator_air)
     inner_square.name = "Subtraction Region"
     expected_region = deepcopy(square)
 
@@ -1717,6 +2886,130 @@ def test_get_line_intersection():
     assert l1.get_line_intersection(l2) is None
 
 
+def test_get_intersection():
+    arc_1 = Arc(Coordinate(0, 0), Coordinate(5, 5), radius=15)
+    arc_2 = Arc(Coordinate(0, 6), Coordinate(5, 1), radius=-21)
+
+    coordinate = Coordinate(0, 0)
+
+    # test get_intersection
+
+    # 2 arcs, 1 intersection
+    intersection_1_2 = arc_1.get_intersection(arc_2)
+    intersection_2_1 = arc_2.get_intersection(arc_1)
+    assert len(intersection_1_2) == 1
+    assert len(intersection_2_1) == 1
+    assert intersection_1_2[0] == intersection_2_1[0]
+    assert arc_1.coordinate_on_entity(intersection_1_2[0])
+    assert arc_2.coordinate_on_entity(intersection_1_2[0])
+    # draw_objects_debug([arc_1, arc_2, intersection_1_2[0]])
+
+    # 2 arcs, 2 intersections
+    arc_3 = Arc(Coordinate(1, 0), Coordinate(5, 4), radius=-5)
+    intersection_1_3 = arc_1.get_arc_intersection(arc_3)
+    intersection_3_1 = arc_3.get_arc_intersection(arc_1)
+    assert len(intersection_1_3) == 2
+    assert len(intersection_3_1) == 2
+    for point in intersection_1_3:
+        assert arc_1.coordinate_on_entity(point)
+        assert arc_3.coordinate_on_entity(point)
+        assert point in intersection_3_1
+    # draw_objects_debug([arc_1, arc_3, intersection_1_3[0], intersection_1_3[1]])
+
+    # 2 arcs, 0 intersection
+    arc_4 = Arc(Coordinate(0, -1), Coordinate(0, 1), radius=1)
+    arc_5 = Arc(Coordinate(0, -0.5), Coordinate(0, 0.5), radius=0.5)
+    intersection_4_5 = arc_4.get_intersection(arc_5)
+    intersection_5_4 = arc_5.get_intersection(arc_4)
+    assert intersection_4_5 is None
+    assert intersection_5_4 is None
+    # draw_objects_debug([arc_4, arc_5])
+
+    # 2 arcs, same radius, 0 intersection
+    intersection_4_4 = arc_4.get_intersection(arc_4)
+    assert intersection_4_4 is None
+    # draw_objects_debug([arc_4])
+
+    # 1 arc, 1 line, 1 intersection
+    line_4 = Line(Coordinate(0, 6), Coordinate(5, 1))
+    intersection_1_4 = arc_1.get_intersection(line_4)
+    intersection_4_1 = line_4.get_intersection(arc_1)
+    intersection_4_1_alt = line_4.get_arc_intersection(arc_1)
+    assert len(intersection_1_4) == 1
+    assert len(intersection_4_1) == 1
+    assert len(intersection_4_1_alt) >= len(intersection_4_1)
+    assert intersection_1_4[0] == intersection_4_1[0]
+    assert intersection_4_1[0] in intersection_4_1_alt
+    assert arc_1.coordinate_on_entity(intersection_1_4[0])
+    assert line_4.coordinate_on_entity(intersection_1_4[0])
+    # draw_objects_debug([arc_1, line_4, intersection_1_4[0]])
+
+    # 1 arc, 1 line, 2 intersections
+    line_5 = Line(Coordinate(1, 0), Coordinate(5, 4))
+    arc_6 = Arc(Coordinate(0, 0), Coordinate(5, 5), radius=8)
+    intersection_5_6 = line_5.get_intersection(arc_6)
+    intersection_6_5 = arc_6.get_intersection(line_5)
+    assert len(intersection_5_6) == 2
+    assert len(intersection_6_5) == 2
+    for point in intersection_5_6:
+        assert line_5.coordinate_on_entity(point)
+        assert arc_6.coordinate_on_entity(point)
+        assert point in intersection_6_5
+    # draw_objects_debug([arc_6, line_5, intersection_5_6[0], intersection_5_6[1]])
+
+    # 1 arc, 1 line, 1 intersection (vertical tangent line)
+    arc_7 = Arc(Coordinate(0, 0), Coordinate(0, 2), radius=1)
+    line_6 = Line(Coordinate(1, 2), Coordinate(1, 0))
+    intersection_7_6 = arc_7.get_intersection(line_6)
+    intersection_6_7 = line_6.get_intersection(arc_7)
+    assert len(intersection_7_6) == 1
+    assert len(intersection_6_7) == 1
+    assert intersection_7_6[0] == intersection_6_7[0]
+    assert arc_7.coordinate_on_entity(intersection_7_6[0])
+    assert line_6.coordinate_on_entity(intersection_7_6[0])
+    # draw_objects_debug([arc_7, line_6, intersection_7_6[0]])
+
+    # 1 arc, 1 line, 2 intersections (vertical line)
+    line_7 = Line(Coordinate(0.5, 2), Coordinate(0.5, 0))
+    intersection_7a_7l = arc_7.get_intersection(line_7)
+    intersection_7l_7a = line_7.get_intersection(arc_7)
+    assert len(intersection_7a_7l) == 2
+    assert len(intersection_7l_7a) == 2
+    assert intersection_7a_7l[0] == intersection_7l_7a[0]
+    assert arc_7.coordinate_on_entity(intersection_7l_7a[0])
+    assert line_7.coordinate_on_entity(intersection_7l_7a[0])
+    # draw_objects_debug([arc_7, line_7, intersection_7a_7l[0], intersection_7a_7l[1]])
+
+    # 1 arc, 1 line, 1 intersection (horizontal tangent line)
+    line_8 = Line(Coordinate(-1, 2), Coordinate(1, 2))
+    intersection_7_8 = arc_7.get_intersection(line_8)
+    intersection_8_7 = line_8.get_intersection(arc_7)
+    assert len(intersection_7_8) == 1
+    assert len(intersection_8_7) == 1
+    assert intersection_7_8[0] == intersection_8_7[0]
+    assert arc_7.coordinate_on_entity(intersection_7_8[0])
+    assert line_8.coordinate_on_entity(intersection_7_8[0])
+    # draw_objects_debug([arc_7, line_8, intersection_7_8[0]])
+
+    # 2 lines, 1 intersection
+    intersection_4_5 = line_4.get_intersection(line_5)
+    intersection_5_4 = line_5.get_intersection(line_4)
+    assert len(intersection_4_5) == 1
+    assert len(intersection_5_4) == 1
+    assert intersection_4_5[0] == intersection_5_4[0]
+    assert line_4.coordinate_on_entity(intersection_4_5[0])
+    assert line_5.coordinate_on_entity(intersection_4_5[0])
+    # draw_objects_debug([line_4, line_5, intersection_4_5[0]])
+
+    # Arc intersection with point, not valid, should raise exception
+    with pytest.raises(Exception) as e_info:
+        arc_1.get_intersection(coordinate)  # noqa
+
+    # Line intersection with point, not valid, should raise exception
+    with pytest.raises(Exception) as e_info:
+        line_1.get_intersection(coordinate)  # noqa
+
+
 def test_arc_from_coordinates():
     c1 = Coordinate(1, 0)
     c2 = Coordinate(sin(pi / 4), sin(pi / 4))
@@ -1894,14 +3187,14 @@ def test_region_rotate():
     p2 = Coordinate(5, 0)
     p3 = Coordinate(0, 5)
 
-    r1 = Region()
+    r1 = Region(RegionType.stator_air)
     r1.add_entity(Line(p1, p2))
     r1.add_entity(Arc(p2, p3, radius=10))
     r1.add_entity(Line(p3, p1))
 
     p4 = Coordinate(10, 5)
     p5 = Coordinate(5, 5)
-    r2 = Region()
+    r2 = Region(RegionType.stator_air)
     r2.add_entity(Arc(p2, p4, radius=10))
     r2.add_entity(Line(p4, p5))
     r2.add_entity(Line(p5, p2))
@@ -1916,7 +3209,7 @@ def test_region_translate():
     p1 = Coordinate(0, 0)
     p2 = Coordinate(5, 0)
     p3 = Coordinate(0, 5)
-    r1 = Region()
+    r1 = Region(RegionType.stator_air)
     r1.add_entity(Line(p1, p2))
     r1.add_entity(Arc(p2, p3, radius=10))
     r1.add_entity(Line(p3, p1))
@@ -1924,7 +3217,7 @@ def test_region_translate():
     p4 = Coordinate(3, -2)
     p5 = Coordinate(8, -2)
     p6 = Coordinate(3, 3)
-    r2 = Region()
+    r2 = Region(RegionType.stator_air)
     r2.add_entity(Line(p4, p5))
     r2.add_entity(Arc(p5, p6, radius=10))
     r2.add_entity(Line(p6, p4))
@@ -1959,11 +3252,13 @@ def test_get_set_region_magnet(mc):
     assert magnet.br_value == 1.31
     assert magnet.br_used == 1.31 * 2
 
+    magnet.magnet_polarity = "S"
+
     mc.set_region(magnet)
     magnet = mc.get_region("L1_1Magnet2")
     assert magnet.br_multiplier == 2
     assert magnet.magnet_angle == 0
-    assert magnet.magnet_polarity == "N"
+    assert magnet.magnet_polarity == "S"
     assert isclose(magnet.br_x, 1.31 * 2, abs_tol=1e-3)
     assert isclose(magnet.br_y, 0, abs_tol=1e-3)
     assert magnet.br_value == 1.31
@@ -1979,7 +3274,7 @@ def test_get_set_region_compatibility(mc, monkeypatch):
     with pytest.warns(UserWarning):
         mc.set_region(test_region)
 
-    test_region = Region()
+    test_region = Region(RegionType.stator_air)
     test_region.mesh_length = 0.1
 
     with pytest.warns(UserWarning):
@@ -1995,16 +3290,16 @@ def test_region_material_assignment(mc):
     assert rotor == mc.get_region("Rotor")
 
 
-def test_set_lamination_type(mc):
-    rotor = mc.get_region("Rotor")
+def test_set_lamination_type(mc_reset_to_default_on_teardown):
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Laminated"
 
     rotor._region_type = RegionType.adaptive
     # We don't get lamination type for normal regions yet
     rotor.lamination_type = "Solid"
-    mc.set_region(rotor)
+    mc_reset_to_default_on_teardown.set_region(rotor)
 
-    rotor = mc.get_region("Rotor")
+    rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
     solid_rotor_section_file = (
@@ -2024,18 +3319,97 @@ def test_set_lamination_type(mc):
     )
 
     # load file into Motor-CAD
-    mc.load_from_file(solid_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(solid_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(solid_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(solid_rotor_section_result, 1)
     # Check eddy current to make sure rotor is solid
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res != 0
 
-    mc.load_from_file(lam_rotor_section_file)
-    mc.do_magnetic_calculation()
-    mc.load_fea_result(lam_rotor_section_result, 1)
+    mc_reset_to_default_on_teardown.load_from_file(lam_rotor_section_file)
+    mc_reset_to_default_on_teardown.do_magnetic_calculation()
+    mc_reset_to_default_on_teardown.load_fea_result(lam_rotor_section_result, 1)
     # Check eddy current to make sure rotor is laminated
-    res, units = mc.get_point_value("Je", -9, -20)
+    res, units = mc_reset_to_default_on_teardown.get_point_value("Je", -9, -20)
     assert res == 0
 
-    reset_to_default_file(mc)
+
+def test_region_creation_warnings(mc):
+    with pytest.warns():
+        _ = Region()
+    with pytest.warns():
+        _ = Region(mc)
+
+
+def test_set_get_magnetisation_directions(mc):
+    magnet_region = mc.get_region("L1_1Magnet2")
+
+    # test case 1
+    magnet_region.magnetisation_direction = MagnetisationDirection.radial
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.radial.value
+
+    # test case 2
+    magnet_region.magnetisation_direction = MagnetisationDirection.parallel
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.parallel.value
+
+    # test case 3
+    magnet_region.magnetisation_direction = MagnetisationDirection.function
+    magnet_region.magnetisation_function_amplitude = "1.125"
+    magnet_region.magnetisation_function_angle = "(1-Pole_Number / 2) * theta + 180"
+
+    mc.set_region(magnet_region)
+    magnet_region = mc.get_region("L1_1Magnet2")
+    assert magnet_region.magnetisation_direction.value == MagnetisationDirection.function.value
+    assert magnet_region.magnetisation_function_amplitude == "1.125"
+    assert magnet_region.magnetisation_function_angle == "(1-Pole_Number / 2) * theta + 180"
+
+
+def test_copying(mc):
+    stator = mc.get_region("stator")
+
+    copy_region = copy(stator)
+
+    assert copy_region == stator
+    assert copy_region._raw_region == dict()
+    deepcopy_region = deepcopy(stator)
+
+    assert deepcopy_region == stator
+    assert deepcopy_region._raw_region == dict()
+
+
+def test_get_bezier_points():
+    # Control points make a triangle with a height of 1
+    control_points = [Coordinate(0, 0), Coordinate(0.5, 1), Coordinate(1, 0)]
+    result_points = get_bezier_points(control_points, 3)
+
+    # End points should match control points
+    assert isclose(result_points[0].x, control_points[0].x)
+    assert isclose(result_points[0].y, control_points[0].y)
+
+    assert isclose(result_points[2].x, control_points[2].x)
+    assert isclose(result_points[2].y, control_points[2].y)
+
+    # Mid point should be half the height of the triangle
+    assert isclose(result_points[1].x, 0.5)
+    assert isclose(result_points[1].y, 0.5)
+
+
+def test_region_creation_type(mc):
+    new_region_1 = Region("rotor_air")
+    assert new_region_1.region_type == RegionType.rotor_air
+
+    with pytest.warns():
+        # This should give us a warning that the region type is the first argument
+        new_region_2 = Region(mc)
+
+    with pytest.raises(Exception):
+        # This should give us an exception that the region name isn't valid
+        new_region_2 = Region("not_a_motorcad_region")
+
+    with pytest.raises(Exception):
+        # Passing in something that's not a string or motorcad object should give an exception
+        new_region_3 = Region(1)

@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +29,12 @@ from ansys.motorcad.core.geometry import (
     EntityList,
     Line,
     Region,
+    RegionType,
     rt_to_xy,
-    xy_to_rt,
 )
 
 
-def square(width, r_O, th_O):
+def square(width, r_O, th_O, region_type=RegionType.adaptive, motorcad_instance=None):
     """Create a square of given width at a given set of coordinates.
 
     Parameters
@@ -45,42 +45,17 @@ def square(width, r_O, th_O):
         Radial coordinate of the square centre.
     th_O : float
         Angular coordinate of the square centre.
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected.
 
     Returns
     -------
     this_square : ansys.motorcad.core.geometry.Region
-        Region type with four Line entity types.
+        Region object with four Line entity types.
     """
     x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D = _square_coordinates(width, r_O, th_O)
-
-    r_A, th_A = xy_to_rt(x_A, y_A)
-    r_B, th_B = xy_to_rt(x_B, y_B)
-    r_C, th_C = xy_to_rt(x_C, y_C)
-    r_D, th_D = xy_to_rt(x_D, y_D)
-
-    # Check none cross lower boundary
-    lower_angles = [th_D, th_C]
-    shift_angle = 0
-    for th in lower_angles:
-        if th < 0:
-            if abs(th) > shift_angle:
-                shift_angle = abs(th)
-    duplication_angle = 45
-    # Check none cross upper boundary
-    upper_angles = [th_A, th_B]
-    for th in upper_angles:
-        if th > duplication_angle:
-            if (th - duplication_angle) > abs(shift_angle):
-                shift_angle = -abs(th - duplication_angle)
-
-    if shift_angle != 0:
-        print(
-            "Square coordinate not valid: square rotated by "
-            + str(shift_angle)
-            + " mechanical degrees."
-        )
-        th_O_new = th_O + shift_angle
-        x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D = _square_coordinates(width, r_O, th_O_new)
 
     p_A = Coordinate(x_A, y_A)
     p_B = Coordinate(x_B, y_B)
@@ -93,7 +68,7 @@ def square(width, r_O, th_O):
     line_CB = Line(p_C, p_B)
     line_BA = Line(p_B, p_A)
 
-    this_square = Region()
+    this_square = Region(region_type=region_type, motorcad_instance=motorcad_instance)
     this_square.entities = EntityList([line_AD, line_DC, line_CB, line_BA])
 
     return this_square
@@ -156,7 +131,7 @@ def _square_coordinates(width, r_O, th_O):
     return x_A, y_A, x_B, y_B, x_C, y_C, x_D, y_D
 
 
-def eq_triangle_h(height, r_O, th_O):
+def eq_triangle_h(height, r_O, th_O, region_type=RegionType.adaptive, motorcad_instance=None):
     """Create an equilateral triangle of given height at a given set of coordinates.
 
     Parameters
@@ -167,11 +142,15 @@ def eq_triangle_h(height, r_O, th_O):
         Radial coordinate of the triangle centre.
     th_O : float
         Angular coordinate of the triangle centre.
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected.
 
     Returns
     -------
     this_triangle : ansys.motorcad.core.geometry.Region
-        Region type with three Line entity types.
+        Region object with three Line entity types.
     """
     x_O, y_O = rt_to_xy(r_O, th_O)
 
@@ -202,13 +181,13 @@ def eq_triangle_h(height, r_O, th_O):
     line_CB = Line(p_C, p_B)
     line_BA = Line(p_B, p_A)
 
-    this_triangle = Region()
+    this_triangle = Region(region_type=region_type, motorcad_instance=motorcad_instance)
     this_triangle.entities = EntityList([line_AC, line_CB, line_BA])
 
     return this_triangle
 
 
-def eq_triangle_w(width, r_O, th_O):
+def eq_triangle_w(width, r_O, th_O, region_type=RegionType.adaptive, motorcad_instance=None):
     """Create an equilateral triangle of given width at a given set of coordinates.
 
     Parameters
@@ -219,19 +198,27 @@ def eq_triangle_w(width, r_O, th_O):
         Radial coordinate of the triangle centre.
     th_O : float
         Angular coordinate of the triangle centre.
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected.
 
     Returns
     -------
     this_triangle : ansys.motorcad.core.geometry.Region
-        Region type with three Line entity types.
+        Region object with three Line entity types.
     """
     height = sqrt(3) * width / 2
-    this_triangle = eq_triangle_h(height, r_O, th_O)
+    this_triangle = eq_triangle_h(
+        height, r_O, th_O, region_type=region_type, motorcad_instance=motorcad_instance
+    )
 
     return this_triangle
 
 
-def triangular_notch(radius, sweep, centre_angle, depth):
+def triangular_notch(
+    radius, sweep, centre_angle, depth, region_type=RegionType.adaptive, motorcad_instance=None
+):
     """Create a triangular notch for a rotor or stator at given angular position with given size.
 
     Parameters
@@ -244,11 +231,15 @@ def triangular_notch(radius, sweep, centre_angle, depth):
         Angle value, angular coordinate of the notch centre.
     depth : float
         Depth value, depth of the notch.
+    region_type: RegionType or str
+        Type of region. String must be a valid RegionType.
+    motorcad_instance: ansys.motorcad.core.MotorCAD
+        Motor-CAD instance currently connected.
 
     Returns
     -------
     this_triangular_notch : ansys.motorcad.core.geometry.Region
-        Region type with two Line and one Arc entity types.
+        Region object with two Line and one Arc entity types.
     """
     # calculate necessary angles for the coordinate calculation
     rotor_centre = Coordinate(0, 0)
@@ -271,7 +262,7 @@ def triangular_notch(radius, sweep, centre_angle, depth):
     airgap_arc = Arc(p1, p3, rotor_centre, radius)
 
     # create the triangular notch region and add the 2 lines and 1 arc to the region
-    this_triangular_notch = Region()
+    this_triangular_notch = Region(region_type=region_type, motorcad_instance=motorcad_instance)
     this_triangular_notch.entities = EntityList([line_1, line_2, airgap_arc])
 
     return this_triangular_notch

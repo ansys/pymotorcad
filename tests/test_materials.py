@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 
 import pytest
 
-from RPC_Test_Common import almost_equal
+from RPC_Test_Common import almost_equal, get_dir_path
 from ansys.motorcad.core import MotorCADError
 
 
@@ -43,3 +43,21 @@ def test_set_get_component_material(mc):
 def test_set_fluid(mc):
     mc.set_fluid("WetRotorFluid", "Engine Oil (Unused)")
     assert almost_equal(mc.get_variable("Wet_Rotor_Fluid_Dynamic_Viscosity"), 0.2103, 4)
+
+
+def test_get_solid_database(mc):
+    solid_db = mc._get_solid_database()
+    assert len(solid_db) > 0
+
+    if len(solid_db) > 0:
+        assert solid_db[0]["Name"] != ""
+
+
+def test_select_material_database(mc_reset_to_default_on_teardown):
+    mc_reset_to_default_on_teardown.select_material_database(
+        get_dir_path() + r"\test_files\dummy_materials.mdb", False
+    )
+
+    solid_db = mc_reset_to_default_on_teardown._get_solid_database()
+    # materials alphabetically sorted
+    assert solid_db[-1]["Name"] == "ZZZ"

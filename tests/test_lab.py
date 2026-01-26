@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,9 +23,12 @@
 # from os import path, remove
 # import time
 
+import os
+
+from openpyxl import load_workbook
 import pytest
 
-from RPC_Test_Common import reset_to_default_file  # (get_dir_path,
+from RPC_Test_Common import almost_equal_percentage, reset_to_default_file  # (get_dir_path,
 
 
 def test_model_build_lab(mc):
@@ -170,6 +173,55 @@ def test_external_custom_loss_functions(mc):
 
     mc.remove_external_custom_loss(removed_name)
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
+
+
+def test_export_concept_ev_model(mc):
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e9")
+    # run Efficiency Map calculation
+    mc.calculate_magnetic_lab()
+    file_path = mc.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
+    mc.export_concept_ev_model(
+        Max_speed=10000, Min_speed=0, Speed_step=500, I_max=480, I_min=1, I_inc=30, Op_mode=2
+    )
+    assert os.path.exists(file_path) is True
+    wb = load_workbook(file_path)
+    assert "Shaft_Torque" in wb.sheetnames
+    assert "Voltages" in wb.sheetnames
+    assert "Speed" in wb.sheetnames
+    assert "Stator_Current_Line_RMS" in wb.sheetnames
+    assert "Total_Loss" in wb.sheetnames
+    assert "Power_Factor" in wb.sheetnames
+    assert "Units" in wb.sheetnames
+    speed_sheet = wb["Speed"]
+    assert speed_sheet.max_row == 21
+    assert speed_sheet.max_column == 60
+    torque_sheet = wb["Shaft_Torque"]
+    assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 274.16, 0.1)
+    reset_to_default_file(mc)
+    # check sync
+    mc.set_variable("MessageDisplayState", 2)
+    mc.load_template("e3")
+    # run Efficiency Map calculation
+    mc.calculate_magnetic_lab()
+    file_path = mc.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
+    mc.export_concept_ev_model(
+        Max_speed=10000,
+        Min_speed=0,
+        Speed_step=500,
+        I_max=480,
+        Rotor_current_max=10,
+        I_inc=30,
+        Op_mode=2,
+    )
+    assert os.path.exists(file_path) is True
+    wb = load_workbook(file_path)
+    assert "Shaft_Torque" in wb.sheetnames
+    assert "Voltages" in wb.sheetnames
+    assert "Speed" in wb.sheetnames
+    torque_sheet = wb["Shaft_Torque"]
+    assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 227.89, 0.1)
+    reset_to_default_file(mc)
 
 
 # def test_lab_model_export(mc):

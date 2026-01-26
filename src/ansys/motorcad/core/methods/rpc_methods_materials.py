@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -160,4 +160,26 @@ class _RpcMethodsMaterials:
         """
         method = "SaveMagnetParameters"
         params = [material_name]
+        return self.connection.send_and_receive(method, params)
+
+    def _get_solid_database(self):
+        """BETA - get the solid database from Motor-CAD."""
+        self.connection.ensure_version_at_least("2026.0")
+        method = "GetSolidDatabase"
+        return self.connection.send_and_receive(method)
+
+    def select_material_database(self, database_file_path, set_as_default):
+        """Select and load a material database to be used in Motor-CAD.
+
+        Parameters
+        __________
+        database_file_path : str
+            File path pointing to the material database (.mdb) to be used in Motor-CAD.
+
+        set_as_default : bool
+            Whether specified database should be used as the default solids database.
+        """
+        self.connection.ensure_version_at_least("2026.0")
+        method = "SetSolidDatabase"
+        params = [database_file_path, set_as_default]
         return self.connection.send_and_receive(method, params)

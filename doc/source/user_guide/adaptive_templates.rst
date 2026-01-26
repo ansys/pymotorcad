@@ -157,12 +157,19 @@ Adaptive Parameters. Adaptive Parameters are shown in the
     **Geometry -> Editor -> Adaptive Parameters** tab in Ansys Motor-CAD 2024 R1
 
 Any parameter can be defined, with a name, value, and description. Parameters can be added within
-the Motor-CAD interface, or with a Python script by using the ``set_adaptive_parameter_value()``
-method from ``ansys.motorcad.core``:
+the Motor-CAD interface, or with a Python script. You can define an Adaptive Parameter, along with a
+default parameter value, in the Adaptive Templates script. To do so, use the
+``set_adaptive_parameter_default()`` method from ``ansys.motorcad.core``:
 
 .. code:: python
 
-    mc.set_adaptive_parameter_value("Notches per Pole", 2)
+    mc.set_adaptive_parameter_default("Notches per Pole", 2)
+
+This checks whether the Adaptive Parameter already exists. If the parameter does not exist, it
+creates the parameter and sets the value to the specified default value. If the parameter already
+exists in Motor-CAD, the current value is kept and it is **not** set to the default value. To
+set an Adaptive Parameter value, you can use the ``set_adaptive_parameter_value()`` method from
+``ansys.motorcad.core``.
 
 Adaptive Parameters also appear in the **Geometry -> Radial** tab, alongside the Standard Template
 parameters.
@@ -187,7 +194,7 @@ As well as the defined Adaptive Parameters, any parameter from Motor-CAD can be 
 Templates script by using the ``get_variable()`` method from PyMotorCAD. Any Motor-CAD API
 accessible by PyMotorCAD is available.
 
-For example, when modifying the rotor geometry, it is often necessary to retrieve the rotor radius:
+For example, when modifying the rotor geometry, it is often useful to retrieve the rotor radius:
 
 .. code:: python
 
@@ -216,7 +223,13 @@ To create a new region to represent the notch, use the Region object from
 
 .. code:: python
 
-    notch = Region()
+    from ansys.motorcad.core.geometry import Region, RegionType
+
+    notch = Region(region_type=RegionType.rotor_air)
+
+When creating new regions, it is recommended to set the
+``RegionType`` to the appropriate type of geometry component. For a full list of available region
+types, see the ``RegionType`` entry under :ref:`ref_geometry_functions`.
 
 Defining region properties and parent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -233,8 +246,8 @@ If the region object of the rotor has been created in Python (``rotor = mc.get_r
 the rotor region object's properties can be obtained and set for the rotor notch.
 
 The ``Region.duplications`` property represents the symmetry of the region. In the example shown
-using the e9 IPM template, ``duplications = 8`` because there are 8 rotor poles of 45 ° symmetry.
-In this example, the notch would have the same symmetry as the rotor.
+using the e9 IPM template, ``duplications = 8`` because there are **8** rotor poles of **45 °**
+symmetry. In this example, the notch would have the same symmetry as the rotor.
 
 The parent region of the notch can be set to the rotor region so that the notch is set as a
 sub-region. Motor-CAD uses implicit subtractions so that the notch subtraction is handled
@@ -249,6 +262,9 @@ automatically. The notch appears as a sub-region of the rotor in tree shown in t
 Adding entities to a region
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The geometry of a Region is made up of entities (Line and Arc objects). When entities are added to
+a Region, they **must** be added in anticlockwise order.
+
 To add two Lines ``line_1, line_2`` and an Arc ``airgap_arc`` to the notch region, use the
 ``Region.add_entity()`` function from ``ansys.motorcad.core.geometry``:
 
@@ -258,7 +274,26 @@ To add two Lines ``line_1, line_2`` and an Arc ``airgap_arc`` to the notch regio
     notch.add_entity(line_2)
     notch.add_entity(airgap_arc)
 
-Line and Arc entities can be defined using Motor-CAD Coordinate objects.
+Line and Arc entities can be defined using Motor-CAD Coordinate objects. The ``Region.add_entity()``
+method adds an entity to the Region at the end of the entity list. Alternatively, the
+``Region.insert_entity()`` method inserts an entity at a specified index of the entity list,
+allowing new entities to be inserted between two existing entities.
+
+.. figure:: ../images/adaptive_templates/user_guide_notch.png
+    :width: 200pt
+
+    Three entities, **e0** (``line_1``), **e1** (``line_2``) and **e2** (``airgap_arc``), making up
+    a triangular notch Region. The entities are in order going anti-clockwise around the Region.
+
+Because the entities have been correctly added in anti-clockwise order:
+
+* The end point ``line_1.end`` is the start point ``line_2.start`` (**p1**),
+
+* the end point ``line_2.end`` is the start point ``airgap_arc.start`` (**p2**) and
+
+* the end point ``airgap_arc.end`` is the start point ``line_1.start`` (**p0**).
+
+This means that the Region is closed and could be set in Motor-CAD.
 
 Setting a region in Motor-CAD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -273,6 +308,9 @@ a closed region.
 
     if notch.is_closed():
         mc.set_region(notch)
+
+Attempting to set a Region in Motor-CAD that is not closed, or where the entities are not in
+anti-clockwise order, may cause issues with the geometry and the FEA calculation may fail.
 
 Using the geometry shapes library
 ---------------------------------
@@ -334,50 +372,101 @@ Create and modify adaptive templates scripts
 ********************************************
 
 Adaptive Template Scripts should be created outside Motor-CAD, using a Python Integrated Development
-Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the script, allowing
-access to autocompletion, code correction and other features which are not available in the
-Motor-CAD scripting interface.
+Environment (IDE) (for example PyCharm or VSCode). Using an IDE allows for faster creation of the
+script, allowing access to autocompletion, code correction and other features which are not
+available in the Motor-CAD scripting interface.
 
 This is essential when writing complex scripts, allowing issues with the script to be fixed and the
 inspection of Python objects, such as geometry regions from Motor-CAD.
 
-For more information on the Synchronous Reluctance machine geometry with curved flux barriers used
-for this example, see :ref:`ref_SYNC_Curve_Flux_Barriers`.
-
 Working on the adaptive templates script
 ----------------------------------------
-Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). When
-using an external IDE, it is important to ensure that the script contains this method before
-getting or setting any Motor-CAD geometry:
+it is important to ensure that the Adaptive Template script contains this method before getting or
+setting any Motor-CAD geometry:
 
 .. code:: python
 
     mc.reset_adaptive_geometry()
 
+Adaptive Templates scripts can be edited from an external IDE (for example PyCharm or VSCode). To
+work on an Adaptive Templates script in an IDE, go to the
+**Geometry -> Editor -> Adaptive Templates** tab and select **Adaptive** under
+**Geometry Templates Type**. Save the script to a convenient location, and tick the
+**Use External IDE** option. The Adaptive Templates script is greyed-out and unavailable to edit
+within the Motor-CAD GUI when this option is selected.
+
+To open the Adaptive Templates script file in your default IDE, click **Open with default**. To
+choose a specific IDE, click **Open with**.
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE.png
+    :width: 500pt
+
+    **Use External IDE** options in the Motor-CAD GUI.
+
+Adaptive Templates scripts should use the ``open_new_instance=False`` option when connecting to
+Motor-CAD.
+
+.. code:: python
+
+    mc = pymotorcad.MotorCAD(open_new_instance=False)
+
+Once the Adaptive Templates script is opened in the IDE, you can take advantage of functions such as
+doc strings and debugging when working on the script. The Adaptive Templates script can be run within
+the IDE, and the commands communicate with the open Motor-CAD instance when the
+``open_new_instance=False`` option is used.
+
+For example, you can add a break point and run a script in debug mode to investigate the variables.
+In the screenshot below, a break point has been added to pause the script before setting a new notch
+region in Motor-CAD. Looking into the variables, you can find the ``notch`` region object and
+investigate its attributes and properties. It has 3 entities (two Line objects and one Arc object).
+
+.. figure:: ../images/adaptive_templates/user_guide_IDE_2.png
+    :width: 500pt
+
+    Using a break point in an Adaptive Template script to investigate variables.
+
+This is a useful tool when working on a Python script, such as an Adaptive Templates script. You can
+look into the properties of the Region object, as well as those of the entities such as the start,
+end and midpoint coordinates, the angles of Line objects, the radii of Arc objects.
+
+IDEs (for example PyCharm or VSCode) have a lot of useful features for editing Python scripts. It is
+much easier and more efficient to use an IDE to develop Adaptive Templates scripts, rather than the
+editor within the Motor-CAD GUI. The Motor-CAD GUI is best suited for making small edits to a
+script.
+
 Drawing geometry objects
 ------------------------
 When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
 feature to plot the geometry objects and regions. ``ansys.motorcad.core.geometry_drawing`` contains
-the ``draw_objects_debug()`` function, which can be used to plot any region that has been defined in
-Python. This function only plots regions when called from an external IDE to assist with debugging
-scripts. To plot regions from the Motor-CAD scripting interface, use the ``draw_objects()``
-function.
+the ``draw_objects()`` function, which can be used to plot any region that has been defined in
+Python.
+
+By default, this function only plots regions when called from an external IDE to assist with
+debugging scripts. To plot regions from the Motor-CAD scripting interface, use the option
+``draw_objects(objects, draw_internal=True)``.
+
+It can also be useful to draw the points and region labels, which can be enabled using the options
+``draw_objects(objects, label_regions=True, draw_points=True)``. For more information on the
+different options available with the ``draw_objects()`` function, see :ref:`ref_geometry_drawing`.
 
 The geometry drawing package can be imported:
 
 .. code:: python
 
-    from ansys.motorcad.core.geometry_drawing import draw_objects_debug
+    from ansys.motorcad.core.geometry_drawing import draw_objects
 
 In the :ref:`ref_SYNC_Curve_Flux_Barriers` example, curved flux barrier (rotor pockets) region
-objects are added to a list, ``pockets_all_layers``. The ``draw_objects_debug()`` function can be
-used to plot the regions:
+objects are added to a list, ``pockets_all_layers``. For more information on the Synchronous
+Reluctance machine geometry with curved flux barriers used for this example, see
+:ref:`ref_SYNC_Curve_Flux_Barriers`.
+
+The ``draw_objects()`` function can be used to plot the regions:
 
 .. code:: python
 
-    draw_objects_debug(pockets_all_layers)
+    draw_objects(pockets_all_layers, label_regions=True, draw_points=True)
 
-.. figure:: ../images/Adaptive_Geometry_Drawing_all.png
+.. figure:: ../images/Adaptive_Geometry_Drawing_all_updated.png
     :width: 500pt
 
     Plot of rotor pocket regions drawn using the ``draw_objects()`` function.
@@ -415,7 +504,176 @@ As with any region object, it is set in the Motor-CAD model using the ``set_regi
 imported region then appears under **Template** in the Geometry tree shown in the
 **Geometry -> Editor -> Geometry** tab in Motor-CAD.
 
+Best practices for Adaptive Templates scripting
+***********************************************
 
+Adaptive Templates scripts in Motor-CAD can be used in many different ways to customise the electric
+machine geometry. Some approaches are more challenging than others. For some types of geometry
+customisation, there are some recommended approaches and best practices that should be followed.
+
+Modifying stator slot openings
+------------------------------
+
+When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
+practices which may be followed to make the process simpler.
+
+If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
+parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
+conductors in the updated slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_1.png
+    :width: 600pt
+
+    A Motor-CAD stator geometry where the stator slot has been modified to be narrower at the slot
+    opening. The **Stator** region (red, shaded) intersects the **ArmatureSlot** regions (yellow)
+    and the **Wedge** region (grey). The **Copper Depth [%]** is still set to **100 %**, so the
+    **ArmatureSlot** regions are still being drawn based on the unmodified Standard Template
+    geometry.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_2.png
+    :width: 500pt
+
+    The **Winding -> Definition** tab in Motor-CAD. Setting the **Copper Depth [%]** to **84 %**
+    means that the conductors, impregnation and slot liner now only fill 84 % of the slot. This
+    reflects the amount of space available in the modified slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_3.png
+    :width: 600pt
+
+    With the updated **Copper Depth [%]**, the **Stator** region (red, shaded) no longer intersects
+    the **ArmatureSlot** regions, only the **Wedge** region (grey).
+
+To modify the shape of the **Wedge** region based on a modified **Stator** slot geometry, subtract
+the **Stator** region from the **Wedge**:
+
+.. code:: python
+
+    wedge = mc.get_region("Wedge")
+    wedge.subtract(modified_stator)
+    mc.set_region(wedge)
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_4.png
+    :width: 600pt
+
+    When the **Wedge** region has been modified by subtracting the modified **Stator** region, the
+    custom stator slot geometry is complete.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_5.png
+    :width: 500pt
+
+    The updated stator slot can also be visualised in the **Winding -> Definition** tab, now that
+    the wedge has been updated.
+
+
+
+Rounding corners of geometry regions with Adaptive Templates
+------------------------------------------------------------
+
+The Motor-CAD Standard Template geometry has options for automatic corner rounding of the rotor
+lamination and magnets (found on the **Input Data -> Settings -> Geometry** tab). When corner
+rounding is enabled, the sharp corners of regions are modified, inserting Arc entities at the
+corners.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_1.png
+    :width: 750pt
+
+    The e10 IPM template rotor geometry in Motor-CAD without (left) and with (right) corner rounding
+    enabled for the rotor lamination and magnets.
+
+Looking closely at an the e10 IPM Motor-CAD template example, when corner rounding is not enabled,
+the **Rotor Pocket** regions have an inner corner formed by two Line entities (entity 3 and 4).
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_2.png
+    :width: 500pt
+
+    A corner made up of two Line entities (entity 3 and 4).
+
+When corner rounding is enabled, the **Rotor Pocket** region is made up of a larger number of
+entities. The same corner is now formed from two Line entities (entity 7 and 9) with an Arc between
+them (entity 8). The lines have been shortened and an Arc has been inserted between them at the
+corner.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_3.png
+    :width: 500pt
+
+    A corner made up of two Line entities (entity 7 and 9) and an Arc (entity 8).
+
+When customising a Motor-CAD geometry with Adaptive Templates, it is much simpler to modify the
+geometry when corner rounding is **not selected**. This is because there will be fewer entities
+forming the regions (such as the rotor pocket and magnet regions). It is recommended to set the
+**Corner Rounding (Rotor Lamination)** and **Corner Rounding (Magnets)** parameters on the
+**Input Data -> Settings -> Geometry** tab to **None (default)**.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_4.png
+    :width: 500pt
+
+    The **Input Data -> Settings -> Geometry** tab in Motor-CAD, showing the corner rounding options
+    for the Standard Template geometry.
+
+The recommended best practice when using Adaptive Templates, is to first create the custom geometry
+with 'sharp' corners, and subsequently round the corners. The ``Region.round_corner()`` and
+``Region.round_corners()`` methods can be used for automatically shortening the adjacent entities of
+a corner, and inserting an Arc.
+
+Considering the :ref:`ref_Trapezoidal_Ducts` example, where a Standard Template geometry is set up
+with rectangular rotor ducts and the ducts are modified with Adaptive Templates to form trapezoid
+shapes. Rectangular ducts in Motor-CAD have a corner radius parameter (separate from the
+**Corner Rounding (Rotor Lamination)** parameter discussed earlier), which should be set to **0 mm**
+when the rectangular duct is to be modified with Adaptive Templates. In this example, the ducts are
+modified by shortening the top line of the rectangular duct according to an Adaptive Parameter
+value. For the full example, see :ref:`ref_Trapezoidal_Ducts`.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_5.png
+    :width: 750pt
+
+    Standard Template geometry with a rectangular rotor duct (left) and Adaptive Templates geometry
+    where the duct has been modified into a trapezoid shape (right).
+
+Once the ducts have been modified to form trapezoid shapes, the corners can be rounded using the
+``Region.round_corners()`` method before the updated Region is set in Motor-CAD. This method
+requires two arguments:
+
+* The corner coordinates that are to be rounded
+
+* A corner radius to be applied to all corners
+
+To get a list of all the region points, you can use ``duct_region.points``.
+
+.. code:: python
+
+    # edit the rectangular duct to form trapezoid duct:
+    duct_region.edit_point(entity.start, new_start_point)
+    duct_region.edit_point(entity.end, new_end_point)
+
+    # draw the trapezoidal duct region before rounding the corners
+    draw_objects(duct_region, label_regions=True, draw_points=True)
+
+    # round the trapezoidal duct corners
+    duct_region.round_corners(duct_region.points, 1.5)
+
+    # draw the rounded trapezoidal duct region
+    draw_objects(duct_region, label_regions=True, draw_points=True)
+
+    # set the modified duct region in Motor-CAD
+    mc.set_region(duct_region)
+
+For each of the corner coordinates, the ``Region.round_corners()`` method shortens the entities that
+are adjacent to the corners and inserts Arc entities with the specified corner radius (**1.5 mm**).
+The result is a modified Region with rounded corners.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_6.png
+    :width: 750pt
+
+    Figures plotted using the ``draw_objects()`` function of a trapezoidal rotor duct without (left)
+    and with (right) corners rounded by a radius of **1.5 mm**.
+
+.. figure:: ../images/adaptive_templates/user_guide_corner_rounding_7.png
+    :width: 400pt
+
+    The updated rotor geometry with trapezoidal rotor duct in Motor-CAD.
+
+To apply different corner radii for each corner, you can use the ``Region.round_corner()`` method
+and round corners individually.
 
 
 

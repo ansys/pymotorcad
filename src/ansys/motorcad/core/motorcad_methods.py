@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,6 +42,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         keep_instance_open=False,
         url="",
         timeout=2,
+        use_blackbox_licence=None,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -52,6 +53,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             keep_instance_open,
             url=url,
             timeout=timeout,
+            use_blackbox_licence=use_blackbox_licence,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -78,6 +80,10 @@ class MotorCAD(_MotorCADCore):
         Whether to keep the Motor-CAD instance open after the instance becomes free.
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+    use_blackbox_licence: Boolean, default: None
+        Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
+        behaviour will be used.
+
     Returns
     -------
     MotorCAD object.
@@ -92,6 +98,7 @@ class MotorCAD(_MotorCADCore):
         reuse_parallel_instances=False,
         keep_instance_open=False,
         url="",
+        use_blackbox_licence=None,
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -103,6 +110,7 @@ class MotorCAD(_MotorCADCore):
             reuse_parallel_instances=reuse_parallel_instances,
             keep_instance_open=keep_instance_open,
             url=url,
+            use_blackbox_licence=use_blackbox_licence,
         )
 
 

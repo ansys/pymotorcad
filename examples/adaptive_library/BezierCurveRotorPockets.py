@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -68,11 +68,8 @@ import shutil
 import sys
 import tempfile
 
-import bezier
-import numpy as np
-
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, get_bezier_points, rt_to_xy
 from ansys.motorcad.core.geometry_fitting import return_entity_list
 
 # %%
@@ -95,7 +92,8 @@ else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
     mc.set_variable("MessageDisplayState", 2)
-    mc.set_visible(True)
+    if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+        mc.set_visible(True)
     mc.load_template("e4a")
 
     # Set Standard Template geometry ready for Adaptive Templates script
@@ -122,21 +120,13 @@ mc.reset_adaptive_geometry()
 # %%
 # Set adaptive parameter if required
 # ----------------------------------
-# The ``set_default_parameter`` function is defined to check if a parameter exists. If not,
+# The ``set_adaptive_parameter_default`` function checks if a parameter exists. If not,
 # it creates the parameter with a default value.
-def set_default_parameter(parameter_name, default_value):
-    try:
-        mc.get_adaptive_parameter_value(parameter_name)
-    except pymotorcad.MotorCADError:
-        mc.set_adaptive_parameter_value(parameter_name, default_value)
-
-
-# %%
-# Use the ``set_default_parameter()`` function to set the required ``L1 Bezier Curve Projection``,
-# ``L1 Upper Convex`` and ``L1 Lower Concave`` parameters if undefined.
-set_default_parameter("L1 Bezier Curve Projection", 6)
-set_default_parameter("L1 Upper Convex", 0.5)
-set_default_parameter("L1 Lower Concave", -0.3)
+# Set the required ``L1 Bezier Curve Projection``, ``L1 Upper Convex`` and ``L1 Lower Concave``
+# parameters if undefined.
+mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 6)
+mc.set_adaptive_parameter_default("L1 Upper Convex", 0.5)
+mc.set_adaptive_parameter_default("L1 Lower Concave", -0.3)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier
@@ -208,40 +198,21 @@ Rotor_Pocket_regions[0].entities.clear()
 # %%
 # Define the x-y points that are to be used to draw the new rotor pocket. The points are defined
 # relative to a vertical magnet edge (parallel to the y axis).
-xlist = np.array(
-    [
-        0.0,
-        totalprojection * -0.2,
-        totalprojection * -0.5,
-        -1 * totalprojection,
-        totalprojection * -0.5,
-        0.0,
-    ]
-)
-ylist = np.array([0, 1 - 1 * lowerconcave, -0.5, 0.5, 1 + upperconvex, 1]) * LineLength
 
-# %%
-# Define nodes from points and create curve using bezier
-nodes2 = np.asfortranarray(
-    [
-        xlist,
-        ylist,
-    ]
-)
-curve2 = bezier.Curve.from_nodes(nodes2)
+control_points = [
+    Coordinate(0.0, 0),
+    Coordinate(totalprojection * -0.2, (1 - 1 * lowerconcave) * LineLength),
+    Coordinate(totalprojection * -0.5, -0.5 * LineLength),
+    Coordinate(-1 * totalprojection, 0.5 * LineLength),
+    Coordinate(totalprojection * -0.5, (1 + upperconvex) * LineLength),
+    Coordinate(0.0, 1 * LineLength),
+]
+
 
 # %%
 # Create set of points for drawing the calculated bezier curve
 num_pts = 256
-s_vals = np.linspace(0.0, 1.0, num_pts)
-points2 = curve2.evaluate_multi(s_vals)
-
-# %%
-# Add the points as ``Coordinate`` objects to a list
-xylist = []
-for i in range(num_pts):
-    c = Coordinate(points2[0, i], points2[1, i])
-    xylist.append(c)
+xylist = get_bezier_points(control_points, num_pts)
 
 # %%
 # Create a list of entities from the curve points

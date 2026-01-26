@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -54,7 +54,7 @@ class _RpcMethodsUI:
     def save_motorcad_screen_to_file(self, screen_name, file_name):
         """Save the entire Motor-CAD screen of a tab to an image file.
 
-        Call the ``initialise_tab_names`` method before called this method.l The
+        Call the ``initialise_tab_names`` method before you call this method. The
         Motor-CAD UI must be visible.
 
         Parameters
@@ -127,19 +127,24 @@ class _RpcMethodsUI:
         Parameters
         ----------
         screen_name : str
-            Name of the screen.
+            Path of the screen to display. The path must be in this format:
+            ``"tabName;tabName;tabName"``. For example,
+            ``"Geometry;Axial"``.
         """
         method = "DisplayScreen"
         params = [screen_name]
         return self.connection.send_and_receive(method, params)
 
     def save_screen_to_file(self, screen_name, file_name):
-        """Save a screen to an image file.
+        """Save the image from a Motor-CAD tab to an image file.
+
+        This method is only available for select tabs (such as Geometry Radial and Axial tabs).
 
         Parameters
         ----------
         screen_name : str
-            Name of the screen.
+            Name of the screen with the image to save. The name must be in this format:
+            ``"tabName"``. For example, ``"Axial"``.
         file_name : string or pathlib.Path
             Full path for the image file, including the file name and file extension. The
             extensions supported are BMP, JPG, and PNG.

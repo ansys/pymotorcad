@@ -56,9 +56,9 @@ sphinx_gallery_conf = {
     # convert rst to md for ipynb
     "pypandoc": True,
     # path to your examples scripts
-    "examples_dirs": ["../../examples/"],
+    "examples_dirs": ["../../examples/", "../../samples/"],
     # path where to save gallery generated examples
-    "gallery_dirs": ["examples"],
+    "gallery_dirs": ["examples", "samples"],
     # Pattern to search for example files
     "filename_pattern": r"\.py",
     # Remove the "Download all examples" button from the top level gallery
@@ -111,6 +111,7 @@ numpydoc_validation_checks = {
 
 # static path
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 html_favicon = ansys_favicon
 
@@ -133,3 +134,6 @@ generate_method_docs()
 import os
 
 os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
+
+# PyAnsys tags configuration
+html_context = {"pyansys_tags": ["Electronics"]}

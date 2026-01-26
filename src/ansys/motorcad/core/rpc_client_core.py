@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, path
+from os import environ, getenv, path, putenv, unsetenv
+from pathlib import Path
 import re
 import socket
 import subprocess
@@ -53,6 +54,12 @@ _METHOD_SUCCESS = 0
 
 MOTORCAD_EXE_GLOBAL = ""
 
+if MOTORCAD_EXE_GLOBAL == "":
+    if "PYMOTORCAD_EXE" in environ:
+        pymotorcad_exe_environment_variable = environ["PYMOTORCAD_EXE"]
+        if pymotorcad_exe_environment_variable != "":
+            MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
+
 MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 # Useful for debugging new functions when using debug Motor-CAD
@@ -65,7 +72,13 @@ def is_running_in_internal_scripting():
 
 
 def set_server_ip(ip):
-    """IP address of the machine that Motor-CAD is running on."""
+    """Set the IP address of the machine that Motor-CAD is running on.
+
+    Parameters
+    ----------
+    ip : str
+        IP address of the machine that Motor-CAD is running on.
+    """
     global SERVER_IP
     SERVER_IP = ip
 
@@ -74,13 +87,24 @@ def set_default_instance(port):
     """Set the Motor-CAD instance to use as the default when running scripts from MotorCAD.
 
     For Motor-CAD internal use only. Do not use this function.
+
+        Parameters
+        ----------
+        port : int
+            Port number of the Motor-CAD instance to set as the default.
     """
     global DEFAULT_INSTANCE
     DEFAULT_INSTANCE = port
 
 
 def set_motorcad_exe(exe_location):
-    """Set the directory with the Motor-CAD executable file to launch."""
+    """Set the path of the Motor-CAD executable file to launch.
+
+    Parameters
+    ----------
+    exe_location : str
+        Path of the Motor-CAD executable file to launch.
+    """
     global MOTORCAD_EXE_GLOBAL
     MOTORCAD_EXE_GLOBAL = exe_location
 
@@ -182,6 +206,7 @@ class _MotorCADConnection:
         url="",
         timeout=2,
         compatibility_mode=False,
+        use_blackbox_licence=None,
     ):
         """Create a MotorCAD object for communication.
 
@@ -204,6 +229,9 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+        use_blackbox_licence: Boolean, default: None
+            Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
+            behaviour will be used.
 
         Returns
         -------
@@ -230,6 +258,24 @@ class _MotorCADConnection:
 
         self._url = url
         self._timeout = timeout
+
+        if use_blackbox_licence is not None:
+            # Use the user specified desired licensing
+            if use_blackbox_licence:
+                putenv("MOTORDES_BLACKBOX", "1")
+            else:
+                putenv("MOTORDES_BLACKBOX", "0")
+        else:
+            # User has not specified a desired licensing, so use default behaviour
+            # Ensure any changes to environment variable made in scripting environment are discarded
+            # Note: value returned by getenv is unaffected by calls to putenv
+            blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
+            if blackbox_env_var_orig is None:
+                # Original blackbox environment variable does not exist, so delete if present
+                unsetenv("MOTORDES_BLACKBOX")
+            else:
+                # Reset environment variable to original value
+                putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
@@ -407,7 +453,8 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"]
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
+            cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
         pid = motor_process.pid
