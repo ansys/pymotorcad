@@ -353,7 +353,7 @@ class MotorCADTwinModel:
 
         self.customPowerInjections = []
 
-        self.mcad = pymotorcad.MotorCAD()
+        self.mcad = pymotorcad.MotorCAD(open_new_instance=False)
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
@@ -1448,8 +1448,6 @@ class MotorCADTwinModel:
         if len(self.fluidPaths) > 1:
             testTemperature = round(max(temperatureVector)) + 2
             for i, fluidPath in enumerate(self.fluidPaths):
-                # Reload .mot file to remove any circuit editing modifications
-                self.loadTwinMotfile()
                 nodeTemperatureMapping = {}
 
                 # Set all nodes in this fluid path to have fixed temperatures of different values
@@ -1475,6 +1473,9 @@ class MotorCADTwinModel:
                         ]
                         if controllingNodes:
                             coupledTemperatureMapping[index].extend(controllingNodes)
+                            
+                # Reload .mot file to remove any circuit editing modifications
+                self.loadTwinMotfile()
 
         return coupledTemperatureMapping
 
@@ -2203,63 +2204,33 @@ def temperaturesHousingAmbient(
     return temperatures
 
 
-# %%
-# Specify the input .mot file and the directory to save the output data to.
-working_folder = os.getcwd()
-mcad_name = "e8_mobility"
-inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
-outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
 
-# %%
-# Create the e8 input file if it does not exist already.
-if Path(inputMotFilePath).exists() == False:
-    motorcad = pymotorcad.MotorCAD()
-    motorcad.load_template("e8")
-    motorcad.save_to_file(inputMotFilePath)
-    motorcad.quit()
 
-# %%
-# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the results should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
+# %% USER INPUT DATA
+inputMotFilePath = r"D:\OneDrive - Synopsys, Inc\Projects\Volvo Trucks\Twin Builder workflow example\VelmaA02_660V_500A_toothCooling.mot"
+outputDir = r"D:\OneDrive - Synopsys, Inc\Projects\Volvo Trucks\Twin Builder workflow example\twin_builder_training_data_1"
 
-# %%
-# Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
-# component will interpolate between these, so it is important to cover the complete speed range
-# with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
-# reduce calculation time, but in real use it is recommended that this be greater.
-speeds = [200, 500, 1000]
 
-# %%
-# Specify the airgap temperatures to investigate, in order for the temperature dependent nature
-# of the airgap heat transfer to be included in the *Motor-CAD ROM* component. The generated
-# *Motor-CAD ROM* component will interpolate between these, so it is important to cover the complete
-# expected airgap temperature range with the appropriate sampling in order to maintain accuracy.
-# This parameter can be set to ``None`` should this not be required.
-airgapTemps = [60, 120]
+speeds = list(range(995, 1021, 5))
 
-# %%
-# Specify the housing and ambient temperatures to investigate, in order for the natural
-# convection cooling of the housing to be be included in the *Motor-CAD ROM* component. The
-# generated *Motor-CAD ROM* component will interpolate between these, so it is important to cover
-# the complete expected housing and ambient temperature range with the appropriate sampling in order
-# to maintain accuracy. This parameter can be set to ``None`` should this not be required.
-housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
+airgapTemps = [60, 80, 100]
 
-# %%
-# Specify the cooling systems for which input dependencies need to be taken into account.
-# For each cooling system involved, define the parameters values to sweep to extract the
-# corresponding training data.
-coolingSystemsParameterSweeps: coolingSystemSweepType = {
-    Housing_Water_Jacket: {
-        HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
-        HousingWJ_InletTemp: [40, 65],
-    },
-}
+housingAmbientTemps = None #temperaturesHousingAmbient([40], 40, 120)
+
+# coolingSystemsParameterSweeps: coolingSystemSweepType = {
+#     Housing_Water_Jacket: {
+#         HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
+#         HousingWJ_InletTemp: [40, 65],
+#     },
+# }
+coolingSystemsParameterSweeps = None
+
+
 
 # %%
 # Finally, generate the required data. This function will write the data to the directory
 # specified above. The identified cooling system node flow path is automatically plotted.
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 MotorCADTwin.generateTwinData(
     rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
