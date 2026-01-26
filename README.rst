@@ -6,7 +6,7 @@ PyMotorCAD
    :target: https://docs.pyansys.com/
    :alt: PyAnsys
 
-.. |python| image:: https://img.shields.io/badge/Python-%3E%3D3.7-blue
+.. |python| image:: https://img.shields.io/badge/Python-%3E%3D3.9-blue
    :target: https://pypi.org/project/ansys-motorcad-core/
    :alt: Python
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -174,6 +174,7 @@ class _RpcMethodsVariables:
         -------
         ansys.motorcad.core.datastore.Datastore
         """
+        self.connection.ensure_version_at_least("2026.0")
         method = "GetDataStore"
         datastore_json = self.connection.send_and_receive(method)
         return Datastore.from_json(datastore_json)
