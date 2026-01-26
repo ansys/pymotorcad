@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,78 +26,150 @@
 Motor-CAD force extraction example script
 =========================================
 
-todo: expand this...
+This sets up the operating points and threading options for a force/NVH calculation,
+then displays some key force orders from a 2d FFT that may be important for NVH.
 
 """
 
 # %%
-# Perform required imports
+# Import PyMotorCAD and launch Motor-CAD, turning off pop-up messages.
 import ansys.motorcad.core as pymotorcad
 
-# %%
-# Launch Motor-CAD
 mc = pymotorcad.MotorCAD()
-
-# %%
-# Disable pop-up messages
 mc.set_variable("MessageDisplayState", 2)
-
 
 # %%
 # Load a baseline model - in this case a template.
-# For users, this would normally be a baseline model
+# For users, this would normally be a baseline model.
 mc.load_template("e9")
 
 # %%
-# Set up the point we want to extract
-required_space_order = 8  # Space order required, positive or negative
-required_electrical_time_order = 2  # Electrical time order required, should be 0 or positive
-operating_point = (
-    1  # Which speed point to extract data for (between 1 and the number of calculations run)
-)
-rotor_slice = 1  # Which rotor slice (if more than one) that we want results from
+# Set 90 torque points per cycle, which will give us information up to the 45th electrical order.
+# If using an induction motor, use `IMSingleLoadPointsPerCycle_Rotating` instead.
+mc.set_variable("TorquePointsPerCycle", 90)
 
 # %%
-# Run the calculation (Assume that it has already been set up as required)
+# Enable multithreading for the force/NVH calculation
+mc.set_variable("MultiForceThreading", 0)  # 0 is multithreaded, 1 is single threaded.
+
+# %%
+# Set operating points, in this case for speed and torque definition.
+operating_points_speed = [250, 8000, 8000]  # RPM
+operating_points_torque = [250, 250, 100]  # Nm
+num_operating_points = len(operating_points_speed)
+
+# Make sure the table is the correct length before setting value
+mc.set_variable("NumLoadPoints", num_operating_points)
+
+# Set the values:
+for operating_point in range(num_operating_points):
+    mc.set_array_variable(
+        "LoadPoint_Speed_Array", operating_point, operating_points_speed[operating_point]
+    )
+    mc.set_array_variable(
+        "LoadPoint_Torque_Array", operating_point, operating_points_torque[operating_point]
+    )
+
+# %%
+# .. note::
+#   For other motor types or options, the following may be needed:
+#
+#   - All motor types and options: `LoadPoint_Speed_Array`
+#   - BPM or similar for torque based definition: `LoadPoint_Torque_Array`
+#   - BPM or similar for current/phase advance definition: `LoadPoint_Current_Array`,
+#   and `LoadPoint_PhaseAdvance_Array`
+#   - SRM: `LoadPoint_Current_Array`, `LoadPoint_OnAngle_Array`, and `LoadPoint_OffAngle_Array`
+#   - IM: `LoadPoint_Current_Array` and `LoadPoint_Slip_Array`
+
+# %%
+# Run the electromagnetic FEA calculation, which calculates the forces.
 mc.do_multi_force_calculation()
 
 # %%
-# How many cycles have been run
+# Define the orders that we want to extract as space and time order pairs. In this case, these
+# are some of the important orders for a  48 slot, 8 pole motor.
+#
+# The orders are defined as pairs of
+# [Space order (positive or negative), electrical time order (0 or positive)]:
+required_orders = [[0, 12], [0, 24], [8, 2], [-8, 10], [8, 14]]
+
+# %%
+# Get information about the results.
+
+# Number of cycles. If using this for an induction motor, use
+# `IMSingleLoadNumberCycles_Rotating` instead
 electrical_cycles = mc.get_variable("TorqueNumberCycles")
 
-# %%
-# Extract max space order that exists in the calculation
+# Maximum number of space orders in results
 mech_force_space_order_max = mc.get_variable("ForceMaxOrder_Space_Stator_OL")
 
-# %%
-# Get the indexes to use in querying the force:
-# required_time_order should always be 0 or positive. This is the order of
-# the number of cycles run, which will be the same as electrical order if
-# electrical_cycles = 1
-required_time_order = required_electrical_time_order * electrical_cycles
+# Number of operating points. In this example we have set this earlier in the script
+num_operating_points = mc.get_variable("NumLoadPoints")
+
+# Find how many slices (for skew) are available.
+if mc.get_variable("SkewType") == 2:
+    # Stepped skew
+    rotor_slices = mc.get_variable("RotorSkewSlices")
+else:
+    rotor_slices = 1
 
 # %%
-# Results stored with negative space orders at the end, so apply offset
-if required_space_order < 0:
-    required_space_order = required_space_order + 2 * mech_force_space_order_max
+# Find the force density for each slice, at the different operating points and slices:
+for rotor_slice in range(rotor_slices):
+    print("\nSlice " + str(rotor_slice + 1) + ":")
+    for operating_point in range(num_operating_points):
+        print("\nOperating point " + str(operating_point + 1) + ":")
 
-# %%
-# Find the force density using GetMagnetic3DGraphPoint:
-# Note the use of _Th1 for the 1st operating point in the name.
-_, force_density_result = mc.get_magnetic_3d_graph_point(
-    "Fr_Density_Stator_FFT_Amplitude_OL" + "_Th" + str(operating_point),
-    rotor_slice,
-    required_space_order,
-    required_time_order,
-)
+        print(
+            "Results as: Space order, "
+            "Electrical order, "
+            "Force density amplitude (N/m^2), "
+            "Force density phase (deg):"
+        )
 
-# %%
-# Apply 2x factor due to FFT symmetry, unless 0th time order (mean)
-# This is equivalent to showing results with 'Positive time only'
-if required_time_order > 0:
-    force_density_result = force_density_result * 2
+        for required_order in required_orders:
+            required_space_order = required_order[0]
+            required_electrical_time_order = required_order[1]
 
-# %%
-# Results
-# -------
-print("Force density: " + str(force_density_result))
+            # Results stored with negative space orders at the end, so apply offset
+            if required_space_order < 0:
+                raw_space_order = required_space_order + 2 * mech_force_space_order_max
+            else:
+                raw_space_order = required_space_order
+
+            # If more than one cycle used, scale between electrical orders and internal orders
+            raw_time_order = required_electrical_time_order * electrical_cycles
+
+            # Find the force density using GetMagnetic3DGraphPoint:
+            # Note the use of _Th1 for the 1st operating point in the name.
+            # Note also that rotor slice numbering starts at 1.
+            _, force_density_amplitude = mc.get_magnetic_3d_graph_point(
+                "Fr_Density_Stator_FFT_Amplitude_OL" + "_Th" + str(operating_point + 1),
+                rotor_slice + 1,
+                raw_space_order,
+                raw_time_order,
+            )
+
+            _, force_density_angle = mc.get_magnetic_3d_graph_point(
+                "Fr_Density_Stator_FFT_Angle_OL" + "_Th" + str(operating_point + 1),
+                rotor_slice + 1,
+                raw_space_order,
+                raw_time_order,
+            )
+
+            # Apply 2x factor due to FFT symmetry, unless on the 0th time order (mean)
+            # This is equivalent to showing results with 'Positive time only'
+            if required_electrical_time_order > 0:
+                force_density_amplitude = force_density_amplitude * 2
+
+            # Print the result. In a user workflow, this would usually be stored,
+            # for example for use as an optimisation metric:
+            print(
+                str(required_space_order)
+                + ",\t"
+                + str(required_electrical_time_order)
+                + ",\t"
+                + str(force_density_amplitude)
+                + ",\t"
+                + str(force_density_angle)
+            )

@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -55,6 +55,24 @@ def basic_tree():
     triangle.entities.append(line3)
 
     triangle.duplications = 8
+
+    magnet = tree.create_region(RegionType.magnet)
+
+    magnet.name = "magnet"
+
+    p1 = Coordinate(20, 2.5)
+    p2 = Coordinate(20, -2.5)
+    p3 = Coordinate(24.330127018922, 0)
+    line1 = Line(p1, p2)
+    line2 = Line(p2, p3)
+    line3 = Line(p3, p1)
+
+    magnet.entities.append(line1)
+    magnet.entities.append(line2)
+    magnet.entities.append(line3)
+
+    magnet.duplications = 8
+
     return tree
 
 
@@ -322,11 +340,11 @@ def test_get_parent(basic_tree):
 
 
 def test_get_children(basic_tree):
-    assert basic_tree["root"].children == [basic_tree["Triangle"]]
+    assert basic_tree["Triangle"] in basic_tree["root"].children
 
-    assert basic_tree["root"].child_names == ["Triangle"]
+    assert "Triangle" in basic_tree["root"].child_names
 
-    assert basic_tree["root"].child_keys == ["Triangle"]
+    assert "Triangle" in basic_tree["root"].child_keys
 
 
 # def test_fix_region1(split_tree, basic_tree, mc):
@@ -378,3 +396,11 @@ def test_linked_regions(sample_tree):
     for node in sample_tree:
         for linked in node.linked_regions:
             assert node in linked.linked_regions
+
+
+def test_to_json(basic_tree):
+    raw_json = basic_tree._to_json()
+    assert basic_tree["Triangle"]._to_json() == raw_json["regions"]["Triangle"]
+    assert basic_tree["magnet"]._to_json() == raw_json["regions"]["magnet"]
+
+    pass

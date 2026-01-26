@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -193,7 +193,7 @@ class GeometryTree(dict):
         regions = dict()
         for node in self:
             if node.key != "root":
-                if node.region_type == "Magnet":
+                if node.region_type == RegionType.magnet:
                     regions[node.key] = TreeRegionMagnet._to_json(node)
                 else:
                     regions[node.key] = TreeRegion._to_json(node)
