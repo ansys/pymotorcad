@@ -1565,6 +1565,170 @@ def test_edit_point():
     assert region.entities[2].start == ref_region.entities[2].start + translate
 
 
+def test_consolidate_lines_1():
+    # test for consolidating lines
+
+    # create 4 lists of 11 colinear points. Together the 44 points form a square with width = 10 mm.
+    # . . . . . . . . . . .
+    # .                   .
+    # .                   .
+    # .                   .
+    # .                   .
+    # .                   .
+    # .                   .
+    # .                   .
+    # .                   .
+    # . . . . . . . . . . .
+    line_a = []
+    line_b = []
+    line_c = []
+    line_d = []
+    for i in range(-5, 6):
+        line_a.append(Coordinate(i, -5))
+        line_b.append(Coordinate(5, i))
+        line_c.append(Coordinate(-i, 5))
+        line_d.append(Coordinate(-5, -i))
+
+    # create a new region
+    square_region = Region(region_type=RegionType.rotor)
+
+    # Use the lists of points to create (4*10=)40 lines that form a closed square.
+    for line in [line_a, line_b, line_c, line_d]:
+        for i in range(len(line) - 1):
+            square_region.add_entity(Line(line[i], line[i + 1]))
+
+    # check the original region has 40 lines
+    assert square_region.is_closed()
+    assert len(square_region.entities) == 40
+    for line in square_region.entities:
+        assert line.length == 1
+
+    # use the consolidate_lines method to replace the 40 lines (each 1 mm) with 4 lines (each 10 mm)
+    square_region.consolidate_lines()
+
+    # check the modified region has 4 lines
+    assert square_region.is_closed()
+    assert len(square_region.entities) == 4
+    for line in square_region.entities:
+        assert line.length == 10
+
+
+def test_consolidate_lines_2():
+    # test for consolidating lines when region entity list contains an Arc
+
+    # create 4 lists of 11 colinear points. Together the 44 points form a square with width = 10 mm.
+    line_a = []
+    line_b = []
+    line_c = []
+    line_d = []
+    for i in range(-5, 6):
+        line_a.append(Coordinate(i, -5))
+        line_b.append(Coordinate(5, i))
+        line_c.append(Coordinate(-i, 5))
+        line_d.append(Coordinate(-5, -i))
+
+    # Use lists a-c to create a new region with 3 square sides and add an arc to form the 4th side.
+    #    _______
+    #   /       |
+    #  /        |
+    # |         |
+    #  \        |
+    #   \_______|
+    new_region = Region(region_type=RegionType.rotor)
+    for line in [line_a, line_b, line_c]:
+        for i in range(len(line) - 1):
+            new_region.add_entity(Line(line[i], line[i + 1]))
+    new_region.add_entity(Arc(line_c[-1], line_a[0], radius=15))
+
+    # check the original region has 31 entities (30 lines, 1 Arc)
+    assert new_region.is_closed()
+    assert len(new_region.entities) == 31
+    for entity in new_region.entities:
+        if isinstance(entity, Line):
+            assert entity.length == 1
+    assert isinstance(new_region.entities[-1], Arc)
+    original_arc = deepcopy(new_region.entities[-1])
+
+    # use the consolidate_lines method to replace the 30 lines (each 1 mm) with 4 lines (each 10 mm)
+    new_region.consolidate_lines()
+
+    # check the modified region has 3 lines and that the final entity is the same Arc as the
+    # original region's last entity.
+    assert new_region.is_closed()
+    assert len(new_region.entities) == 4
+    for entity in new_region.entities:
+        if isinstance(entity, Line):
+            assert entity.length == 10
+    assert new_region.entities[-1] == original_arc
+
+
+def test_consolidate_lines_3():
+    # test for consolidating lines when region entity list contains an Arc and first entity is not
+    # at the start of a full line.
+
+    # create 4 lists of 11 colinear points. Together the 44 points form a square with width = 10 mm.
+    line_a = []
+    line_b = []
+    line_c = []
+    line_d = []
+    for i in range(-5, 6):
+        line_a.append(Coordinate(i, -5))
+        line_b.append(Coordinate(5, i))
+        line_c.append(Coordinate(-i, 5))
+        line_d.append(Coordinate(-5, -i))
+
+    # Use lists a-c to create a list of entities with 3 square sides made up of 30 lines and a
+    # curved 4th side made up of an arc.
+    entities = []
+    for line in [line_a, line_b, line_c]:
+        for i in range(len(line) - 1):
+            entities.append(Line(line[i], line[i + 1]))
+    entities.append(Arc(line_c[-1], line_a[0], radius=15))
+
+    # create a new region to add the entities to
+    new_region = Region(region_type=RegionType.rotor)
+
+    # add the entities to the new region, but shift the ordering of entities by 5 indices.
+    # The first 5 entities will be the 2nd half of the horizontal base of the shape, the last five
+    # entities will be the 1st half of the horizontal base of the shape.
+    #
+    #           15-24
+    #          _______
+    #         /       |
+    #        /        |
+    #    25 |         | 5-14
+    #        \        |
+    #         \___|___|
+    #        26-30  0-4
+    offset = 5
+    for i in range(len(entities) - offset):
+        new_region.add_entity(entities[offset + i])
+    for i in range(offset):
+        new_region.add_entity(entities[i])
+
+    # check the original region has 31 entities (30 lines, 1 Arc)
+    assert new_region.is_closed()
+    assert len(new_region.entities) == 31
+    for entity in new_region.entities:
+        if isinstance(entity, Line):
+            assert entity.length == 1
+        elif isinstance(entity, Arc):
+            original_arc = deepcopy(entity)
+
+    # use the consolidate_lines method to replace the 30 lines (each 1 mm) with 4 lines (each 10 mm)
+    new_region.consolidate_lines()
+
+    # check the modified region has 3 lines and that the final entity is the same Arc as the
+    # original region's last entity.
+    assert new_region.is_closed()
+    assert len(new_region.entities) == 4
+    for entity in new_region.entities:
+        if isinstance(entity, Line):
+            assert entity.length == 10
+        elif isinstance(entity, Arc):
+            assert entity == original_arc
+
+
 def test_round_corner():
     # test for rounding corners of a triangle (3 lines)
     radius = 0.5

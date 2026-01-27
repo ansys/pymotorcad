@@ -988,11 +988,11 @@ class Region(object):
             # if the entity is a line
             if isinstance(entity, Line) and isinstance(entity_n, Line):
                 if (
-                    isclose(entity.angle, entity_n.angle, abs_tol=1e-6)
-                    or isclose(entity.angle, entity_n.angle - 180, abs_tol=1e-6)
-                    or isclose(entity.angle, entity_n.angle + 180, abs_tol=1e-6)
-                    or isclose(entity.angle, entity_n.angle - 360, abs_tol=1e-6)
-                    or isclose(entity.angle, entity_n.angle + 360, abs_tol=1e-6)
+                    isclose(entity.angle, entity_n.angle, abs_tol=GEOM_TOLERANCE)
+                    or isclose(entity.angle, entity_n.angle - 180, abs_tol=GEOM_TOLERANCE)
+                    or isclose(entity.angle, entity_n.angle + 180, abs_tol=GEOM_TOLERANCE)
+                    or isclose(entity.angle, entity_n.angle - 360, abs_tol=GEOM_TOLERANCE)
+                    or isclose(entity.angle, entity_n.angle + 360, abs_tol=GEOM_TOLERANCE)
                 ):
                     entity_n.end = entity.end
                     entities_to_remove.append(entity)
