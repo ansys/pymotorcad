@@ -2851,22 +2851,34 @@ class EntityList(list):
         entity_n = self[-1]
         # for each entity in the region
         for entity in self:
-            # if the entity is a line
+            # if the current and previous entities are Line, Check whether the lines are collinear.
+            # Use the angle property to check that the lines are collinear. Check combinations of
+            # line angles rotated by +/-180 or +/-360 degrees.
+            collinear = False
             if isinstance(entity, Line) and isinstance(entity_n, Line):
-                if (
-                    isclose(entity.angle, entity_n.angle, abs_tol=GEOM_TOLERANCE)
-                    or isclose(entity.angle, entity_n.angle - 180, abs_tol=GEOM_TOLERANCE)
-                    or isclose(entity.angle, entity_n.angle + 180, abs_tol=GEOM_TOLERANCE)
-                    or isclose(entity.angle, entity_n.angle - 360, abs_tol=GEOM_TOLERANCE)
-                    or isclose(entity.angle, entity_n.angle + 360, abs_tol=GEOM_TOLERANCE)
-                ):
-                    entity_n.end = entity.end
-                    entities_to_remove.append(entity)
-                else:
-                    entity_n = entity
-            else:
+                if entity_n.end == entity.start:
+                    if (
+                        isclose(entity.angle, entity_n.angle, abs_tol=GEOM_TOLERANCE)
+                        or isclose(entity.angle, entity_n.angle - 180, abs_tol=GEOM_TOLERANCE)
+                        or isclose(entity.angle, entity_n.angle + 180, abs_tol=GEOM_TOLERANCE)
+                        or isclose(entity.angle, entity_n.angle - 360, abs_tol=GEOM_TOLERANCE)
+                        or isclose(entity.angle, entity_n.angle + 360, abs_tol=GEOM_TOLERANCE)
+                    ):
+                        # When current and previous entities are collinear, set the end of the
+                        # previous entity to be the end of the current entity. Add the current
+                        # entity to the list of entities to be removed.
+                        # The current entity is NOT set as entity_n (last entity), because it will
+                        # be later removed.
+                        collinear = True
+                        entity_n.end = entity.end
+                        entities_to_remove.append(entity)
+            # If the entities are not collinear lines, set current entity to be the last entity for
+            # the next loop.
+            if not collinear:
                 entity_n = entity
 
+        # After all original entities have been lengthened where possible, remove the redundant
+        # entities.
         for entity in entities_to_remove:
             self.remove(entity)
 
