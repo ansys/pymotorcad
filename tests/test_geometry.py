@@ -1729,6 +1729,63 @@ def test_consolidate_lines_3():
             assert entity == original_arc
 
 
+def test_consolidate_lines_4():
+    # test for consolidating lines when region is not closed.
+
+    # create 4 lists of 11 collinear points. Together the 44 points form a square with width = 10 mm
+    line_a = []
+    line_b = []
+    line_c = []
+    line_d = []
+    for i in range(-5, 6):
+        line_a.append(Coordinate(i, -5))
+        line_b.append(Coordinate(5, i))
+        line_c.append(Coordinate(-i, 5))
+        line_d.append(Coordinate(-5, -i))
+
+    # Use lists a-d to create a list of entities with 4 square sides made up of 40 lines.
+    entities = []
+    for line in [line_a, line_b, line_c, line_d]:
+        for i in range(len(line) - 1):
+            entities.append(Line(line[i], line[i + 1]))
+
+    # create a new region to add the entities to
+    new_region = Region(region_type=RegionType.rotor)
+
+    # add the entities to the new region, but skip one of the lines that makes up the base of the
+    # square, so that there is a gap in the region.
+    #    __________
+    #   |          |
+    #   |          |
+    #   |          |
+    #   |          |
+    #   |_____ ____|
+    offset = 5
+    lines_to_skip = 1
+    for i in range(len(entities) - (offset + lines_to_skip)):
+        new_region.add_entity(entities[offset + lines_to_skip + i])
+    for i in range(offset):
+        new_region.add_entity(entities[i])
+
+    # check the original region has 39 entities
+    assert not new_region.is_closed()
+    assert len(new_region.entities) == 39
+    for entity in new_region.entities:
+        if isinstance(entity, Line):
+            assert entity.length == 1
+
+    # use the consolidate_lines method to replace the 30 lines (each 1 mm) with 4 lines (each 10 mm)
+    new_region.consolidate_lines()
+
+    # check the modified region has 5 lines and that the first and last entities are 4 and 5 mm long
+    # respectively.
+    assert not new_region.is_closed()
+    assert len(new_region.entities) == 5
+    lengths = [4, 10, 10, 10, 5]
+    for i in range(len(new_region.entities)):
+        assert new_region.entities[i].length == lengths[i]
+
+
 def test_round_corner():
     # test for rounding corners of a triangle (3 lines)
     radius = 0.5
