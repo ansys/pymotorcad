@@ -2896,6 +2896,94 @@ class EntityList(list):
         else:
             return _entities_same_with_direction(self, entities_to_compare)
 
+    def split_entities(self, cutting_line: Line):
+        """Split the entities in self that intersect with a given line (cutting_line).
+
+        Parameters
+        ----------
+        cutting_line : ansys.motorcad.core.geometry.Line
+            Motor-CAD Line object that intersects entities in self.
+
+        Returns
+        -------
+        list of EntityList
+            The original entities in self split into multiple new EntityList objects based on
+            cutting_line.
+        """
+        new_list_objects = []
+        new_list_object = EntityList()
+        intersection_points = []
+        new_entities = []
+        new_entity_indices = []
+        for i in range(len(self)):
+            entity = self[i]
+            intersection_point = entity.get_intersection(cutting_line)
+            if intersection_point is not None:
+                # this entity intersects the cutting line.
+
+                # there can be more than 1 intersection_point if we are intersecting an Arc.
+                intersection_point_ordered = []
+                if len(intersection_point) > 1:
+                    # make sure the order is correct, point 0 is closest to entity start.
+                    if abs(intersection_point[0] - entity.start) < abs(
+                        intersection_point[1] - entity.start
+                    ):
+                        intersection_point_ordered.append(intersection_point[0])
+                        intersection_point_ordered.append(intersection_point[1])
+                    else:
+                        intersection_point_ordered.append(intersection_point[1])
+                        intersection_point_ordered.append(intersection_point[0])
+                    intersection_point = intersection_point_ordered
+
+                intersection_points.extend(intersection_point)
+
+                # check that intersection isn't at start or end?
+
+                # split the entity
+                entity_n = entity
+                j = 0
+                # intersection_point can be more than 1 if we are intersecting an Arc. So use for
+                # loop.
+                for point in intersection_point:
+                    # Split the entity by creating a new Line or Arc for the new part of the entity.
+                    if isinstance(entity_n, Line):
+                        new_entity = Line(point, Coordinate(entity_n.end.x, entity_n.end.y))
+                    elif isinstance(entity_n, Arc):
+                        new_entity = Arc(
+                            point,
+                            Coordinate(entity_n.end.x, entity_n.end.y),
+                            radius=entity_n.radius,
+                            centre=entity_n.centre,
+                        )
+                    else:
+                        raise TypeError(f"Entity {i} is neither a Line or Arc.")
+                    # shorten the original entity
+                    entity_n.end = point
+                    # add the new entity and the appropriate list index to lists. New entities will
+                    # be inserted once all have been found.
+                    new_entities.append(new_entity)
+                    new_entity_indices.append(i + 1)
+                    # If there are multiple intersection points for the original entity, repeat the
+                    # process. This time, it is the previous new_entity that will be shortened.
+                    new_list_object.append(entity_n)
+                    new_list_objects.append(new_list_object)
+                    new_list_object = []
+                    entity_n = new_entity
+                new_list_object.append(entity_n)
+            else:
+                # if the cutting line does not intersect this entity, append the original entity to
+                # the list
+                new_list_object.append(entity)
+
+        if len(new_list_object) > 0:
+            new_list_objects[0].extend(new_list_object)
+        if len(new_entities) > 0:
+            # insert the new entities to the entity list in reverse order, from highest index to
+            # lowest.
+            for i in reversed(range(len(new_entities))):
+                self.insert(new_entity_indices[i], new_entities[i])
+        return new_list_objects
+
 
 def _convert_entities_to_json(entities):
     """Get entities list as a json object.
