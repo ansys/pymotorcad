@@ -1,0 +1,903 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Custom DXF Geometry &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=e7c4c341" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=bc7af5d8"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/adaptive_library/DXFImport';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Oblong stator ducts with thermal adjustment" href="OblongStatorDuct.html" />
+    <link rel="prev" title="Bezier curve rotor pockets" href="BezierCurveRotorPockets.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/examples/adaptive_library/DXFImport.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <script>document.write(`<img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark" alt="pymotorcad-core - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar" id="search-bar">
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+         aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false"/>
+  <span class="search-button__kbd-shortcut">
+    <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+  </span>
+</form>
+<!-- Search results container -->
+<div id="results" class="results" style="display: none;" tabindex="0">
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar" id="search-bar">
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+         aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false"/>
+  <span class="search-button__kbd-shortcut">
+    <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+  </span>
+</form>
+<!-- Search results container -->
+<div id="results" class="results" style="display: none;" tabindex="0">
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Adaptive templates examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BPMTriangularRotorNotches.html">Triangular Rotor Notches for IPM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BezierCurveRotorPockets.html">Bezier curve rotor pockets</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Custom DXF Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OblongStatorDuct.html">Oblong stator ducts with thermal adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TrapezoidalDuct.html">Trapezoidal ducts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="UShapeSYNCRELCurvedFluxBarriers.html">Curved Rotor Flux Barriers for SYNCREL U-Shape</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics/index.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internal_scripting/index.html">Internal scripting examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../links/index.html">Linking examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Adaptive templates examples</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Custom DXF Geometry</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-adaptive-library-dxfimport-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="custom-dxf-geometry">
+<span id="sphx-glr-examples-adaptive-library-dxfimport-py"></span><h1>Custom DXF Geometry<a class="headerlink" href="#custom-dxf-geometry" title="Link to this heading">#</a></h1>
+<p>This script applies the adaptive templates functionality to import custom rotor geometry from a
+DXF file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information on how to add imported DXF geometries to Adaptive Templates in Motor-CAD,
+see <a class="reference internal" href="../../user_guide/adaptive_templates.html#ref-adaptive-templates-ug"><span class="std std-ref">Motor-CAD adaptive templates scripting</span></a> in the <a class="reference internal" href="../../user_guide/index.html#ref-user-guide"><span class="std std-ref">User guide</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DXF import for Adaptive Templates in Motor-CAD requires Motor-CAD 2024 R2 or later.</p>
+</div>
+<p>This script is designed to be run from Motor-CAD template “e8”. The “e8” template file contains an
+imported custom geometry from a DXF file. The template should be adjusted slightly to more
+closely match the imported custom geometry before running the Adaptive Templates script.
+The following Standard Template geometry changes should be made:</p>
+<ul class="simple">
+<li><p>Set <strong>L1 Mag Gap Inner</strong> and <strong>L2 Mag Gap Inner</strong> to 0 mm (for Magnet Layers 1 and 2).</p></li>
+<li><p>Set <strong>L2 Web Thickness</strong> to 18 mm (for Magnet Layer 2).</p></li>
+<li><p>Set <strong>L2 Pole Arc [ED]</strong> to 105 electrical degrees (for Magnet Layer 2).</p></li>
+<li><p>Set <strong>L2 RDuct Rad Dia</strong> to 123.8 mm (for Rotor Duct Layer 2).</p></li>
+<li><p>Set <strong>L2 RDuct Dia</strong> to 4.94 mm (for Rotor Duct Layer 2).</p></li>
+</ul>
+<img alt="../../_images/DXFImport1_2.png" src="../../_images/DXFImport1_2.png" />
+<p>If no Motor-CAD file is open, the e8 template is loaded and the geometry is adjusted as
+described earlier.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Link to this heading">#</a></h2>
+<p>Import the <code class="docutils literal notranslate"><span class="pre">pymotorcad</span></code> package to access Motor-CAD.
+Import the <code class="docutils literal notranslate"><span class="pre">os</span></code>, <code class="docutils literal notranslate"><span class="pre">shutil</span></code>, <code class="docutils literal notranslate"><span class="pre">sys</span></code>, and <code class="docutils literal notranslate"><span class="pre">tempfile</span></code> packages
+to open and save a temporary MOT file if none is open.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">ansys.motorcad.core</span> <span class="k">as</span> <span class="nn">pymotorcad</span>
+</pre></div>
+</div>
+</section>
+<section id="connect-to-motor-cad">
+<h2>Connect to Motor-CAD<a class="headerlink" href="#connect-to-motor-cad" title="Link to this heading">#</a></h2>
+<p>If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
+instance is used.</p>
+<p>If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+the e8 IPM motor template is loaded, the geometry changes described earlier are applied and the
+file is saved to a temporary folder.
+To keep a new Motor-CAD instance open after executing the script, use the
+<code class="docutils literal notranslate"><span class="pre">MotorCAD(keep_instance_open=True)</span></code> option when opening the new instance.
+Alternatively, use the <code class="docutils literal notranslate"><span class="pre">MotorCAD()</span></code> method, which closes the Motor-CAD instance after the
+script is executed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">is_running_in_internal_scripting</span><span class="p">():</span>
+    <span class="c1"># Use existing Motor-CAD instance if possible</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">(</span><span class="n">open_new_instance</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">(</span><span class="n">keep_instance_open</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Disable popup messages</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;MessageDisplayState&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">load_template</span><span class="p">(</span><span class="s2">&quot;e8&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set Standard Template geometry to closely match the imported DXF custom geometry</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span>
+        <span class="s2">&quot;VShape_Magnet_ClearanceInner&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="p">)</span>  <span class="c1"># Set the Magnet Inner Gap to 0 mm for Layer 1</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span>
+        <span class="s2">&quot;VShape_Magnet_ClearanceInner&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="p">)</span>  <span class="c1"># Set the Magnet Inner Gap to 0 mm for Layer 2</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span><span class="s2">&quot;WebThickness_Array&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>  <span class="c1"># Set the Web Thickness to 18 mm for Layer 2</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span><span class="s2">&quot;PoleArc_Array&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">105</span><span class="p">)</span>  <span class="c1"># Set the Pole Arc to 105 ED for Layer 2</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span>
+        <span class="s2">&quot;RotorCircularDuctLayer_RadialDiameter&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">123.8</span>
+    <span class="p">)</span>  <span class="c1"># Set the Rotor Duct Radial Diameter to 123.8 mm for Layer 2</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span>
+        <span class="s2">&quot;RotorCircularDuctLayer_ChannelDiameter&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">4.94</span>
+    <span class="p">)</span>  <span class="c1"># Set the Rotor Duct Diameter to 4.94 mm for Layer 2</span>
+
+    <span class="c1"># Open relevant file</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/tempfile.html#tempfile.gettempdir" title="tempfile.gettempdir" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span></a><span class="p">(),</span> <span class="s2">&quot;adaptive_library&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/shutil.html#shutil.rmtree" title="shutil.rmtree" class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function"><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <a href="https://docs.python.org/dev/library/os.html#os.mkdir" title="os.mkdir" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mot_name</span></a> <span class="o">=</span> <span class="s2">&quot;e8_DXF_Import&quot;</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mot_name</span></a> <span class="o">+</span> <span class="s2">&quot;.mot&quot;</span><span class="p">)</span>
+
+<span class="c1"># Reset geometry to default</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">reset_adaptive_geometry</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="get-required-region-objects">
+<h2>Get required region objects<a class="headerlink" href="#get-required-region-objects" title="Link to this heading">#</a></h2>
+<p>Get the existing Standard Template regions, and imported regions that are required for the script.</p>
+<section id="identify-the-required-regions">
+<h3>Identify the required regions<a class="headerlink" href="#identify-the-required-regions" title="Link to this heading">#</a></h3>
+<p>This workflow replaces existing template regions with corresponding imported regions. For
+example, the Standard Template geometry region <strong>RotorDuctFluidRegion_2</strong> is replaced by a
+custom region from the imported DXF file.</p>
+<img alt="../../_images/DXFImport2.png" src="../../_images/DXFImport2.png" />
+<p>Find the names of the corresponding DXF regions under <strong>Import</strong> in the Geometry tree on
+the <strong>Geometry -&gt; Editor -&gt; Geometry</strong> tab in Motor-CAD. Imported regions are displayed by
+selecting the checkbox. For example, the corresponding imported DXF region for template region
+<strong>RotorDuctFluidRegion_2</strong> is named <strong>DXFRegion_Rotor_14</strong>.</p>
+<img alt="../../_images/DXFImport3.png" src="../../_images/DXFImport3.png" />
+<p>This script replaces the entities (lines and arcs) of <strong>RotorDuctFluidRegion_2</strong> with entities
+from <strong>DXFRegion_Rotor_14</strong>. The geometry is replaced, while the properties of the region
+<strong>RotorDuctFluidRegion_2</strong>, such as name, material, colour are retained.</p>
+</section>
+<section id="get-existing-template-regions">
+<h3>Get existing template regions<a class="headerlink" href="#get-existing-template-regions" title="Link to this heading">#</a></h3>
+<p>The regions in the existing template geometry to be replaced by custom regions from the
+imported DXF geometry will be stored in a list. Use the <code class="docutils literal notranslate"><span class="pre">get_region()</span></code> method to get the
+required regions and store these in the <code class="docutils literal notranslate"><span class="pre">standard_regions</span></code> list.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">standard_regions</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;Rotor Pocket_1&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;Rotor Pocket_2&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;Rotor Pocket_4&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;Rotor Pocket_5&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;RotorDuctFluidRegion_1&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;RotorDuctFluidRegion_2&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="get-imported-dxf-regions">
+<h3>Get imported DXF regions<a class="headerlink" href="#get-imported-dxf-regions" title="Link to this heading">#</a></h3>
+<p>The imported DXF regions to replace the existing regions with will be stored in a list. Use the
+<code class="docutils literal notranslate"><span class="pre">get_region_dxf()</span></code> method to get the required regions and store in the <code class="docutils literal notranslate"><span class="pre">replacement_regions</span></code>
+list. The indices of the regions in the <code class="docutils literal notranslate"><span class="pre">standard_regions</span></code> and <code class="docutils literal notranslate"><span class="pre">replacement_regions</span></code> lists
+must match such that the corresponding standard and replacement regions share the same index.
+For example, the <strong>RotorDuctFluidRegion_2</strong> and <strong>DXFRegion_Rotor_14</strong> regions are both the fifth
+element of their respective lists.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">replacement_regions</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_6&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_7&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_10&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_11&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_14&quot;</span><span class="p">),</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">get_region_dxf</span><span class="p">(</span><span class="s2">&quot;DXFRegion_Rotor_12&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="replace-standard-regions-with-replacement-regions">
+<h2>Replace <code class="docutils literal notranslate"><span class="pre">standard_regions</span></code> with <code class="docutils literal notranslate"><span class="pre">replacement_regions</span></code><a class="headerlink" href="#replace-standard-regions-with-replacement-regions" title="Link to this heading">#</a></h2>
+<p>For each standard region, use the <code class="docutils literal notranslate"><span class="pre">Region.replace()</span></code> method to replace the region with its
+corresponding imported DXF region. The <code class="docutils literal notranslate"><span class="pre">Region.replace()</span></code> method replaces the entities
+(lines and arcs) of a region with entities from another region. The geometry entities are
+replaced, while the properties, such as name, material, colour, of the original regions are
+retained.</p>
+<p>For more information on the <code class="docutils literal notranslate"><span class="pre">Region.replace()</span></code> method, see the entry under <code class="docutils literal notranslate"><span class="pre">Region</span></code> in
+<a class="reference internal" href="../../methods/geometry_functions.html#ref-geometry-functions"><span class="std std-ref">Geometry objects and functions</span></a> in the API reference documentation.</p>
+<p>Once the entities have been replaced, use the <code class="docutils literal notranslate"><span class="pre">set_region()</span></code> method to set the modified region
+in Motor-CAD.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">standard_regions</span></a><span class="p">)):</span>
+    <span class="n">i</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">standard_regions</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span>
+    <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">replacement_regions</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">])</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../../_images/DXFImport4.png" src="../../_images/DXFImport4.png" />
+</section>
+<section id="load-in-adaptive-templates-script-if-required">
+<h2>Load in Adaptive Templates Script if required<a class="headerlink" href="#load-in-adaptive-templates-script-if-required" title="Link to this heading">#</a></h2>
+<p>When this script is run externally, the script executes the following:</p>
+<ul class="simple">
+<li><p>Set <strong>Geometry type</strong> to <strong>Adaptive</strong>.</p></li>
+<li><p>Load the script into the <strong>Adaptive Templates</strong> tab.</p></li>
+<li><p>Go to the <strong>Geometry -&gt; Radial</strong> tab to run the Adaptive Templates script and display the new
+geometry.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+(PY file) instead of <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> when using the <code class="docutils literal notranslate"><span class="pre">load_adaptive_script()</span></code> method.</p>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">is_running_in_internal_scripting</span><span class="p">():</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;GeometryTemplateType&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">load_adaptive_script</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sys</span><span class="o">.</span><span class="n">argv</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s2">&quot;Geometry;Radial&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 39.673 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-adaptive-library-dxfimport-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/052dfa9bbda6928b580df5166b899a85/DXFImport.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">DXFImport.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/624113b49b90793f0cfce4ed0686b77c/DXFImport.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">DXFImport.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e2c157527553cec044186368e2628b1d/DXFImport.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">DXFImport.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perform-required-imports">Perform required imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-to-motor-cad">Connect to Motor-CAD</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-required-region-objects">Get required region objects</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#identify-the-required-regions">Identify the required regions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-existing-template-regions">Get existing template regions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-imported-dxf-regions">Get imported DXF regions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#replace-standard-regions-with-replacement-regions">Replace <code class="docutils literal notranslate"><span class="pre">standard_regions</span></code> with <code class="docutils literal notranslate"><span class="pre">replacement_regions</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-in-adaptive-templates-script-if-required">Load in Adaptive Templates Script if required</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/examples/adaptive_library/DXFImport.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+<link rel="stylesheet" href="../../_static/css/fuse-search.css">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+
+
+
+
+
+
+
+
+<script>
+var theme_static_search = JSON.parse('{"ignoreLocation": "False", "keys": ["title", "text"], "shouldSort": "True", "threshold": 0.5, "useExtendedSearch": "True"}');
+var theme_limit = "10";
+var min_chars_for_search = "1";
+var searchPath = "../../_static/search.json";
+
+</script>
+
+<script src="../../_static/js/fuse_search.js"></script>
+<script src="../../_static/js/fuse_extension.js"></script>
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2024 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.1.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

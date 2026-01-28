@@ -1,0 +1,6 @@
+create\_region
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: GeometryTree.create_region

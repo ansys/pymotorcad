@@ -1,0 +1,24 @@
+.. _ref_Materials_API:
+Materials
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Materials
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    calculate_iron_loss_coefficients
+    calculate_magnet_parameters
+    delete_solid_material
+    export_solid_material
+    get_component_material
+    import_solid_material
+    save_iron_loss_coefficients
+    save_magnet_parameters
+    select_material_database
+    set_component_material
+    set_fluid

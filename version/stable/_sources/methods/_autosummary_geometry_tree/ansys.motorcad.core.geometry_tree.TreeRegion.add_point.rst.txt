@@ -1,0 +1,6 @@
+add\_point
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.add_point
