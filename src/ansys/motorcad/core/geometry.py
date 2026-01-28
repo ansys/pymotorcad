@@ -2967,7 +2967,7 @@ class EntityList(list):
                     # process. This time, it is the previous new_entity that will be shortened.
                     new_list_object.append(entity_n)
                     new_list_objects.append(new_list_object)
-                    new_list_object = []
+                    new_list_object = EntityList()
                     entity_n = new_entity
                 new_list_object.append(entity_n)
             else:

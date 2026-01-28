@@ -735,6 +735,121 @@ def test_reverse_entities_2():
     assert region_1.entities._entities_same(region_2.entities, check_reverse=False) is True
 
 
+def test_split_entities_1():
+    # for EntityList method
+    # -------------------------------------------
+    #               square, 4 entities
+    points = [Coordinate(-5, -5), Coordinate(5, -5), Coordinate(5, 5), Coordinate(-5, 5)]
+
+    entities = EntityList()
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Line(points[i], next_point))
+
+    # check that the original list forms a square
+    assert entities.is_closed
+    assert len(entities) == 4
+    for entity in entities:
+        assert entity.length == 10
+
+    cutting_line = Line(Coordinate(-4, -5), Coordinate(4, 5))
+
+    #  ''entities''
+    #         2                    4      3
+    #    ___________           _________/_
+    #   |           |         |        /  |
+    #   |           |       5 |       /   |
+    # 3 |           |         |      /    |
+    #   |           |  --->   |     /     |
+    #   |           | 1       |    /      | 2
+    #   |           |         |   /       |
+    #   |           |         |  /        |
+    #   |___________|         |_/_________|
+    #        0                0/     1
+    #
+    #  ''split_lists[0]''
+    #        1                  2
+    #    _________             _
+    #   |                       |
+    #   |                       |
+    # 2 |                       |
+    #   |                       |
+    #   |                       | 1
+    #   |                       |
+    #   |                       |
+    #   |_              ________|
+    #    0                 0
+    #                  ''split_lists[1]''
+
+    split_lists = entities.split_entities(cutting_line)
+
+    # check the entities now has 6 entities.
+    assert entities.is_closed
+    assert len(entities) == 6
+    # check the entities are the expected lengths
+    new_lengths = [1, 9, 10, 1, 9, 10]
+    for i in range(len(entities)):
+        assert entities[i].length == new_lengths[i]
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[1, 9, 10], [9, 10, 1]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert not new_entity_list.is_closed  # they are not closed
+        assert len(new_entity_list) == 3  # each has 3 entities
+        for i in range(len(new_entity_list)):
+            assert new_entity_list[i].length == split_list_lengths[j][i]
+        j += 1
+
+
+def test_split_entities_2():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    entities = EntityList()
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Arc(points[i], next_point, radius=5))
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+
+    cutting_line = Line(Coordinate(-4, -5), Coordinate(4, 5))
+
+    split_lists = entities.split_entities(cutting_line)
+
+    assert entities.is_closed
+    assert len(entities) == 4
+    lengths = [12.3, 3.4, 12.3, 3.4]
+    for i in range(len(entities)):
+        assert entities[i].radius == entities[0].radius
+        assert entities[i].centre == entities[0].centre
+        assert isclose(entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[12.3, 3.4], [3.4, 12.3]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert len(new_entity_list) == 2  # each has 2 entities
+        for i in range(len(new_entity_list)):
+            assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
+        j += 1
+
+
 def test_line_get_coordinate_from_percentage_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
