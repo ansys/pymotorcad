@@ -809,6 +809,7 @@ def test_split_entities_2():
     # for EntityList method
     # -------------------------------------------
     #               circle, 2 entities
+    # Diagonal cutting line intersects both entities
     points = [
         Coordinate(0, -5),
         Coordinate(0, 5),
@@ -845,6 +846,52 @@ def test_split_entities_2():
     j = 0
     for new_entity_list in split_lists:
         assert len(new_entity_list) == 2  # each has 2 entities
+        for i in range(len(new_entity_list)):
+            assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
+        j += 1
+
+
+def test_split_entities_3():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    # vertical cutting line intersects one Arc twice
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    entities = EntityList()
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Arc(points[i], next_point, radius=5))
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_lists = entities.split_entities(cutting_line)
+
+    assert entities.is_closed
+    assert len(entities) == 4
+    lengths = [2.1, 11.6, 2.1, 15.7]
+    for i in range(len(entities)):
+        assert entities[i].radius == entities[0].radius
+        assert entities[i].centre == entities[0].centre
+        assert isclose(entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[2.1, 2.1, 15.7], [11.6]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert len(new_entity_list) == len(split_list_lengths[j])  # each has 2 entities
         for i in range(len(new_entity_list)):
             assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
         j += 1
