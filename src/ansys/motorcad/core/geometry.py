@@ -820,21 +820,48 @@ class Region(object):
             The original Region (self) split into multiple new Region objects based on
             cutting_line.
         """
+        # split the region entities
         split_entities = self.entities.split(cutting_line)
+
+        # Split the original region into multiple new regions. Create the list of new regions from
+        # the split entity lists.
         j = 0
         new_regions = []
+        # If region entities are not split by cutting_line, return None
+        if split_entities is None:
+            return None
         for entity_list in split_entities:
             for i in range(len(entity_list)):
+                # Check for subsequent entities in the list that are not touching, and insert a new
+                # line between them.
                 if entity_list[i].start != entity_list[i - 1].end:
                     entity_list.insert(i, Line(entity_list[i - 1].end, entity_list[i].start))
+            # create a new region
             new_region = Region(
                 region_type=self.region_type, motorcad_instance=self.motorcad_instance
             )
+            # New split regions inherit all properties of the original region.
             new_region.update(self)
-            new_region.name = f"{self.name}_split_{j}"
-            new_region.entities = entity_list
-            new_regions.append(new_region)
+            new_region.name = f"{self.name}_split_{j}"  # Give new split regions a unique name
+            new_region.entities = entity_list  # Set the new split region entities
+            new_regions.append(new_region)  # Add the new region to list to be returned
             j += 1
+
+        # The returned regions can be overlapping. Subtract overlapping regions.
+        for region in new_regions:
+            for other_region in new_regions:
+                if other_region != region:
+                    # Try subtracting regions from each other. Any overlapping region will be
+                    # subtracted.
+                    try:
+                        original_area = region.area
+                        region.subtract(other_region)
+                        # If subtraction was successful, remove the subtracted region.
+                        if original_area > region.area:
+                            new_regions.remove(other_region)
+                    # raise any Exceptions. Note: Motor-CAD instance is required for this method.
+                    except Exception as e:
+                        raise e
 
         return new_regions
 
@@ -3016,7 +3043,8 @@ class EntityList(list):
             if len(new_list_objects) > 0:
                 new_list_objects[0].extend(new_list_object)
             else:
-                new_list_objects.append(new_list_object)
+                # self was not split
+                return None
         if len(new_entities) > 0:
             # insert the new entities to the entity list in reverse order, from highest index to
             # lowest.

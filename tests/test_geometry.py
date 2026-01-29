@@ -920,7 +920,7 @@ def test_do_not_split_entities_1():
 
     # check that the EntityList is unchanged,
     assert entities == original_entities
-    assert split_lists == [original_entities]
+    assert split_lists is None
 
 
 def test_do_not_split_entities_2():
@@ -946,7 +946,7 @@ def test_do_not_split_entities_2():
 
     # check that the EntityList is unchanged,
     assert square_region.entities == original_entities
-    assert split_lists == [original_entities]
+    assert split_lists is None
 
 
 def test_line_get_coordinate_from_percentage_distance():
@@ -1379,7 +1379,7 @@ def test_unite_regions_2(mc):
     assert expected_region == union
 
 
-def test_split_region_1():
+def test_split_region_1(mc):
     """Test split circular region based on intersection with a cutting line."""
     # -------------------------------------------
     #               circle, 2 entities
@@ -1396,10 +1396,9 @@ def test_split_region_1():
             next_point = points[i + 1]
         entities.append(Arc(points[i], next_point, radius=5))
 
-    circle_region = Region(region_type=RegionType.rotor)
+    circle_region = Region(region_type=RegionType.rotor, motorcad_instance=mc)
     for i in range(len(entities)):
         circle_region.add_entity(entities[i])
-
     # check that the original region forms a circle
     assert circle_region.is_closed
     assert len(circle_region.entities) == 2
@@ -1423,7 +1422,7 @@ def test_split_region_1():
     for region in split_regions:
         assert region.is_closed()
 
-    split_region_entity_lengths = [[2.1, 9.2, 2.1, 15.7], [9.2, 11.6]]
+    split_region_entity_lengths = [[2.1, 15.7, 2.1, 9.2], [11.6, 9.2]]
     j = 0
     for region in split_regions:
         assert len(region.entities) == len(split_region_entity_lengths[j])  # each has 2 entities
@@ -1434,10 +1433,11 @@ def test_split_region_1():
         j += 1
 
 
-def test_split_region_2():
+def test_split_region_2(mc):
     """Test split square region based on intersection with a cutting line."""
 
     square_region = create_square()
+    square_region.motorcad_instance = mc
     square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
     square_region.rotate(Coordinate(1, 1), -90)
 
@@ -1459,7 +1459,7 @@ def test_split_region_2():
     for region in split_regions:
         assert region.is_closed()
 
-    split_region_entity_lengths = [[0.5, 2.2, 1.5, 2], [2.2, 1.5, 2, 0.5]]
+    split_region_entity_lengths = [[2, 0.5, 2.2, 1.5], [2, 0.5, 2.2, 1.5]]
     j = 0
     for region in split_regions:
         assert len(region.entities) == len(split_region_entity_lengths[j])  # each has 2 entities
@@ -1468,6 +1468,41 @@ def test_split_region_2():
                 region.entities[i].length, split_region_entity_lengths[j][i], abs_tol=0.05
             )
         j += 1
+
+
+def test_split_region_3(mc):
+    """Test split irregular pentagon region based on intersection with a cutting line."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #        /\      /\                /\      /\
+    #       /  \    /  \      ---->   / 2\    / 1\
+    #  ____/____\__/____\____        /____\  /____\
+    #     /      \/      \          /      \/   0  \
+    #    /________________\        /________________\
+    #
+    points = [
+        Coordinate(5, 0),
+        Coordinate(3, 5),
+        Coordinate(0, 1),
+        Coordinate(-3, 5),
+        Coordinate(-5, 0),
+    ]
+
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+
+    cutting_line = Line(Coordinate(-6, 2), Coordinate(6, 2))
+
+    split_regions = irreg_pentagon.split(cutting_line)
+
+    lengths = [[2.15, 3.45, 1.25, 1.25, 3.45, 2.15, 10], [3.2, 3.75, 3.45], [3.75, 3.2, 3.45]]
+    assert len(split_regions) == 3
+    for i in range(len(split_regions)):
+        assert split_regions[i].is_closed()
+        for j in range(len(split_regions[i].entities)):
+            assert isclose(split_regions[i].entities[j].length, lengths[i][j], abs_tol=0.05)
 
 
 def test_do_not_split_region():
@@ -1484,8 +1519,7 @@ def test_do_not_split_region():
     split_regions = square_region.split(cutting_line)
 
     assert square_region == original_square
-    assert len(split_regions) == 1
-    assert split_regions[0].entities == original_square.entities
+    assert split_regions == None
 
 
 def test_replace_region(mc):
