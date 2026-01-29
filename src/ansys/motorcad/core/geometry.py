@@ -835,6 +835,7 @@ class Region(object):
             new_region.entities = entity_list
             new_regions.append(new_region)
             j += 1
+
         return new_regions
 
     def boundary_split(self, region=None):
