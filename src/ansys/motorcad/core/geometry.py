@@ -2969,7 +2969,11 @@ class EntityList(list):
 
                 intersection_points.extend(intersection_point)
 
-                # check that intersection isn't at start or end?
+                # check that any intersection points are not at the start or end of the entity.
+                # Remove them if they are.
+                for point in reversed(intersection_point):
+                    if point == entity.start or point == entity.end:
+                        intersection_point.remove(point)
 
                 # split the entity
                 entity_n = entity

@@ -897,7 +897,7 @@ def test_split_entities_3():
         j += 1
 
 
-def test_do_not_split_entities():
+def test_do_not_split_entities_1():
     # for EntityList method
     # -------------------------------------------
     #               circle, 2 entities
@@ -929,6 +929,32 @@ def test_do_not_split_entities():
 
     # check that the EntityList is unchanged,
     assert entities == original_entities
+    assert split_lists == [original_entities]
+
+
+def test_do_not_split_entities_2():
+    # for EntityList method
+    # -------------------------------------------
+    #               square, 4 entities
+    # vertical cutting line is collinear with square line 2.
+
+    # create square region with anticlockwise entities and horizontal base.
+    square_region = create_square()
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+
+    # check the entities form a square
+    assert square_region.entities.is_closed
+    assert len(square_region.entities) == 4
+    original_entities = deepcopy(square_region.entities)
+
+    # cutting line that is collinear with square_region.entities[1] (vertical)
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_lists = square_region.entities.split(cutting_line)
+
+    # check that the EntityList is unchanged,
+    assert square_region.entities == original_entities
     assert split_lists == [original_entities]
 
 
@@ -1362,9 +1388,59 @@ def test_unite_regions_2(mc):
     assert expected_region == union
 
 
-# def test_split_region_1():
-#     """Test split region based on intersection with a cutting line."""
-#
+def test_split_region_1():
+    """Test split region based on intersection with a cutting line."""
+    # -------------------------------------------
+    #               circle, 2 entities
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    entities = []
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Arc(points[i], next_point, radius=5))
+
+    circle_region = Region(region_type=RegionType.rotor)
+    for i in range(len(entities)):
+        circle_region.add_entity(entities[i])
+
+    # check that the original region forms a circle
+    assert circle_region.is_closed
+    assert len(circle_region.entities) == 2
+    assert circle_region.entities[0].radius == circle_region.entities[1].radius
+    assert circle_region.entities[0].centre == circle_region.entities[1].centre
+
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_regions = circle_region.split(cutting_line)
+
+    # check that circle_region entities have been split correctly.
+    assert circle_region.is_closed()
+    assert len(circle_region.entities) == 4
+    lengths = [2.1, 11.6, 2.1, 15.7]
+    for i in range(len(circle_region.entities)):
+        assert circle_region.entities[i].radius == circle_region.entities[0].radius
+        assert circle_region.entities[i].centre == circle_region.entities[0].centre
+        assert isclose(circle_region.entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check the separate split regions are as expected.
+    for region in split_regions:
+        assert region.is_closed()
+
+    split_region_entity_lengths = [[2.1, 9.2, 2.1, 15.7], [9.2, 11.6]]
+    j = 0
+    for region in split_regions:
+        assert len(region.entities) == len(split_region_entity_lengths[j])  # each has 2 entities
+        for i in range(len(region.entities)):
+            assert isclose(
+                region.entities[i].length, split_region_entity_lengths[j][i], abs_tol=0.05
+            )
+        j += 1
 
 
 def test_replace_region(mc):
