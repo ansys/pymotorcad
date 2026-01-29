@@ -784,7 +784,7 @@ def test_split_entities_1():
     #    0                 0
     #                  ''split_lists[1]''
 
-    split_lists = entities.split_entities(cutting_line)
+    split_lists = entities.split(cutting_line)
 
     # check the entities now has 6 entities.
     assert entities.is_closed
@@ -831,7 +831,7 @@ def test_split_entities_2():
 
     cutting_line = Line(Coordinate(-4, -5), Coordinate(4, 5))
 
-    split_lists = entities.split_entities(cutting_line)
+    split_lists = entities.split(cutting_line)
 
     assert entities.is_closed
     assert len(entities) == 4
@@ -877,7 +877,7 @@ def test_split_entities_3():
 
     cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
 
-    split_lists = entities.split_entities(cutting_line)
+    split_lists = entities.split(cutting_line)
 
     assert entities.is_closed
     assert len(entities) == 4
@@ -895,6 +895,41 @@ def test_split_entities_3():
         for i in range(len(new_entity_list)):
             assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
         j += 1
+
+
+def test_do_not_split_entities():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    # vertical cutting line doesn't intersect entities.
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    entities = EntityList()
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Arc(points[i], next_point, radius=5))
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+    original_entities = deepcopy(entities)
+
+    # define a cutting line that does not intersect the EntityList
+    cutting_line = Line(Coordinate(6, -5.5), Coordinate(6, 5.5))
+
+    split_lists = entities.split(cutting_line)
+
+    # check that the EntityList is unchanged,
+    assert entities == original_entities
+    assert split_lists == [original_entities]
 
 
 def test_line_get_coordinate_from_percentage_distance():
@@ -1325,6 +1360,11 @@ def test_unite_regions_2(mc):
     union = mc.unite_regions(square, [triangle])
 
     assert expected_region == union
+
+
+# def test_split_region_1():
+#     """Test split region based on intersection with a cutting line."""
+#
 
 
 def test_replace_region(mc):

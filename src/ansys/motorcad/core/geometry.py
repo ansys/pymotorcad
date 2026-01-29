@@ -806,6 +806,37 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
+    def split(self, cutting_line):
+        """Split self based on intersection with a given line (cutting_line).
+
+        Parameters
+        ----------
+        cutting_line : ansys.motorcad.core.geometry.Line
+            Motor-CAD Line object that intersects entities in self.
+
+        Returns
+        -------
+        list of Region
+            The original Region (self) split into multiple new Region objects based on
+            cutting_line.
+        """
+        split_entities = self.entities.split(cutting_line)
+        j = 0
+        new_regions = []
+        for entity_list in split_entities:
+            for i in range(len(entity_list)):
+                if entity_list[i].start != entity_list[i - 1].end:
+                    entity_list.insert(i, Line(entity_list[i - 1].end, entity_list[i].start))
+            new_region = Region(
+                region_type=self.region_type, motorcad_instance=self.motorcad_instance
+            )
+            new_region.update(self)
+            new_region.name = f"{self.name}_split_{j}"
+            new_region.entities = entity_list
+            new_regions.append(new_region)
+            j += 1
+        return new_regions
+
     def boundary_split(self, region=None):
         """Split and repeat a region that overhangs the boundary.
 
@@ -2896,7 +2927,7 @@ class EntityList(list):
         else:
             return _entities_same_with_direction(self, entities_to_compare)
 
-    def split_entities(self, cutting_line: Line):
+    def split(self, cutting_line: Line):
         """Split the entities in self that intersect with a given line (cutting_line).
 
         Parameters
@@ -2908,7 +2939,8 @@ class EntityList(list):
         -------
         list of EntityList
             The original entities in self split into multiple new EntityList objects based on
-            cutting_line.
+            cutting_line. If the list is not split by cutting_line (does not intersect), the method
+            returns [self].
         """
         new_list_objects = []
         new_list_object = EntityList()
@@ -2976,7 +3008,10 @@ class EntityList(list):
                 new_list_object.append(entity)
 
         if len(new_list_object) > 0:
-            new_list_objects[0].extend(new_list_object)
+            if len(new_list_objects) > 0:
+                new_list_objects[0].extend(new_list_object)
+            else:
+                new_list_objects.append(new_list_object)
         if len(new_entities) > 0:
             # insert the new entities to the entity list in reverse order, from highest index to
             # lowest.
