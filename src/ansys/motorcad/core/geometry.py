@@ -908,8 +908,8 @@ class Region(object):
                 else:
                     additional_regions.append(split_region)
         # link the regions using linked_region property
-        if len(additional_regions) > 0:
-            self.linked_region = additional_regions[0]
+        for additional_region in additional_regions:
+            additional_region.linked_region = self
         return additional_regions
 
     def collides(self, regions):
