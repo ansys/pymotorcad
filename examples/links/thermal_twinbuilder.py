@@ -353,7 +353,7 @@ class MotorCADTwinModel:
 
         self.customPowerInjections = []
 
-        self.mcad = pymotorcad.MotorCAD(open_new_instance=False)
+        self.mcad = pymotorcad.MotorCAD()
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
