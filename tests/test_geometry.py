@@ -1522,6 +1522,143 @@ def test_do_not_split_region():
     assert split_regions == None
 
 
+def test_split_and_rotate_on_x_axis_1(mc):
+    """Test split and rotote on x-axis method for a circular region."""
+    rotor = mc.get_region("Rotor")
+    square_region = create_square()
+    square_region.motorcad_instance = mc
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+    square_region.translate(60, -1)
+    square_region.parent = rotor
+
+    extras = square_region.split_and_rotate_on_x_axis()
+    to_draw = []
+    to_draw.append(rotor)
+    to_draw.append(square_region)
+    to_draw.extend(extras)
+
+    lengths = [1, 2, 1, 2]
+    for region in [square_region, extras[0]]:
+        assert region.is_closed()
+        assert len(region.entities) == 4
+        for i in range(len(region.entities)):
+            assert isclose(region.entities[i].length, lengths[i], abs_tol=GEOM_TOLERANCE)
+
+
+def test_split_and_rotate_on_x_axis_2(mc):
+    """Test split and rotate on x-axis method for a circular region."""
+    rotor = mc.get_region("Rotor")
+    circle_region = create_circle()
+    circle_region.motorcad_instance = mc
+    circle_region.translate(60, 0)
+    circle_region.parent = rotor
+
+    extras = circle_region.split_and_rotate_on_x_axis()
+
+    lengths = [7.85, 7.85, 10]
+    for region in [circle_region, extras[0]]:
+        assert region.is_closed()
+        assert len(region.entities) == 3
+        for i in range(len(region.entities)):
+            assert isclose(region.entities[i].length, lengths[i], abs_tol=0.05)
+
+
+def test_split_and_rotate_on_x_axis_3(mc):
+    """Test split and rotate on x-axis method for an irregular pentagon region."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #        /\      /\                /\      /\
+    #       /  \    /  \      ---->   / 2\    / 1\
+    #  ____/____\__/____\____        /____\  /____\
+    #     /      \/      \          /      \/   0  \
+    #    /________________\        /________________\
+    #
+    points = [
+        Coordinate(5, 0),
+        Coordinate(3, 5),
+        Coordinate(0, 1),
+        Coordinate(-3, 5),
+        Coordinate(-5, 0),
+    ]
+
+    rotor = mc.get_region("Rotor")
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+    irreg_pentagon.translate(60, -2)
+    irreg_pentagon.parent = rotor
+
+    # ansys.motorcad.core.geometry_drawing.draw_objects([rotor, irreg_pentagon])
+
+    extras = irreg_pentagon.split_and_rotate_on_x_axis()
+    # to_draw = [rotor, irreg_pentagon]
+    # to_draw.extend(extras)
+    # ansys.motorcad.core.geometry_drawing.draw_objects(to_draw, draw_points=True)
+
+    number_of_entities = [3, 7, 3]
+    i = 0
+    for region in [irreg_pentagon, extras[0], extras[1]]:
+        assert region.is_closed()
+        assert len(region.entities) == number_of_entities[i]
+        i += 1
+
+
+def test_split_and_rotate_on_x_axis_4(mc):
+    """Test split and rotate on x-axis method for an irregular pentagon region."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #   __________________        __________________
+    #   \                /        \                /
+    #    \      /\      /          \  0   /\      /
+    #  ___\____/__\____/___         \____/  \____/
+    #      \  /    \  /      ---->   \ 1/    \ 2/
+    #       \/      \/                \/      \/
+    #
+    points = [
+        Coordinate(5, 5),
+        Coordinate(3, 0),
+        Coordinate(0, 4),
+        Coordinate(-3, 0),
+        Coordinate(-5, 5),
+    ]
+
+    rotor = mc.get_region("Rotor")
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+    irreg_pentagon.translate(60, -3)
+    irreg_pentagon.parent = rotor
+
+    extras = irreg_pentagon.split_and_rotate_on_x_axis()
+
+    number_of_entities = [7, 3, 3]
+    i = 0
+    for region in [irreg_pentagon, extras[0], extras[1]]:
+        assert region.is_closed()
+        assert len(region.entities) == number_of_entities[i]
+        i += 1
+
+
+def test_do_not_split_and_rotate_on_x_axis(mc):
+    """Test split and rotate on x-axis method for a circular region not cutting the axis."""
+    rotor = mc.get_region("Rotor")
+    circle_region = create_circle()
+    circle_region.motorcad_instance = mc
+
+    # place the circle wholly inside the rotor, so that it does not cross the x-axis.
+    circle_region.translate(60, 20)
+    circle_region.parent = rotor
+    original_circle = deepcopy(circle_region)
+
+    extras = circle_region.split_and_rotate_on_x_axis()
+
+    assert extras is None
+    assert circle_region == original_circle
+
+
 def test_replace_region(mc):
     """Test replace region entities with entities from another region."""
     region_a = geometry.Region(RegionType.stator_air)

@@ -865,6 +865,53 @@ class Region(object):
 
         return new_regions
 
+    def split_and_rotate_on_x_axis(self):
+        """Split self based on intersection with x-axis and rotate the region below the x-axis.
+
+        Note: ''self.parent'' must be a Region with a duplication number so that the split region
+        below the x-axis can be correctly rotated.
+
+        Returns
+        ----------
+        list of Region
+            The additional regions that have been split and rotated.
+        """
+        if not self.parent:
+            raise TypeError(f"You must set the parent region of {self.name} to a valid region.")
+        # create an x-axis Line
+        x_axis = Line(Coordinate(0, 0), Coordinate(1 / GEOM_TOLERANCE, 0))
+
+        # use split method to split the original region
+        split_regions = self.split(x_axis)
+
+        # if the region is not split by the x-axis, return None
+        if split_regions is None:
+            return None
+
+        # create a list for additional regions to be returned
+        additional_regions = []
+        i = 0
+        for split_region in split_regions:
+            # for new regions that lie below the x-axis, rotate them to the other side of the parent
+            # region. Add the rotated region to additional_regions.
+            if split_region.centroid.y < 0:
+                split_region.rotate(Coordinate(0, 0), 360 / self.parent.duplications)
+                additional_regions.append(split_region)
+            # For split regions that lie above the x-axis, update self with the new split geometry
+            # for the first split region.
+            else:
+                if i < 1:
+                    split_region.name = self.name
+                    self.update(split_region)
+                    i += 1
+                # append additional split regions that lie above the x-axis to additional_regions
+                else:
+                    additional_regions.append(split_region)
+        # link the regions using linked_region property
+        if len(additional_regions) > 0:
+            self.linked_region = additional_regions[0]
+        return additional_regions
+
     def boundary_split(self, region=None):
         """Split and repeat a region that overhangs the boundary.
 
