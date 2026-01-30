@@ -100,6 +100,24 @@ def create_triangle():
     return triangle
 
 
+def create_circle():
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    circle_region = Region(region_type=RegionType.rotor)
+
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        circle_region.add_entity(Arc(points[i], next_point, radius=5))
+
+    return circle_region
+
+
 def create_lines_from_points(points):
     lines = []
 
@@ -735,6 +753,202 @@ def test_reverse_entities_2():
     assert region_1.entities._entities_same(region_2.entities, check_reverse=False) is True
 
 
+def test_split_entities_1():
+    # for EntityList method
+    # -------------------------------------------
+    #               square, 4 entities
+    points = [Coordinate(-5, -5), Coordinate(5, -5), Coordinate(5, 5), Coordinate(-5, 5)]
+
+    entities = EntityList()
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Line(points[i], next_point))
+
+    # check that the original list forms a square
+    assert entities.is_closed
+    assert len(entities) == 4
+    for entity in entities:
+        assert entity.length == 10
+
+    cutting_line = Line(Coordinate(-4, -5), Coordinate(4, 5))
+
+    #  ''entities''
+    #         2                    4      3
+    #    ___________           _________/_
+    #   |           |         |        /  |
+    #   |           |       5 |       /   |
+    # 3 |           |         |      /    |
+    #   |           |  --->   |     /     |
+    #   |           | 1       |    /      | 2
+    #   |           |         |   /       |
+    #   |           |         |  /        |
+    #   |___________|         |_/_________|
+    #        0                0/     1
+    #
+    #  ''split_lists[0]''
+    #        1                  2
+    #    _________             _
+    #   |                       |
+    #   |                       |
+    # 2 |                       |
+    #   |                       |
+    #   |                       | 1
+    #   |                       |
+    #   |                       |
+    #   |_              ________|
+    #    0                 0
+    #                  ''split_lists[1]''
+
+    split_lists = entities.split(cutting_line)
+
+    # check the entities now has 6 entities.
+    assert entities.is_closed
+    assert len(entities) == 6
+    # check the entities are the expected lengths
+    new_lengths = [1, 9, 10, 1, 9, 10]
+    for i in range(len(entities)):
+        assert entities[i].length == new_lengths[i]
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[1, 9, 10], [9, 10, 1]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert not new_entity_list.is_closed  # they are not closed
+        assert len(new_entity_list) == 3  # each has 3 entities
+        for i in range(len(new_entity_list)):
+            assert new_entity_list[i].length == split_list_lengths[j][i]
+        j += 1
+
+
+def test_split_entities_2():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    # Diagonal cutting line intersects both entities
+    circle_region = create_circle()
+
+    entities = circle_region.entities
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+
+    cutting_line = Line(Coordinate(-4, -5), Coordinate(4, 5))
+
+    split_lists = entities.split(cutting_line)
+
+    assert entities.is_closed
+    assert len(entities) == 4
+    lengths = [12.3, 3.4, 12.3, 3.4]
+    for i in range(len(entities)):
+        assert entities[i].radius == entities[0].radius
+        assert entities[i].centre == entities[0].centre
+        assert isclose(entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[12.3, 3.4], [3.4, 12.3]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert len(new_entity_list) == 2  # each has 2 entities
+        for i in range(len(new_entity_list)):
+            assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
+        j += 1
+
+
+def test_split_entities_3():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    # vertical cutting line intersects one Arc twice
+    circle_region = create_circle()
+
+    entities = circle_region.entities
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_lists = entities.split(cutting_line)
+
+    assert entities.is_closed
+    assert len(entities) == 4
+    lengths = [2.1, 11.6, 2.1, 15.7]
+    for i in range(len(entities)):
+        assert entities[i].radius == entities[0].radius
+        assert entities[i].centre == entities[0].centre
+        assert isclose(entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check that the split_lists EntityList objects are as expected.
+    split_list_lengths = [[2.1, 2.1, 15.7], [11.6]]
+    j = 0
+    for new_entity_list in split_lists:
+        assert len(new_entity_list) == len(split_list_lengths[j])  # each has 2 entities
+        for i in range(len(new_entity_list)):
+            assert isclose(new_entity_list[i].length, split_list_lengths[j][i], abs_tol=0.05)
+        j += 1
+
+
+def test_do_not_split_entities_1():
+    # for EntityList method
+    # -------------------------------------------
+    #               circle, 2 entities
+    # vertical cutting line doesn't intersect entities.
+    circle_region = create_circle()
+
+    entities = circle_region.entities
+
+    # check that the original list forms a circle
+    assert entities.is_closed
+    assert len(entities) == 2
+    assert entities[0].radius == entities[1].radius
+    assert entities[0].centre == entities[1].centre
+    original_entities = deepcopy(entities)
+
+    # define a cutting line that does not intersect the EntityList
+    cutting_line = Line(Coordinate(6, -5.5), Coordinate(6, 5.5))
+
+    split_lists = entities.split(cutting_line)
+
+    # check that the EntityList is unchanged,
+    assert entities == original_entities
+    assert split_lists is None
+
+
+def test_do_not_split_entities_2():
+    # for EntityList method
+    # -------------------------------------------
+    #               square, 4 entities
+    # vertical cutting line is collinear with square line 2.
+
+    # create square region with anticlockwise entities and horizontal base.
+    square_region = create_square()
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+
+    # check the entities form a square
+    assert square_region.entities.is_closed
+    assert len(square_region.entities) == 4
+    original_entities = deepcopy(square_region.entities)
+
+    # cutting line that is collinear with square_region.entities[1] (vertical)
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_lists = square_region.entities.split(cutting_line)
+
+    # check that the EntityList is unchanged,
+    assert square_region.entities == original_entities
+    assert split_lists is None
+
+
 def test_line_get_coordinate_from_percentage_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
@@ -1163,6 +1377,286 @@ def test_unite_regions_2(mc):
     union = mc.unite_regions(square, [triangle])
 
     assert expected_region == union
+
+
+def test_split_region_1(mc):
+    """Test split circular region based on intersection with a cutting line."""
+    # -------------------------------------------
+    #               circle, 2 entities
+    points = [
+        Coordinate(0, -5),
+        Coordinate(0, 5),
+    ]
+
+    entities = []
+    for i in range(len(points)):
+        if i == len(points) - 1:
+            next_point = points[0]
+        else:
+            next_point = points[i + 1]
+        entities.append(Arc(points[i], next_point, radius=5))
+
+    circle_region = Region(region_type=RegionType.rotor, motorcad_instance=mc)
+    for i in range(len(entities)):
+        circle_region.add_entity(entities[i])
+    # check that the original region forms a circle
+    assert circle_region.is_closed
+    assert len(circle_region.entities) == 2
+    assert circle_region.entities[0].radius == circle_region.entities[1].radius
+    assert circle_region.entities[0].centre == circle_region.entities[1].centre
+
+    cutting_line = Line(Coordinate(2, -5.5), Coordinate(2, 5.5))
+
+    split_regions = circle_region.split(cutting_line)
+
+    # check that circle_region entities have been split correctly.
+    assert circle_region.is_closed()
+    assert len(circle_region.entities) == 4
+    lengths = [2.1, 11.6, 2.1, 15.7]
+    for i in range(len(circle_region.entities)):
+        assert circle_region.entities[i].radius == circle_region.entities[0].radius
+        assert circle_region.entities[i].centre == circle_region.entities[0].centre
+        assert isclose(circle_region.entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check the separate split regions are as expected.
+    for region in split_regions:
+        assert region.is_closed()
+
+    split_region_entity_lengths = [[2.1, 15.7, 2.1, 9.2], [11.6, 9.2]]
+    j = 0
+    for region in split_regions:
+        assert len(region.entities) == len(split_region_entity_lengths[j])  # each has 2 entities
+        for i in range(len(region.entities)):
+            assert isclose(
+                region.entities[i].length, split_region_entity_lengths[j][i], abs_tol=0.05
+            )
+        j += 1
+
+
+def test_split_region_2(mc):
+    """Test split square region based on intersection with a cutting line."""
+
+    square_region = create_square()
+    square_region.motorcad_instance = mc
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+
+    # check the entities form a square
+    assert square_region.entities.is_closed
+    assert len(square_region.entities) == 4
+
+    cutting_line = Line(Coordinate(0, -1), Coordinate(2, 3))
+    split_regions = square_region.split(cutting_line)
+
+    # check that square_region entities have been split correctly.
+    assert square_region.is_closed()
+    assert len(square_region.entities) == 6
+    lengths = [0.5, 1.5, 2, 0.5, 1.5, 2]
+    for i in range(len(square_region.entities)):
+        assert isclose(square_region.entities[i].length, lengths[i], abs_tol=0.05)
+
+    # check the separate split regions are as expected.
+    for region in split_regions:
+        assert region.is_closed()
+
+    split_region_entity_lengths = [[2, 0.5, 2.2, 1.5], [2, 0.5, 2.2, 1.5]]
+    j = 0
+    for region in split_regions:
+        assert len(region.entities) == len(split_region_entity_lengths[j])  # each has 2 entities
+        for i in range(len(region.entities)):
+            assert isclose(
+                region.entities[i].length, split_region_entity_lengths[j][i], abs_tol=0.05
+            )
+        j += 1
+
+
+def test_split_region_3(mc):
+    """Test split irregular pentagon region based on intersection with a cutting line."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #        /\      /\                /\      /\
+    #       /  \    /  \      ---->   / 2\    / 1\
+    #  ____/____\__/____\____        /____\  /____\
+    #     /      \/      \          /      \/   0  \
+    #    /________________\        /________________\
+    #
+    points = [
+        Coordinate(5, 0),
+        Coordinate(3, 5),
+        Coordinate(0, 1),
+        Coordinate(-3, 5),
+        Coordinate(-5, 0),
+    ]
+
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+
+    cutting_line = Line(Coordinate(-6, 2), Coordinate(6, 2))
+
+    split_regions = irreg_pentagon.split(cutting_line)
+
+    lengths = [[2.15, 3.45, 1.25, 1.25, 3.45, 2.15, 10], [3.2, 3.75, 3.45], [3.75, 3.2, 3.45]]
+    assert len(split_regions) == 3
+    for i in range(len(split_regions)):
+        assert split_regions[i].is_closed()
+        for j in range(len(split_regions[i].entities)):
+            assert isclose(split_regions[i].entities[j].length, lengths[i][j], abs_tol=0.05)
+
+
+def test_do_not_split_region():
+    """Test split method for a square region and cutting line that does not intersect."""
+
+    square_region = create_square()
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+    original_square = deepcopy(square_region)
+
+    cutting_line = Line(Coordinate(2, -1), Coordinate(2, 3))
+
+    # use split function, expect no change to square
+    split_regions = square_region.split(cutting_line)
+
+    assert square_region == original_square
+    assert split_regions == None
+
+
+def test_split_and_rotate_on_x_axis_1(mc):
+    """Test split and rotote on x-axis method for a circular region."""
+    rotor = mc.get_region("Rotor")
+    square_region = create_square()
+    square_region.motorcad_instance = mc
+    square_region = square_region.mirror(Line(Coordinate(1, -5), Coordinate(1, 5)))
+    square_region.rotate(Coordinate(1, 1), -90)
+    square_region.translate(60, -1)
+    square_region.parent = rotor
+
+    extras = square_region.split_and_rotate_on_x_axis()
+    to_draw = []
+    to_draw.append(rotor)
+    to_draw.append(square_region)
+    to_draw.extend(extras)
+
+    lengths = [1, 2, 1, 2]
+    for region in [square_region, extras[0]]:
+        assert region.is_closed()
+        assert len(region.entities) == 4
+        for i in range(len(region.entities)):
+            assert isclose(region.entities[i].length, lengths[i], abs_tol=GEOM_TOLERANCE)
+
+
+def test_split_and_rotate_on_x_axis_2(mc):
+    """Test split and rotate on x-axis method for a circular region."""
+    rotor = mc.get_region("Rotor")
+    circle_region = create_circle()
+    circle_region.motorcad_instance = mc
+    circle_region.translate(60, 0)
+    circle_region.parent = rotor
+
+    extras = circle_region.split_and_rotate_on_x_axis()
+
+    lengths = [7.85, 7.85, 10]
+    for region in [circle_region, extras[0]]:
+        assert region.is_closed()
+        assert len(region.entities) == 3
+        for i in range(len(region.entities)):
+            assert isclose(region.entities[i].length, lengths[i], abs_tol=0.05)
+
+
+def test_split_and_rotate_on_x_axis_3(mc):
+    """Test split and rotate on x-axis method for an irregular pentagon region."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #        /\      /\                /\      /\
+    #       /  \    /  \      ---->   / 2\    / 1\
+    #  ____/____\__/____\____        /____\  /____\
+    #     /      \/      \          /      \/   0  \
+    #    /________________\        /________________\
+    #
+    points = [
+        Coordinate(5, 0),
+        Coordinate(3, 5),
+        Coordinate(0, 1),
+        Coordinate(-3, 5),
+        Coordinate(-5, 0),
+    ]
+
+    rotor = mc.get_region("Rotor")
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+    irreg_pentagon.translate(60, -2)
+    irreg_pentagon.parent = rotor
+
+    # ansys.motorcad.core.geometry_drawing.draw_objects([rotor, irreg_pentagon])
+
+    extras = irreg_pentagon.split_and_rotate_on_x_axis()
+    # to_draw = [rotor, irreg_pentagon]
+    # to_draw.extend(extras)
+    # ansys.motorcad.core.geometry_drawing.draw_objects(to_draw, draw_points=True)
+
+    number_of_entities = [3, 7, 3]
+    i = 0
+    for region in [irreg_pentagon, extras[0], extras[1]]:
+        assert region.is_closed()
+        assert len(region.entities) == number_of_entities[i]
+        i += 1
+
+
+def test_split_and_rotate_on_x_axis_4(mc):
+    """Test split and rotate on x-axis method for an irregular pentagon region."""
+    # This irregular pentagon has 4 intersections with the cutting line, should result in 3 split
+    # regions.
+    #
+    #   __________________        __________________
+    #   \                /        \                /
+    #    \      /\      /          \  0   /\      /
+    #  ___\____/__\____/___         \____/  \____/
+    #      \  /    \  /      ---->   \ 1/    \ 2/
+    #       \/      \/                \/      \/
+    #
+    points = [
+        Coordinate(5, 5),
+        Coordinate(3, 0),
+        Coordinate(0, 4),
+        Coordinate(-3, 0),
+        Coordinate(-5, 5),
+    ]
+
+    rotor = mc.get_region("Rotor")
+    irreg_pentagon = Region(RegionType.stator, motorcad_instance=mc)
+    for i in range(len(points)):
+        irreg_pentagon.add_entity(Line(points[i - 1], points[i]))
+    irreg_pentagon.translate(60, -3)
+    irreg_pentagon.parent = rotor
+
+    extras = irreg_pentagon.split_and_rotate_on_x_axis()
+
+    number_of_entities = [7, 3, 3]
+    i = 0
+    for region in [irreg_pentagon, extras[0], extras[1]]:
+        assert region.is_closed()
+        assert len(region.entities) == number_of_entities[i]
+        i += 1
+
+
+def test_do_not_split_and_rotate_on_x_axis(mc):
+    """Test split and rotate on x-axis method for a circular region not cutting the axis."""
+    rotor = mc.get_region("Rotor")
+    circle_region = create_circle()
+    circle_region.motorcad_instance = mc
+
+    # place the circle wholly inside the rotor, so that it does not cross the x-axis.
+    circle_region.translate(60, 20)
+    circle_region.parent = rotor
+    original_circle = deepcopy(circle_region)
+
+    extras = circle_region.split_and_rotate_on_x_axis()
+
+    assert extras is None
+    assert circle_region == original_circle
 
 
 def test_replace_region(mc):

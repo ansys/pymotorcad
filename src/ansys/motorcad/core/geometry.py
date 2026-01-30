@@ -806,6 +806,112 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
+    def split(self, cutting_line):
+        """Split self based on intersection with a given line (cutting_line).
+
+        Parameters
+        ----------
+        cutting_line : ansys.motorcad.core.geometry.Line
+            Motor-CAD Line object that intersects entities in self.
+
+        Returns
+        -------
+        list of Region
+            The original Region (self) split into multiple new Region objects based on
+            cutting_line.
+        """
+        # split the region entities
+        split_entities = self.entities.split(cutting_line)
+
+        # Split the original region into multiple new regions. Create the list of new regions from
+        # the split entity lists.
+        j = 0
+        new_regions = []
+        # If region entities are not split by cutting_line, return None
+        if split_entities is None:
+            return None
+        for entity_list in split_entities:
+            for i in range(len(entity_list)):
+                # Check for subsequent entities in the list that are not touching, and insert a new
+                # line between them.
+                if entity_list[i].start != entity_list[i - 1].end:
+                    entity_list.insert(i, Line(entity_list[i - 1].end, entity_list[i].start))
+            # create a new region
+            new_region = Region(
+                region_type=self.region_type, motorcad_instance=self.motorcad_instance
+            )
+            # New split regions inherit all properties of the original region.
+            new_region.update(self)
+            new_region.name = f"{self.name}_split_{j}"  # Give new split regions a unique name
+            new_region.entities = entity_list  # Set the new split region entities
+            new_regions.append(new_region)  # Add the new region to list to be returned
+            j += 1
+
+        # The returned regions can be overlapping. Subtract overlapping regions.
+        for region in new_regions:
+            for other_region in new_regions:
+                if other_region != region:
+                    # Try subtracting regions from each other. Any overlapping region will be
+                    # subtracted.
+                    try:
+                        original_area = region.area
+                        region.subtract(other_region)
+                        # If subtraction was successful, remove the subtracted region.
+                        if original_area > region.area:
+                            new_regions.remove(other_region)
+                    # raise any Exceptions. Note: Motor-CAD instance is required for this method.
+                    except Exception as e:
+                        raise e
+
+        return new_regions
+
+    def split_and_rotate_on_x_axis(self):
+        """Split self based on intersection with x-axis and rotate the region below the x-axis.
+
+        Note: ''self.parent'' must be a Region with a duplication number so that the split region
+        below the x-axis can be correctly rotated.
+
+        Returns
+        ----------
+        list of Region
+            The additional regions that have been split and rotated.
+        """
+        if not self.parent:
+            raise TypeError(f"You must set the parent region of {self.name} to a valid region.")
+        # create an x-axis Line
+        x_axis = Line(Coordinate(0, 0), Coordinate(1 / GEOM_TOLERANCE, 0))
+
+        # use split method to split the original region
+        split_regions = self.split(x_axis)
+
+        # if the region is not split by the x-axis, return None
+        if split_regions is None:
+            return None
+
+        # create a list for additional regions to be returned
+        additional_regions = []
+        i = 0
+        for split_region in split_regions:
+            # for new regions that lie below the x-axis, rotate them to the other side of the parent
+            # region. Add the rotated region to additional_regions.
+            if split_region.centroid.y < 0:
+                split_region.rotate(Coordinate(0, 0), 360 / self.parent.duplications)
+                additional_regions.append(split_region)
+            # For split regions that lie above the x-axis, update self with the new split geometry
+            # for the first split region.
+            else:
+                if i < 1:
+                    split_region.name = self.name
+                    self.update(split_region)
+                    i += 1
+                # append additional split regions that lie above the x-axis to additional_regions
+                else:
+                    additional_regions.append(split_region)
+        # link the regions using linked_region property
+        for additional_region in additional_regions:
+            additional_region.linked_region = self
+        return additional_regions
+
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
 
@@ -2827,6 +2933,103 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+    def split(self, cutting_line: Line):
+        """Split the entities in self that intersect with a given line (cutting_line).
+
+        Parameters
+        ----------
+        cutting_line : ansys.motorcad.core.geometry.Line
+            Motor-CAD Line object that intersects entities in self.
+
+        Returns
+        -------
+        list of EntityList
+            The original entities in self split into multiple new EntityList objects based on
+            cutting_line. If the list is not split by cutting_line (does not intersect), the method
+            returns [self].
+        """
+        new_list_objects = []
+        new_list_object = EntityList()
+        intersection_points = []
+        new_entities = []
+        new_entity_indices = []
+        for i in range(len(self)):
+            entity = self[i]
+            intersection_point = entity.get_intersection(cutting_line)
+            if intersection_point is not None:
+                # this entity intersects the cutting line.
+
+                # there can be more than 1 intersection_point if we are intersecting an Arc.
+                intersection_point_ordered = []
+                if len(intersection_point) > 1:
+                    # make sure the order is correct, point 0 is closest to entity start.
+                    if abs(intersection_point[0] - entity.start) < abs(
+                        intersection_point[1] - entity.start
+                    ):
+                        intersection_point_ordered.append(intersection_point[0])
+                        intersection_point_ordered.append(intersection_point[1])
+                    else:
+                        intersection_point_ordered.append(intersection_point[1])
+                        intersection_point_ordered.append(intersection_point[0])
+                    intersection_point = intersection_point_ordered
+
+                intersection_points.extend(intersection_point)
+
+                # check that any intersection points are not at the start or end of the entity.
+                # Remove them if they are.
+                for point in reversed(intersection_point):
+                    if point == entity.start or point == entity.end:
+                        intersection_point.remove(point)
+
+                # split the entity
+                entity_n = entity
+                j = 0
+                # intersection_point can be more than 1 if we are intersecting an Arc. So use for
+                # loop.
+                for point in intersection_point:
+                    # Split the entity by creating a new Line or Arc for the new part of the entity.
+                    if isinstance(entity_n, Line):
+                        new_entity = Line(point, Coordinate(entity_n.end.x, entity_n.end.y))
+                    elif isinstance(entity_n, Arc):
+                        new_entity = Arc(
+                            point,
+                            Coordinate(entity_n.end.x, entity_n.end.y),
+                            radius=entity_n.radius,
+                            centre=entity_n.centre,
+                        )
+                    else:
+                        raise TypeError(f"Entity {i} is neither a Line or Arc.")
+                    # shorten the original entity
+                    entity_n.end = point
+                    # add the new entity and the appropriate list index to lists. New entities will
+                    # be inserted once all have been found.
+                    new_entities.append(new_entity)
+                    new_entity_indices.append(i + 1)
+                    # If there are multiple intersection points for the original entity, repeat the
+                    # process. This time, it is the previous new_entity that will be shortened.
+                    new_list_object.append(entity_n)
+                    new_list_objects.append(new_list_object)
+                    new_list_object = EntityList()
+                    entity_n = new_entity
+                new_list_object.append(entity_n)
+            else:
+                # if the cutting line does not intersect this entity, append the original entity to
+                # the list
+                new_list_object.append(entity)
+
+        if len(new_list_object) > 0:
+            if len(new_list_objects) > 0:
+                new_list_objects[0].extend(new_list_object)
+            else:
+                # self was not split
+                return None
+        if len(new_entities) > 0:
+            # insert the new entities to the entity list in reverse order, from highest index to
+            # lowest.
+            for i in reversed(range(len(new_entities))):
+                self.insert(new_entity_indices[i], new_entities[i])
+        return new_list_objects
 
 
 def _convert_entities_to_json(entities):
