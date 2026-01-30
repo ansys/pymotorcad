@@ -1,0 +1,1174 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Stress sampling example &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=0477e8c5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'samples/general/BridgeStressSampling';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.8';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Force export for Ansys Motion" href="MotionForceExport.html" />
+    <link rel="prev" title="General example repository" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.4" />
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/samples/general/BridgeStressSampling.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_template/index.html">Adaptive template repository</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">General example repository</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Stress sampling example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MotionForceExport.html">Force export for Ansys Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ParameterSweepSync.html">Simple parametric sweep for SYNC machine</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Example scripts repository</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">General example repository</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Stress sampling example</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-samples-general-bridgestresssampling-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="stress-sampling-example">
+<span id="sphx-glr-samples-general-bridgestresssampling-py"></span><h1>Stress sampling example<a class="headerlink" href="#stress-sampling-example" title="Link to this heading">#</a></h1>
+<p>This example shows how to sample the stresses in the rotor bridges.</p>
+<p>In addition to calculating the average rotor bridge stress, it also allows post-processing
+to consider non-linear plastic effects. Optionally, the results from the non-linear calculation
+are used to replace the standard result in the outputs tab.</p>
+<p>This script should be run from the scripting tab after the stress calculation
+has been run in Motor-CAD.</p>
+<section id="standard-imports">
+<h2>Standard imports<a class="headerlink" href="#standard-imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.motorcad.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pymotorcad</span>
+</pre></div>
+</div>
+</section>
+<section id="utility-functions-to-check-non-linear-material-data">
+<h2>Utility functions to check non-linear material data<a class="headerlink" href="#utility-functions-to-check-non-linear-material-data" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the initial slope of the non-linear stress strain curve matches the Young&#39;s modulus.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    non_linear_strain : list or ndarray</span>
+<span class="sd">        Strain values</span>
+<span class="sd">    non_linear_stress : list or ndarray</span>
+<span class="sd">        Corresponding stress values in MPa</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        Young&#39;s modulus in MPa</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the initial slope is not consistent with the Young&#39;s modulus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">initial_youngs_modulus</span> <span class="o">=</span> <span class="p">(</span><span class="n">non_linear_stress</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">non_linear_strain</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_strain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Error if notably different</span>
+    <span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/dev/library/math.html#math.isclose" title="math.isclose" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">isclose</span></a><span class="p">(</span><span class="n">initial_youngs_modulus</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Youngs Modulus and initial slope of non-linear data are different, &quot;</span>
+            <span class="s2">&quot;please check the inputs. Initial slope is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">initial_youngs_modulus</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; MPa &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;Young&#39;s modulus is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">youngs_modulus</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; MPa&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_divergence_point</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find last point where the non-linear stress strain curve is on the linear region.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    non_linear_strain : list or ndarray</span>
+<span class="sd">        Strain values</span>
+<span class="sd">    non_linear_stress : list or ndarray</span>
+<span class="sd">        Corresponding stress values in MPa</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        Young&#39;s modulus in MPa</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The last stress point in the linear range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/dev/library/math.html#math.isclose" title="math.isclose" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">isclose</span></a><span class="p">(</span>
+            <span class="n">non_linear_stress</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">non_linear_strain</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">0.0001</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Return maximum stress in list if no divergence found</span>
+    <span class="k">return</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="functions-to-estimate-plastic-results">
+<h2>Functions to estimate plastic results<a class="headerlink" href="#functions-to-estimate-plastic-results" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">apply_neuber_correction</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update the Neuber correction estimates from the Von Mises stress.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elastic_stress : float</span>
+<span class="sd">        The linear stress input</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        The Young&#39;s modulus used in the linear stress calculation.</span>
+<span class="sd">    non_linear_strain, non_linear_stress : np.ndarray</span>
+<span class="sd">        Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">/</span> <span class="n">youngs_modulus</span>
+    <span class="n">elastic_stress_strain_product</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">*</span> <span class="n">elastic_strain</span>
+
+    <span class="c1"># Check input data is sensible</span>
+    <span class="n">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">)</span>
+    <span class="c1"># If on the elastic portion, just return inputs, so we don&#39;t get interpolation errors</span>
+    <span class="k">if</span> <span class="n">elastic_stress</span> <span class="o">&lt;</span> <span class="n">find_divergence_point</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;nonlinear_strain&quot;</span><span class="p">:</span> <span class="n">elastic_strain</span><span class="p">,</span>
+            <span class="s2">&quot;nonlinear_stress&quot;</span><span class="p">:</span> <span class="n">elastic_stress</span><span class="p">,</span>
+            <span class="s2">&quot;plastic_strain&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Find a matching stress-strain product in the non-linear response</span>
+    <span class="c1"># (This is the Neuber correction)</span>
+    <span class="n">non_linear_stress_strain_product</span> <span class="o">=</span> <span class="n">non_linear_stress</span> <span class="o">*</span> <span class="n">non_linear_strain</span>
+    <span class="c1"># Error if out of range:</span>
+    <span class="k">if</span> <span class="n">elastic_stress_strain_product</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_product</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Input too large (elastic stress strain product &gt; maximum stress strain product in &quot;</span>
+            <span class="s2">&quot;non-linear data). &quot;</span>
+            <span class="s2">&quot;Elastic stress is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;, elastic stress strain product is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress_strain_product</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;, maximum plastic stress strain product is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_product</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Lookup to find non-linear strain at matching stress strain product:</span>
+    <span class="n">equivalent_non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+        <span class="n">elastic_stress_strain_product</span><span class="p">,</span> <span class="n">non_linear_stress_strain_product</span><span class="p">,</span> <span class="n">non_linear_strain</span>
+    <span class="p">)</span>
+    <span class="c1"># Lookup to find non-linear stress at this strain:</span>
+    <span class="n">equivalent_non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+        <span class="n">equivalent_non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Find plastic strain</span>
+    <span class="n">plastic_strain</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span> <span class="o">-</span> <span class="n">elastic_strain</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;nonlinear_strain&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">equivalent_non_linear_strain</span><span class="p">),</span>
+        <span class="s2">&quot;nonlinear_stress&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">equivalent_non_linear_stress</span><span class="p">),</span>
+        <span class="s2">&quot;plastic_strain&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">plastic_strain</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_glinka_correction</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update the Glinka correction estimates from the Von Mises stress.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elastic_stress : float</span>
+<span class="sd">        The linear stress input</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        The Young&#39;s modulus used in the linear stress calculation.</span>
+<span class="sd">    non_linear_strain, non_linear_stress : np.ndarray</span>
+<span class="sd">        Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">/</span> <span class="n">youngs_modulus</span>
+    <span class="n">elastic_stress_strain_integral</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">elastic_strain</span> <span class="o">*</span> <span class="n">elastic_stress</span>
+
+    <span class="c1"># Check input data is sensible</span>
+    <span class="n">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">)</span>
+    <span class="c1"># If on the elastic portion, just return inputs, so we don&#39;t get interpolation errors</span>
+    <span class="k">if</span> <span class="n">elastic_stress</span> <span class="o">&lt;</span> <span class="n">find_divergence_point</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;nonlinear_strain&quot;</span><span class="p">:</span> <span class="n">elastic_strain</span><span class="p">,</span>
+            <span class="s2">&quot;nonlinear_stress&quot;</span><span class="p">:</span> <span class="n">elastic_stress</span><span class="p">,</span>
+            <span class="s2">&quot;plastic_strain&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Find a matching stress-strain integral in the non-linear response</span>
+    <span class="c1"># (This is the Glinka correction)</span>
+    <span class="n">non_linear_stress_strain_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">)):</span>
+        <span class="c1"># This assumes that our stress strain curve starts at zero,</span>
+        <span class="c1"># and uses simple trapezium integration</span>
+        <span class="n">non_linear_stress_strain_integral</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">non_linear_stress_strain_integral</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="n">non_linear_strain</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_strain</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">non_linear_stress</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="o">/</span> <span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Error if out of range:</span>
+    <span class="k">if</span> <span class="n">elastic_stress_strain_integral</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_integral</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Input too large (elastic stress strain integral &gt; &quot;</span>
+            <span class="s2">&quot;maximum stress strain integral in non-linear data). &quot;</span>
+            <span class="s2">&quot;Elastic stress is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;, elastic stress strain integral is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress_strain_integral</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;, maximum plastic stress strain integral is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_integral</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Lookup to find non-linear strain at matching stress strain integral:</span>
+    <span class="n">equivalent_non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+        <span class="n">elastic_stress_strain_integral</span><span class="p">,</span> <span class="n">non_linear_stress_strain_integral</span><span class="p">,</span> <span class="n">non_linear_strain</span>
+    <span class="p">)</span>
+    <span class="c1"># Lookup to find non-linear stress at this strain:</span>
+    <span class="n">equivalent_non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+        <span class="n">equivalent_non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Find plastic strain</span>
+    <span class="n">plastic_strain</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span> <span class="o">-</span> <span class="n">elastic_strain</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;nonlinear_strain&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">equivalent_non_linear_strain</span><span class="p">),</span>
+        <span class="s2">&quot;nonlinear_stress&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">equivalent_non_linear_stress</span><span class="p">),</span>
+        <span class="s2">&quot;plastic_strain&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">plastic_strain</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="functions-to-find-stress-sample-points-for-average-stresses">
+<h2>Functions to find stress sample points for average stresses<a class="headerlink" href="#functions-to-find-stress-sample-points-for-average-stresses" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">find_bridge_stress_sample_points</span><span class="p">(</span><span class="n">mc</span><span class="p">):</span>
+    <span class="n">all_points</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Sample points is hardcoded to 15 in Motor-CAD for stress averaging</span>
+    <span class="n">sample_points</span> <span class="o">=</span> <span class="mi">15</span>
+
+    <span class="c1"># Check the rotor type</span>
+    <span class="n">rotor_type</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;BPMRotor&quot;</span><span class="p">)</span>
+    <span class="c1"># U shape is 13, V web is 11</span>
+    <span class="k">if</span> <span class="n">rotor_type</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;VMagnet_Layers&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">rotor_type</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;Magnet_Layers&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/sys.html#sys.exit" title="sys.exit" class="sphx-glr-backref-module-sys sphx-glr-backref-type-py-function"><span class="n">sys</span><span class="o">.</span><span class="n">exit</span></a><span class="p">(</span><span class="s2">&quot;Stress sampling only available for V web and U templates&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get variables independent of the rotor type</span>
+    <span class="n">average_stress_location_bridge</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;AvStressRadialLocation_Bridge&quot;</span><span class="p">)</span>
+    <span class="n">rotor_diameter</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;RotorDiameter&quot;</span><span class="p">)</span>
+    <span class="n">poles</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;Pole_Number&quot;</span><span class="p">)</span>
+    <span class="n">pole_pairs</span> <span class="o">=</span> <span class="n">poles</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rotor_type</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+            <span class="c1"># V Web template</span>
+            <span class="n">bridge_thickness</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;BridgeThickness_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">web_thickness</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;WebThickness_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">pole_arc</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;PoleArc_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">/</span> <span class="n">pole_pairs</span><span class="p">)</span>
+            <span class="n">theta_4</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.asin" title="math.asin" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">asin</span></a><span class="p">(</span><span class="n">web_thickness</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">rotor_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">bridge_thickness</span><span class="p">)))</span>
+            <span class="n">theta_0</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="n">poles</span><span class="p">)</span> <span class="o">+</span> <span class="n">pole_arc</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">theta_1</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">poles</span><span class="p">)</span> <span class="o">-</span> <span class="n">theta_4</span>
+            <span class="n">theta_bridge_span</span> <span class="o">=</span> <span class="n">theta_1</span> <span class="o">-</span> <span class="n">theta_0</span>
+            <span class="c1"># Arc covers half the bridge</span>
+            <span class="n">delta_theta</span> <span class="o">=</span> <span class="n">theta_bridge_span</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">sample_points</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">theta_0</span> <span class="o">+</span> <span class="n">theta_bridge_span</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">rotor_type</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+            <span class="c1"># U template</span>
+            <span class="n">bridge_thickness</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_BridgeThickness_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">web_thickness</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_WebThickness_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">outer_thickness</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_Thickness_Outer_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">theta_offset</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span>
+                <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_OuterAngleOffset_Array&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">inner_rad</span> <span class="o">=</span> <span class="n">rotor_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">bridge_thickness</span>
+
+            <span class="c1"># The start angle of the FEA model</span>
+            <span class="n">theta_0</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">poles</span><span class="p">)</span>
+
+            <span class="c1"># The angle to the end of the web</span>
+            <span class="n">theta_1</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.asin" title="math.asin" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">asin</span></a><span class="p">(</span><span class="n">web_thickness</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inner_rad</span><span class="p">))</span>
+
+            <span class="c1"># We now need to solve for phi (the arc angle from the centre) with</span>
+            <span class="c1"># cos(theta_offset - theta_1 - phi/2) * sin(phi/2) = outer_thickness / (2 * inner_rad)</span>
+            <span class="c1"># This is non-trivial, so do this numerically</span>
+            <span class="n">test_phi</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">found_phi</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">phi_step</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.radians" title="math.radians" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">radians</span></a><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">last_err</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.cos" title="math.cos" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">cos</span></a><span class="p">(</span><span class="n">theta_offset</span> <span class="o">-</span> <span class="n">theta_1</span> <span class="o">-</span> <span class="n">test_phi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sin" title="math.sin" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">sin</span></a><span class="p">(</span>
+                <span class="n">test_phi</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span> <span class="o">-</span> <span class="n">outer_thickness</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inner_rad</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">found_phi</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">iteration</span> <span class="o">&lt;</span> <span class="mi">36000</span><span class="p">:</span>
+                <span class="n">test_phi</span> <span class="o">=</span> <span class="n">test_phi</span> <span class="o">+</span> <span class="n">phi_step</span>
+                <span class="n">iteration</span> <span class="o">=</span> <span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">err</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/math.html#math.cos" title="math.cos" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">cos</span></a><span class="p">(</span><span class="n">theta_offset</span> <span class="o">-</span> <span class="n">theta_1</span> <span class="o">-</span> <span class="n">test_phi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sin" title="math.sin" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">sin</span></a><span class="p">(</span>
+                    <span class="n">test_phi</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="p">)</span> <span class="o">-</span> <span class="n">outer_thickness</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inner_rad</span><span class="p">)</span>
+                <span class="c1"># Check if error has changed sign, if so we are close to the correct solution</span>
+                <span class="k">if</span> <span class="n">err</span> <span class="o">*</span> <span class="n">last_err</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">found_phi</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">last_err</span> <span class="o">=</span> <span class="n">err</span>
+            <span class="n">theta_bridge_span</span> <span class="o">=</span> <span class="n">test_phi</span>
+
+            <span class="c1"># Arc covers half the bridge</span>
+            <span class="n">delta_theta</span> <span class="o">=</span> <span class="n">theta_bridge_span</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">sample_points</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">theta_0</span> <span class="o">-</span> <span class="p">(</span><span class="n">theta_1</span> <span class="o">+</span> <span class="n">theta_bridge_span</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Common logic for both rotor types</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="n">rotor_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">bridge_thickness</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">average_stress_location_bridge</span><span class="p">)</span>
+
+        <span class="n">layer_points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sample_points</span><span class="p">):</span>
+            <span class="n">this_theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">+</span> <span class="n">point</span> <span class="o">*</span> <span class="n">delta_theta</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.cos" title="math.cos" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">cos</span></a><span class="p">(</span><span class="n">this_theta</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sin" title="math.sin" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">sin</span></a><span class="p">(</span><span class="n">this_theta</span><span class="p">)</span>
+            <span class="n">layer_points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+
+        <span class="n">all_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer_points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_points</span>
+</pre></div>
+</div>
+<section id="non-linear-stress-strain-data-for-rotor-material">
+<h3>Non-linear stress strain data for rotor material<a class="headerlink" href="#non-linear-stress-strain-data-for-rotor-material" title="Link to this heading">#</a></h3>
+<p>Our non-linear stress-strain data, in this case for a region with
+Young’s modulus of 185 GPa, and with plastic deformation above 480 MPa.
+Strain is a ratio (dimensionless), Stress is in MPa.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mf">0.0002</span><span class="p">,</span>
+        <span class="mf">0.0004</span><span class="p">,</span>
+        <span class="mf">0.0006</span><span class="p">,</span>
+        <span class="mf">0.0008</span><span class="p">,</span>
+        <span class="mf">0.001</span><span class="p">,</span>
+        <span class="mf">0.0012</span><span class="p">,</span>
+        <span class="mf">0.0014</span><span class="p">,</span>
+        <span class="mf">0.0016</span><span class="p">,</span>
+        <span class="mf">0.0018</span><span class="p">,</span>
+        <span class="mf">0.002</span><span class="p">,</span>
+        <span class="mf">0.0022</span><span class="p">,</span>
+        <span class="mf">0.0024</span><span class="p">,</span>
+        <span class="mf">0.0026</span><span class="p">,</span>
+        <span class="mf">0.0028</span><span class="p">,</span>
+        <span class="mf">0.003</span><span class="p">,</span>
+        <span class="mf">0.0032</span><span class="p">,</span>
+        <span class="mf">0.0034</span><span class="p">,</span>
+        <span class="mf">0.0036</span><span class="p">,</span>
+        <span class="mf">0.0038</span><span class="p">,</span>
+        <span class="mf">0.004</span><span class="p">,</span>
+        <span class="mf">0.0042</span><span class="p">,</span>
+        <span class="mf">0.0044</span><span class="p">,</span>
+        <span class="mf">0.0046</span><span class="p">,</span>
+        <span class="mf">0.0048</span><span class="p">,</span>
+        <span class="mf">0.005</span><span class="p">,</span>
+        <span class="mf">0.0052</span><span class="p">,</span>
+        <span class="mf">0.0054</span><span class="p">,</span>
+        <span class="mf">0.0056</span><span class="p">,</span>
+        <span class="mf">0.0058</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">37</span><span class="p">,</span>
+        <span class="mi">74</span><span class="p">,</span>
+        <span class="mi">111</span><span class="p">,</span>
+        <span class="mi">148</span><span class="p">,</span>
+        <span class="mi">185</span><span class="p">,</span>
+        <span class="mi">222</span><span class="p">,</span>
+        <span class="mi">259</span><span class="p">,</span>
+        <span class="mi">296</span><span class="p">,</span>
+        <span class="mi">333</span><span class="p">,</span>
+        <span class="mi">370</span><span class="p">,</span>
+        <span class="mi">407</span><span class="p">,</span>
+        <span class="mi">444</span><span class="p">,</span>
+        <span class="mi">481</span><span class="p">,</span>
+        <span class="mi">500</span><span class="p">,</span>
+        <span class="mi">520</span><span class="p">,</span>
+        <span class="mi">540</span><span class="p">,</span>
+        <span class="mi">560</span><span class="p">,</span>
+        <span class="mi">570</span><span class="p">,</span>
+        <span class="mi">580</span><span class="p">,</span>
+        <span class="mi">590</span><span class="p">,</span>
+        <span class="mi">600</span><span class="p">,</span>
+        <span class="mi">605</span><span class="p">,</span>
+        <span class="mi">610</span><span class="p">,</span>
+        <span class="mi">615</span><span class="p">,</span>
+        <span class="mi">620</span><span class="p">,</span>
+        <span class="mi">625</span><span class="p">,</span>
+        <span class="mi">630</span><span class="p">,</span>
+        <span class="mi">635</span><span class="p">,</span>
+        <span class="mi">640</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="main-script-using-the-functions-defined-previously">
+<h2>Main script using the functions defined previously<a class="headerlink" href="#main-script-using-the-functions-defined-previously" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run the calculation automatically when a stress calculation is completed, the
+code below can be placed in method called <cite>final(self)</cite> within a <cite>mechanical_stress()</cite>
+class. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">mechanical_stress</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">final</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Code below goes here</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option whether to overwrite output values</span>
+<a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overwrite_stress_outputs</span></a> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Connect to Motor-CAD</span>
+<span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">()</span>
+
+<span class="c1"># Users should run this script from the scripting tab after the stress calculation</span>
+<span class="c1"># Trigger this automatically for the automated documentation build</span>
+<span class="k">if</span> <span class="s2">&quot;PYMOTORCAD_DOCS_BUILD&quot;</span> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="p">:</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;MessageDisplayState&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">load_template</span><span class="p">(</span><span class="s2">&quot;e10&quot;</span><span class="p">)</span>
+    <span class="c1"># Set extreme overspeed condition to show yield</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;ShaftSpeed&quot;</span><span class="p">,</span> <span class="mi">25000</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">do_mechanical_calculation</span><span class="p">()</span>
+
+<span class="c1"># The material properties of the rotor</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rotor_youngs_modulus</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;YoungsCoefficient_RotorLam&quot;</span><span class="p">)</span>
+
+<span class="c1"># Find points to sample for bridge</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bridge_samples</span></a> <span class="o">=</span> <span class="n">find_bridge_stress_sample_points</span><span class="p">(</span><span class="n">mc</span><span class="p">)</span>
+
+<span class="c1"># Iterate over layers and then points to get results</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer_index</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer_samples</span></a> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bridge_samples</span></a><span class="p">):</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stresses</span></a> <span class="o">=</span> <span class="p">[]</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_stresses</span></a> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xy_point</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer_samples</span></a><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress_von_mises</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_point_value</span><span class="p">(</span><span class="s2">&quot;SVM&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xy_point</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xy_point</span></a><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_result</span></a> <span class="o">=</span> <span class="n">apply_neuber_correction</span><span class="p">(</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress_von_mises</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rotor_youngs_modulus</span></a><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+        <span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stresses</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stress_von_mises</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_stresses</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_result</span></a><span class="p">[</span><span class="s2">&quot;nonlinear_stress&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Display results for this layer</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Point positions: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer_samples</span></a><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stress at points (original) : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stresses</span></a><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stress at points (corrected): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_stresses</span></a><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean stress (original) : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stresses</span></a><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stresses</span></a><span class="p">)))</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corrected_mean_stress</span></a> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_stresses</span></a><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_linear_stresses</span></a><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean stress (corrected): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corrected_mean_stress</span></a><span class="p">))</span>
+
+    <span class="k">if</span> <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overwrite_stress_outputs</span></a><span class="p">:</span>
+        <span class="n">mc</span><span class="o">.</span><span class="n">set_array_variable</span><span class="p">(</span><span class="s2">&quot;AvStress_MagnetBridge&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer_index</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corrected_mean_stress</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Point positions: [[53.38678975481784, 44.47098476450547], [53.30031932182026, 44.57458655379761], [53.21364784070531, 44.6780202083239], [53.12677563839672, 44.78128533793393], [53.03970304257532, 44.88438155311296], [52.952430381677786, 44.987308464983414], [52.86495798489549, 45.09006568530628], [52.77728618217318, 45.192652826482664], [52.689415304207785, 45.29506950155518], [52.6013456824471, 45.39731532420947], [52.513077649088615, 45.49938990877559], [52.42461153707821, 45.60129287022953], [52.335947680108916, 45.70302382419464], [52.24708641261966, 45.80458238694305], [52.158028069794, 45.905968175397206]]
+Stress at points (original) : [476.3, 415.4, 488.8, 493.7, 447.8, 547.9, 480.4, 480.4, 523.3, 574, 574, 667.9, 677.8, 341.4, 341.4]
+Stress at points (corrected): [476.3, 415.4, 486.20005644198415, 489.5095376098991, 447.8, 527.4610102960103, 480.4, 480.4, 510.02897972972966, 546.017199017199, 546.017199017199, 593.2062195945946, 597.7070405405406, 341.4, 341.4]
+Mean stress (original) : 502.03333333333336
+Mean stress (corrected): 485.28314948314375
+Point positions: [[57.956238644795526, 39.068982929524914], [57.89539584745769, 39.15908789369561], [57.834412963433635, 39.24909810651729], [57.773290140280686, 39.33901335019659], [57.71202752589479, 39.428833407169954], [57.65062526851012, 39.51855806010415], [57.58908351669874, 39.60818709189676], [57.52740241937025, 39.69772028567677], [57.46558212577142, 39.78715742480505], [57.40362278548582, 39.876498292874864], [57.34152454843347, 39.965742673712455], [57.279287564870465, 40.054890351377516], [57.21691198538861, 40.143941110163716], [57.1543979609151, 40.23289473459925], [57.091745642712056, 40.32175100944735]]
+Stress at points (original) : [432.9, 432.9, 379.9, 505, 505, 425.6, 553.4, 553.4, 475.6, 475.6, 629.8, 380.8, 380.8, 328.2, 328.2]
+Stress at points (corrected): [432.9, 432.9, 379.9, 497.26744817106265, 497.26744817106265, 425.6, 531.3587902187902, 531.3587902187902, 475.6, 475.6, 576.0554907539117, 380.8, 380.8, 328.2, 328.2]
+Mean stress (original) : 452.47333333333336
+Mean stress (corrected): 444.9205311689078
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 39.152 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-samples-general-bridgestresssampling-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/0fb3cca3c987de6f2f173fc49d34f6c2/BridgeStressSampling.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">BridgeStressSampling.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5b9992f3ef68ac017b84f24dd099fe00/BridgeStressSampling.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">BridgeStressSampling.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/cddda791b8b098ed4296ace53125020e/BridgeStressSampling.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">BridgeStressSampling.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-imports">Standard imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions-to-check-non-linear-material-data">Utility functions to check non-linear material data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions-to-estimate-plastic-results">Functions to estimate plastic results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions-to-find-stress-sample-points-for-average-stresses">Functions to find stress sample points for average stresses</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-linear-stress-strain-data-for-rotor-material">Non-linear stress strain data for rotor material</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-script-using-the-functions-defined-previously">Main script using the functions defined previously</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/samples/general/BridgeStressSampling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
