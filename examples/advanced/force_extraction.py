@@ -54,7 +54,7 @@ mc.set_variable("MultiForceThreading", 0)  # 0 is multithreaded, 1 is single thr
 
 # %%
 # Set operating points, in this case for speed and torque definition.
-operating_points_speed = [250, 8000, 8000]  # RPM
+operating_points_speed = [250, 4000, 8000]  # RPM
 operating_points_torque = [250, 250, 100]  # Nm
 num_operating_points = len(operating_points_speed)
 
