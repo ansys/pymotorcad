@@ -61,7 +61,7 @@ class _RpcMethodsTesting:
         params = [test_categories, calculation_method, decimal_separator]
         return self.connection.send_and_receive(method, params)
 
-    def retrieve_parameter_info(self, parameter_list):
+    def get_parameter_info(self, parameter_list):
         """Retrieve information about specified parameters.
 
         Parameters
@@ -74,6 +74,6 @@ class _RpcMethodsTesting:
         dict
             Information about the specified parameters.
         """
-        method = "RetrieveParameterInfo"
+        method = "GetParameterInfo"
         params = [parameter_list]
         return self.connection.send_and_receive(method, params)
