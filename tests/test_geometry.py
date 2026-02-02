@@ -2635,6 +2635,228 @@ def test_subtract_region_4(mc):
     assert subtracted_regions[0].child_names[0] == inner_square.name
 
 
+def test_get_intersection_region_0(mc):
+    """Test create smaller rectangle by subtracting the area of the square that doesn't overlap with
+    the rectangle. Get only the region where the square and rectangle intersect, as shown below."""
+    #   Before         After
+    # |--------|
+    # |  |--|  |       |--|
+    # |  |  |  | ->    |  |
+    # |--|--|--|       |--|
+    #    |  |
+    #    |--|
+    region_a = geometry.Region(RegionType.stator_air)
+    region_b = geometry.Region(RegionType.stator_air)
+
+    points_a = [
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+    ]
+    # create and add line entities to region from their respective points
+    region_a.entities += create_lines_from_points(points_a)
+
+    points_b = [
+        geometry.Coordinate(-0.5, -2),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -2),
+    ]
+    # create and add line entities to region from their respective points
+    region_b.entities += create_lines_from_points(points_b)
+
+    points_expected = [
+        geometry.Coordinate(-0.5, -1),
+        geometry.Coordinate(-0.5, -0.5),
+        geometry.Coordinate(0.5, -0.5),
+        geometry.Coordinate(0.5, -1),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points_expected)
+
+    region_a.motorcad_instance = mc
+    region_b.motorcad_instance = mc
+
+    intersection_ab = region_a.get_intersection(region_b)
+
+    assert intersection_ab.entities == expected_region_entities
+
+    intersection_ba = region_b.get_intersection(region_a)
+
+    assert intersection_ba.entities == expected_region_entities
+
+
+def test_intersection_region_1(mc):
+    """Get intersection of a square and a long rectangle. Generate the smaller rectangular region
+    where the long rectangle and square intersect as shown below."""
+    #      Before           After
+    #      |---|
+    #      |   |
+    #   |--|---|--|         |---|
+    #   |  |   |  |  ->     |   |
+    #   |  |   |  |         |   |
+    #   |--|---|--|         |---|
+    #      |   |
+    #      |---|
+    #
+    square = create_square()
+    rectangle = geometry.Region(RegionType.stator_air)
+
+    points_rectangle = [
+        geometry.Coordinate(0.5, -1),
+        geometry.Coordinate(1.5, -1),
+        geometry.Coordinate(1.5, 3),
+        geometry.Coordinate(0.5, 3),
+    ]
+    # create and add line entities to region from their respective points
+    rectangle.entities += create_lines_from_points(points_rectangle)
+
+    points_expected = [
+        geometry.Coordinate(0.5, 2),
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(1.5, 0),
+        geometry.Coordinate(1.5, 2),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points_expected)
+
+    square.motorcad_instance = mc
+    rectangle.motorcad_instance = mc
+
+    intersection_square_rectangle = square.get_intersection(rectangle)
+
+    assert intersection_square_rectangle.entities == expected_region_entities
+
+    intersection_rectangle_square = rectangle.get_intersection(square)
+
+    assert intersection_rectangle_square.entities == expected_region_entities
+
+
+def test_get_intersection_region_2(mc):
+    """Get intersection of square and triangle. Results in small triangular region."""
+    #     Before             After
+    #      \------|
+    # |-----\-|   |               \-|
+    # |      \|   |                \|
+    # |       \   |  ->             '
+    # |-------|\  |
+    #           \ |
+    #            \|
+    #
+    square = create_square()
+    triangle = create_triangle()
+
+    points = [
+        geometry.Coordinate(2, 1.2),
+        geometry.Coordinate(2, 2),
+        geometry.Coordinate(1.2, 2),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points)
+    square.motorcad_instance = mc
+    triangle.motorcad_instance = mc
+
+    intersection_square_triangle = square.get_intersection(triangle)
+    assert intersection_square_triangle.entities == expected_region_entities
+
+    intersection_triangle_square = triangle.get_intersection(square)
+    assert intersection_triangle_square.entities == expected_region_entities
+
+
+def test_get_intersection_region_3(mc):
+    """Test get intersection of two squares."""
+    #   Before         After
+    # |--------|
+    # |   |----|        |----|
+    # |   |    | ->     |    |
+    # |---|----|        |----|
+    #
+    square = create_square()
+    inner_square = geometry.Region(RegionType.stator_air)
+
+    points = [
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0),
+    ]
+    # create and add line entities to region from their respective points
+    inner_square.entities += create_lines_from_points(points)
+    expected_points = [
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, 1.5),
+    ]
+    # create and add line entities to region from their respective points
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(expected_points)
+    square.motorcad_instance = mc
+    inner_square.motorcad_instance = mc
+
+    intersection_squares = square.get_intersection(inner_square)
+    assert intersection_squares.entities == expected_region_entities
+
+
+def test_do_not_get_intersection_region(mc):
+    """Test check that exception is raised when trying to find intersection of two regions that do
+    not intersect. One square is a subregion of the other."""
+    #   Before         After
+    # |--------|    |--------|
+    # | |----| |    | |----| |
+    # | |    | | -> | |    | |
+    # | |----| |    | |----| |
+    # |--------|    |--------|
+    #
+    square = create_square()
+    inner_square = geometry.Region(RegionType.stator_air)
+    inner_square.name = "Subtraction Region"
+
+    points = [
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(0.5, 0.5),
+        geometry.Coordinate(1.5, 0.5),
+        geometry.Coordinate(1.5, 1.5),
+    ]
+    # create and add line entities to region from their respective points
+    inner_square.entities += create_lines_from_points(points)
+
+    square.motorcad_instance = mc
+    inner_square.motorcad_instance = mc
+
+    with pytest.raises(Exception) as e_info:
+        intersection_squares = square.get_intersection(inner_square)
+
+    assert "Regions do not intersect" in str(e_info.value)
+
+
+def test_do_not_get_intersection_region_2(mc):
+    """Test check that exception is raised when trying to find intersection of two regions that do
+    not intersect. One square is next to the other"""
+    #   Before         After
+    #
+    #   |----|   |----|        |----|   |----|
+    #   |    |   |    |   ->   |    |   |    |
+    #   |----|   |----|        |----|   |----|
+    #
+    #
+    square_1 = create_square()
+    square_2 = deepcopy(square_1)
+    square_2.translate(3, 0)
+
+    square_1.motorcad_instance = mc
+    square_2.motorcad_instance = mc
+
+    with pytest.raises(Exception) as e_info:
+        intersection_squares = square_1.get_intersection(square_2)
+
+    assert "Regions do not intersect" in str(e_info.value)
+
+
 def test_region_mirror():
     square = create_square()
     square.name = "square"
