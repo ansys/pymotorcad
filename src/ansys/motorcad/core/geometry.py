@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1687,6 +1687,20 @@ class Coordinate(object):
         self.x += x
         self.y += y
 
+    def distance(self, other):
+        """Find the distance to a coordinate.
+
+        Parameters
+        ----------
+        other: Coordinate
+            Find distance to this point.
+
+        Returns
+        -------
+        float
+        """
+        return abs(other - self)
+
     @classmethod
     def from_polar_coords(cls, radius, theta):
         """Create Coordinate from polar coordinates.
@@ -2068,11 +2082,21 @@ class Line(Entity):
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
-        else:
+        elif ref_coordinate == self.start:
             coordinate_1 = self.start
             coordinate_2 = self.end
+        elif self.coordinate_on_entity(ref_coordinate):
+            if ref_coordinate.distance(self.start) <= ref_coordinate.distance(self.end):
+                # Ref coordinate closer to start, so go between ref and end
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.end
+            else:
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.start
+        else:
+            raise ValueError("Invalid ref_coordinate provided, it must be on the line.")
 
-        t = distance / self.length
+        t = distance / coordinate_1.distance(coordinate_2)
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 

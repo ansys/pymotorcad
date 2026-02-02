@@ -21,6 +21,7 @@
 * [Kathy Pippert](https://github.com/PipKat)
 * [Kerry McAdams](https://github.com/klmcadams)
 * [Matthew Jones](https://github.com/matthewAnsys)
+* [Matthew Leak](https://github.com/matthew-leak)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [Ravi Sundaria](https://github.com/ravi-ansys)
 * [Revathy Venugopal](https://github.com/Revathyvenugopal162)

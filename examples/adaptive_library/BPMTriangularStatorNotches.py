@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -170,7 +170,7 @@ stator_centre = Coordinate(0, 0)
 
 notch_name = "Stator_Notch"
 
-notch = Region(region_type=RegionType.stator_air)
+notch = Region(region_type=RegionType.stator)
 notch.name = notch_name
 notch.colour = (255, 255, 255)
 notch.duplications = stator_region.duplications
