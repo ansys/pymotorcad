@@ -2689,9 +2689,8 @@ def test_get_intersection_region_0(mc):
 
 
 def test_intersection_region_1(mc):
-    """Test modify a long rectangle by subtracting regions that do not overlap with a square.
-    Generate the smaller rectangular region where the long rectangle and square overlap as shown
-    below."""
+    """Get intersection of a square and a long rectangle. Generate the smaller rectangular region
+    where the long rectangle and square intersect as shown below."""
     #      Before           After
     #      |---|
     #      |   |
@@ -2736,9 +2735,8 @@ def test_intersection_region_1(mc):
     assert intersection_rectangle_square.entities == expected_region_entities
 
 
-def test_overlap_region_2(mc):
-    """Test get overlapping region of square and triangle. Subtract the parts of square that do not
-    overlap the triangle."""
+def test_get_intersection_region_2(mc):
+    """Get intersection of square and triangle. Results in small triangular region."""
     #     Before             After
     #      \------|
     # |-----\-|   |               \-|
@@ -2750,7 +2748,6 @@ def test_overlap_region_2(mc):
     #
     square = create_square()
     triangle = create_triangle()
-    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(2, 1.2),
@@ -2758,15 +2755,20 @@ def test_overlap_region_2(mc):
         geometry.Coordinate(1.2, 2),
     ]
     # create and add line entities to region from their respective points
-    expected_region.entities += create_lines_from_points(points)
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points)
     square.motorcad_instance = mc
-    square.overlap(triangle)
+    triangle.motorcad_instance = mc
 
-    assert square == expected_region
+    intersection_square_triangle = square.get_intersection(triangle)
+    assert intersection_square_triangle.entities == expected_region_entities
+
+    intersection_triangle_square = triangle.get_intersection(square)
+    assert intersection_triangle_square.entities == expected_region_entities
 
 
-def test_overlap_region_3(mc):
-    """Test get overlap of two squares."""
+def test_get_intersection_region_3(mc):
+    """Test get intersection of two squares."""
     #   Before         After
     # |--------|
     # |   |----|        |----|
@@ -2775,7 +2777,6 @@ def test_overlap_region_3(mc):
     #
     square = create_square()
     inner_square = geometry.Region(RegionType.stator_air)
-    expected_region = geometry.Region(RegionType.stator_air)
 
     points = [
         geometry.Coordinate(2, 0),
@@ -2792,17 +2793,18 @@ def test_overlap_region_3(mc):
         geometry.Coordinate(2, 1.5),
     ]
     # create and add line entities to region from their respective points
-    expected_region.entities += create_lines_from_points(expected_points)
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(expected_points)
     square.motorcad_instance = mc
+    inner_square.motorcad_instance = mc
 
-    square.overlap(inner_square)
+    intersection_squares = square.get_intersection(inner_square)
+    assert intersection_squares.entities == expected_region_entities
 
-    assert square == expected_region
 
-
-def test_overlap_region_4(mc):
-    """Test check that exception is raises when trying to find overlap of two regions that do not
-    overlap. One square is a subregion of the other."""
+def test_do_not_get_intersection_region(mc):
+    """Test check that exception is raised when trying to find intersection of two regions that do
+    not intersect. One square is a subregion of the other."""
     #   Before         After
     # |--------|    |--------|
     # | |----| |    | |----| |
@@ -2827,14 +2829,14 @@ def test_overlap_region_4(mc):
     inner_square.motorcad_instance = mc
 
     with pytest.raises(Exception) as e_info:
-        square.overlap(inner_square)
+        intersection_squares = square.get_intersection(inner_square)
 
-    assert "Regions do not overlap" in str(e_info.value)
+    assert "Regions do not intersect" in str(e_info.value)
 
 
-def test_overlap_region_5(mc):
-    """Test check that exception is raises when trying to find overlap of two regions that do not
-    overlap. One square is next to the other"""
+def test_do_not_get_intersection_region_2(mc):
+    """Test check that exception is raised when trying to find intersection of two regions that do
+    not intersect. One square is next to the other"""
     #   Before         After
     #
     #   |----|   |----|        |----|   |----|
@@ -2850,9 +2852,9 @@ def test_overlap_region_5(mc):
     square_2.motorcad_instance = mc
 
     with pytest.raises(Exception) as e_info:
-        square_1.overlap(square_2)
+        intersection_squares = square_1.get_intersection(square_2)
 
-    assert "Regions do not overlap" in str(e_info.value)
+    assert "Regions do not intersect" in str(e_info.value)
 
 
 def test_region_mirror():
