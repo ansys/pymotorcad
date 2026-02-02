@@ -2857,13 +2857,7 @@ class EntityList(list):
             collinear = False
             if isinstance(entity, Line) and isinstance(entity_n, Line):
                 if entity_n.end == entity.start:
-                    if (
-                        isclose(entity.angle, entity_n.angle, abs_tol=GEOM_TOLERANCE)
-                        or isclose(entity.angle, entity_n.angle - 180, abs_tol=GEOM_TOLERANCE)
-                        or isclose(entity.angle, entity_n.angle + 180, abs_tol=GEOM_TOLERANCE)
-                        or isclose(entity.angle, entity_n.angle - 360, abs_tol=GEOM_TOLERANCE)
-                        or isclose(entity.angle, entity_n.angle + 360, abs_tol=GEOM_TOLERANCE)
-                    ):
+                    if isclose(entity.angle % 180, entity_n.angle % 180, abs_tol=GEOM_TOLERANCE):
                         # When current and previous entities are collinear, set the end of the
                         # previous entity to be the end of the current entity. Add the current
                         # entity to the list of entities to be removed.
