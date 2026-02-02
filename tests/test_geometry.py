@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -796,6 +796,20 @@ def test_line_get_coordinate_from_distance():
         coord = line.get_coordinate_from_distance(line.start)
     assert "provide either a distance, fraction or percentage" in str(e_info)
 
+    # Test if reference coordinate isn't start or end (ref coordinate near start)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0), 1) == geometry.Coordinate(
+        1.5, 0
+    )
+
+    # Test if reference coordinate isn't start or end (ref coordinate near end)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(1.5, 0), 1) == geometry.Coordinate(
+        0.5, 0
+    )
+
+    # Test that reference coordinate not on the line raises an exception
+    with pytest.raises(ValueError):
+        line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0.5), 1)
+
 
 def test_get_parallel_line():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
@@ -893,6 +907,16 @@ def test_line_get_coordinate_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
     point = Coordinate(1, 1)
     assert line.get_coordinate_distance(point) == 1
+
+
+def test_coordinate_distance():
+    coordinate_1 = geometry.Coordinate(0, 1)
+    coordinate_2 = geometry.Coordinate(0, 2)
+    assert coordinate_1.distance(coordinate_2) == 1
+
+    # Make sure type error is raised if we try to find distance to something that isn't a coordinate
+    with pytest.raises(TypeError):
+        coordinate_1.distance(1)
 
 
 def test_arc_get_coordinate_from_fractional_distance():
