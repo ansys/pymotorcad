@@ -2635,9 +2635,9 @@ def test_subtract_region_4(mc):
     assert subtracted_regions[0].child_names[0] == inner_square.name
 
 
-def test_overlap_region_0(mc):
+def test_get_intersection_region_0(mc):
     """Test create smaller rectangle by subtracting the area of the square that doesn't overlap with
-    the rectangle. Get only the region where the square and rectangle overlap, as shown below."""
+    the rectangle. Get only the region where the square and rectangle intersect, as shown below."""
     #   Before         After
     # |--------|
     # |  |--|  |       |--|
@@ -2647,7 +2647,6 @@ def test_overlap_region_0(mc):
     #    |--|
     region_a = geometry.Region(RegionType.stator_air)
     region_b = geometry.Region(RegionType.stator_air)
-    expected_region = geometry.Region(RegionType.stator_air)
 
     points_a = [
         geometry.Coordinate(-1, -1),
@@ -2674,17 +2673,22 @@ def test_overlap_region_0(mc):
         geometry.Coordinate(0.5, -1),
     ]
     # create and add line entities to region from their respective points
-    expected_region.entities += create_lines_from_points(points_expected)
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points_expected)
 
     region_a.motorcad_instance = mc
     region_b.motorcad_instance = mc
 
-    region_a.overlap(region_b)
+    intersection_ab = region_a.get_intersection(region_b)
 
-    assert region_a == expected_region
+    assert intersection_ab.entities == expected_region_entities
+
+    intersection_ba = region_b.get_intersection(region_a)
+
+    assert intersection_ba.entities == expected_region_entities
 
 
-def test_overlap_region_1(mc):
+def test_intersection_region_1(mc):
     """Test modify a long rectangle by subtracting regions that do not overlap with a square.
     Generate the smaller rectangular region where the long rectangle and square overlap as shown
     below."""
@@ -2700,7 +2704,6 @@ def test_overlap_region_1(mc):
     #
     square = create_square()
     rectangle = geometry.Region(RegionType.stator_air)
-    expected_region = geometry.Region(RegionType.stator_air)
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
@@ -2718,13 +2721,19 @@ def test_overlap_region_1(mc):
         geometry.Coordinate(1.5, 2),
     ]
     # create and add line entities to region from their respective points
-    expected_region.entities += create_lines_from_points(points_expected)
+    expected_region_entities = EntityList()
+    expected_region_entities += create_lines_from_points(points_expected)
 
     square.motorcad_instance = mc
+    rectangle.motorcad_instance = mc
 
-    square.overlap(rectangle)
+    intersection_square_rectangle = square.get_intersection(rectangle)
 
-    assert square == expected_region
+    assert intersection_square_rectangle.entities == expected_region_entities
+
+    intersection_rectangle_square = rectangle.get_intersection(square)
+
+    assert intersection_rectangle_square.entities == expected_region_entities
 
 
 def test_overlap_region_2(mc):

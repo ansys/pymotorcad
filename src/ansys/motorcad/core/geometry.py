@@ -791,26 +791,47 @@ class Region(object):
             self.update(regions[0])
             return regions[1 : len(regions)]
 
-    def overlap(self, region):
-        """Subtract the part of self that does not overlap with region.
+    def get_intersection(self, region):
+        """Get intersection of self with another region.
 
         Parameters
         ----------
         region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object
+            Motor-CAD region object that intersects with self.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region
+            The intersection of self and region.
         """
         self._check_connection()
+
+        # copy self to create the new intersection region to be returned
+        intersection = deepcopy(self)
+
+        # copy self and subtract ''region'' from the copy, retaining any additional regions
         extra = deepcopy(self)
         extras = extra.subtract(region)
+
+        # if more than 1 region results from the subtraction, each must be subtracted from
+        # ''intersection'' to get the intersecting region.
         if len(extras) > 0:
             extras = [extra] + extras
             for region in extras:
-                self.subtract(region)
+                intersection.subtract(region)
+        # if only 1 region results from the subtraction:
         else:
-            if self == extra:
-                raise Exception("Regions do not overlap.")
+            # If extra is unchanged by the subtraction, then the regions do not intersect.
+            if intersection == extra:
+                raise Exception("Regions do not intersect.")
+            # Subtract result of the subtraction from ''intersection'' to get the intersecting
+            # region.
             else:
-                self.subtract(extra)
+                intersection.subtract(extra)
+
+        # Give the ''intersection'' region a unique name and return
+        intersection.name = f"{self.name}_intersection"
+        return intersection
 
     def unite(self, regions):
         """Unite one or more other regions with self.
