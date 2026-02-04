@@ -696,7 +696,10 @@ boundary of the group of rotor regions. The minimum thickness of the air region 
 
 For the rounded rotor notches example, an air band of specified thickness (at least 0.1 mm) should
 be added at the rotor outer boundary. This air band can be united with the notch regions to form a
-single **Rotor Air** region.
+single **Rotor Air** region. To account for the new air band region, the airgap can be reduced by
+the same distance. For example, if the original airgap is 1 mm, and a new air band of 0.1 mm
+thickness is added, the airgap should be reduced to 0.9 mm to keep the effective full airgap (airgap
+plus rotor air region) unchanged.
 
 .. figure:: ../images/adaptive_templates/user_guide_airgap_5.png
     :width: 600pt
