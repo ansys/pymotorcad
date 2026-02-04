@@ -2099,6 +2099,219 @@ def test_round_corners_4_extra_points():
     assert triangle_2.entities[5].start == triangle_1.entities[2].midpoint
 
 
+def test_chamfer_corner_1():
+    # Draw a square and chamfer the first corner by a single distance for both adjacent lines.
+    original_square = create_square()
+
+    chamfer_distance = 0.1
+    chamfered_square = deepcopy(original_square)
+    chamfered_square.chamfer_corner(chamfered_square.points[0], chamfer_distance)
+
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) + 1
+
+    lengths = [
+        original_square.entities[0].length - chamfer_distance,
+        original_square.entities[0].length,
+        original_square.entities[0].length,
+        original_square.entities[0].length - chamfer_distance,
+    ]
+
+    for i in range(len(chamfered_square.entities) - 1):
+        assert chamfered_square.entities[i + 1].length == lengths[i]
+
+
+def test_chamfer_corner_2():
+    # Draw a square and chamfer the first corner by different distances for each adjacent line.
+    original_square = create_square()
+
+    chamfer_distances = [0.1, 0.2]
+    chamfered_square = deepcopy(original_square)
+    chamfered_square.chamfer_corner(chamfered_square.points[0], chamfer_distances)
+
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) + 1
+
+    lengths = [
+        original_square.entities[0].length - chamfer_distances[1],
+        original_square.entities[0].length,
+        original_square.entities[0].length,
+        original_square.entities[0].length - chamfer_distances[0],
+    ]
+
+    for i in range(len(chamfered_square.entities) - 1):
+        assert chamfered_square.entities[i + 1].length == lengths[i]
+
+
+def test_chamfer_corner_3():
+    """Test chamfer region method for an irregular 5-sided shape constructed of 2 lines and 3
+    arcs using a single chamfer distance."""
+
+    original_shape = create_square()
+
+    # modify square to form an irregular shape constructed from 2 Lines and 3 Arcs
+    original_shape.remove_entity(original_shape.entities[-1])
+    original_shape.remove_entity(original_shape.entities[-1])
+    original_shape.add_entity(Arc(Coordinate(2, 2), Coordinate(2.5, 1), radius=2.5))
+    original_shape.add_entity(Arc(Coordinate(2.5, 1), Coordinate(1, -0.5), radius=5))
+    original_shape.add_entity(Arc(Coordinate(1, -0.5), Coordinate(0, 0), radius=2.5))
+
+    # Chamfer 1 corner between a Line and Arc entity
+    chamfer_distance = 0.1
+    chamfered_shape = deepcopy(original_shape)
+    chamfered_shape.chamfer_corner(chamfered_shape.points[0], chamfer_distance)
+
+    assert chamfered_shape.is_closed()
+    assert len(chamfered_shape.entities) == len(original_shape.entities) + 1
+    assert isclose(
+        abs(chamfered_shape.points[0] - original_shape.points[0]),
+        chamfer_distance,
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+    assert isclose(
+        abs(chamfered_shape.points[1] - original_shape.points[0]),
+        chamfer_distance,
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+
+    # Chamfer 1 corner between two Arc entities
+    chamfered_shape.chamfer_corner(chamfered_shape.points[4], chamfer_distance)
+
+    assert chamfered_shape.is_closed()
+    assert len(chamfered_shape.entities) == len(original_shape.entities) + 2
+    assert isclose(
+        abs(chamfered_shape.points[4] - original_shape.points[3]),
+        chamfer_distance,
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+    assert isclose(
+        abs(chamfered_shape.points[5] - original_shape.points[3]),
+        chamfer_distance,
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+
+
+def test_chamfer_corner_4():
+    """Test chamfer region method for an irregular 5-sided shape constructed of 2 lines and 3
+    arcs using a list of different chamfer distances."""
+
+    original_shape = create_square()
+
+    # modify square to form an irregular shape constructed from 2 Lines and 3 Arcs
+    original_shape.remove_entity(original_shape.entities[-1])
+    original_shape.remove_entity(original_shape.entities[-1])
+    original_shape.add_entity(Arc(Coordinate(2, 2), Coordinate(2.5, 1), radius=2.5))
+    original_shape.add_entity(Arc(Coordinate(2.5, 1), Coordinate(1, -0.5), radius=5))
+    original_shape.add_entity(Arc(Coordinate(1, -0.5), Coordinate(0, 0), radius=2.5))
+
+    # Chamfer 2 corners using different distances for each adjacent entity
+    chamfer_distances = [0.1, 0.2]
+    chamfered_shape = deepcopy(original_shape)
+    # Corner between line and arc
+    chamfered_shape.chamfer_corner(original_shape.points[0], chamfer_distances)
+    # Corner between two arcs
+    chamfered_shape.chamfer_corner(original_shape.points[3], chamfer_distances)
+
+    assert chamfered_shape.is_closed()
+    assert len(chamfered_shape.entities) == len(original_shape.entities) + 2
+    assert isclose(
+        abs(chamfered_shape.points[0] - original_shape.points[0]),
+        chamfer_distances[0],
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+    assert isclose(
+        abs(chamfered_shape.points[1] - original_shape.points[0]),
+        chamfer_distances[1],
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+    assert isclose(
+        abs(chamfered_shape.points[4] - original_shape.points[3]),
+        chamfer_distances[0],
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+    assert isclose(
+        abs(chamfered_shape.points[5] - original_shape.points[3]),
+        chamfer_distances[1],
+        abs_tol=sqrt(GEOM_TOLERANCE),
+    )
+
+
+def test_chamfer_corner_5():
+    """Test chamfer region method for a square when a chamfer distance longer than the adjacent
+    entity is given for maximise = True/False."""
+    original_square = create_square()
+
+    chamfer_distance = 3
+    chamfered_square = deepcopy(original_square)
+    # maximise = True by default
+    chamfered_square.chamfer_corner(original_square.points[0], chamfer_distance)
+
+    # check that the region was chamfered even though the chamfer distance was too large.
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) + 1
+
+    assert chamfered_square.entities[1].length < original_square.entities[0].length
+    assert chamfered_square.entities[-1].length < original_square.entities[-1].length
+    assert isclose(
+        chamfered_square.entities[2].length,
+        original_square.entities[1].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+    assert isclose(
+        chamfered_square.entities[3].length,
+        original_square.entities[2].length,
+        abs_tol=GEOM_TOLERANCE,
+    )
+
+    # Test maximise = False
+    chamfered_square_2 = deepcopy(original_square)
+
+    with pytest.raises(ValueError) as e_info:
+        # Test that ValueError is raised when maximise = False and chamfer distance is too large.
+        chamfered_square_2.chamfer_corner(
+            original_square.points[0], chamfer_distance, maximise=False
+        )
+    assert "is close to or larger than the original length of" in str(e_info.value)
+
+
+def test_chamfer_corners_1():
+    # Draw a square and chamfer all corners by a single distance for both adjacent lines.
+    original_square = create_square()
+
+    chamfer_distance = 0.1
+    chamfered_square = deepcopy(original_square)
+    chamfered_square.chamfer_corners(chamfered_square.points, chamfer_distance)
+
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) * 2
+
+    for i in range(len(original_square.points)):
+        original_point = original_square.points[i]
+        for j in range(2):
+            point = chamfered_square.points[2 * i + j]
+            distance = abs(point - original_point)
+            assert isclose(distance, chamfer_distance, abs_tol=GEOM_TOLERANCE)
+
+
+def test_chamfer_corners_2():
+    # Draw a square and chamfer all corners by different distances for each adjacent line.
+    original_square = create_square()
+
+    chamfer_distances = [0.1, 0.2]
+    chamfered_square = deepcopy(original_square)
+    chamfered_square.chamfer_corners(chamfered_square.points, chamfer_distances)
+
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) * 2
+
+    for i in range(len(original_square.points)):
+        original_point = original_square.points[i]
+        for j in range(2):
+            point = chamfered_square.points[2 * i + j]
+            distance = abs(point - original_point)
+            assert isclose(distance, chamfer_distances[j], abs_tol=GEOM_TOLERANCE)
+
+
 def test_extend_entity_region_method():
     # Draw a square and extend its vertical lines to form a rectangle
     square_1 = square(4, 0, 0)
