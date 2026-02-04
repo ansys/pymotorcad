@@ -1606,9 +1606,10 @@ class MotorCADTwinModel:
     # Function that runs the thermal model at each desired speed, and exports the thermal matrices
     def generateRpmSamples(self, rpmSamples: list):
         dps = []
+        numRPMs = len(rpmSamples)
 
         for index, rpm in enumerate(rpmSamples):
-            logger.info(f"RPM = {rpm}")
+            logger.info(f"RPM {index + 1}/{numRPMs}: {rpm}")
             dpName = "dp" + str(index).zfill(6)
             exportDirectory = os.path.join(self.outputDirectory, dpName)
             self.computeMatrices(exportDirectory, rpm=rpm)
