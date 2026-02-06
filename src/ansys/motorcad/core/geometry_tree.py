@@ -421,6 +421,32 @@ class GeometryTree(dict):
         self._add_region(region, parent=parent)
         return region
 
+    def add_region(self, region, parent=None):
+        """Add region to the tree.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region|ansys.motorcad.core.geometry.RegionMagnet
+            Existing Region to be added
+        parent : TreeRegion|TreeRegionMagnet
+            parent object (must be already within tree)
+        Returns
+        -------
+        TreeRegion|TreeRegionMagnet
+        """
+        if region.region_type:
+            if region.region_type == RegionType.magnet:
+                tree_region = TreeRegionMagnet(self, motorcad_instance=self._motorcad_instance)
+            else:
+                tree_region = TreeRegion(
+                    self, region.region_type, motorcad_instance=self._motorcad_instance
+                )
+        else:
+            raise TypeError("The region has no region_type set. Please set a valid region_type.")
+        tree_region.update(region)
+        self._add_region(tree_region, parent=parent)
+        region = tree_region
+
     def remove_branch(self, node):
         """Remove Node and all descendants from tree."""
         if type(node) == str:
@@ -484,6 +510,11 @@ class TreeRegion(Region):
     def _get_new_object_of_type_self(self):
         """Return self object."""
         return type(self)(self.tree, self.region_type, motorcad_instance=self._motorcad_instance)
+
+    def __deepcopy__(self, memo):
+        """Override default deepcopy behaviour."""
+        copied_object = super().__deepcopy__(memo)
+        copied_object.name = self.name + "_copy"
 
     @property
     def name(self):
