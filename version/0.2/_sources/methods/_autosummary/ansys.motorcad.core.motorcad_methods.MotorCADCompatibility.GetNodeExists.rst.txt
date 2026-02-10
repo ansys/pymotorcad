@@ -1,0 +1,6 @@
+GetNodeExists
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.GetNodeExists

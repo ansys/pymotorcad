@@ -1,0 +1,6 @@
+LoadFEAResult
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.LoadFEAResult

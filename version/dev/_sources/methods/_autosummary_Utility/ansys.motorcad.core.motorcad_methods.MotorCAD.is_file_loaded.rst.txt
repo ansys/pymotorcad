@@ -1,0 +1,6 @@
+﻿is\_file\_loaded
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.is_file_loaded

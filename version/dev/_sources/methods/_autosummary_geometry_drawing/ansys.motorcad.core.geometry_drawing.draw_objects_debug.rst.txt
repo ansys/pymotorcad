@@ -1,0 +1,6 @@
+﻿draw\_objects\_debug
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry_drawing
+
+.. autofunction:: draw_objects_debug

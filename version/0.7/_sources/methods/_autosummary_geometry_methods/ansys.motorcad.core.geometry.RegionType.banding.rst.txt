@@ -1,0 +1,6 @@
+banding
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.banding

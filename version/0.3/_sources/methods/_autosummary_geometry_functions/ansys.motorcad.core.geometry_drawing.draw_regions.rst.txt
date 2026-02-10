@@ -1,0 +1,6 @@
+﻿draw\_regions
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry_drawing
+
+.. autofunction:: draw_regions

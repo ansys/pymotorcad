@@ -1,0 +1,6 @@
+SetArrayVariable\_2d
+====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetArrayVariable_2d

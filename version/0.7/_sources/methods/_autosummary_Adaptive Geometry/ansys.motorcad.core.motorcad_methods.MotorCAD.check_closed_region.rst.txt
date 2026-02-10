@@ -1,0 +1,6 @@
+﻿check\_closed\_region
+=====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.check_closed_region

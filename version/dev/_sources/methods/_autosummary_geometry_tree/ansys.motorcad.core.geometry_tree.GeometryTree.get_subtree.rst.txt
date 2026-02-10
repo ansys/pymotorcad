@@ -1,0 +1,6 @@
+get\_subtree
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: GeometryTree.get_subtree

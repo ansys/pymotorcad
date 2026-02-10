@@ -1,0 +1,31 @@
+.. _ref_Lab_API:
+Lab
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Lab
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    add_external_custom_loss
+    add_internal_custom_loss
+    build_model_lab
+    calculate_duty_cycle_lab
+    calculate_generator_lab
+    calculate_magnetic_lab
+    calculate_operating_point_lab
+    calculate_test_performance_lab
+    calculate_thermal_lab
+    clear_model_build_lab
+    export_duty_cycle_lab
+    export_figure_lab
+    export_lab_model
+    get_model_built_lab
+    load_external_model_lab
+    remove_external_custom_loss
+    remove_internal_custom_loss
+    show_results_viewer_lab

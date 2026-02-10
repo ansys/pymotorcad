@@ -1,0 +1,6 @@
+limit\_arc\_chord
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.limit_arc_chord

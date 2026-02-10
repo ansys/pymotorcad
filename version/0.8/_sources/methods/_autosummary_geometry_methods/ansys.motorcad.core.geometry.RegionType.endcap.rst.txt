@@ -1,0 +1,6 @@
+endcap
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.endcap

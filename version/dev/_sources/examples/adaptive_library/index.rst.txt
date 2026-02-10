@@ -1,0 +1,217 @@
+
+
+.. _sphx_glr_examples_adaptive_library:
+
+.. _ref_examples_adaptive_templates_library:
+
+Adaptive templates examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Library of adaptive templates examples for setting up custom geometries in Motor-CAD.
+These scripts can be loaded into the Motor-CAD Adaptive Templates tab.
+
+.. note::
+    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
+
+.. note::
+    For more information on the use of Adaptive Templates in Motor-CAD,
+    and how to create, modify and debug Adaptive Templates Scripts,
+    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Triangular Rotor Notches for IPM">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_BPMTriangularRotorNotches_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_BPMTriangularRotorNotches.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Triangular Rotor Notches for IPM</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Triangular Stator Notches">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_BPMTriangularStatorNotches_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_BPMTriangularStatorNotches.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Triangular Stator Notches</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Bezier curve rotor pockets">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_BezierCurveRotorPockets_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_BezierCurveRotorPockets.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Bezier curve rotor pockets</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Custom DXF Geometry">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_DXFImport_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_DXFImport.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Custom DXF Geometry</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Oblong stator ducts with thermal adjustment">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_OblongStatorDuct_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_OblongStatorDuct.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Oblong stator ducts with thermal adjustment</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Round Parallel Slot Bottom">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_RoundParallelSlotBttm_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_RoundParallelSlotBttm.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Round Parallel Slot Bottom</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Custom Magnet Angles for SPM">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_SPMCustomMagnetAngles_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_SPMCustomMagnetAngles.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Custom Magnet Angles for SPM</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Trapezoidal ducts">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_TrapezoidalDuct_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_TrapezoidalDuct.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Trapezoidal ducts</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Curved Rotor Flux Barriers for SYNCREL U-Shape">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_UShapeSYNCRELCurvedFluxBarriers_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_UShapeSYNCRELCurvedFluxBarriers.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Curved Rotor Flux Barriers for SYNCREL U-Shape</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Material and Mesh Properties">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_UpdateMaterialMesh_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_UpdateMaterialMesh.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Material and Mesh Properties</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/adaptive_library/BPMTriangularRotorNotches
+   /examples/adaptive_library/BPMTriangularStatorNotches
+   /examples/adaptive_library/BezierCurveRotorPockets
+   /examples/adaptive_library/DXFImport
+   /examples/adaptive_library/OblongStatorDuct
+   /examples/adaptive_library/RoundParallelSlotBttm
+   /examples/adaptive_library/SPMCustomMagnetAngles
+   /examples/adaptive_library/TrapezoidalDuct
+   /examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers
+   /examples/adaptive_library/UpdateMaterialMesh
+

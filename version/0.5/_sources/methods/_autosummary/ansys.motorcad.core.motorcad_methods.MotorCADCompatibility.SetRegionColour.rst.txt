@@ -1,0 +1,6 @@
+SetRegionColour
+===============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetRegionColour

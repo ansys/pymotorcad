@@ -1,0 +1,82 @@
+
+
+.. _sphx_glr_samples_general:
+
+.. _ref_samples_general:
+
+General example repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In addition to calculating the average rotor bridge stress, it also allows post-processing to consider non-linear plastic effects. Optionally, the results from the non-linear calculation are used to replace the standard result in the outputs tab.">
+
+.. only:: html
+
+  .. image:: /samples/general/images/thumb/sphx_glr_BridgeStressSampling_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_samples_general_BridgeStressSampling.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Stress sampling example</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This script should be run from the scripting tab after the force calculation has been run in Motor-CAD.">
+
+.. only:: html
+
+  .. image:: /samples/general/images/thumb/sphx_glr_MotionForceExport_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_samples_general_MotionForceExport.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Force export for Ansys Motion</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Simple parametric sweep for SYNC machine">
+
+.. only:: html
+
+  .. image:: /samples/general/images/thumb/sphx_glr_ParameterSweepSync_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_samples_general_ParameterSweepSync.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Simple parametric sweep for SYNC machine</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /samples/general/BridgeStressSampling
+   /samples/general/MotionForceExport
+   /samples/general/ParameterSweepSync
+

@@ -1,0 +1,6 @@
+SetAllEmagCalculations
+======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetAllEmagCalculations

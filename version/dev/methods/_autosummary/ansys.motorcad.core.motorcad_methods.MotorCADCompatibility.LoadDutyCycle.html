@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LoadDutyCycle &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=61be957a"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="LoadExternalCircuit" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit.html" />
+    <link rel="prev" title="LoadDXFFile" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.dev0" />
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../MotorCAD_object.html">MotorCAD API</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../MotorCADCompatibility_object.html">MotorCADCompatibility API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.html">MotorCADCompatibility</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_RT.html">AddArc_Boundary_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_Boundary_XY.html">AddArc_Boundary_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_RT.html">AddArc_CentreStartEnd_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_CentreStartEnd_XY.html">AddArc_CentreStartEnd_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_RT.html">AddArc_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddArc_XY.html">AddArc_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddCircularConductor_A.html">AddCircularConductor_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_RT.html">AddLine_Boundary_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_Boundary_XY.html">AddLine_Boundary_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_RT.html">AddLine_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddLine_XY.html">AddLine_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_RT.html">AddMagnetRegion_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddMagnetRegion_XY.html">AddMagnetRegion_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_CustomMaterial_XY.html">AddPoint_CustomMaterial_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_RT.html">AddPoint_Magnetic_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_Magnetic_XY.html">AddPoint_Magnetic_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_RT.html">AddPoint_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddPoint_XY.html">AddPoint_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRectangularConductor_A.html">AddRectangularConductor_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_RT.html">AddRegion_RT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AddRegion_XY.html">AddRegion_XY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal.html">Add_Region_Thermal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Add_Region_Thermal_A.html">Add_Region_Thermal_A</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.AvoidImmediateUpdate.html">AvoidImmediateUpdate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.BuildModel_Lab.html">BuildModel_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateDutyCycle_Lab.html">CalculateDutyCycle_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Spatial.html">CalculateForceHarmonics_Spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateForceHarmonics_Temporal.html">CalculateForceHarmonics_Temporal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateGenerator_Lab.html">CalculateGenerator_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIMSaturationModel.html">CalculateIMSaturationModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateIronLossCoefficients.html">CalculateIronLossCoefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetParameters.html">CalculateMagnetParameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateMagnetic_Lab.html">CalculateMagnetic_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateOperatingPoint_Lab.html">CalculateOperatingPoint_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateSaturationMap.html">CalculateSaturationMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTestPerformance_Lab.html">CalculateTestPerformance_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateThermal_Lab.html">CalculateThermal_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CalculateTorqueEnvelope.html">CalculateTorqueEnvelope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CheckIfGeometryIsValid.html">CheckIfGeometryIsValid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearAllData.html">ClearAllData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearDutyCycle.html">ClearDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearExternalCircuit.html">ClearExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearFixedTemperatureValue.html">ClearFixedTemperatureValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearMessageLog.html">ClearMessageLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ClearModelBuild_Lab.html">ClearModelBuild_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateNewNode.html">CreateNewNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh.html">CreateOptimisedMesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateOptimisedMesh_Thermal.html">CreateOptimisedMesh_Thermal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.CreateReport.html">CreateReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteRegions.html">DeleteRegions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DeleteSolidMaterial.html">DeleteSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisableErrorMessages.html">DisableErrorMessages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DisplayScreen.html">DisplayScreen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticCalculation.html">DoMagneticCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMagneticThermalCalculation.html">DoMagneticThermalCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMechanicalCalculation.html">DoMechanicalCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoMultiForceCalculation.html">DoMultiForceCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSlotFiniteElement.html">DoSlotFiniteElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoSteadyStateAnalysis.html">DoSteadyStateAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoTransientAnalysis.html">DoTransientAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.DoWeightCalculation.html">DoWeightCalculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.EditMagnetRegion.html">EditMagnetRegion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportDutyCycle_Lab.html">ExportDutyCycle_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportFigure_Lab.html">ExportFigure_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportForceAnimation.html">ExportForceAnimation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMatrices.html">ExportMatrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportMultiForceData.html">ExportMultiForceData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportNVHResultsData.html">ExportNVHResultsData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportResults.html">ExportResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportSolidMaterial.html">ExportSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysDiscovery.html">ExportToAnsysDiscovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ExportToAnsysElectronicsDesktop.html">ExportToAnsysElectronicsDesktop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GeometryExport.html">GeometryExport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable.html">GetArrayVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetArrayVariable_2d.html">GetArrayVariable_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetComponentMaterial.html">GetComponentMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetFEAGraphPoint.html">GetFEAGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetForceFrequencyDomainAmplitude.html">GetForceFrequencyDomainAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetIMIronLoss.html">GetIMIronLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetLicence.html">GetLicence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagnetic3DGraphPoint.html">GetMagnetic3DGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMagneticGraphPoint.html">GetMagneticGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetMessages.html">GetMessages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetModelBuilt_Lab.html">GetModelBuilt_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeCapacitance.html">GetNodeCapacitance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeExists.html">GetNodeExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodePower.html">GetNodePower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeTemperature.html">GetNodeTemperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetNodeToNodeResistance.html">GetNodeToNodeResistance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetOffsetNodeNumber.html">GetOffsetNodeNumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPointValue.html">GetPointValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetPowerGraphPoint.html">GetPowerGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionLoss.html">GetRegionLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetRegionValue.html">GetRegionValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetTemperatureGraphPoint.html">GetTemperatureGraphPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetVariable.html">GetVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.GetWindingCoil.html">GetWindingCoil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ImportSolidMaterial.html">ImportSolidMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitialiseTabNames.html">InitialiseTabNames</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.InitiateGeometryFromScript.html">InitiateGeometryFromScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.IsStopRequested.html">IsStopRequested</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadCustomDriveCycle.html">LoadCustomDriveCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDXFFile.html">LoadDXFFile</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">LoadDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalCircuit.html">LoadExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadExternalModel_Lab.html">LoadExternalModel_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFEAResult.html">LoadFEAResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadFromFile.html">LoadFromFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadMagnetisationCurves.html">LoadMagnetisationCurves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportStructure.html">LoadReportStructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadReportTree.html">LoadReportTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadResults.html">LoadResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadScript.html">LoadScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadTemplate.html">LoadTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadWindingPattern.html">LoadWindingPattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ModifyNode.html">ModifyNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Quit.html">Quit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RemoveExternalComponent.html">RemoveExternalComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ResetRegions.html">ResetRegions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RestoreCompatibilitySettings.html">RestoreCompatibilitySettings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.RunScript.html">RunScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveDutyCycle.html">SaveDutyCycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveExternalCircuit.html">SaveExternalCircuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveFEAData.html">SaveFEAData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveIronLossCoefficients.html">SaveIronLossCoefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetParameters.html">SaveMagnetParameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMagnetisationCurves.html">SaveMagnetisationCurves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveMotorCADScreenToFile.html">SaveMotorCADScreenToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveResults.html">SaveResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScreenToFile.html">SaveScreenToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveScript.html">SaveScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTemplate.html">SaveTemplate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveToFile.html">SaveToFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientPowerValues.html">SaveTransientPowerValues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveTransientTemperatures.html">SaveTransientTemperatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SaveWindingPattern.html">SaveWindingPattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.Set3DComponentVisibility.html">Set3DComponentVisibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetAllEmagCalculations.html">SetAllEmagCalculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable.html">SetArrayVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetArrayVariable_2d.html">SetArrayVariable_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetBndCond.html">SetBndCond</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetCapacitanceValue.html">SetCapacitanceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetComponentMaterial.html">SetComponentMaterial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathArc.html">SetFEAPathArc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathLine.html">SetFEAPathLine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFEAPathPoint.html">SetFEAPathPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFixedTemperatureValue.html">SetFixedTemperatureValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetFluid.html">SetFluid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMeshGeneratorParam.html">SetMeshGeneratorParam</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetMotorLABContext.html">SetMotorLABContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerInjectionValue.html">SetPowerInjectionValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetPowerSourceValue.html">SetPowerSourceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetRegionColour.html">SetRegionColour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceMultiplier.html">SetResistanceMultiplier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetResistanceValue.html">SetResistanceValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVariable.html">SetVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetVisible.html">SetVisible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SetWindingCoil.html">SetWindingCoil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMagneticContext.html">ShowMagneticContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMechanicalContext.html">ShowMechanicalContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowMessage.html">ShowMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowResultsViewer_Lab.html">ShowResultsViewer_Lab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.ShowThermalContext.html">ShowThermalContext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.SolveProblem.html">SolveProblem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.StoreProblemData.html">StoreProblemData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateForceAnalysisResults.html">UpdateForceAnalysisResults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.UpdateInterface.html">UpdateInterface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.set_free.html">set_free</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_functions.html">Geometry objects and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_tree.html">Geometry tree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_drawing.html">Geometry drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_shapes.html">Geometry shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_fitting.html">Geometry fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utility_functions.html">Utility functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../MotorCAD_errors.html">Motor-CAD errors</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">API reference</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../MotorCADCompatibility_object.html" class="nav-link">MotorCADCompatibility API</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.html" class="nav-link">MotorCADCompatibility</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LoadDutyCycle</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="loaddutycycle">
+<h1>LoadDutyCycle<a class="headerlink" href="#loaddutycycle" title="Link to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle">
+<span class="sig-prename descclassname"><span class="pre">MotorCADCompatibility.</span></span><span class="sig-name descname"><span class="pre">LoadDutyCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle" title="Link to this definition">#</a></dt>
+<dd><p>Deprecated function. Replaced by <a class="reference internal" href="../_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">MotorCAD.load_duty_cycle()</span></code></a>.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle"><code class="docutils literal notranslate"><span class="pre">MotorCADCompatibility.LoadDutyCycle()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/methods/_autosummary/ansys.motorcad.core.motorcad_methods.MotorCADCompatibility.LoadDutyCycle.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

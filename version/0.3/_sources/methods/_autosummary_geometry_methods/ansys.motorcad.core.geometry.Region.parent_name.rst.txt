@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.parent_name

@@ -1,0 +1,6 @@
+stator\_frame
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_frame

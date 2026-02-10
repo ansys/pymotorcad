@@ -1,0 +1,6 @@
+pole\_spacer
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.pole_spacer

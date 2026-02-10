@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>General &#8212; pymotorcad-core</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/css\ansys_sphinx_theme.css?v=35e44410" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+ 
+<link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../_static/documentation_options.js?v=112a8514"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'methods/_autogen_General';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="clear_duty_cycle" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.clear_duty_cycle.html" />
+    <link rel="prev" title="set_fea_path_point" href="_autosummary_FEA%20Geometry/ansys.motorcad.core.motorcad_methods.MotorCAD.set_fea_path_point.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/methods/_autogen_General.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+<!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+   
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <script>document.write(`<img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="pymotorcad-core - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../user_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../user_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="MotorCAD_object.html">MotorCAD API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Calculations.html">Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_FEA%20Geometry.html">FEA Geometry</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">General</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.clear_duty_cycle.html">clear_duty_cycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.clear_message_log.html">clear_message_log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.create_report.html">create_report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.download_mot_file.html">download_mot_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_force_animation.html">export_force_animation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_matrices.html">export_matrices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_multi_force_data.html">export_multi_force_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_nvh_results_data.html">export_nvh_results_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_results.html">export_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_discovery.html">export_to_ansys_discovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_electronics_desktop.html">export_to_ansys_electronics_desktop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.geometry_export.html">geometry_export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_licence.html">get_licence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_license.html">get_license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_messages.html">get_messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_custom_drive_cycle.html">load_custom_drive_cycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle.html">load_duty_cycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_dxf_file.html">load_dxf_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_fea_result.html">load_fea_result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_from_file.html">load_from_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_magnetisation_curves.html">load_magnetisation_curves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_structure.html">load_report_structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_tree.html">load_report_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_results.html">load_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_template.html">load_template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_winding_pattern.html">load_winding_pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.quit.html">quit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_duty_cycle.html">save_duty_cycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_magnetisation_curves.html">save_magnetisation_curves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_results.html">save_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_template.html">save_template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_to_file.html">save_to_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_winding_pattern.html">save_winding_pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.set_free.html">set_free</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.upload_mot_file.html">upload_mot_file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Adaptive%20Geometry.html">Adaptive Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Graphs.html">Graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Internal%20Scripting.html">Internal Scripting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Lab.html">Lab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Materials.html">Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Thermal.html">Thermal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_UI.html">UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Utility.html">Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autogen_Variables.html">Variables</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="MotorCADCompatibility_object.html">MotorCADCompatibility API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_functions.html">Geometry objects and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_shapes.html">Geometry shapes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">API reference</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="MotorCAD_object.html" class="nav-link">MotorCAD API</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">General</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="general">
+<span id="ref-general-api"></span><h1>General<a class="headerlink" href="#general" title="Link to this heading">#</a></h1>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.clear_duty_cycle.html#ansys.motorcad.core.motorcad_methods.MotorCAD.clear_duty_cycle" title="ansys.motorcad.core.motorcad_methods.MotorCAD.clear_duty_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_duty_cycle</span></code></a>()</p></td>
+<td><p>Clear the duty cycle in both the lab and thermal contexts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.clear_message_log.html#ansys.motorcad.core.motorcad_methods.MotorCAD.clear_message_log" title="ansys.motorcad.core.motorcad_methods.MotorCAD.clear_message_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_message_log</span></code></a>()</p></td>
+<td><p>Clear the message log file for the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.create_report.html#ansys.motorcad.core.motorcad_methods.MotorCAD.create_report" title="ansys.motorcad.core.motorcad_methods.MotorCAD.create_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_report</span></code></a>(file_path, template_file_path)</p></td>
+<td><p>Create a Word report of the report tree structure.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.download_mot_file.html#ansys.motorcad.core.motorcad_methods.MotorCAD.download_mot_file" title="ansys.motorcad.core.motorcad_methods.MotorCAD.download_mot_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_mot_file</span></code></a>(file_path)</p></td>
+<td><p>Download the current .mot file from Motor-CAD and write it to a local directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_force_animation.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_force_animation" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_force_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_force_animation</span></code></a>(animation, file_name)</p></td>
+<td><p>Export a force animation to a GIF file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_matrices.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_matrices" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_matrices</span></code></a>(directory_path)</p></td>
+<td><p>Export the resistance, power, and capacitance matrices to files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_multi_force_data.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_multi_force_data" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_multi_force_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_multi_force_data</span></code></a>(file_name)</p></td>
+<td><p>Export calculated multiforce data to a file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_nvh_results_data.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_nvh_results_data" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_nvh_results_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_nvh_results_data</span></code></a>(file_name)</p></td>
+<td><p>Export NVH results data to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_results.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_results" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_results</span></code></a>(solution_type, file_path)</p></td>
+<td><p>Export results from a solution to a CSV file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_discovery.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_discovery" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_discovery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_to_ansys_discovery</span></code></a>(file_path)</p></td>
+<td><p>Export the model to a Python script file that can be run in Ansys Discovery.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_electronics_desktop.html#ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_electronics_desktop" title="ansys.motorcad.core.motorcad_methods.MotorCAD.export_to_ansys_electronics_desktop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_to_ansys_electronics_desktop</span></code></a>(file_path)</p></td>
+<td><p>Export the model to a VBS script file that can run in Ansys Electronics Desktop.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.geometry_export.html#ansys.motorcad.core.motorcad_methods.MotorCAD.geometry_export" title="ansys.motorcad.core.motorcad_methods.MotorCAD.geometry_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry_export</span></code></a>()</p></td>
+<td><p>Export the geometry to the file specified in the <code class="docutils literal notranslate"><span class="pre">DXFFileName</span></code> parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_licence.html#ansys.motorcad.core.motorcad_methods.MotorCAD.get_licence" title="ansys.motorcad.core.motorcad_methods.MotorCAD.get_licence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_licence</span></code></a>()</p></td>
+<td><p>Check if a license is available for the current context and machine type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_license.html#ansys.motorcad.core.motorcad_methods.MotorCAD.get_license" title="ansys.motorcad.core.motorcad_methods.MotorCAD.get_license"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_license</span></code></a>()</p></td>
+<td><p>Check if a license is available for the current context and machine type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.get_messages.html#ansys.motorcad.core.motorcad_methods.MotorCAD.get_messages" title="ansys.motorcad.core.motorcad_methods.MotorCAD.get_messages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_messages</span></code></a>(num_messages)</p></td>
+<td><p>Get a list of the last <em>N</em> messages from the message history.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_custom_drive_cycle.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_custom_drive_cycle" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_custom_drive_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_custom_drive_cycle</span></code></a>(file_path)</p></td>
+<td><p>Load a custom waveform from a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_duty_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_duty_cycle</span></code></a>(file_name)</p></td>
+<td><p>Load a duty cycle from a DAT file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_dxf_file.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_dxf_file" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_dxf_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dxf_file</span></code></a>(file_name)</p></td>
+<td><p>Load a DXF geometry file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_fea_result.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_fea_result" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_fea_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_fea_result</span></code></a>(file_path, solution_number)</p></td>
+<td><p>Load an existing FEA solution to allow viewing of FEA results.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_from_file.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_from_file" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_file</span></code></a>(mot_file)</p></td>
+<td><p>Load a MOT file into the Motor-CAD instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_magnetisation_curves.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_magnetisation_curves" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_magnetisation_curves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_magnetisation_curves</span></code></a>(file_path)</p></td>
+<td><p>Load the magnetization curves from a text file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_structure.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_structure" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_report_structure</span></code></a>(file_path)</p></td>
+<td><p>Load the tree structure of the report from a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_tree.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_tree" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_report_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_report_tree</span></code></a>()</p></td>
+<td><p>Load the report with the tree structure of the modules and components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_results.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_results" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_results</span></code></a>(solution_type)</p></td>
+<td><p>Load the output results from an <code class="docutils literal notranslate"><span class="pre">&quot;EMagnetic&quot;</span></code> solution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_template.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_template" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_template</span></code></a>(template_name)</p></td>
+<td><p>Load a motor template.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.load_winding_pattern.html#ansys.motorcad.core.motorcad_methods.MotorCAD.load_winding_pattern" title="ansys.motorcad.core.motorcad_methods.MotorCAD.load_winding_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_winding_pattern</span></code></a>(file_path)</p></td>
+<td><p>Load the winding pattern from a text file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.quit.html#ansys.motorcad.core.motorcad_methods.MotorCAD.quit" title="ansys.motorcad.core.motorcad_methods.MotorCAD.quit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quit</span></code></a>()</p></td>
+<td><p>Quit Motor-CAD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_duty_cycle.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_duty_cycle" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_duty_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_duty_cycle</span></code></a>(file_path)</p></td>
+<td><p>Save the duty cycle to a DAT file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_magnetisation_curves.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_magnetisation_curves" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_magnetisation_curves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_magnetisation_curves</span></code></a>(file_name)</p></td>
+<td><p>Save the magnetisation curves to a text file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_results.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_results" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_results</span></code></a>(solution_type)</p></td>
+<td><p>Save the output results from an <code class="docutils literal notranslate"><span class="pre">&quot;EMagnetic&quot;</span></code> solution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_template.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_template" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_template</span></code></a>(template_file_name, name, ...)</p></td>
+<td><p>Save the template to an MTT template file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_to_file.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_to_file" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_to_file</span></code></a>(mot_file)</p></td>
+<td><p>Save the MOT file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.save_winding_pattern.html#ansys.motorcad.core.motorcad_methods.MotorCAD.save_winding_pattern" title="ansys.motorcad.core.motorcad_methods.MotorCAD.save_winding_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_winding_pattern</span></code></a>(file_path)</p></td>
+<td><p>Save the winding pattern to a file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.set_free.html#ansys.motorcad.core.motorcad_methods.MotorCAD.set_free" title="ansys.motorcad.core.motorcad_methods.MotorCAD.set_free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_free</span></code></a>()</p></td>
+<td><p>Free the Motor-CAD instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_General/ansys.motorcad.core.motorcad_methods.MotorCAD.upload_mot_file.html#ansys.motorcad.core.motorcad_methods.MotorCAD.upload_mot_file" title="ansys.motorcad.core.motorcad_methods.MotorCAD.upload_mot_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upload_mot_file</span></code></a>(file_path)</p></td>
+<td><p>Upload a .mot file to Motor-CAD instance from local directory.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/methods/_autogen_General.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2024 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  0.16.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

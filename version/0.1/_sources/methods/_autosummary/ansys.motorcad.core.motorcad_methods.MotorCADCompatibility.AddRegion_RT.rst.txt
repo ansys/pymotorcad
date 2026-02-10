@@ -1,0 +1,6 @@
+AddRegion\_RT
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddRegion_RT

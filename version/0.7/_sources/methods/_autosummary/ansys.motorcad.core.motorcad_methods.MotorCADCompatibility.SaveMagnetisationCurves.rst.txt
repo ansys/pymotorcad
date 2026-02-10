@@ -1,0 +1,6 @@
+SaveMagnetisationCurves
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveMagnetisationCurves

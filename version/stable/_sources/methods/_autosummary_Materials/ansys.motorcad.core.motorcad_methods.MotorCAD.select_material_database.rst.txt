@@ -1,0 +1,6 @@
+﻿select\_material\_database
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.select_material_database

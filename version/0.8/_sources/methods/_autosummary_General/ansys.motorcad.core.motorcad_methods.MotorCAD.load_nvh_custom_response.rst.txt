@@ -1,0 +1,6 @@
+﻿load\_nvh\_custom\_response
+===========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.load_nvh_custom_response

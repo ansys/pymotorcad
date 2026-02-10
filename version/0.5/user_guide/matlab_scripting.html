@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PyMotorCAD scripting in MATLAB &#8212; pymotorcad-core</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/css\ansys_sphinx_theme.css?v=35e44410" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+ 
+<link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../_static/documentation_options.js?v=112a8514"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/matlab_scripting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Backwards compatibility with old scripts" href="backwards_compatibility.html" />
+    <link rel="prev" title="Adding to external python and contributing" href="external_scripting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/user_guide/matlab_scripting.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+<!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+   
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <script>document.write(`<img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="pymotorcad-core - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="internal_scripting.html">Motor-CAD internal <strong>Scripting</strong> tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external_scripting.html">Adding to external python and contributing</a></li>
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">PyMotorCAD scripting in MATLAB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backwards_compatibility.html">Backwards compatibility with old scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Motor-CAD_setup.html">Motor-CAD setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_templates.html">Motor-CAD adaptive templates scripting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtual_env_motorcad.html">Using a Python virtual environment in Motor-CAD</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">User guide</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">PyMotorCAD scripting in MATLAB</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="pymotorcad-scripting-in-matlab">
+<span id="ref-matlab-scripting"></span><h1>PyMotorCAD scripting in MATLAB<a class="headerlink" href="#pymotorcad-scripting-in-matlab" title="Link to this heading">#</a></h1>
+<p>PyMotorCAD is available to use in MATLAB in the same way as other Python modules.
+If the <code class="code docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> package is installed for a version of Python,
+this version of Python can be used in MATLAB and the PyMotorCAD API can be called.
+This means that MATLAB scripts can make use of PyMotorCAD for controlling Motor-CAD and automation.</p>
+<section id="using-python-modules-in-matlab">
+<h2>Using Python modules in MATLAB<a class="headerlink" href="#using-python-modules-in-matlab" title="Link to this heading">#</a></h2>
+<p>Python modules can be called in MATLAB as long as Python is installed on the system.</p>
+<p>Please refer to the Mathworks website for detailed information on <a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_external/install-supported-python-implementation.html">configuring your system to use Python</a>
+and <a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_external/create-object-from-python-class.html">accessing Python Modules from MATLAB</a>.</p>
+<p>By default, MATLAB selects the version of Python based on the system path.
+To view the system path in MATLAB, use the <code class="code docutils literal notranslate"><span class="pre">getenv('path')</span></code> command.
+To see which version of Python MATLAB is using, call the <code class="code docutils literal notranslate"><span class="pre">pyenv</span></code> function in MATLAB.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pe</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pyenv</span><span class="p">;</span>
+<span class="n">pe</span><span class="p">.</span><span class="n">Version</span>
+</pre></div>
+</div>
+<p>For example, if version Python version 3.10 is installed and added to path, MATLAB outputs:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ans =
+
+&quot;3.10&quot;
+</pre></div>
+</div>
+</section>
+<section id="using-pymotorcad-in-matlab">
+<h2>Using PyMotorCAD in MATLAB<a class="headerlink" href="#using-pymotorcad-in-matlab" title="Link to this heading">#</a></h2>
+<p>If the Python version that MATLAB is using has the <code class="code docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> package installed, PyMotorCAD is available to use in MATLAB.
+See <a class="reference internal" href="../getting_started/index.html#ref-getting-started"><span class="std std-ref">Getting started</span></a> for details on installing <code class="code docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code>.</p>
+<p>To import the <code class="code docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> module as <code class="code docutils literal notranslate"><span class="pre">pymotorcad</span></code> for use in scripts, use:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pymotorcad</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">importlib</span><span class="p">.</span><span class="n">import_module</span><span class="p">(</span><span class="s">&#39;ansys.motorcad.core&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Then <a class="reference internal" href="../methods/MotorCAD_object.html#ref-motorcad-object"><span class="std std-ref">MotorCAD API</span></a> commands can be used in MATLAB in the same way as in Python.
+To start and connect to a Motor-CAD instance, access the <code class="code docutils literal notranslate"><span class="pre">MotorCAD()</span></code> object:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mcApp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pymotorcad</span><span class="p">.</span><span class="n">MotorCAD</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="example-motor-cad-e-magnetic-scripting-in-matlab">
+<h2>Example: Motor-CAD E-magnetic scripting in MATLAB<a class="headerlink" href="#example-motor-cad-e-magnetic-scripting-in-matlab" title="Link to this heading">#</a></h2>
+<p>An example of a MATLAB script using PyMotorCAD to change the motor geometry and materials,
+run magnetic calculations and extract results for further analysis is presented.
+This example is also included in the Automation tutorial supplied with Motor-CAD.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Use pymotorcad as an alias to access functionality in ansys.motorcad.core</span>
+<span class="n">pymotorcad</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">importlib</span><span class="p">.</span><span class="n">import_module</span><span class="p">(</span><span class="s">&#39;ansys.motorcad.core&#39;</span><span class="p">);</span>
+
+<span class="c">% Launch an instance of Motor-CAD</span>
+<span class="n">mcApp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pymotorcad</span><span class="p">.</span><span class="n">MotorCAD</span><span class="p">();</span>
+
+<span class="c">% Turn off popups</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;MessageDisplayState&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="c">% Change tab to scripting so that there are no conflicts when changing</span>
+<span class="c">% variables</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">show_magnetic_context</span><span class="p">()</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s">&#39;scripting&#39;</span><span class="p">)</span>
+<span class="c">% change to default BPM motor</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;Motor_Type&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="c">% Geometry changes</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;Slot_Number&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;Tooth_Width&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;Magnet_Thickness&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">4.5</span><span class="p">)</span>
+<span class="c">% Coil changes</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;MagPhases&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;ParallelPaths&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;WindingLayers&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;MagWindingType&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;MagPathType&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_winding_coil</span><span class="p">(</span><span class="nb">int64</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">60</span><span class="p">));</span>
+<span class="c">% Material changes</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_component_material</span><span class="p">(</span><span class="s">&#39;Stator Lam (Back Iron)&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;M250-35A&#39;</span><span class="p">)</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_component_material</span><span class="p">(</span><span class="s">&#39;Rotor Lam (Back Iron)&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;M250-35A&#39;</span><span class="p">)</span>
+<span class="c">% Set calculation preferences</span>
+<span class="n">PointsPerCycle</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span>
+<span class="n">NumberCycles</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;TorquePointsPerCycle&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">PointsPerCycle</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;TorqueNumberCycles&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">NumberCycles</span><span class="p">);</span>
+<span class="c">% Turn off performance tests</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;BackEMFCalculation&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;CoggingTorqueCalculation&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;ElectromagneticForcesCalc_OC&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;TorqueSpeedCalculation&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;DemagnetizationCalc&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;ElectromagneticForcesCalc_Load&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;InductanceCalc&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;BPMShortCircuitCalc&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="c">% Enable transient torque</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;TorqueCalculation&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="c">% Emangetic calculation settings</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;Shaft_Speed_[RPM]&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;CurrentDefinition&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;PeakCurrent&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;DCBusVoltage&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">350</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s">&#39;PhaseAdvance&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">);</span>
+
+<span class="c">% Save file and calculate</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">save_to_file</span><span class="p">(</span><span class="s">&#39;C:\ANSYS_Motor-CAD\2023_1_1\Motor-CAD Data\MATLAB_Tutorial\automation_scripting_MATLAB_EMagnetic.mot&#39;</span><span class="p">);</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">do_magnetic_calculation</span><span class="p">()</span>
+
+<span class="c">% data retrieval and export</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">export_results</span><span class="p">(</span><span class="s">&#39;EMagnetic&#39;</span><span class="p">,</span><span class="s">&#39;C:\ANSYS_Motor-CAD\2023_1_1\Motor-CAD Data\MATLAB_Tutorial\automation_scripting_MATLAB_EMagnetic\Export EMag Results.csv&#39;</span><span class="p">);</span>
+
+<span class="n">ShaftTorque</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mcApp</span><span class="p">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s">&#39;ShaftTorque&#39;</span><span class="p">);</span>
+<span class="n">LineVoltage</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mcApp</span><span class="p">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s">&#39;PeakLineLineVoltage&#39;</span><span class="p">);</span>
+
+<span class="n">NumTorquePoints</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">PointsPerCycle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NumberCycles</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="n">NumTorquePoints</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mcApp</span><span class="p">.</span><span class="n">get_magnetic_graph_point</span><span class="p">(</span><span class="s">&#39;TorqueVW&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="n">loop</span><span class="p">));</span>
+<span class="w">    </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">double</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+<span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RotorPosition</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="n">TorqueVW</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="k">end</span>
+
+
+<span class="n">loop</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">success</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="k">try</span>
+<span class="w">        </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mcApp</span><span class="p">.</span><span class="n">get_fea_graph_point</span><span class="p">(</span><span class="s">&#39;B Gap (on load)&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="n">loop</span><span class="p">),</span><span class="w"> </span><span class="nb">int64</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="w">        </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">double</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">        </span><span class="n">MechAngle</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">        </span><span class="n">AirgapFluxDensity</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">        </span><span class="n">loop</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">catch</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">mcApp</span><span class="p">.</span><span class="n">initialise_tab_names</span><span class="p">();</span>
+<span class="n">mcApp</span><span class="p">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s">&#39;Graphs;Harmonics;Torque&#39;</span><span class="p">);</span>
+
+<span class="n">NumHarmonicPoints</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">PointsPerCycle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NumberCycles</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="n">NumHarmonicPoints</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mcApp</span><span class="p">.</span><span class="n">get_magnetic_graph_point</span><span class="p">(</span><span class="s">&#39;HarmonicDataCycle&#39;</span><span class="p">,</span><span class="nb">int64</span><span class="p">(</span><span class="n">loop</span><span class="p">));</span>
+<span class="w">    </span><span class="n">params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">double</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+<span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">params</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Datapoint</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Torque</span><span class="p">(</span><span class="n">loop</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="k">end</span>
+
+<span class="n">mcApp</span><span class="p">.</span><span class="n">quit</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-python-modules-in-matlab">Using Python modules in MATLAB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-pymotorcad-in-matlab">Using PyMotorCAD in MATLAB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-motor-cad-e-magnetic-scripting-in-matlab">Example: Motor-CAD E-magnetic scripting in MATLAB</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/matlab_scripting.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2024 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  0.16.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

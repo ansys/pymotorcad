@@ -1,0 +1,121 @@
+﻿RegionMagnet
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: RegionMagnet
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      RegionMagnet.add_entity
+      
+      
+      RegionMagnet.add_point
+      
+      
+      RegionMagnet.collides
+      
+      
+      RegionMagnet.edit_point
+      
+      
+      RegionMagnet.extend_entity
+      
+      
+      RegionMagnet.find_entity_from_coordinates
+      
+      
+      RegionMagnet.from_coordinate_list
+      
+      
+      RegionMagnet.insert_entity
+      
+      
+      RegionMagnet.insert_polyline
+      
+      
+      RegionMagnet.is_closed
+      
+      
+      RegionMagnet.limit_arc_chord
+      
+      
+      RegionMagnet.mirror
+      
+      
+      RegionMagnet.remove_entity
+      
+      
+      RegionMagnet.replace
+      
+      
+      RegionMagnet.rotate
+      
+      
+      RegionMagnet.round_corner
+      
+      
+      RegionMagnet.round_corners
+      
+      
+      RegionMagnet.subtract
+      
+      
+      RegionMagnet.translate
+      
+      
+      RegionMagnet.unite
+      
+      
+      RegionMagnet.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RegionMagnet.area
+      RegionMagnet.br_multiplier
+      RegionMagnet.br_used
+      RegionMagnet.br_value
+      RegionMagnet.br_x
+      RegionMagnet.br_y
+      RegionMagnet.centroid
+      RegionMagnet.child_names
+      RegionMagnet.children
+      RegionMagnet.colour
+      RegionMagnet.duplication_angle
+      RegionMagnet.duplications
+      RegionMagnet.entities
+      RegionMagnet.extrusion_blocks
+      RegionMagnet.lamination_type
+      RegionMagnet.linked_region
+      RegionMagnet.linked_region_names
+      RegionMagnet.linked_regions
+      RegionMagnet.magnet_angle
+      RegionMagnet.magnet_polarity
+      RegionMagnet.material
+      RegionMagnet.mesh_length
+      RegionMagnet.motorcad_instance
+      RegionMagnet.name
+      RegionMagnet.parent
+      RegionMagnet.parent_name
+      RegionMagnet.points
+      RegionMagnet.region_coordinate
+      RegionMagnet.region_type
+      RegionMagnet.singular
+   
+   

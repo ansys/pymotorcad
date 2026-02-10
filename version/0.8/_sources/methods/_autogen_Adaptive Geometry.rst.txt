@@ -1,0 +1,30 @@
+.. _ref_Adaptive Geometry_API:
+Adaptive Geometry
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Adaptive Geometry
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    check_closed_region
+    check_collisions
+    delete_region
+    get_adaptive_parameter_value
+    get_geometry_tree
+    get_maxwell_udm_geometry_json
+    get_region
+    get_region_dxf
+    load_adaptive_script
+    reset_adaptive_geometry
+    save_adaptive_script
+    set_adaptive_parameter_default
+    set_adaptive_parameter_value
+    set_geometry_tree
+    set_region
+    subtract_region
+    unite_regions

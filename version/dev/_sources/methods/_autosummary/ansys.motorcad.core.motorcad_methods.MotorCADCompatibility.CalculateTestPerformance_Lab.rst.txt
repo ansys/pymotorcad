@@ -1,0 +1,6 @@
+CalculateTestPerformance\_Lab
+=============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateTestPerformance_Lab

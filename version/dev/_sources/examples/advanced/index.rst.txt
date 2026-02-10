@@ -1,0 +1,62 @@
+
+
+.. _sphx_glr_examples_advanced:
+
+Advanced examples
+-----------------
+These examples show you how to use the basic functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This sets up the operating points and threading options for a force/NVH calculation, then displays some key force orders from a 2d FFT that may be important for NVH.">
+
+.. only:: html
+
+  .. image:: /examples/advanced/images/thumb/sphx_glr_force_extraction_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_advanced_force_extraction.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD force extraction example script</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD Stress post-processing example script">
+
+.. only:: html
+
+  .. image:: /examples/advanced/images/thumb/sphx_glr_stress_postprocessing_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_advanced_stress_postprocessing.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD Stress post-processing example script</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/advanced/force_extraction
+   /examples/advanced/stress_postprocessing
+

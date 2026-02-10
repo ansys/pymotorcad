@@ -1,0 +1,1146 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Curved Rotor Flux Barriers for SYNCREL U-Shape &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=61be957a"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Material and Mesh Properties" href="UpdateMaterialMesh.html" />
+    <link rel="prev" title="Trapezoidal ducts" href="TrapezoidalDuct.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.dev0" />
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Adaptive templates examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BPMTriangularRotorNotches.html">Triangular Rotor Notches for IPM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BPMTriangularStatorNotches.html">Triangular Stator Notches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BezierCurveRotorPockets.html">Bezier curve rotor pockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DXFImport.html">Custom DXF Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OblongStatorDuct.html">Oblong stator ducts with thermal adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RoundParallelSlotBttm.html">Round Parallel Slot Bottom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SPMCustomMagnetAngles.html">Custom Magnet Angles for SPM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TrapezoidalDuct.html">Trapezoidal ducts</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Curved Rotor Flux Barriers for SYNCREL U-Shape</a></li>
+<li class="toctree-l2"><a class="reference internal" href="UpdateMaterialMesh.html">Material and Mesh Properties</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics/index.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internal_scripting/index.html">Internal scripting examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../links/index.html">Linking examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Adaptive templates examples</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Curved Rotor Flux Barriers for SYNCREL U-Shape</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-adaptive-library-ushapesyncrelcurvedfluxbarriers-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="curved-rotor-flux-barriers-for-syncrel-u-shape">
+<span id="ref-sync-curve-flux-barriers"></span><span id="sphx-glr-examples-adaptive-library-ushapesyncrelcurvedfluxbarriers-py"></span><h1>Curved Rotor Flux Barriers for SYNCREL U-Shape<a class="headerlink" href="#curved-rotor-flux-barriers-for-syncrel-u-shape" title="Link to this heading">#</a></h1>
+<p>This script applies the adaptive templates functionality to alter SYNCREL U-Shape rotor template to
+use curved rotor pockets.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information on the use of Adaptive Templates in Motor-CAD,
+and how to create, modify and debug Adaptive Templates Scripts,
+see <a class="reference internal" href="../../user_guide/adaptive_templates.html#ref-adaptive-templates-ug"><span class="std std-ref">Motor-CAD adaptive templates scripting</span></a> in the <a class="reference internal" href="../../user_guide/index.html#ref-user-guide"><span class="std std-ref">User guide</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later and
+PyMotorCAD v0.4.1. To update PyMotorCAD in Motor-CAD, go to Scripting -&gt; Settings -&gt; PyMotorCAD
+updates and select ‘Update to Latest Release’.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This script does not support:</p>
+<ul class="simple">
+<li><p>Zero inner/outer layer thickness</p></li>
+<li><p>Inner/outer posts</p></li>
+</ul>
+</div>
+<p>This script is designed to be run from Motor-CAD template “i3”.
+If no Motor-CAD file is open,
+the i3 template will be loaded.</p>
+<p>To set an adaptive geometry for a Motor-CAD file,
+a script must be loaded in to the Adaptive Templates tab
+(Geometry -&gt; Editor -&gt; Adaptive Templates) in Motor-CAD
+and run.
+When the option ‘Geometry Templates Type’ is set to ‘Adaptive’,
+this script is automatically run repeatedly
+to keep the Adaptive Geometry set in Motor-CAD.</p>
+<img alt="../../_images/Adaptive_Templates_GUI_Screenshot.png" src="../../_images/Adaptive_Templates_GUI_Screenshot.png" />
+<p>This Python script can also be executed externally,
+but unless the script is loaded in to the Adaptive Templates tab
+in Motor-CAD, the geometry will only be defined temporarily.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Link to this heading">#</a></h2>
+<p>Import <code class="docutils literal notranslate"><span class="pre">pymotorcad</span></code> to access Motor-CAD.
+Import <code class="docutils literal notranslate"><span class="pre">Arc</span></code>, <code class="docutils literal notranslate"><span class="pre">Coordinate</span></code>, <code class="docutils literal notranslate"><span class="pre">Line</span></code>, <code class="docutils literal notranslate"><span class="pre">Region</span></code> and <code class="docutils literal notranslate"><span class="pre">rt_to_xy</span></code>
+to define the adaptive template geometry.
+Import <code class="docutils literal notranslate"><span class="pre">os</span></code>, <code class="docutils literal notranslate"><span class="pre">shutil</span></code>, <code class="docutils literal notranslate"><span class="pre">sys</span></code>, and <code class="docutils literal notranslate"><span class="pre">tempfile</span></code>
+to open and save a temporary .mot file if none is open.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.motorcad.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pymotorcad</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.motorcad.core.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Arc</span><span class="p">,</span> <span class="n">Coordinate</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">rt_to_xy</span><span class="p">,</span> <span class="n">xy_to_rt</span>
+</pre></div>
+</div>
+</section>
+<section id="connect-to-motor-cad">
+<h2>Connect to Motor-CAD<a class="headerlink" href="#connect-to-motor-cad" title="Link to this heading">#</a></h2>
+<p>If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
+instance is used.</p>
+<p>If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
+the i3 SYNC motor template is loaded, and the file is saved to a temporary folder.
+To keep a new Motor-CAD instance open after executing the script, use the
+<code class="docutils literal notranslate"><span class="pre">MotorCAD(keep_instance_open=True)</span></code>  option when opening the new instance.
+Alternatively, use the <code class="docutils literal notranslate"><span class="pre">MotorCAD()</span></code> method, which closes the Motor-CAD instance after the
+script is executed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">is_running_in_internal_scripting</span><span class="p">():</span>
+    <span class="c1"># Use existing Motor-CAD instance if possible</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">(</span><span class="n">open_new_instance</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">(</span><span class="n">keep_instance_open</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Disable popup messages</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;MessageDisplayState&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;PYMOTORCAD_DOCS_BUILD&quot;</span> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="p">:</span>
+        <span class="n">mc</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">load_template</span><span class="p">(</span><span class="s2">&quot;i3&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open relevant file</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/tempfile.html#tempfile.gettempdir" title="tempfile.gettempdir" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span></a><span class="p">(),</span> <span class="s2">&quot;adaptive_library&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/shutil.html#shutil.rmtree" title="shutil.rmtree" class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function"><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <a href="https://docs.python.org/dev/library/os.html#os.mkdir" title="os.mkdir" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mot_name</span></a> <span class="o">=</span> <span class="s2">&quot;SYNCRELCurvedFluxBarriers&quot;</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mot_name</span></a> <span class="o">+</span> <span class="s2">&quot;.mot&quot;</span><span class="p">)</span>
+
+<span class="c1"># Reset geometry to default</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">reset_adaptive_geometry</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="define-functions-for-the-adaptive-templates-script">
+<h2>Define functions for the Adaptive Templates script<a class="headerlink" href="#define-functions-for-the-adaptive-templates-script" title="Link to this heading">#</a></h2>
+<p>This example Adaptive Templates Script works by defining
+a number of required functions.
+These functions are then called within a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop,
+which executes the script for each rotor duct layer.</p>
+<section id="calculate-barrier-arc-centre-and-radius-coordinates">
+<h3>Calculate barrier arc centre and radius coordinates<a class="headerlink" href="#calculate-barrier-arc-centre-and-radius-coordinates" title="Link to this heading">#</a></h3>
+<p>Define a function to get the radius and centre of a barrier arc.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coordinate_1</span></code> : Coordinate, Arc start coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coordinate_2</span></code> : Coordinate, Extra coordinate on arc</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coordinate_3</span></code> : Coordinate, Arc end coordinate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arc_direction</span></code> : Integer, Direction to create arc between start/end</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code> : float, Arc radius</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">centre</span></code> : Coordinate, Arc centre coordinate</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_barrier_centre_and_radius</span><span class="p">(</span><span class="n">coordinate_1</span><span class="p">,</span> <span class="n">coordinate_2</span><span class="p">,</span> <span class="n">coordinate_3</span><span class="p">,</span> <span class="n">arc_direction</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">start_t</span> <span class="o">=</span> <span class="n">xy_to_rt</span><span class="p">(</span><span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">end_t</span> <span class="o">=</span> <span class="n">xy_to_rt</span><span class="p">(</span><span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="o">-</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span>
+        <span class="o">-</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span>
+    <span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">coordinate_3</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">coordinate_3</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coordinate_1</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">coordinate_2</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">centre</span> <span class="o">=</span> <span class="n">Coordinate</span><span class="p">((</span><span class="o">-</span><span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">c</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">centre</span><span class="p">,</span> <span class="n">coordinate_1</span><span class="p">)</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">arc_direction</span>
+
+    <span class="k">return</span> <span class="n">radius</span><span class="p">,</span> <span class="n">centre</span>
+</pre></div>
+</div>
+</section>
+<section id="whether-corner-rounding-should-be-applied-to-pocket">
+<h3>Whether corner rounding should be applied to pocket<a class="headerlink" href="#whether-corner-rounding-should-be-applied-to-pocket" title="Link to this heading">#</a></h3>
+<p>Define a function to determine whether corner rounding should be applied to pocket.
+Returns a boolean.
+Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if Corner Rounding is selected for the Rotor in the Motor-CAD
+file, and if the Corner Rounding radius is set to a non-zero value.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_pockets_include_corner_rounding</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;CornerRounding_Rotor&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;CornerRoundingRadius_Rotor&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-rotor-mirror-line">
+<h3>Create a rotor mirror line<a class="headerlink" href="#create-a-rotor-mirror-line" title="Link to this heading">#</a></h3>
+<p>Define a function to create mirror line through rotor from origin to airgap.
+Returns a Line.
+Get the rotor diameter and pole number from the Motor-CAD file.
+Calculate the airgap coordinates.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_rotor_mirror_line</span><span class="p">():</span>
+    <span class="n">rotor_radius</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;RotorDiameter&quot;</span><span class="p">)</span>
+    <span class="n">number_poles</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;Pole_Number&quot;</span><span class="p">)</span>
+    <span class="n">airgap_centre_x</span><span class="p">,</span> <span class="n">airgap_centre_y</span> <span class="o">=</span> <span class="n">rt_to_xy</span><span class="p">(</span><span class="n">rotor_radius</span><span class="p">,</span> <span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">number_poles</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Line</span><span class="p">(</span><span class="n">Coordinate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Coordinate</span><span class="p">(</span><span class="n">airgap_centre_x</span><span class="p">,</span> <span class="n">airgap_centre_y</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="get-list-of-coordinates">
+<h3>Get list of coordinates<a class="headerlink" href="#get-list-of-coordinates" title="Link to this heading">#</a></h3>
+<p>Define a function to get a list of coordinates
+from the pocket using coordinate_indices.</p>
+<p>Order of coordinates: start, end, extra coordinate on arc.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pocket</span></code> : Region, Pocket region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coordinate_indices</span></code> : list of integer, Pocket region coordinate indices</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mirror_line</span></code> : Line, Mirror line to generate extra coordinate on arc</p></li>
+</ul>
+<p>Returns</p>
+<ul class="simple">
+<li><p>list of Coordinates</p></li>
+</ul>
+<p>Loop through coordinates and add to a list.
+Mirror the first coordinate to generate the third coordinate on the arc.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_coordinates</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="n">coordinate_indices</span><span class="p">,</span> <span class="n">mirror_line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pocket</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">coordinate_indices</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mirror_line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">mirror_line</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">coordinates</span>
+</pre></div>
+</div>
+</section>
+<section id="get-list-of-coordinates-for-pocket-arcs">
+<h3>Get list of coordinates for <code class="docutils literal notranslate"><span class="pre">pocket</span></code> arcs<a class="headerlink" href="#get-list-of-coordinates-for-pocket-arcs" title="Link to this heading">#</a></h3>
+<p>Define functions to get a list of coordinates
+to use to generate the top and bottom arcs for <code class="docutils literal notranslate"><span class="pre">pocket</span></code>.</p>
+<p>Return coordinates at indices from <code class="docutils literal notranslate"><span class="pre">pocket.points</span></code>.
+These indices match up with coordinates from each pocket region
+with/without corner rounding.</p>
+<p>Order of coordinates: [start, end, centre, start, end, centre]</p>
+<p>Indices have been selected using Motor-CAD geometry editor.</p>
+<p>For no centre post:</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pocket</span></code> : Region, Pocket region</p></li>
+</ul>
+<p>Returns</p>
+<ul class="simple">
+<li><p>list of Coordinates</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_coordinates_no_centre_post</span><span class="p">(</span><span class="n">pocket</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">get_pockets_include_corner_rounding</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">get_coordinates</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">14</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_coordinates</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>For centre post:</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pocket</span></code> : Region, Pocket region</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>list of Coordinates</p></li>
+</ul>
+<p>Mirror required to generate the third point on arc.
+This third point is required to calculate the centre and radius of arc.
+The mirror line mirrors the start point of each pocket arc
+to generate this third point.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_coordinates_centre_post</span><span class="p">(</span><span class="n">pocket</span><span class="p">):</span>
+    <span class="n">mirror</span> <span class="o">=</span> <span class="n">get_rotor_mirror_line</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">get_pockets_include_corner_rounding</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">get_coordinates</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">mirror</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_coordinates</span><span class="p">(</span>
+            <span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="n">mirror_line</span><span class="o">=</span><span class="n">mirror</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_coordinates</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">mirror</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_coordinates</span><span class="p">(</span>
+            <span class="n">pocket</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mirror_line</span><span class="o">=</span><span class="n">mirror</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="update-pocket-geometry">
+<h3>Update pocket geometry<a class="headerlink" href="#update-pocket-geometry" title="Link to this heading">#</a></h3>
+<p>Define a function to update the <code class="docutils literal notranslate"><span class="pre">pocket</span></code> entities
+to create a curved pocket using input coordinates.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pocket</span></code> : Region, Pocket region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coordinates</span></code> : list of Coordinate, Coordinates to generate arcs with in region</p></li>
+</ul>
+<p>Create a list of arc entities from the coordinates.
+Remove the entities between the start and end coordinates
+of each arc, then insert into the pocket.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">update_pocket_geometry</span><span class="p">(</span><span class="n">pocket</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
+    <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># create list of arc entities from coordinates</span>
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">),</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">element</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># clockwise arc</span>
+            <span class="n">arc_direction</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># ant-clockwise arc</span>
+            <span class="n">arc_direction</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># get arc radius and centre point from three coordinates across the arc</span>
+        <span class="n">radius</span><span class="p">,</span> <span class="n">centre</span> <span class="o">=</span> <span class="n">get_barrier_centre_and_radius</span><span class="p">(</span>
+            <span class="n">coordinates</span><span class="p">[</span><span class="n">element</span><span class="p">],</span>  <span class="c1"># arc start coordinate</span>
+            <span class="n">coordinates</span><span class="p">[</span><span class="n">element</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># arc end coordinate</span>
+            <span class="n">coordinates</span><span class="p">[</span><span class="n">element</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span>  <span class="c1"># arc third coordinate</span>
+            <span class="n">arc_direction</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Arc</span><span class="p">(</span>
+                <span class="n">coordinates</span><span class="p">[</span><span class="n">element</span><span class="p">],</span>
+                <span class="n">coordinates</span><span class="p">[</span><span class="n">element</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">centre</span><span class="p">,</span>
+                <span class="n">radius</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="c1"># remove entities between start and end coordinates of each arc then insert into pocket</span>
+    <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">),</span> <span class="mi">3</span><span class="p">)):</span>
+        <span class="n">start_index</span> <span class="o">=</span> <span class="n">pocket</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">element</span><span class="p">])</span>
+        <span class="n">end_index</span> <span class="o">=</span> <span class="n">pocket</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">element</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">end_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">end_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pocket</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+        <span class="c1"># use index of start/end coordinates to remove pockets entities between them</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">)):</span>
+            <span class="n">pocket</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="n">pocket</span><span class="o">.</span><span class="n">insert_entity</span><span class="p">(</span><span class="n">start_index</span><span class="p">,</span> <span class="n">entities</span><span class="p">[</span><span class="n">count</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="get-unique-pocket-name">
+<h3>Get unique pocket name<a class="headerlink" href="#get-unique-pocket-name" title="Link to this heading">#</a></h3>
+<p>Define a function to return the unique pocket name
+used in Motor-CAD.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">index</span></code> : integer, Current pocket index</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>string</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_pocket_name</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Rotor Pocket&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Rotor Pocket_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="create-the-adaptive-templates-geometry">
+<h2>Create the Adaptive Templates geometry<a class="headerlink" href="#create-the-adaptive-templates-geometry" title="Link to this heading">#</a></h2>
+<p>Get the number of layers in the rotor for the Motor-CAD file</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pocket_number</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_layers</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;Magnet_Layers&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For each layer:</p>
+<ul class="simple">
+<li><p>Get the U-Shape layer parameters</p></li>
+<li><p>Raise an exception if the curved barrier
+can’t be created for a layer
+due to the thickness being zero</p></li>
+<li><p>Raise an exception if the curved barrier
+can’t be created for a layer
+due to the post width being zero</p></li>
+<li><p>Get the pocket from Motor-CAD using unique name</p></li>
+<li><p>Determine whether there are 1 or 2 pockets in the layer
+and get the new coordinates</p></li>
+<li><p>Update the rotor pocket geometry with the new coordinates</p></li>
+<li><p>Set the updated pocket region in Motor-CAD</p></li>
+<li><p>If there are 2 pockets in the layer,
+the left pocket region is updated first.
+This is then mirrored to update the right pocket region.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_layers</span></a><span class="p">):</span>
+    <span class="c1"># get U-Shape layer parameters</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outer_thickness</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_Thickness_Outer_Array&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outer_post_width</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_Post_Outer_Array&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inner_thickness</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_Thickness_Inner_Array&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inner_post_width</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_Post_Inner_Array&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre_post_width</span></a> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_array_variable</span><span class="p">(</span><span class="s2">&quot;UShape_CentrePost_Array&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inner_thickness</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outer_thickness</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">message_string</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Unable to create curved barrier for layer &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;. No inner/outer thickness.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">message_string</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outer_post_width</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inner_post_width</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">message_string</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Unable to create curved barrier for layer &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">layer</span></a><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;. Inner/Outer post width &gt; 0&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">message_string</span><span class="p">)</span>
+
+    <span class="c1"># get pocket from Motor-CAD using unique name</span>
+    <span class="n">pocket_left</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="n">get_pocket_name</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pocket_number</span></a><span class="p">))</span>
+
+    <span class="k">if</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre_post_width</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># no centre post, single rotor pocket in layer</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_coordinates</span></a> <span class="o">=</span> <span class="n">get_coordinates_no_centre_post</span><span class="p">(</span><span class="n">pocket_left</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># centre post, two pockets per layer</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_coordinates</span></a> <span class="o">=</span> <span class="n">get_coordinates_centre_post</span><span class="p">(</span><span class="n">pocket_left</span><span class="p">)</span>
+
+    <span class="n">update_pocket_geometry</span><span class="p">(</span><span class="n">pocket_left</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_coordinates</span></a><span class="p">)</span>
+    <span class="c1"># increment pocket number to get next pocket from Motor-CAD</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pocket_number</span></a> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">pocket_left</span><span class="o">.</span><span class="n">is_closed</span><span class="p">():</span>
+        <span class="c1"># set region back into Motor-CAD</span>
+        <span class="n">mc</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">pocket_left</span><span class="p">)</span>
+
+    <span class="k">if</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre_post_width</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># mirror left barrier/pocket region across the rotor using mirror line</span>
+        <span class="n">pocket_right</span> <span class="o">=</span> <span class="n">pocket_left</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">get_rotor_mirror_line</span><span class="p">(),</span> <span class="n">unique_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">pocket_right</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">get_pocket_name</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pocket_number</span></a><span class="p">)</span>
+        <span class="c1"># increment pocket number to get next pocket from Motor-CAD</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pocket_number</span></a> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">pocket_right</span><span class="o">.</span><span class="n">is_closed</span><span class="p">():</span>
+            <span class="c1"># set region back into Motor-CAD</span>
+            <span class="n">mc</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">pocket_right</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../../_images/UShapeSYNCRELCurvedFluxBarriers.png" src="../../_images/UShapeSYNCRELCurvedFluxBarriers.png" />
+</section>
+<section id="load-in-adaptive-templates-script-if-required">
+<h2>Load in Adaptive Templates script if required<a class="headerlink" href="#load-in-adaptive-templates-script-if-required" title="Link to this heading">#</a></h2>
+<p>When this script is run externally, the script executes the following:</p>
+<ul class="simple">
+<li><p>Set <strong>Geometry type</strong> to <strong>Adaptive</strong>.</p></li>
+<li><p>Load the script into the <strong>Adaptive Templates</strong> tab.</p></li>
+<li><p>Go to the <strong>Geometry -&gt; Radial</strong> tab to run the Adaptive Templates script and display the new
+geometry.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running in a Jupyter Notebook, you must provide the path for the Adaptive Templates script
+(PY file) instead of <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> when using the <code class="docutils literal notranslate"><span class="pre">load_adaptive_script()</span></code> method.</p>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">is_running_in_internal_scripting</span><span class="p">():</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;GeometryTemplateType&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">load_adaptive_script</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sys</span><span class="o">.</span><span class="n">argv</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s2">&quot;Geometry;Radial&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 23.723 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-adaptive-library-ushapesyncrelcurvedfluxbarriers-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/570f0d8da72fa3a49c52c4200d68b483/UShapeSYNCRELCurvedFluxBarriers.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">UShapeSYNCRELCurvedFluxBarriers.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e231d8527691070826551ba52629f6de/UShapeSYNCRELCurvedFluxBarriers.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">UShapeSYNCRELCurvedFluxBarriers.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/97b324ebc880bdf1b4c0d68150fa80d8/UShapeSYNCRELCurvedFluxBarriers.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">UShapeSYNCRELCurvedFluxBarriers.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perform-required-imports">Perform required imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-to-motor-cad">Connect to Motor-CAD</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-functions-for-the-adaptive-templates-script">Define functions for the Adaptive Templates script</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-barrier-arc-centre-and-radius-coordinates">Calculate barrier arc centre and radius coordinates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#whether-corner-rounding-should-be-applied-to-pocket">Whether corner rounding should be applied to pocket</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-rotor-mirror-line">Create a rotor mirror line</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-list-of-coordinates">Get list of coordinates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-list-of-coordinates-for-pocket-arcs">Get list of coordinates for <code class="docutils literal notranslate"><span class="pre">pocket</span></code> arcs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#update-pocket-geometry">Update pocket geometry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-unique-pocket-name">Get unique pocket name</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-adaptive-templates-geometry">Create the Adaptive Templates geometry</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-in-adaptive-templates-script-if-required">Load in Adaptive Templates script if required</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

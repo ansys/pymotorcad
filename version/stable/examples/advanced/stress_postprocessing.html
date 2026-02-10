@@ -1,0 +1,1596 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Motor-CAD Stress post-processing example script &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../_static/documentation_options.js?v=0477e8c5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/advanced/stress_postprocessing';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.8';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Basic examples" href="../basics/index.html" />
+    <link rel="prev" title="Motor-CAD force extraction example script" href="force_extraction.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.4" />
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/examples/advanced/stress_postprocessing.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_library/index.html">Adaptive templates examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Advanced examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="force_extraction.html">Motor-CAD force extraction example script</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Motor-CAD Stress post-processing example script</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics/index.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internal_scripting/index.html">Internal scripting examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../links/index.html">Linking examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Advanced examples</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Motor-CAD Stress post-processing example script</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-advanced-stress-postprocessing-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="motor-cad-stress-post-processing-example-script">
+<span id="ref-stress-postprocessing"></span><span id="sphx-glr-examples-advanced-stress-postprocessing-py"></span><h1>Motor-CAD Stress post-processing example script<a class="headerlink" href="#motor-cad-stress-post-processing-example-script" title="Link to this heading">#</a></h1>
+<p>This example provides post-processing for Motor-CAD rotor stress results.
+The stress results are loaded, and estimates for non-linear stress and strain
+results are calculated from Motor-CAD’s linear stress results using the
+Neuber and Glinka correction methods.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.motorcad.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pymotorcad</span>
+</pre></div>
+</div>
+</section>
+<section id="utility-functions-to-check-non-linear-material-data">
+<h2>Utility functions to check non-linear material data<a class="headerlink" href="#utility-functions-to-check-non-linear-material-data" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the initial slope of the non-linear stress strain curve matches the Young&#39;s modulus.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    non_linear_strain : list or ndarray</span>
+<span class="sd">        Strain values</span>
+<span class="sd">    non_linear_stress : list or ndarray</span>
+<span class="sd">        Corresponding stress values in MPa</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        Young&#39;s modulus in MPa</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the initial slope is not consistent with the Young&#39;s modulus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">initial_youngs_modulus</span> <span class="o">=</span> <span class="p">(</span><span class="n">non_linear_stress</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">non_linear_strain</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_strain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Error if notably different</span>
+    <span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/dev/library/math.html#math.isclose" title="math.isclose" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">isclose</span></a><span class="p">(</span><span class="n">initial_youngs_modulus</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Youngs Modulus and initial slope of non-linear data are different, &quot;</span>
+            <span class="s2">&quot;please check the inputs. Initial slope is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">initial_youngs_modulus</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; MPa &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;Young&#39;s modulus is &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">youngs_modulus</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; MPa&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_divergence_point</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find last point where the non-linear stress strain curve is on the linear region.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    non_linear_strain : list or ndarray</span>
+<span class="sd">        Strain values</span>
+<span class="sd">    non_linear_stress : list or ndarray</span>
+<span class="sd">        Corresponding stress values in MPa</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        Young&#39;s modulus in MPa</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The last stress point in the linear range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/dev/library/math.html#math.isclose" title="math.isclose" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">math</span><span class="o">.</span><span class="n">isclose</span></a><span class="p">(</span>
+            <span class="n">non_linear_stress</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span> <span class="o">/</span> <span class="n">non_linear_strain</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">],</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">0.0001</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">non_linear_stress</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Return maximum stress in list if no divergence found</span>
+    <span class="k">return</span> <span class="n">non_linear_stress</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="classes-to-store-and-manipulate-stress-and-fea-data">
+<h2>Classes to store and manipulate stress and FEA data<a class="headerlink" href="#classes-to-store-and-manipulate-stress-and-fea-data" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Element</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for a 1st order triangular element and its associated stress and strain</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tri_index : int</span>
+<span class="sd">        The triangle element index number</span>
+<span class="sd">    node_1 : int</span>
+<span class="sd">        The ID of the first node in this element</span>
+<span class="sd">    node_2 : int</span>
+<span class="sd">        The ID of the second node in this element</span>
+<span class="sd">    node_3 : int</span>
+<span class="sd">        The ID of the third node in this element</span>
+<span class="sd">    x : float</span>
+<span class="sd">        The X position in mm of the element</span>
+<span class="sd">    y : float</span>
+<span class="sd">        The Y position in mm of the element</span>
+<span class="sd">    s_x : float</span>
+<span class="sd">        The X direction stress component in MPa</span>
+<span class="sd">    s_y</span>
+<span class="sd">        The Y direction stress component in MPa</span>
+<span class="sd">    t_xy</span>
+<span class="sd">        The XY plane shear stress in MPa</span>
+<span class="sd">    sp_1</span>
+<span class="sd">        The first principal stress in MPa</span>
+<span class="sd">    sp_2</span>
+<span class="sd">        The second principal stress in MPa</span>
+<span class="sd">    svm</span>
+<span class="sd">        The Von Mises stress in MPa</span>
+<span class="sd">    u_x</span>
+<span class="sd">        The X direction displacement in mm</span>
+<span class="sd">    u_y</span>
+<span class="sd">        The Y direction displacement in mm</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stress_nonlinear_neuber : float</span>
+<span class="sd">        The corrected equivalent stress using the Neuber correction in MPa.</span>
+<span class="sd">        Populated by apply_neuber_correction</span>
+<span class="sd">    strain_nonlinear_neuber : float</span>
+<span class="sd">        The corrected equivalent total strain using the Neuber correction.</span>
+<span class="sd">        Populated by apply_neuber_correction</span>
+<span class="sd">    strain_plastic_neuber : float</span>
+<span class="sd">        The plastic strain using the Neuber correction.</span>
+<span class="sd">        Populated by apply_neuber_correction</span>
+<span class="sd">    stress_nonlinear_glinka : float</span>
+<span class="sd">        The corrected equivalent stress using the Glinka correction in MPa.</span>
+<span class="sd">        Populated by apply_glinka_correction</span>
+<span class="sd">    strain_nonlinear_glinka : float</span>
+<span class="sd">        he corrected equivalent total strain using the Glinka correction.</span>
+<span class="sd">        Populated by apply_glinka_correction</span>
+<span class="sd">    strain_plastic_glinka : float</span>
+<span class="sd">        The plastic strain using the Glinka correction. Populated by apply_glinka_correction</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tri_index</span><span class="p">,</span> <span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s_x</span><span class="p">,</span> <span class="n">s_y</span><span class="p">,</span> <span class="n">t_xy</span><span class="p">,</span> <span class="n">sp_1</span><span class="p">,</span> <span class="n">sp_2</span><span class="p">,</span> <span class="n">svm</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tri_index</span> <span class="o">=</span> <span class="n">tri_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_1</span> <span class="o">=</span> <span class="n">node_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_2</span> <span class="o">=</span> <span class="n">node_2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_3</span> <span class="o">=</span> <span class="n">node_3</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_x</span> <span class="o">=</span> <span class="n">s_x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_y</span> <span class="o">=</span> <span class="n">s_y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_xy</span> <span class="o">=</span> <span class="n">t_xy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp_1</span> <span class="o">=</span> <span class="n">sp_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp_2</span> <span class="o">=</span> <span class="n">sp_2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">svm</span> <span class="o">=</span> <span class="n">svm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_x</span> <span class="o">=</span> <span class="n">u_x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_y</span> <span class="o">=</span> <span class="n">u_y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_neuber</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_neuber</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_neuber</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_glinka</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_glinka</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_glinka</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_neuber_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the Neuber correction estimates from the Von Mises stress.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        youngs_modulus : float</span>
+<span class="sd">            The Young&#39;s modulus used in the linear stress calculation.</span>
+<span class="sd">        non_linear_strain, non_linear_stress : np.ndarray</span>
+<span class="sd">            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">elastic_stress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">svm</span>
+        <span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">/</span> <span class="n">youngs_modulus</span>
+        <span class="n">elastic_stress_strain_product</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">*</span> <span class="n">elastic_strain</span>
+
+        <span class="c1"># Check input data is sensible</span>
+        <span class="n">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">)</span>
+        <span class="c1"># If on the elastic portion, just return inputs, so we don&#39;t get interpolation errors</span>
+        <span class="k">if</span> <span class="n">elastic_stress</span> <span class="o">&lt;</span> <span class="n">find_divergence_point</span><span class="p">(</span>
+            <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_neuber</span> <span class="o">=</span> <span class="n">elastic_strain</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_neuber</span> <span class="o">=</span> <span class="n">elastic_stress</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_neuber</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Find a matching stress-strain product in the non-linear response</span>
+        <span class="c1"># (This is the Neuber correction)</span>
+        <span class="n">non_linear_stress_strain_product</span> <span class="o">=</span> <span class="n">non_linear_stress</span> <span class="o">*</span> <span class="n">non_linear_strain</span>
+        <span class="c1"># Error if out of range:</span>
+        <span class="k">if</span> <span class="n">elastic_stress_strain_product</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_product</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input too large (elastic stress strain product &gt; maximum stress strain product in &quot;</span>
+                <span class="s2">&quot;non-linear data). &quot;</span>
+                <span class="s2">&quot;Elastic stress is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;, elastic stress strain product is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress_strain_product</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;, maximum plastic stress strain product is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_product</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Lookup to find non-linear strain at matching stress strain product:</span>
+        <span class="n">equivalent_non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">elastic_stress_strain_product</span><span class="p">,</span> <span class="n">non_linear_stress_strain_product</span><span class="p">,</span> <span class="n">non_linear_strain</span>
+        <span class="p">)</span>
+        <span class="c1"># Lookup to find non-linear stress at this strain:</span>
+        <span class="n">equivalent_non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">equivalent_non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Find plastic strain</span>
+        <span class="n">plastic_strain</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span> <span class="o">-</span> <span class="n">elastic_strain</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_neuber</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_neuber</span> <span class="o">=</span> <span class="n">equivalent_non_linear_stress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_neuber</span> <span class="o">=</span> <span class="n">plastic_strain</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_glinka_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the Glinka correction estimates from the Von Mises stress.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        youngs_modulus : float</span>
+<span class="sd">            The Young&#39;s modulus used in the linear stress calculation.</span>
+<span class="sd">        non_linear_strain, non_linear_stress : np.ndarray</span>
+<span class="sd">            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">elastic_stress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">svm</span>
+        <span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elastic_stress</span> <span class="o">/</span> <span class="n">youngs_modulus</span>
+        <span class="n">elastic_stress_strain_integral</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">elastic_strain</span> <span class="o">*</span> <span class="n">elastic_stress</span>
+
+        <span class="c1"># Check input data is sensible</span>
+        <span class="n">check_youngs_modulus</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">)</span>
+        <span class="c1"># If on the elastic portion, just return inputs, so we don&#39;t get interpolation errors</span>
+        <span class="k">if</span> <span class="n">elastic_stress</span> <span class="o">&lt;</span> <span class="n">find_divergence_point</span><span class="p">(</span>
+            <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">,</span> <span class="n">youngs_modulus</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_glinka</span> <span class="o">=</span> <span class="n">elastic_strain</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_glinka</span> <span class="o">=</span> <span class="n">elastic_stress</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_glinka</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Find a matching stress-strain integral in the non-linear response</span>
+        <span class="c1"># (This is the Glinka correction)</span>
+        <span class="n">non_linear_stress_strain_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">))</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_linear_stress</span><span class="p">)):</span>
+            <span class="c1"># This assumes that our stress strain curve starts at zero,</span>
+            <span class="c1"># and uses simple trapezium integration</span>
+            <span class="n">non_linear_stress_strain_integral</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">non_linear_stress_strain_integral</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">non_linear_strain</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span> <span class="o">-</span> <span class="n">non_linear_strain</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">non_linear_stress</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span> <span class="o">+</span> <span class="n">non_linear_stress</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Error if out of range:</span>
+        <span class="k">if</span> <span class="n">elastic_stress_strain_integral</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_integral</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input too large (elastic stress strain integral &gt; &quot;</span>
+                <span class="s2">&quot;maximum stress strain integral in non-linear data). &quot;</span>
+                <span class="s2">&quot;Elastic stress is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;, elastic stress strain integral is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elastic_stress_strain_integral</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;, maximum plastic stress strain integral is &quot;</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_linear_stress_strain_integral</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Lookup to find non-linear strain at matching stress strain integral:</span>
+        <span class="n">equivalent_non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">elastic_stress_strain_integral</span><span class="p">,</span> <span class="n">non_linear_stress_strain_integral</span><span class="p">,</span> <span class="n">non_linear_strain</span>
+        <span class="p">)</span>
+        <span class="c1"># Lookup to find non-linear stress at this strain:</span>
+        <span class="n">equivalent_non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">equivalent_non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Find plastic strain</span>
+        <span class="n">plastic_strain</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span> <span class="o">-</span> <span class="n">elastic_strain</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_nonlinear_glinka</span> <span class="o">=</span> <span class="n">equivalent_non_linear_strain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stress_nonlinear_glinka</span> <span class="o">=</span> <span class="n">equivalent_non_linear_stress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strain_plastic_glinka</span> <span class="o">=</span> <span class="n">plastic_strain</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StressRegion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for a stressed region, including element stress data and region properties.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    region_name : str</span>
+<span class="sd">        The name of the region</span>
+<span class="sd">    reg_code : int</span>
+<span class="sd">        The region identifier code from the FEA</span>
+<span class="sd">    youngs_modulus : float</span>
+<span class="sd">        The region&#39;s Young&#39;s modulus</span>
+<span class="sd">    poissons_ratio : float</span>
+<span class="sd">        The region&#39;s Poisson&#39;s ratio</span>
+<span class="sd">    elements : list of Element</span>
+<span class="sd">        List of elements that make up the region</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reg_code</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">youngs_modulus</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poissons_ratio</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_element</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tri_index</span><span class="p">,</span> <span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s_x</span><span class="p">,</span> <span class="n">s_y</span><span class="p">,</span> <span class="n">t_xy</span><span class="p">,</span> <span class="n">sp_1</span><span class="p">,</span> <span class="n">sp_2</span><span class="p">,</span> <span class="n">svm</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an element to the region with results from a linear elastic calculation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tri_index : int</span>
+<span class="sd">            The triangle element index number</span>
+<span class="sd">        node_1 : int</span>
+<span class="sd">            The ID of the first node in this element</span>
+<span class="sd">        node_2 : int</span>
+<span class="sd">            The ID of the second node in this element</span>
+<span class="sd">        node_3 : int</span>
+<span class="sd">            The ID of the third node in this element</span>
+<span class="sd">        x : float</span>
+<span class="sd">            The X position in mm of the element</span>
+<span class="sd">        y : float</span>
+<span class="sd">            The Y position in mm of the element</span>
+<span class="sd">        s_x : float</span>
+<span class="sd">            The X direction stress component in MPa</span>
+<span class="sd">        s_y</span>
+<span class="sd">            The Y direction stress component in MPa</span>
+<span class="sd">        t_xy</span>
+<span class="sd">            The XY plane shear stress in MPa</span>
+<span class="sd">        sp_1</span>
+<span class="sd">            The first principal stress in MPa</span>
+<span class="sd">        sp_2</span>
+<span class="sd">            The second principal stress in MPa</span>
+<span class="sd">        svm</span>
+<span class="sd">            The Von Mises stress in MPa</span>
+<span class="sd">        u_x</span>
+<span class="sd">            The X direction displacement in mm</span>
+<span class="sd">        u_y</span>
+<span class="sd">            The Y direction displacement in mm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Element</span><span class="p">(</span>
+                <span class="n">tri_index</span><span class="p">,</span> <span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s_x</span><span class="p">,</span> <span class="n">s_y</span><span class="p">,</span> <span class="n">t_xy</span><span class="p">,</span> <span class="n">sp_1</span><span class="p">,</span> <span class="n">sp_2</span><span class="p">,</span> <span class="n">svm</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of elements in the region.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Number of elements in the region.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sp1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the first principal stress as a list in MPa.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">sp_1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sp2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the second principal stress as a list in MPa.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">sp_2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_svm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Von Mises stress as a list in MPa.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">svm</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stress_nonlinear_neuber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated stress with the Neuber correction as a list in MPa.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">stress_nonlinear_neuber</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strain_nonlinear_neuber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated total strain with the Neuber correction as a list.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">strain_nonlinear_neuber</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strain_plastic_neuber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated plastic strain with the Neuber correction as a list.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">strain_plastic_neuber</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stress_nonlinear_glinka</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated stress with the Glinka correction as a list in MPa.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">stress_nonlinear_glinka</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strain_nonlinear_glinka</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated total strain with the Glinka correction as a list.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">strain_nonlinear_glinka</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strain_plastic_glinka</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the estimated plastic strain with the Glinka correction as a list.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">strain_plastic_glinka</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the X coordinate as a list in mm.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Y coordinate as a list in mm.&quot;&quot;&quot;</span>
+        <span class="n">result_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">result_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_array</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the Neuber and Glinka estimates using the Von Mises stress for all elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        non_linear_strain, non_linear_stress : np.ndarray</span>
+<span class="sd">            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">apply_neuber_correction</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">apply_glinka_correction</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span>
+            <span class="p">)</span>
+
+        <span class="c1"># In principle, we could not apply a scaling based on the corrected stresses to the</span>
+        <span class="c1"># s_x, s_y and t_xy stresses, so we have an offset to apply to account for relaxation</span>
+        <span class="c1"># following plastic strain for later load cases.</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StressRegions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data on stresses for multiple regions.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regions</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_number</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions</span><span class="p">[</span><span class="n">region_number</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_number</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regions</span><span class="p">[</span><span class="n">region_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_regions</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_region</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a new region&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StressRegion</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_stress_data</span><span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">clean_up</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load stress data from Motor-CAD</span>
+
+<span class="sd">    This function should be called after the stress calculation has been carried out using</span>
+<span class="sd">    `do_mechanical_calculation`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mc : pymotorcad.motorcad_methods.MotorCAD</span>
+<span class="sd">        The PyMotorCAD instance to use.</span>
+<span class="sd">    clean_up : bool, default True</span>
+<span class="sd">        If the temporary text file should be deleted after use.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    StressRegions</span>
+<span class="sd">        The stress information for all regions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make a temporary filename</span>
+    <span class="n">temp_filename</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/tempfile.html#tempfile.gettempdir" title="tempfile.gettempdir" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span></a><span class="p">())</span> <span class="o">/</span> <a href="https://docs.python.org/dev/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/uuid.html#uuid.uuid4" title="uuid.uuid4" class="sphx-glr-backref-module-uuid sphx-glr-backref-type-py-function"><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span></a><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+
+    <span class="c1"># The Motor-CAD FEA file always saves with &#39;.&#39; as a decimal separator, independent of regional</span>
+    <span class="c1"># settings. Empty string for regions means we get all available regions</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">save_fea_data</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">temp_filename</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;RegCode,X,Y,Sx,Sy,Txy,Sp1,Sp2,SVM,Ux,Uy&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open the file</span>
+    <span class="n">in_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Read first line, second value will be length of element table (e.g. &#39;1 41230 ElementsTable&#39;)</span>
+    <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">number_of_elements</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># Skip over 4 redundant lines (blank line, plus descriptive header)</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1"># Start with an empty set of regions</span>
+    <span class="n">stress_regions</span> <span class="o">=</span> <span class="n">StressRegions</span><span class="p">()</span>
+
+    <span class="c1"># Read the element data</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_elements</span><span class="p">):</span>
+        <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="c1"># The region code is the 5th element, after the TriIndex, Node1, Node2 &amp; Node3</span>
+        <span class="n">reg_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="c1"># Increase the number of regions as required</span>
+        <span class="k">while</span> <span class="n">reg_code</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">):</span>
+            <span class="n">stress_regions</span><span class="o">.</span><span class="n">add_region</span><span class="p">()</span>
+
+        <span class="n">stress_regions</span><span class="p">[</span><span class="n">reg_code</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span>
+            <span class="n">tri_index</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">node_1</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">node_2</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">node_3</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+            <span class="c1"># Note that split_line[4] is the region code, not stored per-element</span>
+            <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span>
+            <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span>
+            <span class="n">s_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">7</span><span class="p">]),</span>
+            <span class="n">s_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">8</span><span class="p">]),</span>
+            <span class="n">t_xy</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">9</span><span class="p">]),</span>
+            <span class="n">sp_1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">10</span><span class="p">]),</span>
+            <span class="n">sp_2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">11</span><span class="p">]),</span>
+            <span class="n">svm</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">12</span><span class="p">]),</span>
+            <span class="n">u_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">13</span><span class="p">]),</span>
+            <span class="n">u_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">14</span><span class="p">]),</span>
+        <span class="p">)</span>
+
+    <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="c1"># This should be the 2 XXX NodesTable line</span>
+    <span class="n">number_of_nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># Skip over 4 redundant lines (blank line, plus descriptive header)</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1"># Read the nodal data</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_nodes</span><span class="p">):</span>
+        <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO: We could store this data, to get nodal average stresses later.</span>
+
+    <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="c1"># This should be the 3 XXX RegionsTable line</span>
+    <span class="n">number_of_regions</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># Skip over 4 redundant lines (blank line, plus descriptive header)</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">number_of_regions</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegionsTable and element region codes do not match&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Read the region data</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_regions</span><span class="p">):</span>
+        <span class="n">split_line</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">this_region</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">this_region</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegionsTable and element region codes do not match&quot;</span><span class="p">)</span>
+        <span class="n">stress_regions</span><span class="p">[</span><span class="n">this_region</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reg_code</span> <span class="o">=</span> <span class="n">this_region</span>
+        <span class="n">stress_regions</span><span class="p">[</span><span class="n">this_region</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">youngs_modulus</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">stress_regions</span><span class="p">[</span><span class="n">this_region</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">poissons_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">stress_regions</span><span class="p">[</span><span class="n">this_region</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">region_name</span> <span class="o">=</span> <span class="n">split_line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># Tidy up</span>
+    <span class="n">in_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1"># Delete the temp file</span>
+    <span class="k">if</span> <span class="n">clean_up</span><span class="p">:</span>
+        <span class="n">temp_filename</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Temporary file not deleted: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">temp_filename</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">stress_regions</span>
+</pre></div>
+</div>
+</section>
+<section id="main-script-using-the-classes-and-methods-defined-above">
+<h2>Main script, using the classes and methods defined above<a class="headerlink" href="#main-script-using-the-classes-and-methods-defined-above" title="Link to this heading">#</a></h2>
+<section id="start-motor-cad">
+<h3>Start Motor-CAD<a class="headerlink" href="#start-motor-cad" title="Link to this heading">#</a></h3>
+<p>Load a template (for users this would normally be replaced by <cite>load_from_file()</cite>, and disable
+popup messages.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">()</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;MessageDisplayState&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">load_template</span><span class="p">(</span><span class="s2">&quot;e9&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-the-stress-calculation">
+<h3>Run the stress calculation<a class="headerlink" href="#run-the-stress-calculation" title="Link to this heading">#</a></h3>
+<p>Set the shaft speed and run the mechanical stress calculation</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">mc</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;ShaftSpeed&quot;</span><span class="p">,</span> <span class="mi">15000</span><span class="p">)</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">do_mechanical_calculation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="read-the-stress-data">
+<h3>Read the stress data<a class="headerlink" href="#read-the-stress-data" title="Link to this heading">#</a></h3>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">stress_regions</span> <span class="o">=</span> <span class="n">get_stress_data</span><span class="p">(</span><span class="n">mc</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="choose-which-regions-to-show-data-for">
+<h3>Choose which regions to show data for<a class="headerlink" href="#choose-which-regions-to-show-data-for" title="Link to this heading">#</a></h3>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_names_to_postprocess</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Rotor&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="plot-the-elastic-stress-data-for-each-region">
+<h3>Plot the elastic stress data for each region<a class="headerlink" href="#plot-the-elastic-stress-data-for-each-region" title="Link to this heading">#</a></h3>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_name_to_postprocess</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_names_to_postprocess</span></a><span class="p">:</span>
+    <span class="c1"># Find matching regions</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">region_name</span> <span class="o">==</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_name_to_postprocess</span></a><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_number_elements</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                    <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_sp1</span><span class="p">(),</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_sp2</span><span class="p">(),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span>
+                <span class="p">)</span>  <span class="c1"># , c=svm)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Principal stress 1 [MPa]&quot;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Principal stress 2 [MPa]&quot;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                    <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_sp1</span><span class="p">(),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span>
+                <span class="p">)</span>  <span class="c1"># , c=svm)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                    <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_sp2</span><span class="p">(),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span>
+                <span class="p">)</span>  <span class="c1"># , c=svm)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Sp1&quot;</span><span class="p">,</span> <span class="s2">&quot;Sp2&quot;</span><span class="p">])</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Von Mises Stress [MPa]&quot;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Principal Stress [MPa]&quot;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">region_name</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_stress_postprocessing_001.png" srcset="../../_images/sphx_glr_stress_postprocessing_001.png" alt="Rotor" class = "sphx-glr-single-img"/></section>
+<section id="non-linear-stress-strain-data">
+<h3>Non-linear stress strain data<a class="headerlink" href="#non-linear-stress-strain-data" title="Link to this heading">#</a></h3>
+<p>Our non-linear stress-strain data, in this case for a region with
+Young’s modulus of 185 GPa, and with plastic deformation above 480 MPa.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">non_linear_strain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mf">0.0002</span><span class="p">,</span>
+        <span class="mf">0.0004</span><span class="p">,</span>
+        <span class="mf">0.0006</span><span class="p">,</span>
+        <span class="mf">0.0008</span><span class="p">,</span>
+        <span class="mf">0.001</span><span class="p">,</span>
+        <span class="mf">0.0012</span><span class="p">,</span>
+        <span class="mf">0.0014</span><span class="p">,</span>
+        <span class="mf">0.0016</span><span class="p">,</span>
+        <span class="mf">0.0018</span><span class="p">,</span>
+        <span class="mf">0.002</span><span class="p">,</span>
+        <span class="mf">0.0022</span><span class="p">,</span>
+        <span class="mf">0.0024</span><span class="p">,</span>
+        <span class="mf">0.0026</span><span class="p">,</span>
+        <span class="mf">0.0028</span><span class="p">,</span>
+        <span class="mf">0.003</span><span class="p">,</span>
+        <span class="mf">0.0032</span><span class="p">,</span>
+        <span class="mf">0.0034</span><span class="p">,</span>
+        <span class="mf">0.0036</span><span class="p">,</span>
+        <span class="mf">0.0038</span><span class="p">,</span>
+        <span class="mf">0.004</span><span class="p">,</span>
+        <span class="mf">0.0042</span><span class="p">,</span>
+        <span class="mf">0.0044</span><span class="p">,</span>
+        <span class="mf">0.0046</span><span class="p">,</span>
+        <span class="mf">0.0048</span><span class="p">,</span>
+        <span class="mf">0.005</span><span class="p">,</span>
+        <span class="mf">0.0052</span><span class="p">,</span>
+        <span class="mf">0.0054</span><span class="p">,</span>
+        <span class="mf">0.0056</span><span class="p">,</span>
+        <span class="mf">0.0058</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">non_linear_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">37</span><span class="p">,</span>
+        <span class="mi">74</span><span class="p">,</span>
+        <span class="mi">111</span><span class="p">,</span>
+        <span class="mi">148</span><span class="p">,</span>
+        <span class="mi">185</span><span class="p">,</span>
+        <span class="mi">222</span><span class="p">,</span>
+        <span class="mi">259</span><span class="p">,</span>
+        <span class="mi">296</span><span class="p">,</span>
+        <span class="mi">333</span><span class="p">,</span>
+        <span class="mi">370</span><span class="p">,</span>
+        <span class="mi">407</span><span class="p">,</span>
+        <span class="mi">444</span><span class="p">,</span>
+        <span class="mi">481</span><span class="p">,</span>
+        <span class="mi">500</span><span class="p">,</span>
+        <span class="mi">520</span><span class="p">,</span>
+        <span class="mi">540</span><span class="p">,</span>
+        <span class="mi">560</span><span class="p">,</span>
+        <span class="mi">570</span><span class="p">,</span>
+        <span class="mi">580</span><span class="p">,</span>
+        <span class="mi">590</span><span class="p">,</span>
+        <span class="mi">600</span><span class="p">,</span>
+        <span class="mi">605</span><span class="p">,</span>
+        <span class="mi">610</span><span class="p">,</span>
+        <span class="mi">615</span><span class="p">,</span>
+        <span class="mi">620</span><span class="p">,</span>
+        <span class="mi">625</span><span class="p">,</span>
+        <span class="mi">630</span><span class="p">,</span>
+        <span class="mi">635</span><span class="p">,</span>
+        <span class="mi">640</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="apply-corrections">
+<h3>Apply corrections<a class="headerlink" href="#apply-corrections" title="Link to this heading">#</a></h3>
+<p>Apply the Glinka and Neuber stress corrections to the regions of interest using the region’s
+<cite>apply_corrections</cite> method, and plot the results.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_name_to_postprocess</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_names_to_postprocess</span></a><span class="p">:</span>
+    <span class="c1"># Find matching regions</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">region_name</span> <span class="o">==</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">region_name_to_postprocess</span></a><span class="p">:</span>
+            <span class="c1"># Apply the actual stress correction here</span>
+            <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">apply_corrections</span><span class="p">(</span><span class="n">non_linear_strain</span><span class="p">,</span> <span class="n">non_linear_stress</span><span class="p">)</span>
+
+            <span class="c1"># Print the maximum stresses and strains</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;For region </span><span class="si">{</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">region_name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Maximum elastic stress &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">())</span><span class="si">:</span><span class="s2">.6</span><span class="si">}</span><span class="s2"> MPa&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Maximum stress with Neuber correction: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_neuber</span><span class="p">())</span><span class="si">:</span><span class="s2">.6</span><span class="si">}</span><span class="s2"> MPa&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Maximum stress with Glinka correction: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_glinka</span><span class="p">())</span><span class="si">:</span><span class="s2">.6</span><span class="si">}</span><span class="s2"> MPa&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Maximum plastic strain with Neuber correction: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_neuber</span><span class="p">())</span><span class="si">:</span><span class="s2">.6</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Maximum plastic strain with Glinka correction: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_glinka</span><span class="p">())</span><span class="si">:</span><span class="s2">.6</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Plot:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Stress vs strain</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_nonlinear_neuber</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_neuber</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_nonlinear_glinka</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_glinka</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Neuber&quot;</span><span class="p">,</span> <span class="s2">&quot;Glinka&quot;</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Strain [-]&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Stress [MPa]&quot;</span><span class="p">)</span>
+            <span class="c1"># Plastic stress vs elastic stress</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_neuber</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_glinka</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Neuber&quot;</span><span class="p">,</span> <span class="s2">&quot;Glinka&quot;</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Stress Von Mises [MPa]&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Stress Adjusted [MPa]&quot;</span><span class="p">)</span>
+            <span class="c1"># Plastic strain vs elastic stress</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_neuber</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_svm</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_glinka</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;Neuber&quot;</span><span class="p">,</span> <span class="s2">&quot;Glinka&quot;</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Stress Von Mises [MPa]&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Plastic strain [-]&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">region_name</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+            <span class="c1"># Plot stress including correction, and plastic strain</span>
+            <span class="c1"># Plot against element data X and Y (check exactly what this corresponds to,</span>
+            <span class="c1"># assume element centre, but seems to be one node of triangle)</span>
+            <span class="n">cm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">&quot;jet&quot;</span><span class="p">]</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+            <span class="n">plot1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_x</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_y</span><span class="p">(),</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_neuber</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plot1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Stress (Neuber correction)&quot;</span><span class="p">)</span>
+
+            <span class="n">plot2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_x</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_y</span><span class="p">(),</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_stress_nonlinear_glinka</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plot2</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Stress (Glinka correction)&quot;</span><span class="p">)</span>
+
+            <span class="n">plot3</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_x</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_y</span><span class="p">(),</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_neuber</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plot3</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Plastic strain (Neuber correction)&quot;</span><span class="p">)</span>
+
+            <span class="n">plot4</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_x</span><span class="p">(),</span>
+                <span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_y</span><span class="p">(),</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">stress_regions</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">get_strain_plastic_glinka</span><span class="p">(),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plot4</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Plastic strain (Glinka correction)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_stress_postprocessing_002.png" srcset="../../_images/sphx_glr_stress_postprocessing_002.png" alt="Rotor" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_stress_postprocessing_003.png" srcset="../../_images/sphx_glr_stress_postprocessing_003.png" alt="Stress (Neuber correction), Stress (Glinka correction), Plastic strain (Neuber correction), Plastic strain (Glinka correction)" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>For region Rotor:
+Maximum elastic stress 533.648 MPa
+Maximum stress with Neuber correction: 517.419 MPa
+Maximum stress with Glinka correction: 509.074 MPa
+Maximum plastic strain with Neuber correction: 8.9607e-05
+Maximum plastic strain with Glinka correction: 6.15387e-06
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.225 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-advanced-stress-postprocessing-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e6076f1891a3ae702755163bf693ecd0/stress_postprocessing.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">stress_postprocessing.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a85f1f03dbc401c06f3bbde8d26cd49c/stress_postprocessing.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">stress_postprocessing.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ee8ce5b5ea9a91180dfe8392230cdf9a/stress_postprocessing.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">stress_postprocessing.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perform-required-imports">Perform required imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions-to-check-non-linear-material-data">Utility functions to check non-linear material data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-to-store-and-manipulate-stress-and-fea-data">Classes to store and manipulate stress and FEA data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-script-using-the-classes-and-methods-defined-above">Main script, using the classes and methods defined above</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-motor-cad">Start Motor-CAD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-stress-calculation">Run the stress calculation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-the-stress-data">Read the stress data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-which-regions-to-show-data-for">Choose which regions to show data for</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-the-elastic-stress-data-for-each-region">Plot the elastic stress data for each region</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-linear-stress-strain-data">Non-linear stress strain data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apply-corrections">Apply corrections</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/examples/advanced/stress_postprocessing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../_static/search.json";
+</script>
+
+
+<script src="../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
