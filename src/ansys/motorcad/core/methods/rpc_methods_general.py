@@ -95,6 +95,7 @@ class _RpcMethodsGeneral:
             Use the ``r'filepath'`` syntax to force Python to ignore
             special characters.
         """
+        self.connection.ensure_version_at_least("2027.0")
         method = "LoadReducedNodes"
         params = [file_path]
         return self.connection.send_and_receive(method, params)
