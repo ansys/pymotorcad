@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -102,4 +102,13 @@ def test_clear_messages(mc_ui):
     assert (test_message in message for message in mc_ui.get_messages(0))
 
     mc_ui.clear_messages()
-    assert mc_ui.get_messages(0) == [""]
+
+    messages = mc_ui.get_messages(0)
+
+    if messages == [""]:
+        assert True
+    elif (len(messages) == 1) and ("pymotorcad: get_messages" in messages[0]):
+        # get_messages might get logged if using Motor-CAD in debug mode
+        assert True
+    else:
+        assert False

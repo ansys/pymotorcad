@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -99,6 +99,7 @@ class RegionType(Enum):
     airgap = "Airgap"
     dxf_import = "DXF Import"
     impreg_loss_lot_ac_loss = "Stator Proximity Loss Slot"
+    surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
 
@@ -494,14 +495,28 @@ class Region(object):
         dict
             Geometry region json representation
         """
+        # const for material component owner in geometry engine
+        COMPONENTOWNER_GEOMETRYENGINE = 2
+
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
-
         self._raw_region["name"] = self.name
         if "name_unique" in self._raw_region:
             self._raw_region["name_unique"] = self.name
         self._raw_region["name_base"] = self._base_name
+
+        if (
+            (("material" in self._raw_region) and (self._raw_region["material"] != self._material))
+            or ("material" not in self._raw_region)
+            or (self._material == "")
+        ):
+            # material has changed from original material, update material component owner for
+            # geometry engine to create custom material component for this region
+            self._raw_region["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+            # unable to assume material type from user material name, set to default of "Any"
+            self._raw_region["material_weight_material_type"] = "Any"
+
         self._raw_region["material"] = self._material
         self._raw_region["colour"] = {
             "r": self._colour[0],
@@ -1325,7 +1340,7 @@ class RegionMagnet(Region):
         """Initialise Magnet Region."""
         super().__init__(RegionType.magnet, motorcad_instance)
         self._magnet_angle = 0.0
-        self._br_multiplier = 0.0
+        self._br_multiplier = 1.0
         self._br_magnet = 0.0
         self._magnet_polarity = ""
         self.magnetisation_direction = MagnetisationDirection.parallel
@@ -1559,6 +1574,20 @@ class Coordinate(object):
         """
         self.x += x
         self.y += y
+
+    def distance(self, other):
+        """Find the distance to a coordinate.
+
+        Parameters
+        ----------
+        other: Coordinate
+            Find distance to this point.
+
+        Returns
+        -------
+        float
+        """
+        return abs(other - self)
 
     @classmethod
     def from_polar_coords(cls, radius, theta):
@@ -1941,11 +1970,21 @@ class Line(Entity):
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
-        else:
+        elif ref_coordinate == self.start:
             coordinate_1 = self.start
             coordinate_2 = self.end
+        elif self.coordinate_on_entity(ref_coordinate):
+            if ref_coordinate.distance(self.start) <= ref_coordinate.distance(self.end):
+                # Ref coordinate closer to start, so go between ref and end
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.end
+            else:
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.start
+        else:
+            raise ValueError("Invalid ref_coordinate provided, it must be on the line.")
 
-        t = distance / self.length
+        t = distance / coordinate_1.distance(coordinate_2)
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 

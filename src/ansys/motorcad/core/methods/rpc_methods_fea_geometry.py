@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -122,7 +122,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def set_fea_path_point(
-        self, path_name, path_location, coord_system, ror_x, tor_y, calculation, expression
+        self, path_name, path_location, coord_system, r_or_x, t_or_y, calculation, expression
     ):
         """Add or edit a point in the path editor."""
         method = "SetFEAPathPoint"
@@ -130,8 +130,8 @@ class _RpcMethodsFEAGeometry:
             path_name,
             path_location,
             coord_system,
-            ror_x,
-            tor_y,
+            r_or_x,
+            t_or_y,
             calculation,
             expression,
         ]
@@ -169,10 +169,10 @@ class _RpcMethodsFEAGeometry:
         path_name,
         path_location,
         coord_system,
-        ror_x_start,
-        tor_y_start,
-        ror_x_end,
-        tor_y_end,
+        r_or_x_start,
+        t_or_y_start,
+        r_or_x_end,
+        t_or_y_end,
         points,
         calculation,
         expression,
@@ -183,10 +183,10 @@ class _RpcMethodsFEAGeometry:
             path_name,
             path_location,
             coord_system,
-            ror_x_start,
-            tor_y_start,
-            ror_x_end,
-            tor_y_end,
+            r_or_x_start,
+            t_or_y_start,
+            r_or_x_end,
+            t_or_y_end,
             points,
             calculation,
             expression,
