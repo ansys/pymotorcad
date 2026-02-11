@@ -90,8 +90,8 @@ def test_load_reduced_nodes(mc):
     ]
 
     assert node_selection == 2
-    assert reduced_nodes_len == 7
-    assert reduced_nodes == [1, 2, 3, 6, 7, 126, 127]
+    assert reduced_nodes_len == 8
+    assert reduced_nodes == [0, 1, 2, 3, 6, 7, 126, 127]
 
 
 def test_load_fea_result(mc):
