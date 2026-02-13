@@ -373,7 +373,7 @@ class MotorCADTwinModel:
 
         # .mot file set up
         self.updateMotfileSettings()
-        self.setMinimumParameterValues(rpms, coolingSystemsParameterSweeps)
+        self.setNonZeroParameterValues(rpms, coolingSystemsParameterSweeps)
         self.saveTwinMotfile()
         self.incorporateCustomLosses()
         self.validateLossIdentification()
@@ -964,24 +964,29 @@ class MotorCADTwinModel:
                 "Thermal ROM."
             )
 
-    # Set minimum values (as long as they are non-zero) for each of the parameters in the parameter
-    # sweep. This is done to ensure all data extracted from mot file (node numbers present, which
-    # cooling resistances exist, etc) is present.
-    def setMinimumParameterValues(
+    # Set non-zero values for each parameter in the parameter sweep to ensure all extracted data 
+    # e.g. (node numbers present, which cooling resistances exist, etc) is present.
+    def setNonZeroParameterValues(
         self, rpms, coolingSystemsParameterSweeps: coolingSystemSweepType
     ):
         combinedParameters: Dict[AutomationParam, float | int] = dict()
 
-        minRpm = min(rpms)
-        if minRpm > 0:
-            combinedParameters[RPM] = minRpm
-
+        # use any non-zero rpm value
+        for rpm in rpms:
+            if rpm != 0:
+                combinedParameters[RPM] = rpm
+                break
+        
+        # use maximum value defined in parameter sweeps
         if coolingSystemsParameterSweeps is not None:
             for parameters in coolingSystemsParameterSweeps.values():
-                for param, value in parameters.items():
-                    minValue = min(value)
-                    if minValue > 0:
-                        combinedParameters[param] = minValue
+                for param, values in parameters.items():
+                    currentMaxValue = combinedParameters.get(param)
+                    if currentMaxValue is None:
+                        maxValue = max(values)
+                    else:
+                        maxValue = max(max(values), currentMaxValue)
+                    combinedParameters[param] = maxValue
 
         for param, value in combinedParameters.items():
             self.mcad.set_variable(param.automationString, value)
