@@ -356,8 +356,6 @@ class _RegionDrawing:
         entity_bounds = []
 
         for entity in region.entities:
-            if entity.length < 0.02:
-                print("this one")
             entity_bounds.append(entity.get_bounds())
             if entity.length == 0:
                 continue
