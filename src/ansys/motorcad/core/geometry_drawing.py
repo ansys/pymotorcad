@@ -339,30 +339,44 @@ class _RegionDrawing:
             self._draw_region(duplicate, colour, labels, full_geometry=True)
 
     def _draw_region(self, region, colour, labels=False, full_geometry=False, draw_points=False):
-        # Draw region onto a plot
+        """Draw region onto a plot."""
+        # Get duplication angle and colour for the region
         duplication_angle = 360 / region.duplications
         colour = tuple(channel / 255 for channel in colour)
         fill_points_x = []
         fill_points_y = []
+
+        # Define the legend key for the region based on the key or name
         if isinstance(region, TreeRegion):
             legend_key = region.key
         else:
             legend_key = region.name
+
+        # create a list to define the region bounds.
         entity_bounds = []
 
         for entity in region.entities:
+            if entity.length < 0.02:
+                print("this one")
             entity_bounds.append(entity.get_bounds())
             if entity.length == 0:
                 continue
             if isinstance(entity, Line):
                 num_points = 2
             else:
-                num_points = int(
-                    720
-                    * (entity.length / (2 * 3.14159265358979323846264338327950288 * entity.radius))
+                num_points = abs(
+                    int(
+                        720
+                        * (
+                            entity.length
+                            / (2 * 3.14159265358979323846264338327950288 * entity.radius)
+                        )
+                    )
                 )
                 if num_points < 2 or (1 / (num_points - 1)) * entity.length < 0.05:
                     num_points = int(entity.length / 0.05 + 1)
+                    if num_points < 2:
+                        num_points = 2
 
             for i in range(0, num_points):
                 fractional_distance = i / (num_points - 1)
