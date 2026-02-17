@@ -126,11 +126,11 @@ class _RpcMethodsCalculations:
     def create_winding_pattern(self):
         """Create winding pattern.
 
-        With Motor-CAD version 26R1 or greater, updates winding pattern, properties, and weights,
+        With Motor-CAD version 27R1 or greater, updates winding pattern, properties, and weights,
         after changing winding parameters.
-        With Motor-CAD version less than 26R1, refreshes the UI to recreate winding pattern.
+        With Motor-CAD version less than 27R1, refreshes the UI to recreate winding pattern.
         """
-        if self.connection.check_version_at_least("2026.1"):
+        if self.connection.check_version_at_least("2027.1"):
             # Update parameters on the Winding Pattern page.
             method = "CreateWindingPattern"
             return self.connection.send_and_receive(method)
@@ -138,12 +138,3 @@ class _RpcMethodsCalculations:
             # Retain for now, as still lots of work done in the UI on this tab.
             self.display_screen("Scripting")
             self.display_screen("Winding;Definition")
-
-    def create_winding_pattern_rotor(self):
-        """Create rotor winding pattern.
-
-        Update the rotor winding and weights and volumes post edit of winding parameters.
-        Requires MotorCAD version 26R1 or greater.
-        """
-        method = "RefreshWindingDefinitionRotor"
-        return self.connection.send_and_receive(method)
