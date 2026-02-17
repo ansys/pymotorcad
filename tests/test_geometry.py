@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -403,6 +403,8 @@ def test_region_to_json():
         "name": "test_region",
         "name_base": "test_region_base",
         "material": "copper",
+        "material_weight_component_type": 2,
+        "material_weight_material_type": "Any",
         "colour": {"r": 240, "g": 0, "b": 0},
         "area": 5.1,
         "centroid": {"x": 0.0, "y": 1.0},
@@ -432,6 +434,19 @@ def test_region_to_json():
     test_region.mesh_length = 0.035
     test_region.singular = True
     test_region.linked_regions = []
+
+    assert test_region._to_json() == raw_region
+
+    # test no material specified
+    raw_region["material"] = ""
+    del test_region._raw_region["material"]
+    test_region.material = ""
+
+    assert test_region._to_json() == raw_region
+
+    # test changing material with a previous material specified
+    raw_region["material"] = "M350-35A"
+    test_region.material = "M350-35A"
 
     assert test_region._to_json() == raw_region
 
@@ -781,6 +796,20 @@ def test_line_get_coordinate_from_distance():
         coord = line.get_coordinate_from_distance(line.start)
     assert "provide either a distance, fraction or percentage" in str(e_info)
 
+    # Test if reference coordinate isn't start or end (ref coordinate near start)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0), 1) == geometry.Coordinate(
+        1.5, 0
+    )
+
+    # Test if reference coordinate isn't start or end (ref coordinate near end)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(1.5, 0), 1) == geometry.Coordinate(
+        0.5, 0
+    )
+
+    # Test that reference coordinate not on the line raises an exception
+    with pytest.raises(ValueError):
+        line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0.5), 1)
+
 
 def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
@@ -792,6 +821,16 @@ def test_line_get_coordinate_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
     point = Coordinate(1, 1)
     assert line.get_coordinate_distance(point) == 1
+
+
+def test_coordinate_distance():
+    coordinate_1 = geometry.Coordinate(0, 1)
+    coordinate_2 = geometry.Coordinate(0, 2)
+    assert coordinate_1.distance(coordinate_2) == 1
+
+    # Make sure type error is raised if we try to find distance to something that isn't a coordinate
+    with pytest.raises(TypeError):
+        coordinate_1.distance(1)
 
 
 def test_arc_get_coordinate_from_fractional_distance():
