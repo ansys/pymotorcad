@@ -815,8 +815,8 @@ class Region(object):
             Motor-CAD region object
 
         include_entity_overlap : boolean
-            Whether to consider regions that overlap to be inside each other. If False, then only regions that are fully
-            contained will be considered inside.
+            Whether to consider regions that overlap to be inside each other.
+            If False, then only regions that are fully contained will be considered inside.
 
         Returns
         -------
@@ -824,7 +824,9 @@ class Region(object):
             True if region is inside self, False otherwise.
         """
         self._check_connection()
-        return self.motorcad_instance.check_region_inside_region(region, self, include_entity_overlap)
+        return self.motorcad_instance.check_region_inside_region(
+            region, self, include_entity_overlap
+        )
 
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
