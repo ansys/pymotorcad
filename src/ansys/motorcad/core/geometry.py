@@ -806,7 +806,7 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
-    def inside_region(self, region):
+    def inside_region(self, region, include_entity_overlap=True):
         """Check whether the specified region is inside self.
 
         Parameters
@@ -814,13 +814,17 @@ class Region(object):
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object
 
+        include_entity_overlap : boolean
+            Whether to consider regions that overlap to be inside each other. If False, then only regions that are fully
+            contained will be considered inside.
+
         Returns
         -------
         boolean
             True if region is inside self, False otherwise.
         """
         self._check_connection()
-        return self.motorcad_instance.check_region_inside_region(region, self)
+        return self.motorcad_instance.check_region_inside_region(region, self, include_entity_overlap)
 
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
