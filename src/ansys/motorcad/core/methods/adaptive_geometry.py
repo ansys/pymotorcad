@@ -336,3 +336,27 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
+
+    def check_region_inside_region(self, region_a, region_b):
+        """Check if one Motor-CAD region is inside another.
+
+        Parameters
+        ----------
+        region_a : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+        
+        region_b : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+        
+
+        Returns
+        -------
+        boolean
+            True if region_A is inside region_B, False otherwise.
+        """
+        self.connection.ensure_version_at_least("2027.0.0")
+        method = "CheckRegionInsideRegion"
+        params = [region_a._to_json(), region_b._to_json()]
+        is_inside = self.connection.send_and_receive(method, params)
+
+        return is_inside

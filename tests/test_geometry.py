@@ -2565,6 +2565,24 @@ def test_subtract_region_2(mc):
     assert square == expected_region
 
 
+def test_region_inside_region(mc):
+    """Test if region is within another region"""
+    outer_square = create_square()
+    outer_square.motorcad_instance = mc
+
+    inner_square = geometry.Region(RegionType.no_type)
+    inner_square.motorcad_instance = mc
+    inner_square.entities = [
+        geometry.Coordinate(0.5, 0.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(1.5, 1.5),
+        geometry.Coordinate(1.5, 0.5),
+    ]
+
+    assert outer_square.inside_region(inner_square) is False
+    assert inner_square.inside_region(outer_square) is True
+    
+
 def test_subtract_region_3(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
