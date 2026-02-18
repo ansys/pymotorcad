@@ -825,7 +825,7 @@ class Region(object):
         """
         self._check_connection()
         return self.motorcad_instance.check_region_inside_region(
-            region, self, include_entity_overlap
+            self, region, include_entity_overlap
         )
 
     def collides(self, regions):

@@ -3441,11 +3441,11 @@ def test_check_region_inside_region_fully_contained(mc):
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, 3), geometry.Coordinate(1, 1)))
 
     # Test with include_entity_overlap = False (fully contained)
-    is_inside = region_a.inside_region(region_b, False)
+    is_inside = region_b.inside_region(region_a, False)
     assert is_inside is True
 
     # Test with include_entity_overlap = True (fully contained)
-    is_inside = region_a.inside_region(region_b, True)
+    is_inside = region_b.inside_region(region_a, True)
     assert is_inside is True
 
 
@@ -3474,11 +3474,11 @@ def test_check_region_inside_region_not_inside(mc):
     region_b.add_entity(geometry.Line(geometry.Coordinate(5, 7), geometry.Coordinate(5, 5)))
 
     # Test with include_entity_overlap = False
-    is_inside = region_a.inside_region(region_b, False)
+    is_inside = region_b.inside_region(region_a, False)
     assert is_inside is False
 
     # Test with include_entity_overlap = True
-    is_inside = region_a.inside_region(region_b, True)
+    is_inside = region_b.inside_region(region_a, True)
     assert is_inside is False
 
 
@@ -3506,11 +3506,11 @@ def test_check_region_inside_region_partial_overlap(mc):
     region_b.add_entity(geometry.Line(geometry.Coordinate(1, 3), geometry.Coordinate(1, 1)))
 
     # Test with include_entity_overlap = False (not fully contained)
-    is_inside = region_a.inside_region(region_b, False)
+    is_inside = region_b.inside_region(region_a, False)
     assert is_inside is False
 
     # Test with include_entity_overlap = True
-    is_inside = region_a.inside_region(region_b, True)
+    is_inside = region_b.inside_region(region_a, True)
     assert is_inside is False
 
 
@@ -3538,11 +3538,11 @@ def test_check_region_inside_region_touching_edge(mc):
     region_a.add_entity(geometry.Line(geometry.Coordinate(0, 3), geometry.Coordinate(0, 1)))
 
     # Test with include_entity_overlap = False (region not inside)
-    is_inside = region_a.inside_region(region_b, False)
+    is_inside = region_b.inside_region(region_a, False)
     assert is_inside is False
 
     # Test with include_entity_overlap = True
-    is_inside = region_a.inside_region(region_b, True)
+    is_inside = region_b.inside_region(region_a, True)
     assert is_inside is True
 
 
@@ -3596,11 +3596,11 @@ def test_check_region_inside_region_circular_regions(mc):
     )
 
     # Test with include_entity_overlap = False (fully contained)
-    is_inside = mc.check_region_inside_region(region_b, region_a, False)
+    is_inside = mc.check_region_inside_region(region_a, region_b, False)
     assert is_inside is True
 
     # Test with include_entity_overlap = True
-    is_inside = mc.check_region_inside_region(region_b, region_a, True)
+    is_inside = mc.check_region_inside_region(region_a, region_b, True)
     assert is_inside is True
 
 
