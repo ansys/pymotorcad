@@ -2565,24 +2565,6 @@ def test_subtract_region_2(mc):
     assert square == expected_region
 
 
-def test_region_inside_region(mc):
-    """Test if region is within another region"""
-    outer_square = create_square()
-    outer_square.motorcad_instance = mc
-
-    inner_square = geometry.Region(RegionType.no_type)
-    inner_square.motorcad_instance = mc
-    inner_square.entities = [
-        geometry.Coordinate(0.5, 0.5),
-        geometry.Coordinate(0.5, 1.5),
-        geometry.Coordinate(1.5, 1.5),
-        geometry.Coordinate(1.5, 0.5),
-    ]
-
-    assert outer_square.inside_region(inner_square) is False
-    assert inner_square.inside_region(outer_square) is True
-    
-
 def test_subtract_region_3(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
     #   Before         After
@@ -3431,3 +3413,223 @@ def test_region_creation_type(mc):
     with pytest.raises(Exception):
         # Passing in something that's not a string or motorcad object should give an exception
         new_region_3 = Region(1)
+
+
+def test_check_region_inside_region_fully_contained(mc):
+    """Test case where region A is fully contained inside region B."""
+    #
+    #   |-----------|
+    #   |           |
+    #   |  |-----|  |
+    #   |  | A   |  |  ->  Region A is fully inside Region B
+    #   |  |-----|  |
+    #   |           |
+    #   |-----------|
+    #
+    # Create outer region (region B)
+    region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(4, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(4, 0), geometry.Coordinate(4, 4)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(4, 4), geometry.Coordinate(0, 4)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 4), geometry.Coordinate(0, 0)))
+
+    # Create inner region (region A)
+    region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(3, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(3, 1), geometry.Coordinate(3, 3)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(3, 3), geometry.Coordinate(1, 3)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(1, 3), geometry.Coordinate(1, 1)))
+
+    # Test with include_entity_overlap = False (fully contained)
+    is_inside = region_a.inside_region(region_b, False)
+    assert is_inside is True
+
+    # Test with include_entity_overlap = True (fully contained)
+    is_inside = region_a.inside_region(region_b, True)
+    assert is_inside is True
+
+
+def test_check_region_inside_region_not_inside(mc):
+    """Test case where region A is completely outside region B."""
+    #
+    #   |-----|
+    #   |  A  |
+    #   |-----|
+    #                   |-----|
+    #                   |  B  |  ->  Region A is not inside Region B
+    #                   |-----|
+    #
+    # Create region A
+    region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 0), geometry.Coordinate(2, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 2), geometry.Coordinate(0, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 2), geometry.Coordinate(0, 0)))
+
+    # Create region B (completely separate)
+    region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 5), geometry.Coordinate(7, 5)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(7, 5), geometry.Coordinate(7, 7)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(7, 7), geometry.Coordinate(5, 7)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(5, 7), geometry.Coordinate(5, 5)))
+
+    # Test with include_entity_overlap = False
+    is_inside = region_a.inside_region(region_b, False)
+    assert is_inside is False
+
+    # Test with include_entity_overlap = True
+    is_inside = region_a.inside_region(region_b, True)
+    assert is_inside is False
+
+
+def test_check_region_inside_region_partial_overlap(mc):
+    """Test case where regions partially overlap."""
+    #
+    #   |-----|
+    #   |  A  |-----|
+    #   |     |  B  |  ->  Region A partially overlaps with Region B
+    #   |-----|     |
+    #         |-----|
+    #
+    # Create region A
+    region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 0), geometry.Coordinate(2, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 2), geometry.Coordinate(0, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 2), geometry.Coordinate(0, 0)))
+
+    # Create region B (overlapping)
+    region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_b.add_entity(geometry.Line(geometry.Coordinate(1, 1), geometry.Coordinate(3, 1)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(3, 1), geometry.Coordinate(3, 3)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(3, 3), geometry.Coordinate(1, 3)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(1, 3), geometry.Coordinate(1, 1)))
+
+    # Test with include_entity_overlap = False (not fully contained)
+    is_inside = region_a.inside_region(region_b, False)
+    assert is_inside is False
+
+    # Test with include_entity_overlap = True
+    is_inside = region_a.inside_region(region_b, True)
+    assert is_inside is False
+
+
+def test_check_region_inside_region_touching_edge(mc):
+    """Test case where region A touches the edge of region B."""
+    #
+    #   |-----------|
+    #   ||-----|    |
+    #   || A   |    |  ->  Region A touches edge of Region B
+    #   ||-----|    |
+    #   |-----------|
+    #
+    # Create outer region (region B)
+    region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(4, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(4, 0), geometry.Coordinate(4, 4)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(4, 4), geometry.Coordinate(0, 4)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 4), geometry.Coordinate(0, 0)))
+
+    # Create region A (touching left edge of B)
+    region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 1), geometry.Coordinate(2, 1)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 1), geometry.Coordinate(2, 3)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 3), geometry.Coordinate(0, 3)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 3), geometry.Coordinate(0, 1)))
+
+    # Test with include_entity_overlap = False (region not inside)
+    is_inside = region_a.inside_region(region_b, False)
+    assert is_inside is False
+
+    # Test with include_entity_overlap = True
+    is_inside = region_a.inside_region(region_b, True)
+    assert is_inside is True
+
+
+def test_check_region_inside_region_circular_regions(mc):
+    """Test case with circular regions using arcs."""
+    #
+    #       o
+    #     /   \
+    #    |  o  |
+    #    | / \ |   ->  Inner circle is fully inside outer circle
+    #    | \_/ |
+    #    |     |
+    #     \___/
+    #
+    # Create outer circular region (region B)
+    region_b = geometry.Region(RegionType.stator_air)
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(5, 0),
+            geometry.Coordinate(-5, 0),
+            geometry.Coordinate(0, 0),
+            5,
+        )
+    )
+    region_b.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(-5, 0),
+            geometry.Coordinate(5, 0),
+            geometry.Coordinate(0, 0),
+            5,
+        )
+    )
+
+    # Create inner circular region (region A)
+    region_a = geometry.Region(RegionType.stator_air)
+    region_a.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(2, 0),
+            geometry.Coordinate(-2, 0),
+            geometry.Coordinate(0, 0),
+            2,
+        )
+    )
+    region_a.add_entity(
+        geometry.Arc(
+            geometry.Coordinate(-2, 0),
+            geometry.Coordinate(2, 0),
+            geometry.Coordinate(0, 0),
+            2,
+        )
+    )
+
+    # Test with include_entity_overlap = False (fully contained)
+    is_inside = mc.check_region_inside_region(region_b, region_a, False)
+    assert is_inside is True
+
+    # Test with include_entity_overlap = True
+    is_inside = mc.check_region_inside_region(region_b, region_a, True)
+    assert is_inside is True
+
+
+def test_check_region_inside_region_identical_regions(mc):
+    """Test case where both regions are identical."""
+    #
+    #   |-----|
+    #   |  A  |
+    #   |     |  ->  Region A is identical to Region B
+    #   |  B  |
+    #   |-----|
+    #
+    # Create identical regions
+    region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 0), geometry.Coordinate(2, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(2, 2), geometry.Coordinate(0, 2)))
+    region_a.add_entity(geometry.Line(geometry.Coordinate(0, 2), geometry.Coordinate(0, 0)))
+
+    region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(2, 0), geometry.Coordinate(2, 2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(2, 2), geometry.Coordinate(0, 2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(0, 2), geometry.Coordinate(0, 0)))
+
+    # Test with include_entity_overlap = False
+    is_inside = mc.check_region_inside_region(region_a, region_b, False)
+    assert is_inside is False
+
+    # Test with include_entity_overlap = True
+    is_inside = mc.check_region_inside_region(region_a, region_b, True)
+    assert is_inside is True
