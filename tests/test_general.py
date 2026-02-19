@@ -80,6 +80,20 @@ def test_export_matrices(mc):
     assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.tmf")
 
 
+def test_load_reduced_nodes(mc):
+    mc.load_reduced_nodes(get_temp_files_dir_path() + r"\ReducedNodes.rnm")
+
+    node_selection = mc.get_variable("ReducedNodeSelection")
+    reduced_nodes_len = mc.get_variable("ReducedNodeNumber")
+    reduced_nodes = [
+        mc.get_array_variable("ReducedNode_NodesToKeep", node) for node in range(reduced_nodes_len)
+    ]
+
+    assert node_selection == 2
+    assert reduced_nodes_len == 8
+    assert reduced_nodes == [0, 1, 2, 3, 6, 7, 126, 127]
+
+
 def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
