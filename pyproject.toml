@@ -53,7 +53,8 @@ doc = [
     "matplotlib",
     "scipy",
     "pypandoc==1.16.2",
-    "networkx"
+    "networkx",
+    "joblib"
 ]
 
 [project.urls]
