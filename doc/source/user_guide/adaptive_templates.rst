@@ -426,8 +426,17 @@ investigate its attributes and properties. It has 3 entities (two Line objects a
     Using a break point in an Adaptive Template script to investigate variables.
 
 This is a useful tool when working on a Python script, such as an Adaptive Templates script. You can
-look into the properties of the Region object, as well as those of the entities such as the start,
-end and midpoint coordinates, the angles of Line objects, the radii of Arc objects.
+look into the properties of the Region object or the properties of entities such as:
+
+* the start coordinate,
+
+* end coordinate,
+
+* the midpoint coordinate,
+
+* the angles of Line objects,
+
+* the radii of Arc objects.
 
 IDEs (for example PyCharm or VSCode) have a lot of useful features for editing Python scripts. It is
 much easier and more efficient to use an IDE to develop Adaptive Templates scripts, rather than the
@@ -511,61 +520,6 @@ Adaptive Templates scripts in Motor-CAD can be used in many different ways to cu
 machine geometry. Some approaches are more challenging than others. For some types of geometry
 customisation, there are some recommended approaches and best practices that should be followed.
 
-Modifying stator slot openings
-------------------------------
-
-When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
-practices which may be followed to make the process simpler.
-
-If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
-parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
-conductors in the updated slot.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_1.png
-    :width: 600pt
-
-    A Motor-CAD stator geometry where the stator slot has been modified to be narrower at the slot
-    opening. The **Stator** region (red, shaded) intersects the **ArmatureSlot** regions (yellow)
-    and the **Wedge** region (grey). The **Copper Depth [%]** is still set to **100 %**, so the
-    **ArmatureSlot** regions are still being drawn based on the unmodified Standard Template
-    geometry.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_2.png
-    :width: 500pt
-
-    The **Winding -> Definition** tab in Motor-CAD. Setting the **Copper Depth [%]** to **84 %**
-    means that the conductors, impregnation and slot liner now only fill 84 % of the slot. This
-    reflects the amount of space available in the modified slot.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_3.png
-    :width: 600pt
-
-    With the updated **Copper Depth [%]**, the **Stator** region (red, shaded) no longer intersects
-    the **ArmatureSlot** regions, only the **Wedge** region (grey).
-
-To modify the shape of the **Wedge** region based on a modified **Stator** slot geometry, subtract
-the **Stator** region from the **Wedge**:
-
-.. code:: python
-
-    wedge = mc.get_region("Wedge")
-    wedge.subtract(modified_stator)
-    mc.set_region(wedge)
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_4.png
-    :width: 600pt
-
-    When the **Wedge** region has been modified by subtracting the modified **Stator** region, the
-    custom stator slot geometry is complete.
-
-.. figure:: ../images/adaptive_templates/user_guide_slots_5.png
-    :width: 500pt
-
-    The updated stator slot can also be visualised in the **Winding -> Definition** tab, now that
-    the wedge has been updated.
-
-
-
 Rounding corners of geometry regions with Adaptive Templates
 ------------------------------------------------------------
 
@@ -599,8 +553,8 @@ corner.
     A corner made up of two Line entities (entity 7 and 9) and an Arc (entity 8).
 
 When customising a Motor-CAD geometry with Adaptive Templates, it is much simpler to modify the
-geometry when corner rounding is **not selected**. This is because there will be fewer entities
-forming the regions (such as the rotor pocket and magnet regions). It is recommended to set the
+geometry when corner rounding is **not selected**. This is because fewer entities form the regions
+(such as the rotor pocket and magnet regions). It is recommended to set the
 **Corner Rounding (Rotor Lamination)** and **Corner Rounding (Magnets)** parameters on the
 **Input Data -> Settings -> Geometry** tab to **None (default)**.
 
@@ -674,6 +628,144 @@ The result is a modified Region with rounded corners.
 
 To apply different corner radii for each corner, you can use the ``Region.round_corner()`` method
 and round corners individually.
+
+Modifying the airgap shape
+--------------------------
+
+When using Adaptive Templates to modify the shape of the airgap, either by modifying the rotor
+surface or the stator surface, there are some best practices which should be followed to avoid
+problems with FEA meshing in Motor-CAD.
+
+The airgap (space between the rotor and stator) itself should always be defined by a band of uniform
+thickness in Motor-CAD. Take the default Surface Permanent Magnet motor topology as an example.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_1.png
+    :width: 600pt
+
+    The default Motor-CAD SPM motor topology, showing the distance between stator lamination
+    surface and rotor lamination surface and the distance between stator lamination surface and
+    magnet surface.
+
+This motor has raised magnets that sit on top of the rotor lamination surface. There is a larger gap
+between the stator lamination surface and that of the rotor lamination than there is between the
+stator lamination surface and the magnet surface. The rotor geometry is defined by including the
+**RotorAir** and **RotorAir_1** regions on either side of the magnet, so that the total group of
+rotor regions has a continuous outer boundary of equal radius.
+
+Similarly, the stator geometry includes a **StatorAir** region that fills the slot opening. The
+total group of stator regions has a continuous inner boundary of equal radius.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_2.png
+    :width: 600pt
+
+    The default Motor-CAD SPM motor topology, showing the rotor outer boundary with constant radius
+    and the stator inner boundary with constant radius.
+
+The outer boundary of the rotor regions and the inner boundary of the stator regions define the
+airgap, and it is important that these boundaries remain arcs of continuous radius, despite any
+Adaptive Templates modifications to the Motor-CAD model geometry. Any changes to the airgap shape
+should be carried out by inserting new **Rotor Air** or **Stator Air** type regions (or by modifying
+existing ones) and the original boundary arc shapes should be preserved. If the rotor outer or
+stator inner boundaries are changed, so that they do not form an arc of specific radius, the
+Motor-CAD model may fail to mesh, or FEA calculation results may be unreliable due to the mesh.
+
+Another best practice to follow when modifying the airgap shape, is to ensure that the regions do
+not have any very sharp corners or very narrow geometry features. For example, if the rotor is
+modified by adding rotor notches, the edges of the notches can be rounded to form very narrow
+**Rotor Air** regions at the rotor boundary.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_3.png
+    :width: 600pt
+
+    An IPM motor topology with rounded notches at the rotor boundary.
+
+In this example, the notch region becomes vanishingly narrow  at the rotor outer boundary. This
+Motor-CAD model fails to mesh due to these geometry features and the FEA calculation cannot be
+solved. This problem can be addressed by adding a band of air at the rotor outer boundary.
+
+Motor-CAD uses this approach in the Standard Template geometry for SPM topologies with a non-zero
+**Magnet Reduction** value. A **RotorAir** region is included in the geometry, forming the outer
+boundary of the group of rotor regions. The minimum thickness of the air region is 0.1 mm.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_4.png
+    :width: 600pt
+
+    A SPM motor topology with **Magnet Reduction = 4**. A **RotorAir** region sits on top of the
+    magnet surface, forming the rotor outer boundary. The air region is 0.1 mm thick at
+    its narrowest point.
+
+For the rounded rotor notches example, an air band of specified thickness (at least 0.1 mm) should
+be added at the rotor outer boundary. This air band can be united with the notch regions to form a
+single **Rotor Air** region. To account for the new air band region, the airgap can be reduced by
+the same distance. For example, if the original airgap is 1 mm, and a new air band of 0.1 mm
+thickness is added, the airgap should be reduced to 0.9 mm to keep the effective full airgap (airgap
+plus rotor air region) unchanged.
+
+.. figure:: ../images/adaptive_templates/user_guide_airgap_5.png
+    :width: 600pt
+
+    An IPM motor topology with rounded notches and a band of air at the rotor boundary. The air
+    region is 0.1 mm thick at its narrowest point.
+
+It is best practice to take this approach when modifying the shape of the airgap. If you ensure that
+any new regions at the airgap boundary are at least 0.1 mm thick as a minimum, problems with the
+the airgap mesh should be avoided.
+
+
+Modifying stator slot openings
+------------------------------
+
+When using Adaptive Templates to modify the shape of the stator slot opening, there are some best
+practices which may be followed to make the process simpler.
+
+If the modifications reduce the available space for conductors, then the **Copper Depth [%]**
+parameter in the **Winding -> Definition** tab should be adjusted to reflect the available space for
+conductors in the updated slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_1.png
+    :width: 600pt
+
+    A Motor-CAD stator geometry where the stator slot has been modified to be narrower at the slot
+    opening. The **Stator** region (red, shaded) intersects the **ArmatureSlot** regions (yellow)
+    and the **Wedge** region (grey). The **Copper Depth [%]** is still set to **100 %**, so the
+    **ArmatureSlot** regions are still being drawn based on the unmodified Standard Template
+    geometry.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_2.png
+    :width: 500pt
+
+    The **Winding -> Definition** tab in Motor-CAD. Setting the **Copper Depth [%]** to **84 %**
+    means that the conductors, impregnation and slot liner now only fill 84 % of the slot. This
+    reflects the amount of space available in the modified slot.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_3.png
+    :width: 600pt
+
+    With the updated **Copper Depth [%]**, the **Stator** region (red, shaded) no longer intersects
+    the **ArmatureSlot** regions, only the **Wedge** region (grey).
+
+To modify the shape of the **Wedge** region based on a modified **Stator** slot geometry, subtract
+the **Stator** region from the **Wedge**:
+
+.. code:: python
+
+    wedge = mc.get_region("Wedge")
+    wedge.subtract(modified_stator)
+    mc.set_region(wedge)
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_4.png
+    :width: 600pt
+
+    When the **Wedge** region has been modified by subtracting the modified **Stator** region, the
+    custom stator slot geometry is complete.
+
+.. figure:: ../images/adaptive_templates/user_guide_slots_5.png
+    :width: 500pt
+
+    The updated stator slot can also be visualised in the **Winding -> Definition** tab, now that
+    the wedge has been updated.
+
+
 
 
 
