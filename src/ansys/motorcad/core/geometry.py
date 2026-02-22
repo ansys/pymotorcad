@@ -2611,6 +2611,40 @@ class EntityList(list):
         for entity in self:
             entity.reverse()
 
+    def rotate(self, centre: Coordinate, angle: float):
+        """Rotate EntityList around centre Coordinate by angle.
+
+        Parameters
+        ----------
+        centre: Coordinate
+            Coordinate to rotate entities in EntityList around
+        angle: float
+            Angle to rotate entities in EntityList by.
+
+        """
+        for entity in self:
+            entity.rotate(centre, angle)
+
+    def translate(self, x: float, y: float):
+        """Translate EntityList by specified x,y distances.
+
+        Parameters
+        ----------
+        x : float
+            x distance.
+        y : float
+            y distance.
+        """
+        for entity in self:
+            entity.translate(x, y)
+
+    def get_region(self, region_type=RegionType.adaptive, motorcad_instance=None) -> Region:
+        """Return a Motor-CAD Region object from the EntityList."""
+        region = Region(region_type, motorcad_instance)
+        for entity in self:
+            region.add_entity(entity)
+        return region
+
     @classmethod
     def polygon(cls, points, sort=False):
         """Create an EntityList from a list of points, connecting them with lines.

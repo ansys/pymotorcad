@@ -23,6 +23,10 @@
 from ansys.motorcad.core import geometry
 from ansys.motorcad.core.geometry import Arc, Line
 from ansys.motorcad.core.geometry_shapes import (
+    Circle,
+    Rectangle,
+    Triangle,
+    create_triangle_from_dimensions,
     eq_triangle_h,
     eq_triangle_w,
     square,
@@ -101,3 +105,88 @@ def test_triangular_notch():
     function_notch = triangular_notch(2, 60, 90, 1)
 
     assert function_notch == test_notch
+
+
+def test_Circle():
+    radius = 5
+    centre = geometry.Coordinate(10, 10)
+
+    circle = Circle(centre, radius)
+
+    assert len(circle) == 2
+    assert circle.is_closed
+    for entity in circle:
+        assert isinstance(entity, geometry.Arc)
+        assert entity.radius == radius
+        assert entity.centre == centre
+
+
+def test_Rectangle():
+    width = 5
+    height = 8
+    corner = geometry.Coordinate(10, 10)
+
+    rectangle = Rectangle(corner, width, height)
+
+    assert len(rectangle) == 4
+    assert rectangle.is_closed
+    i = 0
+    for entity in rectangle:
+        assert isinstance(entity, geometry.Line)
+        if i % 2 == 0:
+            assert entity.length == width
+        else:
+            assert entity.length == height
+        i += 1
+
+    # special case of Rectangle (square)
+    width = 5
+    corner = geometry.Coordinate(10, 10)
+
+    this_square = Rectangle(corner, width, width)
+
+    assert len(this_square) == 4
+    assert this_square.is_closed
+    for entity in this_square:
+        assert isinstance(entity, geometry.Line)
+        assert entity.length == width
+    assert this_square.is_square
+
+
+def test_Triangle():
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+
+    triangle = Triangle(points[0], points[1], points[2])
+
+    assert len(triangle) == 3
+    assert triangle.is_closed
+
+    for entity in triangle:
+        assert isinstance(entity, geometry.Line)
+        assert not triangle.is_equilateral
+        assert triangle.is_isosceles
+
+
+def test_create_triangle_from_dimensions():
+    width = 1.6970562748477143
+    height = 3.394112549695428
+    corner = geometry.Coordinate(1, 2.2)
+
+    points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
+
+    triangle = create_triangle_from_dimensions(corner, width, height)
+
+    assert len(triangle) == 3
+    assert triangle.is_closed
+
+    for entity in triangle:
+        assert isinstance(entity, geometry.Line)
+        assert not triangle.is_equilateral
+        assert triangle.is_isosceles
+
+    # rotate triangle to match the angle of the points.
+    new_base_line = geometry.Line(points[0], points[1])
+    triangle.rotate(corner, new_base_line.angle)
+
+    for i in range(3):
+        assert points[i] == triangle.points[i]
