@@ -972,6 +972,16 @@ class Region(object):
                 # Check Arc is still valid
                 _ = entity.centre
 
+    def consolidate_lines(self):
+        """Consolidate separate Line objects into a single Line object where possible.
+
+        If the current and previous entities are both Line entity types with the same angle, the
+        current entity is removed and the previous entity is extended to the end point of the
+        removed entity.
+
+        """
+        self.entities.consolidate_lines()
+
     def _round_corner(self, corner_coordinate, radius, distance_limit):
         """Round the corner of a region.
 
@@ -2827,6 +2837,44 @@ class EntityList(list):
 
         else:
             return _entities_same_with_direction(self, entities_to_compare)
+
+    def consolidate_lines(self):
+        """Consolidate separate Line objects into a single Line object where possible.
+
+        If the current and previous entities are both Line entity types with the same angle, the
+        current entity is removed and the previous entity is extended to the end point of the
+        removed entity.
+
+        """
+        entities_to_remove = []
+        # last entity of the region
+        entity_n = self[-1]
+        # for each entity in the region
+        for entity in self:
+            # if the current and previous entities are Line, Check whether the lines are collinear.
+            # Use the angle property to check that the lines are collinear. Check combinations of
+            # line angles rotated by +/-180 or +/-360 degrees.
+            collinear = False
+            if isinstance(entity, Line) and isinstance(entity_n, Line):
+                if entity_n.end == entity.start:
+                    if isclose(entity.angle % 180, entity_n.angle % 180, abs_tol=GEOM_TOLERANCE):
+                        # When current and previous entities are collinear, set the end of the
+                        # previous entity to be the end of the current entity. Add the current
+                        # entity to the list of entities to be removed.
+                        # The current entity is NOT set as entity_n (last entity), because it will
+                        # be later removed.
+                        collinear = True
+                        entity_n.end = entity.end
+                        entities_to_remove.append(entity)
+            # If the entities are not collinear lines, set current entity to be the last entity for
+            # the next loop.
+            if not collinear:
+                entity_n = entity
+
+        # After all original entities have been lengthened where possible, remove the redundant
+        # entities.
+        for entity in entities_to_remove:
+            self.remove(entity)
 
 
 def _convert_entities_to_json(entities):
