@@ -20,15 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# from os import path, remove
-# import time
-
 import os
+from os import path, remove
+import time
 
 from openpyxl import load_workbook
 import pytest
 
-from RPC_Test_Common import almost_equal_percentage, reset_to_default_file  # (get_dir_path,
+from RPC_Test_Common import almost_equal_percentage, get_dir_path, reset_to_default_file
 
 
 def test_model_build_lab(mc):
@@ -173,6 +172,53 @@ def test_external_custom_loss_functions(mc):
 
     mc.remove_external_custom_loss(removed_name)
     assert mc.get_variable("NumCustomLossesExternal_Lab") == no_external_losses + 1
+
+
+def test_lab_model_export(mc):
+    mc.set_variable("MessageDisplayState", 2)
+    file_path = get_dir_path() + r"\test_files\temp_files\lab_model_export.lab"
+
+    mc.load_template("e3")
+
+    if path.exists(file_path):
+        remove(file_path)
+
+    assert path.exists(file_path) is False
+
+    mc.export_lab_model(file_path)
+
+    # Exporting the lab model takes a few seconds and so a delay is required before
+    # asserting the .lab file is present.
+    checks = 0
+
+    while checks < 60:
+        time.sleep(1)
+        if path.exists(file_path) is False:
+            checks += 1
+        else:
+            break
+
+    assert path.exists(file_path) is True
+
+    remove(file_path)
+
+    # Checks that a warning is raised if the model build speed has changed
+    mc.set_variable("LabModel_Saturation_StatorCurrent_Peak", 750)
+
+    with pytest.raises(Exception) as stator_current_changed_error:
+        mc.export_lab_model(file_path)
+
+    assert "maximum current has changed" in str(stator_current_changed_error)
+
+    # Clears lab model and checks a warning has been raised
+    mc.clear_model_build_lab()
+
+    with pytest.raises(Exception) as model_not_built_error:
+        mc.export_lab_model(file_path)
+
+    assert "model has not been built" in str(model_not_built_error)
+
+    reset_to_default_file(mc)
 
 
 def test_export_concept_ev_model(mc):
