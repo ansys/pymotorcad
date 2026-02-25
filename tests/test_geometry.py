@@ -255,7 +255,7 @@ def test_set_region(mc):
 def test_set_region_dxf(mc):
     """Test setting region in Motor-CAD from DXF region."""
     region = generate_constant_region()
-    mc.set_region(region)
+    mc.set_region_dxf(region)
     returned_region = mc.get_region_dxf("testing_region")
     assert returned_region == region
 
