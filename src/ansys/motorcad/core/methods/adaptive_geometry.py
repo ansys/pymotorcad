@@ -158,6 +158,22 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SetRegion"
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
+    
+    def set_region_dxf(self, region):
+        """Set Motor-CAD dxf geometry region.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+        """
+        self.connection.ensure_version_at_least("2027.0")
+        
+        raw_region = region._to_json()
+
+        method = "SetRegion_DXF"
+        params = [raw_region]
+        return self.connection.send_and_receive(method, params)
 
     def check_closed_region(self, region):
         """Check region is closed using region detection.
@@ -329,6 +345,32 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         params = [tree._to_json()]
         method = "SetGeometryTree"
+        return self.connection.send_and_receive(method, params)
+    
+    def get_geometry_tree_dxf(self):
+        """Fetch a GeometryTree object containing all the defining DXF geometry of the loaded motor.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry_tree.GeometryTree
+            Motor-CAD DXF geometry tree
+        """
+        self.connection.ensure_version_at_least("2027.0")
+        method = "GetGeometryTree_DXF"
+        json = self.connection.send_and_receive(method)
+        return GeometryTree._from_json(json, self)
+    
+    def set_geometry_tree_dxf(self, tree: GeometryTree):
+        """Use a GeometryTree object to set the defining DXF geometry of the loaded motor.
+        
+        Parameters
+        ----------
+        tree : ansys.motorcad.core.geometry_tree.GeometryTree
+             GeometryTree object containing the DXF geometry to set in Motor-CAD.
+        """
+        self.connection.ensure_version_at_least("2027.0")
+        params = [tree._to_json()]
+        method = "SetGeometryTree_DXF"
         return self.connection.send_and_receive(method, params)
 
     def get_maxwell_udm_geometry_json(self):
