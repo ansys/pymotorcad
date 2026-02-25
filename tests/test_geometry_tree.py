@@ -27,12 +27,20 @@ import pytest
 
 from ansys.motorcad.core.geometry import Coordinate, Line, RegionType
 from ansys.motorcad.core.geometry_tree import GeometryTree
+from tests.RPC_Test_Common import get_dir_path
 
 
 @pytest.fixture(scope="session")
 def sample_tree(mc):
     mc.reset_adaptive_geometry()
     return mc.get_geometry_tree()
+
+
+@pytest.fixture(scope="session")
+def sample_tree_dxf(mc):
+    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    mc.reset_adaptive_geometry()
+    return mc.get_geometry_tree_dxf()
 
 
 @pytest.fixture(scope="function")
@@ -132,6 +140,22 @@ def test_get_tree(sample_tree):
     # Check also that each item is the child of something, except root
     valid = True
     for node in sample_tree.values():
+        for child in node.children:
+            try:
+                node_keys.remove(child.key)
+            except KeyError:
+                valid = False
+            assert node == child.parent
+    assert node_keys == {"root"}
+    assert valid
+
+
+def test_get_tree_dxf(sample_tree_dxf):
+    node_keys = set(node.key for node in sample_tree_dxf)
+    # Check each item is listed only once among all children
+    # Check also that each item is the child of something, except root
+    valid = True
+    for node in sample_tree_dxf.values():
         for child in node.children:
             try:
                 node_keys.remove(child.key)
