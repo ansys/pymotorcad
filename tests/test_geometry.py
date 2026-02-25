@@ -2589,7 +2589,7 @@ def test_region_inside_region(mc):
 
     assert outer_square.inside_region(inner_square) is False
     assert inner_square.inside_region(outer_square) is True
-    
+
 
 def test_subtract_region_3(mc):
     """Test subtract rectangle from square to create cut out in square as shown below"""
