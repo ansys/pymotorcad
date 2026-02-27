@@ -29,6 +29,7 @@ from ansys.motorcad.core import MotorCAD
 def pytest_sessionstart(session):
     reset_temp_file_folder()
 
+
 @pytest.fixture(scope="session")
 def mc():
     """Set up test environment for whole unit of tests"""

@@ -32,7 +32,6 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD, MotorCADError
 
 

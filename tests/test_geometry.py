@@ -46,7 +46,6 @@ from ansys.motorcad.core.geometry import (
     rt_to_xy,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
-import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 

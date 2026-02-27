@@ -25,7 +25,7 @@ from os import path, remove
 import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
-from ansys.motorcad.core import MotorCAD, MotorCADError, rpc_client_core
+from ansys.motorcad.core import MotorCAD, MotorCADError
 
 
 def test_get_variable(mc):

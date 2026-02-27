@@ -29,7 +29,6 @@ import grpc
 from psutil import pid_exists
 import pytest
 
-import ansys.motorcad.core as pym
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
