@@ -28,8 +28,6 @@ from ansys.motorcad.core import MotorCAD
 
 def pytest_sessionstart(session):
     reset_temp_file_folder()
-    ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
-
 
 @pytest.fixture(scope="session")
 def mc():
