@@ -22,7 +22,6 @@
 import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
-import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD
 
 
