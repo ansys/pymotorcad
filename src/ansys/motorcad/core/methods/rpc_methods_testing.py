@@ -35,8 +35,8 @@ class _RpcMethodsTesting:
         test_categories: str,
         decimal_separator: int,
         calculation_method: int,
-        model_file_dir: str | None = None,
-        accepted_file_dir: str | None = None,
+        model_file_dir: str,
+        comparison_file_dir: str,
     ):
         """Run regression tests.
 
@@ -61,6 +61,15 @@ class _RpcMethodsTesting:
             Type of calculation method. Options are "0" or "1" referring to "New Methods" or
             "Compatibility Methods" consecutively.
 
+        model_file_dir : str
+            Model files directory relative to the Motor-CAD executable. Use "" if using default
+            location.
+
+        comparison_file_dir : str
+            Comparison files directory relative to the Motor-CAD executable's parent. Use ""
+            if using default location. Include slash at the end.
+
+
         Returns
         -------
         dict
@@ -75,7 +84,7 @@ class _RpcMethodsTesting:
             calculation_method,
             decimal_separator,
             model_file_dir,
-            accepted_file_dir,
+            comparison_file_dir,
         ]
         while params and params[-1] is None:
             params.pop()
