@@ -75,7 +75,7 @@ def test_get_array_variable(mc):
     reset_to_default_file(mc)
 
     var = mc.get_array_variable("Duty_Cycle_Time", 2)
-    assert isinstance(var, int)
+    assert isinstance(var, float)
 
     var = mc.get_array_variable("CustomOutputName_Python", 2)
     assert isinstance(var, str)
