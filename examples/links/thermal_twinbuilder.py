@@ -1138,6 +1138,7 @@ class MotorCADTwinModel:
                 if len(set(groupings)) == 1:
                     # All groupings are the same, check if a cooling system
                     found = False
+                    cooling = None  # Initialise to supress pyright warning
 
                     # Special case for grouped spray cooling - directly link node numbers to
                     # cooling system
@@ -1436,7 +1437,7 @@ class MotorCADTwinModel:
 
         return fixedNodeTempMapping
 
-    # Add any node couplings via fixed temperatures to the CoupledNodes.csv file
+    # Generate mapping between fluid nodes and the fixed temperature nodes they control
     def getCoupledNodeTempMapping(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
         self.computeMatrices(exportDirectory)
@@ -1734,6 +1735,7 @@ class MotorCADTwinModel:
                     list(housingAmbientTemperatures.items()), paramValues
                 )
             else:
+                param = None  # added to suppress pyright warnings
                 hasBlownOver = False
                 paramValues = itertools.product(list(housingAmbientTemperatures.items()))
 
@@ -1745,6 +1747,10 @@ class MotorCADTwinModel:
                 self.mcad.set_variable("T_Ambient", ambientTemperature)
 
                 if hasBlownOver:
+                    if param == None:
+                        message = "Unidentified Blown Over parameter sweep. Please contact support"
+                        raise RuntimeError(message)
+
                     # blownOverValue is a list of length 1, so get the first/only value
                     blownOverValue = blownOverValue[0]
                     message += f", {param.name} = {blownOverValue}"
@@ -2045,6 +2051,9 @@ class MotorCADTwinModel:
         c_list = []
 
         covered_nodes = dict()
+        upnode = None
+        coolSys = None
+
         for inNode, conList in self.coolingSystemsPresent.items():
             groupedSprayToInletNode = [
                 (Spray_Cooling_Radial_Housing_Front, 192),
@@ -2080,39 +2089,40 @@ class MotorCADTwinModel:
                 c_list.append(upnode)
         covered_nodes.update({upnode: connectedNodes})
 
-        for item in coolSys:  # following downstream nodes of the cooling system
-            for upnode in item:
-                if upnode not in list(covered_nodes.keys()):
-                    connectedNodes = self.returnConnectedNodes(
-                        upnode, self.nodeNumbers, resistanceMatrix
-                    )
-                    for i in range(0, len(connectedNodes)):
-                        if not (
-                            connectedNodes[i] in list(covered_nodes.keys())
-                            and upnode in covered_nodes[connectedNodes[i]]
-                        ):  # avoid taking the symmetric counterpart of the resistance
-                            r_list.append((upnode, connectedNodes[i]))
-                    if upnode not in self.coolingSystemsPresent.keys():
-                        c_list.append(upnode)
-                    covered_nodes.update({upnode: connectedNodes})
+        if coolSys is not None:
+            for item in coolSys:  # following downstream nodes of the cooling system
+                for upnode in item:
+                    if upnode not in list(covered_nodes.keys()):
+                        connectedNodes = self.returnConnectedNodes(
+                            upnode, self.nodeNumbers, resistanceMatrix
+                        )
+                        for i in range(0, len(connectedNodes)):
+                            if not (
+                                connectedNodes[i] in list(covered_nodes.keys())
+                                and upnode in covered_nodes[connectedNodes[i]]
+                            ):  # avoid taking the symmetric counterpart of the resistance
+                                r_list.append((upnode, connectedNodes[i]))
+                        if upnode not in self.coolingSystemsPresent.keys():
+                            c_list.append(upnode)
+                        covered_nodes.update({upnode: connectedNodes})
 
-        if len(coolSys) == 0:
-            # particular case where the cooling system has only 2 nodes (inlet/outlet)
-            for upnode in connectedNodes:
-                if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
-                    # make sure the connected node still belongs to cooling system
-                    connectedNodes = self.returnConnectedNodes(
-                        upnode, self.nodeNumbers, resistanceMatrix
-                    )
-                    for i in range(0, len(connectedNodes)):
-                        if not (
-                            connectedNodes[i] in list(covered_nodes.keys())
-                            and upnode in covered_nodes[connectedNodes[i]]
-                        ):  # avoid taking the symmetric counterpart of the resistance
-                            r_list.append((upnode, connectedNodes[i]))
-                    if upnode not in self.coolingSystemsPresent.keys():
-                        c_list.append(upnode)
-                    covered_nodes.update({upnode: connectedNodes})
+            if len(coolSys) == 0:
+                # particular case where the cooling system has only 2 nodes (inlet/outlet)
+                for upnode in connectedNodes:
+                    if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
+                        # make sure the connected node still belongs to cooling system
+                        connectedNodes = self.returnConnectedNodes(
+                            upnode, self.nodeNumbers, resistanceMatrix
+                        )
+                        for i in range(0, len(connectedNodes)):
+                            if not (
+                                connectedNodes[i] in list(covered_nodes.keys())
+                                and upnode in covered_nodes[connectedNodes[i]]
+                            ):  # avoid taking the symmetric counterpart of the resistance
+                                r_list.append((upnode, connectedNodes[i]))
+                        if upnode not in self.coolingSystemsPresent.keys():
+                            c_list.append(upnode)
+                        covered_nodes.update({upnode: connectedNodes})
 
         return r_list, c_list
 
