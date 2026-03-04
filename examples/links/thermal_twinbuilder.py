@@ -1004,9 +1004,7 @@ class MotorCADTwinModel:
 
         C = []
         for c in c_list:
-            index = (
-                self.nodeNames.index(c[0]) - 1
-            )  # -1 since capacitance matrix does not have ambient node
+            index = self.nodeNames.index(c[0])
             capacitance = capacitanceMatrix[index]
             C.append(capacitance)
 
