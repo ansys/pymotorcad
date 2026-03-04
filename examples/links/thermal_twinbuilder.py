@@ -284,6 +284,9 @@ class MotorCADTwinModel:
             for line in lines[:-1]:
                 lineSplit = line.split(";")
                 vector.append(float(lineSplit[1]))
+            # Some files have "Ambient" included explicitly, but not all
+            if "0 (Ambient)" not in lines[0]:
+                vector = [0.0] + vector
         return vector
 
     def getExportedMatrix(self, file):
@@ -300,8 +303,7 @@ class MotorCADTwinModel:
 
     def getPmfData(self, exportDirectory):
         pmfFile = os.path.join(exportDirectory, self.motFileName + ".pmf")
-        # exported power vector does not contain ambient, so add on
-        powerVector = [0.0] + self.getExportedVector(pmfFile)
+        powerVector = self.getExportedVector(pmfFile)
         return powerVector
 
     def getTmfData(self, exportDirectory):
@@ -1002,9 +1004,7 @@ class MotorCADTwinModel:
 
         C = []
         for c in c_list:
-            index = (
-                self.nodeNames.index(c[0]) - 1
-            )  # -1 since capacitance matrix does not have ambient node
+            index = self.nodeNames.index(c[0])
             capacitance = capacitanceMatrix[index]
             C.append(capacitance)
 
