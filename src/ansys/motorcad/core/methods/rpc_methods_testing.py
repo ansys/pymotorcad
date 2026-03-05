@@ -35,8 +35,8 @@ class _RpcMethodsTesting:
         test_categories: str,
         decimal_separator: int,
         calculation_method: int,
-        model_file_dir: str,
-        comparison_file_dir: str,
+        model_file_dir: str = "",
+        comparison_file_dir: str = "",
     ):
         """Run regression tests.
 
