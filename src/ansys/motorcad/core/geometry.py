@@ -806,6 +806,22 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
+    def inside_region(self, region):
+        """Check whether the specified region is inside self.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        Returns
+        -------
+        boolean
+            True if region is inside self, False otherwise.
+        """
+        self._check_connection()
+        return self.motorcad_instance.check_region_inside_region(region, self)
+
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
 

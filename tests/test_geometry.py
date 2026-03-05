@@ -251,6 +251,14 @@ def test_set_region(mc):
     assert returned_region == region
 
 
+def test_set_region_dxf(mc):
+    """Test setting region in Motor-CAD from DXF region."""
+    region = generate_constant_region()
+    mc.set_region_dxf(region)
+    returned_region = mc.get_region_dxf("testing_region")
+    assert returned_region == region
+
+
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
     filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
@@ -2562,6 +2570,24 @@ def test_subtract_region_2(mc):
     square.subtract(triangle)
 
     assert square == expected_region
+
+
+def test_region_inside_region(mc):
+    """Test if region is within another region"""
+    outer_square = create_square()
+    outer_square.motorcad_instance = mc
+
+    inner_square = geometry.Region(RegionType.no_type)
+    inner_square.motorcad_instance = mc
+    inner_square.entities = [
+        geometry.Coordinate(0.5, 0.5),
+        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(1.5, 1.5),
+        geometry.Coordinate(1.5, 0.5),
+    ]
+
+    assert outer_square.inside_region(inner_square) is False
+    assert inner_square.inside_region(outer_square) is True
 
 
 def test_subtract_region_3(mc):
