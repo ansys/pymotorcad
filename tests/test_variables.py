@@ -75,7 +75,12 @@ def test_get_array_variable(mc):
     reset_to_default_file(mc)
 
     var = mc.get_array_variable("Duty_Cycle_Time", 2)
-    assert isinstance(var, float)
+
+    if mc.connection.check_version_at_least("2027.0"):
+        # This is the correct type - fixed in 27R1
+        assert isinstance(var, float)
+    else:
+        assert isinstance(var, int)
 
     var = mc.get_array_variable("CustomOutputName_Python", 2)
     assert isinstance(var, str)
