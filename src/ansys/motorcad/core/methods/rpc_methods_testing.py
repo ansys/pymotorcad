@@ -30,7 +30,14 @@ class _RpcMethodsTesting:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
-    def run_regression_tests(self, test_categories, calculation_method, decimal_separator):
+    def run_regression_tests(
+        self,
+        test_categories: str,
+        decimal_separator: int,
+        calculation_method: int,
+        model_file_dir: str = "",
+        comparison_file_dir: str = "",
+    ):
         """Run regression tests.
 
         Parameters
@@ -38,19 +45,30 @@ class _RpcMethodsTesting:
         test_categories : str
             If running specific sets of tests, the following format
             is used: "Test_Category1|Test_Category2|etc"
-            Test category options are: "Regression_EMag_Full_Original",
-            "Regression_EMag_NoFEA_Original", "Regression_FEA_Emag", "Regression_FEA_Mech",
-            "Regression_FEA_Thermal", "Regression_Thermal_Steady", "Regression_Thermal_Transient",
-            "Regression_Lab_OperatingPoints", "Regression_Lab_ModelBuild",
-            "Regression_Lab_Emag", "Regression_Lab_Thermal",
-            "Regression_Lab_DutyCycle", "Regression_Lab_GenerationOrCalibration",
-            and "Regression_Geometry"
-        calculation_method : int
-            Type of calculation method. Options are "0" or "1" referring to "New Methods" or
-            "Compatibility Methods" consecutively.
+            Test category options are: "RT_EMag_Full",
+            "RT_EMag_NoFEA", "RT_FEA_Emag", "RT_Mech_Stress",
+            "RT_Mech_NVH", "RT_Thermal_Steady", "RT_Thermal_Trans",
+            "RT_Lab_OpPoints", "RT_Lab_ModelBuild",
+            "RT_Lab_Emag", "RT_Lab_Thermal",
+            "RT_Lab_DutyCycle", "RT_Lab_GenOrCal",
+            and "RT_Geometry"
+
         decimal_separator : int
             Type of decimal separator. Options are "0", "1" or "2" referring to "Standard",
             "Alternate" or "Standard + Alternate" consecutively.
+
+        calculation_method : int
+            Type of calculation method. Options are "0" or "1" referring to "New Methods" or
+            "Compatibility Methods" consecutively.
+
+        model_file_dir : str
+            Model files directory relative to the Motor-CAD executable. Use "" if using default
+            location.
+
+        comparison_file_dir : str
+            Comparison files directory relative to the Motor-CAD executable's parent. Use ""
+            if using default location. Include slash at the end.
+
 
         Returns
         -------
@@ -58,5 +76,17 @@ class _RpcMethodsTesting:
             Test results including name, test case, diff type, and major and minor differences.
         """
         method = "RunRegressionTests"
-        params = [test_categories, calculation_method, decimal_separator]
+
+        # Remove trailing None values
+
+        params = params = [
+            test_categories,
+            calculation_method,
+            decimal_separator,
+            model_file_dir,
+            comparison_file_dir,
+        ]
+        while params and params[-1] is None:
+            params.pop()
+
         return self.connection.send_and_receive(method, params)
