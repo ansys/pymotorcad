@@ -157,6 +157,12 @@ def test_check_if_geometry_is_valid(mc):
     mc.set_variable("Slot_Depth", save_slot_depth)
 
 
+def test_get_conductor_positions(mc):
+    conductor_pos_l, conductor_pos_r = mc.get_conductor_positions()
+    total_conductors = mc.get_variable("NoMushConductorsDrawn")
+    assert (len(conductor_pos_l) + len(conductor_pos_r)) == total_conductors
+
+
 def test_set_adaptive_parameter_value(mc):
     parameter_name = "test_parameter"
     parameter_value = 100
