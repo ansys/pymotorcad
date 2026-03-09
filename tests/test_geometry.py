@@ -46,7 +46,6 @@ from ansys.motorcad.core.geometry import (
     rt_to_xy,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
-import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -3286,7 +3285,6 @@ def test_get_set_region_magnet(mc):
 
 def test_get_set_region_compatibility(mc, monkeypatch):
     monkeypatch.setattr(mc.connection, "program_version", "2024.1")
-    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
     test_region = RegionMagnet()
     test_region.br_multiplier = 2
     with pytest.warns(UserWarning):
