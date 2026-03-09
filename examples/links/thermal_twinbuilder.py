@@ -381,7 +381,7 @@ class MotorCADTwinModel:
         # calculate self.nodeNames, self.nodeNumbers, self.nodeGroupings, self.fluidPaths
         self.getNodeData()
 
-        self.generateTemperatureControls()
+        self.generateTemperatureControls(coolingSystemsParameterSweeps)
         self.generateRpmSamples(rpms)
         self.generateLossDistribution()
 
@@ -1320,75 +1320,46 @@ class MotorCADTwinModel:
 
         return connectedNodesList
 
-    def generateTemperatureControls(self):
-        parameterFixedTempMapping = self.getParameterNodeTempMapping(coolingSystemsParameterSweeps)
-        coupledTemperatureMapping = self.getCoupledNodeTempMapping()
+    def generateTemperatureControls(self, coolingSystemsParameterSweeps):
+        parameterFixedTempMapping = self.getParameterToNodeTempMapping(coolingSystemsParameterSweeps)
+        nodeToNodeTempMapping = self.getNodeToNodeTempMapping()
 
-        # Verify that no node is controlled by more than one parameter
-        for nodeIndex, parameterNames in parameterFixedTempMapping.items():
-            if len(parameterNames) > 1:
-                # Each fixed temperature can only be controlled by a maximum of one parameter
-                message = (
-                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled "
-                    f"by more than one parameter which is not supported "
-                    f"({parameterNames}). Please contact support."
-                )
-                logger.error(message, stack_info=True)
-                raise RuntimeError(message)
+        # Ensure all nodes are controlled by a single parameter
+        for nodeIndex, controllingParameter in parameterFixedTempMapping.items():
+            controllingNodeIndex = nodeToNodeTempMapping[nodeIndex]
 
-        # Verify that no node is controlled by more than one node
-        for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
-            if len(controllingNodeIndex) > 1:
-                # Each node can only be coupled by a maximum of one node
-                controllingNodes = [self.nodeNames[x] for x in controllingNodeIndex]
+            if (controllingParameter is None) and (controllingNodeIndex is None):
+                # No parameter sweep or coupled node, so create an arbitrary port to control
+                parameterFixedTempMapping[nodeIndex] = "FixedTemp_" + self.nodeNames[nodeIndex]
+            elif (controllingParameter is not None) and (controllingNodeIndex is not None):
+                # Node is controlled by a parameter and a node which is not allowed
                 message = (
-                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is coupled "
-                    f"to more than one node which is not supported "
-                    f"({controllingNodes}). Please contact support."
-                )
-                logger.error(message, stack_info=True)
-                raise RuntimeError(message)
-
-            # Verify that no node that is controlled by a node is also controlled by a parameter
-            elif controllingNodeIndex and parameterFixedTempMapping[nodeIndex]:
-                # Node is controlled by node and also by parameter which is not allowed
-                controllingNodes = [
-                    self.nodeNames[controllingNodeIndex[0]],
-                    self.nodeNames[parameterFixedTempMapping[nodeIndex][0]],
-                ]
-                message = (
-                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is  "
-                    f"coupled to both a node and a parameter. This is not supported. "
-                    f"({controllingNodes}) Please contact support."
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is coupled to both a "
+                    f"node ({self.nodeNames[controllingNodeIndex]}) and a parameter "
+                    f"{controllingParameter}. This is not supported. Please contact support."
                 )
                 logger.error(message, stack_info=True)
                 raise RuntimeError(message)
 
         # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
         with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
-            for nodeIndex, parameterNames in parameterFixedTempMapping.items():
-                if not parameterNames:
-                    if not coupledTemperatureMapping[nodeIndex]:
-                        # No parameter sweep or coupled node, so create an arbitrary port to control
-                        parameterName = "FixedTemp_" + self.nodeNames[nodeIndex]
-                        ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
-                else:
-                    parameterName = parameterNames[0]
-                    ft.write(f"{self.nodeNames[nodeIndex]},{parameterName}\n")
+            for nodeIndex, controllingParameter in parameterFixedTempMapping.items():
+                if controllingParameter is not None:
+                    ft.write(f"{self.nodeNames[nodeIndex]},{controllingParameter}\n")
 
         # Create CoupledNodes.csv
         with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
-            for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
-                if len(controllingNodeIndex) == 1:
+            for nodeIndex, controllingNodeIndex in nodeToNodeTempMapping.items():
+                if controllingNodeIndex is not None:
                     ft.write(
-                        f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex[0]]}\n"
+                        f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex]}\n"
                     )
 
         # TODO 3. 10 Nov details
 
     # Generate mapping between the user chosen input pins and the fixed temperature nodes they
     # control
-    def getParameterNodeTempMapping(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
+    def getParameterToNodeTempMapping(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
         self.computeMatrices(exportDirectory)
 
@@ -1435,10 +1406,25 @@ class MotorCADTwinModel:
             # reset the losses to a small value
             self.setLosses(0.1)
 
+        # Verify that no node is controlled by more than one parameter
+        for nodeIndex, parameterNames in fixedNodeTempMapping.items():
+            if len(parameterNames) > 1:
+                # Each fixed temperature can only be controlled by a maximum of one parameter
+                message = (
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is controlled "
+                    f"by more than one parameter which is not supported "
+                    f"({parameterNames}). Please contact support."
+                )
+                logger.error(message, stack_info=True)
+                raise RuntimeError(message)
+            
+        # flatten dictionary value from list[empty | single_integer] to None | single_integer
+        fixedNodeTempMapping = {key: val[0] if len(val) > 0 else None for key, val in fixedNodeTempMapping.items()}
+
         return fixedNodeTempMapping
 
     # Generate mapping between fluid nodes and the fixed temperature nodes they control
-    def getCoupledNodeTempMapping(self):
+    def getNodeToNodeTempMapping(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
         self.computeMatrices(exportDirectory)
 
@@ -1482,6 +1468,21 @@ class MotorCADTwinModel:
 
                 # Reload .mot file to remove any circuit editing modifications
                 self.loadTwinMotfile()
+
+        for nodeIndex, controllingNodeIndex in coupledTemperatureMapping.items():
+            if len(controllingNodeIndex) > 1:
+                # Each node can only be coupled by a maximum of one node
+                controllingNodes = [self.nodeNames[x] for x in controllingNodeIndex]
+                message = (
+                    f"Fixed temperature node {self.nodeNames[nodeIndex]} is coupled "
+                    f"to more than one node which is not supported "
+                    f"({controllingNodes}). Please contact support."
+                )
+                logger.error(message, stack_info=True)
+                raise RuntimeError(message)
+
+        # flatten dictionary value from list[empty | single_integer] to None | single_integer
+        coupledTemperatureMapping = {key: val[0] if len(val) > 0 else None for key, val in coupledTemperatureMapping.items()}
 
         return coupledTemperatureMapping
 
