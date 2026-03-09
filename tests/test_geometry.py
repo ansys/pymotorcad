@@ -46,7 +46,6 @@ from ansys.motorcad.core.geometry import (
     rt_to_xy,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
-import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -867,6 +866,20 @@ def test_line_get_coordinate_from_distance():
         coord = line.get_coordinate_from_distance(line.start)
     assert "provide either a distance, fraction or percentage" in str(e_info)
 
+    # Test if reference coordinate isn't start or end (ref coordinate near start)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0), 1) == geometry.Coordinate(
+        1.5, 0
+    )
+
+    # Test if reference coordinate isn't start or end (ref coordinate near end)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(1.5, 0), 1) == geometry.Coordinate(
+        0.5, 0
+    )
+
+    # Test that reference coordinate not on the line raises an exception
+    with pytest.raises(ValueError):
+        line.get_coordinate_from_distance(geometry.Coordinate(0.5, 0.5), 1)
+
 
 def test_line_length():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1))
@@ -878,6 +891,16 @@ def test_line_get_coordinate_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(0, 2))
     point = Coordinate(1, 1)
     assert line.get_coordinate_distance(point) == 1
+
+
+def test_coordinate_distance():
+    coordinate_1 = geometry.Coordinate(0, 1)
+    coordinate_2 = geometry.Coordinate(0, 2)
+    assert coordinate_1.distance(coordinate_2) == 1
+
+    # Make sure type error is raised if we try to find distance to something that isn't a coordinate
+    with pytest.raises(TypeError):
+        coordinate_1.distance(1)
 
 
 def test_arc_get_coordinate_from_fractional_distance():
@@ -3315,7 +3338,6 @@ def test_get_set_region_magnet(mc):
 
 def test_get_set_region_compatibility(mc, monkeypatch):
     monkeypatch.setattr(mc.connection, "program_version", "2024.1")
-    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
     test_region = RegionMagnet()
     test_region.br_multiplier = 2
     with pytest.warns(UserWarning):
