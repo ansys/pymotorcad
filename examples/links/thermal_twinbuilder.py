@@ -80,7 +80,8 @@ Twin Builder *Motor-CAD ROM* component.
 # Perform required imports
 # ------------------------
 
-from dataclasses import astuple, dataclass
+from __future__ import annotations
+from dataclasses import astuple, dataclass, field
 import itertools
 import logging
 from numbers import Number
@@ -317,6 +318,7 @@ class MotorCADTwinModel:
         coolingSystem: CoolingSystem | None
         rtsFluidFluid: list
         rtsFluidSolid: list
+        controllingFluidPath: Optional[FluidPath] = None # pyright: ignore[reportUndefinedVariable]
 
     # Initialization function for objects of this class.
     def __init__(self, inputMotFilePath: str, outputDir: str):
@@ -351,6 +353,7 @@ class MotorCADTwinModel:
         self.coolingSystemsPresent = dict()  # used for old heat flow method
         self.fluidPaths: List[MotorCADTwinModel.FluidPath] = []  # used for new heatflow method
 
+        self.nodeToNodeTempMapping = dict()
         self.customPowerInjections = []
 
         self.mcad = pymotorcad.MotorCAD()
@@ -1077,10 +1080,22 @@ class MotorCADTwinModel:
         resistanceMatrix = self.getRmfData(exportDirectory)
         temperatureVector = self.getTmfData(exportDirectory)
 
-        if self.heatFlowMethod == 1:
-            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
-        else:
+        if self.heatFlowMethod == 0:
             self.generateCoolingSystemNetwork_Original(resistanceMatrix, temperatureVector)
+        else:
+            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
+            self.generateNodeToNodeTempMapping()
+            
+            for fluidPath in self.fluidPaths:
+                if len(fluidPath.inletNodes) > 0:
+                    inletNodeCoupling = [self.nodeToNodeTempMapping.get(self.nodeNumbers.index(i)) for i in fluidPath.inletNodes]
+                    if (len(set(inletNodeCoupling)) == 1) and (inletNodeCoupling[0] is not None):
+                        # All inlet nodes of this fluid path are controlled by a single coupled node
+                        controllingNode = self.nodeNumbers[inletNodeCoupling[0]]
+                        # Determine which fluid path it is coupled to
+                        for fluidPath2 in self.fluidPaths:
+                            if controllingNode in fluidPath2.fluidNodes:
+                                fluidPath.controllingFluidPath = fluidPath2
 
     def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
         resistances = set()
@@ -1322,11 +1337,10 @@ class MotorCADTwinModel:
 
     def generateTemperatureControls(self, coolingSystemsParameterSweeps):
         parameterFixedTempMapping = self.getParameterToNodeTempMapping(coolingSystemsParameterSweeps)
-        nodeToNodeTempMapping = self.getNodeToNodeTempMapping()
 
         # Ensure all nodes are controlled by a single parameter
         for nodeIndex, controllingParameter in parameterFixedTempMapping.items():
-            controllingNodeIndex = nodeToNodeTempMapping[nodeIndex]
+            controllingNodeIndex = self.nodeToNodeTempMapping.get(nodeIndex)
 
             if (controllingParameter is None) and (controllingNodeIndex is None):
                 # No parameter sweep or coupled node, so create an arbitrary port to control
@@ -1349,13 +1363,11 @@ class MotorCADTwinModel:
 
         # Create CoupledNodes.csv
         with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
-            for nodeIndex, controllingNodeIndex in nodeToNodeTempMapping.items():
+            for nodeIndex, controllingNodeIndex in self.nodeToNodeTempMapping.items():
                 if controllingNodeIndex is not None:
                     ft.write(
                         f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex]}\n"
                     )
-
-        # TODO 3. 10 Nov details
 
     # Generate mapping between the user chosen input pins and the fixed temperature nodes they
     # control
@@ -1424,7 +1436,7 @@ class MotorCADTwinModel:
         return fixedNodeTempMapping
 
     # Generate mapping between fluid nodes and the fixed temperature nodes they control
-    def getNodeToNodeTempMapping(self):
+    def generateNodeToNodeTempMapping(self):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
         self.computeMatrices(exportDirectory)
 
@@ -1482,9 +1494,7 @@ class MotorCADTwinModel:
                 raise RuntimeError(message)
 
         # flatten dictionary value from list[empty | single_integer] to None | single_integer
-        coupledTemperatureMapping = {key: val[0] if len(val) > 0 else None for key, val in coupledTemperatureMapping.items()}
-
-        return coupledTemperatureMapping
+        self.nodeToNodeTempMapping = {key: val[0] if len(val) > 0 else None for key, val in coupledTemperatureMapping.items()}
 
     def generateInitialTemperatures(self):
         initialisations = []
