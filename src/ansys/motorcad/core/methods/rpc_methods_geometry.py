@@ -137,6 +137,11 @@ class _RpcMethodsGeometry:
             conductor_positions_x = self.get_variable(f"ConductorCentre_{l_r[i]}_x")
             conductor_positions_y = self.get_variable(f"ConductorCentre_{l_r[i]}_y")
 
+            # if the conductors are centred and not split left/right, only all positions will be
+            # given as left. Return None for right side.
+            if conductor_positions_x == "" and conductor_positions_x == "":
+                break
+
             # split the string into a list for each column of conductors
             conductor_positions_x = conductor_positions_x.split(" ; ")
             conductor_positions_y = conductor_positions_y.split(" ; ")
