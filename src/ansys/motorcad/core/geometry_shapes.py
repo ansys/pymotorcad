@@ -258,7 +258,7 @@ class Circle(EntityList):
         Radius of the circle.
     """
 
-    def __init__(self, centre: Coordinate, radius: int):
+    def __init__(self, centre: Coordinate, radius: float):
         """Initialise Circle object."""
         super().__init__()
         self.append(
