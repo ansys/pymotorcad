@@ -86,7 +86,5 @@ class _RpcMethodsTesting:
             model_file_dir,
             comparison_file_dir,
         ]
-        while params and params[-1] is None:
-            params.pop()
 
         return self.connection.send_and_receive(method, params)
