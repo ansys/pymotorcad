@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,10 @@ This script applies the adaptive templates functionality to modify a 28 pole sur
 magnet rotor to have an asymmetric arrangement of magnets.
 """
 # %%
+# Each magnet position is shifted by rotating by an offset angle. The offset angle parameters are
+# defined as new adaptive templates parameters.
+#
+#
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
@@ -97,9 +101,16 @@ mc.reset_adaptive_geometry()
 #
 # Use the ``set_adaptive_parameter_default`` method to set the required symmetry factor
 # (``Symmetry Factor``) parameter if undefined, and get the value.
-#
+
+
+# %%
+# .. image:: ../../images/adaptive_templates/asymmetric_SPM_1.png
+#     :width: 600pt
+
+# %%
 # In this example, the 28 pole rotor is split into quarters, with each quarter containing 7 magnets.
 # The default symmetry factor value is set to 7.
+
 mc.set_adaptive_parameter_default("Symmetry factor", 7)
 symmetry_factor = mc.get_adaptive_parameter_value("Symmetry factor")
 
@@ -108,7 +119,7 @@ symmetry_factor = mc.get_adaptive_parameter_value("Symmetry factor")
 # check for the case where the ``symmetry factor`` is set to a higher number than the length of the
 # ``offset_angle_default_values`` list. In this case, append some zeros to the list.
 
-offset_angle_default_values = [0, 0, 0, 0, 0, 0, 0]
+offset_angle_default_values = [-2, 4, 0, -4, 2, -2, 2]
 extra_values_req = symmetry_factor - len(offset_angle_default_values)
 if extra_values_req > 0:
     for i in range(extra_values_req):
