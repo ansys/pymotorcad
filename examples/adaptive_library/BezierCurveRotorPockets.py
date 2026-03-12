@@ -26,24 +26,27 @@ Bezier curve rotor pockets
 This script applies the adaptive templates functionality to modify rotor pockets
 with a custom curve defined using a Bezier function.
 """
+# import copy
+import math
+
+# sphinx_gallery_thumbnail_path = 'images/Adaptive_Geometry_Bezier_e4a_3.png'
+import os
+import shutil
+import sys
+import tempfile
+
+import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.geometry import Coordinate, EntityList, Line, get_bezier_points, rt_to_xy
+from ansys.motorcad.core.geometry_drawing import draw_objects
+from ansys.motorcad.core.geometry_fitting import return_entity_list
+
 # %%
 # .. note::
 #    This script requires Motor-CAD 2024 R2 or later.
 
 # %%
 # This script is designed to be run from a Motor-CAD model based on the e4a template (a 48 slot,
-# 8 pole IPM machine). The model is modified from the template by adjusting the Standard Template
-# geometry parameters as follows:
-#
-# * Set L1 Bridge thickness to 2 mm.
-#
-# * Set L1 Pole V Angle to 180 degrees.
-#
-# * Set L1 Magnet Post to 0 mm.
-#
-# * Set L1 Magnet Separation to 0 mm.
-#
-# * Set L1 Mag Gap Inner to 0 mm.
+# 8 pole IPM machine).
 
 # %%
 # .. image:: ../../images/Adaptive_Geometry_Bezier_e4a_1.png
@@ -62,15 +65,6 @@ with a custom curve defined using a Bezier function.
 # Import the ``os``, ``shutil``, ``sys`` and ``tempfile`` packages
 # to open and save a temporary MOT file if none is open.
 
-# sphinx_gallery_thumbnail_path = 'images/Adaptive_Geometry_Bezier_e4a_3.png'
-import os
-import shutil
-import sys
-import tempfile
-
-import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, get_bezier_points, rt_to_xy
-from ansys.motorcad.core.geometry_fitting import return_entity_list
 
 # %%
 # Connect to Motor-CAD
@@ -97,11 +91,11 @@ else:
     mc.load_template("e4a")
 
     # Set Standard Template geometry ready for Adaptive Templates script
-    mc.set_array_variable("BridgeThickness_Array", 0, 2)  # Bridge thickness set to 0
-    mc.set_array_variable("PoleVAngle_Array", 0, 180)  # Pole V angle set to 180
-    mc.set_array_variable("VShapeMagnetPost_Array", 0, 0)  # Magnet Post set to 0
-    mc.set_array_variable("MagnetSeparation_Array", 0, 0)  # Magnet Separation set to 0
-    mc.set_array_variable("VShape_Magnet_ClearanceInner", 0, 0)  # Magnet Inner Gap set to 0
+    # mc.set_array_variable("BridgeThickness_Array", 0, 2)  # Bridge thickness set to 0
+    # mc.set_array_variable("PoleVAngle_Array", 0, 180)  # Pole V angle set to 180
+    # mc.set_array_variable("VShapeMagnetPost_Array", 0, 0)  # Magnet Post set to 0
+    # mc.set_array_variable("MagnetSeparation_Array", 0, 0)  # Magnet Separation set to 0
+    # mc.set_array_variable("VShape_Magnet_ClearanceInner", 0, 0)  # Magnet Inner Gap set to 0
 
     # Open relevant file
     working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
@@ -124,9 +118,9 @@ mc.reset_adaptive_geometry()
 # it creates the parameter with a default value.
 # Set the required ``L1 Bezier Curve Projection``, ``L1 Upper Convex`` and ``L1 Lower Concave``
 # parameters if undefined.
-mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 6)
-mc.set_adaptive_parameter_default("L1 Upper Convex", 0.5)
-mc.set_adaptive_parameter_default("L1 Lower Concave", -0.3)
+mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 4)
+mc.set_adaptive_parameter_default("L1 Upper Convex", -0.3)
+mc.set_adaptive_parameter_default("L1 Lower Concave", -0.2)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier
@@ -180,33 +174,66 @@ for i in rotor_region.child_names:
 # Find the magnet edge that is shared with the first rotor pocket
 for j in Magnet_regions:
     for i in j.entities:
-        MagnetFaceLine = Rotor_Pocket_regions[0].find_entity_from_coordinates(i.start, i.end)
+        for k in range(len(Rotor_Pocket_regions)):
+            rotor_pocket_region = Rotor_Pocket_regions[k]
+            MagnetFaceLine = rotor_pocket_region.find_entity_from_coordinates(i.start, i.end)
+            if MagnetFaceLine is not None:
+                break
         if MagnetFaceLine is not None:
             break
 
+
 # %%
 # Get properties of the magnet edge that are to be used to define the new rotor pocket geometry
-LineLength = MagnetFaceLine.length
+# LineLength = MagnetFaceLine.length
 StartCoordinate = MagnetFaceLine.start
+pocket_end_first_point = MagnetFaceLine.end
 
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
-# Remove all existing entities from the first rotor pocket
-Rotor_Pocket_regions[0].entities.clear()
+# Find the start and end coordinates of the end section of the rotor pocket. These may not be the
+# ends of the MagnetFaceLine if there is a gap between magnet and lamination on either long edge
+# of the magnet.
+distance_1 = 0
+distance_2 = 0
+for point in rotor_pocket_region.points:
+    test_line = Line(point, MagnetFaceLine.end)
+    if math.isclose(test_line.gradient, MagnetFaceLine.gradient, abs_tol=0.0001):
+        if abs(point - MagnetFaceLine.end) > distance_1:
+            distance_1 = abs(point - MagnetFaceLine.end)
+            pocket_end_last_point = point
+        elif abs(point - MagnetFaceLine.start) > distance_2:
+            distance_2 = abs(point - MagnetFaceLine.end)
+            pocket_end_first_point = point
+
+pocket_end_line = Line(pocket_end_first_point, pocket_end_last_point)
+LineLength = pocket_end_line.length
+
+# draw_objects([rotor_pocket_region, pocket_end_first_point, pocket_end_last_point])
+
+# # Remove all existing entities from the first rotor pocket
+# Rotor_Pocket_regions[0].entities.clear()
 
 # %%
 # Define the x-y points that are to be used to draw the new rotor pocket. The points are defined
 # relative to a vertical magnet edge (parallel to the y axis).
 
 control_points = [
-    Coordinate(0.0, 0),
-    Coordinate(totalprojection * -0.2, (1 - 1 * lowerconcave) * LineLength),
-    Coordinate(totalprojection * -0.5, -0.5 * LineLength),
-    Coordinate(-1 * totalprojection, 0.5 * LineLength),
-    Coordinate(totalprojection * -0.5, (1 + upperconvex) * LineLength),
     Coordinate(0.0, 1 * LineLength),
+    Coordinate(totalprojection * -0.5, (1 + upperconvex) * LineLength),
+    Coordinate(-1 * totalprojection, 0.5 * LineLength),
+    Coordinate(totalprojection * -0.5, -0.5 * LineLength),
+    Coordinate(totalprojection * -0.25, (1 - 1 * lowerconcave) * LineLength),
+    Coordinate(0.0, 0),
 ]
+
+control_lines = []
+last_point = control_points[0]
+for i in range(len(control_points) - 1):
+    this_point = control_points[i + 1]
+    control_lines.append(Line(last_point, this_point))
+    last_point = this_point
 
 
 # %%
@@ -220,29 +247,83 @@ linetolerance = 0.01
 arctolerance = 0.01
 bez_curve_entities = return_entity_list(xylist, linetolerance, arctolerance)
 
-# %%
-# Add the new entities that make up the curve to the first rotor pocket region
-# Counts the number of arcs and lines
-arccount = 0
-linecount = 0
-for ent in bez_curve_entities:
-    Rotor_Pocket_regions[0].add_entity(ent)
-    if isinstance(ent, Arc):
-        arccount = arccount + 1
-    if isinstance(ent, Line):
-        linecount = linecount + 1
+# draw the control points and the resulting curve entities
+to_draw = control_points
+to_draw.extend(control_lines)
+to_draw.extend(bez_curve_entities)
+draw_objects(to_draw)
+
+# # %%
+# # Add the new entities that make up the curve to the first rotor pocket region
+# # Counts the number of arcs and lines
+# new_entities = []
+# arccount = 0
+# linecount = 0
+# for ent in bez_curve_entities:
+#     rotor_pocket_region.add_entity(ent)
+#     if isinstance(ent, Arc):
+#         arccount = arccount + 1
+#     if isinstance(ent, Line):
+#         linecount = linecount + 1
 
 # %%
 # Translate (move) the rotor pocket region in the x-y plane to the magnet edge
-Rotor_Pocket_regions[0].translate(StartCoordinate.x, StartCoordinate.y)
+# Rotor_Pocket_regions[0].translate(pocket_end_last_point.x, pocket_end_last_point.y)
+for entity in bez_curve_entities:
+    entity.translate(pocket_end_last_point.x, pocket_end_last_point.y)
+    entity.rotate(pocket_end_last_point, -(90 - MagnetFaceLine.angle))
 
 # %%
 # Rotate the rotor pocket region to match the magnet edge
-Rotor_Pocket_regions[0].rotate(StartCoordinate, -(90 - MagnetFaceLine.angle))
+# Rotor_Pocket_regions[0].rotate(StartCoordinate, -(90 - MagnetFaceLine.angle))
 
 # %%
-# Add the magnet edge line to the rotor pocket region
-Rotor_Pocket_regions[0].add_entity(MagnetFaceLine)
+# # Add the magnet edge line to the rotor pocket region
+# Rotor_Pocket_regions[0].add_entity(MagnetFaceLine)
+
+# %%
+# Add the existing entities to the rotor pocket region, skipping those between the start and end
+# points of the pocket end.
+entities_to_remove = []
+remove_next = False
+for i in range(len(rotor_pocket_region.entities)):
+    entity = rotor_pocket_region.entities[i]
+    if entity.start == pocket_end_first_point:
+        entities_to_remove.append(entity)
+        remove_next = True
+    elif entity.end == pocket_end_last_point:
+        entities_to_remove.append(entity)
+        remove_next = False
+    elif remove_next:
+        entities_to_remove.append(entity)
+# if the last entity was removed, start again and remove entities at the start of the list
+for i in range(len(rotor_pocket_region.entities)):
+    entity = rotor_pocket_region.entities[i]
+    if entity.end == pocket_end_last_point:
+        break
+    else:
+        entities_to_remove.append(entity)
+
+draw_objects(entities_to_remove)
+
+i = 0
+add_new_entities = True
+new_entity_list = EntityList()
+for entity in rotor_pocket_region.entities:
+    if entity in entities_to_remove:
+        # rotor_pocket_region.remove_entity(entity)
+        if add_new_entities:
+            for new_entity in bez_curve_entities:
+                new_entity_list.append(new_entity)
+                # i += 1
+            add_new_entities = False
+    else:
+        new_entity_list.append(entity)
+        # i += 1
+
+rotor_pocket_region.entities = new_entity_list
+draw_objects(rotor_pocket_region, draw_points=True)
+
 
 # %%
 # Check that the rotor pocket region is joined up and set the region in Motor-CAD
