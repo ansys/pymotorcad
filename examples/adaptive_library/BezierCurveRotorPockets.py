@@ -46,7 +46,13 @@ from ansys.motorcad.core.geometry_fitting import return_entity_list
 
 # %%
 # This script is designed to be run from a Motor-CAD model based on the e4a template (a 48 slot,
-# 8 pole IPM machine).
+# 8 pole IPM machine). The model is modified from the template by disabling corner rounding for the
+# Standard Template geometry:
+#
+# * Set Corner Rounding (Rotor Lamination) to None (default).
+#
+# * Set Corner Rounding (Magnets) to None (default).
+
 
 # %%
 # .. image:: ../../images/Adaptive_Geometry_Bezier_e4a_1.png
@@ -90,12 +96,9 @@ else:
         mc.set_visible(True)
     mc.load_template("e4a")
 
-    # Set Standard Template geometry ready for Adaptive Templates script
-    # mc.set_array_variable("BridgeThickness_Array", 0, 2)  # Bridge thickness set to 0
-    # mc.set_array_variable("PoleVAngle_Array", 0, 180)  # Pole V angle set to 180
-    # mc.set_array_variable("VShapeMagnetPost_Array", 0, 0)  # Magnet Post set to 0
-    # mc.set_array_variable("MagnetSeparation_Array", 0, 0)  # Magnet Separation set to 0
-    # mc.set_array_variable("VShape_Magnet_ClearanceInner", 0, 0)  # Magnet Inner Gap set to 0
+    # Disable corner rounding for Standard Template geometry ready for Adaptive Templates script
+    mc.set_variable("CornerRounding_Rotor", 0)  # Rotor Lamination
+    mc.set_variable("CornerRounding_Magnets", 0)  # Magnets
 
     # Open relevant file
     working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")
@@ -121,6 +124,8 @@ mc.reset_adaptive_geometry()
 mc.set_adaptive_parameter_default("L1 Bezier Curve Projection", 4)
 mc.set_adaptive_parameter_default("L1 Upper Convex", -0.3)
 mc.set_adaptive_parameter_default("L1 Lower Concave", -0.2)
+mc.set_adaptive_parameter_default("Rotor Lam Corner Radius", 0.5)
+mc.set_adaptive_parameter_default("Magnet Corner Radius", 0.5)
 
 # %%
 # The adaptive parameters are used to define the curved rotor pocket geometry with a Bezier
@@ -155,6 +160,8 @@ pole_angle = 360 / (poles * 2)
 totalprojection = mc.get_adaptive_parameter_value("L1 Bezier Curve Projection")
 upperconvex = mc.get_adaptive_parameter_value("L1 Upper Convex")
 lowerconcave = mc.get_adaptive_parameter_value("L1 Lower Concave")
+rotor_lam_corner_rad = mc.get_adaptive_parameter_value("Rotor Lam Corner Radius")
+magnet_corner_rad = mc.get_adaptive_parameter_value("Magnet Corner Radius")
 
 # %%
 # Get the Rotor Pocket regions
@@ -172,8 +179,8 @@ for i in rotor_region.child_names:
 
 # %%
 # Find the magnet edge that is shared with the first rotor pocket
-for j in Magnet_regions:
-    for i in j.entities:
+for magnet_region in Magnet_regions:
+    for i in magnet_region.entities:
         for k in range(len(Rotor_Pocket_regions)):
             rotor_pocket_region = Rotor_Pocket_regions[k]
             MagnetFaceLine = rotor_pocket_region.find_entity_from_coordinates(i.start, i.end)
@@ -322,13 +329,34 @@ for entity in rotor_pocket_region.entities:
         # i += 1
 
 rotor_pocket_region.entities = new_entity_list
-draw_objects(rotor_pocket_region, draw_points=True)
+to_draw = [rotor_pocket_region]
+draw_objects(to_draw, draw_points=True)
+
+# %% Round the corners of the magnet and modified rotor pocket
+rotor_pocket_region.unite(magnet_region)
+
+# pocket corners to round:
+bez_curve_points = []
+for i in range(len(bez_curve_entities) - 1):
+    entity = bez_curve_entities[i]
+    bez_curve_points.append(entity.end)
+
+corners_to_round = []
+for point in rotor_pocket_region.points:
+    if point not in bez_curve_points:
+        corners_to_round.append(point)
+
+rotor_pocket_region.round_corners(corners_to_round, rotor_lam_corner_rad)
+magnet_region.round_corners(magnet_region.points, magnet_corner_rad)
+rotor_pocket_region.subtract(magnet_region)
+draw_objects([rotor_pocket_region, magnet_region])
 
 
 # %%
 # Check that the rotor pocket region is joined up and set the region in Motor-CAD
 if Rotor_Pocket_regions[0].is_closed():
     mc.set_region(Rotor_Pocket_regions[0])
+mc.set_region(magnet_region)
 
 # %%
 # Mirror the first rotor pocket region on the other half of the rotor. Define the mirror line from
@@ -336,19 +364,21 @@ if Rotor_Pocket_regions[0].is_closed():
 # from the rotor pocket region.
 mirrorlinex, mirrorliney = rt_to_xy(rotor_radius, pole_angle)
 mirrorLine = Line(Coordinate(0, 0), Coordinate(mirrorlinex, mirrorliney))
-mirroredRegion = Rotor_Pocket_regions[0].mirror(mirrorLine)
+mirroredRegion = rotor_pocket_region.mirror(mirrorLine)
+mirrored_magnet = magnet_region.mirror(mirrorLine)
 
 # %%
 # Use the ``Region.replace()`` method to replace the entities in the second rotor pocket with those
 # from the new ``mirroredRegion``. The properties of the second rotor pocket (such as name,
 # material, colour) are retained.
 Rotor_Pocket_regions[1].replace(mirroredRegion)
+Magnet_regions[0].replace(mirrored_magnet)
 
 # %%
 # Check that the rotor pocket region is joined up and set the region in Motor-CAD
 if Rotor_Pocket_regions[1].is_closed():
     mc.set_region(Rotor_Pocket_regions[1])
-
+mc.set_region(Magnet_regions[0])
 # %%
 # .. image:: ../../images/Adaptive_Geometry_Bezier_e4a_3.png
 #     :width: 300pt
