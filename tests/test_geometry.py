@@ -522,6 +522,24 @@ def test_EntityList_translate():
     assert triangle.points == points_translated
 
 
+def test_EntityList_mirror():
+    square = create_square()
+    square_entities = square.entities
+
+    mirror_line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(5, 0))
+
+    expected_entities = geometry.EntityList()
+
+    points = [
+        geometry.Coordinate(0, 0),
+        geometry.Coordinate(2, 0),
+        geometry.Coordinate(2, -2),
+        geometry.Coordinate(0, -2),
+    ]
+    expected_entities.extend(create_lines_from_points(points))
+    assert square_entities.mirror(mirror_line) == expected_entities
+
+
 def test_EntityList_get_region():
     points = [geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)]
 

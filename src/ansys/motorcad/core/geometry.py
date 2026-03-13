@@ -2639,6 +2639,28 @@ class EntityList(list):
         for entity in self:
             entity.translate(x, y)
 
+    def mirror(self, mirror_line):
+        """Mirror EntityList about a line.
+
+        Tip: Use in combination with self.reverse() to ensure that mirrored entities are arranged
+        anti-clockwise for example:
+            mirrored_entities_ac = entities.mirror(mirror_line)
+            mirrored_entities_ac.reverse()
+
+        Parameters
+        ----------
+        mirror_line : ansys.motorcad.core.geometry.Line
+            Line entity to mirror EntityList about
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.EntityList
+        """
+        entity_list_mirrored = EntityList()
+        for entity in self:
+            entity_list_mirrored.append(entity.mirror(mirror_line))
+        return entity_list_mirrored
+
     def get_region(self, region_type=RegionType.adaptive, motorcad_instance=None) -> Region:
         """Return a Motor-CAD Region object from the EntityList."""
         region = Region(region_type, motorcad_instance)
