@@ -102,6 +102,7 @@ class RegionType(Enum):
     surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
+    rotor_bar = "Rotor Bar"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
