@@ -204,7 +204,10 @@ class Region(object):
     def _get_new_object_of_type_self(self):
         """Return self object."""
         if self.region_type:
-            return type(self)(region_type=self.region_type)
+            if self.region_type is not RegionType.magnet:
+                return type(self)(region_type=self.region_type)
+            else:
+                return type(self)()
         else:
             return type(self)()
 
