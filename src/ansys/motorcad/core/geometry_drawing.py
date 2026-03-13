@@ -373,6 +373,8 @@ class _RegionDrawing:
                 )
                 if num_points < 2 or (1 / (num_points - 1)) * entity.length < 0.05:
                     num_points = int(entity.length / 0.05 + 1)
+                    # account for the case where very short Arcs result in 1 point. Minimum of 2
+                    # points required for drawing Arcs.
                     if num_points < 2:
                         num_points = 2
 
