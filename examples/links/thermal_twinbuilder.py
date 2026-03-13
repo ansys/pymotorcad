@@ -137,6 +137,16 @@ class AutomationParam:
 
 
 @dataclass(eq=True, frozen=True)
+class FixedNodeTempParam:
+    name: str
+    nodeNumber: int
+    tbOffset: float = 273.15
+
+    def __iter__(self):
+        return iter(astuple(self))
+
+
+@dataclass(eq=True, frozen=True)
 class CoolingSystem:
     name: str
     groupName: str | None
@@ -318,7 +328,21 @@ class MotorCADTwinModel:
         coolingSystem: CoolingSystem | None
         rtsFluidFluid: list
         rtsFluidSolid: list
-        controllingFluidPath: Optional[FluidPath] = None # pyright: ignore[reportUndefinedVariable]
+        controllingFluidPath: Optional[FluidPath] = None  # pyright: ignore[reportUndefinedVariable]
+        controllingFluidNode: Optional[int] = None
+
+        def __hash__(self):
+            return hash(
+                (
+                    self.graph,
+                    tuple(self.fluidNodes),
+                    tuple(self.inletNodes),
+                    tuple(self.outletNodes),
+                    self.coolingSystem,
+                    tuple(self.rtsFluidFluid),
+                    tuple(self.rtsFluidSolid),
+                )
+            )
 
     # Initialization function for objects of this class.
     def __init__(self, inputMotFilePath: str, outputDir: str):
@@ -1985,30 +2009,32 @@ class MotorCADTwinModel:
         self, coolingSystemsParameterSweeps: coolingSystemSweepType
     ):
         if coolingSystemsParameterSweeps is not None:
-            for coolingSystem, parameters in coolingSystemsParameterSweeps.items():
+            # combine coolingSystemParameterSweeps with coupled cooling systems
+            coupledSweeps = self.getCoupledFluidPathParameterSweeps(coolingSystemsParameterSweeps)
+            combinedSweeps = coupledSweeps | coolingSystemsParameterSweeps
+
+            for cooling, parameters in combinedSweeps.items():
                 # skip over Blown Over, as this is handled separately
-                if coolingSystem == Blown_Over:
+                if cooling == Blown_Over:
                     continue
 
-                exportPath = os.path.join(
-                    self.outputDirectory, "CoolingSystems", self.unbracket(coolingSystem.name)
-                )
-                if not os.path.isdir(exportPath):
-                    os.makedirs(os.path.join(exportPath))
+                exportPath, csName = self.createCoolingsSystemSubfolder(cooling)
 
                 numDPs = 0
+paramNames = []
                 with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
                     for param, paramValues in parameters.items():
                         paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
+paramNames.append(param.name)
                         fout.write(param.name + "=" + str(paramValuesTB))
                         fout.write("\n")
                         numDPs = numDPs * len(paramValues) if numDPs > 0 else len(paramValues)
 
                 # identify all the impacted resistances and capacitances
                 if self.heatFlowMethod == 1:
-                    r_list, c_list = self.coolingSystemRCs_Improved(coolingSystem)
+                    r_list, c_list = self.coolingSystemRCs_Improved(cooling)
                 else:
-                    r_list, c_list = self.coolingSystemRCs_Original(coolingSystem)
+                    r_list, c_list = self.coolingSystemRCs_Original(cooling)
 
                 with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
                     for node1, node2 in r_list:
@@ -2031,13 +2057,11 @@ class MotorCADTwinModel:
                 for paramValues in itertools.product(*reversed(parameters.values())):
                     paramValues = list(reversed(paramValues))
                     fileInd = fileInd + 1
-                    paramNames = [param.name for param in paramList]
-                    logger.info(
-                        f"Cooling system sweep {fileInd}/{numDPs}: Cooling system "
-                        f"{coolingSystem.name} with parameters {paramNames} = {paramValues}"
+                                        logger.info(
+                        f"Cooling system {csName} sweep {fileInd}/{numDPs}: Parameters {paramNames}"
+                        f" = {paramValues}"
                     )
-
-                    [R, C] = self.computeMatricesCoolingSystems(
+R, C = self.computeMatricesCoolingSystems(
                         paramList, paramValues, r_list, c_list, fileInd
                     )
 
@@ -2053,21 +2077,93 @@ class MotorCADTwinModel:
                                 # write resistances or capacitances to file
                                 fout.write(str(el) + "\n")
 
-    def coolingSystemRCs_Improved(self, coolingSystem):
+    def createCoolingsSystemSubfolder(self, cooling):
+        if isinstance(cooling, CoolingSystem):
+            csBaseName = self.unbracket(cooling.name)
+        else:  # FluidPath
+            if cooling.coolingSystem:
+                csBaseName = self.unbracket(cooling.coolingSystem.name) + "_coupled"
+            else:
+                csBaseName = "coupled"
+
+        csName = csBaseName
+        exportPath = os.path.join(self.outputDirectory, "CoolingSystems", csName)
+
+        n = 1
+        while os.path.isdir(exportPath):
+            csName = csBaseName + str(n)
+            exportPath = os.path.join(self.outputDirectory, "CoolingSystems", csName)
+            n += 1
+        else:
+            os.makedirs(exportPath)
+
+        return exportPath, csName
+
+    def getCoupledFluidPathParameterSweeps(
+        self, coolingSystemsParameterSweeps: coolingSystemSweepType
+    ):
+        coupledSweeps: Dict[
+            MotorCADTwinModel.FluidPath,
+            Dict[AutomationParam | FixedNodeTempParam, List[float] | List[int]],
+        ] = dict()
+        # for the improved heat flow method, create parameter sweeps for coupled cooling systems
+        if (coolingSystemsParameterSweeps is not None) and (self.heatFlowMethod == 1):
+            for fluidPath in self.fluidPaths:
+                if (
+                    fluidPath.controllingFluidPath is not None
+                    and fluidPath.controllingFluidNode is not None
+                ):
+                    controllingCoolingSystem = fluidPath.controllingFluidPath.coolingSystem
+                    if controllingCoolingSystem in coolingSystemsParameterSweeps:
+                        # associate the coupled fluid path with the controlling cooling system
+                        # parameter sweep
+                        controllingSweep = coolingSystemsParameterSweeps[controllingCoolingSystem]
+                        coupledSweep = dict()
+                        for parameter in controllingSweep:
+                            if parameter.isTemperature:
+                                # parameter is a temperature. Assume that this is the inlet temperature and use the controlling fluid node instead
+                                key = FixedNodeTempParam(
+                                    self.nodeNames[
+                                        self.nodeNumbers.index(fluidPath.controllingFluidNode)
+                                    ]
+                                    + ".T",
+                                    fluidPath.controllingFluidNode,
+                                )
+                            else:
+                                key = parameter
+                            if key:  # ensure not None
+                                coupledSweep[key] = controllingSweep[parameter]
+
+                        coupledSweeps[fluidPath] = coupledSweep
+
+        return coupledSweeps
+
+    def coolingSystemRCs_Improved(self, cooling: FluidPath | CoolingSystem):
         r_list = []
         c_list = []
 
+if isinstance(cooling, CoolingSystem):
         for fluidPath in self.fluidPaths:
-            if fluidPath.coolingSystem == coolingSystem:
+            if fluidPath.coolingSystem == cooling:
+                    self.fluidPathToRClist(r_list, c_list, fluidPath)
+        else:  # FluidPath
+            self.fluidPathToRClist(r_list, c_list, cooling)
+
+        return r_list, c_list
+
+    def fluidPathToRClist(self, r_list, c_list, fluidPath):
                 r_list.extend(fluidPath.rtsFluidFluid)
                 r_list.extend(fluidPath.rtsFluidSolid)
                 # identify all fluid nodes that are not the inlet node
                 nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
                 c_list.extend(nodes)
 
-        return r_list, c_list
+            def coolingSystemRCs_Original(self, coolingSystem):
+if isinstance(coolingSystem, CoolingSystem) == False:
+            message = "Error in original heat flow method handling of coupled cooling systems. Please contact support."
+            logger.error(message, stack_info=True)
+            raise RuntimeError(message)
 
-    def coolingSystemRCs_Original(self, coolingSystem):
         exportDirectory = os.path.join(self.outputDirectory, "tmp")
 
         resistanceMatrix = self.getRmfData(exportDirectory)
@@ -2154,16 +2250,33 @@ class MotorCADTwinModel:
         return r_list, c_list
 
     def computeMatricesCoolingSystems(
-        self, paramList: List[AutomationParam], paramValues, r_list, c_list, fileInd
+        self,
+paramList: List[AutomationParam | FixedNodeTempParam],
+paramValues,
+r_list,
+c_list,
+fileInd,
     ):
         exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
         if not os.path.isdir(exportDirectory):
             os.makedirs(exportDirectory)
 
+circuitEditsMade = False
         for param, paramVal in zip(paramList, paramValues):
+if isinstance(param, AutomationParam):
             self.mcad.set_variable(param.automationString, paramVal)
+else:  # FixedNodeTempParam
+                self.mcad.set_fixed_temperature_value(
+                    param.name, param.nodeNumber, paramVal, param.name
+                )
+                circuitEditsMade = True
+
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(exportDirectory)
+
+if circuitEditsMade:
+            # Reload .mot file to remove any circuit editing modifications
+            self.loadTwinMotfile()
 
         resistanceMatrix = self.getRmfData(exportDirectory)
         capacitanceMatrix = self.getCmfData(exportDirectory)
@@ -2181,7 +2294,7 @@ class MotorCADTwinModel:
             capacitance = capacitanceMatrix[index]
             C.append(capacitance)
 
-        return [R, C]
+        return R, C
 
 
 # %%
