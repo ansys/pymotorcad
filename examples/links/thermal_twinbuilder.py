@@ -1085,17 +1085,7 @@ class MotorCADTwinModel:
         else:
             self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
             self.generateNodeToNodeTempMapping()
-            
-            for fluidPath in self.fluidPaths:
-                if len(fluidPath.inletNodes) > 0:
-                    inletNodeCoupling = [self.nodeToNodeTempMapping.get(self.nodeNumbers.index(i)) for i in fluidPath.inletNodes]
-                    if (len(set(inletNodeCoupling)) == 1) and (inletNodeCoupling[0] is not None):
-                        # All inlet nodes of this fluid path are controlled by a single coupled node
-                        controllingNode = self.nodeNumbers[inletNodeCoupling[0]]
-                        # Determine which fluid path it is coupled to
-                        for fluidPath2 in self.fluidPaths:
-                            if controllingNode in fluidPath2.fluidNodes:
-                                fluidPath.controllingFluidPath = fluidPath2
+            self.identifyCoupledFluidPaths()
 
     def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
         resistances = set()
@@ -1336,7 +1326,9 @@ class MotorCADTwinModel:
         return connectedNodesList
 
     def generateTemperatureControls(self, coolingSystemsParameterSweeps):
-        parameterFixedTempMapping = self.getParameterToNodeTempMapping(coolingSystemsParameterSweeps)
+        parameterFixedTempMapping = self.getParameterToNodeTempMapping(
+            coolingSystemsParameterSweeps
+        )
 
         # Ensure all nodes are controlled by a single parameter
         for nodeIndex, controllingParameter in parameterFixedTempMapping.items():
@@ -1431,7 +1423,9 @@ class MotorCADTwinModel:
                 raise RuntimeError(message)
             
         # flatten dictionary value from list[empty | single_integer] to None | single_integer
-        fixedNodeTempMapping = {key: val[0] if len(val) > 0 else None for key, val in fixedNodeTempMapping.items()}
+        fixedNodeTempMapping = {
+            key: val[0] if len(val) > 0 else None for key, val in fixedNodeTempMapping.items()
+        }
 
         return fixedNodeTempMapping
 
@@ -1494,7 +1488,25 @@ class MotorCADTwinModel:
                 raise RuntimeError(message)
 
         # flatten dictionary value from list[empty | single_integer] to None | single_integer
-        self.nodeToNodeTempMapping = {key: val[0] if len(val) > 0 else None for key, val in coupledTemperatureMapping.items()}
+        self.nodeToNodeTempMapping = {
+            key: val[0] if len(val) > 0 else None for key, val in coupledTemperatureMapping.items()
+        }
+
+    def identifyCoupledFluidPaths(self):
+        for fluidPath in self.fluidPaths:
+            if len(fluidPath.inletNodes) > 0:
+                inletNodeCoupling = [
+                        self.nodeToNodeTempMapping.get(self.nodeNumbers.index(i))
+                        for i in fluidPath.inletNodes
+                    ]
+                if (len(set(inletNodeCoupling)) == 1) and (inletNodeCoupling[0] is not None):
+                        # All inlet nodes of this fluid path are controlled by a single coupled node
+                    controllingNode = self.nodeNumbers[inletNodeCoupling[0]]
+                        # Determine which fluid path it is coupled to
+                    for fluidPath2 in self.fluidPaths:
+                        if controllingNode in fluidPath2.fluidNodes:
+                            fluidPath.controllingFluidPath = fluidPath2
+                            fluidPath.controllingFluidNode = controllingNode
 
     def generateInitialTemperatures(self):
         initialisations = []
@@ -1760,6 +1772,7 @@ class MotorCADTwinModel:
                 if hasBlownOver:
                     if param == None:
                         message = "Unidentified Blown Over parameter sweep. Please contact support"
+                        logger.error(message, stack_info=True)
                         raise RuntimeError(message)
 
                     # blownOverValue is a list of length 1, so get the first/only value
@@ -2120,7 +2133,10 @@ class MotorCADTwinModel:
             if len(coolSys) == 0:
                 # particular case where the cooling system has only 2 nodes (inlet/outlet)
                 for upnode in connectedNodes:
-                    if self.nodeGroupings[self.nodeNumbers.index(upnode)] == coolingSystem.groupName:
+                    if (
+                        self.nodeGroupings[self.nodeNumbers.index(upnode)]
+                        == coolingSystem.groupName
+                    ):
                         # make sure the connected node still belongs to cooling system
                         connectedNodes = self.returnConnectedNodes(
                             upnode, self.nodeNumbers, resistanceMatrix
