@@ -236,12 +236,16 @@ def triangular_notch(
     # using Triangle class, create a triangle with same vertices as the notch region.
     new_triangle = Triangle(point_1, point_2, point_3)
 
+    # change the order of the entities
+    entity_0 = new_triangle.pop(0)
+    new_triangle.append(entity_0)
+
     # create the triangular notch region from the Triangle
     this_notch_region = new_triangle.get_region(region_type, motorcad_instance)
 
     # Replace the triangle base line with an Arc between the same points. Use the origin (rotor
     # centre) as the centre for drawing the Arc.
-    this_notch_region.entities[0] = Arc(point_1, point_2, centre=Coordinate(0, 0), radius=radius)
+    this_notch_region.entities[2] = Arc(point_1, point_2, centre=Coordinate(0, 0), radius=radius)
 
     return this_notch_region
 
