@@ -76,13 +76,13 @@ def test_get_array_variable(mc):
 
     var = mc.get_array_variable("Duty_Cycle_Time", 2)
 
-    # if mc.connection.check_version_at_least("2027.0"):
-    #     # This is the correct type - fixed in 27R1
-    #     # Needs another Motor-CAD PR to go in first
-    #     # assert isinstance(var, float)
-    #     assert isinstance(var, int)
-    # else:
-    #     assert isinstance(var, int)
+    if mc.connection.check_version_at_least("2027.0"):
+        # This is the correct type - fixed in 27R1
+        # Needs another Motor-CAD PR to go in first
+        # assert isinstance(var, float)
+        assert isinstance(var, int)
+    else:
+        assert isinstance(var, int)
 
     var = mc.get_array_variable("CustomOutputName_Python", 2)
     assert isinstance(var, str)
