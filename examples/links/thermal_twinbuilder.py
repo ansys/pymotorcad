@@ -2123,11 +2123,17 @@ R, C = self.computeMatricesCoolingSystems(
                         coupledSweep = dict()
                         for parameter in controllingSweep:
                             if parameter.isTemperature:
-                                # parameter is a temperature. Assume that this is the inlet temperature and use the controlling fluid node instead
+                                # Parameter is a temperature. Assume that this is the inlet 
+                                # temperature and save the controlling fluid node number. This will
+                                # be used to perform the sweep over, using fixed temperatures.
+                                # 
+                                # For the node names in the dp_values file, either the controlling
+                                # or the controlled node can be used (as they have the same
+                                # temperature). Use the first controlled node.
+                                # 
+                                # TODO improve this or provide warning if multiple temps exist
                                 key = FixedNodeTempParam(
-                                    self.nodeNames[
-                                        self.nodeNumbers.index(fluidPath.controllingFluidNode)
-                                    ]
+                                    self.nodeNames[self.nodeNumbers.index(fluidPath.inletNodes[0])]
                                     + ".T",
                                     fluidPath.controllingFluidNode,
                                 )
@@ -2162,7 +2168,10 @@ if isinstance(cooling, CoolingSystem):
 
             def coolingSystemRCs_Original(self, coolingSystem):
 if isinstance(coolingSystem, CoolingSystem) == False:
-            message = "Error in original heat flow method handling of coupled cooling systems. Please contact support."
+            message = (
+                "Error in original heat flow method handling of coupled cooling systems. "
+                "Please contact support."
+            )
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
 
