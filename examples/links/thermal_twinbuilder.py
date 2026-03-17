@@ -1377,13 +1377,15 @@ class MotorCADTwinModel:
                 if controllingParameter is not None:
                     ft.write(f"{self.nodeNames[nodeIndex]},{controllingParameter}\n")
 
-        # Create CoupledNodes.csv
-        with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
+        # Create CoupledNodes.csv, if non-empty
+        couplings = ""
             for nodeIndex, controllingNodeIndex in self.nodeToNodeTempMapping.items():
                 if controllingNodeIndex is not None:
-                    ft.write(
-                        f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex]}\n"
-                    )
+                couplings += f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex]}\n"
+
+        if couplings:
+            with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
+                ft.write(couplings)
 
     # Generate mapping between the user chosen input pins and the fixed temperature nodes they
     # control
