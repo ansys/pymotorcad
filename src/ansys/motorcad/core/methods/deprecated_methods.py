@@ -574,6 +574,6 @@ class _RpcMethodsDeprecated:
           `add_point_xy`  has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
-        method = "add_point_xy"
+        method = "AddPoint_XY"
         params = [x, y, reg_name]
         return self.connection.send_and_receive(method, params)
