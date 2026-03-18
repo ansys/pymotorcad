@@ -148,7 +148,7 @@ class _RpcMethodsGeneral:
         params = [solution_type, file_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_dxf_file(self, file_name):
+    def load_dxf_file(self, file_name, context=""):
         """Load a DXF geometry file.
 
         Parameters
@@ -156,9 +156,20 @@ class _RpcMethodsGeneral:
         file_name : str
             Name of the DXF file. Use r'filepath' syntax to force Python
             to ignore special characters.
+        context : str, optional
+            Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
+            This MUST be specified for versions of Motor-CAD later than 2027R1.
         """
         method = "LoadDXFFile"
         params = [file_name]
+
+        if self.connection.version >= "2027.1":
+            if context=='':
+                raise MotorCADError("Context must be specified for LoadDXFFile for Motor-CAD version"
+                                    "2027R1 and later.")
+
+            params+=[context]
+
         return self.connection.send_and_receive(method, params)
 
     def create_report(self, file_path, template_file_path):
