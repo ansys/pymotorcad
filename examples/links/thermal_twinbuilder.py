@@ -92,6 +92,7 @@ from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import csv
 
 import ansys.motorcad.core as pymotorcad
 
@@ -439,6 +440,8 @@ class MotorCADTwinModel:
         with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
+
+        self.FixedTemperaturesWorkaround()
 
         self.mcad.quit()
         logger.info("Python script execution completed")
@@ -2308,6 +2311,48 @@ if circuitEditsMade:
             C.append(capacitance)
 
         return R, C
+
+    # Workaround for versions until 26R1 SP2 is released.
+    # The SML generation will fail if the node names in Fixedtemperatures.csv have different
+    # original and unbracketed names. This workaround overwrites all instances of the original names
+    # within the *.mf files as well as in LossDistribution.csv with the unbracketed version
+    def FixedTemperaturesWorkaround(self):
+        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "r") as f:
+            csvFile = csv.reader(f)
+            nodeNames = [line[0] for line in csvFile]  # these are unbracketed
+            # Generate list of names which need to be searched for and replaced due to having
+            # different original and unbracketed values
+            searchNames = []
+            replaceNames = []
+            for nodeName in nodeNames:
+                nodeName_original = self.nodeNames_original[self.nodeNames.index(nodeName)]
+                if nodeName != nodeName_original:
+                    # This node will be affected by bug
+                    searchNames.append(nodeName_original)
+                    replaceNames.append(nodeName)
+
+        if searchNames:
+            filesToModify: list[Path] = []
+            filesToModify.append(Path(os.path.join(self.outputDirectory, "LossDistribution.csv")))
+
+            fileExtensions = ["*.cmf", "*.nmf", "*.pmf", "*.rmf", "*.tmf"]
+            for extention in fileExtensions:
+                filesToModify.extend(Path(self.outputDirectory).rglob(extention))
+
+            for index, file in enumerate(filesToModify):
+                with open(file, "r") as f:
+                    contents = f.read()
+
+                if index == 0:  # LossDistribution.csv
+                    for searchName, replaceName in zip(searchNames, replaceNames):
+                        contents = contents.replace(searchName, replaceName)
+                else:  # .*mf files
+                    for searchName, replaceName in zip(searchNames, replaceNames):
+                        contents = contents.replace(f"({searchName})", f"({replaceName})")
+
+                with open(file, "w") as f:
+                    f.write(contents)
+        return
 
 
 # %%
