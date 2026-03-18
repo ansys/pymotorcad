@@ -52,7 +52,7 @@ magnet rotor to have an asymmetric arrangement of magnets.
 
 # from copy import deepcopy
 
-# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/.png'
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/asymmetric_SPM_thumbnail.png'
 import os
 import shutil
 import sys
