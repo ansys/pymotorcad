@@ -1651,7 +1651,9 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
+                    # TODO workaround for 26R1. This will be fixed in 26R1 SP2
+                    outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
+                    # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
         with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
