@@ -27,6 +27,10 @@ This script applies the adaptive templates functionality to modify a 28 pole sur
 magnet rotor to have an asymmetric arrangement of magnets.
 """
 # %%
+# .. note::
+#    This example uses Motor-CAD Geometry Tree functionality, introduced in v2026.1.1 (Motor-CAD
+#    2026 R1) and PyMotorCAD v0.8.4 or later.
+#
 # Each magnet position is shifted by rotating by an offset angle. The offset angle parameters are
 # defined as new adaptive templates parameters.
 
