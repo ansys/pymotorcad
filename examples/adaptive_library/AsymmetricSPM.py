@@ -29,13 +29,18 @@ magnet rotor to have an asymmetric arrangement of magnets.
 # %%
 # Each magnet position is shifted by rotating by an offset angle. The offset angle parameters are
 # defined as new adaptive templates parameters.
-#
-#
+
+
+# %%
+# .. image:: ../../images/adaptive_templates/asymmetric_SPM_2.png
+#     :width: 800pt
+
+# %%
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
-# Import ``Region``, ``RegionType``, ``Line``, ``Arc``, ``Coordinate`` and ``rt_to_xy`` for creating
-# the adaptive templates geometry.
+# Import ``RegionType``, ``Line``, ``Arc``, ``Coordinate``, ``rt_to_xy`` and ``EntityList`` for
+# creating the adaptive templates geometry.
 # Import ``draw_objects`` to plot figures of geometry objects.
 # Import ``deepcopy`` to copy geometry objects.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
@@ -50,7 +55,8 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Arc, Coordinate, Line, RegionType, rt_to_xy  # , Region
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, RegionType, rt_to_xy
+from ansys.motorcad.core.geometry_drawing import draw_objects
 
 # from ansys.motorcad.core.geometry_drawing import draw_objects
 # import ansys.motorcad.core.geometry_tree as geo_tree
@@ -102,10 +108,9 @@ mc.reset_adaptive_geometry()
 # Use the ``set_adaptive_parameter_default`` method to set the required symmetry factor
 # (``Symmetry Factor``) parameter if undefined, and get the value.
 
-
 # %%
 # .. image:: ../../images/adaptive_templates/asymmetric_SPM_1.png
-#     :width: 600pt
+#     :width: 800pt
 
 # %%
 # In this example, the 28 pole rotor is split into quarters, with each quarter containing 7 magnets.
@@ -115,9 +120,34 @@ mc.set_adaptive_parameter_default("Symmetry factor", 7)
 symmetry_factor = mc.get_adaptive_parameter_value("Symmetry factor")
 
 # %%
-# Define some default values for the offset angles that each magnet will be shifted by. Include a
-# check for the case where the ``symmetry factor`` is set to a higher number than the length of the
-# ``offset_angle_default_values`` list. In this case, append some zeros to the list.
+# This example sets an offset angle for each of the 7 magnets, which define how many degrees each
+# magnet will be shifted by.
+
+# %%
+# .. image:: ../../images/adaptive_templates/asymmetric_SPM_3.png
+#     :width: 600pt
+
+# %%
+# Define some default values for the offset angles. Include a check for the case where the
+# ``symmetry factor`` is set to a higher number than the length of the
+# ``offset_angle_default_values`` list. In this case, set values of 0 ° for any extra angles.
+#
+# Define the following angles for the 7 magnets, going anti-clockwise from the magnet closest to the
+# x-axis:
+#
+# * -2 °
+#
+# * +4 °
+#
+# * 0 ° (this magnet is not offset)
+#
+# * -4 °
+#
+# * +2 °
+#
+# * -2 °
+#
+# * +2 °
 
 offset_angle_default_values = [-2, 4, 0, -4, 2, -2, 2]
 extra_values_req = symmetry_factor - len(offset_angle_default_values)
@@ -146,6 +176,10 @@ rotor_air = gt.get_regions_of_type(RegionType.rotor_air)
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
+
+# %%
+# Modify symmetry of original magnet and air regions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example works by changing the number of times that geometry regions are duplicated.
 #
 # By default, a 28 pole rotor geometry is set up by defining the geometry for one rotor pole, and
@@ -157,14 +191,16 @@ rotor_air = gt.get_regions_of_type(RegionType.rotor_air)
 #
 # Modify the duplication angles of the original magnet and rotor air regions.
 for magnet in magnets:
-    magnet.duplications = magnet.duplications / symmetry_factor
+    magnet.duplications = int(magnet.duplications / symmetry_factor)
 for air_region in rotor_air:
-    air_region.duplications = air_region.duplications / symmetry_factor
+    air_region.duplications = int(air_region.duplications / symmetry_factor)
 
 # %%
-# The rotor air regions will be redrawn based on the new magnet positions. To do so, define the full
-# rotor air region. Magnet regions will be subtracted from this to form the multiple new rotor air
-# regions.
+# Create full air band region
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The rotor air regions will be recreated based on the new magnet positions. To do so, define the
+# full rotor air region. Magnet regions will be subtracted from this to form the multiple new rotor
+# air regions.
 #
 # Find the rotor air outer and inner radii (``rad_max`` and ``rad_min``). Use the
 # ``Coordinate.get_polar_coords_deg()`` method to return the polar coordinates of point coordinates.
@@ -184,36 +220,44 @@ p1 = Coordinate(*rt_to_xy(rad_min, 0))
 p2 = Coordinate(*rt_to_xy(rad_max, 0))
 p3 = Coordinate(*rt_to_xy(rad_max, 360 / rotor_air[0].duplications))
 p4 = Coordinate(*rt_to_xy(rad_min, 360 / rotor_air[0].duplications))
-full_rotor_air_entities = [
-    Line(p1, p2),
-    Arc(p2, p3, centre=Coordinate(0, 0)),
-    Line(p3, p4),
-    Arc(p4, p1, centre=Coordinate(0, 0)),
-]
+full_rotor_air_entities = EntityList()
+full_rotor_air_entities.append(Line(p1, p2))
+full_rotor_air_entities.append(Arc(p2, p3, centre=Coordinate(0, 0)))
+full_rotor_air_entities.append(Line(p3, p4))
+full_rotor_air_entities.append(Arc(p4, p1, centre=Coordinate(0, 0)))
+
+draw_objects(full_rotor_air_entities)
 
 # %%
+# Duplicate and rotate the original magnet region
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create copies of the original magnet region and rotate the magnets based on the 'offset_angles'.
 #
-# For each additional magnet, use the ``create_region`` method to create a new region in the ``gt``
-# geometry tree. The ``create_region`` method requires ``region_type`` and ``parent`` parameters.
-# Set the ``region_type=RegionType.magnet`` to create a magnet region, and set the ``parent`` to
-# the original magnet region's parent.
+# For each additional magnet:
 #
-# Set the material, colour and symmetry properties of the new magnet region. Give the
-# new magnet region a name.
+# * Use the ``create_region`` method to create a new region in the ``gt``
+#   geometry tree. The ``create_region`` method requires ``region_type`` and ``parent`` parameters.
 #
-# Use the ``replace`` method to replace the new magnet region's entities with those of the original
-# magnet, then rotate the region around the origin. The rotation angle can be calculated from the
-# duplication number (symmetry) and  adaptive parameters (symmetry factor and the offset angle for
-# the particular magnet).
+# * Set the ``region_type=RegionType.magnet`` to create a magnet region, and set the ``parent`` to
+#   the original magnet region's parent.
 #
-# Calculate and set the new magnet angle, which defines the direction in which the magnet is
-# polarised.
-# For even numbered magnets, set the polarity to ``S`` and switch the magnetisation to the opposite
-# direction by subtracting 180 ° from the ``magnet_angle``. For odd numbered magnets, set the
-# polarity to ``N``.
+# * Set the material, colour and symmetry properties of the new magnet region.
 #
-# Append all magnets to the ``new_magnets`` list.
+# * Give the new magnet region a name.
+#
+# * Use the ``replace`` method to replace the new magnet region's entities with those of the
+#   original magnet, then rotate the region around the origin. The rotation angle can be calculated
+#   from the duplication number (symmetry) and adaptive parameters (symmetry factor and the offset
+#   angle for the particular magnet).
+#
+# * Calculate and set the new magnet angle, which defines the direction in which the magnet is
+#   polarised.
+#
+# * For even numbered magnets, set the polarity to ``S`` and switch the magnetisation to the
+#   opposite direction by subtracting 180 ° from the ``magnet_angle``. For odd numbered magnets,
+#   set the polarity to ``N``.
+#
+# * Append all magnets to the ``new_magnets`` list.
 new_magnets = []
 for magnet in magnets:
     new_magnets.append(magnet)
@@ -239,12 +283,16 @@ for magnet in magnets:
 
 # %%
 # Rotate the original magnet by its offset angle (if non-zero). Do this last so that the original
-# magnet's position could be used for calculating the new magnet positions.
+# magnet's position could be used for calculating the new magnet positions. Draw the magnet regions.
 if offset_angles[0] != 0:
     new_magnets[0].rotate(Coordinate(0, 0), offset_angles[0])
     new_magnets[0].magnet_angle += offset_angles[0]
 
+draw_objects(new_magnets)
+
 # %%
+# Subtract regions from rotor air band to get new air regions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add the full rotor air region to the geometry tree using the ``create_region`` geometry tree
 # method. Specify the ``RegionType`` (rotor air) and the parent region of the rotor air region (the
 # same as the parent of the original rotor air region). Set the duplication number and set the
@@ -257,7 +305,8 @@ full_rotor_air.entities = full_rotor_air_entities
 # Subtract the magnet regions from the full rotor air region to get the separate rotor air regions
 # that will sit between the magnets. Use the ``subtract`` region method, which returns a list of
 # additional regions in the case where subtracting a magnet from the air region results in more than
-# one region. Name the additional air regions and store them in the ``all_extras`` list.
+# one region. Name the additional air regions and store them in the ``all_extras`` list. Draw the
+# rotor air regions.
 
 all_extras = []
 i = 0
@@ -267,6 +316,10 @@ for magnet in new_magnets:
         extra.name = f"RotorAir_{i}"
         all_extras.extend(extras)
         i += 1
+
+to_draw = [full_rotor_air]
+to_draw.extend(all_extras)
+draw_objects(to_draw)
 
 # %%
 # The original air region must also be renamed. It is no longer the full rotor air region. It is now
@@ -300,12 +353,12 @@ for region in all_extras:
     i += 1
 
 # %%
-# Set the modified geometry tree in Motor-CAD.
+# Set the modified geometry tree in Motor-CAD
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set the geometry tree and draw the geometry tree.
 mc.set_geometry_tree(gt)
 
-# %%
-# .. image:: ../../images/adaptive_templates/RoundParSlotBttm.png
-#     :width: 600pt
+draw_objects(gt, full_geometry=True, axes=False)
 
 # %%
 # Load in Adaptive Templates script if required
