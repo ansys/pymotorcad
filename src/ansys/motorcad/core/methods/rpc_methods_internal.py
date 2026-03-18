@@ -129,10 +129,6 @@ class _RpcMethodsInternal:
         params = [p_type, eq_type, sym_mode, sym_axis, time_mode, dt, t_max]
         return self.connection.send_and_receive(method, params)
 
-    def add_point_xy(self, x, y, reg_name):
-        method = "AddPoint_XY"
-        params = [x, y, reg_name]
-        return self.connection.send_and_receive(method, params)
 
     def create_optimised_mesh_thermal(self, copper_region, ins_region, impreg_region):
         method = "CreateOptimisedMesh_Thermal"
@@ -226,17 +222,3 @@ class _RpcMethodsInternal:
         params = [region, colour]
         return self.connection.send_and_receive(method, params)
 
-    def add_point_rt(self, r, t, reg_name):
-        method = "AddPoint_RT"
-        params = [r, t, reg_name]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
-        method = "AddPoint_Magnetic_RT"
-        params = [r, t, mag_name, br_angle, br_mult, polarity]
-        return self.connection.send_and_receive(method, params)
-
-    def add_point_magnetic_xy(self, x, y, mag_name, br_angle, br_mult, polarity):
-        method = "AddPoint_Magnetic_XY"
-        params = [x, y, mag_name, br_angle, br_mult, polarity]
-        return self.connection.send_and_receive(method, params)
