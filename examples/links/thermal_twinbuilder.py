@@ -81,7 +81,9 @@ Twin Builder *Motor-CAD ROM* component.
 # ------------------------
 
 from __future__ import annotations
-from dataclasses import astuple, dataclass, field
+
+import csv
+from dataclasses import astuple, dataclass
 import itertools
 import logging
 from numbers import Number
@@ -92,7 +94,6 @@ from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import csv
 
 import ansys.motorcad.core as pymotorcad
 
