@@ -121,7 +121,7 @@ mc.reset_adaptive_geometry()
 # The default symmetry factor value is set to 7.
 
 mc.set_adaptive_parameter_default("Symmetry factor", 7)
-symmetry_factor = mc.get_adaptive_parameter_value("Symmetry factor")
+symmetry_factor = int(mc.get_adaptive_parameter_value("Symmetry factor"))
 
 # %%
 # This example sets an offset angle for each of the 7 magnets, which define how many degrees each
