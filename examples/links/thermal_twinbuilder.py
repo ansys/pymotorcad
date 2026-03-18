@@ -1172,7 +1172,7 @@ class MotorCADTwinModel:
                 if len(set(groupings)) == 1:
                     # All groupings are the same, check if a cooling system
                     found = False
-                    cooling = None  # Initialise to supress pyright warning
+                    cooling = None  # Initialise to suppress pyright warning
 
                     # Special case for grouped spray cooling - directly link node numbers to
                     # cooling system
@@ -2338,8 +2338,8 @@ class MotorCADTwinModel:
             filesToModify.append(Path(os.path.join(self.outputDirectory, "LossDistribution.csv")))
 
             fileExtensions = ["*.cmf", "*.nmf", "*.pmf", "*.rmf", "*.tmf"]
-            for extention in fileExtensions:
-                filesToModify.extend(Path(self.outputDirectory).rglob(extention))
+            for extension in fileExtensions:
+                filesToModify.extend(Path(self.outputDirectory).rglob(extension))
 
             for index, file in enumerate(filesToModify):
                 with open(file, "r") as f:
