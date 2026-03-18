@@ -477,7 +477,7 @@ class MotorCADTwinModel:
         return matrix
 
     def getPmfData(self, exportDirectory):
-        pmfFile = os.path.join(exportDirectory, self.motFileName + ".pmf")
+        pmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".pmf")
         powerVector = self.getExportedVector(pmfFile)
         return powerVector
 
@@ -488,8 +488,7 @@ class MotorCADTwinModel:
 
     def getCmfData(self, exportDirectory):
         cmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".cmf")
-        # exported capacitance vector does not contain ambient, so add on
-        capacitanceMatrix = [0.0] + self.getExportedVector(cmfFile)
+        capacitanceMatrix = self.getExportedVector(cmfFile)
         return capacitanceMatrix
 
     def getRmfData(self, exportDirectory):
@@ -1719,7 +1718,7 @@ class MotorCADTwinModel:
 
             powerVector = self.getPmfData(exportDirectory)
             for nodeIndex, nodePower in enumerate(powerVector):
-                # ignore nodes with negative loss (cooling systems)
+                # ignore nodes with negative loss
                 if nodePower > 0:
                     lossDistributionMatrix[lossIndex, nodeIndex] = nodePower / inputLoss
 
