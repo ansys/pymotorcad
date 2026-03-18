@@ -2119,6 +2119,23 @@ def test_chamfer_corner_1():
     for i in range(len(chamfered_square.entities) - 1):
         assert chamfered_square.entities[i + 1].length == lengths[i]
 
+    # repeat same tests when distance is provided as a list
+    chamfered_square = deepcopy(original_square)
+    chamfered_square.chamfer_corner(chamfered_square.points[0], [chamfer_distance])
+
+    assert chamfered_square.is_closed()
+    assert len(chamfered_square.entities) == len(original_square.entities) + 1
+
+    lengths = [
+        original_square.entities[0].length - chamfer_distance,
+        original_square.entities[0].length,
+        original_square.entities[0].length,
+        original_square.entities[0].length - chamfer_distance,
+    ]
+
+    for i in range(len(chamfered_square.entities) - 1):
+        assert chamfered_square.entities[i + 1].length == lengths[i]
+
 
 def test_chamfer_corner_2():
     # Draw a square and chamfer the first corner by different distances for each adjacent line.
@@ -2263,6 +2280,7 @@ def test_chamfer_corner_5():
     )
 
     # Test maximise = False
+    # test case when corner is found at entity start
     chamfered_square_2 = deepcopy(original_square)
 
     with pytest.raises(ValueError) as e_info:
@@ -2271,6 +2289,51 @@ def test_chamfer_corner_5():
             original_square.points[0], chamfer_distance, maximise=False
         )
     assert "is close to or larger than the original length of" in str(e_info.value)
+
+    # test case when corner is found at entity end
+    chamfered_square_3 = deepcopy(original_square)
+
+    with pytest.raises(ValueError) as e_info:
+        # Test that ValueError is raised when maximise = False and chamfer distance is too large.
+        chamfered_square_3.chamfer_corner(
+            original_square.points[1], chamfer_distance, maximise=False
+        )
+    assert "is close to or larger than the original length of" in str(e_info.value)
+
+
+def test_do_not_chamfer_corner_1():
+    """Test chamfer region method raises warning for a square when a chamfer distance less than
+    0.1 mm."""
+    # Draw a square and chamfer the first corner by a single distance for both adjacent lines.
+    original_square = create_square()
+
+    chamfer_distance = 0.05
+    chamfered_square = deepcopy(original_square)
+
+    # check that warning is raised
+    with pytest.warns(UserWarning) as record:
+        chamfered_square.chamfer_corner(chamfered_square.points[0], chamfer_distance)
+    assert (
+        "less than the minimum distance to shorten adjacent entities by"
+        in record[0].message.args[0]
+    )
+
+    # check that region was not modified
+    assert chamfered_square == original_square
+
+
+def test_do_not_chamfer_corner_2():
+    """Test chamfer region method raises ValueError when an invalid corner coordinate is given."""
+    # Draw a square and chamfer the first corner by a single distance for both adjacent lines.
+    original_square = create_square()
+
+    chamfer_distance = 0.1
+    chamfered_square = deepcopy(original_square)
+
+    with pytest.raises(ValueError) as e_info:
+        # Test that ValueError is raised when maximise = False and chamfer distance is too large.
+        chamfered_square.chamfer_corner(Coordinate(1, 1), chamfer_distance)
+    assert "Failed to find corner" in str(e_info.value)
 
 
 def test_chamfer_corners_1():
