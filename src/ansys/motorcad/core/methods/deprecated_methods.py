@@ -41,7 +41,7 @@ class _RpcMethodsDeprecated:
         """Clear data and initialize the FEA.
 
         .. deprecated:: 0.6.0
-          `clear_all_data` will be removed with Motor-CAD 2025R2 (tentative).
+          `clear_all_data` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("clear_all_data")
@@ -54,7 +54,7 @@ class _RpcMethodsDeprecated:
         Call this method at the end of creating a custom scripting geometry.
 
         .. deprecated:: 0.6.0
-          `create_optimised_mesh` will be removed with Motor-CAD 2025R2 (tentative).
+          `create_optimised_mesh` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("create_optimised_mesh")
@@ -67,7 +67,7 @@ class _RpcMethodsDeprecated:
         """Add a boundary condition arc using r, t coordinates for the center.
 
         .. deprecated:: 0.6.0
-          `add_arc_boundary_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_boundary_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_boundary_rt")
@@ -81,7 +81,7 @@ class _RpcMethodsDeprecated:
         """Add a boundary condition arc using x, y coordinates for the center.
 
         .. deprecated:: 0.6.0
-          `add_arc_boundary_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_boundary_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_arc_boundary_xy")
@@ -93,7 +93,7 @@ class _RpcMethodsDeprecated:
         """Add a boundary condition line using r, t coordinates for the start and end points.
 
         .. deprecated:: 0.6.0
-          `add_line_boundary_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_line_boundary_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_line_boundary_rt")
@@ -105,7 +105,7 @@ class _RpcMethodsDeprecated:
         """Add a boundary condition line using x, y coordinates for the start and end points.
 
         .. deprecated:: 0.6.0
-          `add_line_boundary_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_line_boundary_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_line_boundary_xy")
@@ -117,7 +117,7 @@ class _RpcMethodsDeprecated:
         """Edit a magnet region.
 
         .. deprecated:: 0.6.0
-          `edit_magnet_region` will be removed with Motor-CAD 2025R2 (tentative).
+          `edit_magnet_region` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -140,7 +140,7 @@ class _RpcMethodsDeprecated:
         """Delete a comma-separated list of named regions or all regions.
 
         .. deprecated:: 0.6.0
-          `delete_regions` will be removed with Motor-CAD 2025R2 (tentative).
+          `delete_regions` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -160,7 +160,7 @@ class _RpcMethodsDeprecated:
         """Reset custom FEA regions to standard regions from the Motor-CAD template geometry.
 
         .. deprecated:: 0.6.0
-          `reset_regions` will be removed with Motor-CAD 2025R2 (tentative).
+          `reset_regions` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("reset_regions")
@@ -174,7 +174,7 @@ class _RpcMethodsDeprecated:
         The ``clear_all_data`` method must be called before this method is called.
 
         .. deprecated:: 0.6.0
-          `initiate_geometry_from_script` will be removed with Motor-CAD 2025R2 (tentative).
+          `initiate_geometry_from_script` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("get_point_value")
@@ -185,7 +185,7 @@ class _RpcMethodsDeprecated:
         """Add a line to the Motor-CAD axial geometry with an x, y coordinate system.
 
         .. deprecated:: 0.6.0
-          `add_line_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_line_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -210,7 +210,7 @@ class _RpcMethodsDeprecated:
         Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_line_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_line_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -235,7 +235,7 @@ class _RpcMethodsDeprecated:
         This method uses the center point, radius, and angles. Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_arc_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -262,7 +262,7 @@ class _RpcMethodsDeprecated:
         This method uses the center point, radius, and angles. Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_arc_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -289,7 +289,7 @@ class _RpcMethodsDeprecated:
         This method uses start, end, and center coordinates. Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_arc_centre_start_end_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_centre_start_end_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -320,7 +320,7 @@ class _RpcMethodsDeprecated:
         This method uses start, end, and center coordinates. Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_arc_centre_start_end_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_arc_centre_start_end_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -349,7 +349,7 @@ class _RpcMethodsDeprecated:
         If a region already exists, this method overwrites the existing region.
 
         .. deprecated:: 0.6.0
-          `add_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_region_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -374,7 +374,7 @@ class _RpcMethodsDeprecated:
         Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_region_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -401,7 +401,7 @@ class _RpcMethodsDeprecated:
         Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_magnet_region_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_magnet_region_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -436,7 +436,7 @@ class _RpcMethodsDeprecated:
         Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_magnet_region_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_magnet_region_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -476,7 +476,7 @@ class _RpcMethodsDeprecated:
            Do not use this method to add a magnet. Use the ``add_magnet_region_xy`` method.
 
         .. deprecated:: 0.6.0
-          `add_point_custom_material_xy` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_point_custom_material_xy` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -510,7 +510,7 @@ class _RpcMethodsDeprecated:
         Use degrees for angles.
 
         .. deprecated:: 0.6.0
-          `add_point_custom_material_rt` will be removed with Motor-CAD 2025R2 (tentative).
+          `add_point_custom_material_rt` has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
 
         Parameters
@@ -538,7 +538,7 @@ class _RpcMethodsDeprecated:
     def add_point_magnetic_rt(self, r, t, mag_name, br_angle, br_mult, polarity):
         """
         .. deprecated:: 0.9.0
-          `add_point_magnetic_rt` will be removed with Motor-CAD 2027R1 (tentative).
+          `add_point_magnetic_rt`  has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_point_magnetic_rt")
@@ -549,7 +549,7 @@ class _RpcMethodsDeprecated:
     def add_point_magnetic_xy(self, x, y, mag_name, br_angle, br_mult, polarity):
         """
         .. deprecated:: 0.9.0
-          `add_point_magnetic_xy` will be removed with Motor-CAD 2027R1 (tentative).
+          `add_point_magnetic_xy`  has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_point_magnetic_xy")
@@ -560,7 +560,7 @@ class _RpcMethodsDeprecated:
     def add_point_rt(self, r, t, reg_name):
         """
         .. deprecated:: 0.9.0
-          `add_point_rt` will be removed with Motor-CAD 2027R1 (tentative).
+          `add_point_rt`  has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         geometry_deprecation_warning("add_point_rt")
@@ -571,7 +571,7 @@ class _RpcMethodsDeprecated:
     def add_point_xy(self, x, y, reg_name):
         """
         .. deprecated:: 0.9.0
-          `add_point_xy` will be removed with Motor-CAD 2027R1 (tentative).
+          `add_point_xy`  has been removed in Motor-CAD 2027R1.
           Functionality replaced by adaptive templates.
         """
         method = "add_point_xy"
