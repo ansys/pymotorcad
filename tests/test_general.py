@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,12 +32,7 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD, MotorCADError
-
-# Allows us to add a new api method to testing before the next Motor-CAD release is available
-# Dev release will have a lower version number than actual release so don't want to check this
-ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
 
 def kh_to_ms(kh):

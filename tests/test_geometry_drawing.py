@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,7 +28,7 @@ matplotlib.use("Agg")
 import pytest
 
 import ansys
-from ansys.motorcad.core.geometry import Coordinate, Line, Region, RegionType
+from ansys.motorcad.core.geometry import Arc, Coordinate, Line, Region, RegionType
 from ansys.motorcad.core.geometry_drawing import BiDict, draw_objects
 
 drawing_flag = False
@@ -274,6 +274,31 @@ def test_bidict():
     test_dict.remove_by_key("key2")
     assert test_dict.forward == dict()
     assert test_dict.backward == dict()
+
+
+def test_draw_region_with_Arc():
+    # test drawing regions that have Arc entities. Previous bug prevented drawing regions with short
+    # Arcs (<0.01 mm)
+
+    # create a region with a single Arc entity
+    test_region = Region(region_type=RegionType.stator)
+    test_arc = Arc(Coordinate(0, 0), Coordinate(2, 2), radius=2)
+    test_region.add_entity(test_arc)
+
+    # test the region can be drawn
+    draw_objects(test_region)
+
+    # create a second region with a single Arc entity. This Arc is very short (0.01 mm long)
+    test_region_2 = Region(region_type=RegionType.stator)
+    short_arc = Arc(
+        Coordinate(0, 0),
+        test_arc.get_coordinate_from_distance(test_arc.start, fraction=0.01),
+        radius=2,
+    )
+    test_region_2.add_entity(short_arc)
+
+    # test the region can be drawn with very short Arc.
+    draw_objects(test_region_2, draw_points=True)
 
 
 # def test_draw_objects_debug(mc, monkeypatch):
