@@ -40,7 +40,7 @@ Ansys Twin Builder.
 # 1. Run this python script, which will run Motor-CAD to generate training data for the ROM. You
 # will need to set appropriate values in the script, such as the .mot file location, speeds and flow
 # rates of interest etc.
-# 
+#
 # 2. In Twin Builder, select this training data within the Motor-CAD ROM wizard. This will
 # automatically generate the ROM.
 #
@@ -65,14 +65,14 @@ Ansys Twin Builder.
 #
 # * Allow arbitrary temperature initialization per machine component
 #
-# * Provide as output pins post processed temperatures for solids (e.g. Armature Winding Average 
+# * Provide as output pins post processed temperatures for solids (e.g. Armature Winding Average
 # Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
 #
 # The ROM component has been designed to require minimal setup expertise, quick setup time and high
 # solve accuracy, with the user friendly input and output pins ensuring ease of use. The ROM is also
 # standalone (does not require Motor-CAD), thus allowing it to be shared/used in alternate systems
 # whilst obscuring the underlying Motor-CAD geometry. The ROM can also be exported from Twin Builder
-# as an FMU, which can then be deployed within a wide range of FMU compatible tools. 
+# as an FMU, which can then be deployed within a wide range of FMU compatible tools.
 
 # %%
 # Data required to generate a *Motor-CAD ROM* component
