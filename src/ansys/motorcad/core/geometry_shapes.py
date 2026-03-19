@@ -291,7 +291,7 @@ class Circle(EntityList):
     @property
     def radius(self) -> float:
         """Radius of the Circle."""
-        return abs(self[0].start - self[1].start)
+        return abs(self[0].start - self[1].start) / 2
 
 
 class ConvexPolygon(EntityList):

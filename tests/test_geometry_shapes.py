@@ -141,6 +141,8 @@ def test_Circle():
         assert isinstance(entity, geometry.Arc)
         assert entity.radius == radius
         assert entity.centre == centre
+    assert circle.radius == radius
+    assert circle.centroid == centre
 
 
 def test_Rectangle():
