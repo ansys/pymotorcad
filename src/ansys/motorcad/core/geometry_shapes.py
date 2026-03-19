@@ -407,20 +407,23 @@ class Rectangle(EntityList):
     @property
     def centroid(self) -> Coordinate:
         """Centroid Coordinate of square."""
-        median_lines = [
-            Line(self[0].midpoint, self[2].midpoint),
-            Line(self[1].midpoint, self[3].midpoint),
-        ]
-        centroid = median_lines[0].get_intersection(median_lines[1])
-        if len(centroid) > 1:
-            distance = centroid[0] - centroid[1]
-            if distance < GEOM_SHAPE_TOLERANCE:
-                return centroid[0]
+        try:
+            if self.is_closed:
+                median_lines = [
+                    Line(self[0].midpoint, self[2].midpoint),
+                    Line(self[1].midpoint, self[3].midpoint),
+                ]
+                centroid = median_lines[0].get_intersection(median_lines[1])
+                if len(centroid) > 1:
+                    distance = centroid[1] - centroid[0]
+                    average_centroid = centroid[0] + distance / 2
+                    return average_centroid
+                else:
+                    return centroid[0]
             else:
-                # could not find centroid
-                return None
-        else:
-            return centroid[0]
+                raise Exception("EntityList is not closed, can't find centroid.")
+        except:
+            return None
 
 
 class Triangle(EntityList):

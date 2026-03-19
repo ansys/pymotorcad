@@ -21,10 +21,13 @@
 # SOFTWARE.
 import math
 
+import pytest
+
 from ansys.motorcad.core import geometry
 from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Line
 from ansys.motorcad.core.geometry_shapes import (
     Circle,
+    ConvexPolygon,
     Rectangle,
     Triangle,
     _square_coordinates,
@@ -162,6 +165,15 @@ def test_Rectangle():
         else:
             assert entity.length == height
         i += 1
+    assert rectangle.centroid == geometry.Coordinate(12.5, 14)
+    assert math.isclose(rectangle.angle, 0, abs_tol=GEOM_TOLERANCE)
+    rectangle.rotate(rectangle.centroid, 15)
+    assert math.isclose(rectangle.angle, 15, abs_tol=GEOM_TOLERANCE)
+    assert not rectangle.is_square
+
+    # remove a line and check that centroid is given as None
+    rectangle.remove(rectangle[3])
+    assert not rectangle.centroid
 
     # special case of Rectangle (square)
     width = 5
@@ -214,3 +226,26 @@ def test_create_triangle_from_dimensions():
 
     for i in range(3):
         assert points[i] == triangle.points[i]
+
+
+def test_ConvexPolygon():
+    centre = geometry.Coordinate(0, 0)
+    length = 5
+    max_sides_for_testing = 15
+
+    for sides in range(max_sides_for_testing):
+        if sides < 3:
+            with pytest.raises(TypeError) as e_info:
+                polygon = ConvexPolygon(centre, sides, length)
+            assert "Polygon must have at least 3 sides" in str(e_info.value)
+        else:
+            polygon = ConvexPolygon(centre, sides, length)
+
+            assert len(polygon) == sides
+            assert polygon.is_closed
+            for entity in polygon:
+                assert isinstance(entity, geometry.Line)
+            assert polygon.centroid == centre
+            assert math.isclose(polygon.angle, 0, abs_tol=GEOM_TOLERANCE)
+            polygon.rotate(centre, 15)
+            assert math.isclose(polygon.angle, 15, abs_tol=GEOM_TOLERANCE)
