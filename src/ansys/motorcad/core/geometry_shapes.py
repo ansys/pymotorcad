@@ -407,23 +407,17 @@ class Rectangle(EntityList):
     @property
     def centroid(self) -> Coordinate:
         """Centroid Coordinate of square."""
-        try:
-            if self.is_closed:
-                median_lines = [
-                    Line(self[0].midpoint, self[2].midpoint),
-                    Line(self[1].midpoint, self[3].midpoint),
-                ]
-                centroid = median_lines[0].get_intersection(median_lines[1])
-                if len(centroid) > 1:
-                    distance = centroid[1] - centroid[0]
-                    average_centroid = centroid[0] + distance / 2
-                    return average_centroid
-                else:
-                    return centroid[0]
-            else:
-                raise Exception("EntityList is not closed, can't find centroid.")
-        except:
-            return None
+        median_lines = [
+            Line(self[0].midpoint, self[2].midpoint),
+            Line(self[1].midpoint, self[3].midpoint),
+        ]
+        centroid = median_lines[0].get_intersection(median_lines[1])
+        if len(centroid) > 1:
+            distance = centroid[1] - centroid[0]
+            average_centroid = centroid[0] + distance / 2
+            return average_centroid
+        else:
+            return centroid[0]
 
 
 class Triangle(EntityList):
@@ -521,7 +515,7 @@ class Triangle(EntityList):
             return centroid[0]
         else:
             # could not find centroid
-            return None
+            raise Exception("Can't find centroid.")
 
     def _calculate_height(self) -> float:
         """Calculate height of Triangle."""
