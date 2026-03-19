@@ -31,6 +31,14 @@ magnet rotor to have an asymmetric arrangement of magnets.
 #    This example uses Motor-CAD Geometry Tree functionality, introduced in v2026.1.1 (Motor-CAD
 #    2026 R1) and PyMotorCAD v0.8.4 or later.
 #
+# .. note::
+#    This example modifies the symmetry of the stator region. By default, Motor-CAD standard
+#    template geometry uses 1 stator region per slot. This example modifies the symmetry so that
+#    the model geometry has 4 stator regions, each spanning a quarter of the machine. This means
+#    that the **Symmetry** setting under **Model Size** on the
+#    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Full Non-Symmetry**
+#    for the FEA calculation to solve.
+#
 # Each magnet position is shifted by rotating by an offset angle. The offset angle parameters are
 # defined as new adaptive templates parameters.
 
@@ -71,11 +79,12 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
 # instance is used.
 #
-# If the script is run externally, these actions occur: a new Motor-CAD instance is opened, the a2
-# SPM motor template is loaded, the **Magnet Arc [ED]** is set to **100** and the file is saved
-# to a temporary folder. To keep a new Motor-CAD instance open after executing the script, use the
-# ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively, use the
-# ``MotorCAD()`` method, which closes the Motor-CAD instance after the script is executed.
+# If the script is run externally, these actions occur: open a new Motor-CAD instance, load the a2
+# SPM motor template, set the **Symmetry** setting under **Model Size** to **Full Non-Symmetry**
+# (**Input Data -> Settings -> Calculation** tab), set the **Magnet Arc [ED]** to **100 °** and save
+# the file to a temporary folder. To keep a new Motor-CAD instance open after executing the script,
+# use the ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively,
+# use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the script is executed.
 
 if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
@@ -87,7 +96,7 @@ else:
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
     mc.load_template("a2")
-    mc.set_variable("MagneticSymmetry", 3)
+    mc.set_variable("MagneticSymmetry", 3)  # set Full Non-Symmetry
     mc.set_variable("Magnet_Arc_[ED]", 100)
 
     # Open relevant file
