@@ -32,9 +32,9 @@ magnet rotor to have an asymmetric arrangement of magnets.
 #    2026 R1) and PyMotorCAD v0.8.4 or later.
 #
 # .. note::
-#    This example modifies the symmetry of the stator region. By default, Motor-CAD standard
-#    template geometry uses 1 stator region per slot. This example modifies the symmetry so that
-#    the model geometry has 4 stator regions, each spanning a quarter of the machine. This means
+#    This example modifies the symmetry of the rotor region. By default, Motor-CAD standard
+#    template geometry uses 1 rotor region per magnet pole. This example modifies the symmetry so
+#    that the model geometry has 4 rotor regions, each spanning a quarter of the machine. This means
 #    that the **Symmetry** setting under **Model Size** on the
 #    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Full Non-Symmetry**
 #    for the FEA calculation to solve.
