@@ -23,37 +23,56 @@
 """
 Motor-CAD Thermal Twin Builder ROM
 =================================
-This example shows how to create the files needed to generate a Motor-CAD Thermal model using the
-Twin Builder *Motor-CAD ROM* component.
+This example shows how to use a Motor-CAD model to create a Thermal ROM (reduced order model) in
+Ansys Twin Builder.
 """
 # sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
 # %%
 # Background
 # ----------
-# .. important:: The Twin Builder *Motor-CAD ROM* component is available in Twin Builder 2024 R2 or
-#    later.
+# .. important:: We strongly recommend using *Ansys Twin Builder 2026 R1 or newer*, as it introduces
+#    significant new ROM capabilities.
 #
-# Motor-CAD creates a thermal model of the motor using a Lumped Parameter Thermal Network (LPTN),
-# which allows the machine temperatures to be calculated. This LPTN thermal model can be formulated
-# as a set of thermal matrices. Motor-CAD provides the capability to export these, allowing the
-# thermal model to be imported into other engineering software packages. In general, the exported
-# model is accurate at a single speed, housing temperature, and airgap temperature ("operating
-# point").
+# Several options exist to create a Reduced Order Model (ROM) from a Motor-CAD Thermal Model. The
+# most comprehensive and recommended option is to use this workflow to create a ROM in Ansys Twin
+# Builder. The process has two steps:
 #
-# In Twin Builder 2024 R2 and later, a *Motor-CAD ROM* component can be created which extends upon
-# this idea, allowing for the creation of a Motor-CAD thermal model that is valid at a range of
-# operating points. It does this by utilizing data exported from several discrete operating points
-# to generate the component, and then automatically interpolating between these during a solve. The
-# component also solves the coolant flow model, ensuring accuracy for Motor-CAD models with cooling
-# systems enabled.
+# 1. Run this python script, which will run Motor-CAD to generate training data for the ROM. You
+# will need to set appropriate values in the script, such as the .mot file location, speeds and flow
+# rates of interest etc.
+# 
+# 2. In Twin Builder, select this training data within the Motor-CAD ROM wizard. This will
+# automatically generate the ROM.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# The *Motor-CAD ROM* component is quick to set up and provides a significantly more accurate model
-# compared to the single operating point export. It has a user friendly interface with losses and
-# RPM as input pins, and component temperatures as output pins. Once generated, the component is
+# The ROM will be valid for the full range of operating points chosen when generating the training
+# data, automatically intepolating between these during a solve. Key features of the ROM include:
+#
+# * Automatically create input pins for each loss type, including any defined custom losses
+#
+# * Handle models with any cooling system, including coupled cooling systems
+#
+# * Include the effect of variable speed, if enabled
+#
+# * Include the effect of variable coolant flow rate and inlet temperature, if enabled
+#
+# * Include the effect of natural convection and radiation, if enabled
+#
+# * Include the effect of temperature on the airgap heat transfer, if enabled
+#
+# * Provide as input pins any fixed temperature nodes
+#
+# * Allow arbitrary temperature initialization per machine component
+#
+# * Provide as output pins post processed temperatures for solids (e.g. Armature Winding Average 
+# Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
+#
+# The ROM component has been designed to require minimal setup expertise, quick setup time and high
+# solve accuracy, with the user friendly input and output pins ensuring ease of use. The ROM is also
 # standalone (does not require Motor-CAD), thus allowing it to be shared/used in alternate systems
-# whilst obscuring the underlying Motor-CAD geometry.
+# whilst obscuring the underlying Motor-CAD geometry. The ROM can also be exported from Twin Builder
+# as an FMU, which can then be deployed within a wide range of FMU compatible tools. 
 
 # %%
 # Data required to generate a *Motor-CAD ROM* component
@@ -363,8 +382,7 @@ class MotorCADTwinModel:
         )
         logging.getLogger().addHandler(logging.StreamHandler())
         logger.info("Python script execution initiated")
-        logger.info("Motor-CAD input file: " + self.inputMotFilePath)
-        logger.info("Training data output directory: " + self.outputDirectory)
+        logger.info("Input Motor-CAD file: " + self.inputMotFilePath)
 
         self.motFileName = None
         self.motFilePath = None
@@ -445,6 +463,7 @@ class MotorCADTwinModel:
         self.FixedTemperaturesWorkaround()
 
         self.mcad.quit()
+        logger.info("Twin Builder Input Files: " + self.outputDirectory)
         logger.info("Python script execution completed")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
