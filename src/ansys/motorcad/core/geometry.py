@@ -102,6 +102,7 @@ class RegionType(Enum):
     surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
+    rotor_bar = "Rotor Bar"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
@@ -202,7 +203,7 @@ class Region(object):
 
     def _get_new_object_of_type_self(self):
         """Return self object."""
-        if self.region_type:
+        if self.region_type and self.region_type != RegionType.magnet:
             return type(self)(region_type=self.region_type)
         else:
             return type(self)()
