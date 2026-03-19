@@ -19,13 +19,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import math
 
 from ansys.motorcad.core import geometry
-from ansys.motorcad.core.geometry import Arc, Line
+from ansys.motorcad.core.geometry import GEOM_TOLERANCE, Arc, Line
 from ansys.motorcad.core.geometry_shapes import (
     Circle,
     Rectangle,
     Triangle,
+    _square_coordinates,
     create_triangle_from_dimensions,
     eq_triangle_h,
     eq_triangle_w,
@@ -52,6 +54,26 @@ def test_square():
     function_square = square(2, 0, 0)
 
     assert function_square == test_square
+
+
+def test_square_coordinates():
+    # test for old function that is deprecated
+    points = [
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+        geometry.Coordinate(-1, -1),
+    ]
+
+    x0, y0, x1, y1, x2, y2, x3, y3 = _square_coordinates(2, 0, 0)
+    assert math.isclose(x0, points[0].x, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(y0, points[0].y, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(x1, points[1].x, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(y1, points[1].y, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(x2, points[2].x, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(y2, points[2].y, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(x3, points[3].x, abs_tol=GEOM_TOLERANCE)
+    assert math.isclose(y3, points[3].y, abs_tol=GEOM_TOLERANCE)
 
 
 def test_eq_triangle_h():

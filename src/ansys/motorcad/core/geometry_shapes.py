@@ -115,12 +115,12 @@ def _square_coordinates(width, r_O, th_O):
     return (
         this_square[0].start.x,
         this_square[0].start.y,
-        this_square[1].start.x,
-        this_square[1].start.y,
-        this_square[2].start.x,
-        this_square[2].start.y,
         this_square[3].start.x,
         this_square[3].start.y,
+        this_square[2].start.x,
+        this_square[2].start.y,
+        this_square[1].start.x,
+        this_square[1].start.y,
     )
 
 
