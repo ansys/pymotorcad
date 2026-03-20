@@ -56,8 +56,3 @@ def test_motorcadcompatibility(mc, monkeypatch):
 
     succ, var = mc2.GetVariable("not_a_var")
     assert succ != 0
-
-
-# Check that we are using Motor-CAD 2026 (Testing only!)
-def test_motorcad_version(mc):
-    assert "2026" in mc.connection.program_version
