@@ -14,6 +14,7 @@ env:
   LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   DOCUMENTATION_CNAME: 'motorcad.docs.pyansys.com'
+  PYMOTORCAD_EXE: 'C:\Program Files\ANSYS Inc\v261\motorcad\MotorCAD.exe'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
