@@ -23,80 +23,77 @@
 """
 Motor-CAD Thermal Twin Builder ROM
 =================================
-This example shows how to use a Motor-CAD model to create a Thermal ROM (reduced order model) in
+This example shows how to transform a Motor-CAD model into a Thermal ROM (reduced order model) in
 Ansys Twin Builder.
+
+.. important:: We strongly recommend using Ansys Twin Builder 2026 R1 or newer, as it includes
+  significant new Thermal ROM capabilities.
+
 """
-# sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
+
 # %%
 # Background
-# ----------
-# .. important:: We strongly recommend using *Ansys Twin Builder 2026 R1 or newer*, as it introduces
-#    significant new ROM capabilities.
-#
-# Several options exist to create a Reduced Order Model (ROM) from a Motor-CAD Thermal Model. The
-# most comprehensive and recommended option is to use this workflow to create a ROM in Ansys Twin
+# --------------
+# Several options exist to transform a Motor-CAD Thermal Model into a Thermal ROM. The most
+# comprehensive and recommended option is to use this workflow to create a Thermal ROM in Ansys Twin
 # Builder. The process has two steps:
 #
-# 1. Run this python script, which will run Motor-CAD to generate training data for the ROM. You
-# will need to set appropriate values in the script, such as the .mot file location, speeds and flow
-# rates of interest etc.
+# 1. Run this python script, which will run Motor-CAD to generate training data for the Thermal ROM.
 #
-# 2. In Twin Builder, select this training data within the Motor-CAD ROM wizard. This will
-# automatically generate the ROM.
+#    You will need to set appropriate values in the script, such as the .mot file location, speeds
+#    and flow rates of interest.
+#
+# 2. In Twin Builder, select this training data within the Motor-CAD ROM wizard.
+#
+#    This will generate the Thermal ROM.
+#
+# The following screenshot shows a resulting Thermal ROM in Twin Builder. The input and output pins
+# were automatically created. Values to feed into the input pins (yellow boxes) and plots of the
+# time-varying values of the input and output pins (two bottom graphs) were manually added.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# The ROM will be valid for the full range of operating points chosen when generating the training
-# data, automatically intepolating between these during a solve. Key features of the ROM include:
+# The Thermal ROM has been designed to require minimal setup expertise, have a quick setup time and
+# maintain high solve accuracy when compared to the full fidelity Motor-CAD thermal model. During
+# runtime, the Thermal ROM will automatically interpolate between the operating points used to
+# generate the training data, ensuring validity over the full user defined operating range.
 #
-# * Automatically create input pins for each loss type, including any defined custom losses
+# User friendly input and output pins ensure ease of use, even for those unfamiliar with Motor-CAD.
+# The Thermal ROM is also standalone (does not require Motor-CAD at runtime), thus allowing it to be
+# distributed and used in alternate systems whilst obscuring the underlying Motor-CAD geometry.
 #
-# * Handle models with any cooling system, including coupled cooling systems
+# Key features of the Thermal ROM include:
 #
-# * Include the effect of variable speed, if enabled
+# * Ability to handle models with any cooling system, including coupled cooling systems
 #
-# * Include the effect of variable coolant flow rate and inlet temperature, if enabled
+# * Inclusion of variable speed
 #
-# * Include the effect of natural convection and radiation, if enabled
+# * Inclusion of variable coolant flow rate and inlet temperature
 #
-# * Include the effect of temperature on the airgap heat transfer, if enabled
+# * Inclusion of natural convection and radiation
 #
-# * Provide as input pins any fixed temperature nodes
+# * Inclusion of variable ambient temperature
 #
-# * Allow arbitrary temperature initialization per machine component
+# * Inclusion of temperature dependent airgap heat transfer
 #
-# * Provide as output pins post processed temperatures for solids (e.g. Armature Winding Average
-# Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
+# * Automatic input pin creation for any parameter dependent behaviour (e.g. speed, flow rate)
 #
-# The ROM component has been designed to require minimal setup expertise, quick setup time and high
-# solve accuracy, with the user friendly input and output pins ensuring ease of use. The ROM is also
-# standalone (does not require Motor-CAD), thus allowing it to be shared/used in alternate systems
-# whilst obscuring the underlying Motor-CAD geometry. The ROM can also be exported from Twin Builder
-# as an FMU, which can then be deployed within a wide range of FMU compatible tools.
+# * Automatic input pin creation for each applicable loss type (including any defined custom losses)
+#
+# * Automatic input pin creation for any fixed temperature nodes
+#
+# * Automatic output pin creation for post-processed temperatures for solids (e.g. Armature Winding
+#   Average Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
+#
+# * Ability to set arbitrary initial temperatures, per component
+#
+# * Ability to export the Thermal ROM as an FMU, which can be deployed within any FMU compatible
+#   tool
+#
+# Please see :ref:`example_use_case` to see an example of ROM generation.
 
 # %%
-# Data required to generate a *Motor-CAD ROM* component
-# ----------------------------------------
-# To generate the component, within Ansys Electronics Desktop, go to the menu bar and select **Twin
-# Builder** > **Add Component** > **Add Motor-CAD ROM Component...**. This will present the
-# following window:
-#
-# .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Blank.png
-#
-# The **Input Files** must point to the folder which contains the Motor-CAD data at the appropriate
-# operating points of interest, formatted in the appropriate manner. The script below is an example
-# showing how this can be done.
-#
-# .. important:: This script demonstrates how to obtain the data needed to generate a
-#    *Motor-CAD ROM* component, as well as how to generate the component in Twin Builder.
-#    For details on how the resulting *Motor-CAD ROM* component can be used, please
-#    consult the Twin Builder Help Manual.
-#
-# .. attention:: This script is designed to be run using Motor-CAD template "e8". For other models,
-#    modification of this script may be required.
-
-# %%
-# Perform required imports
+# Workflow python script
 # ------------------------
 
 from __future__ import annotations
@@ -116,28 +113,17 @@ import numpy as np
 
 import ansys.motorcad.core as pymotorcad
 
+# sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
+
 logger = logging.getLogger(__name__)
 
 # %%
-# Define the required Class
-# -------------------------
-# A ``MotorCADTwinModel`` class has been created to encapsulate the required logic. The resulting
-# object contains the data and functions to export the required Motor-CAD in the appropriate format.
-# A summary of the operations performed is as follows:
-
-# %%
-# 1. The Motor-CAD model calculation settings are configured
-# 2. The thermal node numbers, node names and other required node data is determined
-# 3. The cooling system nodes and flow path are identified and saved to the ``CoolingSystems.csv``
-#    file
-# 4. For each desired speed, the thermal model is solved and thermal matrices exported and saved to
-#    the ``dpxxxxxx`` folders
-# 5. The distribution of the losses onto the individual nodes is determined and saved to the
-#    ``LossDistribution.csv`` file
-# 6. Natural convection cooling of the Housing is characterized and saved to the
-#    ``HousingTempDependency`` folder
-# 7. Temperature dependent Airgap heat transfer is characterized and saved to the
-#    ``AirGapTempDependency`` folder
+# The ``AutomationParam`` class is used to create parameters that can be included in
+# ``coolingSystemsParameterSweeps``. The most commonly used parameters, including flow rates and
+# inlet temperatures for each cooling system, have already been defined. Additional parameters can
+# be defined by the user, and there is no limit to which Motor-CAD parameters can be chosen. Refer
+# to the ``coolingSystemsParameterSweeps`` parameter in the :ref:`example_use_case` to see an
+# example of how the ``AutomationParam`` parameters are used.
 
 
 @dataclass(eq=True, frozen=True)
@@ -230,6 +216,12 @@ SlotWJ_InletTemp = AutomationParam("SlotWJ_InletTemp", "Slot_WJ_Fluid_inlet_temp
 BlownOver_FlowRate = AutomationParam("BlownOver_FlowRate", "Forced_Conv_Default_Flow_Rate")
 BlownOver_Velocity = AutomationParam("BlownOver_Velocity", "Forced_Conv_Default_Velocity")
 
+# %%
+# The ``CoolingSystem`` class is used to define the cooling systems that can be included in
+# ``coolingSystemsParameterSweeps``. These are all defined below, and additional custom cooling
+# systems cannot be defined. Refer to the ``coolingSystemsParameterSweeps`` parameter in the
+# :ref:`example_use_case` to see an example of how the ``CoolingSystem`` parameters are used.
+
 # All automation parameters used for the cooling systems are defined here
 Ventilated = CoolingSystem("Ventilated", "Ventilated")
 Housing_Water_Jacket = CoolingSystem("Housing_Water_Jacket", "Housing Water Jacket")
@@ -276,6 +268,33 @@ coolingSystemSweepType = Optional[
     Dict[CoolingSystem, Dict[AutomationParam, List[float] | List[int]]]
 ]
 housingTempSweepType = Optional[dict[float, List[float]]]
+
+# %%
+# A ``MotorCADTwinModel`` class has been created to encapsulate the required logic. The resulting
+# object contains the data and functions to export the required Motor-CAD in the appropriate format.
+# A summary of the operations performed is as follows:
+
+# %%
+# 1. The Motor-CAD model settings are configured and the file is saved
+# 2. Custom losses are identified
+# 3. The thermal node numbers, node names and other required node data is determined
+# 4. The cooling system nodes and flow path are identified and saved to the ``CoolingSystems.csv``
+#    file
+# 5. Fixed temperature nodes, and coupled nodes, are identified and saved to
+#    ``FixedTemperatures.csv`` and ``CoupledNodes.csv`` respectively
+# 6. For each desired speed, the thermal model is solved and thermal matrices exported and saved to
+#    the ``dpxxxxxx`` folders
+# 7. The distribution of the losses onto the individual nodes is determined and saved to the
+#    ``LossDistribution.csv`` file
+# 8. Variations of the cooling system with respect to the defined sweeps in
+#    ``coolingSystemsParameterSweeps`` are performed. The resulting data is saved in the
+#    ``CoolingSystems`` folder.
+# 9. Natural convection and radiative cooling of the housing is characterized and saved to the
+#    ``HousingTempDependency`` folder
+# 10. Temperature dependent airgap heat transfer is characterized and saved to the
+#     ``AirGapTempDependency`` folder
+# 11. Initial tempearature pins are created and saved to ``TemperatureInitialization.csv``
+# 12. Output temperature pins are created and saved to ``TemperatureOutputs.csv``
 
 
 class MotorCADTwinModel:
@@ -337,9 +356,9 @@ class MotorCADTwinModel:
         "Brush_Friction_Loss_@Ref_Speed",
         "Brush_VI_Loss_@Ref_Speed",
     ]
-
     # Stator_Iron_Loss_@Ref_Speed_[Tooth_Tip] is not included as this is an unused Motor-CAD
     # parameter
+
     @dataclass
     class FluidPath:
         graph: nx.DiGraph
@@ -809,7 +828,7 @@ class MotorCADTwinModel:
                         f"set up to give you your desired resolution",
                     )
                 flowrateOrVelocity = self.mcad.get_variable("Input_Flow_Rate_or_Velocity")
-                (param, _) = list(blownover.items())[0]
+                param, _ = list(blownover.items())[0]
                 if (flowrateOrVelocity == 0) and (param == BlownOver_Velocity):
                     validate(
                         False,
@@ -1799,7 +1818,7 @@ class MotorCADTwinModel:
                 Blown_Over in coolingSystemsParameterSweeps
             ):
                 blownover = coolingSystemsParameterSweeps[Blown_Over]
-                (param, paramValues) = list(blownover.items())[0]
+                param, paramValues = list(blownover.items())[0]
                 with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
                     paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                     fout.write(param.name + "=" + str(paramValuesTB))
@@ -2377,19 +2396,24 @@ class MotorCADTwinModel:
 
 
 # %%
+# .. _example_use_case:
+#
 # Example use case
 # ----------------
 # Below is an example of how the above ``MotorCADTwinModel`` class can be used using the
 # ``e8_eMobility`` template .mot file.
-
-
-# %%
-# The ``generateTwinData`` method accepts as an optional parameter a dictionary of Housing and
-# Ambient temperatures to be investigated. This can be provided if Natural Convection cooling of the
-# housing should be modelled in the Twin Builder *Motor-CAD ROM* component. For this example, a
-# function has been defined to return this dictionary. As can be seen in the code comments, more
-# data points are calculated when the housing and ambient temperatures are close together, as this
-# is where the natural convection heat transfer coefficients vary the most.
+#
+# .. attention:: This script is designed to be run using Motor-CAD template "e8". For other models,
+#    modification of this script may be required.
+#
+# Choose the housing and ambient temperature sample points (for natural convection and radiation)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The ``generateTwinData`` method accepts as an optional parameter a dictionary of housing and
+# ambient temperatures to be investigated. This can be provided if natural convection or radiative
+# cooling of the housing should be included in the Thermal ROM. For this example, a function has
+# been defined to return this dictionary. As can be seen in the code comments, more data points are
+# calculated when the housing and ambient temperatures are close together, as this is where the
+# natural convection and radiative heat transfer coefficients vary the most.
 def temperaturesHousingAmbient(
     ambientTemperatures: List[float], housingTemperatureMin: float, housingTemperatureMax: float
 ) -> housingTempSweepType:
@@ -2440,6 +2464,8 @@ def temperaturesHousingAmbient(
 
 
 # %%
+# Specify input .mot file and output directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the input .mot file and the directory to save the output data to.
 working_folder = os.getcwd()
 mcad_name = "e8_mobility"
@@ -2455,11 +2481,15 @@ if Path(inputMotFilePath).exists() == False:
     motorcad.quit()
 
 # %%
+# Create the ``MotorCADTwinModel`` object
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
 # well as the directory to which the results should be saved.
 MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 
 # %%
+# Choose the speed sample points
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
 # component will interpolate between these, so it is important to cover the complete speed range
 # with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
@@ -2467,25 +2497,38 @@ MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 speeds = [200, 500, 1000]
 
 # %%
+# Choose the airgap temperature sample points
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the airgap temperatures to investigate, in order for the temperature dependent nature
-# of the airgap heat transfer to be included in the *Motor-CAD ROM* component. The generated
-# *Motor-CAD ROM* component will interpolate between these, so it is important to cover the complete
-# expected airgap temperature range with the appropriate sampling in order to maintain accuracy.
-# This parameter can be set to ``None`` should this not be required.
+# of the airgap heat transfer to be included in the Thermal ROM. The Thermal ROM will interpolate
+# between these, so it is important to cover the complete expected airgap temperature range with the
+# appropriate sampling in order to maintain accuracy. This parameter can be set to ``None`` should
+# this not be required.
 airgapTemps = [60, 120]
 
 # %%
+# Specify the ambient and housing temperatures
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the housing and ambient temperatures to investigate, in order for the natural
-# convection cooling of the housing to be be included in the *Motor-CAD ROM* component. The
-# generated *Motor-CAD ROM* component will interpolate between these, so it is important to cover
-# the complete expected housing and ambient temperature range with the appropriate sampling in order
-# to maintain accuracy. This parameter can be set to ``None`` should this not be required.
+# convection and radiative cooling of the housing to be be included in the Thermal ROM. The
+# generated Thermal ROM will interpolate between these, so it is important to cover the complete
+# expected housing and ambient temperature range with the appropriate sampling in order to maintain
+# accuracy. This parameter can be set to ``None`` should this not be required.
 housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 
 # %%
+# Specify the cooling system parameters to vary and their sample points
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the cooling systems for which input dependencies need to be taken into account.
 # For each cooling system involved, define the parameters values to sweep to extract the
 # corresponding training data.
+#
+# Ensure only cooling systems and parameters that can be controlled are
+# specified - cooling systems that cannot be controlled in Motor-CAD due to their inlets being
+# coupled should not be included in here. For example, if a model includes a Housing Water Jacket
+# and a Slot Water Jacket, and the Slot Water Jacket inlet is coupled to the outlet of the Housing
+# Water Jacket, only the Housing Water Jacket flow rate and inlet temperature can be set in
+# Motor-CAD. Therefore, only the Housing Water Jacket parameters should be specified here.
 coolingSystemsParameterSweeps: coolingSystemSweepType = {
     Housing_Water_Jacket: {
         HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
@@ -2494,8 +2537,10 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
 }
 
 # %%
+# Generate the training data
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Finally, generate the required data. This function will write the data to the directory
-# specified above. The identified cooling system node flow path is automatically plotted.
+# specified above. The identified cooling system node flow paths are automatically plotted.
 MotorCADTwin.generateTwinData(
     rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
@@ -2505,21 +2550,27 @@ MotorCADTwin.generateTwinData(
 
 
 # %%
-# Generating the *Motor-CAD ROM* component
-# ----------------------------------------
+# Generate the Thermal ROM in Twin Builder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # To generate the component, within Ansys Electronics Desktop, go to the menu bar and select **Twin
-# Builder** > **Add Component** > **Add Motor-CAD ROM Component...**. Under **Input Files**, press
-# the ``...`` icon and choose the ``outputDir`` as specified in the previous step. Then press the
-# **Generate** button.
+# Builder** > **Add Component** > **Add Motor-CAD ROM Component...**. This will present the
+# following window:
+#
+# .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Blank.png
+#
+# The **Input Files** must point to the folder which contains the generated training data. Under
+# **Input Files**, press the ``...`` icon and choose the ``outputDir`` as specified in the previous
+# step. Then press the **Generate** button.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Filled.png
 #
 # Should the generation be successful, the **Log** will indicate that the SML model has been written
 # and the **Select Interfaces** table will be populated.
 #
-# The resulting *Motor-CAD ROM* component will then be available to use.
+# The resulting Thermal ROM will then be available to use. Press **Import** and click within the
+# sheet to place the Thermal ROM.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# .. seealso:: For informtation on how to use the *Motor-CAD ROM* component, please consult the
-#    Twin Builder Help Manual.
+# .. seealso:: For information on how using the Thermal ROM in Twin Builder, please consult the Twin
+#    Builder Help Manual.
