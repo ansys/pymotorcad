@@ -2490,10 +2490,10 @@ MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 # %%
 # Choose the speed sample points
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Choose the speed points that the model should be solved at. The generated *Motor-CAD ROM*
-# component will interpolate between these, so it is important to cover the complete speed range
-# with the appropriate sampling in order to maintain accuracy. Three points have been chosen here to
-# reduce calculation time, but in real use it is recommended that this be greater.
+# Choose the speed points that the model should be solved at. The generated Thermal ROM will
+# interpolate between these, so it is important to cover the complete speed range with the
+# appropriate sampling in order to maintain accuracy. Three points have been chosen here to reduce
+# calculation time, but in real use it is recommended that this be greater.
 speeds = [200, 500, 1000]
 
 # %%
