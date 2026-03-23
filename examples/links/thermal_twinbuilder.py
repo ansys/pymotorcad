@@ -59,10 +59,13 @@ Ansys Twin Builder.
 # generate the training data, ensuring validity over the full user defined operating range.
 #
 # User friendly input and output pins ensure ease of use, even for those unfamiliar with Motor-CAD.
+# The pins have been designed to allow easy linking between the Thermal ROM and the Motor-CAD Lab
+# FMU, allowing for fast, coupled, drive cycle simulations.
+#
 # The Thermal ROM is also standalone (does not require Motor-CAD at runtime), thus allowing it to be
 # distributed and used in alternate systems whilst obscuring the underlying Motor-CAD geometry.
 #
-# Key features of the Thermal ROM include:
+# Key features include:
 #
 # * Ability to handle models with any cooling system, including coupled cooling systems
 #
@@ -2484,13 +2487,13 @@ if Path(inputMotFilePath).exists() == False:
 # Create the ``MotorCADTwinModel`` object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the results should be saved.
+# well as the directory to which the generated training data should be saved.
 MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 
 # %%
 # Choose the speed sample points
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Choose the speed points that the model should be solved at. The generated Thermal ROM will
+# Choose the speed points that the model should be sampled at. The generated Thermal ROM will
 # interpolate between these, so it is important to cover the complete speed range with the
 # appropriate sampling in order to maintain accuracy. Three points have been chosen here to reduce
 # calculation time, but in real use it is recommended that this be greater.
@@ -2499,11 +2502,11 @@ speeds = [200, 500, 1000]
 # %%
 # Choose the airgap temperature sample points
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Specify the airgap temperatures to investigate, in order for the temperature dependent nature
-# of the airgap heat transfer to be included in the Thermal ROM. The Thermal ROM will interpolate
-# between these, so it is important to cover the complete expected airgap temperature range with the
+# Specify the airgap temperatures to sample, in order for the temperature dependent nature of the
+# airgap heat transfer to be included in the Thermal ROM. The Thermal ROM will interpolate between
+# these, so it is important to cover the complete expected airgap temperature range with the
 # appropriate sampling in order to maintain accuracy. This parameter can be set to ``None`` should
-# this not be required.
+# the additional accuracy of this model not be required.
 airgapTemps = [60, 120]
 
 # %%
@@ -2513,22 +2516,24 @@ airgapTemps = [60, 120]
 # convection and radiative cooling of the housing to be be included in the Thermal ROM. The
 # generated Thermal ROM will interpolate between these, so it is important to cover the complete
 # expected housing and ambient temperature range with the appropriate sampling in order to maintain
-# accuracy. This parameter can be set to ``None`` should this not be required.
+# accuracy. This parameter can be set to ``None`` should the additional accuracy of this model not
+# be required.
 housingAmbientTemps = temperaturesHousingAmbient([40], 40, 120)
 
 # %%
 # Specify the cooling system parameters to vary and their sample points
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Specify the cooling systems for which input dependencies need to be taken into account.
-# For each cooling system involved, define the parameters values to sweep to extract the
-# corresponding training data.
+# Specify the cooling system parameters that can be varied in the Thermal ROM. For each of these,
+# define the values to sweep. The script will then extract the corresponding Motor-CAD data at each
+# of the defined points, and inlet pins to control these parameters will be present in the resulting
+# Thermal ROM.
 #
-# Ensure only cooling systems and parameters that can be controlled are
-# specified - cooling systems that cannot be controlled in Motor-CAD due to their inlets being
-# coupled should not be included in here. For example, if a model includes a Housing Water Jacket
-# and a Slot Water Jacket, and the Slot Water Jacket inlet is coupled to the outlet of the Housing
-# Water Jacket, only the Housing Water Jacket flow rate and inlet temperature can be set in
-# Motor-CAD. Therefore, only the Housing Water Jacket parameters should be specified here.
+# Ensure only cooling systems and parameters that can be controlled are specified - cooling systems
+# that cannot be controlled in Motor-CAD due to their inlets being coupled must not be included
+# here. For example, if a model includes a Housing Water Jacket and a Slot Water Jacket, and the
+# Slot Water Jacket inlet is coupled to the outlet of the Housing Water Jacket, only the Housing
+# Water Jacket flow rate and inlet temperature can be set in Motor-CAD. Therefore, only the Housing
+# Water Jacket parameters can be specified here.
 coolingSystemsParameterSweeps: coolingSystemSweepType = {
     Housing_Water_Jacket: {
         HousingWJ_FlowRate: [2 / 6e4, 4 / 6e4, 8 / 6e4],
@@ -2540,7 +2545,7 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
 # Generate the training data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Finally, generate the required data. This function will write the data to the directory
-# specified above. The identified cooling system node flow paths are automatically plotted.
+# specified previously. The identified cooling system node flow paths are automatically plotted.
 MotorCADTwin.generateTwinData(
     rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
@@ -2572,5 +2577,5 @@ MotorCADTwin.generateTwinData(
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# .. seealso:: For information on how using the Thermal ROM in Twin Builder, please consult the Twin
+# .. seealso:: For information on using the Thermal ROM in Twin Builder, please consult the Twin
 #    Builder Help Manual.
