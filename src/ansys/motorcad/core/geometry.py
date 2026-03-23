@@ -1470,7 +1470,7 @@ class RegionMagnet(Region):
         -------
         string
         """
-        return self.magnetisation_direction
+        return self._magnetisation_direction
 
     @magnetisation_direction.setter
     def magnetisation_direction(self, value):
@@ -1484,7 +1484,7 @@ class RegionMagnet(Region):
         -------
         string
         """
-        return self.magnetisation_function_amplitude
+        return self._magnetisation_function_amplitude
 
     @magnetisation_function_amplitude.setter
     def magnetisation_function_amplitude(self, value):
@@ -1498,7 +1498,7 @@ class RegionMagnet(Region):
         -------
         string
         """
-        return self.magnetisation_function_angle
+        return self._magnetisation_function_angle
 
     @magnetisation_function_angle.setter
     def magnetisation_function_angle(self, value):
