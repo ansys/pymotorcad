@@ -301,9 +301,7 @@ housingTempSweepType = Optional[dict[float, List[float]]]
 
 
 class MotorCADTwinModel:
-    # Store required constants for the Motor-CAD Cooling System Node Group names (provided in the
-    # ``.nmf`` file), corresponding parameter names for varying flowrate and inlet temperature
-    # the Motor-CAD loss names (for display in Twinbuilder), and the corresponding Motor-CAD
+    # List of Motor-CAD loss names (for display in Twin Builder), and the corresponding Motor-CAD
     # parameter names.
 
     lossNames = [
