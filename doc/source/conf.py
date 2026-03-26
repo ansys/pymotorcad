@@ -50,6 +50,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinx.ext.viewcode",
 ]
 
 sphinx_gallery_conf = {
