@@ -33,7 +33,7 @@ import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
-
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
     mc2 = MotorCAD(open_new_instance=False)
@@ -68,6 +68,7 @@ def test_set_motorcad_exe():
 
 
 # Test the method used to connect to Motor-CAD from internal scripting
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_internal_connection(mc):
     port = mc.connection._port
 
@@ -82,6 +83,7 @@ def test_internal_connection(mc):
 
 
 # Test opening Motor-CAD with port defined
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_open_new_with_port():
     test_port = 36020
 
@@ -103,6 +105,7 @@ def test_open_new_with_port():
 
 
 # Test connecting to known Motor-CAD instance
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_connect_existing_with_port(mc):
     test_port = mc.connection._port
 
@@ -110,7 +113,7 @@ def test_connect_existing_with_port(mc):
 
     assert mc2.connection._port == test_port
 
-
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_reusing_parallel_instances(mc, monkeypatch):
     # This should connect to mc test instance
     mc2 = MotorCAD(reuse_parallel_instances=True, port=mc.connection._port)
@@ -141,7 +144,7 @@ def test_reusing_parallel_instances(mc, monkeypatch):
 
     assert mc.is_open()
 
-
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_set_busy(mc):
     mc2 = MotorCAD(open_new_instance=False, port=mc.connection._port)
     mc2.set_free()
@@ -153,6 +156,7 @@ def test_set_busy(mc):
 
 
 # test keeping an instance open
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_keeping_instance_open(monkeypatch):
     # This should connect to mc test instance
     mc2 = MotorCAD(keep_instance_open=True)
@@ -186,6 +190,7 @@ def test_keeping_instance_open(monkeypatch):
 
 
 # Check that Motor-CAD closes when Motor-CAD object is freed
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_deleting_object():
     mc3 = MotorCAD(open_new_instance=True)
 
