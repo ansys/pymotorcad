@@ -114,8 +114,6 @@ def test_load_dxf_file():
 
         mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-
-
         # mc2.create_optimised_mesh()
 
         # Not currently working - needs fixing in Motor-CAD

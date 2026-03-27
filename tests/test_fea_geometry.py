@@ -20,10 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
-
 from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
-from ansys.motorcad.core.geometry import rt_to_xy, xy_to_rt
 
 MATERIAL_INVALID_NAME = "invalid material name here"
 MATERIAL_EPOXY = "Epoxy"
@@ -127,8 +124,8 @@ def test_initiate_geometry_from_script():
 #     # functionality will be deprecated soon
 #     # region = mc_fea_old._get_region_properties_xy(5, 5)
 #     #
-#     # # assert almost_equal(region["RegionArea"], 100)
-#     # # RegionArea not working in this function - don't bother fixing since these will be deprecated
+#     # assert almost_equal(region["RegionArea"], 100)
+#     # RegionArea not working in this function - don't bother fixing since these will be deprecated
 #     # assert region["RegionName"] == "test_region"
 #     reset_model_geometry(mc_fea_old)
 #
@@ -158,8 +155,8 @@ def test_initiate_geometry_from_script():
 #     # functionality will be deprecated soon
 #     # region = mc_fea_old._get_region_properties_xy(10, 10)
 #     #
-#     # # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
-#     # # RegionArea not working in this function - don't bother fixing since these will be deprecated
+#     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
+#     # RegionArea not working in this function - don't bother fixing since these will be deprecated
 #     # assert region["RegionName"] == "test_region"
 #     reset_model_geometry(mc_fea_old)
 #
@@ -193,7 +190,8 @@ def test_initiate_geometry_from_script():
 #     # region = mc_fea_old._get_region_properties_xy(x_c, y_c)
 #     #
 #     # # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
-#     # # RegionArea not working in this function - don't bother fixing since these will be deprecated
+#     # # RegionArea not working in this function
+#     - don't bother fixing since these will be deprecated
 #     # assert region["RegionName"] == "test_region"
 #     reset_model_geometry(mc_fea_old)
 #
@@ -227,8 +225,8 @@ def test_initiate_geometry_from_script():
 #     # functionality will be deprecated soon
 #     # region = mc_fea_old._get_region_properties_xy(x_c, y_c)
 #     #
-#     # # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
-#     # # RegionArea not working in this function - don't bother fixing since these will be deprecated
+#     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
+#     # RegionArea not working in this function - don't bother fixing since these will be deprecated
 #     # assert region["RegionName"] == "test_region"
 #     reset_model_geometry(mc_fea_old)
 #
@@ -264,8 +262,8 @@ def test_initiate_geometry_from_script():
 #     # functionality will be deprecated soon
 #     # region = mc_fea_old._get_region_properties_xy(x_c, y_c)
 #     #
-#     # # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
-#     # # RegionArea not working in this function - don't bother fixing since these will be deprecated
+#     # assert almost_equal(region["RegionArea"], pi * pow(radius, 2))
+#     # RegionArea not working in this function - don't bother fixing since these will be deprecated
 #     # assert region["RegionName"] == "test_region"
 #     reset_model_geometry(mc_fea_old)
 #
@@ -441,6 +439,7 @@ def test_initiate_geometry_from_script():
 #     reset_model_geometry(mc_fea_old)
 #
 
+
 def test_get_region_properties_xy():
     # Placeholder function so that we know this has been tested in other functions.
     # - could expand this in the future to have standalone test.
@@ -450,6 +449,7 @@ def test_get_region_properties_xy():
     # test_add_magnet_region_rt/xy
     # test_add_region_rt/xy
     assert True
+
 
 #
 # def test_add_point_custom_material_xy(mc_fea_old):
