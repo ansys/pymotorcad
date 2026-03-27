@@ -33,6 +33,7 @@ import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
@@ -113,6 +114,7 @@ def test_connect_existing_with_port(mc):
 
     assert mc2.connection._port == test_port
 
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_reusing_parallel_instances(mc, monkeypatch):
     # This should connect to mc test instance
@@ -143,6 +145,7 @@ def test_reusing_parallel_instances(mc, monkeypatch):
     del mc2
 
     assert mc.is_open()
+
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_set_busy(mc):

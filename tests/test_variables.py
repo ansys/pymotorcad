@@ -133,6 +133,7 @@ def test_restore_compatibility_settings(mc):
     mc.restore_compatibility_settings()
     assert mc.get_variable(test_compatibility_setting) == improved_method
 
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name():
     mc = MotorCAD()
