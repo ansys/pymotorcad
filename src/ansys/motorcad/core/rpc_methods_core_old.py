@@ -807,11 +807,6 @@ class _RpcMethodsCoreOld:
         replacement_function = self.new_methods.add_point_custom_material_xy
         return replacement_function(*args)
 
-    def AddPoint_CustomMaterial_RT(self, *args):
-        """Deprecated function."""
-        replacement_function = self.new_methods.add_point_custom_material_rt
-        return replacement_function(*args)
-
     def GetRegionValue(self, *args):
         """Deprecated function. Replaced by :func:`MotorCAD.get_region_value`."""
         replacement_function = self.new_methods.get_region_value
