@@ -630,15 +630,13 @@ class _RpcMethodsCoreOld:
         return replacement_function()
 
     def ClearAllData(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.clear_all_data`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.clear_all_data
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
     def AddLine_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_line_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_line_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def SetBndCond(self, *args):
@@ -666,9 +664,8 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def CreateOptimisedMesh(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.create_optimised_mesh`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.create_optimised_mesh
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
     def CreateOptimisedMesh_Thermal(self, *args):
@@ -708,9 +705,8 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def AddArc_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def SetRegionColour(self, *args):
@@ -726,45 +722,38 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def AddLine_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_line_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_line_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddArc_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddArc_Boundary_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_boundary_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_boundary_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddArc_Boundary_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_boundary_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_boundary_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddLine_Boundary_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_line_boundary_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_line_boundary_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddLine_Boundary_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_line_boundary_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_line_boundary_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def InitiateGeometryFromScript(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.initiate_geometry_from_script`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.initiate_geometry_from_script
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
     def AddPoint_Magnetic_RT(self, *args):
@@ -780,15 +769,13 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def AddArc_CentreStartEnd_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_centre_start_end_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_centre_start_end_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddArc_CentreStartEnd_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_arc_centre_start_end_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_arc_centre_start_end_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def SetFEAPathPoint(self, *args):
@@ -816,9 +803,13 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def AddPoint_CustomMaterial_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_point_custom_material_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_point_custom_material_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
+        return replacement_function(*args)
+
+    def AddPoint_CustomMaterial_RT(self, *args):
+        """Deprecated function."""
+        replacement_function = self.new_methods.add_point_custom_material_rt
         return replacement_function(*args)
 
     def GetRegionValue(self, *args):
@@ -834,45 +825,38 @@ class _RpcMethodsCoreOld:
         return replacement_function(*args)
 
     def EditMagnetRegion(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.edit_magnet_region`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.edit_magnet_region
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddRegion_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_region_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_region_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddRegion_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_region_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_region_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def DeleteRegions(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.delete_regions`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.delete_regions
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def ResetRegions(self):
-        """Deprecated function. Replaced by :func:`MotorCAD.reset_regions`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.reset_regions
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function()
 
     def AddMagnetRegion_RT(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_magnet_region_rt`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_magnet_region_rt
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def AddMagnetRegion_XY(self, *args):
-        """Deprecated function. Replaced by :func:`MotorCAD.add_magnet_region_xy`."""
+        """Deprecated function."""
         replacement_function = self.new_methods.add_magnet_region_xy
-        deprecation_warning(_getframe().f_code.co_name, replacement_function.__name__)
         return replacement_function(*args)
 
     def GetPointValue(self, *args):
