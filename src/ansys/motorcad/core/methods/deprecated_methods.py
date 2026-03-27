@@ -113,29 +113,6 @@ class _RpcMethodsDeprecated:
         params = [xs, ys, xe, ye, dir_code, sym_code, virt_code, init_code]
         return self.connection.send_and_receive(method, params)
 
-    def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
-        """Edit a magnet region.
-
-        .. deprecated:: 0.6.0
-          `edit_magnet_region` has been removed in Motor-CAD 2027R1.
-          Functionality replaced by adaptive templates.
-
-        Parameters
-        ----------
-        region_name : str
-            Name of the magnet region.
-        magnet_material : str
-            Magnet material.
-        br_angle : float
-            Br angle of the magnet.
-        br_multiplier : float
-            Br multiplier for the magnet.
-        """
-        geometry_deprecation_warning("edit_magnet_region")
-        method = "EditMagnetRegion"
-        params = [region_name, magnet_material, br_angle, br_multiplier]
-        return self.connection.send_and_receive(method, params)
-
     def delete_regions(self, region_name):
         """Delete a comma-separated list of named regions or all regions.
 

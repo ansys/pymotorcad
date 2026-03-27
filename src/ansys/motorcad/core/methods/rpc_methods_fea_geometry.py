@@ -154,6 +154,24 @@ class _RpcMethodsFEAGeometry:
         params = [expression, region_name, radius1, radius2, angle1, angle2]
         return self.connection.send_and_receive(method, params)
 
+    def edit_magnet_region(self, region_name, magnet_material, br_angle, br_multiplier):
+        """Edit a magnet region.
+
+        Parameters
+        ----------
+        region_name : str
+            Name of the magnet region.
+        magnet_material : str
+            Magnet material.
+        br_angle : float
+            Br angle of the magnet.
+        br_multiplier : float
+            Br multiplier for the magnet.
+        """
+        method = "EditMagnetRegion"
+        params = [region_name, magnet_material, br_angle, br_multiplier]
+        return self.connection.send_and_receive(method, params)
+
     def get_point_value(self, parameter, x, y):
         """Get a point value from the Motor-CAD FEA.
 
