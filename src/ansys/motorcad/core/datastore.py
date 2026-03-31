@@ -236,7 +236,11 @@ class DataStoreRecord:
             datastore_record = cls(parent_datastore)
             datastore_record.current_value = value
         elif isinstance(value, Iterable):
-            if isinstance(value[0], Iterable) and not isinstance(value[0], str):
+            if (
+                (len(value) > 0)
+                and isinstance(value[0], Iterable)
+                and not isinstance(value[0], str)
+            ):
                 datastore_record = DataStoreRecordArray2D(parent_datastore)
                 datastore_record.current_value = value
                 datastore_record.array_length_2d = (len(value), len(value[0]))
