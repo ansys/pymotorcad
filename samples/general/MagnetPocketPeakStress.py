@@ -26,8 +26,8 @@ Find peak stress on boundary of region(s)
 This example shows how to sample the stresses around a magnet pocket
 
 It finds the overall region that makes up the magnet pocket (the pocket region
- itself and the magnet), and then samples the stresses along the perimeter of
- this region.
+itself and the magnet), and then samples the stresses along the perimeter of
+this region.
 
 This script should be run from the scripting tab after the stress calculation
 has been run in Motor-CAD.
@@ -85,10 +85,11 @@ for entity in region.entities:
 
 # Get stress result at these points
 stresses = []
+stress_unit = None
 for point in points:
-    # The first returned value is the result, the second is the unit
-    stresses.append(mc.get_point_value("SVM", point.x, point.y)[0])
+    stress, stress_unit = mc.get_point_value("SVM", point.x, point.y)
+    stresses.append(stress)
 
 # Find the max stress, and print the output
 max_stress = max(stresses)
-print(max_stress)
+print(f"Max von Mises stress: {max_stress} {stress_unit}")
