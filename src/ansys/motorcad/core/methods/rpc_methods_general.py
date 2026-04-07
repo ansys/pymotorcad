@@ -161,11 +161,13 @@ class _RpcMethodsGeneral:
             This MUST be specified for versions of Motor-CAD later than 2027R1.
         """
         if self.connection.check_version_at_least("2027.0"):
-            if context=='':
-                raise MotorCADError("Context must be specified for LoadDXFFile for Motor-CAD version"
-                                    "2027R1 and later.")
-            method= 'LoadDXFFileWithContext'
-            params=[file_name, context]
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for LoadDXFFile for Motor-CAD version"
+                    "2027R1 and later."
+                )
+            method = "LoadDXFFileWithContext"
+            params = [file_name, context]
         else:
             method = "LoadDXFFile"
             params = [file_name]
