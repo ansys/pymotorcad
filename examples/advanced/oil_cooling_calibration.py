@@ -90,19 +90,15 @@ process_num = [1, 2, 3, 4, 5, 6, 7, 8]
 # To run the parallel processes:
 #
 # * Create a process pool object using the ``Pool`` function. Set the number of parallel workers and
-# set the
-#   ``initializer`` function.
+#   set the ``initializer`` function.
 #
 # * Use ``startmap`` to call the ``motorcad_process`` function on parallel workers. Use ``zip`` to
-# provide the necessary
-# arguments.
+#   provide the necessary arguments.
 #
 # * Close each Motor-CAD instance when the processes are complete.
 #
 # If not using parallel processes, run the ``open_MotorCAD_instances`` function, then
-# loop through the
-# process, calling
-# the process function before closing Motor-CAD.
+# loop through the process, calling the process function before closing Motor-CAD.
 
 if use_parallel_processing:
     if __name__ == "__main__":
