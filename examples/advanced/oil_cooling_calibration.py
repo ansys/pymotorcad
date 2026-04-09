@@ -41,6 +41,7 @@ from experimental testing.
 # .. image:: ../../images/oil_cooling_calibration/radial_view.png
 # .. image:: ../../images/oil_cooling_calibration/axial_view.png
 # .. image:: ../../images/oil_cooling_calibration/slot_view.png
+#    :align: center
 #
 # Our motor, both in the Motor-CAD model and on our (fictitious) test bench, has ATF134 fluid being
 # ejected onto the front and rear end windings in equal proportions. There are 12 nozzles at the
@@ -49,6 +50,7 @@ from experimental testing.
 # experimental testing.
 #
 # .. image:: ../../images/oil_cooling_calibration/spray_fluid_flow.png
+#    :align: center
 #
 # The Motor-CAD Spray Cooling Radial (from Housing) cooling system makes use of heat transfer
 # correlations to determine the heat transfer coefficient (HTC) of the oil cooling. The correlations
@@ -62,6 +64,7 @@ from experimental testing.
 # equivalently, better cooling. This ultimately affects the machine temperatures.
 #
 # .. image:: ../../images/oil_cooling_calibration/spray_heat_transfer.png
+#    :align: center
 #
 # Because spray cooling is a complex phenomenon, Motor-CAD provides controls to
 # further adjust the cooling system. As the above image shows, set separate
@@ -234,6 +237,8 @@ import ansys.motorcad.core as pymotorcad
 
 
 # %%
+# Define the main calibration procedure
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Here we define the main procedure that will perform the calibration process. This procedure calls
 # the various functions that we will define in the following sections to perform each step of the
 # calibration process. The following steps are performed:
@@ -241,10 +246,10 @@ import ansys.motorcad.core as pymotorcad
 # 1. Setup directories to store files
 # 2. Load the experimental testcase data
 # 3. Create a Motor-CAD model for each testcase
-# 4. Obtain common model data for each optimisation iteration
+# 4. Obtain common Motor-CAD model data
 # 5. Perform the calibration for each testcase
 # 6. Collate the calibration results
-def perform_calibration():
+def perform_calibration(parallel_workers):
     # 1. Setup directories to store files
     working_folder, inputs_folder, outputs_folder = setup_directories()
 
@@ -263,7 +268,7 @@ def perform_calibration():
         mcad, working_folder, inputs_folder, outputs_folder, testcase_data
     )
 
-    # 4. Obtain common model data for each optimisation iteration
+    # 4. Obtain common Motor-CAD model data
     num_hairpins, oil_node_f, oil_node_r, ewdg_nodes_f, ewdg_nodes_r = get_model_data(
         mcad, testcase_filepaths
     )
@@ -272,16 +277,6 @@ def perform_calibration():
     # Separate instances will be opened for each parallel worker during the optimisation, to allow
     # for multiple testcases to be optimised at the same time.
     mcad.quit()
-
-    # The calibration makes use of parallel workers. Each worker opens an instance of Motor-CAD and
-    # performs the calibration for a single testcase. This significantly speeds up the calibration
-    # process when there are multiple test cases. Ensure that your machine has enough resources and
-    # Motor-CAD licences for the number of parallel workers you choose to use.
-    #
-    # The parallelisation can be disabled by setting the number of workers to 1.
-    # For compatibility with the pyMotorCAD documentation, we will use just 1 parallel worker.
-    # However, it is strongly recommended to increase this number for faster calibration.
-    parallel_workers = 1
 
     # 5. Perform the calibration for each testcase
     calibrate_testcases(
@@ -459,7 +454,7 @@ def get_testcase_motfiles(mcad, working_folder, inputs_folder, outputs_folder, t
 
 
 # %%
-# 4. Obtain common model data for each optimisation iteration
+# 4. Obtain common Motor-CAD model data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Obtain model data that is common between test cases. This includes the number of hairpin layers
 # and the node numbers of the oil nodes and end winding nodes. This data is required to calculate
@@ -749,7 +744,7 @@ def objective(
 
 # %%
 # 5.4 Define function to perform the calibration for a single test case
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Now we can make use of the previously defined functions to perform the
 # calibration for a single test case. This procedure makes use of ``scipy.minimize`` to perform the
 # optimisation.
@@ -812,7 +807,7 @@ def calibrate_model(
 
 
 # %%
-# 5.5 Define function to extract temperature values for each test case
+# 5.5 Collate all test case temperatures into a list
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # We will be performing the calibration for multiple test cases, and each test case has twelve
 # temperature values (six for front and six for rear). Here we will define a function that extracts
@@ -1046,7 +1041,26 @@ def collate_results(
     mcad.quit()
 
 
-# To use the Python multiprocessing, it is necessary to use the ``if __name__ == '__main__':`` idiom
-# in the main module.
-if __name__ == "__main__":
-    perform_calibration()
+# %%
+# Run the main calibration procedure
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Finally, we can run the main calibration procedure. This will perform the calibration for all test
+# cases.
+#
+# The calibration makes use of parallel workers. Each worker opens an instance of Motor-CAD and
+# performs the calibration for a single testcase. This significantly speeds up the calibration
+# process when there are multiple test cases. Ensure that your machine has enough resources and
+# Motor-CAD licences for the number of parallel workers you choose to use.
+#
+# The parallelisation can be disabled by setting the number of workers to 1.
+# For compatibility with the pyMotorCAD documentation, we will use just 1 parallel worker.
+# However, it is strongly recommended to increase this number for faster calibration.
+parallel_workers = 1
+
+if parallel_workers > 1:
+    # When using multiple parallel workers, it is necessary to wrap the function call in a
+    # if __name__ == "__main__": block to avoid issues with multiprocessing on Windows.
+    if __name__ == "__main__":
+        perform_calibration(parallel_workers)
+else:
+    perform_calibration(parallel_workers)
