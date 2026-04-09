@@ -1,4 +1,4 @@
-﻿Test_number,Flow_rate,Inlet_temperature,Speed,Copper_loss,T_layer_a_f,T_layer_b_f,T_layer_c_f,T_layer_d_f,T_layer_e_f,T_layer_f_f,T_layer_a_r,T_layer_b_r,T_layer_c_r,T_layer_d_r,T_layer_e_r,T_layer_f_r
+﻿Test_case,Flow_rate,Inlet_temperature,Speed,Copper_loss,T_layer_a_f,T_layer_b_f,T_layer_c_f,T_layer_d_f,T_layer_e_f,T_layer_f_f,T_layer_a_r,T_layer_b_r,T_layer_c_r,T_layer_d_r,T_layer_e_r,T_layer_f_r
 1,2.0,40.0,0.0,1000.0,65.0,66.0,67.0,68.0,69.0,70.0,66.0,67.0,68.0,69.0,70.0,71.0
 2,2.0,40.0,2500.0,1500.0,66.0,67.0,68.0,69.0,70.0,71.0,67.0,68.0,69.0,70.0,71.0,72.0
 3,2.0,40.0,5000.0,2000.0,67.0,68.0,69.0,70.0,71.0,72.0,68.0,69.0,70.0,71.0,72.0,73.0

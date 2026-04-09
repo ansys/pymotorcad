@@ -548,7 +548,7 @@ def get_model_data(mcad, testcase_filepaths):
 # during this process
 #
 # 5.1 Define function to calculate temperature error
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # We need a function that returns the temperature error between the measured test data and the
 # results of the Motor-CAD model. This error is used as the objective function for the optimisation.
 # The lower the error, the closer the calculated enamel temperatures are to the measured enamel
@@ -585,7 +585,7 @@ def get_temperature_error(
 
 # %%
 # 5.2 Define function to calculate enamel temperatures
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # An important subtlety in the calibration is in the determination of the Motor-CAD temperatures.
 # For hairpin winding, the Motor-CAD cuboid node temperatures represent the temperatures of the
 # surfaces of the end winding copper. However, the experimental testing used thermocouples which
@@ -838,7 +838,7 @@ def all_testcase_temperatures(testcase_data):
 
 # %%
 # 5.6 Helper functions for Motor-CAD parallelisation
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # These helper functions are required to utilise multiprocessing with Motor-CAD
 
 
@@ -859,7 +859,7 @@ def close_motorcad_instances(_):
 
 # %%
 # 5.7 Define function to perform the calibration for all test cases, with parallelisation
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # We now have a function to calibrate a single test case along side the necessary helper functions.
 # We will now define the function that performs the calibration for all test cases.
 #
@@ -1052,15 +1052,19 @@ def collate_results(
 # process when there are multiple test cases. Ensure that your machine has enough resources and
 # Motor-CAD licences for the number of parallel workers you choose to use.
 #
-# The parallelisation can be disabled by setting the number of workers to 1.
-# For compatibility with the pyMotorCAD documentation, we will use just 1 parallel worker.
-# However, it is strongly recommended to increase this number for faster calibration.
-parallel_workers = 1
+# The parallelisation can be disabled by setting the number of workers to 1. This would result in
+# a single instance of Motor-CAD being used to perform the calibration for all test cases
+# sequentially.
+parallel_workers = 4
 
-if parallel_workers > 1:
-    # When using multiple parallel workers, it is necessary to wrap the function call in a
-    # if __name__ == "__main__": block to avoid issues with multiprocessing on Windows.
+
+# %%
+# .. note:: The ``if not "PYMOTORCAD_DOCS_BUILD" in os.environ:`` statement below prevents the
+#           ``perform_calibration()`` function from being run during the pyMotorCAD documentation
+#           build. This is done to speed up the documentation build. It should not impact users
+#           running this code locally, however, you can remove it if you wish.
+if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+    # As we are using the multiprocessing module, it is necessary to wrap the perform_calibration()
+    # function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
     if __name__ == "__main__":
         perform_calibration(parallel_workers)
-else:
-    perform_calibration(parallel_workers)
