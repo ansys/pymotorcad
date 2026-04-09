@@ -699,7 +699,6 @@ def objective(
     oil_node_f,
     oil_node_r,
 ):
-
     # optimiser will optimise a single list of parameters. Hence, the first half of the correlation
     # factors list is for the front endwinding, and the second half is for the rear
     front_cfs = correlation_factors[: len(correlation_factors) // 2]
@@ -768,7 +767,6 @@ def calibrate_model(
     oil_node_f,
     oil_node_r,
 ):
-
     # Load in the initial Motor-CAD model for the testcase. This will be updated iteratively by
     # the optimiser with different correlation factors.
     mc.load_from_file(testcase_filepath)
@@ -822,7 +820,6 @@ def calibrate_model(
 # Each element of the list corresponds to a test case and contains the twelve temperature values for
 # that test case.
 def all_testcase_temperatures(testcase_data):
-
     all_testcase_temperatures = []
     for _, row in testcase_data.iterrows():
         all_testcase_temperatures.append(
