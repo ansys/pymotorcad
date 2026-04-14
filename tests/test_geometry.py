@@ -1667,8 +1667,9 @@ def test_round_corner():
 
     # Check that ValueError is raised for case when the Arc cannot be drawn between
     # the lines.
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as e_info:
         region.round_corner(corner, 0.8, maximise=False)
+        assert "Corner radius is too large for these entities" in str(e_info)
     # check that the region entities are unchanged by the failed corner rounding.
     assert region.entities == region_orig.entities
 
