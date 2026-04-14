@@ -488,9 +488,10 @@ def hairpin_number(mcad):
 # %%
 # The oil node numbers are required to calculate the enamel temperatures and the temperature error
 # during the calibration process.
-# We have checked the Motor-CAD detailed schematic to identify the node numbers used for the Spray
-# Cooling Radial (from Housing) cooling system. If a different spray cooling system is used, this
-# function would need to be modified accordingly.
+# The node numbers are displayed in the **Temperatures -> Schematic -> Detail** tab in Motor-CAD.
+# The node numbers used for the **Spray Cooling Radial (from Housing)** cooling system are **192**
+# and **193**. If a different spray cooling system is used, modify this function accordingly with
+# the appropriate oil node numbers for the front and rear of the machine.
 def oil_node_numbers():
     front_node = 192
     rear_node = 193
@@ -502,8 +503,7 @@ def oil_node_numbers():
 # Next, the node numbers of the end winding surfaces must be identified. The node numbers of the
 # first end winding layer are always the same. The node numbers of following layers utilise the same
 # offset. Hence, the node numbers of each layer can be identified in an automated way.
-# If necessary, the resulting values can be verified by comparing to the Motor-CAD detailed
-# schematic.
+# If necessary, verify the node numbers by comparing with the Motor-CAD detailed schematic.
 def end_winding_node_numbers(mcad, num_hairpins):
     # These node numbers represent the surfaces of the copper of the first end winding hairpin layer
     # (Layer A). These node numbers are fixed and unchanged between models
@@ -556,7 +556,7 @@ def get_model_data(mcad, testcase_filepaths):
 # 5. Perform the calibration for each testcase
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Now that we have the test data, Motor-CAD models, and common model data, we can work on the
-# the actual calibration process for each test case. We must first define some functions to be used
+# actual calibration process for each test case. We must first define some functions to be used
 # during this process
 #
 # 5.1 Define function to calculate temperature error
