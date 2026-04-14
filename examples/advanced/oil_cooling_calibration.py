@@ -43,16 +43,16 @@ from experimental testing.
 # .. image:: ../../images/oil_cooling_calibration/slot_view.png
 #    :align: center
 #
-# Our motor, both in the Motor-CAD model and on our (fictitious) test bench, has ATF134 fluid being
-# ejected onto the front and rear end windings in equal proportions. There are 12 nozzles at the
-# front and another 12 nozzles at the rear, with each nozzle being 1.5mm in diameter. In our initial
-# Motor-CAD model, a Housing Water Jacket is also present, though this is not used in the
-# experimental testing.
+# Our motor, both in the Motor-CAD model and on our (fictitious) test bench, has **ATF134** fluid
+# being ejected onto the front and rear end windings in equal proportions. There are **12** nozzles
+# at the front and another **12** nozzles at the rear, with each nozzle being **1.5 mm** in
+# diameter. In our initial Motor-CAD model, a Housing Water Jacket is also present, though this is
+# not used in the experimental testing.
 #
 # .. image:: ../../images/oil_cooling_calibration/spray_fluid_flow.png
 #    :align: center
 #
-# The Motor-CAD Spray Cooling Radial (from Housing) cooling system makes use of heat transfer
+# The Motor-CAD **Spray Cooling Radial (from Housing)** cooling system makes use of heat transfer
 # correlations to determine the heat transfer coefficient (HTC) of the oil cooling. The correlations
 # take into account the fluid properties, the nozzle configurations, the oil flow rate as well as
 # the rotational speed. As can be seen in the Heat Transfer tab of the cooling system, the
@@ -66,21 +66,18 @@ from experimental testing.
 # .. image:: ../../images/oil_cooling_calibration/spray_heat_transfer.png
 #    :align: center
 #
-# Because spray cooling is a complex phenomenon, Motor-CAD provides controls to
-# further adjust the cooling system. As the above image shows, set separate
-# multipliers for the stationary and rotational components of the HTC are
-# available, alongside an overall Correlation Factor multiplier. In addition,
-# both the stationary and rotational HTC values can be set directly.
+# Because spray cooling is a complex phenomenon, Motor-CAD provides controls to further adjust the
+# cooling system. As the above image shows, separate multipliers for the stationary and rotational
+# components of the HTC are available, alongside an overall Correlation Factor multiplier. In
+# addition, both the stationary and rotational HTC values can be set directly.
 #
-# In this example, we would like to further increase the accuracy of the
-# Motor-CAD spray cooling model to match the exact spray cooling geometry and
-# configuration of our real-life machine. We will do this by performing
-# experimental testing that would allow us to calibrate these spray cooling
-# parameters. The goal is to have a fully calibrated Motor-CAD model that
-# responds to changes in the flow rates and inlet temperatures in the same way
-# as the real-life motor does. By the end of the calibration process, our
-# Motor-CAD temperatures should match closely the temperatures of the machine
-# on the test rig.
+# In this example, we would like to further increase the accuracy of the Motor-CAD spray cooling
+# model to match the exact spray cooling geometry and configuration of our real-life machine. We
+# will do this by performing experimental testing that would allow us to calibrate these spray
+# cooling parameters. The goal is to have a fully calibrated Motor-CAD model that responds to
+# changes in the flow rates and inlet temperatures in the same way as the real-life motor does. By
+# the end of the calibration process, our Motor-CAD temperatures should match closely the
+# temperatures of the machine on the test rig.
 
 # %%
 # Experimental setup and test plan
@@ -89,8 +86,8 @@ from experimental testing.
 # impact the temperatures can be characterised. Only then will we have confidence that the effects
 # measured during the testing are due to the cooling system only, allowing us to then calibrate the
 # cooling system in the Motor-CAD model. This is especially important for oil spray cooling, where
-# the oil can have effects beyond just the cooling of the end windings (e.g. causing heating due to
-# frictional effects in the airgap). As a result, the test plan included:
+# the oil can have effects beyond just the cooling of the end windings (for example causing heating
+# due to frictional effects in the airgap). As a result, the test plan included:
 #
 # a. Tests to characterise passive cooling (i.e. without any liquid cooling)
 # b. Tests to characterise the mechanical losses (airgap windage losses and bearing losses), both
@@ -108,9 +105,9 @@ from experimental testing.
 # only, with confidence of an even loss distribution within the windings. In addition, for each
 # test, the input electrical power to the windings was measured.
 #
-# Unmagnetised magnets were used in the rotor to prevent eddy currents and rotor iron losses. As a
-# result, only mechanical losses (bearing losses and airgap windage losses) and DC copper losses
-# were present in the machine.
+# Non-magnetic dummy magnets were used in the rotor to prevent eddy currents and rotor iron losses.
+# As a result, only mechanical losses (bearing losses and airgap windage losses) and DC copper
+# losses were present in the machine.
 #
 # The hairpin end windings were instrumented with thermocouples, allowing their temperatures to be
 # measured. This was performed for each of the six hairpin end windings at multiple circumferential
@@ -140,18 +137,18 @@ from experimental testing.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The test plan included all combinations of the following parameters:
 #
-# * Spray Cooling (Radial from Housing) flow rate (litres/min): 2, 4, 6
+# * **Spray Cooling (Radial from Housing)** flow rate (litres/min): 2, 4, 6
 #
-# * Spray Cooling (Radial from Housing) inlet temperature (°C): 40, 75
+# * **Spray Cooling (Radial from Housing)** inlet temperature (°C): 40, 75
 #
-# * Shaft speed (rpm): 0, 2500, 5000, 7500, 10000, 12500, 15000
+# * **Shaft speed** (rpm): 0, 2500, 5000, 7500, 10000, 12500, 15000
 #
 # As a result, a total of 42 tests were conducted. In each test, erroneous temperature measurements
-# were discarded and the average temperature of each hairpin end winding was calculated, giving a
-# total of twelve temperature values (six for the front and six for the rear). The input electrical
-# power was also measured.
+# were discarded and the average temperature of each hairpin end winding layer was calculated,
+# giving a total of twelve temperature values (six for the front and six for the rear). The input
+# electrical power was also measured.
 #
-# The results of the tests were saved to a .csv file:
+# The results of the tests were saved to a CSV file:
 #
 # .. image:: ../../images/oil_cooling_calibration/testcase_csv.png
 #
@@ -181,46 +178,57 @@ from experimental testing.
 # To calibrate the spray cooling system, the following steps will be performed:
 #
 # a. Setup directories for the calibration process
-# b. Load in the .csv file containing the experimental testing results
-# c. Create a .mot file for each test case setting the oil flow rate, oil inlet temperature,
+# b. Load in the CSV file containing the experimental testing results
+# c. Create a MOT file for each test case setting the oil flow rate, oil inlet temperature,
 #    shaft speed and copper loss
-# d. For each test case, modify the Spray Cooling (Radial from Housing) parameters until the
+# d. For each test case, modify the **Spray Cooling (Radial from Housing)** parameters until the
 #    calculated end winding enamel temperatures match the test temperatures
 # e. Postprocess the results
 #
 # For step d., the calibration step, several different methods exist to achieve the desired
-# temperature match. The Spray Cooling Heat Transfer tab allows us to set separate multipliers for
-# the stationary and rotational components of the HTC, set a Correlation Factor multiplier, or set
-# the stationary and rotational HTC values directly.
+# temperature match. The **Spray Cooling -> Heat Transfer** tab allows us to set separate
+# multipliers for the stationary and rotational components of the HTC, set a **Correlation Factor**
+# multiplier, or set the stationary and rotational HTC values directly.
 #
-# For this experimental study, we will perform the calibration by adjusting the Correlation Factor
-# column. This allows us to maintain the same balance between the stationary and rotational
-# components of the HTC as in the original correlation, while adjusting the overall magnitude of the
-# HTC to achieve a better temperature match.
+# For this experimental study, we will perform the calibration by adjusting the
+# **Correlation Factor** column. This allows us to maintain the same balance between the stationary
+# and rotational components of the HTC as in the original correlation, while adjusting the overall
+# magnitude of the HTC to achieve a better temperature match.
 #
 # .. image:: ../../images/oil_cooling_calibration/spray_heat_transfer_layers.png
 #
 # As shown in the image above, these values can be independently set on each of the four surfaces of
-# each hairpin end winding. However, our experimental setup provides only 1 temperature value per
-# end winding hairpin, so it is not possible to separately quantify the temperatures of each of the
-# four surfaces. Therefore, we cannot determine four Correlation Factors for each hairpin.
+# each hairpin end winding layer. However, our experimental setup provides only 1 temperature value
+# per end winding hairpin layer, so it is not possible to separately quantify the temperatures of
+# each of the four surfaces. Therefore, we cannot determine four **Correlation Factors** for each
+# hairpin.
 #
-# As a result, we will perform the calibration by using the same Correlation Factor for all four
+# As a result, we will perform the calibration by using the same **Correlation Factor** for all four
 # surfaces of a particular layer, and by comparing the average temperature of each of the four
 # surfaces to the experimentally measured temperature. Therefore, for each test case, we expect the
 # calibrated results to look something like the following:
 #
 # .. image:: ../../images/oil_cooling_calibration/spray_correlation_factors.png
 #
-# This calibration process could be performed by manually adjusting the Correlation Factor, running
-# the analysis, checking the temperatures, and then repeating until a good match is achieved.
-# However, this would be very time consuming, especially given the large number of test cases.
-# Therefore, we will automate this process using scripting.
+# This calibration process could be performed by manually adjusting the **Correlation Factor**,
+# running the analysis, checking the temperatures, and then repeating until a good match is
+# achieved. However, this would be very time-consuming, especially given the large number of test
+# cases. Therefore, we will automate this process using scripting.
 
 # %%
 # Automated spray cooling calibration via scripting
 # -------------------------------------------------------
-#
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Import ``repeat`` from ``itertools`` and ``Pool`` from ``multiprocessing`` to manage the multiple
+# parallel Motor-CAD processes.
+# Import ``os`` and ``shutil`` for saving and loading the files required by the example.
+# Import ``statistics`` for analysing the temperature data.
+# Import ``time`` for logging the time required for processes to complete.
+# Import ``numpy`` to define the bounds for correlation factors.
+# Import ``pandas`` to read data from CSV files.
+# Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
+# Import ``pymotorcad`` to access Motor-CAD.
 
 from itertools import repeat
 from multiprocessing import Pool
@@ -238,7 +246,7 @@ import ansys.motorcad.core as pymotorcad
 
 # %%
 # Define the main calibration procedure
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Here we define the main procedure that will perform the calibration process. This procedure calls
 # the various functions that we will define in the following sections to perform each step of the
 # calibration process. The following steps are performed:
@@ -257,7 +265,7 @@ def perform_calibration(parallel_workers):
     testcase_data = load_testcase_data(inputs_folder)
 
     # Open a Motor-CAD instance to be used during the initialisation stages of the calibration
-    # process, such as creating the base .mot file and the .mot files for each testcase. This
+    # process, such as creating the base MOT file and the MOT files for each testcase. This
     # instance will be closed before the optimisation begins, and separate instances will be opened
     # for each parallel worker during the optimisation.
     mcad = pymotorcad.MotorCAD()
@@ -307,11 +315,11 @@ def perform_calibration(parallel_workers):
 # 1. Setup directories to store files
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This creates a working folder with two subfolders: ``inputs`` and ``outputs``. The ``inputs``
-# folder is where the initial .mot files for each testcase should be
-# stored (if they already exist) alongside the .csv file with the test data. The ``outputs`` folder
-# is where the .mot files that are used for the calibration will be stored. If a .mot file for a
+# folder is where the initial MOT files for each testcase should be
+# stored (if they already exist) alongside the CSV file with the test data. The ``outputs`` folder
+# is where the MOT files that are used for the calibration will be stored. If a MOT file for a
 # testcase already exists in the ``inputs`` folder, it will be copied to the ``outputs`` folder and
-# used for the calibration. If not, a new .mot file will be created based on the base model and
+# used for the calibration. If not, a new MOT file will be created based on the base model and
 # saved to the ``outputs`` folder to be used for the calibration.
 def setup_directories():
     working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
@@ -331,10 +339,13 @@ def setup_directories():
 # 2. Load the experimental testcase data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This function reads the test data from a CSV file in the inputs folder and returns it as a pandas
-# dataframe. Each row of the dataframe corresponds to a test case, and contains the parameters an
+# dataframe. Each row of the dataframe corresponds to a test case, and contains the parameters and
 # measured temperatures for that test case.
 #
-# .. note:: The ``test_data.csv`` file is supplied with the pyMotorCAD repository.
+# .. note:: This example requires the use of a CSV test data file, with specific formatting and
+#    column names. The CSV file should be saved to the ``inputs_folder`` directory. You can download
+#    the ``test_data.csv`` example file from:
+#    https://github.com/ansys/pymotorcad/blob/main/examples/advanced/oil_cooling_calibration/inputs/test_data.csv
 def load_testcase_data(inputs_folder):
     testcase_data = pd.read_csv(os.path.join(inputs_folder, "test_data.csv"), index_col="Test_case")
     return testcase_data
@@ -343,14 +354,14 @@ def load_testcase_data(inputs_folder):
 # %%
 # 3. Create a Motor-CAD model for each testcase
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# For each of the test cases, a Motor-CAD model (.mot file) is required to perform the calibration.
+# For each of the test cases, a Motor-CAD model (MOT file) is required to perform the calibration.
 # This Motor-CAD file must be setup with the same parameters as the test case.
 #
-# We will first create a base .mot file with the common parameters for all test cases, and then use
-# this to create the individual .mot files for each test case by updating the parameters that vary
-# between test cases. The resulting .mot files will be saved to the ``outputs`` folder.
+# We will first create a base MOT file with the common parameters for all test cases, and then use
+# this to create the individual MOT files for each test case by updating the parameters that vary
+# between test cases. The resulting MOT files will be saved to the ``outputs`` folder.
 #
-# 3.1 Create a common base .mot file
+# 3.1 Create a common base MOT file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # In our case, this begins with the e10 template. We will assume this has already been calibrated
 # for passive cooling and mechanical losses, and will now modify this to ensure it matches the
@@ -358,17 +369,18 @@ def load_testcase_data(inputs_folder):
 #
 # a. Since the test setup excludes the Housing Water Jacket, we must turn off the Housing Water in
 #    the Motor-CAD file. Only Spray Cooling (Radial from Housing) is present.
-# b. Set the spray cooling system to use:
+# b. Set up the **Spray Cooling** system to use:
 #
-#    * 50/50 flow split between front and rear
-#    * ATF134 fluid for both front and rear
-#    * Twelve 1.5mm nozzles at front and twelve 1.5mm nozzles at rear
+#    * **50:50** flow split between the front and rear.
+#    * **ATF134** fluid for both the front and rear.
+#    * **12** nozzles of **1.5 mm** diameter at the front and **12** nozzles of **1.5 mm** diameter
+#      at the rear.
 #
-# c. Set the ambient temperature, which was measured to be 40°C throughout all tests.
-# d. Set all non-mechanical losses to zero. The mechanical losses have already been calibrated, and
-#    the copper loss which varies throughout each test will be set later.
+# c. Set the ambient temperature, which was measured to be **40 °C** throughout all tests.
+# d. Set all non-mechanical losses to **zero**. The mechanical losses have already been calibrated,
+#    and the copper loss, which varies throughout each test, will be set later.
 # e. Disable temperature scaling of the copper loss. The input electrical power has been measured at
-#    steady state (i.e. already scaled), so these are the absolute values.
+#    steady state (it is effectively already scaled), so these are the absolute values.
 def create_base_motfile(mcad, working_folder):
     mcad.set_variable("MessageDisplayState", 2)
     mcad.load_template("e10")
@@ -393,8 +405,8 @@ def create_base_motfile(mcad, working_folder):
     mcad.set_variable("Windage_Loss_(Ext_Fan)@Ref_Speed", 0)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", False)
 
-    # Save the resulting file as ``e10_calibration_base.mot``. This will be used as the start point
-    # to create the individual test case files.
+    # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
+    # be used as the start point to create the individual test case files.
     base_motfile = os.path.join(working_folder, "e10_calibration_base.mot")
     mcad.save_to_file(base_motfile)
 
@@ -402,14 +414,14 @@ def create_base_motfile(mcad, working_folder):
 
 
 # %%
-# 3.2 Create individual .mot files for each test case
+# 3.2 Create individual MOT files for each test case
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# This function uses the base .mot file to create the individual .mot files for each test case. It
+# This function uses the base MOT file to create the individual MOT files for each test case. It
 # iterates through the input test case data, and sets the flow rate, inlet temperature, speed, and
-# copper loss and saves the resulting .mot file to the ``outputs`` folder. This will then be used
+# copper loss and saves the resulting MOT file to the ``outputs`` folder. This will then be used
 # during the calibration process.
 #
-# If a .mot file for a test case already exists in the ``inputs`` folder, it is assumed that this
+# If a MOT file for a test case already exists in the ``inputs`` folder, it is assumed that this
 # file has already been set up with the correct parameters for that test case, and the file is
 # copied to the ``outputs`` folder to be used for the calibration. This functionality has been added
 # to save time by not having to create the file from scratch for each test case if it has already
@@ -523,7 +535,7 @@ def end_winding_node_numbers(mcad, num_hairpins):
 # Using the previously defined functions, this procedure loads the Motor-CAD model and obtains the
 # model data required for the calibration process, including the number of hairpin layers and the
 # node numbers of the oil nodes and end winding nodes.
-# Only the first test case .mot file is loaded to obtain the model data as this data is common
+# Only the first test case MOT file is loaded to obtain the model data as this data is common
 # between test cases.
 def get_model_data(mcad, testcase_filepaths):
     # Load the first test case file from which the model data will be obtained
@@ -752,7 +764,7 @@ def objective(
 # The Motor-CAD model corresponding to this test case must be supplied, along with the test data
 # temperatures. The Motor-CAD model will be updated iteratively by the optimiser with different
 # correlation factors to determine the correlation factors that result in the best match between
-# the Motor-CAD model and experimental results. The calibrated .mot file will then be saved.
+# the Motor-CAD model and experimental results. The calibrated MOT file will then be saved.
 def calibrate_model(
     testcase_filepath,
     testcase_temperatures,
@@ -893,7 +905,7 @@ def calibrate_testcases(
         p = Pool(processes=parallel_workers, initializer=open_motorcad_instances)
 
         # Perform the calibration for each testcase in parallel. The starmap function handles the
-        # distritution of the different testcases to each worker. The arguments for each testcase
+        # distribution of the different testcases to each worker. The arguments for each testcase
         # are passed in as a list of tuples, where each tuple contains the arguments for a single
         # testcase.
         p.starmap(
@@ -944,8 +956,8 @@ def calibrate_testcases(
 # %%
 # 6. Collate the calibration results
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Once the calibration is complete, the updated .mot files will be saved in the ``Outputs`` folder.
-# For ease of use, we will collate the results in a csv file. This will be based on the input csv
+# Once the calibration is complete, the updated MOT files will be saved in the ``Outputs`` folder.
+# For ease of use, we will collate the results in a CSV file. This will be based on the input CSV
 # file, and will include the calibrated correlation factors along with the calculated enamel
 # temperatures.
 def collate_results(
@@ -1000,9 +1012,9 @@ def collate_results(
     mcad = pymotorcad.MotorCAD()
     mcad.set_variable("MessageDisplayState", 2)
 
-    # For each testcase, load in the optimised .mot file and extract the calculated enamel
+    # For each testcase, load in the optimised MOT file and extract the calculated enamel
     # temperatures and correlation factors, and save these to the results dataframe. The results
-    # dataframe is then saved to a .csv file.
+    # dataframe is then saved to a CSV file.
     for index, model in enumerate(testcase_filepaths):
         mcad.load_from_file(model)
         mcad.do_steady_state_analysis()
@@ -1032,7 +1044,7 @@ def collate_results(
         )
 
         for column, value in zip(new_columns, new_values):
-            # Test case index in the .csv file starts from 1, whereas the enumerate index starts
+            # Test case index in the CSV file starts from 1, whereas the enumerate index starts
             # from 0, so use index+1
             results_filepath.at[index + 1, column] = value
 
