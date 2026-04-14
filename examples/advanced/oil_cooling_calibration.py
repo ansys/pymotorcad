@@ -230,6 +230,7 @@ from experimental testing.
 # Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
 # Import ``pymotorcad`` to access Motor-CAD.
 
+# sphinx_gallery_thumbnail_path = 'images/oil_cooling_calibration/thumbnail.png'
 from itertools import repeat
 from multiprocessing import Pool
 import os
