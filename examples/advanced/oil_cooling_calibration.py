@@ -408,6 +408,9 @@ def create_base_motfile(mcad, working_folder):
     mcad.set_variable("Windage_Loss_(Ext_Fan)@Ref_Speed", 0)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", False)
 
+    # Don't calculate losses in lab -> No Coupling (default)
+    mcad.set_variable("LabThermalCoupling", 0)
+
     # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
     # be used as the start point to create the individual test case files.
     base_motfile = os.path.join(working_folder, "e10_calibration_base.mot")
