@@ -1073,7 +1073,7 @@ def collate_results(
 # The parallelisation can be disabled by setting the number of workers to 1. This would result in
 # a single instance of Motor-CAD being used to perform the calibration for all test cases
 # sequentially.
-parallel_workers = 12
+parallel_workers = 4
 
 
 # %%
