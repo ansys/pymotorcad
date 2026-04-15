@@ -217,7 +217,7 @@ from experimental testing.
 
 # %%
 # Automated spray cooling calibration via scripting
-# -------------------------------------------------------
+# -------------------------------------------------
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import ``repeat`` from ``itertools`` and ``Pool`` from ``multiprocessing`` to manage the multiple
@@ -225,6 +225,7 @@ from experimental testing.
 # Import ``os`` and ``shutil`` for saving and loading the files required by the example.
 # Import ``statistics`` for analysing the temperature data.
 # Import ``time`` for logging the time required for processes to complete.
+# Import ``warnings`` for raising warnings if necessary.
 # Import ``numpy`` to define the bounds for correlation factors.
 # Import ``pandas`` to read data from CSV files.
 # Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
@@ -237,6 +238,7 @@ import os
 import shutil
 import statistics
 import time
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -859,7 +861,7 @@ def all_testcase_temperatures(testcase_data):
 def open_motorcad_instances():
     # global mc exists as a separate global variable in each parallel worker / process
     global mc
-    mc = pymotorcad.MotorCAD()
+    mc = pymotorcad.MotorCAD(use_blackbox_licence=True)
     mc.set_variable("MessageDisplayState", 2)
 
 
@@ -1068,7 +1070,7 @@ def collate_results(
 # The parallelisation can be disabled by setting the number of workers to 1. This would result in
 # a single instance of Motor-CAD being used to perform the calibration for all test cases
 # sequentially.
-parallel_workers = 4
+parallel_workers = 12
 
 
 # %%
@@ -1081,3 +1083,42 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
     # function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
     if __name__ == "__main__":
         perform_calibration(parallel_workers)
+
+
+# %%
+# Implementation of calibrated spray cooling correlation factors
+# --------------------------------------------------------------
+# Now that the calibration results have been obtained for the set of test data cases, these results
+# can be used to determine appropriate **Correlation Factor** values for other cases with different
+# oil inlet temperature, oil flow rate or shaft speed.
+#
+# Using Motor-CAD automation, determine the
+
+# if multiple warnings are raised, we want them all to be displayed
+# warnings.simplefilter('always', UserWarning)
+#
+# if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
+#     # load in the results:
+#     working_folder, inputs_folder, outputs_folder = setup_directories()
+#     results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
+#
+#     mcApp = pymotorcad.MotorCAD(open_new_instance=False)
+#
+#     # Get the Shaft Speed and oil spray fluid volume flow rate from the Motor-CAD model
+#     speed = mcApp.get_variable('ShaftSpeed')
+#     oil_flowrate = mcApp.get_variable('Spray_AxialEndcap_VolumeFlowRate_' + end)
+#     # convert the flow rate into l/min
+#     oil_flowrate_lpm = oil_flowrate / 1.667e-5
+#
+#     # raise a warning if the speed is outside the test data range
+#     if speed < data["speed"][0] or speed > data["speed"][-1]:
+#         warnings.warn(f"The speed {speed} rpm is outside of the test data range "
+#                       f"({data['speed'][0]} to {data['speed'][-1]} rpm). "
+#                       f"Spray Cooling model accuracy may be affected.")
+#
+#     # raise a warning if the flow rate is outside the test data range
+#     if oil_flowrate_lpm < data["flow_rate"][0] or speed > data["flow_rate"][-1]:
+#         warnings.warn(
+#             f"The oil flow rate {round(oil_flowrate_lpm, 2)} l/min is outside of the test data range "
+#             f"({data['flow_rate'][0]} to {data['flow_rate'][-1]} l/min). "
+#             f"Spray Cooling model accuracy may be affected.")
