@@ -26,6 +26,7 @@ import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core.datastore import Datastore, DataTypes
 
 
 def test_get_variable(mc):
@@ -172,29 +173,42 @@ def test_get_file_name_fallback(monkeypatch):
     remove(file_path)
 
 
-# TODO - introduce testing for datastore class (not functional at the moment).
-# def test_get_datastore(mc):
-#     """Incomplete testing"""
-#     datastore = mc.get_datastore()
-#
-#     test = datastore.get_variable("slot_width")
-#     test_rec = datastore.get_variable_record("test_int")
-#
-#     test_array = datastore.get_variable("IMInductance_CurrentProp")
-#     test_array_2d = datastore.get_variable("ConductorCentre_L_x")
-#
-#     test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
-#     test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
-#
-#     arrays = [
-#         datastore[item]
-#         for item in datastore
-#         if (datastore[item].is_array) and (datastore[item].dynamic)
-#     ]
-#     arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
-#
-#     datastore.pop("slot_width")
-#     datastore.pop("test_int")
-#     filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
-#     datastore_json = datastore.to_json()
-#     datastore_dict = datastore.to_dict()
+def test_get_datastore(mc):
+    datastore = mc.get_datastore()
+
+    test = datastore.get_variable("slot_width")
+    test_rec = datastore.get_variable_record("test_int")
+
+    test_array = datastore.get_variable("IMInductance_CurrentProp")
+    test_array_2d = datastore.get_variable("ConductorCentre_L_x")
+
+    test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
+    test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
+
+    arrays = [
+        datastore[item]
+        for item in datastore
+        if (datastore[item].is_array) and (datastore[item].dynamic)
+    ]
+    arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
+
+    datastore.pop("slot_width")
+    datastore.pop("LitzWireSubConductors")
+    filtered_output = datastore.filter_variables(
+        file_sections=["SaturationMap"], inout_types=[DataTypes.input]
+    )
+    datastore_json = datastore.to_json()
+    datastore_dict = datastore.to_dict()
+
+    param = datastore["TVent_Shaft_Speed"]
+    test_dict = {
+        "TVent_Shaft_Speed": param,  # scalar
+        "ActiveXHidden": datastore_dict["ActiveXHidden"],  # boolean
+        "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
+        "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
+        "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
+        "EWdgLayerLength_R": datastore_dict["EWdgLayerLength_F"],  # 1D list
+        "ConductorCentre_L_y": datastore_dict["ConductorCentre_L_y"],  # 2D list
+    }
+
+    new_datastore = Datastore.from_dict(test_dict)
