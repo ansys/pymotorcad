@@ -240,11 +240,9 @@ import os
 import shutil
 import statistics
 import time
-import warnings
 
 import numpy as np
 import pandas as pd
-from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import Bounds, minimize
 
 import ansys.motorcad.core as pymotorcad
@@ -410,9 +408,6 @@ def create_base_motfile(mcad, working_folder):
     mcad.set_variable("Rotor_Iron_Loss_@Ref_Speed_[Back_Iron]", 0)
     mcad.set_variable("Windage_Loss_(Ext_Fan)@Ref_Speed", 0)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", False)
-
-    # Don't calculate losses in lab -> No Coupling (default)
-    mcad.set_variable("LabThermalCoupling", 0)
 
     # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
     # be used as the start point to create the individual test case files.
@@ -867,7 +862,7 @@ def all_testcase_temperatures(testcase_data):
 def open_motorcad_instances():
     # global mc exists as a separate global variable in each parallel worker / process
     global mc
-    mc = pymotorcad.MotorCAD(use_blackbox_licence=True)
+    mc = pymotorcad.MotorCAD()
     mc.set_variable("MessageDisplayState", 2)
 
 
