@@ -387,6 +387,8 @@ def load_testcase_data(inputs_folder):
 #    and the copper loss, which varies throughout each test, will be set later.
 # e. Disable temperature scaling of the copper loss. The input electrical power has been measured at
 #    steady state (it is effectively already scaled), so these are the absolute values.
+# f. Disable Lab-Thermal coupling in Motor-CAD, so that when the Thermal Steady State Calculation is
+#    carried out, losses are not imported from Lab.
 def create_base_motfile(mcad, working_folder):
     mcad.set_variable("MessageDisplayState", 2)
     mcad.load_template("e10")
@@ -410,6 +412,9 @@ def create_base_motfile(mcad, working_folder):
     mcad.set_variable("Rotor_Iron_Loss_@Ref_Speed_[Back_Iron]", 0)
     mcad.set_variable("Windage_Loss_(Ext_Fan)@Ref_Speed", 0)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", False)
+
+    # Don't calculate losses in lab -> No Coupling (default)
+    mcad.set_variable("LabThermalCoupling", 0)
 
     # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
     # be used as the start point to create the individual test case files.
