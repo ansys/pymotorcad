@@ -232,6 +232,7 @@ from experimental testing.
 # Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
 # Import ``RegularGridInterpolator`` from ``scipy.interpolate`` to carry out interpolation of the
 # calibration results.
+# Import ``matplotlib`` to plot results.
 # Import ``pymotorcad`` to access Motor-CAD.
 
 # sphinx_gallery_thumbnail_path = 'images/oil_cooling_calibration/thumbnail.png'
@@ -244,6 +245,7 @@ from string import ascii_lowercase as alc
 import time
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.interpolate import RegularGridInterpolator
@@ -1085,6 +1087,69 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
     # function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
     if __name__ == "__main__":
         perform_calibration(parallel_workers)
+
+
+# %%
+# Compare calibration results with test temperatures
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function to plot the test temperatures and calibrated temperatures for one of the tests,
+# test 17.
+def validate_calibration_results(results, num_hairpins):
+    # plot results for a specific test case:
+    test_case = 17
+    print(f"Plotting calibrated temperature results for Test {test_case}.")
+    print(f"Shaft speed = {results['Speed'][test_case]} rpm")
+    print(f"Oil flow rate = {results['Flow_rate'][test_case]} l/min")
+    print(f"Oil inlet temperature = {results['Inlet_temperature'][test_case]} °C")
+
+    # get test data temperatures
+    labels = []
+    temperatures = {"Test Data": [], "Calibration Data": []}
+
+    for end in ["f", "r"]:
+        for i in alc[:num_hairpins]:
+            labels.append(f"{i}_{end}")
+            temperatures["Test Data"].append(results[f"T_layer_{i}_{end}"][test_case])
+            temperatures["Calibration Data"].append(
+                results[f"T_layer_{i}_{end}_motorcad"][test_case]
+            )
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.45  # the width of the bars
+    multiplier = 0
+
+    fig, ax = plt.subplots(layout="constrained")
+
+    for attribute, measurement in temperatures.items():
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        multiplier += 1
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel("Temperature [°C]")
+    ax.set_title(f"Test vs Calibration Temperature Comparison [Test {test_case}]")
+    ax.set_xticks(x + width / 2, labels)
+    ax.legend(loc="upper left", ncols=2)
+    # set axis limits as multiples of 5 at least 3 °C below(/above) the min(/max) test temperature
+    y_axis_lower_lim = 5 * math.floor((min(temperatures["Test Data"]) - 3) / 5)
+    y_axis_upper_lim = 5 * math.ceil((max(temperatures["Test Data"]) + 3) / 5)
+    ax.set_ylim(y_axis_lower_lim, y_axis_upper_lim)
+
+    plt.show()
+
+
+# %%
+# Plot the results
+#
+# As we are using the multiprocessing module, it is necessary to wrap the perform_calibration()
+# function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
+if __name__ == "__main__":
+    # load in the results
+    num_hairpins = 6
+    working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
+    outputs_folder = os.path.join(working_folder, "outputs")
+    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
+    validate_calibration_results(results, num_hairpins)
 
 
 # %%
