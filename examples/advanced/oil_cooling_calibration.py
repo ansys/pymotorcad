@@ -226,6 +226,7 @@ from experimental testing.
 # Import ``statistics`` for analysing the temperature data.
 # Import ``time`` for logging the time required for processes to complete.
 # Import ``warnings`` for raising warnings if necessary.
+# Import ``math`` for rounding numbers up and down.
 # Import ``ascii_lowercase`` from ``string`` for labelling hairpins alphabetically.
 # Import ``numpy`` to define the bounds for correlation factors.
 # Import ``pandas`` to read data from CSV files.
@@ -237,6 +238,7 @@ from experimental testing.
 
 # sphinx_gallery_thumbnail_path = 'images/oil_cooling_calibration/thumbnail.png'
 from itertools import repeat
+import math
 from multiprocessing import Pool
 import os
 import shutil
@@ -1126,6 +1128,7 @@ def validate_calibration_results(results, num_hairpins):
         multiplier += 1
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_xlabel("Hairpin layer")
     ax.set_ylabel("Temperature [°C]")
     ax.set_title(f"Test vs Calibration Temperature Comparison [Test {test_case}]")
     ax.set_xticks(x + width / 2, labels)
