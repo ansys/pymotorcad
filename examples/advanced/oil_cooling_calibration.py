@@ -226,6 +226,7 @@ from experimental testing.
 # Import ``statistics`` for analysing the temperature data.
 # Import ``time`` for logging the time required for processes to complete.
 # Import ``warnings`` for raising warnings if necessary.
+# Import ``ascii_lowercase`` from ``string`` for labelling hairpins alphabetically.
 # Import ``numpy`` to define the bounds for correlation factors.
 # Import ``pandas`` to read data from CSV files.
 # Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
@@ -239,6 +240,7 @@ from multiprocessing import Pool
 import os
 import shutil
 import statistics
+from string import ascii_lowercase as alc
 import time
 import warnings
 
@@ -837,25 +839,30 @@ def calibrate_model(
 # the temperature values for each test case from the test data dataframe and returns them in a list.
 # Each element of the list corresponds to a test case and contains the twelve temperature values for
 # that test case.
-def all_testcase_temperatures(testcase_data):
+def all_testcase_temperatures(testcase_data, num_hairpins):
     all_testcase_temperatures = []
     for _, row in testcase_data.iterrows():
-        all_testcase_temperatures.append(
-            [
-                row["T_layer_a_f"],
-                row["T_layer_b_f"],
-                row["T_layer_c_f"],
-                row["T_layer_d_f"],
-                row["T_layer_e_f"],
-                row["T_layer_f_f"],
-                row["T_layer_a_r"],
-                row["T_layer_b_r"],
-                row["T_layer_c_r"],
-                row["T_layer_d_r"],
-                row["T_layer_e_r"],
-                row["T_layer_f_r"],
-            ]
-        )
+        rows = []
+        for end in ["f", "r"]:
+            for i in alc[:num_hairpins]:
+                rows.append(row[f"T_layer_{i}_{end}"])
+        all_testcase_temperatures.append(rows)
+        # all_testcase_temperatures.append(
+        #     [
+        #         row["T_layer_a_f"],
+        #         row["T_layer_b_f"],
+        #         row["T_layer_c_f"],
+        #         row["T_layer_d_f"],
+        #         row["T_layer_e_f"],
+        #         row["T_layer_f_f"],
+        #         row["T_layer_a_r"],
+        #         row["T_layer_b_r"],
+        #         row["T_layer_c_r"],
+        #         row["T_layer_d_r"],
+        #         row["T_layer_e_r"],
+        #         row["T_layer_f_r"],
+        #     ]
+        # )
     return all_testcase_temperatures
 
 
@@ -944,7 +951,7 @@ def calibrate_testcases(
         # documentation and for users who do not have the resources or licences to run multiple
         # parallel instances of Motor-CAD.
         for testcase_filepath, testcase_temperatures in zip(
-            testcase_filepaths, all_testcase_temperatures(testcase_data)
+            testcase_filepaths, all_testcase_temperatures(testcase_data, num_hairpins)
         ):
             calibrate_model(
                 testcase_filepath,
@@ -981,44 +988,31 @@ def collate_results(
     oil_node_f,
     oil_node_r,
 ):
-    # Append three Motor-CAD columns to each existing row so later steps can populate them.
+    # Append four Motor-CAD columns for each hairpin layer at the front and rear of the machine.
+    # Later steps can populate these columns for each row.
     results_filepath = pd.read_csv(
         os.path.join(inputs_folder, "test_data.csv"), index_col="Test_case"
     )
 
-    temp_f_mcad = [
-        "T_layer_a_f_motorcad",
-        "T_layer_b_f_motorcad",
-        "T_layer_c_f_motorcad",
-        "T_layer_d_f_motorcad",
-        "T_layer_e_f_motorcad",
-        "T_layer_f_f_motorcad",
-    ]
-    temp_r_mcad = [
-        "T_layer_a_r_motorcad",
-        "T_layer_b_r_motorcad",
-        "T_layer_c_r_motorcad",
-        "T_layer_d_r_motorcad",
-        "T_layer_e_r_motorcad",
-        "T_layer_f_r_motorcad",
-    ]
-    cf_f_mcad = [
-        "Correlation_Factor_layer_a_f_motorcad",
-        "Correlation_Factor_layer_b_f_motorcad",
-        "Correlation_Factor_layer_c_f_motorcad",
-        "Correlation_Factor_layer_d_f_motorcad",
-        "Correlation_Factor_layer_e_f_motorcad",
-        "Correlation_Factor_layer_f_f_motorcad",
-    ]
-    cf_r_mcad = [
-        "Correlation_Factor_layer_a_r_motorcad",
-        "Correlation_Factor_layer_b_r_motorcad",
-        "Correlation_Factor_layer_c_r_motorcad",
-        "Correlation_Factor_layer_d_r_motorcad",
-        "Correlation_Factor_layer_e_r_motorcad",
-        "Correlation_Factor_layer_f_r_motorcad",
-    ]
-    new_columns = temp_f_mcad + temp_r_mcad + cf_f_mcad + cf_r_mcad
+    # Use a dictionary to store the new data column names. Loop through front and rear ends of the
+    # machine and use ``ascii_lowercase`` from ``string`` to loop through the number of hairpin
+    # layers alphabetically.
+    # Columns will be named:
+    #   "T_layer_a_f_motorcad", "T_layer_b_f_motorcad", ...
+    #   "T_layer_a_r_motorcad", "T_layer_b_r_motorcad", ...
+    #   "Correlation_Factor_layer_a_f_motorcad", "Correlation_Factor_layer_b_f_motorcad", ...
+    #   "Correlation_Factor_layer_a_r_motorcad", "Correlation_Factor_layer_b_r_motorcad", ...
+    column_dict = {}
+    column_dict["column_names"] = []
+    for output in ["T", "Correlation_Factor"]:
+        for end in ["f", "r"]:
+            column_dict[f"{output}_{end}_mcad"] = []
+            column_dict["column_names"].append(f"{output}_{end}_mcad")
+            for i in alc[:num_hairpins]:
+                column_dict[f"{output}_{end}_mcad"].append(f"{output}_layer_{i}_{end}_motorcad")
+    new_columns = []
+    for name in column_dict["column_names"]:
+        new_columns.extend(column_dict[name])
 
     mcad = pymotorcad.MotorCAD()
     mcad.set_variable("MessageDisplayState", 2)
@@ -1034,7 +1028,7 @@ def collate_results(
         )
 
         # Extract the correlation factors for each layer. These will be the same for all surfaces
-        # of a layer, so only one surface per layer is extracted.
+        # of a layer, so only one surface (Inner) per layer is extracted.
         correlation_factors_f = [
             mcad.get_array_variable(
                 "Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_Inner_F", index
@@ -1312,12 +1306,12 @@ def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
     surfaces = ["Inner", "Outer", "Front", "Rear"]
     for i in range(len(correlation_factors_f)):
         for surface in surfaces:
-            mcApp.set_array_variable(
+            mcad.set_array_variable(
                 f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F",
                 i,
                 correlation_factors_f[i],
             )
-            mcApp.set_array_variable(
+            mcad.set_array_variable(
                 f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R",
                 i,
                 correlation_factors_r[i],
@@ -1343,7 +1337,8 @@ warnings.simplefilter("always", UserWarning)
 if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
     if __name__ == "__main__":
         # load in the results:
-        working_folder, inputs_folder, outputs_folder = setup_directories()
+        working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
+        outputs_folder = os.path.join(working_folder, "outputs")
         results = pd.read_csv(
             os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case"
         )
@@ -1352,7 +1347,7 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mcApp = pymotorcad.MotorCAD()
 
         # initialise the Motor-CAD model, based on e10 template.
-        create_implement_model_motfile(mcApp, working_folder)
+        implemented_motfile = create_implement_model_motfile(mcApp, working_folder)
 
         # Run a Thermal Steady State calculation to initialise the thermal circuit and model
         mcApp.do_steady_state_analysis()
@@ -1368,3 +1363,6 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
 
         # set values in Motor-CAD
         set_correlation_factors(mcApp, correlation_factors_to_set_f, correlation_factors_to_set_r)
+
+        # save Motor-CAD model
+        mcApp.save_to_file(implemented_motfile)
