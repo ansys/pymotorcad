@@ -810,7 +810,7 @@ def calibrate_model(
     # decides the optimisation is complete, rather it sets a relevant solve-specific tolerance.
     # This can be adjusted to balance the optimisation runtime and the accuracy of the results.
     # A lower tolerance will lead to a more accurate result, but will take longer to run.
-    tolerance = 1.0
+    tolerance = 0.01
 
     # Use an initial guess of 1 for the correlation factor of all surfaces of each layer.
     initial_guess = [1.0] * num_variables
@@ -830,6 +830,7 @@ def calibrate_model(
     mc.save_to_file(testcase_filepath)
 
     # Summarise the optimisation results
+    print(f"\n\nTest case file saved to {testcase_filepath} with optimised correlation factors.")
     print("Status : %s" % result["message"])
     print("Total Evaluations: %d" % result["nfev"])
     print(result.x[0])
@@ -934,7 +935,7 @@ def calibrate_testcases(
             calibrate_model,
             zip(
                 testcase_filepaths,
-                all_testcase_temperatures(testcase_data),
+                all_testcase_temperatures(testcase_data, num_hairpins),
                 repeat(num_hairpins),
                 repeat(ewdg_nodes_f),
                 repeat(ewdg_nodes_r),
@@ -1099,7 +1100,7 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
 def validate_calibration_results(results, num_hairpins):
     # plot results for a specific test case:
     test_case = 17
-    print(f"Plotting calibrated temperature results for Test {test_case}.")
+    print(f"\n\nPlotting calibrated temperature results for Test {test_case}.")
     print(f"Shaft speed = {results['Speed'][test_case]} rpm")
     print(f"Oil flow rate = {results['Flow_rate'][test_case]} l/min")
     print(f"Oil inlet temperature = {results['Inlet_temperature'][test_case]} °C")
