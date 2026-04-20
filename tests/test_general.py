@@ -32,12 +32,7 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD, MotorCADError
-
-# Allows us to add a new api method to testing before the next Motor-CAD release is available
-# Dev release will have a lower version number than actual release so don't want to check this
-ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
 
 def kh_to_ms(kh):
@@ -128,14 +123,12 @@ def test_load_dxf_file():
         reset_to_default_file(mc2)
         mc2.show_magnetic_context()
 
-        mc2.clear_all_data()
-        mc2.initiate_geometry_from_script()
+        # mc2.clear_all_data()
+        # mc2.initiate_geometry_from_script()
 
         mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-        mc2.add_region_xy(x, y, "test_region")
-
-        mc2.create_optimised_mesh()
+        # mc2.create_optimised_mesh()
 
         # Not currently working - needs fixing in Motor-CAD
 

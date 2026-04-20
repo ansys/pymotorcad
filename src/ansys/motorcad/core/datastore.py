@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains data classes for getting whole datastore from Motor-CAD."""
-
+from collections.abc import Iterable
 from enum import Enum
 
 
@@ -207,6 +207,56 @@ class DataStoreRecord:
             datastore_record.max_value = json["max_value"]
         if datastore_record.use_min_value:
             datastore_record.min_value = json["min_value"]
+
+        return datastore_record
+
+    @classmethod
+    def from_dict(cls, key, value, parent_datastore):
+        """Create a DataStore object from dictionary value data.
+
+        Parameters
+        ----------
+        key : str
+            Key of the record. The name of the variable.
+        value : Any
+            Value of the record. Can be a single value, 1D array, or 2D array.
+        parent_datastore : Datastore
+            records must belong to a dataStore
+
+        Returns
+        -------
+        DataStoreRecord or DataStoreRecordArray or DataStoreRecordArray2D
+        """
+        if isinstance(value, DataStoreRecord):
+            datastore_record = value
+            datastore_record.update_parent(parent_datastore)
+        elif isinstance(value, str):
+            # Check for string first as it will count as an iterable, but should be considered
+            # differently.
+            datastore_record = cls(parent_datastore)
+            datastore_record.current_value = value
+        elif isinstance(value, Iterable):
+            if (
+                (len(value) > 0)
+                and isinstance(value[0], Iterable)
+                and not isinstance(value[0], str)
+            ):
+                datastore_record = DataStoreRecordArray2D(parent_datastore)
+                datastore_record.current_value = value
+                datastore_record.array_length_2d = (len(value), len(value[0]))
+                datastore_record.is_array_2d = True
+            else:
+                datastore_record = DataStoreRecordArray(parent_datastore)
+                datastore_record.current_value = value
+                datastore_record.array_length = len(value)
+                datastore_record.is_array = True
+        else:
+            datastore_record = cls(parent_datastore)
+            datastore_record.current_value = value
+
+        datastore_record.record_name = key
+        datastore_record.activex_name = key
+        datastore_record.alternative_activex_name = "xxx"
 
         return datastore_record
 
@@ -449,11 +499,10 @@ class Datastore(dict):
         datastore = cls()
 
         for key, value in datastore_dict.items():
-            datastore[key] = value
-            datastore[key].update_parent(datastore)
+            datastore[key] = DataStoreRecord.from_dict(key, value, datastore)
 
             datastore.__activex_names__[key.lower()] = key
-            if value.alternative_activex_name != "xxx":
+            if datastore[key].alternative_activex_name != "xxx":
                 # Parameter also has an alternative name. Add it to another dict to search quickly.
                 datastore.__activex_names__[value.alternative_activex_name.lower()] = key
 
