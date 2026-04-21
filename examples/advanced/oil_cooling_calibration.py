@@ -1093,67 +1093,212 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
 
 
 # %%
-# Compare calibration results with test temperatures
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define a function to plot the test temperatures and calibrated temperatures for one of the tests,
-# test 17.
-def validate_calibration_results(results, num_hairpins):
-    # plot results for a specific test case:
-    test_case = 17
+# Validate calibration results with test temperatures
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Validate the calibration by comparing temperature results with the test data. Plot the results on
+# a grouped bar chart, so that the temperature differences can be easily assessed. To validate the
+# calibration, compare the temperature results from Motor-CAD with the test data temperatures.
+#
+# Run the Motor-CAD model with default correlation factor values to obtain the non-calibrated model
+# temperature results. Then, compare these temperature results with the test data and the calibrated
+# Motor-CAD model temperatures.
+#
+# Define a function to get the temperature results from Motor-CAD for one of the test cases with
+# the default, non-calibrated spray cooling correlation factors:
+#
+# * Launch Motor-CAD and open the e10 template
+#
+# * Extract the default correlation factors. These will be the same for all hairpin layers in the
+#   e10 template file, so correlation factors for only one hairpin layer are extracted. Loop through
+#   the surfaces to get the different values.
+#
+# * Open the calibrated test file Motor-CAD model, which was saved to the ``outputs_folder`` during
+#   the calibration process.
+#
+# * Set the default correlation factor values in Motor-CAD and re-run the steady state thermal
+#   calculation for the non-calibrated model.
+#
+# * Get the end winding enamel temperatures for each hairpin layer for the non-calibrated model,
+#   calculated with the default correlation factors. Also return the number of hairpin layers.
+def noncalibrated_motorcad_results(testcase_filepath):
+    # launch Motor-CAD and open e10 template
+    mcApp = pymotorcad.MotorCAD()
+
+    mcApp.set_variable("MessageDisplayState", 2)
+    mcApp.load_template("e10")
+
+    # Extract the default correlation factors for each surface.
+    default_correlation_factors_f = []
+    default_correlation_factors_r = []
+    for surface in ["Inner", "Outer", "Front", "Rear"]:
+        default_correlation_factors_f.append(
+            mcApp.get_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F", 0
+            )
+        )
+        default_correlation_factors_r.append(
+            mcApp.get_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R", 0
+            )
+        )
+
+    # Open the calibrated test case file. Get the necessary model data, node numbers for hairpin end
+    # winding enamel temperatures, number of hairpins.
+    num_hairpins, oil_node_f, oil_node_r, ewdg_nodes_f, ewdg_nodes_r = get_model_data(
+        mcApp, [testcase_filepath, None]
+    )
+
+    # Set the default correlation factor values in Motor-CAD and re-run the steady state thermal
+    # calculation for the non-calibrated model.
+    i = 0
+    for surface in ["Inner", "Outer", "Front", "Rear"]:
+        for j in range(num_hairpins):
+            mcApp.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F",
+                j,
+                default_correlation_factors_f[i],
+            )
+
+            mcApp.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R",
+                j,
+                default_correlation_factors_r[i],
+            )
+        i += 1
+    mcApp.do_steady_state_analysis()
+
+    # Get the end winding enamel temperatures for each hairpin layer for the non-calibrated model,
+    # with default correlation factors.
+    default_enamel_temperatures_f, default_enamel_temperatures_r = calculate_enamel_temperatures(
+        mcApp, ewdg_nodes_f, ewdg_nodes_r, oil_node_f, oil_node_r
+    )
+    # Return the number of hairpins and the enamel temperatures.
+    return num_hairpins, default_enamel_temperatures_f, default_enamel_temperatures_r
+
+
+# %%
+# Define a function to plot the temperature results from a Motor-CAD model before calibration, the
+# test temperatures and the calibrated Motor-CAD model temperature results for one of the test
+# cases. This function uses matplotlib to plot the results on a grouped bar chart.
+#
+# Use the``noncalibrated_motorcad_results()`` function to find the non-calibrated Motor-CAD results.
+# Read the test temperatures and calibrated Motor-CAD model result temperatures from the
+# ``results_data.csv`` file. The CSV file must be in the ``outputs_folder``.
+def validate_calibration_results(test_case, outputs_folder):
+    testcase_filepath = os.path.join(outputs_folder, f"test_case_{test_case}.mot")
+    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
+
+    # Print the shaft speed, oil flow rate and oil inlet temperature for the specific test case.
     print(f"\n\nPlotting calibrated temperature results for Test {test_case}.")
     print(f"Shaft speed = {results['Speed'][test_case]} rpm")
     print(f"Oil flow rate = {results['Flow_rate'][test_case]} l/min")
     print(f"Oil inlet temperature = {results['Inlet_temperature'][test_case]} °C")
 
-    # get test data temperatures
-    labels = []
-    temperatures = {"Test Data": [], "Calibration Data": []}
+    # Get temperature results data from the non-calibrated Motor-CAD model using the
+    # ``noncalibrated_motorcad_results()`` function.
+    (
+        num_hairpins,
+        default_enamel_temperatures_f,
+        default_enamel_temperatures_r,
+    ) = noncalibrated_motorcad_results(testcase_filepath)
 
+    # Set up a dictionary for storing the temperature data to be plotted
+    labels = []
+    temperatures = {
+        "Non-Calibrated Motor-CAD Results": [],
+        "Test Data": [],
+        "Calibrated Motor-CAD Results": [],
+    }
+
+    # Store the non-calibrated temperature data from Motor-CAD in the ``temperatures`` dictionary
+    temperatures["Non-Calibrated Motor-CAD Results"].extend(default_enamel_temperatures_f)
+    temperatures["Non-Calibrated Motor-CAD Results"].extend(default_enamel_temperatures_r)
+
+    # Get the test data temperatures and calibrated model temperatures from the ``results_data.csv``
+    # file and store in the ``temperatures`` dictionary.
     for end in ["f", "r"]:
         for i in alc[:num_hairpins]:
             labels.append(f"{i}_{end}")
             temperatures["Test Data"].append(results[f"T_layer_{i}_{end}"][test_case])
-            temperatures["Calibration Data"].append(
+            temperatures["Calibrated Motor-CAD Results"].append(
                 results[f"T_layer_{i}_{end}_motorcad"][test_case]
             )
 
-    x = np.arange(len(labels))  # the label locations
-    width = 0.45  # the width of the bars
-    multiplier = 0
+    # Set up the matplotlib grouped bar chart
+    # Define the label locations
+    x = np.arange(len(labels))
+    # Define the width of bars
+    width = 0.3
 
+    # Create the figure and subplot axes
     fig, ax = plt.subplots(layout="constrained")
 
+    # Add the bars to the bar chart
+    multiplier = 0
     for attribute, measurement in temperatures.items():
         offset = width * multiplier
-        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar(x + offset, measurement, width, label=attribute)
         multiplier += 1
 
-    # Add some text for labels, title and custom x-axis tick labels, etc.
+    # Add axis labels, title and custom x-axis tick labels to the bar chart
     ax.set_xlabel("Hairpin layer")
     ax.set_ylabel("Temperature [°C]")
-    ax.set_title(f"Test vs Calibration Temperature Comparison [Test {test_case}]")
-    ax.set_xticks(x + width / 2, labels)
-    ax.legend(loc="upper left", ncols=2)
-    # set axis limits as multiples of 5 at least 3 °C below(/above) the min(/max) test temperature
-    y_axis_lower_lim = 5 * math.floor((min(temperatures["Test Data"]) - 3) / 5)
-    y_axis_upper_lim = 5 * math.ceil((max(temperatures["Test Data"]) + 3) / 5)
+    ax.set_title(f"Temperature Comparison [Test {test_case}]")
+    ax.set_xticks(x + width, labels)
+    # Add a legend
+    ax.legend(loc="upper left", ncols=2, fontsize="small")
+    # set axis limits as multiples of 5 at least 2 °C below(/above) the min(/max) temperatures
+    min_temperatures = [
+        min(temperatures["Test Data"]),
+        min(temperatures["Calibrated Motor-CAD Results"]),
+        min(temperatures["Non-Calibrated Motor-CAD Results"]),
+    ]
+    max_temperatures = [
+        max(temperatures["Test Data"]),
+        max(temperatures["Calibrated Motor-CAD Results"]),
+        max(temperatures["Non-Calibrated Motor-CAD Results"]),
+    ]
+    y_axis_lower_lim = 5 * math.floor((min(min_temperatures) - 2) / 5)
+    y_axis_upper_lim = 5 * math.ceil((max(max_temperatures) + 2) / 5)
     ax.set_ylim(y_axis_lower_lim, y_axis_upper_lim)
 
     plt.show()
 
+    # Determine the maximum difference between test data and calibrated model:
+    max_difference = 0
+    max_difference_i = None
+    for i in range(len(temperatures["Test Data"])):
+        temperature_difference = (
+            temperatures["Test Data"][i] - temperatures["Calibrated Motor-CAD Results"][i]
+        )
+        if abs(temperature_difference) > abs(max_difference):
+            max_difference = temperature_difference
+            max_difference_i = i
+    # Print the maximum temperature difference
+    print(
+        f"Maximum temperature difference between test and calibrated Motor-CAD model: "
+        f"{round(max_difference, 2)} °C [Hairpin layer {labels[max_difference_i]}]"
+    )
+
 
 # %%
-# Plot the results
+# Plot the results for test case 17 by running the ``validate_calibration_results()`` function.
+# Compare the temperature results obtained using the default, non-calibrated Motor-CAD spray cooling
+# model, where default correlation factor values are applied to the test data temperatures and the
+# calibrated Motor-CAD model results, where correlation factors have been optimised based on the
+# test data.
 #
-# As we are using the multiprocessing module, it is necessary to wrap the perform_calibration()
-# function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
+# As we are using the multiprocessing module, it is necessary to wrap the
+# ``validate_calibration_results()`` function call in a ``if __name__ == "__main__":`` block to
+# avoid issues with multiprocessing.
 if __name__ == "__main__":
     # load in the results
-    num_hairpins = 6
+    test_case = 17
     working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
     outputs_folder = os.path.join(working_folder, "outputs")
-    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
-    validate_calibration_results(results, num_hairpins)
+
+    # Run the validation and plot the results
+    validate_calibration_results(test_case, outputs_folder)
 
 
 # %%
@@ -1402,7 +1547,6 @@ warnings.simplefilter("always", UserWarning)
 # As we are using the multiprocessing module for the calibration workflow, it is necessary to wrap
 # the calibration implementation workflow in a ``if __name__ == "__main__":`` block to avoid issues
 # with multiprocessing.
-
 if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
     if __name__ == "__main__":
         # load in the results:
