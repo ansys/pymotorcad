@@ -1306,54 +1306,82 @@ if __name__ == "__main__":
 # --------------------------------------------------------------
 # Now that the calibration results have been obtained for the set of test data cases, these results
 # can be used to determine appropriate **Correlation Factor** values for other cases with different
-# oil inlet temperature, oil flow rate or shaft speed.
+# oil inlet temperature, oil flow rate or shaft speed. The ``results_data.csv`` file consists of a
+# table of oil inlet temperature, oil flow rate, shaft speed and calibrated correlation factors,
+# which can be interpolated to determine correlation factors for different combinations of inputs.
 #
 # Begin by defining some necessary functions.
 #
 # Set up a Motor-CAD model for implementing the calibrated model
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set up a Motor-CAD model with **Spray Cooling (Radial from Housing)** where the spray cooling
-# input parameters are different from any of the test cases. In this example:
+# input parameters are different from any of the test cases.
 #
-# * **Spray Cooling (Radial from Housing)** flow rate (front and rear) = 5 l/min
+# Open the e10 template, where the **Spray Cooling (Radial from Housing)** cooling system is coupled
+# to the **Housing Water Jacket** cooling system:
 #
-# * **Spray Cooling (Radial from Housing)** inlet temperature (front and rear) = 62 °C
+# * The oil flow rate and inlet temperature are set in the **Housing Water Jacket** model input
+#   data.
 #
-# * **Shaft speed** = 6000 rpm
+# * The calculated **Housing Water Jacket** outlet temperature is automatically set as the
+#   **Spray Cooling (Radial from Housing)** inlet temperature.
 #
+# * The flow proportions are defined in the **Spray Cooling (Radial from Housing)** model input
+#   data, such that half the oil flow is sprayed from the housing at the front of the machine and
+#   half passes through the **Housing Water Jacket**. At the rear of the machine, all the remaining
+#   oil flow is sprayed from the housing.
+#
+# Set the following input parameters for the **Housing Water Jacket** model:
+#
+# * **Housing Water Jacket** flow rate = 10 l/min
+#
+# * **Housing Water Jacket** inlet temperature = 65 °C
+#
+# With these **Housing Water Jacket** input parameter settings, and the
+# **Spray Cooling (Radial from Housing)** **Spray Flow Source** set to
+# **Housing Water Jacket (Front Inlet)**:
+#
+# * The **Spray Cooling (Radial from Housing)** oil flow rate will be **5 l/min** at the front and
+#   **5 l/min** at the rear of the machine.
+#
+# * The **Spray Cooling (Radial from Housing)** oil inlet temperature at the front of the machine
+#   will be a value slightly higher than **65 °C** due to the heat absorbed by the oil in the
+#   **Housing Water Jacket** around the front end space.
+#
+# * The **Spray Cooling (Radial from Housing)** oil inlet temperature at the rear of the machine
+#   will be a value more than **65 °C**, with this value depending on the amount of heat absorbed by
+#   the oil in the **Housing Water Jacket** around the active part of the machine.
+#
+# Set the **Shaft speed** for the **Steady State** thermal calculation = 6000 rpm
+#
+# Set the **Lab -> Thermal** coupling so that the losses for this operating point are calculated
+# in the Motor-CAD Lab module and imported to Thermal, and set the
+# **Copper Losses Vary With Temperature** variable to **True** so that the losses are scaled with
+# temperature. This models the realistic case where the motor is operating with electromagnetic
+# losses, unlike the calibration test cases.
+#
+# Save the MOT file to the ``working_folder``.
 def create_implement_model_motfile(mcad, working_folder):
     mcad.set_variable("MessageDisplayState", 2)
     mcad.load_template("e10")
     mcad.show_thermal_context()
 
-    mcad.set_variable("Housing_Water_Jacket", False)
-    mcad.set_variable("Spray_RadialHousing_FlowProportion_F", 0.5)
-    mcad.set_fluid("Spray_RadialHousing_Fluid_F", "ATF134 fluid")
-    mcad.set_fluid("Spray_RadialHousing_Fluid_R", "ATF134 fluid")
-    mcad.set_variable("Spray_RadialHousing_NozzleNumber_F", 12)
-    mcad.set_variable("Spray_RadialHousing_NozzleNumber_R", 12)
-    mcad.set_variable("Spray_RadialHousing_NozzleDiameter_F", 1.5)
-    mcad.set_variable("Spray_RadialHousing_NozzleDiameter_R", 1.5)
-    mcad.set_variable("T_Ambient", 40)
-
     # Calculate losses from Lab
     mcad.set_variable("LabThermalCoupling", 1)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", True)
 
-    # Set up the cooling system with different values to the test cases
-    mcad.set_variable("Spray_RadialHousing_VolumeFlowRate", 5 / 60000)
-    mcad.set_variable("Spray_RadialHousing_InletTemperature_F", 62)
-    mcad.set_variable("Spray_RadialHousing_InletTemperature_R", 62)
+    # Set up the Housing Water Jacket cooling system
+    mcad.set_variable("WJ_Fluid_Volume_Flow_Rate", 10 / 60000)
+    mcad.set_variable("HousingWJ_Inlet_Temperature", 65)
 
     # set the steady state calculation speed
     mcad.set_variable("ShaftSpeed", 6000)
 
-    # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
-    # be used as the start point to create the individual test case files.
-    implemented_motfile = os.path.join(working_folder, "e10_calibration_implemented.mot")
-    mcad.save_to_file(implemented_motfile)
+    # Save the resulting file to the ``working_folder`` as ``e10_calibration_implementation.mot``.
+    implementation_motfile = os.path.join(working_folder, "e10_calibration_implementation.mot")
+    mcad.save_to_file(implementation_motfile)
 
-    return implemented_motfile
+    return implementation_motfile
 
 
 # %%
@@ -1365,16 +1393,42 @@ def create_implement_model_motfile(mcad, working_folder):
 #
 # The speed and/or model parameters may not have been covered by the test cases, so define
 # interpolation functions for each correlation factor to determine the appropriate value based on
-# the calibration results.
+# the calibration results. Using the RegularGridInterpolator from scipy.interpolate, define the
+# interpolation function for each correlation factor. Inputs are speed, flow rate and inlet
+# temperature. Output is correlation factor.
 #
 # Return a list of correlation factors for the front and rear of the machine.
 def lookup_correlation_factors(mcad, results):
-    # Get the Shaft Speed and oil spray fluid volume flow rate from the Motor-CAD model
+    # Get the Shaft Speed and oil spray fluid volume flow rate and inlet temperatures from the
+    # Motor-CAD model
     o_speed = mcad.get_variable("ShaftSpeed")
     o_oil_flow_rate_f = mcad.get_variable("Spray_RadialHousing_VolumeFlowRate_" + "F") * 60000
     o_oil_flow_rate_r = mcad.get_variable("Spray_RadialHousing_VolumeFlowRate_" + "R") * 60000
     o_inlet_temperature_f = mcad.get_variable("Spray_RadialHousing_InletTemperature_" + "F")
     o_inlet_temperature_r = mcad.get_variable("Spray_RadialHousing_InletTemperature_" + "R")
+
+    # Print the Shaft Speed and oil spray fluid volume flow rate and inlet temperatures
+    print(
+        f"Motor-CAD model to implement calibrated Spray Cooling (Radial from Housing) correlation"
+        f" factors is set up with:"
+    )
+    print(f"- Steady State calculation shaft speed: {o_speed} rpm")
+    print(
+        f"- Spray Cooling (Radial from Housing) oil flow rate [front]: "
+        f"{round(o_oil_flow_rate_f, 2)} l/min"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil flow rate [rear]: "
+        f"{round(o_oil_flow_rate_r, 2)} l/min"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil inlet temperature [front]: "
+        f"{round(o_inlet_temperature_f, 2)} °C"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil inlet temperature [rear]: "
+        f"{round(o_inlet_temperature_r, 2)} °C"
+    )
 
     # get lists of the unique values of speed, flow rate and inlet temperature from the test cases
     # results CSV file.
@@ -1513,8 +1567,6 @@ def lookup_correlation_factors(mcad, results):
 # Set up a Motor-CAD model with **Spray Cooling (Radial from Housing)** correlation factors for the
 # front and rear of the machine. For each hairpin layer, set the same correlation factor value for
 # each of the 4 surfaces (**Inner**, **Outer**, **Front** and **Rear**).
-
-
 def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
     # set values in Motor-CAD
     surfaces = ["Inner", "Outer", "Front", "Rear"]
@@ -1534,7 +1586,7 @@ def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
 
 # Perform the calibrated model implementation in Motor-CAD
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use the functions to open the Motor-CAD model and implement a set of correlation factors based on
+# Use the functions to set up a Motor-CAD model and implement a set of correlation factors based on
 # the calibration results.
 #
 # This workflow raises warnings if the model parameters are outside the ranges of the test cases.
@@ -1542,40 +1594,46 @@ def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
 warnings.simplefilter("always", UserWarning)
 
 # %%
-# Do not perform the calibration implementation during the PyMotorCAD docs build.
-#
 # As we are using the multiprocessing module for the calibration workflow, it is necessary to wrap
 # the calibration implementation workflow in a ``if __name__ == "__main__":`` block to avoid issues
 # with multiprocessing.
-if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
-    if __name__ == "__main__":
-        # load in the results:
-        working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
-        outputs_folder = os.path.join(working_folder, "outputs")
-        results = pd.read_csv(
-            os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case"
-        )
 
-        # connect to Motor-CAD
-        mcApp = pymotorcad.MotorCAD()
+if __name__ == "__main__":
+    # load in the results:
+    working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
+    outputs_folder = os.path.join(working_folder, "outputs")
+    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
 
-        # initialise the Motor-CAD model, based on e10 template.
-        implemented_motfile = create_implement_model_motfile(mcApp, working_folder)
+    # connect to Motor-CAD
+    mcApp = pymotorcad.MotorCAD(keep_instance_open=True)
 
-        # Run a Thermal Steady State calculation to initialise the thermal circuit and model
-        mcApp.do_steady_state_analysis()
+    # initialise the Motor-CAD model, based on e10 template.
+    motfile_to_calibrate = create_implement_model_motfile(mcApp, working_folder)
 
-        # get corresponding correlation factors from test case results for the set of parameters
-        # (shaft speed, oil flow rate, oil inlet temperature) currently set up in the Motor-CAD
-        # file.
-        correlation_factors_to_set_f, correlation_factors_to_set_r = lookup_correlation_factors(
-            mcApp, results
-        )
-        # print(correlation_factors_to_set_f)
-        # print(correlation_factors_to_set_r)
+    # Run a Thermal Steady State calculation to initialise the thermal circuit and model
+    mcApp.do_steady_state_analysis()
 
-        # set values in Motor-CAD
-        set_correlation_factors(mcApp, correlation_factors_to_set_f, correlation_factors_to_set_r)
+    # get corresponding correlation factors from test case results for the set of parameters
+    # (shaft speed, oil flow rate, oil inlet temperature) currently set up in the Motor-CAD
+    # file.
+    correlation_factors_to_set_f, correlation_factors_to_set_r = lookup_correlation_factors(
+        mcApp, results
+    )
 
-        # save Motor-CAD model
-        mcApp.save_to_file(implemented_motfile)
+    # set values in Motor-CAD
+    set_correlation_factors(mcApp, correlation_factors_to_set_f, correlation_factors_to_set_r)
+
+    # save Motor-CAD model
+    mcApp.save_to_file(motfile_to_calibrate)
+
+# %%
+# This external python script sets the spray cooling correlation factors based on the
+# ``results_data.csv`` and the parameters (shaft speed, oil flow rate and inlet temperature) that
+# are currently set in the Motor-CAD file. An internal Python script could be set up within a
+# Motor-CAD file with the ``lookup_correlation_factors()`` and ``set_correlation_factors()`` to
+# apply this spray cooling calibration model implementation.
+#
+# Using the **Run during Analysis** option in Motor-CAD for the internal Python script, the
+# correlation factors could be automatically updated based on the current model parameters for each
+# calculation run. This would allow the calibrated spray cooling model to be applied across a wide
+# range of operating conditions and model parameters.
