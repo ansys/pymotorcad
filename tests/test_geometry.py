@@ -3141,6 +3141,30 @@ def test_reset_geometry(mc):
     set_default_instance(save_default_instance)
 
 
+def test_region_offset(mc):
+    original_region = geometry.Region(RegionType.stator_air)
+    original_region.motorcad_instance = mc
+
+    original_points = [
+        geometry.Coordinate(-1, -1),
+        geometry.Coordinate(-1, 1),
+        geometry.Coordinate(1, 1),
+        geometry.Coordinate(1, -1),
+    ]
+    # create and add line entities to region from their respective points
+    original_region.entities += create_lines_from_points(original_points)
+
+    # Increase size. Original square is 2x2, new square should be 3x3
+    region_a = deepcopy(original_region)
+    region_a.offset(0.5)
+    assert isclose(region_a.area, 9, abs_tol=0.01)
+
+    # Decrease size. Original square is 2x2, new square should be 1x1
+    region_b = deepcopy(original_region)
+    region_b.offset(-0.5)
+    assert isclose(region_b.area, 1, abs_tol=0.01)
+
+
 def test_translation_coord():
     c1 = Coordinate(0, 0)
     c2 = Coordinate(2, 2)

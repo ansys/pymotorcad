@@ -881,6 +881,17 @@ class Region(object):
         for entity in self._entities:
             entity.translate(x, y)
 
+    def offset(self, offset):
+        """Offset Region to increase or decrease region size.
+
+        Parameters
+        ----------
+        offset : float
+            Distance to offset by. Positive will increase region size.
+        """
+        offset_region = self.motorcad_instance.offset_region(self, offset)
+        self.update(offset_region)
+
     def update(self, region):
         """Update class fields from another region.
 

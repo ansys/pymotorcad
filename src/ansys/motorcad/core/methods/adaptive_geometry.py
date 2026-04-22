@@ -304,6 +304,32 @@ class _RpcMethodsAdaptiveGeometry:
 
         return regions
 
+    def offset_region(self, region, offset):
+        """Offset Motor-CAD region to increase or decrease region size.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        offset : float
+            Distance to offset by. Positive will increase region size.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+        """
+        self.connection.ensure_version_at_least("2027.0")
+
+        raw_region = region._to_json()
+
+        method = "OffsetRegion"
+        params = [raw_region, offset]
+        offset_raw_region = self.connection.send_and_receive(method, params)
+        returned_region = Region._from_json(offset_raw_region, motorcad_instance=self)
+        return returned_region
+
     def reset_adaptive_geometry(self):
         """Reset geometry to default."""
         method = "ResetGeometry"
