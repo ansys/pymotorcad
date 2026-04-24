@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for geometry."""
+# from core import MotorCADError
 
 
 class _RpcMethodsGeometry:
@@ -108,3 +109,62 @@ class _RpcMethodsGeometry:
         method = "CheckIfGeometryIsValid"
         params = [edit_geometry]
         return self.connection.send_and_receive(method, params)
+
+    def get_conductor_positions(self):
+        """Get the x-y coordinates of conductors in the slot from Motor-CAD.
+
+        Returns
+        -------
+        conductor_positions_l : list of [float, float]
+            list of conductor coordinates where [x-coordinate, y-coordinate] for the left side of
+            the slot.
+        conductor_positions_l : list of [float, float]
+            list of conductor coordinates where [x-coordinate, y-coordinate] for the right side of
+            the slot.
+        """
+        # define lists to store the conductor positions for each side of the slot
+        conductor_positions_l = []
+        conductor_positions_r = []
+        sides = [conductor_positions_l, conductor_positions_r]
+        l_r = ["L", "R"]
+
+        # loop through left then right side of the slot, getting the x-y coordinates of conductor
+        # positions
+        for i in range(len(sides)):
+            # Get the x-y conductor positions. These are returned as a single string. The string is
+            # a 2D array of values where ";" separates columns of conductors and ":" separates each
+            # value.
+            conductor_positions_x = self.get_variable(f"ConductorCentre_{l_r[i]}_x")
+            conductor_positions_y = self.get_variable(f"ConductorCentre_{l_r[i]}_y")
+
+            # if the conductors are centred and not split left/right, only all positions will be
+            # given as left. Return None for right side.
+            if conductor_positions_x == "" and conductor_positions_x == "":
+                break
+
+            # split the string into a list for each column of conductors
+            conductor_positions_x = conductor_positions_x.split(" ; ")
+            conductor_positions_y = conductor_positions_y.split(" ; ")
+
+            # loop through the strings representing conductor positions for each column and split
+            # into individual values.
+            for j in range(len(conductor_positions_x)):
+                conductor_positions_x[j] = conductor_positions_x[j].split(" : ")
+                conductor_positions_y[j] = conductor_positions_y[j].split(" : ")
+
+            # for each x-y conductor position, convert values from string to float and store in a
+            # list where indices represent [x_coordinate, y_coordinate].
+            # store all conductor position coordinates in a single list for each side of the slot
+            # (conductor_positions_l and conductor_positions_r are not sorted by columns).
+            for j in range(len(conductor_positions_x)):
+                for k in range(len(conductor_positions_x[j])):
+                    conductor_position = [
+                        float(conductor_positions_x[j][k]),
+                        float(conductor_positions_y[j][k]),
+                    ]
+                    # ignore any unwanted [0, 0] entries that are contained in the strings from
+                    # Motor-CAD
+                    if conductor_position != [0, 0]:
+                        sides[i].append(conductor_position)
+        # return the lists of conductor positions for each side of the slot
+        return conductor_positions_l, conductor_positions_r
