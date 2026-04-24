@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.12'
+  MAIN_PYTHON_VERSION: '3.14'
   LIBRARY_NAME: ansys-motorcad-core
   LIBRARY_NAMESPACE: 'ansys.motorcad.core'
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
