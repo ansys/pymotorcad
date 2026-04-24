@@ -1462,6 +1462,48 @@ class RegionMagnet(Region):
     def magnet_polarity(self, value):
         self._magnet_polarity = value
 
+    @property
+    def magnetisation_direction(self):
+        """Magnetisation direction of the magnet.
+
+        Returns
+        -------
+        string
+        """
+        return self._magnetisation_direction
+
+    @magnetisation_direction.setter
+    def magnetisation_direction(self, value):
+        self._magnetisation_direction = value
+
+    @property
+    def magnetisation_function_amplitude(self):
+        """Magnetisation function amplitude of the magnet.
+
+        Returns
+        -------
+        string
+        """
+        return self._magnetisation_function_amplitude
+
+    @magnetisation_function_amplitude.setter
+    def magnetisation_function_amplitude(self, value):
+        self._magnetisation_function_amplitude = value
+
+    @property
+    def magnetisation_function_angle(self):
+        """Magnetisation function angle of the magnet.
+
+        Returns
+        -------
+        string
+        """
+        return self._magnetisation_function_angle
+
+    @magnetisation_function_angle.setter
+    def magnetisation_function_angle(self, value):
+        self._magnetisation_function_angle = value
+
 
 class Coordinate(object):
     """Provides the Python representation of a coordinate in two-dimensional space.
