@@ -1181,7 +1181,7 @@ def noncalibrated_motorcad_results(testcase_filepath):
 # test temperatures and the calibrated Motor-CAD model temperature results for one of the test
 # cases. This function uses matplotlib to plot the results on a grouped bar chart.
 #
-# Use the``noncalibrated_motorcad_results()`` function to find the non-calibrated Motor-CAD results.
+# Use the ``noncalibrated_motorcad_results()`` function to find the non-calibrated Motor-CAD results.
 # Read the test temperatures and calibrated Motor-CAD model result temperatures from the
 # ``results_data.csv`` file. The CSV file must be in the ``outputs_folder``.
 def validate_calibration_results(test_case, outputs_folder):
@@ -1583,7 +1583,7 @@ def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
                 correlation_factors_r[i],
             )
 
-
+# %%
 # Perform the calibrated model implementation in Motor-CAD
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use the functions to set up a Motor-CAD model and implement a set of correlation factors based on
