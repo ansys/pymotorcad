@@ -623,12 +623,32 @@ def test_region_children(mc):
     rotor = mc.get_region("rotor")
     children = rotor.children
 
-    assert len(children) == 16
+    duct_geometry_method = mc.get_variable("DuctGeometryMethod")
+    if duct_geometry_method == 0:
+        # original duct geometry method
+        assert len(children) == 16
+    elif duct_geometry_method == 1:
+        # improved duct geometry method
+        assert len(children) == 15
+    else:
+        # invalid duct geometry method
+        assert False
 
 
 def test_region_linked_regions(mc):
-    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
-    assert len(duct.linked_regions) == 1
+    # set duct geometry method back to original to test linked regions
+    mc.set_variable("DuctGeometryMethod", 0)
+    # force geometry to be recreated after updating duct geometry method
+    mc.reset_adaptive_geometry()
+    try:
+        duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+        assert len(duct.linked_regions) == 1
+
+    finally:
+        # reset to default
+        mc.set_variable("DuctGeometryMethod", 1)
+        # force geometry to be recreated after updating duct geometry method
+        mc.reset_adaptive_geometry()
 
 
 def test_reverse_entity():
