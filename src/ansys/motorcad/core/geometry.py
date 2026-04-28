@@ -884,13 +884,21 @@ class Region(object):
     def offset(self, offset):
         """Offset Region to increase or decrease region size.
 
+        Modifies region, and returns any additional regions.
+
         Parameters
         ----------
         offset : float
             Distance to offset by. Positive will increase region size.
         """
-        offset_region = self.motorcad_instance.offset_region(self, offset)
+        offset_regions = self.motorcad_instance.offset_region(self, offset)
+        offset_region = offset_regions[0]
         self.update(offset_region)
+        additional_regions = []
+        if len(offset_regions) > 1:
+            additional_regions = offset_regions[1:]
+
+        return additional_regions
 
     def update(self, region):
         """Update class fields from another region.
