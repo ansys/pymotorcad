@@ -189,6 +189,9 @@ def run_thermal_transient_demo(mc):
     mc.set_variable("Simple_Transient_Definition", 1)
     mc.set_variable("Simple_Transient_Torque", 100)
     # %%
+    # Set transient endpoint definition to Fixed Duration (default)
+    mc.set_variable("EndPoint_Definition", 0)
+    # %%
     # Solve thermal model
     mc.do_transient_analysis()
 
