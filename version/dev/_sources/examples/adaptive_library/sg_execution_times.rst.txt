@@ -1,0 +1,67 @@
+
+:orphan:
+
+.. _sphx_glr_examples_adaptive_library_sg_execution_times:
+
+
+Computation times
+=================
+**04:43.526** total execution time for 11 files **from examples\adaptive_library**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_examples_adaptive_library_BPMTriangularStatorNotches.py` (``BPMTriangularStatorNotches.py``)
+     - 00:37.008
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_BezierCurveRotorPockets.py` (``BezierCurveRotorPockets.py``)
+     - 00:34.249
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_TrapezoidalDuct.py` (``TrapezoidalDuct.py``)
+     - 00:32.821
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_AsymmetricSPM.py` (``AsymmetricSPM.py``)
+     - 00:28.540
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_OblongStatorDuct.py` (``OblongStatorDuct.py``)
+     - 00:26.361
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_RoundParallelSlotBttm.py` (``RoundParallelSlotBttm.py``)
+     - 00:23.349
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_DXFImport.py` (``DXFImport.py``)
+     - 00:22.920
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_UpdateMaterialMesh.py` (``UpdateMaterialMesh.py``)
+     - 00:21.706
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_SPMCustomMagnetAngles.py` (``SPMCustomMagnetAngles.py``)
+     - 00:20.234
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_BPMTriangularRotorNotches.py` (``BPMTriangularRotorNotches.py``)
+     - 00:18.247
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_UShapeSYNCRELCurvedFluxBarriers.py` (``UShapeSYNCRELCurvedFluxBarriers.py``)
+     - 00:18.089
+     - 0.0

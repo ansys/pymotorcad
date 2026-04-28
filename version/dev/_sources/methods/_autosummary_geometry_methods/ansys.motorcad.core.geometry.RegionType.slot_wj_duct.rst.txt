@@ -1,0 +1,6 @@
+slot\_wj\_duct
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.slot_wj_duct

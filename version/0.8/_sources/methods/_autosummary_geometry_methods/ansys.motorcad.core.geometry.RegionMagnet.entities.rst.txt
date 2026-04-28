@@ -1,0 +1,6 @@
+entities
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.entities
