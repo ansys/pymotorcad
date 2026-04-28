@@ -344,13 +344,13 @@ class _RpcMethodsAdaptiveGeometry:
         ----------
         region_a : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
-        
+
         region_b : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
 
         include_entity_overlap : boolean
-            Whether to consider regions that overlap to be inside each other. If False, then only regions that are fully
-            contained will be considered inside.
+            Whether to consider regions that overlap to be inside each other. If False, then
+            only regions that are fully contained will be considered inside.
 
         Returns
         -------
