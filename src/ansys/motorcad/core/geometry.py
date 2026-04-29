@@ -892,8 +892,11 @@ class Region(object):
             Distance to offset by. Positive will increase region size.
         """
         offset_regions = self.motorcad_instance.offset_region(self, offset)
-        offset_region = offset_regions[0]
-        self.update(offset_region)
+        if len(offset_regions) > 0:
+            offset_region = offset_regions[0]
+            self.update(offset_region)
+        else:
+            raise Exception("Region offset failed.")
         additional_regions = []
         if len(offset_regions) > 1:
             additional_regions = offset_regions[1:]
