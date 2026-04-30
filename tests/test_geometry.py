@@ -1595,15 +1595,15 @@ def test_round_corner():
             assert not entity.coordinate_on_entity(corners[i])
 
     # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
 
     # check the case when corner internal angle is negative
@@ -1650,6 +1650,28 @@ def test_round_corner():
     assert type(region_rounded.entities[3]) == Arc
     # print(region_rounded.entities[3].midpoint.y)
     assert region_rounded.entities[3].midpoint.y < centre.y
+
+    # test the case when the arc cannot be created:
+    # Define corner
+    corner = Coordinate(2, 0)
+
+    # Define entities
+    line = Line(Coordinate(0, 3), corner)
+    arc = Arc(corner, Coordinate(1.5, 4.5), radius=100)
+
+    # Create region and add entities
+    region = Region(region_type=RegionType.rotor_air)
+    region.add_entity(line)
+    region.add_entity(arc)
+    region_orig = deepcopy(region)
+
+    # Check that ValueError is raised for case when the Arc cannot be drawn between
+    # the lines.
+    with pytest.raises(ValueError) as e_info:
+        region.round_corner(corner, 0.8, maximise=False)
+        assert "Corner radius is too large for these entities" in str(e_info)
+    # check that the region entities are unchanged by the failed corner rounding.
+    assert region.entities == region_orig.entities
 
 
 def test_round_corners():
