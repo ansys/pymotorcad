@@ -619,16 +619,18 @@ def test_region_set_parent(mc):
     assert square.name in shaft_expected._child_names
 
 
-def test_region_children(mc):
-    rotor = mc.get_region("rotor")
-    children = rotor.children
+# commented out as functionality requires updated Motor-CAD version
+# def test_region_children(mc):
+#     rotor = mc.get_region("rotor")
+#     children = rotor.children
 
-    assert len(children) == 16
+#     assert len(children) == 16
 
 
-def test_region_linked_regions(mc):
-    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
-    assert len(duct.linked_regions) == 1
+# commented out as functionality requires updated Motor-CAD version
+# def test_region_linked_regions(mc):
+#     duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+#     assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():
