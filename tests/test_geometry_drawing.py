@@ -251,7 +251,6 @@ def test_draw_list_of_coordinates_and_regions_and_entities(mc):
         to_draw.extend(gt["Shaft"].entities)
         to_draw.append(gt["Rotor"])
         to_draw.append(gt["RotorDuctFluidRegion"])
-        # to_draw.append(gt["RotorDuctFluidRegion_1"])
         draw_objects(to_draw, save=path)
 
 
