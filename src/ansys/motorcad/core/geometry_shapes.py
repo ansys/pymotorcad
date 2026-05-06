@@ -363,6 +363,7 @@ class Rectangle(EntityList):
     def __init__(self, corner: Coordinate, width: float, height: float):
         """Initialise Rectangle object."""
         super().__init__()
+        self._initialising = True
 
         # generate points
         points = [
@@ -377,6 +378,8 @@ class Rectangle(EntityList):
         for point in points:
             self.append(Line(last_point, point))
             last_point = point
+
+        self._initialising = False
 
     @property
     def width(self) -> float:
@@ -412,12 +415,17 @@ class Rectangle(EntityList):
             Line(self[1].midpoint, self[3].midpoint),
         ]
         centroid = median_lines[0].get_intersection(median_lines[1])
-        if len(centroid) > 1:
-            distance = centroid[1] - centroid[0]
-            average_centroid = centroid[0] + distance / 2
-            return average_centroid
-        else:
-            return centroid[0]
+        return centroid[0]
+
+    def append(self, object):
+        """Append object to the Rectangle, mutating it into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Appending an additional entity will cause
+        the object to become a plain EntityList.
+        """
+        if not getattr(self, "_initialising", False):
+            self.__class__ = EntityList
+        super(EntityList, self).append(object)
 
 
 class Triangle(EntityList):
