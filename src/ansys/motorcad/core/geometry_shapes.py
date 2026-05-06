@@ -308,8 +308,7 @@ class Shape(EntityList):
         super(EntityList, self).remove(entity)
 
     def extend(self, entities):
-        """Extend the Shape by appending items from the entities iterable, mutating it into an
-        EntityList.
+        """Extend the Shape by appending entities, mutating it into an EntityList.
 
         The Shape must have an exact number of entities. Appending additional entities will cause
         the object to become a plain EntityList.
@@ -318,7 +317,7 @@ class Shape(EntityList):
         super(EntityList, self).extend(entities)
 
 
-class Circle(EntityList):
+class Circle(Shape):
     """Python representation of circle object based upon centre and radius.
 
     Parameters
@@ -333,6 +332,8 @@ class Circle(EntityList):
     def __init__(self, centre: Coordinate, radius: float):
         """Initialise Circle object."""
         super().__init__()
+        self._initialising = True
+
         self.append(
             Arc(
                 Coordinate(centre.x, centre.y - abs(radius)),
@@ -349,6 +350,7 @@ class Circle(EntityList):
                 centre=centre,
             )
         )
+        self._initialising = False
 
     @property
     def centroid(self) -> Coordinate:
@@ -362,7 +364,7 @@ class Circle(EntityList):
         return abs(self[0].start - self[1].start) / 2
 
 
-class ConvexPolygon(EntityList):
+class ConvexPolygon(Shape):
     """Python representation of a regular convex polygon object with N sides.
 
     A regular shape with N lines of equal length.
@@ -382,6 +384,8 @@ class ConvexPolygon(EntityList):
     def __init__(self, centre: Coordinate, number_of_sides, side_length: float):
         """Initialise N-sided convex polygon object."""
         super().__init__()
+        self._initialising = True
+
         if number_of_sides < 3:
             raise TypeError("Polygon must have at least 3 sides.")
         y_diff = (side_length / 2) * (1 / math.tan(math.pi / number_of_sides))
@@ -392,6 +396,8 @@ class ConvexPolygon(EntityList):
             new_point.rotate(centre, (i + 1) * (360 / number_of_sides))
             self.append(Line(last_point, new_point))
             last_point = new_point
+
+        self._initialising = False
 
     @property
     def centroid(self) -> Coordinate:
@@ -486,7 +492,7 @@ class Rectangle(Shape):
         return centroid[0]
 
 
-class Triangle(EntityList):
+class Triangle(Shape):
     """Create a triangle from three Coordinates.
 
     Parameters
@@ -502,6 +508,7 @@ class Triangle(EntityList):
     def __init__(self, corner_1: Coordinate, corner_2: Coordinate, corner_3: Coordinate):
         """Initialise Triangle object."""
         super().__init__()
+        self._initialising = True
         # generate points
         points = [
             corner_2,
@@ -514,6 +521,8 @@ class Triangle(EntityList):
         for point in points:
             self.append(Line(last_point, point))
             last_point = point
+
+        self._initialising = False
 
     @property
     def is_isosceles(self) -> bool:
@@ -571,17 +580,10 @@ class Triangle(EntityList):
         ]
         centroid = median_lines[0].get_intersection(median_lines[1])
         centroid.extend(median_lines[1].get_intersection(median_lines[2]))
-        distance = []
-        for i in range(len(centroid) - 1):
-            point_1 = centroid[i]
-            point_2 = centroid[i + 1]
-            distance_vector = point_1 - point_2
-            distance.append(sqrt(distance_vector.x**2 + distance_vector.y**2))
-        if max(distance) < GEOM_SHAPE_TOLERANCE:
-            return centroid[0]
-        else:
-            # could not find centroid
-            raise Exception("Can't find centroid.")
+        return Coordinate(
+            sum(point.x for point in centroid) / len(centroid),
+            sum(point.y for point in centroid) / len(centroid),
+        )
 
     def _calculate_height(self) -> float:
         """Calculate height of Triangle."""
