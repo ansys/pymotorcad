@@ -1,0 +1,16 @@
+.. _ref_Internal Scripting_API:
+Internal Scripting
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Internal Scripting
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    load_script
+    run_script
+    save_script

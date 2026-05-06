@@ -1,0 +1,6 @@
+lamination\_type
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.lamination_type

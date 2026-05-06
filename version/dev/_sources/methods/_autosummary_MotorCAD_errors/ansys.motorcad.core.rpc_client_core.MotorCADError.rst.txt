@@ -1,0 +1,6 @@
+﻿MotorCADError
+=============
+
+.. currentmodule:: ansys.motorcad.core.rpc_client_core
+
+.. autoexception:: MotorCADError

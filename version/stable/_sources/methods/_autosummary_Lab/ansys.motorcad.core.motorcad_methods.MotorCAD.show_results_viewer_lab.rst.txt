@@ -1,0 +1,6 @@
+﻿show\_results\_viewer\_lab
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.show_results_viewer_lab

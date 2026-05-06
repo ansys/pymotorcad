@@ -1,0 +1,6 @@
+wedge
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.wedge

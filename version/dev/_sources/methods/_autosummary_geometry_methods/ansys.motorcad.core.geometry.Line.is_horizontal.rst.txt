@@ -1,0 +1,6 @@
+is\_horizontal
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.is_horizontal

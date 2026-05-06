@@ -1,0 +1,6 @@
+housing
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.housing

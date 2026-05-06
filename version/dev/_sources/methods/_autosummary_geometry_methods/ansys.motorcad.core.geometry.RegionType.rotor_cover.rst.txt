@@ -1,0 +1,6 @@
+rotor\_cover
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.rotor_cover

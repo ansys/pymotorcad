@@ -1,0 +1,6 @@
+ExportSolidMaterial
+===================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ExportSolidMaterial

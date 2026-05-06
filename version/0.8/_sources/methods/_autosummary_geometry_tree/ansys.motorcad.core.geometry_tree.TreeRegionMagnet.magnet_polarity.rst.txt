@@ -1,0 +1,6 @@
+magnet\_polarity
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.magnet_polarity

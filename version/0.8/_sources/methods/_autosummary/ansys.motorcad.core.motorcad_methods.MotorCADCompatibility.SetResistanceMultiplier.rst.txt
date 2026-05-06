@@ -1,0 +1,6 @@
+SetResistanceMultiplier
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetResistanceMultiplier

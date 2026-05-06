@@ -1,0 +1,6 @@
+colour
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.colour

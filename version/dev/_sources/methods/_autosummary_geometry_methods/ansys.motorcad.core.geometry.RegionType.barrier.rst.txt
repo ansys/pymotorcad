@@ -1,0 +1,6 @@
+barrier
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.barrier

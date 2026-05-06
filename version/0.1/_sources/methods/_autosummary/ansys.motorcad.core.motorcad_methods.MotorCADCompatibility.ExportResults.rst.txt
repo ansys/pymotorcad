@@ -1,0 +1,6 @@
+ExportResults
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ExportResults

@@ -1,0 +1,6 @@
+parent\_key
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.parent_key

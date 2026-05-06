@@ -1,0 +1,6 @@
+cowling\_gril
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.cowling_gril

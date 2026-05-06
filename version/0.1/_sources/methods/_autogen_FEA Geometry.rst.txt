@@ -1,0 +1,45 @@
+FEA Geometry
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_FEA Geometry
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    add_arc_boundary_rt
+    add_arc_boundary_xy
+    add_arc_centre_start_end_rt
+    add_arc_centre_start_end_xy
+    add_arc_rt
+    add_arc_xy
+    add_line_boundary_rt
+    add_line_boundary_xy
+    add_line_rt
+    add_line_xy
+    add_magnet_region_rt
+    add_magnet_region_xy
+    add_point_custom_material_rt
+    add_point_custom_material_xy
+    add_region_rt
+    add_region_xy
+    clear_all_data
+    clear_fixed_temperature_value
+    create_optimised_mesh
+    delete_regions
+    do_slot_finite_element
+    edit_magnet_region
+    get_point_value
+    get_region_loss
+    get_region_value
+    initiate_geometry_from_script
+    reset_regions
+    save_fea_data
+    set_fea_path_arc
+    set_fea_path_line
+    set_fea_path_point
+    set_fixed_temperature_value
+    set_power_injection_value

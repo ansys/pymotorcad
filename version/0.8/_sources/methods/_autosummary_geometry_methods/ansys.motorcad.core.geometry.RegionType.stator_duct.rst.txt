@@ -1,0 +1,6 @@
+stator\_duct
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_duct

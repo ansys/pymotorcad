@@ -1,0 +1,6 @@
+CreateOptimisedMesh\_Thermal
+============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CreateOptimisedMesh_Thermal

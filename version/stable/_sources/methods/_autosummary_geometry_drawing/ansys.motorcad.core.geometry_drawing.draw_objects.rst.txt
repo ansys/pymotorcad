@@ -1,0 +1,6 @@
+﻿draw\_objects
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry_drawing
+
+.. autofunction:: draw_objects

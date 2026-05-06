@@ -1,0 +1,12 @@
+
+:orphan:
+
+.. _sphx_glr_examples_links_sg_execution_times:
+
+Computation times
+=================
+**10:51.788** total execution time for **examples_links** files:
+
++--------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_links_ece_export_for_twinbuilder.py` (``ece_export_for_twinbuilder.py``) | 10:51.788 | 0.0 MB |
++--------------------------------------------------------------------------------------------------+-----------+--------+

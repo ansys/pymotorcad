@@ -1,0 +1,6 @@
+stator\_slot\_spacer
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_slot_spacer

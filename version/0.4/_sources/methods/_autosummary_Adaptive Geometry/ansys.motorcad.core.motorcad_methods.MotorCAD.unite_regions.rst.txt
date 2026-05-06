@@ -1,0 +1,6 @@
+﻿unite\_regions
+==============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.unite_regions

@@ -1,0 +1,6 @@
+﻿get\_license
+============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_license

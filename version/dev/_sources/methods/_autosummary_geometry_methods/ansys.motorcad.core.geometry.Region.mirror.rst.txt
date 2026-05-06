@@ -1,0 +1,6 @@
+mirror
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.mirror

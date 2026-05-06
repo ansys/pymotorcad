@@ -1,0 +1,6 @@
+SetFEAPathArc
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetFEAPathArc

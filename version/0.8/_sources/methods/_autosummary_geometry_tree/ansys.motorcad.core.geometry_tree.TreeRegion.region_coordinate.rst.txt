@@ -1,0 +1,6 @@
+region\_coordinate
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.region_coordinate

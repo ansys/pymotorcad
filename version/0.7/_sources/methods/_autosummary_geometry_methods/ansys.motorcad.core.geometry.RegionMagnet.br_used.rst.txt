@@ -1,0 +1,6 @@
+br\_used
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.br_used

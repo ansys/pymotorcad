@@ -1,0 +1,6 @@
+from\_polar\_coords
+===================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Coordinate.from_polar_coords

@@ -1,0 +1,1025 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Motor-CAD adaptive templates scripting &#8212; pymotorcad-core</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/css\ansys_sphinx_theme.css?v=35e44410" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+ 
+<link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../_static/documentation_options.js?v=112a8514"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/adaptive_templates';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using a Python virtual environment in Motor-CAD" href="virtual_env_motorcad.html" />
+    <link rel="prev" title="Motor-CAD setup" href="Motor-CAD_setup.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/user_guide/adaptive_templates.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+<!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+   
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <script>document.write(`<img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="pymotorcad-core - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="internal_scripting.html">Motor-CAD internal <strong>Scripting</strong> tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external_scripting.html">Adding to external python and contributing</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="matlab_scripting.html">PyMotorCAD scripting in MATLAB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backwards_compatibility.html">Backwards compatibility with old scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Motor-CAD_setup.html">Motor-CAD setup</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Motor-CAD adaptive templates scripting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtual_env_motorcad.html">Using a Python virtual environment in Motor-CAD</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">User guide</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Motor-CAD adaptive templates scripting</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="motor-cad-adaptive-templates-scripting">
+<span id="ref-adaptive-templates-ug"></span><h1>Motor-CAD adaptive templates scripting<a class="headerlink" href="#motor-cad-adaptive-templates-scripting" title="Link to this heading">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later and
+PyMotorCAD v0.4.1. To update PyMotorCAD in Motor-CAD, go to Scripting -&gt; Settings -&gt; PyMotorCAD
+updates and select ‘Update to Latest Release’.</p>
+</div>
+<p>This guide describes the Adaptive Templates feature. Motor-CAD provides the Adaptive Templates
+feature for the design of models with geometries that cannot be modelled using the standard template
+geometries. By using the Adaptive Templates feature, users can generate their own geometric
+parameterisations from scratch or based on the Standard Templates.</p>
+<p>Using Adaptive Templates, custom geometric parameterisations are set up using a Python script.</p>
+<p>Adaptive Templates examples are available in the PyMotorCAD Documentation under
+<a class="reference internal" href="../examples/adaptive_library/index.html#ref-examples-adaptive-templates-library"><span class="std std-ref">Adaptive templates examples</span></a>. For the examples shown in this user guide, see
+<a class="reference internal" href="../examples/adaptive_library/BPMTriangularRotorNotches.html#ref-bpm-triangular-rotor-notches"><span class="std std-ref">Triangular Rotor Notches for IPM</span></a> and <a class="reference internal" href="../examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers.html#ref-sync-curve-flux-barriers"><span class="std std-ref">Curved Rotor Flux Barriers for SYNCREL U-Shape</span></a>.</p>
+<p>Those who are new to Motor-CAD Adaptive Templates should work through the tutorial supplied with
+Motor-CAD. The tutorial contains additional information and full workflow examples.</p>
+<section id="geometry-editor">
+<h2>Geometry editor<a class="headerlink" href="#geometry-editor" title="Link to this heading">#</a></h2>
+<p>The <strong>Geometry -&gt; Editor</strong> tab in Ansys Motor-CAD shows each geometry region currently in use in the
+model.</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/Adaptive_Geometry_GUI_Screenshot.png"><img alt="../_images/Adaptive_Geometry_GUI_Screenshot.png" src="../_images/Adaptive_Geometry_GUI_Screenshot.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Geometry -&gt; Editor -&gt; Geometry</strong> tab in Ansys Motor-CAD 2024 R1</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The interface is fully interactive. Individual geometry regions can be selected from the region tree
+or the diagram.</p>
+<p>Motor geometry components are grouped by Armature and Field and represented by regions. The Editor
+displays the geometry regions based on their spatial locations, such that a region’s sub-regions are
+shown as a descendant/child of their parent region.</p>
+<p>The e9 IPM template in Motor-CAD is shown. In this example, the Magnet and Rotor Pocket regions
+(<strong>L1_1Magnet1</strong>, <strong>L2_1Magnet2</strong>, <strong>Rotor Pocket</strong> and <strong>Rotor Pocket_1</strong>) are shown in a branch
+underneath the <strong>Rotor</strong> region. When a region is selected, region properties are displayed at the
+bottom-left of the screen and region entities at the bottom-right.</p>
+<p>Region properties include the Name, Type, Material, Area (base and actual), Position (Centroid,
+Region Coordinate) and Symmetry of the region. Region entities include all the Lines and Arcs that
+define the region. The <strong>Rotor</strong> region in the e9 IPM template is defined by two lines and two arcs.
+If an individual entity is selected from the table, it is highlighted in the diagram.</p>
+<p>Either Cartesian or Polar coordinate systems can be used. The coordinate system can be changed by
+going to <strong>Input Data -&gt; Settings -&gt; Geometry</strong>.</p>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/Geometry_Coordinate_System_GUI_Screenshot.png"><img alt="../_images/Geometry_Coordinate_System_GUI_Screenshot.png" src="../_images/Geometry_Coordinate_System_GUI_Screenshot.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Input Data -&gt; Settings -&gt; Geometry</strong> tab in Ansys Motor-CAD 2024 R1</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="adaptive-templates-script">
+<h2>Adaptive templates script<a class="headerlink" href="#adaptive-templates-script" title="Link to this heading">#</a></h2>
+<p>Adaptive Templates can be enabled by going to the <strong>Geometry -&gt; Editor -&gt; Adaptive Templates</strong> tab
+and setting the Geometry Templates Type from <strong>Standard</strong> to <strong>Adaptive</strong>. This means that the
+Adaptive Templates script is run every time the Motor-CAD geometry is created, and the scripting
+interface enabled, which allows editing of the script.</p>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/Adaptive_Templates_GUI_Screenshot.png"><img alt="../_images/Adaptive_Templates_GUI_Screenshot.png" src="../_images/Adaptive_Templates_GUI_Screenshot.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Geometry -&gt; Editor -&gt; Adaptive Templates</strong> tab in Ansys Motor-CAD 2024 R1</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>To set an adaptive geometry for a Motor-CAD file, a script must be loaded in to the
+<strong>Adaptive Templates</strong> tab and run. Adaptive Templates Python scripts can also be executed
+externally, but unless the script is loaded in to the <strong>Adaptive Templates</strong> tab in Motor-CAD, the
+geometry is only defined temporarily.</p>
+<p>Adaptive Templates Scripts require PyMotorCAD to be imported. This Python package provides access to
+Motor-CAD.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ansys.motorcad.core</span> <span class="k">as</span> <span class="nn">pymotorcad</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> provides access to the Motor-CAD geometry, such as the existing regions in
+the model. It can be used to get an existing region from the Motor-CAD model (such as the <strong>Rotor</strong>)
+as an object in Python (<code class="docutils literal notranslate"><span class="pre">rotor</span> <span class="pre">=</span> <span class="pre">mc.get_region(&quot;Rotor&quot;)</span></code>). It can also be used to set a Motor-CAD
+region object in the Motor-CAD model (<code class="docutils literal notranslate"><span class="pre">mc.set_region(rotor)</span></code>).</p>
+<p>For a Motor-CAD region object that has been obtained using PyMotorCAD, the region properties are
+accessible via Python. The region object created in Python contains all of the region properties
+shown in the Motor-CAD UI and all of the geometry entities that make up the region.</p>
+<p>Properties such as the material and colour can be edited with an Adaptive Templates Script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect to Motor-CAD</span>
+<span class="n">mc</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">()</span>
+
+<span class="c1"># Get rotor region from Motor-CAD</span>
+<span class="n">rotor</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="s2">&quot;Rotor&quot;</span><span class="p">)</span>
+
+<span class="c1"># Edit region properties</span>
+<span class="n">rotor</span><span class="o">.</span><span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">186</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">211</span><span class="p">)</span>
+<span class="n">rotor</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="s2">&quot;M470-50A&quot;</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">rotor</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/Adaptive_Geometry_GUI_Screenshot_UG_Modified.png"><img alt="../_images/Adaptive_Geometry_GUI_Screenshot_UG_Modified.png" src="../_images/Adaptive_Geometry_GUI_Screenshot_UG_Modified.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Rotor geometry with modified colour and material shown in the <strong>Geometry -&gt; Editor -&gt; Geometry</strong>
+tab</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Details on the Adaptive Geometry functions within <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> that provide access to the
+Motor-CAD geometry are available in the <a class="reference internal" href="../methods/MotorCAD_object.html#ref-motorcad-object"><span class="std std-ref">MotorCAD API</span></a> under
+<a class="reference internal" href="../methods/_autogen_Adaptive%20Geometry.html#ref-adaptive-geometry-api"><span class="std std-ref">Adaptive Geometry</span></a>.</p>
+<section id="using-the-geometry-objects-and-functions-library">
+<h3>Using the geometry objects and functions library<a class="headerlink" href="#using-the-geometry-objects-and-functions-library" title="Link to this heading">#</a></h3>
+<p>Adaptive scripts also require the <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry</span></code> library to modify the model
+geometry. This provides geometry capability in Python, such as regions and entities. It is required
+so that Lines and Arcs can be defined or modified by the script, and so that regions can be created
+from these entities.</p>
+<p>The geometry package can be imported:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ansys.motorcad.core.geometry</span> <span class="k">as</span> <span class="nn">geometry</span>
+</pre></div>
+</div>
+<p>Alternatively, specific functions (for example Line and Arc) can be imported from the package:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.motorcad.core.geometry</span> <span class="kn">import</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Arc</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry</span></code> is required to edit the entities that belong to a region, such as
+changing the Lines or Arcs that define the region geometry.</p>
+<p>Details on the full list of Geometry objects and functions are available in the
+<a class="reference internal" href="../methods/index.html#ref-api-reference"><span class="std std-ref">API reference</span></a> under <a class="reference internal" href="../methods/geometry_functions.html#ref-geometry-functions"><span class="std std-ref">Geometry objects and functions</span></a>. For examples on modifying a Motor-CAD
+model geometry, see <a class="reference internal" href="../examples/adaptive_library/index.html#ref-examples-adaptive-templates-library"><span class="std std-ref">Adaptive templates examples</span></a>.</p>
+</section>
+</section>
+<section id="adaptive-parameters">
+<h2>Adaptive parameters<a class="headerlink" href="#adaptive-parameters" title="Link to this heading">#</a></h2>
+<p>An Adaptive Templates script can be set based on the Standard Template parameters or based on custom
+Adaptive Parameters. Adaptive Parameters are shown in the
+<strong>Geometry -&gt; Editor -&gt; Adaptive Parameters</strong> tab.</p>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/Adaptive_Parameters_GUI_Screenshot.png"><img alt="../_images/Adaptive_Parameters_GUI_Screenshot.png" src="../_images/Adaptive_Parameters_GUI_Screenshot.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Geometry -&gt; Editor -&gt; Adaptive Parameters</strong> tab in Ansys Motor-CAD 2024 R1</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Any parameter can be defined, with a name, value, and description. Parameters can be added within
+the Motor-CAD interface, or with a Python script by using the <code class="docutils literal notranslate"><span class="pre">set_adaptive_parameter_value()</span></code>
+method from <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mc</span><span class="o">.</span><span class="n">set_adaptive_parameter_value</span><span class="p">(</span><span class="s2">&quot;Notches per Pole&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Adaptive Parameters also appear in the <strong>Geometry -&gt; Radial</strong> tab, alongside the Standard Template
+parameters.</p>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/Adaptive_Parameters_GUI_Screenshot_2.png"><img alt="../_images/Adaptive_Parameters_GUI_Screenshot_2.png" src="../_images/Adaptive_Parameters_GUI_Screenshot_2.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Adaptive Parameters shown in the <strong>Geometry -&gt; Radial</strong> tab</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Adaptive Parameters can be accessed with the Adaptive Templates script using the
+<code class="docutils literal notranslate"><span class="pre">get_adaptive_parameter_value()</span></code> method from <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code>, so that the geometry can be
+defined by these Adaptive Parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">number_notches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">get_adaptive_parameter_value</span><span class="p">(</span><span class="s2">&quot;Notches per Pole&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="scripting-workflow">
+<h2>Scripting workflow<a class="headerlink" href="#scripting-workflow" title="Link to this heading">#</a></h2>
+<p>As well as the defined Adaptive Parameters, any parameter from Motor-CAD can be used in the Adaptive
+Templates script by using the <code class="docutils literal notranslate"><span class="pre">get_variable()</span></code> method from PyMotorCAD. Any Motor-CAD API
+accessible by PyMotorCAD is available.</p>
+<p>For example, when modifying the rotor geometry, it is often necessary to retrieve the rotor radius:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rotor_radius</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;RotorDiameter&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<section id="adding-a-region-to-the-geometry">
+<h3>Adding a region to the geometry<a class="headerlink" href="#adding-a-region-to-the-geometry" title="Link to this heading">#</a></h3>
+<p>To add a new geometry feature to the Motor-CAD model, such as a notch, the workflow is as follows:</p>
+<ol class="arabic simple">
+<li><p>A new region is created to represent the notch.</p></li>
+<li><p>The region properties are defined (material, colour etc.).</p></li>
+<li><p>Entities are added to the region to define the geometry (shape and position).</p></li>
+<li><p>The parent region is defined for the new region (for a rotor duct example, the parent would be
+set to the rotor region).</p></li>
+<li><p>The new region is set in Motor-CAD.</p></li>
+</ol>
+<section id="creating-a-region">
+<h4>Creating a region<a class="headerlink" href="#creating-a-region" title="Link to this heading">#</a></h4>
+<p>To create a new region to represent the notch, use the Region object from
+<code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notch</span> <span class="o">=</span> <span class="n">Region</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="defining-region-properties-and-parent">
+<h4>Defining region properties and parent<a class="headerlink" href="#defining-region-properties-and-parent" title="Link to this heading">#</a></h4>
+<p>Region properties can be set using the appropriate field/property:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notch</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Rotor_Notch_1&quot;</span>
+<span class="n">notch</span><span class="o">.</span><span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+<span class="n">notch</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="s2">&quot;Air&quot;</span>
+</pre></div>
+</div>
+<p>If the region object of the rotor has been created in Python (<code class="docutils literal notranslate"><span class="pre">rotor</span> <span class="pre">=</span> <span class="pre">mc.get_region(&quot;Rotor&quot;)</span></code>),
+the rotor region object’s properties can be obtained and set for the rotor notch.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Region.duplications</span></code> property represents the symmetry of the region. In the example shown
+using the e9 IPM template, <code class="docutils literal notranslate"><span class="pre">duplications</span> <span class="pre">=</span> <span class="pre">8</span></code> because there are 8 rotor poles of 45 ° symmetry.
+In this example, the notch would have the same symmetry as the rotor.</p>
+<p>The parent region of the notch can be set to the rotor region so that the notch is set as a
+sub-region. Motor-CAD uses implicit subtractions so that the notch subtraction is handled
+automatically. The notch appears as a sub-region of the rotor in tree shown in the
+<strong>Geometry -&gt; Editor</strong> tab in Motor-CAD.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notch</span><span class="o">.</span><span class="n">duplications</span> <span class="o">=</span> <span class="n">rotor_region</span><span class="o">.</span><span class="n">duplications</span>
+<span class="n">notch</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">rotor_region</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-entities-to-a-region">
+<h4>Adding entities to a region<a class="headerlink" href="#adding-entities-to-a-region" title="Link to this heading">#</a></h4>
+<p>To add two Lines <code class="docutils literal notranslate"><span class="pre">line_1,</span> <span class="pre">line_2</span></code> and an Arc <code class="docutils literal notranslate"><span class="pre">airgap_arc</span></code> to the notch region, use the
+<code class="docutils literal notranslate"><span class="pre">Region.add_entity()</span></code> function from <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notch</span><span class="o">.</span><span class="n">add_entity</span><span class="p">(</span><span class="n">line_1</span><span class="p">)</span>
+<span class="n">notch</span><span class="o">.</span><span class="n">add_entity</span><span class="p">(</span><span class="n">line_2</span><span class="p">)</span>
+<span class="n">notch</span><span class="o">.</span><span class="n">add_entity</span><span class="p">(</span><span class="n">airgap_arc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Line and Arc entities can be defined using Motor-CAD Coordinate objects.</p>
+</section>
+<section id="setting-a-region-in-motor-cad">
+<h4>Setting a region in Motor-CAD<a class="headerlink" href="#setting-a-region-in-motor-cad" title="Link to this heading">#</a></h4>
+<p>To set the notch in the Motor-CAD model, the notch region is sent to Motor-CAD using the
+<code class="docutils literal notranslate"><span class="pre">set_region()</span></code> function from <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Region.is_closed()</span></code> can be used to ensure that the entities that were added to the region create
+a closed region.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">notch</span><span class="o">.</span><span class="n">is_closed</span><span class="p">():</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">notch</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-the-geometry-shapes-library">
+<h3>Using the geometry shapes library<a class="headerlink" href="#using-the-geometry-shapes-library" title="Link to this heading">#</a></h3>
+<p>Line and Arc entities are defined using Motor-CAD Coordinate objects. Calculating the coordinate
+positions can be time-consuming and can require many lines of Python script.</p>
+<p>For commonly used shapes, ready made functions can be used to create a region, based on a few
+required parameters. These functions can be imported from the
+<code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry_shapes</span></code> library.</p>
+<p>A function for creating a triangular notch region can be imported:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.motorcad.core.geometry_shapes</span> <span class="kn">import</span> <span class="n">triangular_notch</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">triangular_notch()</span></code> function requires four arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code>: Radial position of the notch outer edge. (For a rotor notch, this is the rotor
+radius.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sweep</span></code> - Sweep of the notch along the rotor airgap, in degrees. (This parameter defines the
+notch width.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">centre_angle</span></code> - Angular position of the notch centre.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depth</span></code> - Depth of the notch</p></li>
+</ul>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/Adaptive_Geometry_Shapes_Diagram.png"><img alt="../_images/Adaptive_Geometry_Shapes_Diagram.png" src="../_images/Adaptive_Geometry_Shapes_Diagram.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Required arguments for the <code class="docutils literal notranslate"><span class="pre">triangular_notch()</span></code> function.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A rotor notch can be defined using this function so that the coordinates for the notch entities do
+not need to be calculated.</p>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">triangular_notch()</span></code> function to create a triangular rotor notch region:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notch</span> <span class="o">=</span> <span class="n">triangular_notch</span><span class="p">(</span>
+    <span class="n">rotor_radius</span><span class="p">,</span> <span class="n">notch_angular_width</span><span class="p">,</span> <span class="n">notch_centre_angle</span><span class="p">,</span> <span class="n">notch_depth</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The arguments, <code class="docutils literal notranslate"><span class="pre">rotor_radius</span></code>, <code class="docutils literal notranslate"><span class="pre">notch_angular_width</span></code>, <code class="docutils literal notranslate"><span class="pre">notch_centre_angle</span></code> and
+<code class="docutils literal notranslate"><span class="pre">notch_depth</span></code> must be calculated in the Adaptive Templates script and specified.</p>
+<p>The notch region properties can then be defined and the region can be set in Motor-CAD, as described
+earlier.</p>
+<p>For a full Adaptive Templates example using the workflow described here, see
+<a class="reference internal" href="../examples/adaptive_library/BPMTriangularRotorNotches.html#ref-bpm-triangular-rotor-notches"><span class="std std-ref">Triangular Rotor Notches for IPM</span></a>.</p>
+<p>Details on the Geometry Shapes functions within <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry_shapes</span></code> are
+available in the <a class="reference internal" href="../methods/index.html#ref-api-reference"><span class="std std-ref">API reference</span></a> under <a class="reference internal" href="../methods/geometry_shapes.html#ref-geometry-shapes"><span class="std std-ref">Geometry shapes</span></a>.</p>
+</section>
+</section>
+<section id="create-and-modify-adaptive-templates-scripts">
+<h2>Create and modify adaptive templates scripts<a class="headerlink" href="#create-and-modify-adaptive-templates-scripts" title="Link to this heading">#</a></h2>
+<p>Adaptive Template Scripts should be created outside Motor-CAD, using a Python Integrated Development
+Environment (IDE) (such as PyCharm). Using an IDE allows for faster creation of the script, allowing
+access to autocompletion, code correction and other features which are not available in the
+Motor-CAD scripting interface.</p>
+<p>This is essential when writing complex scripts, allowing issues with the script to be fixed and the
+inspection of Python objects, such as geometry regions from Motor-CAD.</p>
+<p>For more information on the Synchronous Reluctance machine geometry with curved flux barriers used
+for this example, see <a class="reference internal" href="../examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers.html#ref-sync-curve-flux-barriers"><span class="std std-ref">Curved Rotor Flux Barriers for SYNCREL U-Shape</span></a>.</p>
+<section id="working-on-the-adaptive-templates-script">
+<h3>Working on the adaptive templates script<a class="headerlink" href="#working-on-the-adaptive-templates-script" title="Link to this heading">#</a></h3>
+<p>Adaptive Templates scripts can be edited from an external IDE (for example PyCharm, VSCode). When
+using an external IDE, it is important to ensure that the script contains this method before
+getting or setting any Motor-CAD geometry:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mc</span><span class="o">.</span><span class="n">reset_adaptive_geometry</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="drawing-geometry-objects">
+<h3>Drawing geometry objects<a class="headerlink" href="#drawing-geometry-objects" title="Link to this heading">#</a></h3>
+<p>When working on and debugging Adaptive Templates scripts, it is useful to use the geometry drawing
+feature to plot the geometry objects and regions. <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core.geometry_drawing</span></code> contains
+the <code class="docutils literal notranslate"><span class="pre">draw_objects_debug()</span></code> function, which can be used to plot any region that has been defined in
+Python. This function only plots regions when called from an external IDE to assist with debugging
+scripts. To plot regions from the Motor-CAD scripting interface, use the <code class="docutils literal notranslate"><span class="pre">draw_objects()</span></code>
+function.</p>
+<p>The geometry drawing package can be imported:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ansys.motorcad.core.geometry_drawing</span> <span class="kn">import</span> <span class="n">draw_objects_debug</span>
+</pre></div>
+</div>
+<p>In the <a class="reference internal" href="../examples/adaptive_library/UShapeSYNCRELCurvedFluxBarriers.html#ref-sync-curve-flux-barriers"><span class="std std-ref">Curved Rotor Flux Barriers for SYNCREL U-Shape</span></a> example, curved flux barrier (rotor pockets) region
+objects are added to a list, <code class="docutils literal notranslate"><span class="pre">pockets_all_layers</span></code>. The <code class="docutils literal notranslate"><span class="pre">draw_objects_debug()</span></code> function can be
+used to plot the regions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">draw_objects_debug</span><span class="p">(</span><span class="n">pockets_all_layers</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/Adaptive_Geometry_Drawing_all.png"><img alt="../_images/Adaptive_Geometry_Drawing_all.png" src="../_images/Adaptive_Geometry_Drawing_all.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Plot of rotor pocket regions drawn using the <code class="docutils literal notranslate"><span class="pre">draw_objects()</span></code> function.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="add-imported-dxf-geometries-to-adaptive-templates">
+<h2>Add imported DXF geometries to adaptive templates<a class="headerlink" href="#add-imported-dxf-geometries-to-adaptive-templates" title="Link to this heading">#</a></h2>
+<p>Custom geometry can be imported to Motor-CAD from a DXF file. For information on how to import
+custom geometry from a DXF file, see the “Custom Machine Geometries” tutorial supplied with
+Motor-CAD.</p>
+<p>Once a custom geometry is imported, it is automatically separated into regions, which appear under
+<strong>Import</strong> in the <strong>Geometry -&gt; Editor</strong> tab. These imported geometry regions are accessed using
+the <code class="docutils literal notranslate"><span class="pre">get_region_dxf()</span></code> method from the <code class="docutils literal notranslate"><span class="pre">ansys.motorcad.core</span></code> API. The geometry regions that are
+currently set in the Motor-CAD model are shown under <strong>Template</strong> in the tree.</p>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/Adaptive_Geometry_DXF__1.png"><img alt="../_images/Adaptive_Geometry_DXF__1.png" src="../_images/Adaptive_Geometry_DXF__1.png" style="width: 500pt;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Geometry -&gt; Editor -&gt; Geometry</strong> tab with an imported custom geometry from DXF file.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>By default, the imported regions are not displayed. To display an imported region, select the
+checkbox.</p>
+<p>Imported regions are not automatically set in the Motor-CAD model or used by the Motor-CAD
+calculations. To customise the Motor-CAD template geometry with the imported geometry, use Adaptive
+Templates.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">get_region_dxf()</span></code> method in an adaptive templates script to access an imported region.
+You can then modify and interact with the region in the same way as for any other region object.
+The name, properties and parent regions of the imported region can be defined.</p>
+<p>To replace an existing region with an imported DXF region, use the <code class="docutils literal notranslate"><span class="pre">Region.replace()</span></code> method.</p>
+<p>As with any region object, it is set in the Motor-CAD model using the <code class="docutils literal notranslate"><span class="pre">set_region()</span></code> method. The
+imported region then appears under <strong>Template</strong> in the Geometry tree shown in the
+<strong>Geometry -&gt; Editor -&gt; Geometry</strong> tab in Motor-CAD.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geometry-editor">Geometry editor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adaptive-templates-script">Adaptive templates script</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-geometry-objects-and-functions-library">Using the geometry objects and functions library</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adaptive-parameters">Adaptive parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scripting-workflow">Scripting workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-region-to-the-geometry">Adding a region to the geometry</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-region">Creating a region</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-region-properties-and-parent">Defining region properties and parent</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-entities-to-a-region">Adding entities to a region</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-a-region-in-motor-cad">Setting a region in Motor-CAD</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-geometry-shapes-library">Using the geometry shapes library</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-and-modify-adaptive-templates-scripts">Create and modify adaptive templates scripts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#working-on-the-adaptive-templates-script">Working on the adaptive templates script</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drawing-geometry-objects">Drawing geometry objects</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-imported-dxf-geometries-to-adaptive-templates">Add imported DXF geometries to adaptive templates</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/adaptive_templates.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2024 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  0.16.2. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+limit\_arc\_chord
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.limit_arc_chord
