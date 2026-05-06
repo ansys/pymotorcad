@@ -250,6 +250,74 @@ def triangular_notch(
     return this_notch_region
 
 
+class Shape(EntityList):
+    """Generic class for specific shapes.
+
+    Shapes are particular subclasses of EntityList that can be easily created based on some
+    properties, such as Circle, Rectangle, Triangle.
+    They must follow certain rules, such as a Circle must have two Arc entities, a Rectangle must
+    have 4 line entities.
+    The shape will be mutated into a plain EntityList if you try to add or remove any entities.
+    """
+
+    def append(self, entity):
+        """Append entity to the Shape, mutating it into an EntityList.
+
+        The Shape must have an exact number of entities. Appending an additional entity will cause
+        the object to become a plain EntityList.
+        """
+        if not getattr(self, "_initialising", False):
+            self.__class__ = EntityList
+        super(EntityList, self).append(entity)
+
+    def clear(self):
+        """Remove all entities from the Shape, mutating it into an EntityList.
+
+        The Shape must have an exact number of entities. Clearing entities will cause the object to
+        become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).clear()
+
+    def insert(self, index, entity):
+        """Insert entity to the Shape before index, mutating it into an EntityList.
+
+        The Shape must have an exact number of entities. Inserting an additional entity will cause
+        the object to become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).insert(index, entity)
+
+    def pop(self, index=-1):
+        """Remove and return entity at index (default last), mutating Shape into an EntityList.
+
+        The Shape must have an exact number of entities. Removing an entity will cause the object to
+        become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        entity = super(EntityList, self).pop(index)
+        return entity
+
+    def remove(self, entity):
+        """Remove the first occurrence of entity, mutating Shape into an EntityList.
+
+        The Shape must have an exact number of entities. Removing an entity will cause the object to
+        become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).remove(entity)
+
+    def extend(self, entities):
+        """Extend the Shape by appending items from the entities iterable, mutating it into an
+        EntityList.
+
+        The Shape must have an exact number of entities. Appending additional entities will cause
+        the object to become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).extend(entities)
+
+
 class Circle(EntityList):
     """Python representation of circle object based upon centre and radius.
 
@@ -347,7 +415,7 @@ class ConvexPolygon(EntityList):
         return self[0].angle
 
 
-class Rectangle(EntityList):
+class Rectangle(Shape):
     """Create a rectangle of given width and height from a corner Coordinate.
 
     Parameters
@@ -416,62 +484,6 @@ class Rectangle(EntityList):
         ]
         centroid = median_lines[0].get_intersection(median_lines[1])
         return centroid[0]
-
-    def append(self, entity):
-        """Append entity to the Rectangle, mutating it into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Appending an additional entity will cause
-        the object to become a plain EntityList.
-        """
-        if not getattr(self, "_initialising", False):
-            self.__class__ = EntityList
-        super(EntityList, self).append(entity)
-
-    def clear(self):
-        """Remove all entities from the Rectangle, mutating it into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Clearing entities will cause the object to
-        become a plain EntityList.
-        """
-        self.__class__ = EntityList
-        super(EntityList, self).clear()
-
-    def insert(self, index, entity):
-        """Insert entity to the Rectangle before index, mutating it into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Inserting an additional entity will cause
-        the object to become a plain EntityList.
-        """
-        self.__class__ = EntityList
-        super(EntityList, self).insert(index, entity)
-
-    def pop(self, index=-1):
-        """Remove and return entity at index (default last), mutating Rectangle into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Removing an entity will cause the object to become
-        a plain EntityList.
-        """
-        self.__class__ = EntityList
-        entity = super(EntityList, self).pop(index)
-        return entity
-
-    def remove(self, entity):
-        """Remove the first occurrence of entity, mutating Rectangle into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Removing an entity will cause the object to become
-        a plain EntityList.
-        """
-        self.__class__ = EntityList
-        super(EntityList, self).remove(entity)
-
-    def extend(self, entities):
-        """Extend the Rectangle by appending entities iterable, mutating it into an EntityList.
-
-        A Rectangle must have exactly 4 entities. Appending additional entities will cause
-        the object to become a plain EntityList.
-        """
-        self.__class__ = EntityList
-        super(EntityList, self).extend(entities)
 
 
 class Triangle(EntityList):
