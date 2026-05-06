@@ -1089,10 +1089,13 @@ class Region(object):
                 "Corner radius is too large for these entities. "
                 "You must specify a smaller radius."
             )
-
-        # get the new start and end coordinates for the adjacent entities
-        new_point_0 = adj_entities[0].get_coordinate_from_distance(corner_coordinate, distance)
-        new_point_1 = adj_entities[1].get_coordinate_from_distance(corner_coordinate, distance)
+        # get and set the new start and end coordinates for the adjacent entities
+        adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
+        adj_entities[1].start = adj_entities[1].get_coordinate_from_distance(
+            corner_coordinate, distance
+        )
 
         # if the internal angle of the corner is more than 180, a negative radius must be applied
         if corner_internal_angle > 180:
@@ -1101,22 +1104,8 @@ class Region(object):
             e = 1
 
         # create the round corner arc and insert at the index after the first adjacent entity.
-        try:
-            corner_arc = Arc(new_point_0, new_point_1, radius=e * radius)
-        except Exception as e:
-            if "It is not possible to draw an arc with this geometry" in str(e):
-                raise ValueError(
-                    "Corner radius is too large for these entities. "
-                    "You must specify a smaller radius."
-                )
-            else:
-                raise e
-
+        corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
         self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
-
-        # set the new start and end coordinates for the adjacent entities
-        adj_entities[0].end = new_point_0
-        adj_entities[1].start = new_point_1
 
     def round_corner(self, corner_coordinate, radius, maximise=True):
         """Round the corner of a region.
