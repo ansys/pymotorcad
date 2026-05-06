@@ -679,3 +679,19 @@ class Hexagon(ConvexPolygon):
     def height(self) -> float:
         """Height of Hexagon in the direction perpendicular to the base."""
         return sqrt(3) * self[0].length
+
+
+class Square(Rectangle):
+    """Create a square of given width from a corner Coordinate.
+
+    Parameters
+    ----------
+    corner : Coordinate
+        Corner coordinate to draw the rectangle from.
+    width : float
+        Width value.
+    """
+
+    def __init__(self, corner: Coordinate, width: float):
+        """Initialise Square object."""
+        super().__init__(corner, width, width)

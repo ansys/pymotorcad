@@ -30,6 +30,7 @@ from ansys.motorcad.core.geometry_shapes import (
     ConvexPolygon,
     Hexagon,
     Rectangle,
+    Square,
     Triangle,
     _square_coordinates,
     create_triangle_from_dimensions,
@@ -174,9 +175,9 @@ def test_Rectangle():
 
     # remove a line and check that centroid cannot be returned
     rectangle.remove(rectangle[3])
-    with pytest.raises(IndexError) as e:
+    with pytest.raises(AttributeError) as e:
         centre = rectangle.centroid
-    assert "list index out of range" in str(e)
+    assert "'EntityList' object has no attribute 'centroid'" in str(e)
 
     # special case of Rectangle (square)
     width = 5
@@ -190,6 +191,14 @@ def test_Rectangle():
         assert isinstance(entity, geometry.Line)
         assert entity.length == width
     assert this_square.is_square
+
+    another_square = Square(corner, width)
+    assert len(another_square) == 4
+    assert another_square.is_closed
+    for entity in another_square:
+        assert isinstance(entity, geometry.Line)
+        assert entity.length == width
+    assert another_square.is_square
 
 
 def test_Triangle():
