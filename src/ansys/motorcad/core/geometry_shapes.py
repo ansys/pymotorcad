@@ -417,15 +417,61 @@ class Rectangle(EntityList):
         centroid = median_lines[0].get_intersection(median_lines[1])
         return centroid[0]
 
-    def append(self, object):
-        """Append object to the Rectangle, mutating it into an EntityList.
+    def append(self, entity):
+        """Append entity to the Rectangle, mutating it into an EntityList.
 
         A Rectangle must have exactly 4 entities. Appending an additional entity will cause
         the object to become a plain EntityList.
         """
         if not getattr(self, "_initialising", False):
             self.__class__ = EntityList
-        super(EntityList, self).append(object)
+        super(EntityList, self).append(entity)
+
+    def clear(self):
+        """Remove all entities from the Rectangle, mutating it into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Clearing entities will cause the object to
+        become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).clear()
+
+    def insert(self, index, entity):
+        """Insert entity to the Rectangle before index, mutating it into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Inserting an additional entity will cause
+        the object to become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).insert(index, entity)
+
+    def pop(self, index=-1):
+        """Remove and return entity at index (default last), mutating Rectangle into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Removing an entity will cause the object to become
+        a plain EntityList.
+        """
+        self.__class__ = EntityList
+        entity = super(EntityList, self).pop(index)
+        return entity
+
+    def remove(self, entity):
+        """Remove the first occurrence of entity, mutating Rectangle into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Removing an entity will cause the object to become
+        a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).remove(entity)
+
+    def extend(self, entities):
+        """Extend the Rectangle by appending entities iterable, mutating it into an EntityList.
+
+        A Rectangle must have exactly 4 entities. Appending additional entities will cause
+        the object to become a plain EntityList.
+        """
+        self.__class__ = EntityList
+        super(EntityList, self).extend(entities)
 
 
 class Triangle(EntityList):
