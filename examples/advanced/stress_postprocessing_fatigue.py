@@ -488,7 +488,7 @@ region_names_to_postprocess = ["Rotor"]
 # to the defined maximum speed
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 required_life = 1000000
-maximum_speed = 15000
+maximum_speed = 12000
 
 # %%
 # Run the stress calculation
@@ -601,13 +601,16 @@ for region_name_to_postprocess in region_names_to_postprocess:
             # Plot against element data X and Y (check exactly what this corresponds to,
             # assume element centre, but seems to be one node of triangle)
             cm = plt.colormaps["jet"]
+            cm_reversed = plt.colormaps["jet_r"]
             fig, ax = plt.subplots(1, 2, layout="constrained")
             plot1 = ax[0].scatter(
                 stress_regions[i].get_x(),
                 stress_regions[i].get_y(),
                 c=stress_regions[i].get_stress_safety_factor(),
                 marker=".",
-                cmap=cm,
+                cmap=cm_reversed,
+                vmin=0,
+                vmax=5,
             )
             plt.colorbar(plot1, ax=ax[0])
             ax[0].set_title("Stress safety factor")
@@ -618,6 +621,8 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 c=stress_regions[i].get_damage(),
                 marker=".",
                 cmap=cm,
+                vmin=0,
+                vmax=1.5,
             )
             plt.colorbar(plot2, ax=ax[1])
             ax[1].set_title("Damage")
