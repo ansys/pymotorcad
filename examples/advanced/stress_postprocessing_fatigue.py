@@ -147,8 +147,8 @@ class Element:
         # Using the Goodman method, convert this into an equivalent fully reversing stress amplitude
         # (zero mean)
         if actual_mean_stress >= ultimate_tensile_stress:
-            # If above UTS, the life is zero, so the damage must be 100%
-            self.damage = 1
+            # If at or above UTS, assume it will survive for only 1 cycle
+            allowable_cycles = 1
         else:
             actual_equivalent_stress = (
                 actual_mean_stress
@@ -165,7 +165,8 @@ class Element:
                     np.log10(np.flip(cycles_sn)),
                 ),
             )
-            self.damage = required_life / allowable_cycles
+
+        self.damage = required_life / allowable_cycles
 
         # Find the max allowed stress amplitude (fully reversing) at the required number of cycles
         allowable_equivalent_stress = np.power(
