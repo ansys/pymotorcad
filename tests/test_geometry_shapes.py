@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from copy import deepcopy
 import math
 
 import pytest
@@ -196,6 +197,26 @@ def _mutate_shape(shape, operation):
         raise ValueError(f"Unknown mutation operation: {operation}")
 
 
+def _assert_shape_operation(shape, shape_orig, operation):
+    if operation == "append":
+        assert len(shape) > len(shape_orig)
+        assert _mutation_line() in shape
+    elif operation == "extend":
+        assert len(shape) > len(shape_orig)
+        assert _mutation_line() in shape
+    elif operation == "pop":
+        assert len(shape) == len(shape_orig) - 1
+    elif operation == "remove":
+        assert shape_orig[0] not in shape
+    elif operation == "clear":
+        assert len(shape) == 0
+    elif operation == "insert":
+        assert len(shape) > len(shape_orig)
+        assert shape[1] == _mutation_line()
+    else:
+        raise ValueError(f"Unknown mutation operation: {operation}")
+
+
 @pytest.mark.parametrize(
     "shape_factory, original_class",
     [
@@ -206,12 +227,14 @@ def _mutate_shape(shape, operation):
     ],
 )
 @pytest.mark.parametrize("operation", ["append", "extend", "pop", "remove", "clear", "insert"])
-def test_shape_mutation_operations_mutate_to_entity_list(shape_factory, original_class, operation):
+def test_shape_mutation_operations(shape_factory, original_class, operation):
     shape = shape_factory()
+    shape_orig = deepcopy(shape)
 
     _mutate_shape(shape, operation)
 
     _assert_shape_mutated_to_entity_list(shape, original_class)
+    _assert_shape_operation(shape, shape_orig, operation)
 
 
 def test_Rectangle():
