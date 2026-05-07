@@ -21,21 +21,19 @@
 # SOFTWARE.
 
 """
-.. _ref_stress_postprocessing:
+.. _ref_fatigue_postprocessing:
 
-Motor-CAD Stress post-processing example script
+Motor-CAD Fatigue post-processing example script
 ===============================================
 This example provides post-processing for Motor-CAD rotor stress results.
-The stress results are loaded, and estimates for non-linear stress and strain
-results are calculated from Motor-CAD's linear stress results using the
-Neuber and Glinka correction methods.
+The stress results are loaded, and estimates for fatigue are calculated
+from Motor-CAD's stress results.
 """
 
 # %%
 # Perform required imports
 # ------------------------
 
-import math
 import pathlib
 import tempfile
 import uuid
@@ -44,74 +42,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import ansys.motorcad.core as pymotorcad
-
-# %%
-# Utility functions to check non-linear material data
-# ---------------------------------------------------
-
-
-def check_youngs_modulus(non_linear_strain, non_linear_stress, youngs_modulus):
-    """Check the initial slope of the non-linear stress strain curve matches the Young's modulus.
-
-    Parameters
-    ----------
-    non_linear_strain : list or ndarray
-        Strain values
-    non_linear_stress : list or ndarray
-        Corresponding stress values in MPa
-    youngs_modulus : float
-        Young's modulus in MPa
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    ValueError
-        If the initial slope is not consistent with the Young's modulus.
-    """
-    initial_youngs_modulus = (non_linear_stress[1] - non_linear_stress[0]) / (
-        non_linear_strain[1] - non_linear_strain[0]
-    )
-    # Error if notably different
-    if not math.isclose(initial_youngs_modulus, youngs_modulus, rel_tol=0.01, abs_tol=0.1):
-        raise ValueError(
-            "Youngs Modulus and initial slope of non-linear data are different, "
-            "please check the inputs. Initial slope is "
-            + str(initial_youngs_modulus)
-            + " MPa "
-            + "Young's modulus is "
-            + str(youngs_modulus)
-            + " MPa"
-        )
-
-
-def find_divergence_point(non_linear_strain, non_linear_stress, youngs_modulus):
-    """Find last point where the non-linear stress strain curve is on the linear region.
-
-    Parameters
-    ----------
-    non_linear_strain : list or ndarray
-        Strain values
-    non_linear_stress : list or ndarray
-        Corresponding stress values in MPa
-    youngs_modulus : float
-        Young's modulus in MPa
-
-    Returns
-    -------
-    float
-        The last stress point in the linear range
-    """
-    for i in range(1, len(non_linear_stress)):
-        if not math.isclose(
-            non_linear_stress[i] / non_linear_strain[i], youngs_modulus, rel_tol=0.0001
-        ):
-            return non_linear_stress[i - 1]
-    # Return maximum stress in list if no divergence found
-    return non_linear_stress[-1]
-
 
 # %%
 # Classes to store and manipulate stress and FEA data
@@ -154,23 +84,10 @@ class Element:
 
     Attributes
     ----------
-    stress_nonlinear_neuber : float
-        The corrected equivalent stress using the Neuber correction in MPa.
-        Populated by apply_neuber_correction
-    strain_nonlinear_neuber : float
-        The corrected equivalent total strain using the Neuber correction.
-        Populated by apply_neuber_correction
-    strain_plastic_neuber : float
-        The plastic strain using the Neuber correction.
-        Populated by apply_neuber_correction
-    stress_nonlinear_glinka : float
-        The corrected equivalent stress using the Glinka correction in MPa.
-        Populated by apply_glinka_correction
-    strain_nonlinear_glinka : float
-        he corrected equivalent total strain using the Glinka correction.
-        Populated by apply_glinka_correction
-    strain_plastic_glinka : float
-        The plastic strain using the Glinka correction. Populated by apply_glinka_correction
+    stress_safety_factor : float
+        The stress safety factor for the defined number of cycles
+    damage : float
+        The damage fraction at the defined number of cycles
     """
 
     def __init__(
@@ -192,139 +109,81 @@ class Element:
         self.u_x = u_x
         self.u_y = u_y
 
-        self.stress_nonlinear_neuber = 0
-        self.strain_nonlinear_neuber = 0
-        self.strain_plastic_neuber = 0
+        self.stress_safety_factor = 0
+        self.damage = 0
 
-        self.stress_nonlinear_glinka = 0
-        self.strain_nonlinear_glinka = 0
-        self.strain_plastic_glinka = 0
+    def apply_fatigue_calculation(
+        self, ultimate_tensile_stress, required_life, stress_sn, cycles_sn
+    ):
+        """Calculate the fatigue estimates from the Von Mises stress.
 
-    def apply_neuber_correction(self, youngs_modulus, non_linear_strain, non_linear_stress):
-        """Update the Neuber correction estimates from the Von Mises stress.
-
-        Parameters
-        ----------
-        youngs_modulus : float
-            The Young's modulus used in the linear stress calculation.
-        non_linear_strain, non_linear_stress : np.ndarray
-            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.
-        """
-
-        elastic_stress = self.svm
-        elastic_strain = elastic_stress / youngs_modulus
-        elastic_stress_strain_product = elastic_stress * elastic_strain
-
-        # Check input data is sensible
-        check_youngs_modulus(non_linear_strain, non_linear_stress, youngs_modulus)
-        # If on the elastic portion, just return inputs, so we don't get interpolation errors
-        if elastic_stress < find_divergence_point(
-            non_linear_strain, non_linear_stress, youngs_modulus
-        ):
-            self.strain_nonlinear_neuber = elastic_strain
-            self.stress_nonlinear_neuber = elastic_stress
-            self.strain_plastic_neuber = 0
-            return
-
-        # Find a matching stress-strain product in the non-linear response
-        # (This is the Neuber correction)
-        non_linear_stress_strain_product = non_linear_stress * non_linear_strain
-        # Error if out of range:
-        if elastic_stress_strain_product > np.max(non_linear_stress_strain_product):
-            raise ValueError(
-                "Input too large (elastic stress strain product > maximum stress strain product in "
-                "non-linear data). "
-                "Elastic stress is "
-                + str(elastic_stress)
-                + ", elastic stress strain product is "
-                + str(elastic_stress_strain_product)
-                + ", maximum plastic stress strain product is "
-                + str(np.max(non_linear_stress_strain_product))
-            )
-
-        # Lookup to find non-linear strain at matching stress strain product:
-        equivalent_non_linear_strain = np.interp(
-            elastic_stress_strain_product, non_linear_stress_strain_product, non_linear_strain
-        )
-        # Lookup to find non-linear stress at this strain:
-        equivalent_non_linear_stress = np.interp(
-            equivalent_non_linear_strain, non_linear_strain, non_linear_stress
-        )
-
-        # Find plastic strain
-        plastic_strain = equivalent_non_linear_strain - elastic_strain
-
-        self.strain_nonlinear_neuber = equivalent_non_linear_strain
-        self.stress_nonlinear_neuber = equivalent_non_linear_stress
-        self.strain_plastic_neuber = plastic_strain
-
-    def apply_glinka_correction(self, youngs_modulus, non_linear_strain, non_linear_stress):
-        """Update the Glinka correction estimates from the Von Mises stress.
+        Assumes that the stress is unidirectional. A cycle is considered from zero stress to the
+        maximum stress, therefore the Goodman correction is used, with the mean stress and stress
+        amplitude equal to half of the maximum stress.
 
         Parameters
         ----------
-        youngs_modulus : float
-            The Young's modulus used in the linear stress calculation.
-        non_linear_strain, non_linear_stress : np.ndarray
-            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.
+        ultimate_tensile_stress : float
+            The material ultimate tensile stress, used in the Goodman correction.
+        required_life : float
+            The number of cycles required
+        stress_sn, cycles_sn : np.ndarray
+            Corresponding arrays of stress (MPa) and number of cycles to failure for the material
+            (for fully reversed stress).
         """
 
         elastic_stress = self.svm
-        elastic_strain = elastic_stress / youngs_modulus
-        elastic_stress_strain_integral = 0.5 * elastic_strain * elastic_stress
 
-        # Check input data is sensible
-        check_youngs_modulus(non_linear_strain, non_linear_stress, youngs_modulus)
-        # If on the elastic portion, just return inputs, so we don't get interpolation errors
-        if elastic_stress < find_divergence_point(
-            non_linear_strain, non_linear_stress, youngs_modulus
-        ):
-            self.strain_nonlinear_glinka = elastic_strain
-            self.stress_nonlinear_glinka = elastic_stress
-            self.strain_plastic_glinka = 0
-            return
+        # There are two calculation approaches used:
+        # 1: Stress safety factor - Find the permissible stress for the required life, and the
+        #    safety factor is the ratio of the actual stress to this stress.
+        # 2: Damage - Find the number of cycles achievable at the actual stress. The damage is the
+        #    ratio of the achievable cycles to the required cycles.
 
-        # Find a matching stress-strain integral in the non-linear response
-        # (This is the Glinka correction)
-        non_linear_stress_strain_integral = np.zeros(len(non_linear_stress))
-        for i in range(1, len(non_linear_stress)):
-            # This assumes that our stress strain curve starts at zero,
-            # and uses simple trapezium integration
-            non_linear_stress_strain_integral[i] = (
-                non_linear_stress_strain_integral[i - 1]
-                + (non_linear_strain[i] - non_linear_strain[i - 1])
-                * (non_linear_stress[i] + non_linear_stress[i - 1])
-                / 2
+        # Assumption that stress varies between 0 and max, so mean and amplitude are both half of
+        # the maximum
+        actual_mean_stress = elastic_stress / 2
+
+        # Using the Goodman method, convert this into an equivalent fully reversing stress amplitude
+        # (zero mean)
+        if actual_mean_stress >= ultimate_tensile_stress:
+            # If above UTS, the life is zero, so the damage must be 100%
+            self.damage = 1
+        else:
+            actual_equivalent_stress = (
+                actual_mean_stress
+                * ultimate_tensile_stress
+                / (ultimate_tensile_stress - actual_mean_stress)
             )
-
-        # Error if out of range:
-        if elastic_stress_strain_integral > np.max(non_linear_stress_strain_integral):
-            raise ValueError(
-                "Input too large (elastic stress strain integral > "
-                "maximum stress strain integral in non-linear data). "
-                "Elastic stress is "
-                + str(elastic_stress)
-                + ", elastic stress strain integral is "
-                + str(elastic_stress_strain_integral)
-                + ", maximum plastic stress strain integral is "
-                + str(np.max(non_linear_stress_strain_integral))
+            # Look up the cycles at this stress on the S-N curve (in log-log space)
+            # Need to flip the SN data so we have ascending stress data for interpolation
+            allowable_cycles = np.power(
+                10.0,
+                np.interp(
+                    np.log10(actual_equivalent_stress),
+                    np.log10(np.flip(stress_sn)),
+                    np.log10(np.flip(cycles_sn)),
+                ),
             )
+            self.damage = required_life / allowable_cycles
 
-        # Lookup to find non-linear strain at matching stress strain integral:
-        equivalent_non_linear_strain = np.interp(
-            elastic_stress_strain_integral, non_linear_stress_strain_integral, non_linear_strain
+        # Find the max allowed stress amplitude (fully reversing) at the required number of cycles
+        allowable_equivalent_stress = np.power(
+            10.0, np.interp(np.log10(required_life), np.log10(cycles_sn), np.log10(stress_sn))
         )
-        # Lookup to find non-linear stress at this strain:
-        equivalent_non_linear_stress = np.interp(
-            equivalent_non_linear_strain, non_linear_strain, non_linear_stress
+        # Using the Goodman method, convert this into an equivalent maximum stress (0-max)
+        allowable_max_stress = (
+            2
+            * ultimate_tensile_stress
+            * allowable_equivalent_stress
+            / (allowable_equivalent_stress + ultimate_tensile_stress)
         )
-
-        # Find plastic strain
-        plastic_strain = equivalent_non_linear_strain - elastic_strain
-
-        self.strain_nonlinear_glinka = equivalent_non_linear_strain
-        self.stress_nonlinear_glinka = equivalent_non_linear_stress
-        self.strain_plastic_glinka = plastic_strain
+        if elastic_stress > 0:
+            self.stress_safety_factor = allowable_max_stress / elastic_stress
+        else:
+            # Use a large safety factor if actual stress is zero (avoid infinite result or
+            # division by zero)
+            self.stress_safety_factor = 1e6
 
 
 class StressRegion:
@@ -424,46 +283,18 @@ class StressRegion:
             result_array.append(self.elements[i].svm)
         return result_array
 
-    def get_stress_nonlinear_neuber(self):
-        """Return the estimated stress with the Neuber correction as a list in MPa."""
+    def get_stress_safety_factor(self):
+        """Return the estimated stress safety factor as a list in MPa."""
         result_array = []
         for i in range(len(self.elements)):
-            result_array.append(self.elements[i].stress_nonlinear_neuber)
+            result_array.append(self.elements[i].stress_safety_factor)
         return result_array
 
-    def get_strain_nonlinear_neuber(self):
-        """Return the estimated total strain with the Neuber correction as a list."""
+    def get_damage(self):
+        """Return the estimated damage as a list."""
         result_array = []
         for i in range(len(self.elements)):
-            result_array.append(self.elements[i].strain_nonlinear_neuber)
-        return result_array
-
-    def get_strain_plastic_neuber(self):
-        """Return the estimated plastic strain with the Neuber correction as a list."""
-        result_array = []
-        for i in range(len(self.elements)):
-            result_array.append(self.elements[i].strain_plastic_neuber)
-        return result_array
-
-    def get_stress_nonlinear_glinka(self):
-        """Return the estimated stress with the Glinka correction as a list in MPa."""
-        result_array = []
-        for i in range(len(self.elements)):
-            result_array.append(self.elements[i].stress_nonlinear_glinka)
-        return result_array
-
-    def get_strain_nonlinear_glinka(self):
-        """Return the estimated total strain with the Glinka correction as a list."""
-        result_array = []
-        for i in range(len(self.elements)):
-            result_array.append(self.elements[i].strain_nonlinear_glinka)
-        return result_array
-
-    def get_strain_plastic_glinka(self):
-        """Return the estimated plastic strain with the Glinka correction as a list."""
-        result_array = []
-        for i in range(len(self.elements)):
-            result_array.append(self.elements[i].strain_plastic_glinka)
+            result_array.append(self.elements[i].damage)
         return result_array
 
     def get_x(self):
@@ -480,25 +311,26 @@ class StressRegion:
             result_array.append(self.elements[i].y)
         return result_array
 
-    def apply_corrections(self, non_linear_strain, non_linear_stress):
+    def apply_fatigue_calculation(
+        self, ultimate_tensile_stress, required_life, stress_sn, cycles_sn
+    ):
         """Update the Neuber and Glinka estimates using the Von Mises stress for all elements.
 
         Parameters
         ----------
-        non_linear_strain, non_linear_stress : np.ndarray
-            Corresponding arrays of strain (ratio) and stress (MPa) for the non-linear correction.
+        ultimate_tensile_stress : float
+            The material ultimate tensile stress, used in the Goodman correction.
+        required_life : float
+            The number of cycles required
+        stress_sn, cycles_sn : np.ndarray
+            Corresponding arrays of stress (MPa) and number of cycles to failure for the material
+            (for fully reversed stress).
         """
-        for i in range(len(self.elements)):
-            self.elements[i].apply_neuber_correction(
-                self.youngs_modulus, non_linear_strain, non_linear_stress
-            )
-            self.elements[i].apply_glinka_correction(
-                self.youngs_modulus, non_linear_strain, non_linear_stress
-            )
 
-        # In principle, we could not apply a scaling based on the corrected stresses to the
-        # s_x, s_y and t_xy stresses, so we have an offset to apply to account for relaxation
-        # following plastic strain for later load cases.
+        for i in range(len(self.elements)):
+            self.elements[i].apply_fatigue_calculation(
+                ultimate_tensile_stress, required_life, stress_sn, cycles_sn
+            )
 
 
 class StressRegions:
@@ -646,21 +478,29 @@ mc.set_variable("MessageDisplayState", 2)
 mc.load_template("e9")
 
 # %%
+# Choose which regions to show data for
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+region_names_to_postprocess = ["Rotor"]
+
+# %%
+# Set the required life for the fatigue calculation
+# This is the number of cycles required from 0 RPM
+# to the defined maximum speed
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+required_life = 1000000
+maximum_speed = 15000
+
+# %%
 # Run the stress calculation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set the shaft speed and run the mechanical stress calculation
-mc.set_variable("ShaftSpeed", 15000)
+mc.set_variable("ShaftSpeed", maximum_speed)
 mc.do_mechanical_calculation()
 
 # %%
 # Read the stress data
 # ~~~~~~~~~~~~~~~~~~~~
 stress_regions = get_stress_data(mc)
-
-# %%
-# Choose which regions to show data for
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-region_names_to_postprocess = ["Rotor"]
 
 # %%
 # Plot the elastic stress data for each region
@@ -688,157 +528,72 @@ for region_name_to_postprocess in region_names_to_postprocess:
                 plt.suptitle(stress_regions[i].region_name)
                 plt.show()
 
+
 # %%
-# Non-linear stress strain data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Our non-linear stress-strain data, in this case for a region with
-# Young's modulus of 185 GPa, and with plastic deformation above 480 MPa.
-non_linear_strain = np.array(
+# S-N Data
+# ~~~~~~~~
+# Fatigue data, assumed to be fully reversed stress
+
+# Ultimate tensile strength in MPa used in Goodman correction
+ultimate_tensile_stress = 400
+
+cycles_sn = np.array(
     [
-        0,
-        0.0002,
-        0.0004,
-        0.0006,
-        0.0008,
-        0.001,
-        0.0012,
-        0.0014,
-        0.0016,
-        0.0018,
-        0.002,
-        0.0022,
-        0.0024,
-        0.0026,
-        0.0028,
-        0.003,
-        0.0032,
-        0.0034,
-        0.0036,
-        0.0038,
-        0.004,
-        0.0042,
-        0.0044,
-        0.0046,
-        0.0048,
-        0.005,
-        0.0052,
-        0.0054,
-        0.0056,
-        0.0058,
+        100000,
+        1000000,
+        10000000,
     ]
 )
-non_linear_stress = np.array(
+stress_sn = np.array(
     [
-        0,
-        37,
-        74,
-        111,
-        148,
-        185,
-        222,
-        259,
-        296,
-        333,
-        370,
-        407,
-        444,
-        481,
-        500,
-        520,
-        540,
-        560,
-        570,
-        580,
-        590,
-        600,
-        605,
-        610,
-        615,
-        620,
-        625,
-        630,
-        635,
-        640,
+        260,
+        210,
+        170,
     ]
 )
 
 # %%
-# Apply corrections
-# ~~~~~~~~~~~~~~~~~
-# Apply the Glinka and Neuber stress corrections to the regions of interest using the region's
-# `apply_corrections` method, and plot the results.
+# Apply fatigue calculations
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Apply the fatigue calculations to the regions of interest using the region's
+# `apply_fatigue_calculation` method, and plot the results.
 for region_name_to_postprocess in region_names_to_postprocess:
     # Find matching regions
     for i in range(len(stress_regions)):
         if stress_regions[i].region_name == region_name_to_postprocess:
             # Apply the actual stress correction here
-            stress_regions[i].apply_corrections(non_linear_strain, non_linear_stress)
+            stress_regions[i].apply_fatigue_calculation(
+                ultimate_tensile_stress, required_life, stress_sn, cycles_sn
+            )
 
             # Print the maximum stresses and strains
             print(f"For region {stress_regions[i].region_name}:")
             print(f"Maximum elastic stress " f"{np.max(stress_regions[i].get_svm()):.6} MPa")
+            print(f"Maximum damage (0-1): " f"{np.max(stress_regions[i].get_damage()):.6}")
             print(
-                f"Maximum stress with Neuber correction: "
-                f"{np.max(stress_regions[i].get_stress_nonlinear_neuber()):.6} MPa"
-            )
-            print(
-                f"Maximum stress with Glinka correction: "
-                f"{np.max(stress_regions[i].get_stress_nonlinear_glinka()):.6} MPa"
-            )
-            print(
-                f"Maximum plastic strain with Neuber correction: "
-                f"{np.max(stress_regions[i].get_strain_plastic_neuber()):.6}"
-            )
-            print(
-                f"Maximum plastic strain with Glinka correction: "
-                f"{np.max(stress_regions[i].get_strain_plastic_glinka()):.6}"
+                f"Minimum safety factor: "
+                f"{np.min(stress_regions[i].get_stress_safety_factor()):.6}"
             )
 
             # Plot:
-            fig, ax = plt.subplots(3, 1, layout="constrained")
+            fig, ax = plt.subplots(2, 1, layout="constrained")
 
-            # Stress vs strain
+            # Stress vs safety factor
             ax[0].scatter(
-                stress_regions[i].get_strain_nonlinear_neuber(),
-                stress_regions[i].get_stress_nonlinear_neuber(),
+                stress_regions[i].get_svm(),
+                stress_regions[i].get_stress_safety_factor(),
                 marker=".",
             )
-            ax[0].scatter(
-                stress_regions[i].get_strain_nonlinear_glinka(),
-                stress_regions[i].get_stress_nonlinear_glinka(),
-                marker="x",
-            )
-            ax[0].legend(["Neuber", "Glinka"])
-            ax[0].set_xlabel("Strain [-]")
-            ax[0].set_ylabel("Stress [MPa]")
-            # Plastic stress vs elastic stress
+            ax[0].set_xlabel("Stress Von Mises [MPa]")
+            ax[0].set_ylabel("Safety Factor [-]")
+            # Stress vs damage
             ax[1].scatter(
                 stress_regions[i].get_svm(),
-                stress_regions[i].get_stress_nonlinear_neuber(),
+                stress_regions[i].get_damage(),
                 marker=".",
             )
-            ax[1].scatter(
-                stress_regions[i].get_svm(),
-                stress_regions[i].get_stress_nonlinear_glinka(),
-                marker="x",
-            )
-            ax[1].legend(["Neuber", "Glinka"])
             ax[1].set_xlabel("Stress Von Mises [MPa]")
-            ax[1].set_ylabel("Stress Adjusted [MPa]")
-            # Plastic strain vs elastic stress
-            ax[2].scatter(
-                stress_regions[i].get_svm(),
-                stress_regions[i].get_strain_plastic_neuber(),
-                marker=".",
-            )
-            ax[2].scatter(
-                stress_regions[i].get_svm(),
-                stress_regions[i].get_strain_plastic_glinka(),
-                marker="x",
-            )
-            ax[2].legend(["Neuber", "Glinka"])
-            ax[2].set_xlabel("Stress Von Mises [MPa]")
-            ax[2].set_ylabel("Plastic strain [-]")
+            ax[1].set_ylabel("Damage [-]")
             plt.suptitle(stress_regions[i].region_name)
             plt.show()
 
@@ -846,44 +601,25 @@ for region_name_to_postprocess in region_names_to_postprocess:
             # Plot against element data X and Y (check exactly what this corresponds to,
             # assume element centre, but seems to be one node of triangle)
             cm = plt.colormaps["jet"]
-            fig, ax = plt.subplots(2, 2, layout="constrained")
-            plot1 = ax[0, 0].scatter(
+            fig, ax = plt.subplots(1, 2, layout="constrained")
+            plot1 = ax[0].scatter(
                 stress_regions[i].get_x(),
                 stress_regions[i].get_y(),
-                c=stress_regions[i].get_stress_nonlinear_neuber(),
+                c=stress_regions[i].get_stress_safety_factor(),
                 marker=".",
                 cmap=cm,
             )
-            plt.colorbar(plot1, ax=ax[0, 0])
-            ax[0, 0].set_title("Stress (Neuber correction)")
+            plt.colorbar(plot1, ax=ax[0])
+            ax[0].set_title("Stress safety factor")
 
-            plot2 = ax[0, 1].scatter(
+            plot2 = ax[1].scatter(
                 stress_regions[i].get_x(),
                 stress_regions[i].get_y(),
-                c=stress_regions[i].get_stress_nonlinear_glinka(),
+                c=stress_regions[i].get_damage(),
                 marker=".",
                 cmap=cm,
             )
-            plt.colorbar(plot2, ax=ax[0, 1])
-            ax[0, 1].set_title("Stress (Glinka correction)")
+            plt.colorbar(plot2, ax=ax[1])
+            ax[1].set_title("Damage")
 
-            plot3 = ax[1, 0].scatter(
-                stress_regions[i].get_x(),
-                stress_regions[i].get_y(),
-                c=stress_regions[i].get_strain_plastic_neuber(),
-                marker=".",
-                cmap=cm,
-            )
-            plt.colorbar(plot3, ax=ax[1, 0])
-            ax[1, 0].set_title("Plastic strain (Neuber correction)")
-
-            plot4 = ax[1, 1].scatter(
-                stress_regions[i].get_x(),
-                stress_regions[i].get_y(),
-                c=stress_regions[i].get_strain_plastic_glinka(),
-                marker=".",
-                cmap=cm,
-            )
-            plt.colorbar(plot4, ax=ax[1, 1])
-            ax[1, 1].set_title("Plastic strain (Glinka correction)")
             plt.show()
