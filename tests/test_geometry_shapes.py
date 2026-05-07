@@ -150,6 +150,70 @@ def test_Circle():
     assert circle.centroid == centre
 
 
+def _assert_shape_mutated_to_entity_list(shape, original_class):
+    assert type(shape) is geometry.EntityList
+    assert not isinstance(shape, original_class)
+    with pytest.raises(AttributeError):
+        _ = shape.centroid
+
+
+def _make_circle():
+    return Circle(geometry.Coordinate(10, 10), 5)
+
+
+def _make_rectangle():
+    return Rectangle(geometry.Coordinate(10, 10), 5, 8)
+
+
+def _make_square():
+    return Square(geometry.Coordinate(10, 10), 5)
+
+
+def _make_triangle():
+    return Triangle(
+        geometry.Coordinate(1, 2.2), geometry.Coordinate(2.2, 1), geometry.Coordinate(4, 4)
+    )
+
+
+def _mutation_line():
+    return Line(geometry.Coordinate(100, 100), geometry.Coordinate(101, 101))
+
+
+def _mutate_shape(shape, operation):
+    if operation == "append":
+        shape.append(_mutation_line())
+    elif operation == "extend":
+        shape.extend([_mutation_line()])
+    elif operation == "pop":
+        shape.pop()
+    elif operation == "remove":
+        shape.remove(shape[0])
+    elif operation == "clear":
+        shape.clear()
+    elif operation == "insert":
+        shape.insert(1, _mutation_line())
+    else:
+        raise ValueError(f"Unknown mutation operation: {operation}")
+
+
+@pytest.mark.parametrize(
+    "shape_factory, original_class",
+    [
+        pytest.param(_make_circle, Circle, id="Circle"),
+        pytest.param(_make_rectangle, Rectangle, id="Rectangle"),
+        pytest.param(_make_square, Square, id="Square"),
+        pytest.param(_make_triangle, Triangle, id="Triangle"),
+    ],
+)
+@pytest.mark.parametrize("operation", ["append", "extend", "pop", "remove", "clear", "insert"])
+def test_shape_mutation_operations_mutate_to_entity_list(shape_factory, original_class, operation):
+    shape = shape_factory()
+
+    _mutate_shape(shape, operation)
+
+    _assert_shape_mutated_to_entity_list(shape, original_class)
+
+
 def test_Rectangle():
     width = 5
     height = 8
