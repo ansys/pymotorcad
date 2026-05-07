@@ -23,7 +23,7 @@
 """Methods for adaptive geometry."""
 from warnings import warn
 
-from ansys.motorcad.core.geometry import Region, RegionMagnet
+from ansys.motorcad.core.geometry import COMPONENTOWNER_GEOMETRYENGINE, Region, RegionMagnet
 from ansys.motorcad.core.geometry_tree import GeometryTree
 from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
 
@@ -336,3 +336,30 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
+    
+    def edit_region(self, region_name, material=None, colour=None, mesh_length=None, region_type=None, lamination_type=None):
+        """Edit a region by providing a set of optional parameters."""
+        self.connection.ensure_version_at_least("2026.0")
+        method = "EditRegion"
+
+        parameter_dict = {
+            key: value
+            for key, value in {
+                "material": material,
+                "colour": colour,
+                "mesh_length": mesh_length,
+                "region_type": region_type,
+                "lamination_type": lamination_type,
+            }.items()
+            if value is not None
+        }
+
+        # Special handling for material parameter to set material component type
+        # This is required as the API cannot assume the material type from the
+        # user provided material name
+        if material is not None:
+            parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+            # Unable to assume material type from user material name, set to default of "Any"
+            parameter_dict["material_weight_material_type"] = "Any"
+        params = [region_name, parameter_dict]
+        return self.connection.send_and_receive(method, params)
