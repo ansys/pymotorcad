@@ -3411,3 +3411,24 @@ def test_region_creation_type(mc):
     with pytest.raises(Exception):
         # Passing in something that's not a string or motorcad object should give an exception
         new_region_3 = Region(1)
+
+
+def test_edit_region(mc_reset_to_default_on_teardown):
+    """Test edit_region updates region properties, verified via get_region."""
+    mc = mc_reset_to_default_on_teardown
+    region_name = "Stator"
+    new_material = "M470-50A"
+    new_mesh_length = 0.1
+    new_colour = (255, 255, 0)
+    new_region_type = RegionType.rotor
+    new_lamination_type = "Solid"
+
+    mc.edit_region(region_name, material=new_material, mesh_length=new_mesh_length, colour=new_colour, region_type=new_region_type, lamination_type=new_lamination_type)
+
+    region = mc.get_region(region_name)
+    assert region.material == new_material
+    assert region.mesh_length == new_mesh_length
+    assert region.colour == new_colour
+    assert region.region_type == new_region_type
+    assert region.lamination_type == new_lamination_type
+
