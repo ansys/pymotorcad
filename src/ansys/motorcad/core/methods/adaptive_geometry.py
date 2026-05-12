@@ -352,7 +352,6 @@ class _RpcMethodsAdaptiveGeometry:
             key: value
             for key, value in {
                 "material": material,
-                "colour": colour,
                 "mesh_length": mesh_length,
                 "region_type": region_type.value if isinstance(region_type, RegionType) else region_type,
                 "lamination_type": lamination_type,
@@ -367,6 +366,11 @@ class _RpcMethodsAdaptiveGeometry:
             parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
             # Unable to assume material type from user material name, set to default of "Any"
             parameter_dict["material_weight_material_type"] = "Any"
+
+        # Colour requires a composite JSON object
+        if colour is not None:
+            parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
+
         params = [region_name, parameter_dict]
         return self.connection.send_and_receive(method, params)
 
@@ -412,7 +416,6 @@ class _RpcMethodsAdaptiveGeometry:
             key: value
             for key, value in {
                 "material": material,
-                "colour": colour,
                 "mesh_length": mesh_length,
                 "lamination_type": lamination_type,
                 "magnet_magfactor": br_multiplier,
@@ -431,6 +434,10 @@ class _RpcMethodsAdaptiveGeometry:
             parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
             # Unable to assume material type from user material name, set to default of "Any"
             parameter_dict["material_weight_material_type"] = "Any"
+
+        # Colour requires a composite JSON object
+        if colour is not None:
+            parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
 
         # enforce region to become a magnet region
         parameter_dict["region_type"] = RegionType.magnet.value
