@@ -21,13 +21,19 @@
 # SOFTWARE.
 
 """
-Oblong stator ducts with thermal adjustment
-=================
+Oblong stator ducts
+===================
 This script applies the adaptive templates functionality to modify rectangular ducts
-into oblong ducts. Further, the thermal effect of modified duct is taken into account by modifying
-the area adjustment under housing water jacket in thermal module.
+into oblong ducts. In Motor-CAD v2026R1 and later, the effect of the modified duct is taken into
+account in the thermal module.
 """
 # %%
+# .. note::
+#    For a previous version of this script, that includes the application of a duct area adjustment
+#    for Motor-CAD Thermal calculations (suitable for older versions of Motor-CAD), please see the
+#    PyMotorCAD v0.7 Documentation:
+#    https://motorcad.docs.pyansys.com/version/0.7/examples/adaptive_library/OblongStatorDuct.html
+#
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
@@ -35,6 +41,7 @@ the area adjustment under housing water jacket in thermal module.
 # to define the adaptive template geometry.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
+# Import ``warnings`` to raise warnings.
 
 # sphinx_gallery_thumbnail_path = 'images/adaptive_templates/OblongDuct.png'
 import math
@@ -42,6 +49,7 @@ import os
 import shutil
 import sys
 import tempfile
+import warnings
 
 import ansys.motorcad.core as pymotorcad
 from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_rt
@@ -58,7 +66,6 @@ from ansys.motorcad.core.geometry import Arc, Coordinate, Line, rt_to_xy, xy_to_
 # the ``MotorCAD(keep_instance_open=True)`` option when opening the new instance.
 # Alternatively, use the ``MotorCAD()`` method, which closes the Motor-CAD instance after the
 # script is executed.
-
 if pymotorcad.is_running_in_internal_scripting():
     # Use existing Motor-CAD instance if possible
     mc = pymotorcad.MotorCAD(open_new_instance=False)
@@ -284,64 +291,59 @@ for child_name in st_region.child_names:
 #     :width: 600pt
 
 # %%
-# Apply surface area correction in Motor-CAD Thermal
-# --------------------------------------------------
+# Duct Surface area in Motor-CAD Thermal
+# --------------------------------------
 # The oblong stator ducts can be used in the Motor-CAD Thermal model as channels for water jacket
 # cooling. The **Housing Water Jacket** cooling model in Motor-CAD can be set up to use stator duct
-# channels when a housing type without channels is selected in the **Geometry** tab.
-#
-# As of Motor-CAD v2024R2, the **Housing Water Jacket** calculations will use duct areas from the
-# Motor-CAD Standard Template geometry - not the custom Adaptive Templates geometry. For example,
+# channels when a housing type without channels is selected in the **Geometry** tab. For example,
 # when the stator duct geometry has been updated from rectangular to oblong shapes, the duct area
-# has increased. For this example, the area increases from 6 mm\ :sup:`2` to 8.03852\ :sup:`2`. This
-# can be seen in the **Geometry -> Editor -> Geometry** tab, or by using the ``area`` method for the
-# duct region.
+# has increased. For this example, the area increases from 6 mm\ :sup:`2` to 8.03852 mm\ :sup:`2`.
+# This can be seen in the **Geometry -> Editor -> Geometry** tab, or by using the ``area`` method
+# for the duct region.
 
 # %%
 # .. image:: ../../images/adaptive_templates/OblongDuct_area.png
 #     :width: 600pt
 
 # %%
-# To account for this in the **Housing Water Jacket** cooling model, you can apply a cross section
-# area adjustment. By default, this is set to 0. To see this in the Motor-CAD interface, go to the
-# **Input Data -> Housing Water Jacket -> Fluid FLow** tab in the **Thermal** context.
+# The **Input Data -> Housing Water Jacket -> Fluid Flow** tab in the **Thermal** context shows the
+# correct duct area of 8.039 mm\ :sup:`2` when the Adaptive Template geometry is used.
 
 # %%
-# .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_before.png
+# .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_26R1.png
 #     :width: 600pt
 
 # %%
-# The appropriate area adjustment is calculated and applied within the Adaptive Templates script.
-# To calculate the area adjustment, get the area of the stator duct regions using the ``area``
-# method. For the case where there are two half-ducts, it is necessary to get the area for all duct
-# regions and to calculate the sum of the areas.
-
-oblong_duct_areas = []
-num_slots = mc.get_variable("Slot_Number")
-num_ducts = mc.get_variable("CircularDuctL1Channels")
-ducts_per_slot = num_ducts / num_slots
-for child_name in st_region.child_names:
-    if "StatorDuctFluidRegion" in child_name:
-        oblong_duct_areas.append(mc.get_region(child_name).area)
-oblong_duct_area = sum(oblong_duct_areas) / ducts_per_slot
-
+# As of **Motor-CAD v2026R1**, the **Housing Water Jacket** calculations will use the updated duct
+# areas from the Adaptive Template geometry when calculating the heat transfer correlations for the
+# Housing Water Jacket cooling system. The updated cross-sectional area, perimeter and surface areas
+# will be calculated for water jacket cooling systems (housing, rotor, stator and slot) as well as
+# the through ventilated and self ventilated cooling systems. This uses the
+# **DuctGeometryCalculationMethod** default setting in Motor-CAD. Check that this default setting is
+# enabled and raise a warning if it is not.
+try:
+    duct_geometry_calculation = mc.get_variable("DuctGeometryCalculationMethod")
+    if duct_geometry_calculation == 0:
+        warnings.warn(
+            "Duct Geometry Calculation Method default setting is set to ''Original''. "
+            f"The Standard Template duct geometry will be used for Motor-CAD Thermal "
+            f"calculations. To ensure that the Adaptive Template duct geometry is used,"
+            f"set the Duct Geometry Calculation Method default setting to ''Improved''."
+        )
+except pymotorcad.MotorCADError as e:
+    if "get_variable: Could not find DUCTGEOMETRYCALCULATIONMETHOD" in str(e):
+        warnings.warn(
+            "Duct Geometry Calculation Method default setting is not available in this "
+            "version of Motor-CAD. The Standard Template duct geometry will be used for "
+            "Motor-CAD Thermal calculations."
+        )
 # %%
-# The area of the original rectangular duct was already calculated earlier (``duct_area``). The area
-# adjustment is calculated by subtracting the rectangular duct area from the oblong duct area.
-
-area_adjustment = oblong_duct_area - duct_area
-
-# %%
-# Set the area adjustment value in Motor-CAD.
-mc.set_array_variable("HousingWJ_Channel_CSArea_L1_A_Adjustment", 0, area_adjustment)
-
-# %%
-# The area adjustment is applied by the Adaptive Templates script and is updated any time the
-# geometry is changed.
-
-# %%
-# .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_after.png
-#     :width: 600pt
+# If you are using an older version of Motor-CAD (**v2025R2** or earlier), Motor-CAD will use duct
+# areas from the Motor-CAD Standard Template geometry - not the custom Adaptive Templates geometry.
+# In this case, it is necessary to apply an area adjustment to account for the change in duct
+# geometry. For a version of this script that applies this area adjustment, please see the version
+# the PyMotorCAD v0.7 Documentation:
+# https://motorcad.docs.pyansys.com/version/0.7/examples/adaptive_library/OblongStatorDuct.html
 
 # %%
 # Load in Adaptive Templates script if required
