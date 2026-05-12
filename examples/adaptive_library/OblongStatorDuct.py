@@ -28,6 +28,12 @@ into oblong ducts. In Motor-CAD v2026R1 and later, the effect of the modified du
 account in the thermal module.
 """
 # %%
+# .. note::
+#    For a previous version of this script, that includes the application of a duct area adjustment
+#    for Motor-CAD Thermal calculations (suitable for older versions of Motor-CAD), please see the
+#    PyMotorCAD v0.7 Documentation:
+#    https://motorcad.docs.pyansys.com/version/0.7/examples/adaptive_library/OblongStatorDuct.html
+#
 # Perform required imports
 # ------------------------
 # Import ``pymotorcad`` to access Motor-CAD.
