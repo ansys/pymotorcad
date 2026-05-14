@@ -3416,6 +3416,10 @@ def test_region_creation_type(mc):
 def test_edit_region(mc_reset_to_default_on_teardown):
     """Test edit_region updates region properties, verified via get_region."""
     mc = mc_reset_to_default_on_teardown
+    # only test versions with edit_region API available
+    if not mc.connection.ensure_version_at_least("2027.0"):
+        pytest.skip("edit_region API not available in this version of Motor-CAD")
+
     region_name = "Stator"
     new_material = "M470-50A"
     new_mesh_length = 0.1
@@ -3433,6 +3437,10 @@ def test_edit_region(mc_reset_to_default_on_teardown):
 def test_edit_magnet_region(mc_reset_to_default_on_teardown):
     """Test edit_magnet_region updates magnet properties, verified via get_region."""
     mc = mc_reset_to_default_on_teardown
+    # only test versions with edit_magnet_region API available
+    if not mc.connection.ensure_version_at_least("2027.0"):
+        pytest.skip("edit_magnet_region API not available in this version of Motor-CAD")
+
     mc.set_variable("GeometryTemplateType", 1)
     mc.reset_adaptive_geometry()
 
