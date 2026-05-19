@@ -21,7 +21,20 @@
 # SOFTWARE.
 
 """Methods for building geometry trees."""
-from ansys.motorcad.core.geometry import Region, RegionMagnet, RegionType
+from copy import deepcopy
+import warnings
+
+from ansys.motorcad.core.geometry import (
+    Arc,
+    Coordinate,
+    EntityList,
+    Line,
+    Region,
+    RegionMagnet,
+    RegionType,
+    rt_to_xy,
+)
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class GeometryTree(dict):
@@ -433,6 +446,191 @@ class GeometryTree(dict):
             self.pop(node.key)
 
         dive(node)
+
+    def unite_linked_regions(self, region):
+        """Unite region with any linked regions when connected across the symmetry boundaries.
+
+        Rotate linked regions and try to unite with region. Where the regions can be united, remove
+        the linked regions from the geometry tree.
+
+        If successful, region will be mutated into a full region that crosses the symmetry boundary.
+
+        Parameters
+        ----------
+        region : TreeRegion|TreeRegionMagnet
+            object (must be already within tree) to be united with its linked regions.
+        Returns
+        -------
+        Bool
+            If any regions were successfully united, return True
+        """
+        regions_united_bool = False
+
+        # Iterate over a copy of the linked region names, since the list may be modified
+        # during iteration when a successful unite removes a linked region.
+        for name in deepcopy(region.linked_region_names):
+            linked_region = self[name]
+
+            # Only attempt to unite regions of the same type.
+            if linked_region.region_type == region.region_type:
+                # The linked region exists at a rotated position relative to region
+                # (it lives one symmetry sector away). Rotate it back by one duplication
+                # angle so it is positioned adjacent to region before uniting.
+                region_j_rotated = deepcopy(linked_region.entities)
+                region_j_rotated.rotate(Coordinate(0, 0), -360 / linked_region.duplications)
+                region_j_rotated = region_j_rotated.get_region(
+                    region_type=linked_region.region_type
+                )
+
+                try:
+                    # Attempt to unite the regions. This will raise a MotorCADError if the two
+                    # regions do not share a boundary (i.e. they don't physically touch).
+                    regions_united = self._motorcad_instance.unite_regions(
+                        region, [region_j_rotated]
+                    )
+
+                    # Unite succeeded: update region's geometry with the combined result,
+                    # remove the linked reference from region, and delete the linked region
+                    # from the tree, because its geometry is now included in region.
+                    region.entities = regions_united.entities
+                    region.linked_region_names.remove(name)
+                    self.remove_region(self[name])
+                    regions_united_bool = True
+
+                except MotorCADError as e:
+                    # Silently skip pairs that don't touch; any other MotorCADError is
+                    # unexpected and will propagate up.
+                    if "Unable to unite regions, regions do not touch" in str(e):
+                        pass
+            else:
+                # raise a warning for cases when the region and linked region are not the same
+                # RegionType.
+                warnings.warn(
+                    f"{region.name} and {linked_region.name} are regions of "
+                    f"different RegionType. Cannot unite regions."
+                )
+
+        return regions_united_bool
+
+    def separate_region_on_boundary(self, region, sector_rad=1000):
+        """Separate/split a region into multiple regions connected across the symmetry boundaries.
+
+        If a region collides with the symmetry boundary, split on the boundary and rotate any
+        regions that are outside the symmetry sector around the origin by the duplication angle,
+        so that these are within the symmetry sector. Link the separated regions together as linked
+        regions so they can be recognised by Motor-CAD FEA solver as parts of the same region.
+
+        If successful, region is mutated into the part of the region that is within the symmetry
+        sector, and a list is returned of the new regions created for the parts of the region that
+        were outside the symmetry sector.
+
+        Parameters
+        ----------
+        region : TreeRegion|TreeRegionMagnet
+            object (must be already within tree) to be separated based on the symmetry boundary.
+        sector_rad : float
+            Maximum radius of the symmetry sector used for separation. Default is 1000 mm.
+        Returns
+        -------
+        list of TreeRegion|TreeRegionMagnet
+            If the region was successfully separated, return a list of the new regions.
+        """
+        regions_separated = []
+
+        # Build a wedge-shaped boundary region representing one duplication sector. The duplication
+        # angle of the sector is determined by the region's parent region symmetry.
+        boundary_line_0 = Line(Coordinate(0, 0), Coordinate(sector_rad, 0))
+        boundary_point_x, boundary_point_y = rt_to_xy(sector_rad, 360 / region.parent.duplications)
+        boundary_line_1 = Line(Coordinate(boundary_point_x, boundary_point_y), Coordinate(0, 0))
+        boundary_arc_0 = Arc(boundary_line_0.end, boundary_line_1.start, centre=Coordinate(0, 0))
+        boundaries = EntityList()
+        boundaries.extend([boundary_line_0, boundary_arc_0, boundary_line_1])
+        symmetry_sector = boundaries.get_region(RegionType.stator_air)
+
+        # Only split when the region crosses the sector boundary.
+        if region.collides(symmetry_sector):
+            # Subtracting the sector wedge isolates parts of the region that are outside the
+            # symmetry sector.
+            out_of_bounds_regions = self._motorcad_instance.subtract_region(region, symmetry_sector)
+            i = 1
+            for new_region in out_of_bounds_regions:
+                # Subtract the out-of-bounds regions from the original region, so that region is
+                # mutated into only the part of the region that is within the symmetry sector.
+                region.subtract(new_region)
+
+                # Add each new region to the geometry tree, rotate it into the symmetry sector,
+                # and set it as a linked region of the original region.
+                tree_region = self.duplicate_region(region, f"{region.name}_{i}")
+                tree_region.rotate(Coordinate(0, 0), 360 / region.duplications)
+                region.linked_region_names.append(tree_region.name)
+                regions_separated.append(tree_region)
+
+                i += 1
+
+        # Return the new separated regions. returns an empty list when no separation occurred.
+        return regions_separated
+
+    def duplicate_region(self, region, duplicate_name=None):
+        """Create a copy of a region as a new tree region with all properties transferred.
+
+        This method creates a new TreeRegion in the tree as a child of the same parent as the
+        source region, then copies over all relevant properties (colour, duplications, material,
+        and geometry entities) from the source region. The new region is given a unique name
+        within the tree.
+
+        Parameters
+        ----------
+        region : TreeRegion|TreeRegionMagnet|Region|RegionMagnet
+            Source region whose properties will be copied. Can be a tree region (already in the
+            tree) or a plain Region object.
+        duplicate_name : str, optional
+            Name to assign to the new duplicated region. If not provided, a default name is
+            generated based on the original region name.
+
+        Returns
+        -------
+        TreeRegion|TreeRegionMagnet
+            The newly created tree region with all properties copied from the source region.
+        """
+        # Use a default name if none is provided.
+        if duplicate_name is None:
+            duplicate_name = f"{region.name}_duplicated"
+
+        # Create a new tree region in the tree with the same type and parent as the source region.
+        duplicate_region = self.create_region(region.region_type, region.parent)
+
+        # Copy all visual and physical properties from the source region.
+        duplicate_region.colour = region.colour
+        duplicate_region.duplications = region.duplications
+        duplicate_region.material = region.material
+
+        # Copy the geometry entities from the source region.
+        duplicate_region.entities = region.entities
+
+        # Assign the requested name if it is not already present in the tree
+        # (case-insensitive to avoid collisions like "Name" vs "name").
+        if duplicate_name.lower() not in self.lowercase_keys:
+            duplicate_region.name = duplicate_name
+        else:
+            # If the base name is taken, try suffixed variants until a unique
+            # key is found or we hit a 100 attempts.
+            max_iterations = 100
+            for i in range(max_iterations):
+                attempt_name = f"{duplicate_name}_{i}"
+                if attempt_name.lower() not in self.lowercase_keys:
+                    duplicate_region.name = attempt_name
+                    # Stop at the first valid unique name.
+                    break
+            # raise an Exception if the duplicate name cannot be made unique within 100 attempts, to
+            # avoid an infinite loop in edge cases where there are many similarly named regions in
+            # the tree.
+            if i == max_iterations - 1:
+                raise Exception(
+                    f"Could not find a unique name for the duplicated region in the "
+                    f"geometry tree."
+                )
+
+        return duplicate_region
 
     @property
     def lowercase_keys(self):
