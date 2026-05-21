@@ -203,13 +203,14 @@ class _RpcMethodsFEAGeometry:
         parameter : str
             Motor-CAD shading function.
         region_name : str
-            Name of the region.
+            Name of the region, or comma separated region list.
 
         Returns
         -------
         value : list of float
             List containing the maximum, minimum and average value for the region from the FEA.
         """
+        self.connection.ensure_version_at_least("2027.0")
         method = "GetRegionMaxMinAvg"
         params = [parameter, region_name]
         return self.connection.send_and_receive(method, params)
