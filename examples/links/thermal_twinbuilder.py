@@ -108,6 +108,7 @@ import logging
 from numbers import Number
 import os
 from pathlib import Path
+import shutil
 from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
@@ -389,9 +390,9 @@ class MotorCADTwinModel:
     def __init__(self, inputMotFilePath: str, outputDirectory: str):
         self.inputMotFilePath = inputMotFilePath
         self.outputDirectory = outputDirectory
-        os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
-        if not os.path.isdir(self.outputDirectory):
-            os.makedirs(self.outputDirectory)
+        if os.path.isdir(self.outputDirectory):
+            shutil.rmtree(self.outputDirectory)
+        os.makedirs(self.outputDirectory)
 
         pythonLog = os.path.join(self.outputDirectory, "pythonlog.txt")
         logging.basicConfig(
@@ -402,7 +403,7 @@ class MotorCADTwinModel:
         )
         logging.getLogger().addHandler(logging.StreamHandler())
         logger.info("Python script execution initiated")
-        logger.info("Input Motor-CAD file: " + self.inputMotFilePath)
+        logger.info(f"Input Motor-CAD file: {self.inputMotFilePath}")
 
         self.motFileName = None
         self.motFilePath = None
@@ -483,7 +484,7 @@ class MotorCADTwinModel:
         self.FixedTemperaturesWorkaround()
 
         self.mcad.quit()
-        logger.info("Twin Builder Input Files: " + self.outputDirectory)
+        logger.info(f"Twin Builder Input Files: {self.outputDirectory}")
         logger.info("Python script execution completed")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
@@ -1079,7 +1080,7 @@ class MotorCADTwinModel:
     def incorporateCustomLosses(self):
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
-        if len(powerSources) > 0:
+        if powerSources:
             message = (
                 f"Custom loss Power Sources are present in the model but are not supported. "
                 f"Remove the Power Sources {powerSources}. This can be done by opening the .mot "
@@ -1089,7 +1090,7 @@ class MotorCADTwinModel:
             logger.error(message, stack_info=True)
             raise NotImplementedError(message)
 
-        if len(self.customPowerInjections) > 0:
+        if self.customPowerInjections:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
             logger.info(
                 "Custom loss Power Injections found in model. These losses will be treated in the "
