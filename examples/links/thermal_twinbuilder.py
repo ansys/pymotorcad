@@ -386,9 +386,9 @@ class MotorCADTwinModel:
             )
 
     # Initialization function for objects of this class.
-    def __init__(self, inputMotFilePath: str, outputDir: str):
+    def __init__(self, inputMotFilePath: str, outputDirectory: str):
         self.inputMotFilePath = inputMotFilePath
-        self.outputDirectory = outputDir
+        self.outputDirectory = outputDirectory
         os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
         if not os.path.isdir(self.outputDirectory):
             os.makedirs(self.outputDirectory)
@@ -1629,7 +1629,7 @@ class MotorCADTwinModel:
         remainingNodes = [x for x in self.nodeNames if x not in initialisedNodes]
         initialisations.append(("T_Initial_Other", remainingNodes))
 
-        with open(os.path.join(outputDir, "TemperatureInitialization.csv"), "w") as f:
+        with open(os.path.join(self.outputDirectory, "TemperatureInitialization.csv"), "w") as f:
             for name, nodeNames in initialisations:
                 if len(nodeNames) > 0:
                     f.write(f"{name},{nodeNames}\n")
@@ -1699,7 +1699,7 @@ class MotorCADTwinModel:
                     outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
                     # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
-        with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
+        with open(os.path.join(self.outputDirectory, "TemperatureOutputs.csv"), "w") as f:
             for type, name, nodeNames in outputs:
                 if len(nodeNames) > 0:
                     f.write(f"{type},{name},{nodeNames}\n")
@@ -2468,13 +2468,11 @@ def temperaturesHousingAmbient(
 # Specify input .mot file and output directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the input .mot file and the directory to save the output data to.
-working_folder = os.getcwd()
-mcad_name = "e8_mobility"
-inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
-outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
+inputMotFilePath = os.path.join(os.getcwd(), "e8_mobility.mot")
+outputDirectory = os.path.join(os.getcwd(), "thermal_twinbuilder_e8_mobility")
 
 # %%
-# Create the e8 input file if it does not exist already.
+# For the purposes of this example, if the specified input file does not exist, use the e8 template.
 if Path(inputMotFilePath).exists() == False:
     motorcad = pymotorcad.MotorCAD()
     motorcad.load_template("e8")
@@ -2486,7 +2484,7 @@ if Path(inputMotFilePath).exists() == False:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
 # well as the directory to which the generated training data should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDirectory)
 
 # %%
 # Choose the speed sample points
@@ -2562,8 +2560,8 @@ MotorCADTwin.generateTwinData(
 # .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Blank.png
 #
 # The **Input Files** must point to the folder which contains the generated training data. Under
-# **Input Files**, press the ``...`` icon and choose the ``outputDir`` as specified in the previous
-# step. Then press the **Generate** button.
+# **Input Files**, press the ``...`` icon and choose the ``outputDirectory`` as specified in the
+# previous step. Then press the **Generate** button.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Filled.png
 #
