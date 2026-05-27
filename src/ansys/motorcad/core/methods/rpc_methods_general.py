@@ -316,10 +316,19 @@ class _RpcMethodsGeneral:
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def geometry_export(self):
-        """Export the geometry to the file specified in the ``DXFFileName`` parameter."""
-        method = "GeometryExport"
-        return self.connection.send_and_receive(method)
+    def geometry_export(self, context=""):
+        """Export the geometry to the file specified in the ``DXFFileName`` parameter.
+        
+        Parameters
+        ----------
+        context : str, optional
+            Context for which to export the geometry. If not specified, the geometry 
+            is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"`` 
+            and ``"Mechanical"``.
+        """
+        method = "GeometryExportWithContext"
+        params = [context]
+        return self.connection.send_and_receive(method, params)
 
     def export_to_ansys_discovery(self, file_path):
         """Export the model to a Python script file that can be run in Ansys Discovery.
