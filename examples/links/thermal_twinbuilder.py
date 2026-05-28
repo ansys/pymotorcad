@@ -108,7 +108,6 @@ import logging
 from numbers import Number
 import os
 from pathlib import Path
-import shutil
 from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
@@ -722,7 +721,7 @@ class MotorCADTwinModel:
                     coolingSystem in coolingSystemNames,
                     ValueError,
                     f"The {coolingSystem.name} cooling system is not part of the list of Cooling "
-                    f"Systems {coolingSystemNames}",
+                    f"Systems {[cs.name for cs in coolingSystemNames]}",
                 )
                 try:
                     sprayType = self.mcad.get_variable("SprayCoolingNozzleDefinition")
