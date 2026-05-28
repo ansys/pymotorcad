@@ -387,10 +387,16 @@ class MotorCADTwinModel:
     # Initialization function for objects of this class.
     def __init__(self, inputMotFilePath: str, outputDirectory: str):
         self.inputMotFilePath = inputMotFilePath
-        self.outputDirectory = outputDirectory
-        if os.path.isdir(self.outputDirectory):
-            shutil.rmtree(self.outputDirectory)
-        os.makedirs(self.outputDirectory)
+        self.outputDirectory = Path(outputDirectory)
+
+        if self.outputDirectory.exists():
+            if any(self.outputDirectory.iterdir()):
+                raise FileExistsError(
+                    f"Output directory {self.outputDirectory} already exists and is not empty. "
+                    "Please specify an alternate output directory or remove the existing files."
+                )
+        else:
+            os.makedirs(self.outputDirectory)
 
         pythonLog = os.path.join(self.outputDirectory, "pythonlog.txt")
         logging.basicConfig(
@@ -402,6 +408,7 @@ class MotorCADTwinModel:
         logging.getLogger().addHandler(logging.StreamHandler())
         logger.info("Python script execution initiated")
         logger.info(f"Input Motor-CAD file: {self.inputMotFilePath}")
+        logger.info(f"Output directory: {self.outputDirectory}")
 
         self.motFileName = None
         self.motFilePath = None
