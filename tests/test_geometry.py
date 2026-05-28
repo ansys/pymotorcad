@@ -3427,7 +3427,14 @@ def test_edit_region(mc_reset_to_default_on_teardown):
     new_region_type = RegionType.rotor
     new_lamination_type = "Solid"
 
-    mc.edit_region(region_name, material=new_material, mesh_length=new_mesh_length, colour=new_colour, region_type=new_region_type, lamination_type=new_lamination_type)
+    mc.edit_region(
+        region_name,
+        material=new_material,
+        mesh_length=new_mesh_length,
+        colour=new_colour,
+        region_type=new_region_type,
+        lamination_type=new_lamination_type,
+    )
 
     region = mc.get_region(region_name)
     assert region.material == new_material
@@ -3467,4 +3474,3 @@ def test_edit_magnet_region(mc_reset_to_default_on_teardown):
     assert region.colour == new_colour
     assert region.region_type == new_region_type
     assert region.lamination_type == new_lamination_type
-

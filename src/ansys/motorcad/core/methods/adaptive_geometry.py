@@ -342,8 +342,16 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
-    
-    def edit_region(self, region_name, material=None, colour=None, mesh_length=None, region_type=None, lamination_type=None):
+
+    def edit_region(
+        self,
+        region_name,
+        material=None,
+        colour=None,
+        mesh_length=None,
+        region_type=None,
+        lamination_type=None,
+    ):
         """Edit a region by providing a set of optional parameters."""
         self.connection.ensure_version_at_least("2027.0")
         method = "EditRegion"
@@ -353,7 +361,9 @@ class _RpcMethodsAdaptiveGeometry:
             for key, value in {
                 "material": material,
                 "mesh_length": mesh_length,
-                "region_type": region_type.value if isinstance(region_type, RegionType) else region_type,
+                "region_type": region_type.value
+                if isinstance(region_type, RegionType)
+                else region_type,
                 "lamination_type": lamination_type,
             }.items()
             if value is not None
