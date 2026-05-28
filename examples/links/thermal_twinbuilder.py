@@ -138,10 +138,7 @@ class AutomationParam:
 
     @property
     def tbOffset(self):
-        if self.isTemperature:
-            return 273.15
-        else:
-            return 0.0
+        return 273.15 if self.isTemperature else 0.0
 
     def __iter__(self):
         return iter(astuple(self))
@@ -490,16 +487,12 @@ class MotorCADTwinModel:
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
     # ``.rmf`` and .``.tmf``)
     def unbracket(self, string):
-        val = string.replace("(", "_").replace(")", "").replace(" ", "")
-        return val
+        return string.replace("(", "_").replace(")", "").replace(" ", "")
 
     def getExportedVector(self, file):
         with open(file, "r") as f:
             lines = f.readlines()[3:]
-            vector = []
-            for line in lines[:-1]:
-                lineSplit = line.split(";")
-                vector.append(float(lineSplit[1]))
+            vector = [float(line.split(";")[1]) for line in lines[:-1]]
             # Some files have "Ambient" included explicitly, but not all
             if "0 (Ambient)" not in lines[0]:
                 vector = [0.0] + vector
@@ -510,31 +503,22 @@ class MotorCADTwinModel:
             lines = f.readlines()[4:]
             matrix = []
             for line in lines[:-1]:
-                row = []
                 lineSplit = line.split(";")
-                for ind in range(1, len(lineSplit) - 1):
-                    row.append(float(lineSplit[ind]))
+                row = [float(x) for x in lineSplit[1:-1]]
                 matrix.append(row)
         return matrix
 
     def getPmfData(self, exportDirectory):
-        pmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".pmf")
-        powerVector = self.getExportedVector(pmfFile)
-        return powerVector
+        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".pmf"))
 
     def getTmfData(self, exportDirectory):
-        tmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".tmf")
-        temperatureVector = self.getExportedVector(tmfFile)
-        return temperatureVector
+        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".tmf"))
 
     def getCmfData(self, exportDirectory):
-        cmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".cmf")
-        capacitanceMatrix = self.getExportedVector(cmfFile)
-        return capacitanceMatrix
+        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".cmf"))
 
     def getRmfData(self, exportDirectory):
-        rmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
-        resistanceMatrix = self.getExportedMatrix(rmfFile)
+        resistanceMatrix = self.getExportedMatrix(os.path.join(exportDirectory, str(self.motFileName) + ".rmf"))
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
         if self.motorcadV2025OrNewer:
@@ -1920,7 +1904,7 @@ class MotorCADTwinModel:
             raise NotImplementedError(message)
         elif tVent or sVent:
             statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
-            if statorCoolingOnly == False:
+            if not statorCoolingOnly:
                 valid = False
                 message = (
                     "Temperature dependent airgap not supported for ventilated cooling with "
@@ -2214,7 +2198,7 @@ class MotorCADTwinModel:
         c_list.extend(nodes)
 
     def coolingSystemRCs_Original(self, coolingSystem):
-        if isinstance(coolingSystem, CoolingSystem) == False:
+        if not isinstance(coolingSystem, CoolingSystem):
             message = (
                 "Error in original heat flow method handling of coupled cooling systems. "
                 "Please contact support."
