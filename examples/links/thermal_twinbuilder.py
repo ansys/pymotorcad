@@ -116,6 +116,7 @@ import networkx as nx
 import numpy as np
 
 import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 # sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
 
@@ -294,7 +295,7 @@ housingTempSweepType = Optional[dict[float, List[float]]]
 #    ``HousingTempDependency`` folder
 # 10. Temperature dependent airgap heat transfer is characterized and saved to the
 #     ``AirGapTempDependency`` folder
-# 11. Initial tempearature pins are created and saved to ``TemperatureInitialization.csv``
+# 11. Initial temperature pins are created and saved to ``TemperatureInitialization.csv``
 # 12. Output temperature pins are created and saved to ``TemperatureOutputs.csv``
 
 
@@ -718,7 +719,9 @@ class MotorCADTwinModel:
                 )
                 try:
                     sprayType = self.mcad.get_variable("SprayCoolingNozzleDefinition")
-                except:
+                except MotorCADError:
+                    # Variable not present due to old Motor-CAD version being used. Only original
+                    # spray cooling type is available, which corresponds to zero.
                     sprayType = 0
                 validate(
                     not ((sprayType == 0) and (coolingSystem in groupedSprays)),
@@ -1011,9 +1014,9 @@ class MotorCADTwinModel:
                     "change the Fluid Heat Flow Method to Improved. This may affect calculation "
                     "results."
                 )
-        except:
-            # variable does not exist due to using older version of Motor-CAD
-            # set parameter to 0 which signifies use of the old method
+        except MotorCADError:
+            # Variable not present due to old Motor-CAD version being used. Only original heat flow
+            # method is available, which corresponds to zero.
             self.heatFlowMethod = 0
             logger.warning(
                 "The Motor-CAD version in use does not support the Improved Fluid Heat Flow "
@@ -1172,6 +1175,7 @@ class MotorCADTwinModel:
             plt.figure()
             nx.draw(G, with_labels=True)
             plt.savefig(os.path.join(self.outputDirectory, "cooling.png"))
+            plt.close()
 
             # Get all fluid subgraphs
             subgraphs = [
@@ -1446,7 +1450,7 @@ class MotorCADTwinModel:
 
         # Identify fixed temperatures controlled by each of the parameter sweeps
         if len(temperatureParameterSweeps) > 0:
-            # Higher losses helps avoid erroeneously detecting inlet-outlet coupled temperatures
+            # Higher losses helps avoid erroneously detecting inlet-outlet coupled temperatures
             self.setLosses(10)
             # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
             testTemperature = round(max(temperatureVector)) + 2
@@ -1829,7 +1833,7 @@ class MotorCADTwinModel:
                 self.mcad.set_variable("T_Ambient", ambientTemperature)
 
                 if hasBlownOver:
-                    if param == None:
+                    if param is None:
                         message = "Unidentified Blown Over parameter sweep. Please contact support"
                         logger.error(message, stack_info=True)
                         raise RuntimeError(message)
