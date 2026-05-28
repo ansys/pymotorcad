@@ -518,7 +518,9 @@ class MotorCADTwinModel:
         return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".cmf"))
 
     def getRmfData(self, exportDirectory):
-        resistanceMatrix = self.getExportedMatrix(os.path.join(exportDirectory, str(self.motFileName) + ".rmf"))
+        resistanceMatrix = self.getExportedMatrix(
+            os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
+        )
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
         if self.motorcadV2025OrNewer:
