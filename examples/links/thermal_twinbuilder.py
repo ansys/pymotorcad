@@ -1444,7 +1444,7 @@ class MotorCADTwinModel:
         }
 
         # Special case for Ambient node
-        fixedNodeTempMapping[0].append("Ambient_Temp")  # TODO check if fixed string name
+        fixedNodeTempMapping[0].append("Ambient_Temp")
 
         # Generate list of parameters that may affect fixed temperature nodes
         temperatureParameterSweeps: list[AutomationParam] = []
