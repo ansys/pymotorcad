@@ -318,12 +318,12 @@ class _RpcMethodsGeneral:
 
     def geometry_export(self, context=""):
         """Export the geometry to the file specified in the ``DXFFileName`` parameter.
-        
+
         Parameters
         ----------
         context : str, optional
-            Context for which to export the geometry. If not specified, the geometry 
-            is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"`` 
+            Context for which to export the geometry. If not specified, the geometry
+            is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"``
             and ``"Mechanical"``.
         """
         method = "GeometryExportWithContext"

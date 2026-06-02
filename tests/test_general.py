@@ -156,7 +156,7 @@ def test_export_multi_force_data(mc):
 def test_geometry_export(mc):
     file_path = get_temp_files_dir_path() + r"\dxf_export_file.dxf"
     mc.set_variable("DXFFileName", file_path)
-    
+
     if mc.connection.check_version_at_least("2027.0"):
         mc.geometry_export("Magnetic")
     else:
