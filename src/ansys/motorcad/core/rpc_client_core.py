@@ -460,8 +460,12 @@ class _MotorCADConnection:
         pid = motor_process.pid
 
         motor_util = psutil.Process(pid)
-
-        self._wait_for_server_to_start_local(motor_util)
+        try:
+            self._wait_for_server_to_start_local(motor_util)
+        except psutil.NoSuchProcess as e:
+            exit_code = motor_process.poll()
+            if exit_code == 6:
+                raise MotorCADError("Motor-CAD failed to get a license")
 
     def _find_free_motor_cad(self):
         found_free_instance = False

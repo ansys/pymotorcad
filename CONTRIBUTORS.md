@@ -7,6 +7,7 @@
 ## Individual Contributors
 
 * [Aidan Crandell](https://github.com/aidanc-ansys)
+* [Alex Cowdale](https://github.com/a-cowdale)
 * [Alex Warwick](https://github.com/a-warwick)
 * [Devin](https://github.com/Devin-Crawford)
 * [DragosVMosteanu](https://github.com/DragosVMosteanu)
