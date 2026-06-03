@@ -340,7 +340,6 @@ class _RpcMethodsGeneral:
 
         return self.connection.send_and_receive(method, params)
 
-
     def export_to_ansys_discovery(self, file_path):
         """Export the model to a Python script file that can be run in Ansys Discovery.
 
