@@ -326,9 +326,20 @@ class _RpcMethodsGeneral:
             is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"``
             and ``"Mechanical"``.
         """
-        method = "GeometryExportWithContext"
-        params = [context]
+        if self.connection.check_version_at_least("2027.0"):
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for geometry_export for Motor-CAD version "
+                    "2027R1 and later."
+                )
+            method = "GeometryExportWithContext"
+            params = [context]
+        else:
+            method = "GeometryExport"
+            params = []
+
         return self.connection.send_and_receive(method, params)
+
 
     def export_to_ansys_discovery(self, file_path):
         """Export the model to a Python script file that can be run in Ansys Discovery.
