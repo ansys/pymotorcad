@@ -110,7 +110,6 @@ class _RpcMethodsGeometry:
         int
             ``1`` if an attempt to reset the geometry has been made, ``O`` otherwise.
         """
-
         if self.connection.check_version_at_least("2027.0"):
             if context == "":
                 raise MotorCADError(
