@@ -594,7 +594,7 @@ class _MotorCADConnection:
             else:
                 success = response["result"]["success"]
 
-            if method == "CheckIfGeometryIsValid":
+            if (method == "CheckIfGeometryIsValid") or (method == "CheckIfGeometryIsValidWithContext"):
                 # This doesn't have the normal success var
                 success_value = 1
             else:

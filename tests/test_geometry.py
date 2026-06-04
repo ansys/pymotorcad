@@ -143,16 +143,25 @@ def test_set_get_winding_coil(mc):
 
 def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
-    mc.check_if_geometry_is_valid(0)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(0, "Magnetic")
+    else:
+        mc.check_if_geometry_is_valid(0)
 
     save_slot_depth = mc.get_variable("Slot_Depth")
 
     mc.set_variable("Slot_Depth", 50)
     with pytest.raises(MotorCADError):
-        mc.check_if_geometry_is_valid(0)
+        if mc.connection.check_version_at_least("2027.0"):
+            mc.check_if_geometry_is_valid(0, "Magnetic")
+        else:
+            mc.check_if_geometry_is_valid(0)
 
     # Check resetting geometry works
-    mc.check_if_geometry_is_valid(1)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(1, "Magnetic")
+    else:
+        mc.check_if_geometry_is_valid(1)
 
     mc.set_variable("Slot_Depth", save_slot_depth)
 

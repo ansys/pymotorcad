@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for geometry."""
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
 class _RpcMethodsGeometry:
@@ -88,7 +89,7 @@ class _RpcMethodsGeometry:
         params = [phase, path, coil]
         return self.connection.send_and_receive(method, params)
 
-    def check_if_geometry_is_valid(self, edit_geometry):
+    def check_if_geometry_is_valid(self, edit_geometry, context=""):
         """Check if the Motor-CAD geometry is valid.
 
         Parameters
@@ -99,12 +100,27 @@ class _RpcMethodsGeometry:
 
             - ``1``: Yes. Try and reset the geometry
             - ``0``: No. Do not try to reset the geometry.
+        context : str, optional
+            Context for which to check the geometry. If not specified, the geometry
+            will be checked for the current context. Options are ``"Magnetic"``, ``"Thermal"``
+            and ``"Mechanical"``.
 
         Returns
         -------
         int
             ``1`` if an attempt to reset the geometry has been made, ``O`` otherwise.
         """
-        method = "CheckIfGeometryIsValid"
-        params = [edit_geometry]
+
+        if self.connection.check_version_at_least("2027.0"):
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for geometry_export for Motor-CAD version "
+                    "2027R1 and later."
+                )
+            method = "CheckIfGeometryIsValidWithContext"
+            params = [edit_geometry, context]
+        else:
+            method = "CheckIfGeometryIsValid"
+            params = [edit_geometry]
+
         return self.connection.send_and_receive(method, params)
