@@ -76,6 +76,8 @@ class RegionType(Enum):
     rotor_copper = "Rotor Copper"
     rotor_impreg = "Rotor Impreg"
     shaft = "Shaft"
+    shaft_hole = "Shaft Hole"
+    shaft_hole_wall = "Shaft Spiral Groove Hole Duct Wall"
     axle = "Axle"
     rotor_duct = "Rotor Duct"
     magnet = "Magnet"
