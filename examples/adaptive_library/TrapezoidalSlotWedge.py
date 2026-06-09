@@ -21,11 +21,11 @@
 # SOFTWARE.
 
 """
-Modifying the geometry of slot wedge ends to a triangular shape
-===============================================================
+Trapezoidal slot wedge
+======================
 
 This script applies the adaptive templates functionality to modify
-the wedge region near the slot opening from having rectangle ends to pointed ends.
+the wedge region near the slot opening from a rectangle to a trapezoidal shape.
 """
 
 # %%
@@ -34,8 +34,8 @@ the wedge region near the slot opening from having rectangle ends to pointed end
 # If no Motor-CAD file is open, the i7 template is loaded.
 
 # %%
-# .. image:: ../../images/adaptive_templates/triangular_slot_wedge_1.png
-#     :width: 500pt
+# .. image:: ../../images/adaptive_templates/trapezoidal_slot_wedge_1.png
+#     :width: 600pt
 
 # %%
 # Perform required imports
@@ -46,7 +46,7 @@ the wedge region near the slot opening from having rectangle ends to pointed end
 # to define the adaptive template geometry.
 # Import the ``os``, ``shutil``, ``sys`` and ``tempfile`` packages
 
-# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/triangular_slot_wedge.png'
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/trapezoidal_slot_wedge.png'
 import os
 import shutil
 import sys
@@ -99,7 +99,7 @@ stator = gt.get_regions_of_type(RegionType.stator)[0]
 
 # %%
 # Get the geometry parameters from Motor-CAD that define the slot and wedge dimensions.
-# These will be used to define the new hexagonal wedge geometry.
+# These will be used to define the new trapezoidal wedge geometry.
 slot_width = mc.get_variable("Slot_Width")
 wedge_inset = mc.get_variable("Wedge_Inset")
 wedge_thickness = mc.get_variable("Wedge_Thickness")
@@ -117,18 +117,17 @@ wedge_thickness = mc.get_variable("Wedge_Thickness")
 # The regions will subsequently be translated and rotated into the same coordinate system as the
 # original wedge.
 
-#             e
-#   ______________ d
-#  | /|       |\ |
-#  |/ |       | \|
-#  |\ |       | /| c
-#  |_\|_______|/_|
-#             a   b
+#               d
+#   _________________ c
+#  |\   |       |   /|
+#  | \  |       |  / |
+#  |  \ |       | /  |
+#  |___\|_______|/___|
+#               a     b
 point_a = Coordinate(slot_width / 2, -wedge_thickness / 2)
 point_b = Coordinate(slot_width / 2 + wedge_inset, -wedge_thickness / 2)
-point_c = Coordinate(slot_width / 2 + wedge_inset, 0)
-point_d = Coordinate(slot_width / 2 + wedge_inset, +wedge_thickness / 2)
-point_e = Coordinate(slot_width / 2, wedge_thickness / 2)
+point_c = Coordinate(slot_width / 2 + wedge_inset, +wedge_thickness / 2)
+point_d = Coordinate(slot_width / 2, wedge_thickness / 2)
 
 # %%
 # Create a rectangle region that covers the portion of the original wedge that is inset in the
@@ -136,7 +135,7 @@ point_e = Coordinate(slot_width / 2, wedge_thickness / 2)
 # stator regions.
 rectangle_r = Region(RegionType.stator_air, mc)
 rectangle_r.entities.extend(
-    [Line(point_a, point_b), Line(point_b, point_d), Line(point_d, point_e), Line(point_e, point_a)]
+    [Line(point_a, point_b), Line(point_b, point_c), Line(point_c, point_d), Line(point_d, point_a)]
 )
 
 # %%
@@ -144,7 +143,7 @@ rectangle_r.entities.extend(
 # the right-hand side of the wedge. This will be used for modifying the original wedge and stator
 # regions.
 triangle_r = Region(RegionType.wedge, mc)
-triangle_r.entities.extend([Line(point_a, point_c), Line(point_c, point_e), Line(point_e, point_a)])
+triangle_r.entities.extend([Line(point_a, point_c), Line(point_c, point_d), Line(point_d, point_a)])
 
 # %%
 # Define a mirror line along the y-axis
