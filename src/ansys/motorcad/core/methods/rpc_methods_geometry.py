@@ -113,8 +113,8 @@ class _RpcMethodsGeometry:
         if self.connection.check_version_at_least("2027.0"):
             if context == "":
                 raise MotorCADWarning(
-                    "It is recommended to specify the context for check_if_geometry_is_valid" \
-                    " with Motor-CAD 2027.0 or later. If no context is specified, the geometry" \
+                    "It is recommended to specify the context for check_if_geometry_is_valid"
+                    " with Motor-CAD 2027.0 or later. If no context is specified, the geometry"
                     " will be checked for the current UI context, this not work for headless mode."
                 )
             method = "CheckIfGeometryIsValidWithContext"
