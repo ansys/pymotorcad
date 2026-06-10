@@ -100,10 +100,10 @@ class _RpcMethodsGeometry:
 
             - ``1``: Yes. Try and reset the geometry
             - ``0``: No. Do not try to reset the geometry.
-        context : str, optional
+        context : str or MotorCADContext, optional
             Context for which to check the geometry. If not specified, the geometry
-            will be checked for the current context. Options are ``"Magnetic"``, ``"Thermal"``
-            and ``"Mechanical"``.
+            will be checked for the current context. Use :class:`MotorCADContext` or the
+            equivalent strings ``"Magnetic"``, ``"Thermal"`` and ``"Mechanical"``.
 
         Returns
         -------

@@ -30,6 +30,7 @@ import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
+from ansys.motorcad.core.enums import MotorCADContext
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
@@ -144,7 +145,7 @@ def test_set_get_winding_coil(mc):
 def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
     if mc.connection.check_version_at_least("2027.0"):
-        mc.check_if_geometry_is_valid(0, "Magnetic")
+        mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
     else:
         mc.check_if_geometry_is_valid(0)
 
@@ -153,13 +154,13 @@ def test_check_if_geometry_is_valid(mc):
     mc.set_variable("Slot_Depth", 50)
     with pytest.raises(MotorCADError):
         if mc.connection.check_version_at_least("2027.0"):
-            mc.check_if_geometry_is_valid(0, "Magnetic")
+            mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
         else:
             mc.check_if_geometry_is_valid(0)
 
     # Check resetting geometry works
     if mc.connection.check_version_at_least("2027.0"):
-        mc.check_if_geometry_is_valid(1, "Magnetic")
+        mc.check_if_geometry_is_valid(1, MotorCADContext.magnetic)
     else:
         mc.check_if_geometry_is_valid(1)
 
