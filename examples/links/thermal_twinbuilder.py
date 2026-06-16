@@ -1691,7 +1691,7 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    # TODO workaround for 26R1. This will be fixed in 26R1 SP2
+                    # TODO workaround for 26R1. This will be fixed in 27R1
                     outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
                     # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
@@ -2342,7 +2342,7 @@ class MotorCADTwinModel:
 
         return R, C
 
-    # Workaround for versions until 26R1 SP2 is released.
+    # Workaround for versions until 27R1 is released.
     # The SML generation will fail if the node names in Fixedtemperatures.csv have different
     # original and unbracketed names. This workaround overwrites all instances of the original names
     # within the *.mf files as well as in LossDistribution.csv with the unbracketed version
