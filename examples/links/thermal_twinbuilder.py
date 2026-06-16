@@ -385,7 +385,7 @@ class MotorCADTwinModel:
 
     # Initialization function for objects of this class.
     def __init__(self, inputMotFilePath: str, outputDirectory: str):
-        self.inputMotFilePath = inputMotFilePath
+        self.inputMotFilePath = Path(inputMotFilePath)
         self.outputDirectory = Path(outputDirectory)
 
         if self.outputDirectory.exists():
@@ -429,7 +429,7 @@ class MotorCADTwinModel:
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
-        self.mcad.load_from_file(self.inputMotFilePath)
+        self.mcad.load_from_file(str(self.inputMotFilePath))
 
     # Main function to call which generates the required data for the Twin Builder export
     def generateTwinData(
@@ -1060,7 +1060,7 @@ class MotorCADTwinModel:
     def saveTwinMotfile(self):
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
-        self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
+        self.motFileName = self.inputMotFilePath.stem + "_TwinModel"
         self.motFilePath = self.outputDirectory / f"{self.motFileName}.mot"
         self.mcad.save_to_file(str(self.motFilePath))
 
