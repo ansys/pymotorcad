@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 """RPC methods for geometry."""
-from ansys.motorcad.core.rpc_client_core import MotorCADWarning
+
+# from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
 class _RpcMethodsGeometry:
@@ -108,7 +109,7 @@ class _RpcMethodsGeometry:
         Returns
         -------
         int
-            ``1`` if an attempt to reset the geometry has been made, ``O`` otherwise.
+            ``1`` if an attempt to reset the geometry has been made, ``0`` otherwise.
         """
         # Add this back in when Motor-CAD updated
         #
@@ -117,7 +118,8 @@ class _RpcMethodsGeometry:
         #         raise MotorCADWarning(
         #             "It is recommended to specify the context for check_if_geometry_is_valid"
         #             " with Motor-CAD 2027.0 or later. If no context is specified, the geometry"
-        #             " will be checked for the current UI context, this will not work for headless mode."
+        #             " will be checked for the current UI context, this will not work for headless"
+        #             " mode."
         #         )
         #     method = "CheckIfGeometryIsValidWithContext"
         #     params = [edit_geometry, context]
