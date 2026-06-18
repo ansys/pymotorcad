@@ -21,11 +21,12 @@
 # SOFTWARE.
 
 """
-Using IPM Rotor Pockets for Water Jacket Cooling
-================================================
+.. _ref_IPM_Rotor_Pocket_Fluid_Ducts:
+Using IPM Rotor Pockets as Fluid Ducts
+======================================
 
 This script applies the adaptive templates functionality to modify IPM rotor pockets to be used as
-ducts for the Rotor Water Jacket cooling model.
+ducts for cooling models.
 """
 # %%
 # Perform required imports
