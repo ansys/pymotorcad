@@ -485,8 +485,6 @@ class MotorCADTwinModel:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
 
-        self.FixedTemperaturesWorkaround()
-
         self.mcad.quit()
         logger.info(f"Twin Builder Input Files: {self.outputDirectory}")
         logger.info("Python script execution completed")
@@ -1691,9 +1689,7 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    # TODO workaround for 26R1. This will be fixed in 27R1
-                    outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
-                    # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
+                    outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
         with open(self.outputDirectory / "TemperatureOutputs.csv", "w") as f:
             for type, name, nodeNames in outputs:
@@ -2341,48 +2337,6 @@ class MotorCADTwinModel:
             C.append(capacitance)
 
         return R, C
-
-    # Workaround for versions until 27R1 is released.
-    # The SML generation will fail if the node names in Fixedtemperatures.csv have different
-    # original and unbracketed names. This workaround overwrites all instances of the original names
-    # within the *.mf files as well as in LossDistribution.csv with the unbracketed version
-    def FixedTemperaturesWorkaround(self):
-        with open(self.outputDirectory / "FixedTemperatures.csv", "r") as f:
-            csvFile = csv.reader(f)
-            nodeNames = [line[0] for line in csvFile]  # these are unbracketed
-            # Generate list of names which need to be searched for and replaced due to having
-            # different original and unbracketed values
-            searchNames = []
-            replaceNames = []
-            for nodeName in nodeNames:
-                nodeName_original = self.nodeNames_original[self.nodeNames.index(nodeName)]
-                if nodeName != nodeName_original:
-                    # This node will be affected by bug
-                    searchNames.append(nodeName_original)
-                    replaceNames.append(nodeName)
-
-        if searchNames:
-            filesToModify: list[Path] = []
-            filesToModify.append(self.outputDirectory / "LossDistribution.csv")
-
-            fileExtensions = ["*.cmf", "*.nmf", "*.pmf", "*.rmf", "*.tmf"]
-            for extension in fileExtensions:
-                filesToModify.extend(self.outputDirectory.rglob(extension))
-
-            for index, file in enumerate(filesToModify):
-                with open(file, "r") as f:
-                    contents = f.read()
-
-                if index == 0:  # LossDistribution.csv
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(searchName, replaceName)
-                else:  # .*mf files
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(f"({searchName})", f"({replaceName})")
-
-                with open(file, "w") as f:
-                    f.write(contents)
-        return
 
 
 # %%
