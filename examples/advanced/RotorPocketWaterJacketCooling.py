@@ -397,6 +397,7 @@ class thermal_steady:
         # Recalculate and apply the thermal resistances before the calculation
         modify_thermal_circuit()
 
+
 # %%
 # Thermal transient calculations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -473,8 +474,11 @@ if not pymotorcad.is_running_in_internal_scripting():
     mc.load_adaptive_script(adaptive_template_file_new)
     mc.display_screen("Geometry;Radial")
 
-    # Load this script into the Motor-CAD Scripting tab, and set it to run during analysis. Then,
-    # run the script.
+    # Ensure we are in the Motor-CAD thermal module and load this script into the Scripting tab.
+    # Set it to run during analysis, then run the script.
+    mc.show_thermal_context()
+    mc.initialise_tab_names()
+    mc.display_screen("Input Data")
     script_file = script_folder + "\\" + os.path.basename(sys.argv[0])
     shutil.copy(sys.argv[0], script_file)
     mc.load_script(script_file)
