@@ -351,3 +351,9 @@ def test_blackbox_licencing():
     # matches the default setting
     # Just check it works for now
     mc3.get_licence()
+
+
+def test_feature_exists_check(mc):
+    assert mc.connection.check_if_feature_exists("updated_geometry_check") is True
+
+    assert mc.connection.check_if_feature_exists("not_a_real_feature") is False
