@@ -485,8 +485,6 @@ class MotorCADTwinModel:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
 
-        self.FixedTemperaturesWorkaround()
-
         self.mcad.quit()
         logger.info(f"Twin Builder Input Files: {self.outputDirectory}")
         logger.info("Python script execution completed")
@@ -515,18 +513,18 @@ class MotorCADTwinModel:
                 matrix.append(row)
         return matrix
 
-    def getPmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".pmf"))
+    def getPmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.pmf")
 
-    def getTmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".tmf"))
+    def getTmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.tmf")
 
-    def getCmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".cmf"))
+    def getCmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.cmf")
 
-    def getRmfData(self, exportDirectory):
+    def getRmfData(self, exportDirectory: Path):
         resistanceMatrix = self.getExportedMatrix(
-            os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
+            exportDirectory / f"{self.motFileName}.rmf"
         )
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
@@ -535,9 +533,9 @@ class MotorCADTwinModel:
 
         return resistanceMatrix
 
-    def getNmfData(self, exportDirectory):
+    def getNmfData(self, exportDirectory: Path):
         # obtain the node numbers, node names, and node groupings from the nmf file
-        nmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".nmf")
+        nmfFile = exportDirectory / f"{self.motFileName}.nmf"
         nodeNumbers = []
         nodeNames_original = []
         nodeNames = []
@@ -1126,6 +1124,8 @@ class MotorCADTwinModel:
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(str(exportDirectory))
+        # TODO await workaround from Motor-CAD devs to include non-zero capacitance for 
+        # new grouped spray cooling.
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
@@ -1146,11 +1146,11 @@ class MotorCADTwinModel:
         if self.heatFlowMethod == 0:
             self.generateCoolingSystemNetwork_Original(resistanceMatrix, temperatureVector)
         else:
-            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
+            self.generateCoolingSystemNetwork_Improved(resistanceMatrix, temperatureVector)
             self.generateNodeToNodeTempMapping()
             self.identifyCoupledFluidPaths()
 
-    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
+    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix, temperatureVector):
         resistances = set()
         # get all the resistances
         for i, resistanceRow in enumerate(resistanceMatrix):
@@ -1172,6 +1172,9 @@ class MotorCADTwinModel:
             if group in coolingsystemGroupings
         ]
 
+        # Generate list of nodes that have a fixed temperature
+        fixedTempNodes = [self.nodeNumbers[i] for i, temp in enumerate(temperatureVector) if temp > -10000000.0]
+
         G = nx.DiGraph()
         G.add_edges_from(fluidFluidResistances)
         G.add_nodes_from(fluidNodes)
@@ -1191,9 +1194,17 @@ class MotorCADTwinModel:
                 # 1. All nodes in the subgraph
                 nodes = list(graph)
 
-                # 2. Inlet and outlet nodes in the subgraph (0, 1, or more)
+                # 2. Inlet and outlet nodes in the subgraph (there could be 0, 1, or more)
                 inletNodes = [n for n, d in graph.in_degree if d == 0]
-                outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
+                # Outlet nodes are either:
+                # (1) sole nodes with a fixed temperature (the case for the grouped spray cooling)
+                # (2) nodes at fluid path end which are not an inlet (most common)
+                if len(nodes) == 1 and nodes[0] in fixedTempNodes:
+                    # If the only node in the fluid path has a fixed temperature, it is treated as
+                    # an outlet (as well as an inlet)
+                    outletNodes = [nodes[0]]
+                else:
+                    outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
 
                 # 3. Cooling system associated with this subgraph
                 if len(inletNodes) > 0:
@@ -1460,7 +1471,7 @@ class MotorCADTwinModel:
             # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
             testTemperature = round(max(temperatureVector)) + 2
             for i, parameter in enumerate(temperatureParameterSweeps):
-                fixedTempExportDirectory = os.path.join(exportDirectory, str(i))
+                fixedTempExportDirectory = exportDirectory / str(i)
 
                 originalValue = self.mcad.get_variable(parameter.automationString)
                 self.mcad.set_variable(parameter.automationString, testTemperature)
@@ -1524,7 +1535,7 @@ class MotorCADTwinModel:
 
                 # Check if any other nodes have the same fixed temperature, to identify any
                 # couplings via fixed temperature
-                coupledTempExportDirectory = os.path.join(exportDirectory, str(i))
+                coupledTempExportDirectory = exportDirectory / str(i)
                 self.computeMatrices(coupledTempExportDirectory)
 
                 temperatureVector = self.getTmfData(coupledTempExportDirectory)
@@ -1691,9 +1702,7 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    # TODO workaround for 26R1. This will be fixed in 27R1
-                    outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
-                    # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
+                    outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
         with open(self.outputDirectory / "TemperatureOutputs.csv", "w") as f:
             for type, name, nodeNames in outputs:
@@ -1792,7 +1801,7 @@ class MotorCADTwinModel:
             exportDirectory = self.outputDirectory / "HousingTempDependency"
             exportDirectory.mkdir(parents=True, exist_ok=True)
 
-            with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
+            with open(exportDirectory / "tamb_values.txt", "w") as fout:
                 fout.write("Ambient_Temp=[")
                 ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
                 fout.write(",".join(map(str, ambientTemperatures)))
@@ -1813,7 +1822,7 @@ class MotorCADTwinModel:
             ):
                 blownover = coolingSystemsParameterSweeps[Blown_Over]
                 param, paramValues = list(blownover.items())[0]
-                with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                with open(exportDirectory / "dp_values.txt", "w") as fout:
                     paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                     fout.write(param.name + "=" + str(paramValuesTB))
                     fout.write("\n")
@@ -2060,7 +2069,7 @@ class MotorCADTwinModel:
 
                 numDPs = 0
                 paramNames = []
-                with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
+                with open(exportPath / "dp_values.txt", "w") as fout:
                     for param, paramValues in parameters.items():
                         paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                         paramNames.append(param.name)
@@ -2074,7 +2083,7 @@ class MotorCADTwinModel:
                 else:
                     r_list, c_list = self.coolingSystemRCs_Original(cooling)
 
-                with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
+                with open(exportPath / "r_nodes.txt", "w") as fRout:
                     for node1, node2 in r_list:
                         fRout.write(
                             self.nodeNames[self.nodeNumbers.index(node1)]
@@ -2083,7 +2092,7 @@ class MotorCADTwinModel:
                             + "\n"
                         )
 
-                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout:
+                with open(exportPath / "c_nodes.txt", "w") as fCout:
                     for node in c_list:
                         fCout.write(self.nodeNames[self.nodeNumbers.index(node)] + "\n")
 
@@ -2105,7 +2114,7 @@ class MotorCADTwinModel:
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
                         with open(
-                            os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w"
+                            exportPath / f"{filePrefix}{fileInd}.csv", "w"
                         ) as fout:
                             for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
@@ -2195,12 +2204,10 @@ class MotorCADTwinModel:
 
         return r_list, c_list
 
-    def fluidPathToRClist(self, r_list, c_list, fluidPath):
+    def fluidPathToRClist(self, r_list, c_list, fluidPath: FluidPath):
         r_list.extend(fluidPath.rtsFluidFluid)
         r_list.extend(fluidPath.rtsFluidSolid)
-        # identify all fluid nodes that are not the inlet node
-        nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
-        c_list.extend(nodes)
+        c_list.extend(fluidPath.fluidNodes)
 
     def coolingSystemRCs_Original(self, coolingSystem):
         if not isinstance(coolingSystem, CoolingSystem):
@@ -2305,7 +2312,6 @@ class MotorCADTwinModel:
         fileInd,
     ):
         exportDirectory = self.outputDirectory / "tmp" / f"dp{str(fileInd).zfill(6)}"
-        exportDirectory.mkdir(parents=True, exist_ok=True)
 
         circuitEditsMade = False
         for param, paramVal in zip(paramList, paramValues):
@@ -2316,9 +2322,8 @@ class MotorCADTwinModel:
                     param.name, param.nodeNumber, paramVal, param.name
                 )
                 circuitEditsMade = True
-
-        self.mcad.do_steady_state_analysis()
-        self.mcad.export_matrices(str(exportDirectory))
+        
+        self.computeMatrices(exportDirectory)
 
         if circuitEditsMade:
             # Reload .mot file to remove any circuit editing modifications
@@ -2341,48 +2346,6 @@ class MotorCADTwinModel:
             C.append(capacitance)
 
         return R, C
-
-    # Workaround for versions until 27R1 is released.
-    # The SML generation will fail if the node names in Fixedtemperatures.csv have different
-    # original and unbracketed names. This workaround overwrites all instances of the original names
-    # within the *.mf files as well as in LossDistribution.csv with the unbracketed version
-    def FixedTemperaturesWorkaround(self):
-        with open(self.outputDirectory / "FixedTemperatures.csv", "r") as f:
-            csvFile = csv.reader(f)
-            nodeNames = [line[0] for line in csvFile]  # these are unbracketed
-            # Generate list of names which need to be searched for and replaced due to having
-            # different original and unbracketed values
-            searchNames = []
-            replaceNames = []
-            for nodeName in nodeNames:
-                nodeName_original = self.nodeNames_original[self.nodeNames.index(nodeName)]
-                if nodeName != nodeName_original:
-                    # This node will be affected by bug
-                    searchNames.append(nodeName_original)
-                    replaceNames.append(nodeName)
-
-        if searchNames:
-            filesToModify: list[Path] = []
-            filesToModify.append(self.outputDirectory / "LossDistribution.csv")
-
-            fileExtensions = ["*.cmf", "*.nmf", "*.pmf", "*.rmf", "*.tmf"]
-            for extension in fileExtensions:
-                filesToModify.extend(self.outputDirectory.rglob(extension))
-
-            for index, file in enumerate(filesToModify):
-                with open(file, "r") as f:
-                    contents = f.read()
-
-                if index == 0:  # LossDistribution.csv
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(searchName, replaceName)
-                else:  # .*mf files
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(f"({searchName})", f"({replaceName})")
-
-                with open(file, "w") as f:
-                    f.write(contents)
-        return
 
 
 # %%
