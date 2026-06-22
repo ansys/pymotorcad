@@ -513,18 +513,18 @@ class MotorCADTwinModel:
                 matrix.append(row)
         return matrix
 
-    def getPmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".pmf"))
+    def getPmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.pmf")
 
-    def getTmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".tmf"))
+    def getTmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.tmf")
 
-    def getCmfData(self, exportDirectory):
-        return self.getExportedVector(os.path.join(exportDirectory, str(self.motFileName) + ".cmf"))
+    def getCmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.cmf")
 
-    def getRmfData(self, exportDirectory):
+    def getRmfData(self, exportDirectory: Path):
         resistanceMatrix = self.getExportedMatrix(
-            os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
+            exportDirectory / f"{self.motFileName}.rmf"
         )
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
@@ -533,9 +533,9 @@ class MotorCADTwinModel:
 
         return resistanceMatrix
 
-    def getNmfData(self, exportDirectory):
+    def getNmfData(self, exportDirectory: Path):
         # obtain the node numbers, node names, and node groupings from the nmf file
-        nmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".nmf")
+        nmfFile = exportDirectory / f"{self.motFileName}.nmf"
         nodeNumbers = []
         nodeNames_original = []
         nodeNames = []
@@ -1474,7 +1474,7 @@ class MotorCADTwinModel:
             # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
             testTemperature = round(max(temperatureVector)) + 2
             for i, parameter in enumerate(temperatureParameterSweeps):
-                fixedTempExportDirectory = os.path.join(exportDirectory, str(i))
+                fixedTempExportDirectory = exportDirectory / str(i)
 
                 originalValue = self.mcad.get_variable(parameter.automationString)
                 self.mcad.set_variable(parameter.automationString, testTemperature)
@@ -1538,7 +1538,7 @@ class MotorCADTwinModel:
 
                 # Check if any other nodes have the same fixed temperature, to identify any
                 # couplings via fixed temperature
-                coupledTempExportDirectory = os.path.join(exportDirectory, str(i))
+                coupledTempExportDirectory = exportDirectory / str(i)
                 self.computeMatrices(coupledTempExportDirectory)
 
                 temperatureVector = self.getTmfData(coupledTempExportDirectory)
@@ -1804,7 +1804,7 @@ class MotorCADTwinModel:
             exportDirectory = self.outputDirectory / "HousingTempDependency"
             exportDirectory.mkdir(parents=True, exist_ok=True)
 
-            with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
+            with open(exportDirectory / "tamb_values.txt", "w") as fout:
                 fout.write("Ambient_Temp=[")
                 ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
                 fout.write(",".join(map(str, ambientTemperatures)))
@@ -1825,7 +1825,7 @@ class MotorCADTwinModel:
             ):
                 blownover = coolingSystemsParameterSweeps[Blown_Over]
                 param, paramValues = list(blownover.items())[0]
-                with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                with open(exportDirectory / "dp_values.txt", "w") as fout:
                     paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                     fout.write(param.name + "=" + str(paramValuesTB))
                     fout.write("\n")
@@ -2072,7 +2072,7 @@ class MotorCADTwinModel:
 
                 numDPs = 0
                 paramNames = []
-                with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
+                with open(exportPath / "dp_values.txt", "w") as fout:
                     for param, paramValues in parameters.items():
                         paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                         paramNames.append(param.name)
@@ -2086,7 +2086,7 @@ class MotorCADTwinModel:
                 else:
                     r_list, c_list = self.coolingSystemRCs_Original(cooling)
 
-                with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
+                with open(exportPath / "r_nodes.txt", "w") as fRout:
                     for node1, node2 in r_list:
                         fRout.write(
                             self.nodeNames[self.nodeNumbers.index(node1)]
@@ -2095,7 +2095,7 @@ class MotorCADTwinModel:
                             + "\n"
                         )
 
-                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout:
+                with open(exportPath / "c_nodes.txt", "w") as fCout:
                     for node in c_list:
                         fCout.write(self.nodeNames[self.nodeNumbers.index(node)] + "\n")
 
@@ -2117,7 +2117,7 @@ class MotorCADTwinModel:
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
                         with open(
-                            os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w"
+                            exportPath / f"{filePrefix}{fileInd}.csv", "w"
                         ) as fout:
                             for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
