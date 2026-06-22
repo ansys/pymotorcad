@@ -1124,6 +1124,11 @@ class MotorCADTwinModel:
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(str(exportDirectory))
+        self.amendCmf(exportDirectory)
+
+    def amendCmf(self, exportDirectory):
+        pass
+
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
@@ -2202,12 +2207,10 @@ class MotorCADTwinModel:
 
         return r_list, c_list
 
-    def fluidPathToRClist(self, r_list, c_list, fluidPath):
+    def fluidPathToRClist(self, r_list, c_list, fluidPath: FluidPath):
         r_list.extend(fluidPath.rtsFluidFluid)
         r_list.extend(fluidPath.rtsFluidSolid)
-        # identify all fluid nodes that are not the inlet node
-        nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
-        c_list.extend(nodes)
+        c_list.extend(fluidPath.fluidNodes)
 
     def coolingSystemRCs_Original(self, coolingSystem):
         if not isinstance(coolingSystem, CoolingSystem):
@@ -2312,7 +2315,6 @@ class MotorCADTwinModel:
         fileInd,
     ):
         exportDirectory = self.outputDirectory / "tmp" / f"dp{str(fileInd).zfill(6)}"
-        exportDirectory.mkdir(parents=True, exist_ok=True)
 
         circuitEditsMade = False
         for param, paramVal in zip(paramList, paramValues):
@@ -2323,9 +2325,8 @@ class MotorCADTwinModel:
                     param.name, param.nodeNumber, paramVal, param.name
                 )
                 circuitEditsMade = True
-
-        self.mcad.do_steady_state_analysis()
-        self.mcad.export_matrices(str(exportDirectory))
+        
+        self.computeMatrices(exportDirectory)
 
         if circuitEditsMade:
             # Reload .mot file to remove any circuit editing modifications
