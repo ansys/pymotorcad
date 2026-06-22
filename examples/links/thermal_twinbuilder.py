@@ -1144,11 +1144,11 @@ class MotorCADTwinModel:
         if self.heatFlowMethod == 0:
             self.generateCoolingSystemNetwork_Original(resistanceMatrix, temperatureVector)
         else:
-            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
+            self.generateCoolingSystemNetwork_Improved(resistanceMatrix, temperatureVector)
             self.generateNodeToNodeTempMapping()
             self.identifyCoupledFluidPaths()
 
-    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
+    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix, temperatureVector):
         resistances = set()
         # get all the resistances
         for i, resistanceRow in enumerate(resistanceMatrix):
@@ -1170,6 +1170,9 @@ class MotorCADTwinModel:
             if group in coolingsystemGroupings
         ]
 
+        # Generate list of nodes that have a fixed temperature
+        fixedTempNodes = [self.nodeNumbers[i] for i, temp in enumerate(temperatureVector) if temp > -10000000.0]
+
         G = nx.DiGraph()
         G.add_edges_from(fluidFluidResistances)
         G.add_nodes_from(fluidNodes)
@@ -1189,9 +1192,17 @@ class MotorCADTwinModel:
                 # 1. All nodes in the subgraph
                 nodes = list(graph)
 
-                # 2. Inlet and outlet nodes in the subgraph (0, 1, or more)
+                # 2. Inlet and outlet nodes in the subgraph (there could be 0, 1, or more)
                 inletNodes = [n for n, d in graph.in_degree if d == 0]
-                outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
+                # Outlet nodes are either:
+                # (1) sole nodes with a fixed temperature (the case for the grouped spray cooling)
+                # (2) nodes at fluid path end which are not an inlet (most common)
+                if len(nodes) == 1 and nodes[0] in fixedTempNodes:
+                    # If the only node in the fluid path has a fixed temperature, it is treated as
+                    # an outlet (as well as an inlet)
+                    outletNodes = [nodes[0]]
+                else:
+                    outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
 
                 # 3. Cooling system associated with this subgraph
                 if len(inletNodes) > 0:
