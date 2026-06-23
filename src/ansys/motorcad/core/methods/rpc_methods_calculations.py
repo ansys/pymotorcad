@@ -116,7 +116,9 @@ class _RpcMethodsCalculations:
 
     def do_weight_calculation(self, context):
         """Run the Motor-CAD weight calculation."""
-        if self.connection.check_version_at_least("2027.1") and self.connection.check_if_feature_exists("do_weight_calculation_with_context"):
+        if self.connection.check_version_at_least(
+            "2027.1"
+        ) and self.connection.check_if_feature_exists("do_weight_calculation_with_context"):
             if context == "":
                 raise MotorCADWarning(
                     "It is recommended to specify the context for do_weight_calculation"
