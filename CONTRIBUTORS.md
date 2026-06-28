@@ -9,6 +9,7 @@
 * [Aidan Crandell](https://github.com/aidanc-ansys)
 * [Alex Cowdale](https://github.com/a-cowdale)
 * [Alex Warwick](https://github.com/a-warwick)
+* [Caroline Leak](https://github.com/Caroline-Leak)
 * [Devin](https://github.com/Devin-Crawford)
 * [DragosVMosteanu](https://github.com/DragosVMosteanu)
 * [GiadaVent](https://github.com/GiadaVent)
