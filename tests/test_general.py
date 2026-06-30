@@ -84,6 +84,11 @@ def test_load_fea_result(mc):
     assert almost_equal(value, 1.505, 3)
     assert unit == "T"
 
+    [b_max, b_min, b_avg] = mc.get_region_max_min_avg("B", "Rotor")
+    assert almost_equal(b_max, 2.402)
+    assert almost_equal(b_min, 0.036)
+    assert almost_equal(b_avg, 0.970)
+
 
 def test_export_results(mc):
     mc.do_steady_state_analysis()
