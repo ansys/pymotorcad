@@ -65,6 +65,8 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
 
+USE_BETA_SESSION = getenv("PYMOTORCAD_USE_BETA_SESSION")
+
 
 def is_running_in_internal_scripting():
     """Whether the script is running internally in Motor-CAD."""
@@ -243,6 +245,15 @@ class _MotorCADConnection:
         self.program_version = ""
         self.pid = -1
 
+        # Beta feature: reuse a single connection for all RPC calls.
+        self._session = None
+
+        if USE_BETA_SESSION:
+            self._session = requests.Session()
+            self._post = self._session.post
+        else:
+            self._post = requests.post
+
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
 
@@ -370,6 +381,12 @@ class _MotorCADConnection:
                 # Don't raise exception at this point
                 # Motor-CAD might already have been closed by user
                 pass
+
+        # Close the persistent requests session if the beta reuse-connection
+        # feature was enabled. This releases the pooled TCP socket promptly
+        # instead of waiting for garbage collection of the Session.
+        if self._session:
+            self._session.close()
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
@@ -562,10 +579,10 @@ class _MotorCADConnection:
         try:
             # Special case as there won't be a response
             if method == "Quit":
-                requests.post(self._get_url(), json=payload).json()
+                self._post(self._get_url(), json=payload).json()
                 return
             else:
-                response = requests.post(self._get_url(), json=payload).json()
+                response = self._post(self._get_url(), json=payload).json()
 
         except Exception as e:
             # This can occur when an assert fails in Motor-CAD debug
