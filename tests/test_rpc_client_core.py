@@ -291,7 +291,7 @@ class FakeRequestsPostWithWarning:
 def test_warnings(mc, monkeypatch):
     # Create fake request result so we can test this before Motor-CAD 24R1
     # TODO - replace with actual call with warnings e.g. set_region
-    monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
+    monkeypatch.setattr(mc.connection, "_post", FakeRequestsPostWithWarning)
 
     with pytest.warns(MotorCADWarning):
         # Call something which triggers send_and_receive
