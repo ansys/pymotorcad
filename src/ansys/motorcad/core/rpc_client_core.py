@@ -67,6 +67,29 @@ DONT_CHECK_MOTORCAD_VERSION = False
 
 USE_BETA_SESSION = getenv("PYMOTORCAD_USE_BETA_SESSION")
 
+DEBUG_LOG_FILE = getenv("PYMOTORCAD_DEBUG_LOG")
+
+
+def log_if_enabled(msg):
+    """Append one timestamped line to ``PYMOTORCAD_DEBUG_LOG`` (no-op if unset)."""
+    if DEBUG_LOG_FILE:
+        with open(DEBUG_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n")
+
+
+if DEBUG_LOG_FILE:
+    # Log every request with info about sockets
+    # For Motor-CAD team debugging only - a bit hacky to monkeypatch _HTTPConnection
+    from urllib3.connection import HTTPConnection as _HTTPConnection
+
+    _orig_connect = _HTTPConnection.connect
+
+    def _patched_connect(self):
+        _orig_connect(self)
+        log_if_enabled(f"connect {self.sock.getsockname()[:2]} -> {self.host}:{self.port}")
+
+    _HTTPConnection.connect = _patched_connect
+
 
 def is_running_in_internal_scripting():
     """Whether the script is running internally in Motor-CAD."""
@@ -579,13 +602,17 @@ class _MotorCADConnection:
         try:
             # Special case as there won't be a response
             if method == "Quit":
+                log_if_enabled(f">>> {method} {payload}")
                 self._post(self._get_url(), json=payload).json()
                 return
             else:
+                log_if_enabled(f">>> {method} {payload}")
                 response = self._post(self._get_url(), json=payload).json()
+                log_if_enabled(f"<<< {method} {response}")
 
         except Exception as e:
             # This can occur when an assert fails in Motor-CAD debug
+            log_if_enabled(f"!!! {method} {type(e).__name__}: {e}")
             success = -1
             self._raise_if_allowed("RPC Communication failed: " + str(e))
 
