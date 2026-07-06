@@ -18,7 +18,7 @@ jobs:
 
   tests:
     name: Tests and coverage
-    runs-on: [self-hosted, pymotorcad, tests]
+    runs-on: [self-hosted, pymotorcad]
     strategy:
       matrix:
         os: [windows-latest]
