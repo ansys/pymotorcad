@@ -259,10 +259,10 @@ def file_line_differences(file_1, file_2):
 def test_download_mot_file(mc_reset_to_default_on_teardown):
     # Load and save base file so that contents are updated for this version of Motor-CAD
     mc_reset_to_default_on_teardown.load_from_file(get_base_test_file_path())
-    save_file_path = get_temp_files_dir_path() + r"\base_test_file_copy.mot"
+    save_file_path = os.path.join(get_temp_files_dir_path(), "base_test_file_copy.mot")
     mc_reset_to_default_on_teardown.save_to_file(save_file_path)
 
-    download_mot_file_path = get_temp_files_dir_path() + r"\download_test_file.mot"
+    download_mot_file_path = os.path.join(get_temp_files_dir_path(), "download_test_file.mot")
     mc_reset_to_default_on_teardown.download_mot_file(download_mot_file_path)
 
     # File contents should be identical since downloading file without modifying
@@ -271,14 +271,14 @@ def test_download_mot_file(mc_reset_to_default_on_teardown):
 
 def test_upload_mot_file(mc_reset_to_default_on_teardown):
     # Load and save base file so that contents are updated for this version of Motor-CAD
-    mc_reset_to_default_on_teardown.load_from_file(get_test_files_dir_path() + r"\IM_test_file.mot")
-    save_file_path = get_temp_files_dir_path() + r"\IM_test_file_copy.mot"
+    mc_reset_to_default_on_teardown.load_from_file(os.path.join(get_test_files_dir_path(), "IM_test_file.mot"))
+    save_file_path = os.path.join(get_temp_files_dir_path(), "IM_test_file_copy.mot")
     mc_reset_to_default_on_teardown.save_to_file(save_file_path)
 
-    IM_test_file_path = get_test_files_dir_path() + r"\IM_test_file.mot"
+    IM_test_file_path = os.path.join(get_test_files_dir_path(), "IM_test_file.mot")
     mc_reset_to_default_on_teardown.upload_mot_file(IM_test_file_path)
 
-    upload_mot_file_path = get_temp_files_dir_path() + r"\upload_test_file.mot"
+    upload_mot_file_path = os.path.join(get_temp_files_dir_path(), "upload_test_file.mot")
     mc_reset_to_default_on_teardown.save_to_file(upload_mot_file_path)
 
     # File might have slight differences (paths etc.) since we are uploading and
