@@ -21,13 +21,16 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
+
 from os import environ, getenv, path, putenv, unsetenv
 from pathlib import Path
 import re
+import shutil
 import socket
 import subprocess
 import time
 import warnings
+import platform
 
 from packaging import version
 import psutil
@@ -60,7 +63,7 @@ if MOTORCAD_EXE_GLOBAL == "":
         if pymotorcad_exe_environment_variable != "":
             MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
-MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
+MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD", "MotorCAD_Console", "Motor-CAD_Console"]
 
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
@@ -150,9 +153,15 @@ def _get_port_from_motorcad_process(process):
     connection_list = process.connections()
     if len(connection_list) > 0:
         for connect in connection_list:
-            if connect.family == socket.AddressFamily.AF_INET6:
-                port = connect.laddr.port
-                return port
+            if platform.system() == "windows":
+                # Take the IPv6 port.
+                if connect.family == socket.AddressFamily.AF_INET6:
+                    port = connect.laddr.port
+                    return port
+            else:
+                # Linux doesn't allow both IPv4 and IPv6 connections to the same port,
+                # so take the only port.
+                return connect.laddr.port
     # Failed to get port from process
     return -1
 
@@ -164,57 +173,78 @@ def _find_motor_cad_exe():
 
     str_alt_method = (
         "Try setting the Motor-CAD executable file manually before creating "
-        "the MotorCAD() object with the MotorCAD_Methods.set_motorcad_exe(location) "
+        "the MotorCAD() object with the set_motorcad_exe(location) "
         "method. "
     )
 
     # Find Motor-CAD exe
-    motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+    if platform.system() == "Windows":
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+        if motor_batch_file_path is None:
+            raise MotorCADError(
+                "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + str_alt_method
+            )
 
-    if motor_batch_file_path is None:
-        raise MotorCADError(
-            "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + str_alt_method
-        )
+        try:
+            motor_batch_file_path = path.normpath(motor_batch_file_path)
+            # Get rid of quotations from environ.get
+            motor_batch_file_path = motor_batch_file_path.replace('"', "")
+        except Exception as e:
+            raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
 
-    try:
-        motor_batch_file_path = path.normpath(motor_batch_file_path)
-        # Get rid of quotations from environ.get
-        motor_batch_file_path = motor_batch_file_path.replace('"', "")
-    except Exception as e:
-        raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
+        try:
+            # Grab MotorCAD exe from activex batch file
+            motor_batch_file = open(motor_batch_file_path, "r")
 
-    try:
-        # Grab MotorCAD exe from activex batch file
-        motor_batch_file = open(motor_batch_file_path, "r")
+            motor_batch_file_lines = motor_batch_file.readlines()
 
-        motor_batch_file_lines = motor_batch_file.readlines()
-
-        for MotorBatchFileLine in motor_batch_file_lines:
-            motor_exe_list = re.split('"', MotorBatchFileLine)
-            if "call" in motor_exe_list[0]:
-                # Check we're on the right line
-                motor_exe = motor_exe_list[1]
-                if path.isfile(motor_exe):
-                    return motor_exe
-                else:
-                    # Not a valid path
-                    raise MotorCADError(
-                        "File does not exist: "
-                        + motor_exe
-                        + "\nTry updating batch file location in "
-                        + "Defaults->Automation->Update to Current Version."
-                        + "\nAlternative Method: "
-                        + str_alt_method
-                    )
-        else:
-            # Couldn't find line containing call
+            for MotorBatchFileLine in motor_batch_file_lines:
+                motor_exe_list = re.split('"', MotorBatchFileLine)
+                if "call" in motor_exe_list[0]:
+                    # Check we're on the right line
+                    motor_exe = motor_exe_list[1]
+                    if path.isfile(motor_exe):
+                        return motor_exe
+                    else:
+                        # Not a valid path
+                        raise MotorCADError(
+                            "File does not exist: "
+                            + motor_exe
+                            + "\nTry updating batch file location in "
+                            + "Defaults->Automation->Update to Current Version."
+                            + "\nAlternative Method: "
+                            + str_alt_method
+                        )
+            else:
+                # Couldn't find line containing call
+                raise
+        except MotorCADError:
+            # Raise our custom Error Message
             raise
+        except Exception:
+            raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
+    elif platform.system() == "Linux":
+        # If wanting an explicit version of MotorCAD, set the PYMOTORCAD_EXE environment variable.
+        # But if not set, then see if the Motor-CAD executable file is in the PATH environment variable.
+        motor_exe = shutil.which("MotorCAD")
+        if motor_exe is not None:
+            if path.isfile(motor_exe):
+                # MotorCAD exists on the path. Return this one.
+                return motor_exe
 
-    except MotorCADError:
-        # Raise our custom Error Message
-        raise
-    except Exception:
-        raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
+        # Use the PYMOTORCAD_EXE environment variable to find the Motor-CAD executable file.
+        # This will set MOTORCAD_EXE_GLOBAL on startup, so if it is not already set, then the user
+        # has not set the environment variable. Raise an error to inform the user to set the environment variable.
+        raise MotorCADError(
+            "Could not find MotorCAD on the system PATH.\n"
+            "To specify a version, set using set_motorcad_exe():\n"
+            "    set_motorcad_exe('/path/to/MotorCAD')\n"
+            "or by setting the PYMOTORCAD_EXE environment variable.\n"
+            "    export PYMOTORCAD_EXE=/path/to/MotorCAD\n"
+            "To make this persistent, add the line to ~/.bashrc or ~/.bash_profile."
+        )
+    else:
+        raise MotorCADError("Unsupported platform: " + platform.system() + ".")
 
 
 class _MotorCADConnection:
@@ -482,6 +512,12 @@ class _MotorCADConnection:
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _open_motor_cad_local(self):
+        def get_arg(arg):
+            if platform.system() == "Windows":
+                return "/" + arg
+            else:
+                return arg
+
         self.__MotorExe = _find_motor_cad_exe()
 
         if self.__MotorExe == "":
@@ -493,7 +529,7 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
+            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")],
             cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
@@ -646,9 +682,7 @@ class _MotorCADConnection:
             else:
                 success = response["result"]["success"]
 
-            if (method == "CheckIfGeometryIsValid") or (
-                method == "CheckIfGeometryIsValidWithContext"
-            ):
+            if (method == "CheckIfGeometryIsValid") or (method == "CheckIfGeometryIsValidWithContext"):
                 # This doesn't have the normal success var
                 success_value = 1
             else:
@@ -661,9 +695,7 @@ class _MotorCADConnection:
                 if response["result"]["errorMessage"] != "":
                     error_message = response["result"]["errorMessage"]
                 else:
-                    error_message = (
-                        "An error occurred in Motor-CAD."  # put some generic error message
-                    )
+                    error_message = "An error occurred in Motor-CAD."  # put some generic error message
 
                 self._last_error_message = error_message
 
