@@ -55,6 +55,7 @@ def test_get_node_to_node_resistance(mc):
     res = mc.get_node_to_node_resistance(1, 9)
     assert almost_equal(res, 0.0043, 3)
 
+
 def test_get_node_to_node_resistance_used(mc):
     node1 = 3
     node2 = 4
@@ -65,6 +66,7 @@ def test_get_node_to_node_resistance_used(mc):
     res = mc.get_node_to_node_resistance(node1, node2)
     res_used = mc.get_node_to_node_resistance_used(node1, node2)
     assert almost_equal(res_used, res * multiplier, 3)
+
 
 def test_save_load_clear_external_circuit(mc):
     mc.set_resistance_value("test res", 3, 4, 150, "test resistance")
