@@ -517,13 +517,23 @@ class _MotorCADConnection:
         else:
             return version.parse(self.program_version) >= version.parse(required_version)
 
-    def check_if_feature_exists(self, feature_name):
+    def check_if_feature_exists(self, feature_name, required_version):
         """Check if the Motor-CAD feature is present.
 
-        Useful for development versions where PyMotorCAD and Motor-CAD have circular dependencies
-        for testing.
+        Useful for development versions where PyMotorCAD and Motor-CAD have circular
+        dependencies for testing.
+        Parameters
+        ----------
+        feature_name : str
+            Name of the feature to check.
+
+        required_version : str
+            Minimum version of Motor-CAD required for the feature to exist.
+
         """
-        return self.send_and_receive("CheckIfFeatureExists", [feature_name])
+        return self.check_version_at_least(required_version) and self.send_and_receive(
+            "CheckIfFeatureExists", [feature_name]
+        )
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
