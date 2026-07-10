@@ -187,6 +187,25 @@ class _RpcMethodsThermal:
         method = "GetNodeToNodeResistance"
         params = [node1, node2]
         return self.connection.send_and_receive(method, params)
+    
+    def get_node_to_node_resistance_used(self, node1, node2):
+        """Get the node-to-node resistance taking into account resistance multipliers.
+
+        Parameters
+        ----------
+        node1 : int
+            Number of the first thermal node.
+        node2 : int
+            Number of the second thermal node.
+
+        Returns
+        -------
+        float
+            Resistance value used.
+        """
+        method = "GetNodeToNodeResistanceUsed"
+        params = [node1, node2]
+        return self.connection.send_and_receive(method, params)
 
     def get_node_exists(self, node_number):
         """Check if a node exists.
