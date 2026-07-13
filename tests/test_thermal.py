@@ -56,16 +56,71 @@ def test_get_node_to_node_resistance(mc):
     assert almost_equal(res, 0.0043, 3)
 
 
-def test_get_node_to_node_resistance_used(mc):
+def test_get_node_to_node_resistance_old(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2027.1.0.1")
+    print("Program version: ", mc.connection.program_version)
+
     node1 = 3
     node2 = 4
     multiplier = 2
     mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
-    mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
+
     mc.do_steady_state_analysis()
-    res = mc.get_node_to_node_resistance(node1, node2)
-    res_used = mc.get_node_to_node_resistance_used(node1, node2)
-    assert almost_equal(res_used, res * multiplier, 3)
+    r_bu = mc.get_node_to_node_resistance(node1, node2)  # 3
+
+    mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
+
+    mc.do_steady_state_analysis()
+    with pytest.warns(UserWarning):
+        r_au = mc.get_node_to_node_resistance(node1, node2)  # 3 & Warn
+
+    assert almost_equal(r_bu, r_au, 3)
+    assert almost_equal(r_bu, 3, 3)
+
+
+def test_get_node_to_node_resistance_intended_use(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2027.1.0.1")
+    print("Program version: ", mc.connection.program_version)
+
+    node1 = 3
+    node2 = 4
+    multiplier = 2
+    mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
+
+    mc.do_steady_state_analysis()
+    r_bt = mc.get_node_to_node_resistance(node1, node2, True)  # 3
+    r_bf = mc.get_node_to_node_resistance(node1, node2, False)  # 3
+
+    mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
+
+    mc.do_steady_state_analysis()
+    r_at = mc.get_node_to_node_resistance(node1, node2, True)  # 6
+    r_af = mc.get_node_to_node_resistance(node1, node2, False)  # 3
+
+    assert almost_equal(r_bf, r_af, 3)
+    assert almost_equal(r_bt * multiplier, r_at, 3)
+
+    assert almost_equal(r_af, 3, 3)
+    assert almost_equal(r_at, 6, 3)
+
+
+def test_get_node_to_node_resistance_backwards_compatibility(mc, monkeypatch):
+    monkeypatch.setattr(mc.connection, "program_version", "2026.1.2")
+    print("Program version: ", mc.connection.program_version)
+
+    node1 = 3
+    node2 = 4
+    mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
+
+    mc.do_steady_state_analysis()
+    r_ou = mc.get_node_to_node_resistance(node1, node2)  # 3
+
+    with pytest.raises(ValueError):
+        mc.get_node_to_node_resistance(node1, node2, True)  # Exception
+    with pytest.raises(ValueError):
+        mc.get_node_to_node_resistance(node1, node2, False)  # Exception
+
+    assert almost_equal(r_ou, 3, 3)
 
 
 def test_save_load_clear_external_circuit(mc):

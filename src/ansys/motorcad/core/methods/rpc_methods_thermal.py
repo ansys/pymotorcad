@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 """RPC methods for Motor-CAD Thermal."""
-from pyparsing import warnings
+
+import warnings
 
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
@@ -215,7 +216,8 @@ class _RpcMethodsThermal:
                     warnings.warn(
                         "Resistance multiplier is being used but "
                         "include_resistance_multiplier is not set. "
-                        "Defaulting to old method."
+                        "Defaulting to old method.",
+                        stacklevel=2,
                     )
                 return resistance
 
