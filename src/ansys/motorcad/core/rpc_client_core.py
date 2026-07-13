@@ -517,7 +517,7 @@ class _MotorCADConnection:
         else:
             return version.parse(self.program_version) >= version.parse(required_version)
 
-    def check_if_feature_exists(self, feature_name, required_version):
+    def check_if_feature_exists(self, feature_name):
         """Check if the Motor-CAD feature is present.
 
         Useful for development versions where PyMotorCAD and Motor-CAD have circular
