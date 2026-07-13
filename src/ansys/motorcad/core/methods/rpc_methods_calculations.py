@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for calculations."""
+from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
 class _RpcMethodsCalculations:
@@ -113,10 +114,23 @@ class _RpcMethodsCalculations:
         method = "DoMagneticCalculation"
         return self.connection.send_and_receive(method)
 
-    def do_weight_calculation(self):
+    def do_weight_calculation(self, context):
         """Run the Motor-CAD weight calculation."""
-        method = "DoWeightCalculation"
-        return self.connection.send_and_receive(method)
+        if self.connection.check_if_feature_exists("do_weight_calculation_with_context"):
+            if context == "":
+                raise MotorCADWarning(
+                    "It is recommended to specify the context for do_weight_calculation"
+                    " with Motor-CAD 2027.0 or later. If no context is specified, the calculation"
+                    " will be checked for the current UI context, this will not work for headless"
+                    " mode."
+                )
+            method = "DoWeightCalculationWithContext"
+            params = [context]
+        else:
+            method = "DoWeightCalculation"
+            params = []
+
+        return self.connection.send_and_receive(method, params)
 
     def do_mechanical_calculation(self):
         """Run the Motor-CAD mechanical calculation."""
