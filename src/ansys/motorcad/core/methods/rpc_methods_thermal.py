@@ -204,31 +204,29 @@ class _RpcMethodsThermal:
             method = "GetNodeToNodeResistance"
             return self.connection.send_and_receive(method, params)
 
-        match include_resistance_multiplier:
-            # If in date but not set, check if same, if not default to old and warn
-            case None:
-                resistance = self.connection.send_and_receive("GetNodeToNodeResistance", params)
-                resistance_used = self.connection.send_and_receive(
-                    "GetNodeToNodeResistanceWithMultiplier", params
+        # If in date but not set, check if same, if not default to old and warn
+        if include_resistance_multiplier is None:
+            resistance = self.connection.send_and_receive("GetNodeToNodeResistance", params)
+            resistance_used = self.connection.send_and_receive(
+                "GetNodeToNodeResistanceWithMultiplier", params
+            )
+
+            if resistance != resistance_used:
+                warnings.warn(
+                    "Resistance multiplier is being used but "
+                    "include_resistance_multiplier is not set. "
+                    "Defaulting to old method.",
+                    stacklevel=2,
                 )
+            return resistance
 
-                if resistance != resistance_used:
-                    warnings.warn(
-                        "Resistance multiplier is being used but "
-                        "include_resistance_multiplier is not set. "
-                        "Defaulting to old method.",
-                        stacklevel=2,
-                    )
-                return resistance
-
-            # If in date and set, do method requested
-            case True:
-                method = "GetNodeToNodeResistanceWithMultiplier"
-            case False:
-                method = "GetNodeToNodeResistance"
-
-            case _:
-                raise ValueError("include_resistance_multiplier must be a bool or None")
+        # If in date and set, do method requested
+        elif include_resistance_multiplier is True:
+            method = "GetNodeToNodeResistanceWithMultiplier"
+        elif include_resistance_multiplier is False:
+            method = "GetNodeToNodeResistance"
+        else:
+            raise ValueError("include_resistance_multiplier must be a bool or None")
 
         return self.connection.send_and_receive(method, params)
 
