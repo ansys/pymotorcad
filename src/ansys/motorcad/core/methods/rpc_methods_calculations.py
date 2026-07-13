@@ -114,10 +114,10 @@ class _RpcMethodsCalculations:
         method = "DoMagneticCalculation"
         return self.connection.send_and_receive(method)
 
-    def do_weight_calculation(self, context):
+    def do_weight_calculation(self, context=None):
         """Run the Motor-CAD weight calculation."""
         if self.connection.check_if_feature_exists("do_weight_calculation_with_context"):
-            if context == "":
+            if context is None:
                 raise MotorCADWarning(
                     "It is recommended to specify the context for do_weight_calculation"
                     " with Motor-CAD 2027.0 or later. If no context is specified, the calculation"
