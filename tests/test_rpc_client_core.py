@@ -356,8 +356,8 @@ def test_blackbox_licencing():
 def test_feature_exists_check(mc):
     if mc.connection.check_version_at_least("2027.0"):
         geo_check_context = mc.connection.check_if_feature_exists(
-            "check_if_geometry_is_valid_with_context", "2027.0"
+            "check_if_geometry_is_valid_with_context"
         )
 
         assert geo_check_context is True
-        assert mc.connection.check_if_feature_exists("not_a_real_feature", "2027.0") is False
+        assert mc.connection.check_if_feature_exists("not_a_real_feature") is False
