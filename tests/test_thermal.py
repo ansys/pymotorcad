@@ -56,8 +56,10 @@ def test_get_node_to_node_resistance(mc):
     assert almost_equal(res, 0.0043, 3)
 
 
-def test_get_node_to_node_resistance_unset_up_to_date(mc, monkeypatch):
-    if not mc.connection.check_version_at_least("2027.0"):
+def test_get_node_to_node_resistance_unset_up_to_date(mc):
+    if not mc.connection.check_if_feature_exists(
+        "check_if_get_node_to_node_resistance_with_multiplier"
+    ):
         pytest.skip("Requires Motor-CAD 2027.0")
     print("Program version: ", mc.connection.program_version)
 
@@ -79,8 +81,10 @@ def test_get_node_to_node_resistance_unset_up_to_date(mc, monkeypatch):
     assert almost_equal(r_bu, 3, 3)
 
 
-def test_get_node_to_node_resistance_intended_use(mc, monkeypatch):
-    if not mc.connection.check_version_at_least("2027.0"):
+def test_get_node_to_node_resistance_intended_use(mc):
+    if not mc.connection.check_if_feature_exists(
+        "check_if_get_node_to_node_resistance_with_multiplier"
+    ):
         pytest.skip("Requires Motor-CAD 2027.0")
     print("Program version: ", mc.connection.program_version)
 
