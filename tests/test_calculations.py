@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import os
+import os
 
 from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path
 
@@ -32,7 +32,7 @@ def test_do_magnetic_thermal_calculation(mc):
 
 
 # def test_calculate_saturation_map():
-#     file_path = get_temp_files_dir_path() + r"\SaturationLossMap.mat"
+#     file_path = os.path.join(get_temp_files_dir_path(), "SaturationLossMap.mat")
 #     mc.set_variable("SaturationMap_ExportFile", file_path)
 #     mc.calculate_saturation_map()
 #
@@ -63,7 +63,7 @@ def test_do_mechanical_calculation(mc):
 
 
 def test_calculate_im_saturation_model(mc_reset_to_default_on_teardown):
-    mc_reset_to_default_on_teardown.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
+    mc_reset_to_default_on_teardown.load_from_file(os.path.join(get_dir_path(), "test_files", "IM_test_file.mot"))
 
     mc_reset_to_default_on_teardown.calculate_im_saturation_model()
 

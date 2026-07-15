@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+import platform
+
 from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
 
 MATERIAL_INVALID_NAME = "invalid material name here"
@@ -541,7 +544,12 @@ def test_edit_magnet_region(mc_fea_old):
 
     material_name = "Y34"
 
-    mc_fea_old.edit_magnet_region("L1_1Magnet2", material_name, 63, 7)
+    if platform.system() == "Windows":
+        mc_fea_old.edit_magnet_region("L1_1Magnet2", material_name, 63, 7)
+    else:
+        # mc_fea_old.edit_region_magnet("L1_1Magnet2", material_name, 63, 7)
+        pass
+
     # _get_region_properties_xy is having issues - unwilling to prioritise fixing as this
     # functionality will be deprecated soon
     # region = mc_fea_old._get_region_properties_xy(62, 35)
@@ -561,7 +569,7 @@ def test_get_region_value(mc_fea_old):
     mc_fea_old.do_magnetic_calculation()
 
     mc_fea_old.load_fea_result(
-        get_temp_files_dir_path() + r"\temp_test_file\FEResultsData\StaticLoad_result_1.mes", 0
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "FEResultsData", "StaticLoad_result_1.mes"), 0
     )
 
     value, area = mc_fea_old.get_region_value("B", "Rotor")

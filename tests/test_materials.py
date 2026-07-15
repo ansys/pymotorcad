@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import pytest
 
 from RPC_Test_Common import almost_equal, get_dir_path
@@ -55,7 +56,7 @@ def test_get_solid_database(mc):
 
 def test_select_material_database(mc_reset_to_default_on_teardown):
     mc_reset_to_default_on_teardown.select_material_database(
-        get_dir_path() + r"\test_files\dummy_materials.mdb", False
+        os.path.join(get_dir_path(), "test_files", "dummy_materials.mdb"), False
     )
 
     solid_db = mc_reset_to_default_on_teardown._get_solid_database()

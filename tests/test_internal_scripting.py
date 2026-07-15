@@ -32,7 +32,7 @@ def test_load_run_script(mc):
     mc.run_script()
     assert mc.get_variable("tooth_width") == 6.5
 
-    mc.load_script(get_dir_path() + r"\test_files\internal_script.py")
+    mc.load_script(os.path.join(get_dir_path(), "test_files", "internal_script.py"))
     mc.run_script()
     assert mc.get_variable("tooth_width") == 7.5
 
@@ -40,7 +40,7 @@ def test_load_run_script(mc):
 
 
 def test_save_script(mc):
-    file_path = get_temp_files_dir_path() + r"\test_internal_script.py"
+    file_path = os.path.join(get_temp_files_dir_path(), "test_internal_script.py")
 
     mc.save_script(file_path)
     assert os.path.exists(file_path)

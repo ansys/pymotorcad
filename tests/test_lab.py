@@ -226,7 +226,7 @@ def test_export_concept_ev_model(mc):
 
 # def test_lab_model_export(mc):
 #     mc.set_variable("MessageDisplayState", 2)
-#     file_path = get_dir_path() + r"\test_files\temp_files\lab_model_export.lab"
+#     file_path = os.path.join(get_dir_path(), "test_files", "temp_files", "lab_model_export.lab")
 #
 #     mc.load_template("e3")
 #

@@ -51,7 +51,7 @@ def test_save_load_clear_duty_cycle(mc_reset_to_default_on_teardown):
         kh_to_ms(64.21),
     )
 
-    save_path = get_temp_files_dir_path() + r"\duty_cycle.dat"
+    save_path = os.path.join(get_temp_files_dir_path(), "duty_cycle.dat")
     mc_reset_to_default_on_teardown.save_duty_cycle(save_path)
 
     mc_reset_to_default_on_teardown.clear_duty_cycle()
@@ -69,16 +69,16 @@ def test_export_matrices(mc):
 
     mc.export_matrices(get_temp_files_dir_path())
 
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.nmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.pmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.rmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.tmf")
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.nmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.pmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.rmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.tmf"))
 
 
 def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
-    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
+    mc.load_fea_result(os.path.join(get_dir_path(), "test_files", "TorqueSpeed_result_1_5.mes"), 0)
 
     value, unit = mc.get_point_value("B", 61, -16)
     assert almost_equal(value, 1.505, 3)
@@ -88,7 +88,7 @@ def test_load_fea_result(mc):
 def test_export_results(mc):
     mc.do_steady_state_analysis()
 
-    file_path = get_temp_files_dir_path() + r"\steady_state_result.csv"
+    file_path = os.path.join(get_temp_files_dir_path(), "steady_state_result.csv")
 
     mc.export_results("SteadyState", file_path)
 
@@ -112,7 +112,7 @@ def test_load_dxf_file():
         # mc2.clear_all_data()
         # mc2.initiate_geometry_from_script()
 
-        mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        mc2.load_dxf_file(os.path.join(get_dir_path(), "test_files", "dxf_import.dxf"))
 
         # mc2.create_optimised_mesh()
 
@@ -133,7 +133,7 @@ def test_load_dxf_file():
 def test_export_force_animation(mc):
     mc.do_multi_force_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\test_animation.gif"
+    file_path = os.path.join(get_temp_files_dir_path(), "test_animation.gif")
     mc.export_force_animation("Radial", file_path)
 
 
@@ -147,14 +147,14 @@ def test_load_template(mc_reset_to_default_on_teardown):
 def test_export_multi_force_data(mc):
     mc.do_multi_force_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\force_data.json"
+    file_path = os.path.join(get_temp_files_dir_path(), "force_data.json")
     mc.export_multi_force_data(file_path)
 
     assert os.path.exists(file_path)
 
 
 def test_geometry_export(mc):
-    file_path = get_temp_files_dir_path() + r"\dxf_export_file.dxf"
+    file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
     mc.geometry_export()
 
@@ -163,11 +163,11 @@ def test_geometry_export(mc):
 
 def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     mc_reset_to_default_on_teardown.load_from_file(
-        get_dir_path() + r"\test_files\SRM_test_file.mot"
+        os.path.join(get_dir_path(), "test_files", "SRM_test_file.mot")
     )
     mc_reset_to_default_on_teardown.do_magnetic_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\mag_curves.txt"
+    file_path = os.path.join(get_temp_files_dir_path(), "mag_curves.txt")
 
     mc_reset_to_default_on_teardown.save_magnetisation_curves(file_path)
     assert os.path.exists(file_path)
@@ -193,11 +193,11 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # EMag test
     mc_reset_to_default_on_teardown.do_magnetic_calculation()
     mc_reset_to_default_on_teardown.save_results("EMagnetic")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "outputResults.mot"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "GraphResults.ini"))
 
     mc_reset_to_default_on_teardown.load_from_file(
-        get_temp_files_dir_path() + r"\temp_test_file.mot"
+        os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
     )
 
     mc_reset_to_default_on_teardown.load_results("EMagnetic")
@@ -208,10 +208,10 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # Thermal test - transient graphs only
     mc_reset_to_default_on_teardown.do_transient_analysis()
     mc_reset_to_default_on_teardown.save_results("Thermal")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\Thermal\GraphResults.ini")
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "Thermal", "GraphResults.ini"))
 
     mc_reset_to_default_on_teardown.load_from_file(
-        get_temp_files_dir_path() + r"\temp_test_file.mot"
+        os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
     )
 
     mc_reset_to_default_on_teardown.load_results("TheRmal")
@@ -315,7 +315,7 @@ def test_save_load_custom_response(mc_reset_to_default_on_teardown):
     mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 1, 1, 60)
     mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 2, 1, 80)
 
-    file_path = get_dir_path() + r"\test_files\SaveLoadNVHResponse.txt"
+    file_path = os.path.join(get_dir_path(), "test_files", "SaveLoadNVHResponse.txt")
     if os.path.exists(file_path):
         os.remove(file_path)
 

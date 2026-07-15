@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import builtins
 from copy import copy, deepcopy
 import math
@@ -58,9 +59,7 @@ def generate_constant_region():
 
     region.entities.append(geometry.Line(geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0)))
     region.entities.append(
-        geometry.Arc(
-            geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1
-        )
+        geometry.Arc(geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1)
     )
     region.entities.append(geometry.Line(geometry.Coordinate(0, 1), geometry.Coordinate(-1, 0)))
 
@@ -123,9 +122,7 @@ def test_set_get_winding_coil(mc):
     return_position = "C"
     turns = 10
 
-    mc.set_winding_coil(
-        phase, path, coil, go_slot, go_position, return_slot, return_position, turns
-    )
+    mc.set_winding_coil(phase, path, coil, go_slot, go_position, return_slot, return_position, turns)
 
     (
         go_slot_test,
@@ -223,7 +220,7 @@ def test_get_region(mc):
 
 
 def test_get_region_dxf(mc):
-    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    mc.load_dxf_file(os.path.join(get_dir_path(), "test_files", "dxf_import.dxf"))
     expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
@@ -237,13 +234,9 @@ def test_get_region_dxf(mc):
         )
     )
     expected_region.add_entity(
-        geometry.Line(
-            geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0)
-        )
+        geometry.Line(geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0))
     )
-    expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
-    )
+    expected_region.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0)))
 
     region = mc.get_region_dxf("DXFRegion_Rotor")
     assert region == expected_region
@@ -263,7 +256,7 @@ def test_set_region(mc):
 
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     # load file into Motor-CAD
     mc.load_adaptive_script(filepath)
 
@@ -277,11 +270,11 @@ def test_load_adaptive_script(mc):
 
 def test_save_adaptive_script(mc):
     """Test save adaptive template script from Motor-CAD to specified file path."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     mc.load_adaptive_script(filepath)
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
 
-    filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
+    filepath = os.path.join(tempfile.gettempdir(), "adaptive_templates_script.py")
     mc.save_adaptive_script(filepath)
     # sum number of lines in saved file and check against number of lines from Motor-CAD
     with open(filepath, "r") as f:
@@ -333,9 +326,7 @@ def test_region_insert_entity():
 def test_region_insert_polyline():
     polyline = [
         geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1)),
-        geometry.Arc(
-            geometry.Coordinate(1, 1), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
-        ),
+        geometry.Arc(geometry.Coordinate(1, 1), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1),
         geometry.Line(geometry.Coordinate(1, 0), geometry.Coordinate(0, 0)),
     ]
 
@@ -525,9 +516,7 @@ def test_EntityList_is_anticlockwise():
     # are correctly accounted for
     test_el3 = EntityList()
     test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
-    test_el3.append(
-        Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
-    )
+    test_el3.append(Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0)))
     test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
     assert test_el3.is_anticlockwise == True
 
@@ -757,9 +746,7 @@ def test_line_get_coordinate_from_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
     # test using the 'distance' argument
-    assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(
-        1, 0
-    )
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(1, 0)
     # test using the 'fraction' argument
     assert line.get_coordinate_from_distance(
         geometry.Coordinate(0, 0), fraction=0.5
@@ -786,9 +773,7 @@ def test_line_get_coordinate_from_distance():
 
     # fraction and percentage
     with pytest.warns(UserWarning) as record:
-        coord = line.get_coordinate_from_distance(
-            geometry.Coordinate(0, 0), fraction=0.6, percentage=40
-        )
+        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6, percentage=40)
     assert "Both fraction and percentage provided" in record[0].message.args[0]
     # check that fraction is used
     assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6)
@@ -1257,12 +1242,8 @@ def test_check_collisions_1(mc):
     region_a = generate_constant_region()
 
     region_b = geometry.Region(RegionType.stator_air)
-    region_b.add_entity(
-        geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
-    )
-    region_b.add_entity(
-        geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2))
-    )
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2)))
+    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0.2), geometry.Coordinate(0.2, -2)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
 
@@ -2189,12 +2170,8 @@ def test_extend_entity_region_method():
     assert parallelogram_1.entities[0].end == square_1.entities[0].end
     assert parallelogram_1.entities[2].end == square_1.entities[2].end
     # check that the horizontal lines are still horizontal
-    assert isclose(
-        parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE
-    )
-    assert isclose(
-        parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE
-    )
+    assert isclose(parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE)
+    assert isclose(parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE)
     # check that the horizontal lines have been shortened by the correct amount
     assert isclose(
         parallelogram_1.entities[1].length,
@@ -2270,9 +2247,7 @@ def test_extend_entity_region_method():
 
     # fraction and factor
     with pytest.warns(UserWarning) as record:
-        parallelogram_3.extend_entity(
-            0, fraction=extension_fractional_distance, factor=extension_factor
-        )
+        parallelogram_3.extend_entity(0, fraction=extension_fractional_distance, factor=extension_factor)
     assert "More than one optional argument provided" in record[0].message.args[0]
     # check that fraction is used
     assert isclose(
@@ -3135,9 +3110,7 @@ def test_region_find_entity_from_coordinates():
 
     assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
 
-    assert (
-        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
-    )
+    assert c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
 
 
 def test_reset_geometry(mc):
@@ -3334,20 +3307,26 @@ def test_set_lamination_type(mc_reset_to_default_on_teardown):
     rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
-    solid_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    solid_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_solid_rotor_region.mot"
     )
-    lam_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    lam_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_lam_rotor_region.mot"
     )
 
-    solid_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    solid_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_solid_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
-    lam_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    lam_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_lam_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
 
     # load file into Motor-CAD

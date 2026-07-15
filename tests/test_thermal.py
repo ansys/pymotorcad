@@ -64,7 +64,7 @@ def test_save_load_clear_external_circuit(mc):
     res = mc.get_node_to_node_resistance(3, 4)
     assert res == 150
 
-    save_path = get_dir_path() + "\\test_files\\external_circuit.ecf"
+    save_path = path.join(get_dir_path(), "test_files", "external_circuit.ecf")
 
     mc.save_external_circuit(save_path)
 
@@ -122,7 +122,7 @@ def test_get_node_exists(mc):
 
 def test_thermal_model_export(mc):
     mc.set_variable("MessageDisplayState", 2)
-    file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
+    file_path = path.join(get_dir_path(), "test_files", "temp_files", "thermal_model_export.therm")
 
     mc.load_template("e3")
 

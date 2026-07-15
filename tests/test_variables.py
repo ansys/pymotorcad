@@ -139,7 +139,7 @@ def test_restore_compatibility_settings(mc):
 def test_get_file_name():
     mc = MotorCAD()
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+    file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
     if path.exists(file_path):
         remove(file_path)
@@ -160,7 +160,7 @@ def test_get_file_name_fallback(monkeypatch):
     # Pretend to be an older version
     mc.connection.program_version = "2024.2.3.1"
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+    file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
     if path.exists(file_path):
         remove(file_path)

@@ -21,12 +21,17 @@
 # SOFTWARE.
 
 import os
+import platform
 
 import pytest
 
 from RPC_Test_Common import get_temp_files_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCAD
 
+if platform.system() == "Windows":
+    pass
+else:
+    pytest.skip("UI tests are only supported on Windows", allow_module_level=True)
 
 @pytest.fixture(scope="module")
 def mc_ui():
@@ -73,7 +78,7 @@ def test_set_motorlab_context(mc_ui):
 
 
 def test_save_screen_to_file(mc_ui):
-    file_path = get_temp_files_dir_path() + r"\screen.png"
+    file_path = os.path.join(get_temp_files_dir_path(), "screen.png")
 
     mc_ui.save_screen_to_file("Radial", file_path)
 
