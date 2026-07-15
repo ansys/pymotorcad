@@ -336,3 +336,30 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
+
+    def split_region_about_entity(self, targetRegion, entity):
+        """Split a region about a given entity.
+
+        Parameters
+        ----------
+        targetRegion : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object to split
+
+        entity : ansys.motorcad.core.geometry.Entity
+            Motor-CAD entity object about which to split targetRegion
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region
+            Split Motor-CAD region objects
+        """
+        method = "SplitRegionAboutEntity"
+        params = [targetRegion._to_json(), entity._to_json()]
+        split_raw_regions = self.connection.send_and_receive(method, params)
+
+        regions = []
+        for split_raw in split_raw_regions:
+            returned_region = Region._from_json(split_raw, motorcad_instance=self)
+            regions.append(returned_region)
+
+        return regions
