@@ -34,11 +34,6 @@ by shifting the original vertices and applying corner rounding.
 # The vertices that define the shape of the rotor pockets are shifted to new positions based on
 # adaptive parameters, and a corner radius is applied to each corner.
 
-
-# %%
-# .. image:: ../../images/adaptive_templates/asymmetric_SPM_2.png
-#     :width: 800pt
-
 # %%
 # Perform required imports
 # ------------------------
