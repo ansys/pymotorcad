@@ -110,6 +110,40 @@ class _RpcMethodsVariables:
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
+    def get_array_variable_list(self, array_name):
+        """Get the full array of a Motor-CAD array variable as a list.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array
+
+        Returns
+        -------
+        list of int|float|str|bool
+            List of values of the Motor-CAD variable
+        """
+        # Get the array variable as a single string, delimited by colon. Split this string into a
+        # list.
+        value_string = self.get_variable(array_name)
+        value_string = value_string.split(":")
+        # Get the first variable of the array, and determine the type of the variable.
+        value_0 = self.get_array_variable(array_name, 0)
+        value_type = str
+        if isinstance(value_0, int):
+            value_type = int
+        if isinstance(value_0, float):
+            value_type = float
+        if isinstance(value_0, bool):
+            value_type = bool
+        # Create a list and append each value to the list. Convert the value if the value_type is
+        # not string.
+        values = []
+        if value_type is not None:
+            for value in value_string:
+                values.append(value_type(value))
+        return values
+
     def set_variable(self, variable_name, variable_value):
         """Set a Motor-CAD variable.
 
@@ -139,6 +173,50 @@ class _RpcMethodsVariables:
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
+
+    def set_array_variable_list(self, array_name, variable_list):
+        """Set the full array of a Motor-CAD array variable as a list.
+
+        If a single value is provided, every element of the array will be set to this value.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array
+        variable_list : list of int|float|str|bool
+            Values to set the variables to.
+        """
+        # Get the original array variable to determine the length of the array
+        values_orig = self.get_variable(array_name)
+        values_orig = values_orig.split(":")
+
+        # If the provided list of variables is longer than the original array, raise an error.
+        if isinstance(variable_list, list) and len(variable_list) > len(values_orig):
+            raise ValueError(
+                f"The array variable {array_name} has length = {len(values_orig)}. The "
+                f"variable_list provided has length = "
+                f"{len(variable_list)}. Please provide a list of {len(values_orig)} "
+                f"values."
+            )
+        # If a single value is provided, set all values of the array to the same value. Use the
+        # original length of the array to determine the number of values to add.
+        elif not isinstance(variable_list, list):
+            single_value = True
+            num_values = len(values_orig)
+        # If the provided list of variables is shorter than the original array, set the first n
+        # values of the array to the provided values, where n is the length of the provided list.
+        # Use the length of the provided list to determine the number of values to add.
+        else:
+            single_value = False
+            num_values = len(variable_list)
+
+        # Loop through all elements of the array, setting the value for each index
+        for i in range(num_values):
+            if not single_value:
+                value = variable_list[i]
+            else:
+                value = variable_list
+            self.set_array_variable(array_name, i, value)
 
     def get_file_name(self):
         """Get current .mot file name and path.
