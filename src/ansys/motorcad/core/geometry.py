@@ -1338,6 +1338,24 @@ class Region(object):
 
         return None
 
+    def split_self_about_entity(self, entity):
+        """Split self about the entity, updates self and then returns the other split regions.
+
+        Parameters
+        ----------
+        entity: ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region split about the entity
+        """
+        self._check_connection()
+        regions = self.motorcad_instance.split_region_about_entity(self, entity)
+
+        if len(regions) > 0:
+            self.update(regions[0])
+            return regions[1 : len(regions)]
+
 
 class RegionMagnet(Region):
     """Create magnet geometry region.
