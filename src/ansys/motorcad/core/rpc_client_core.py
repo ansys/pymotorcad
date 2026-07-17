@@ -65,6 +65,31 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
 
+USE_BETA_SESSION = getenv("PYMOTORCAD_USE_BETA_SESSION")
+
+DEBUG_LOG_FILE = getenv("PYMOTORCAD_DEBUG_LOG")
+
+
+def log_if_enabled(msg):
+    """Append one timestamped line to ``PYMOTORCAD_DEBUG_LOG`` (no-op if unset)."""
+    if DEBUG_LOG_FILE:
+        with open(DEBUG_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n")
+
+
+if DEBUG_LOG_FILE:
+    # Log every request with info about sockets
+    # For Motor-CAD team debugging only - a bit hacky to monkeypatch _HTTPConnection
+    from urllib3.connection import HTTPConnection as _HTTPConnection
+
+    _orig_connect = _HTTPConnection.connect
+
+    def _patched_connect(self):
+        _orig_connect(self)
+        log_if_enabled(f"connect {self.sock.getsockname()[:2]} -> {self.host}:{self.port}")
+
+    _HTTPConnection.connect = _patched_connect
+
 
 def is_running_in_internal_scripting():
     """Whether the script is running internally in Motor-CAD."""
@@ -243,6 +268,15 @@ class _MotorCADConnection:
         self.program_version = ""
         self.pid = -1
 
+        # Beta feature: reuse a single connection for all RPC calls.
+        self._session = None
+
+        if USE_BETA_SESSION:
+            self._session = requests.Session()
+            self._post = self._session.post
+        else:
+            self._post = requests.post
+
         self.enable_exceptions = enable_exceptions
         self.reuse_parallel_instances = reuse_parallel_instances
 
@@ -370,6 +404,12 @@ class _MotorCADConnection:
                 # Don't raise exception at this point
                 # Motor-CAD might already have been closed by user
                 pass
+
+        # Close the persistent requests session if the beta reuse-connection
+        # feature was enabled. This releases the pooled TCP socket promptly
+        # instead of waiting for garbage collection of the Session.
+        if self._session:
+            self._session.close()
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
@@ -517,6 +557,26 @@ class _MotorCADConnection:
         else:
             return version.parse(self.program_version) >= version.parse(required_version)
 
+    def check_if_feature_exists(self, feature_name):
+        """Check if the Motor-CAD feature is present.
+
+        Useful for development versions where PyMotorCAD and Motor-CAD have circular
+        dependencies for testing.
+        Parameters
+        ----------
+        feature_name : str
+            Name of the feature to check.
+
+        required_version : str
+            Minimum version of Motor-CAD required for the feature to exist.
+
+        """
+        if self.check_version_at_least("2027.0"):
+            return self.send_and_receive("CheckIfFeatureExists", [feature_name])
+        else:
+            # Version of Motor-CAD is definitely too old for this feature
+            return False
+
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
         timeout = 300  # in seconds
@@ -554,13 +614,17 @@ class _MotorCADConnection:
         try:
             # Special case as there won't be a response
             if method == "Quit":
-                requests.post(self._get_url(), json=payload).json()
+                log_if_enabled(f">>> {method} {payload}")
+                self._post(self._get_url(), json=payload).json()
                 return
             else:
-                response = requests.post(self._get_url(), json=payload).json()
+                log_if_enabled(f">>> {method} {payload}")
+                response = self._post(self._get_url(), json=payload).json()
+                log_if_enabled(f"<<< {method} {response}")
 
         except Exception as e:
             # This can occur when an assert fails in Motor-CAD debug
+            log_if_enabled(f"!!! {method} {type(e).__name__}: {e}")
             success = -1
             self._raise_if_allowed("RPC Communication failed: " + str(e))
 
@@ -594,7 +658,9 @@ class _MotorCADConnection:
             else:
                 success = response["result"]["success"]
 
-            if method == "CheckIfGeometryIsValid":
+            if (method == "CheckIfGeometryIsValid") or (
+                method == "CheckIfGeometryIsValidWithContext"
+            ):
                 # This doesn't have the normal success var
                 success_value = 1
             else:
