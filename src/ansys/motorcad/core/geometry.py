@@ -1338,7 +1338,7 @@ class Region(object):
 
         return None
 
-    def split_self_about_entity(self, entity):
+    def split_about_entity(self, entity):
         """Split self about the entity, updates self and then returns the other split regions.
 
         Parameters
