@@ -31,7 +31,11 @@ from ansys.motorcad.core.geometry import (
     RegionType,
 )
 from ansys.motorcad.core.geometry_tree import GeometryTree
-from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import (
+    MotorCADError,
+    MotorCADWarning,
+    is_running_in_internal_scripting,
+)
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -353,36 +357,42 @@ class _RpcMethodsAdaptiveGeometry:
         lamination_type=None,
     ):
         """Edit a region by providing a set of optional parameters."""
-        self.connection.ensure_version_at_least("2027.0")
-        method = "EditRegion"
+        if self.connection.check_if_feature_exists("edit_region_improved"):
+            method = "EditRegion"
 
-        parameter_dict = {
-            key: value
-            for key, value in {
-                "material": material,
-                "mesh_length": mesh_length,
-                "region_type": region_type.value
-                if isinstance(region_type, RegionType)
-                else region_type,
-                "lamination_type": lamination_type,
-            }.items()
-            if value is not None
-        }
+            parameter_dict = {
+                key: value
+                for key, value in {
+                    "material": material,
+                    "mesh_length": mesh_length,
+                    "region_type": region_type.value
+                    if isinstance(region_type, RegionType)
+                    else region_type,
+                    "lamination_type": lamination_type,
+                }.items()
+                if value is not None
+            }
 
-        # Special handling for material parameter to set material component type
-        # This is required as the API cannot assume the material type from the
-        # user provided material name
-        if material is not None:
-            parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
-            # Unable to assume material type from user material name, set to default of "Any"
-            parameter_dict["material_weight_material_type"] = "Any"
+            # Special handling for material parameter to set material component type
+            # This is required as the API cannot assume the material type from the
+            # user provided material name
+            if material is not None:
+                parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+                # Unable to assume material type from user material name, set to default of "Any"
+                parameter_dict["material_weight_material_type"] = "Any"
 
-        # Colour requires a composite JSON object
-        if colour is not None:
-            parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
+            # Colour requires a composite JSON object
+            if colour is not None:
+                parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
 
-        params = [region_name, parameter_dict]
-        return self.connection.send_and_receive(method, params)
+            params = [region_name, parameter_dict]
+            return self.connection.send_and_receive(method, params)
+        else:
+            raise MotorCADWarning(
+                "edit_region is not available in Motor-CAD version '"
+                + self.connection.program_version
+                + "'. Please update to the latest Motor-CAD release."
+            )
 
     def edit_region_magnet(
         self,
@@ -419,38 +429,44 @@ class _RpcMethodsAdaptiveGeometry:
         magnetisation_direction : MagnetisationDirection, optional
             Magnetisation direction of the magnet.
         """
-        self.connection.ensure_version_at_least("2027.0")
-        method = "EditRegion"
+        if self.connection.check_if_feature_exists("edit_region_improved"):
+            method = "EditRegion"
 
-        parameter_dict = {
-            key: value
-            for key, value in {
-                "material": material,
-                "mesh_length": mesh_length,
-                "lamination_type": lamination_type,
-                "magnet_magfactor": br_multiplier,
-                "magnet_angle": magnet_angle,
-                "magnet_polarity": magnet_polarity,
-                "magnetisation_direction": (
-                    magnetisation_direction.value
-                    if isinstance(magnetisation_direction, MagnetisationDirection)
-                    else magnetisation_direction
-                ),
-            }.items()
-            if value is not None
-        }
+            parameter_dict = {
+                key: value
+                for key, value in {
+                    "material": material,
+                    "mesh_length": mesh_length,
+                    "lamination_type": lamination_type,
+                    "magnet_magfactor": br_multiplier,
+                    "magnet_angle": magnet_angle,
+                    "magnet_polarity": magnet_polarity,
+                    "magnetisation_direction": (
+                        magnetisation_direction.value
+                        if isinstance(magnetisation_direction, MagnetisationDirection)
+                        else magnetisation_direction
+                    ),
+                }.items()
+                if value is not None
+            }
 
-        if material is not None:
-            parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
-            # Unable to assume material type from user material name, set to default of "Any"
-            parameter_dict["material_weight_material_type"] = "Any"
+            if material is not None:
+                parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+                # Unable to assume material type from user material name, set to default of "Any"
+                parameter_dict["material_weight_material_type"] = "Any"
 
-        # Colour requires a composite JSON object
-        if colour is not None:
-            parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
+            # Colour requires a composite JSON object
+            if colour is not None:
+                parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
 
-        # enforce region to become a magnet region
-        parameter_dict["region_type"] = RegionType.magnet.value
+            # enforce region to become a magnet region
+            parameter_dict["region_type"] = RegionType.magnet.value
 
-        params = [region_name, parameter_dict]
-        return self.connection.send_and_receive(method, params)
+            params = [region_name, parameter_dict]
+            return self.connection.send_and_receive(method, params)
+        else:
+            raise MotorCADWarning(
+                "edit_region_magnet is not available in Motor-CAD version '"
+                + self.connection.program_version
+                + "'. Please update to the latest Motor-CAD release."
+            )
