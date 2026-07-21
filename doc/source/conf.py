@@ -1,6 +1,9 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
+import hashlib
 import os
+from pathlib import Path
+import shutil
 import sys
 
 from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
@@ -131,9 +134,22 @@ from autofill_function_names import generate_method_docs
 
 generate_method_docs()
 
-import os
-
 os.environ["PYMOTORCAD_DOCS_BUILD"] = "true"
 
 # PyAnsys tags configuration
 html_context = {"pyansys_tags": ["Electronics"]}
+
+# Re-running the thermal_twinbuilder.py example without clearing its output directory causes the
+# docs build to fail. Remove the directory when the example has changed and Sphinx will regenerate
+# the output.
+cwd = Path(__file__).resolve().parent
+current_script = cwd.parents[1] / "examples" / "links" / "thermal_twinbuilder.py"
+cached_md5_path = cwd / "examples" / "links" / "thermal_twinbuilder.py.md5"
+tb_output_dir = cwd.parents[1] / "examples" / "links" / "thermal_twinbuilder_e8_mobility"
+
+# Match Sphinx Gallery hashing by normalizing CRLF to LF before calculating MD5.
+current_md5 = hashlib.md5(current_script.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+cached_md5 = cached_md5_path.read_text() if cached_md5_path.exists() else ""
+
+if current_md5 != cached_md5:
+    shutil.rmtree(tb_output_dir, ignore_errors=True)
