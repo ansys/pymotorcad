@@ -22,7 +22,7 @@
 
 """
 Motor-CAD Thermal Twin Builder ROM
-=================================
+==================================
 This example shows how to transform a Motor-CAD model into a Thermal ROM (reduced order model) in
 Ansys Twin Builder.
 

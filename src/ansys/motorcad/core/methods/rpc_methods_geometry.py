@@ -111,21 +111,18 @@ class _RpcMethodsGeometry:
             ``1`` if an attempt to reset the geometry has been made, ``O`` otherwise.
         """
         # Add this back in when Motor-CAD updated
-        #
-        # if self.connection.check_version_at_least("2027.0"):
-        #     if context == "":
-        #         raise MotorCADWarning(
-        #             "It is recommended to specify the context for check_if_geometry_is_valid"
-        #             " with Motor-CAD 2027.0 or later. If no context is specified, the geometry"
-        #             " will be checked for the current UI context, this will not work for headless mode."
-        #         )
-        #     method = "CheckIfGeometryIsValidWithContext"
-        #     params = [edit_geometry, context]
-        # else:
-        #     method = "CheckIfGeometryIsValid"
-        #     params = [edit_geometry]
-
-        method = "CheckIfGeometryIsValid"
-        params = [edit_geometry]
+        if self.connection.check_if_feature_exists("check_if_geometry_is_valid_with_context"):
+            if context == "":
+                raise MotorCADWarning(
+                    "It is recommended to specify the context for check_if_geometry_is_valid"
+                    " with Motor-CAD 2027.0 or later. If no context is specified, the geometry"
+                    " will be checked for the current UI context, this will not work for headless"
+                    " mode."
+                )
+            method = "CheckIfGeometryIsValidWithContext"
+            params = [edit_geometry, context]
+        else:
+            method = "CheckIfGeometryIsValid"
+            params = [edit_geometry]
 
         return self.connection.send_and_receive(method, params)
