@@ -159,17 +159,6 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
 
-    def check_closed_region(self, region):
-        """Check region is closed using region detection.
-
-        Parameters
-        ----------
-        region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object.
-        """
-        self.connection.ensure_version_at_least("2024.0")
-        pass
-
     def check_collisions(self, region, regions_to_check):
         """Check region does not collide with other geometry regions.
 
