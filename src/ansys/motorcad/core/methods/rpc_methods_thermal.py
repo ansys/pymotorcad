@@ -21,6 +21,9 @@
 # SOFTWARE.
 
 """RPC methods for Motor-CAD Thermal."""
+
+import warnings
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
@@ -169,7 +172,7 @@ class _RpcMethodsThermal:
         params = [node_number]
         return self.connection.send_and_receive(method, params)
 
-    def get_node_to_node_resistance(self, node1, node2):
+    def get_node_to_node_resistance(self, node1, node2, include_resistance_multiplier=None):
         """Get the node-to-node resistance.
 
         Parameters
@@ -178,14 +181,53 @@ class _RpcMethodsThermal:
             Number of the first thermal node.
         node2 : int
             Number of the second thermal node.
+        include_resistance_multiplier : bool, optional
+            Whether to include the resistance multiplier.
 
         Returns
         -------
         float
             Resistance value.
         """
-        method = "GetNodeToNodeResistance"
         params = [node1, node2]
+
+        # If using with old version of Motor-CAD
+        if not self.connection.check_version_at_least("2027.0"):
+            # Raise error if out of date but set
+            if include_resistance_multiplier is not None:
+                raise ValueError(
+                    "Resistance multiplier not supported in this version of MotorCad. "
+                    "Upgrade to 2027.0 or later."
+                )
+
+            # Default to old method if out of date & not set
+            method = "GetNodeToNodeResistance"
+            return self.connection.send_and_receive(method, params)
+
+        # If in date but not set, check if same, if not default to old and warn
+        if include_resistance_multiplier is None:
+            resistance = self.connection.send_and_receive("GetNodeToNodeResistance", params)
+            resistance_used = self.connection.send_and_receive(
+                "GetNodeToNodeResistanceWithMultiplier", params
+            )
+
+            if resistance != resistance_used:
+                warnings.warn(
+                    "Resistance multiplier is being used but "
+                    "include_resistance_multiplier is not set. "
+                    "Defaulting to old method.",
+                    stacklevel=2,
+                )
+            return resistance
+
+        # If in date and set, do method requested
+        elif include_resistance_multiplier is True:
+            method = "GetNodeToNodeResistanceWithMultiplier"
+        elif include_resistance_multiplier is False:
+            method = "GetNodeToNodeResistance"
+        else:
+            raise ValueError("include_resistance_multiplier must be a bool or None")
+
         return self.connection.send_and_receive(method, params)
 
     def get_node_exists(self, node_number):
