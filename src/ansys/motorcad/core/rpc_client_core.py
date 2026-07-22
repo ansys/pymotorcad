@@ -65,7 +65,7 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
 
-USE_BETA_SESSION = getenv("PYMOTORCAD_USE_BETA_SESSION")
+USE_SESSION = True
 
 DEBUG_LOG_FILE = getenv("PYMOTORCAD_DEBUG_LOG")
 
@@ -271,7 +271,7 @@ class _MotorCADConnection:
         # Beta feature: reuse a single connection for all RPC calls.
         self._session = None
 
-        if USE_BETA_SESSION:
+        if USE_SESSION:
             self._session = requests.Session()
             self._post = self._session.post
         else:
