@@ -81,7 +81,7 @@ else:
     mc.set_variable("MessageDisplayState", 2)
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
-    mc.load_template("e4a")
+    mc.load_template("e10")
     mc.set_variable("CornerRounding_Rotor", 0)  # Disable Corner Rounding
     mc.set_variable("CornerRounding_Magnets", 0)
 
@@ -92,7 +92,7 @@ else:
     except:
         pass
     os.mkdir(working_folder)
-    mot_name = "e4a_IPM_Custom_Rotor_Pockets"
+    mot_name = "e10_IPM_Custom_Rotor_Pockets"
     mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
 # Reset geometry to default
@@ -324,11 +324,19 @@ for pocket in rotor_pockets[side]:
         if deepcopy(pocket.points)[-1] not in forbidden_points:
             points_to_edit_orig[i] = pocket_end_points + points_to_edit_orig[i]
         else:
-            points_to_edit_orig.append(pocket_end_points)
+            if len(pocket_end_points) > 0:
+                points_to_edit_orig.append(pocket_end_points)
     else:
-        points_to_edit_orig.append(pocket_end_points)
+        if len(pocket_end_points) > 0:
+            points_to_edit_orig.append(pocket_end_points)
     i = len(points_to_edit_orig)
 
+to_draw = []
+for points_group in points_to_edit_orig:
+    to_draw.extend(points_group)
+to_draw.extend(rotor_pockets[side])
+
+draw_objects(to_draw)
 # %%
 # Define adaptive parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -345,7 +353,9 @@ for i in range(len(rotor_pockets[side])):
     for j in range(2):
         for k in range(len(points_to_edit_orig[(2 * i) + j])):
             for parameter in adaptive_parameters_p_point:
-                mc.set_adaptive_parameter_default(f"{magnet.name} end {j} point {k} {parameter}", 0)
+                # mc.set_adaptive_parameter_default(f"{magnet.name} end {j} point {k} {parameter}",
+                # 0)
+                mc.set_adaptive_parameter_default(f"mag {i} end {j} point {k} {parameter}", 0)
 
 # %%
 # Create the Adaptive Templates geometry
@@ -387,11 +397,14 @@ for i in range(len(rotor_pockets[side])):
             point_shift = Coordinate(
                 *rt_to_xy(
                     mc.get_adaptive_parameter_value(
-                        f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[0]}"
+                        # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[0]}"
+                        f"mag {i} end {j} point {k} {adaptive_parameters_p_point[0]}"
                     ),
                     mc.get_adaptive_parameter_value(
-                        f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[1]}"
-                    ),
+                        # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[1]}"
+                        f"mag {i} end {j} point {k} {adaptive_parameters_p_point[1]}"
+                    )
+                    % 360,
                 )
             )
             if point_shift != Coordinate(0, 0):
@@ -410,7 +423,8 @@ for i in range(len(rotor_pockets[side])):
         # corner rounding
         for k in range(len(translated_points)):
             corner_radius = mc.get_adaptive_parameter_value(
-                f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[2]}"
+                # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[2]}"
+                f"mag {i} end {j} point {k} {adaptive_parameters_p_point[2]}"
             )
             point = translated_points[k]
             pocket.round_corner(point, corner_radius)
