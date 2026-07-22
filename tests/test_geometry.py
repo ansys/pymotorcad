@@ -3491,7 +3491,7 @@ def test_edit_magnet_region(mc_reset_to_default_on_teardown):
     new_magnet_polarity = "S"
     new_magnetisation_direction = MagnetisationDirection.radial
 
-    mc.edit_magnet_region(
+    mc.edit_region_magnet(
         region_name,
         br_multiplier=new_br_multiplier,
         magnet_angle=new_magnet_angle,
