@@ -61,7 +61,7 @@ jobs:
   tests:
     name: Tests and coverage
     needs: smoke-tests
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, tests]
     steps:
       - name: Add Git Bash to Path
         run: |
@@ -90,7 +90,7 @@ jobs:
 
   doc-build:
     name: "Building library documentation"
-    runs-on: [self-hosted, pymotorcad]
+    runs-on: [self-hosted, pymotorcad, docs]
     needs: doc-style
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
