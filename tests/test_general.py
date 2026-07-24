@@ -109,14 +109,12 @@ def test_load_dxf_file():
         reset_to_default_file(mc2)
         mc2.show_magnetic_context()
 
-        mc2.clear_all_data()
-        mc2.initiate_geometry_from_script()
+        # mc2.clear_all_data()
+        # mc2.initiate_geometry_from_script()
 
         mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
-        mc2.add_region_xy(x, y, "test_region")
-
-        mc2.create_optimised_mesh()
+        # mc2.create_optimised_mesh()
 
         # Not currently working - needs fixing in Motor-CAD
 
