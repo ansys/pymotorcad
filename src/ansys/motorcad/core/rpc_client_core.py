@@ -150,7 +150,10 @@ class MotorCADWarning(Warning):
 
 
 def _get_port_from_motorcad_process(process):
-    connection_list = process.connections()
+    try:
+        connection_list = process.connections()
+    except psutil.AccessDenied:
+        return -1
     if len(connection_list) > 0:
         for connect in connection_list:
             if platform.system() == "windows":
@@ -546,7 +549,10 @@ class _MotorCADConnection:
     def _find_free_motor_cad(self):
         found_free_instance = False
         for proc in psutil.process_iter():
-            proc_name = proc.name()
+            try:
+                proc_name = proc.name()
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
             if any(motor_proc_name in proc_name for motor_proc_name in MOTORCAD_PROC_NAMES):
                 port = _get_port_from_motorcad_process(proc)
 
