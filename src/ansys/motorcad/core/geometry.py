@@ -32,6 +32,7 @@ import ansys.motorcad.core
 from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
+COMPONENTOWNER_GEOMETRYENGINE = 2
 
 
 class RegionType(Enum):
@@ -47,7 +48,6 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
-    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
     stator_frame = "Stator Support Frame"
@@ -76,6 +76,7 @@ class RegionType(Enum):
     rotor_copper = "Rotor Copper"
     rotor_impreg = "Rotor Impreg"
     shaft = "Shaft"
+    shaft_hole = "Shaft Hole"
     axle = "Axle"
     rotor_duct = "Rotor Duct"
     magnet = "Magnet"
@@ -496,9 +497,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        # const for material component owner in geometry engine
-        COMPONENTOWNER_GEOMETRYENGINE = 2
-
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over

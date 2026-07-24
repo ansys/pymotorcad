@@ -30,6 +30,7 @@ import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
+from ansys.motorcad.core.enums import MotorCADContext
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
@@ -143,16 +144,25 @@ def test_set_get_winding_coil(mc):
 
 def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
-    mc.check_if_geometry_is_valid(0)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
+    else:
+        mc.check_if_geometry_is_valid(0)
 
     save_slot_depth = mc.get_variable("Slot_Depth")
 
     mc.set_variable("Slot_Depth", 50)
     with pytest.raises(MotorCADError):
-        mc.check_if_geometry_is_valid(0)
+        if mc.connection.check_version_at_least("2027.0"):
+            mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
+        else:
+            mc.check_if_geometry_is_valid(0)
 
     # Check resetting geometry works
-    mc.check_if_geometry_is_valid(1)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(1, MotorCADContext.magnetic)
+    else:
+        mc.check_if_geometry_is_valid(1)
 
     mc.set_variable("Slot_Depth", save_slot_depth)
 
@@ -3459,3 +3469,66 @@ def test_region_creation_type(mc):
     with pytest.raises(Exception):
         # Passing in something that's not a string or motorcad object should give an exception
         new_region_3 = Region(1)
+
+
+# def test_edit_region(mc_reset_to_default_on_teardown):
+#     """Test edit_region updates region properties, verified via get_region."""
+#     mc = mc_reset_to_default_on_teardown
+#     # only test versions with edit_region API available
+#     if not mc.connection.check_if_feature_exists("edit_region_improved"):
+#         pytest.skip("edit_region API not available in this version of Motor-CAD")
+#
+#     region_name = "Stator"
+#     new_material = "M470-50A"
+#     new_mesh_length = 0.1
+#     new_colour = (255, 255, 0)
+#     new_region_type = RegionType.rotor
+#     new_lamination_type = "Solid"
+#
+#     mc.edit_region(
+#         region_name,
+#         material=new_material,
+#         mesh_length=new_mesh_length,
+#         colour=new_colour,
+#         region_type=new_region_type,
+#         lamination_type=new_lamination_type,
+#     )
+#
+#     region = mc.get_region(region_name)
+#     assert region.material == new_material
+#     assert region.mesh_length == new_mesh_length
+#
+#
+# def test_edit_magnet_region(mc_reset_to_default_on_teardown):
+#     """Test edit_magnet_region updates magnet properties, verified via get_region."""
+#     mc = mc_reset_to_default_on_teardown
+#     # only test versions with edit_magnet_region API available
+#     if not mc.connection.check_if_feature_exists("edit_region_improved"):
+#         pytest.skip("edit_magnet_region API not available in this version of Motor-CAD")
+#
+#     mc.set_variable("GeometryTemplateType", 1)
+#     mc.reset_adaptive_geometry()
+#
+#     region_name = "L1_1Magnet2"
+#     new_br_multiplier = 1.5
+#     new_magnet_angle = 45.0
+#     new_magnet_polarity = "S"
+#     new_magnetisation_direction = MagnetisationDirection.radial
+#
+#     mc.edit_region_magnet(
+#         region_name,
+#         br_multiplier=new_br_multiplier,
+#         magnet_angle=new_magnet_angle,
+#         magnet_polarity=new_magnet_polarity,
+#         magnetisation_direction=new_magnetisation_direction,
+#     )
+#
+#     magnet = mc.get_region(region_name)
+#     assert isinstance(magnet, RegionMagnet)
+#     assert magnet.br_multiplier == new_br_multiplier
+#     assert magnet.magnet_angle == new_magnet_angle
+#     assert magnet.magnet_polarity == new_magnet_polarity
+#     assert magnet.magnetisation_direction == new_magnetisation_direction
+#     assert region.colour == new_colour
+#     assert region.region_type == new_region_type
+#     assert region.lamination_type == new_lamination_type
