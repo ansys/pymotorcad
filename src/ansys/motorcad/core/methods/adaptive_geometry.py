@@ -23,9 +23,19 @@
 """Methods for adaptive geometry."""
 from warnings import warn
 
-from ansys.motorcad.core.geometry import Region, RegionMagnet
+from ansys.motorcad.core.geometry import (
+    COMPONENTOWNER_GEOMETRYENGINE,
+    MagnetisationDirection,
+    Region,
+    RegionMagnet,
+    RegionType,
+)
 from ansys.motorcad.core.geometry_tree import GeometryTree
-from ansys.motorcad.core.rpc_client_core import MotorCADError, is_running_in_internal_scripting
+from ansys.motorcad.core.rpc_client_core import (
+    MotorCADError,
+    MotorCADWarning,
+    is_running_in_internal_scripting,
+)
 
 
 class _RpcMethodsAdaptiveGeometry:
@@ -158,17 +168,6 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SetRegion"
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
-
-    def check_closed_region(self, region):
-        """Check region is closed using region detection.
-
-        Parameters
-        ----------
-        region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object.
-        """
-        self.connection.ensure_version_at_least("2024.0")
-        pass
 
     def check_collisions(self, region, regions_to_check):
         """Check region does not collide with other geometry regions.
@@ -336,3 +335,127 @@ class _RpcMethodsAdaptiveGeometry:
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
+
+    def edit_region(
+        self,
+        region_name,
+        material=None,
+        colour=None,
+        mesh_length=None,
+        region_type=None,
+        lamination_type=None,
+    ):
+        """Edit a region by providing a set of optional parameters."""
+        if self.connection.check_if_feature_exists("edit_region_improved"):
+            method = "EditRegion"
+
+            parameter_dict = {
+                key: value
+                for key, value in {
+                    "material": material,
+                    "mesh_length": mesh_length,
+                    "region_type": region_type.value
+                    if isinstance(region_type, RegionType)
+                    else region_type,
+                    "lamination_type": lamination_type,
+                }.items()
+                if value is not None
+            }
+
+            # Special handling for material parameter to set material component type
+            # This is required as the API cannot assume the material type from the
+            # user provided material name
+            if material is not None:
+                parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+                # Unable to assume material type from user material name, set to default of "Any"
+                parameter_dict["material_weight_material_type"] = "Any"
+
+            # Colour requires a composite JSON object
+            if colour is not None:
+                parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
+
+            params = [region_name, parameter_dict]
+            return self.connection.send_and_receive(method, params)
+        else:
+            raise MotorCADWarning(
+                "edit_region is not available in Motor-CAD version '"
+                + self.connection.program_version
+                + "'. Please update to the latest Motor-CAD release."
+            )
+
+    def edit_region_magnet(
+        self,
+        region_name,
+        material=None,
+        colour=None,
+        mesh_length=None,
+        lamination_type=None,
+        br_multiplier=None,
+        magnet_angle=None,
+        magnet_polarity=None,
+        magnetisation_direction=None,
+    ):
+        """Edit a magnet region by providing a set of optional parameters.
+
+        Parameters
+        ----------
+        region_name : str
+            Name of the magnet region to edit.
+        material : str, optional
+            Material name.
+        colour : tuple, optional
+            RGB colour tuple.
+        mesh_length : float, optional
+            Mesh length.
+        lamination_type : str, optional
+            Lamination type.
+        br_multiplier : float, optional
+            Br multiplier applied to the magnet.
+        magnet_angle : float, optional
+            Angle of the magnet in degrees.
+        magnet_polarity : str, optional
+            Polarity of the magnet, e.g. ``"N"`` or ``"S"``.
+        magnetisation_direction : MagnetisationDirection, optional
+            Magnetisation direction of the magnet.
+        """
+        if self.connection.check_if_feature_exists("edit_region_improved"):
+            method = "EditRegion"
+
+            parameter_dict = {
+                key: value
+                for key, value in {
+                    "material": material,
+                    "mesh_length": mesh_length,
+                    "lamination_type": lamination_type,
+                    "magnet_magfactor": br_multiplier,
+                    "magnet_angle": magnet_angle,
+                    "magnet_polarity": magnet_polarity,
+                    "magnetisation_direction": (
+                        magnetisation_direction.value
+                        if isinstance(magnetisation_direction, MagnetisationDirection)
+                        else magnetisation_direction
+                    ),
+                }.items()
+                if value is not None
+            }
+
+            if material is not None:
+                parameter_dict["material_weight_component_type"] = COMPONENTOWNER_GEOMETRYENGINE
+                # Unable to assume material type from user material name, set to default of "Any"
+                parameter_dict["material_weight_material_type"] = "Any"
+
+            # Colour requires a composite JSON object
+            if colour is not None:
+                parameter_dict["colour"] = {"r": colour[0], "g": colour[1], "b": colour[2]}
+
+            # enforce region to become a magnet region
+            parameter_dict["region_type"] = RegionType.magnet.value
+
+            params = [region_name, parameter_dict]
+            return self.connection.send_and_receive(method, params)
+        else:
+            raise MotorCADWarning(
+                "edit_region_magnet is not available in Motor-CAD version '"
+                + self.connection.program_version
+                + "'. Please update to the latest Motor-CAD release."
+            )

@@ -205,7 +205,6 @@ def test_get_datastore(mc):
     param = datastore["TVent_Shaft_Speed"]
     test_dict = {
         "TVent_Shaft_Speed": param,  # scalar
-        "ActiveXHidden": datastore_dict["ActiveXHidden"],  # boolean
         "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
         "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D

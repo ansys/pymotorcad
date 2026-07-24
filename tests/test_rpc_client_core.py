@@ -291,7 +291,7 @@ class FakeRequestsPostWithWarning:
 def test_warnings(mc, monkeypatch):
     # Create fake request result so we can test this before Motor-CAD 24R1
     # TODO - replace with actual call with warnings e.g. set_region
-    monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
+    monkeypatch.setattr(mc.connection, "_post", FakeRequestsPostWithWarning)
 
     with pytest.warns(MotorCADWarning):
         # Call something which triggers send_and_receive
@@ -351,3 +351,13 @@ def test_blackbox_licencing():
     # matches the default setting
     # Just check it works for now
     mc3.get_licence()
+
+
+def test_feature_exists_check(mc):
+    if mc.connection.check_version_at_least("2027.0"):
+        geo_check_context = mc.connection.check_if_feature_exists(
+            "check_if_geometry_is_valid_with_context"
+        )
+
+        assert geo_check_context is True
+        assert mc.connection.check_if_feature_exists("not_a_real_feature") is False

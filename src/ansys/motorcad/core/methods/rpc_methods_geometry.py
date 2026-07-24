@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for geometry."""
+from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
 class _RpcMethodsGeometry:
@@ -88,7 +89,7 @@ class _RpcMethodsGeometry:
         params = [phase, path, coil]
         return self.connection.send_and_receive(method, params)
 
-    def check_if_geometry_is_valid(self, edit_geometry):
+    def check_if_geometry_is_valid(self, edit_geometry, context=""):
         """Check if the Motor-CAD geometry is valid.
 
         Parameters
@@ -99,12 +100,29 @@ class _RpcMethodsGeometry:
 
             - ``1``: Yes. Try and reset the geometry
             - ``0``: No. Do not try to reset the geometry.
+        context : str or MotorCADContext, optional
+            Context for which to check the geometry. If not specified, the geometry
+            will be checked for the current context. Use :class:`MotorCADContext` or the
+            equivalent strings ``"Magnetic"``, ``"Thermal"`` and ``"Mechanical"``.
 
         Returns
         -------
         int
             ``1`` if an attempt to reset the geometry has been made, ``O`` otherwise.
         """
-        method = "CheckIfGeometryIsValid"
-        params = [edit_geometry]
+        # Add this back in when Motor-CAD updated
+        if self.connection.check_if_feature_exists("check_if_geometry_is_valid_with_context"):
+            if context == "":
+                raise MotorCADWarning(
+                    "It is recommended to specify the context for check_if_geometry_is_valid"
+                    " with Motor-CAD 2027.0 or later. If no context is specified, the geometry"
+                    " will be checked for the current UI context, this will not work for headless"
+                    " mode."
+                )
+            method = "CheckIfGeometryIsValidWithContext"
+            params = [edit_geometry, context]
+        else:
+            method = "CheckIfGeometryIsValid"
+            params = [edit_geometry]
+
         return self.connection.send_and_receive(method, params)
