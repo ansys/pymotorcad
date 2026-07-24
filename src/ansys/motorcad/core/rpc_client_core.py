@@ -154,16 +154,16 @@ def _get_port_from_motorcad_process(process):
         connection_list = process.connections()
     except psutil.AccessDenied:
         return -1
-    if len(connection_list) > 0:
-        for connect in connection_list:
-            if platform.system() == "windows":
-                # Take the IPv6 port.
-                if connect.family == socket.AddressFamily.AF_INET6:
-                    port = connect.laddr.port
-                    return port
-            else:
-                # Linux doesn't allow both IPv4 and IPv6 connections to the same port,
-                # so take the only port.
+    for connect in connection_list:
+        if platform.system() == "Windows":
+            # Take the IPv6 port.
+            if connect.family == socket.AddressFamily.AF_INET6:
+                port = connect.laddr.port
+                return port
+        else:
+            # Only consider the RPC listening socket, not outbound connections
+            # (e.g. to the licence server) which appear in the list during startup.
+            if connect.status == psutil.CONN_LISTEN:
                 return connect.laddr.port
     # Failed to get port from process
     return -1
