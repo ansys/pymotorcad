@@ -261,30 +261,31 @@ for pocket in rotor_pockets[side]:
         entities_to_add = []
         for entity in pocket.entities:
             split_entity = False
-            if entity.start not in forbidden_points:
-                if entity.end not in forbidden_points:
-                    split_entity = True
-                    # if midpoints are to be included, split the original entities
-                    if type(entity) == Line:
-                        new_entities.append(Line(entity.start, entity.midpoint))
-                        new_entities.append(Line(entity.midpoint, entity.end))
-                    else:
-                        new_entities.append(
-                            Arc(
-                                entity.start,
-                                entity.midpoint,
-                                centre=entity.centre,
-                                radius=entity.radius,
-                            )
+            if entity.start not in forbidden_points or entity.end not in forbidden_points:
+                # if entity.start not in forbidden_points:
+                #     if entity.end not in forbidden_points:
+                split_entity = True
+                # if midpoints are to be included, split the original entities
+                if type(entity) == Line:
+                    new_entities.append(Line(entity.start, entity.midpoint))
+                    new_entities.append(Line(entity.midpoint, entity.end))
+                else:
+                    new_entities.append(
+                        Arc(
+                            entity.start,
+                            entity.midpoint,
+                            centre=entity.centre,
+                            radius=entity.radius,
                         )
-                        new_entities.append(
-                            Arc(
-                                entity.midpoint,
-                                entity.end,
-                                centre=entity.centre,
-                                radius=entity.radius,
-                            )
+                    )
+                    new_entities.append(
+                        Arc(
+                            entity.midpoint,
+                            entity.end,
+                            centre=entity.centre,
+                            radius=entity.radius,
                         )
+                    )
             if not split_entity:
                 new_entities.append(entity)
         pocket.entities = new_entities
@@ -435,6 +436,19 @@ for i in range(len(rotor_pockets[side])):
     mirror_line = Line(Coordinate(0, 0), Coordinate(*rt_to_xy(100, pocket.duplication_angle / 2)))
     mirrored_pocket_mod = pocket.mirror(mirror_line)
     pocket_mirror.replace(mirrored_pocket_mod)
+
+# %%
+# Round the magnet regions
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a corner radius adaptive parameter for each magnet layer. Round the corners using the
+# ``round_corners`` method.
+for rotor_half in magnets:
+    for i, layer in enumerate(rotor_half):
+        for magnet in layer:
+            mc.set_adaptive_parameter_default(f"L{i+1} Magnet Corner Radius", 0)
+            magnet.round_corners(
+                magnet.points, mc.get_adaptive_parameter_value(f"L{i+1} Magnet Corner Radius")
+            )
 
 # %%
 # Set the modified geometry tree in Motor-CAD
