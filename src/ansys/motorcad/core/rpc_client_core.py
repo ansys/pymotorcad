@@ -519,7 +519,7 @@ class _MotorCADConnection:
             if platform.system() == "Windows":
                 return "/" + arg
             else:
-                return arg
+                return "--" + arg
 
         self.__MotorExe = _find_motor_cad_exe()
 
