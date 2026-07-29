@@ -20,9 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import platform
-
 from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
 
 MATERIAL_INVALID_NAME = "invalid material name here"
@@ -544,11 +541,7 @@ def test_edit_magnet_region(mc_fea_old):
 
     material_name = "Y34"
 
-    if platform.system() == "Windows":
-        mc_fea_old.edit_magnet_region("L1_1Magnet2", material_name, 63, 7)
-    else:
-        # mc_fea_old.edit_region_magnet("L1_1Magnet2", material_name, 63, 7)
-        pass
+    mc_fea_old.edit_magnet_region("L1_1Magnet2", material_name, 63, 7)
 
     # _get_region_properties_xy is having issues - unwilling to prioritise fixing as this
     # functionality will be deprecated soon

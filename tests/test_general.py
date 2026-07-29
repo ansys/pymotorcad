@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 import os
-
+import platform
 import pytest
 
 from RPC_Test_Common import (
@@ -85,6 +85,7 @@ def test_load_fea_result(mc):
     assert unit == "T"
 
 
+@pytest.mark.skipif(platform.system() != "Windows", reason="export results is only supported on Windows")
 def test_export_results(mc):
     mc.do_steady_state_analysis()
 
@@ -130,6 +131,7 @@ def test_load_dxf_file():
         mc2.quit()
 
 
+@pytest.mark.skipif(platform.system() != "Windows", reason="Animations are only supported on Windows")
 def test_export_force_animation(mc):
     mc.do_multi_force_calculation()
 
