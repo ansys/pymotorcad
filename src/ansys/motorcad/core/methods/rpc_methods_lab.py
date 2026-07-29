@@ -477,3 +477,29 @@ class _RpcMethodsLab:
             wb.save(file_path)
         finally:
             self.set_variable("MessageDisplayState", save_message_display_state)
+
+    def export_lab_thermal_model(self, file_path):
+        """Export a built lab thermal model.
+
+        Parameters
+        ----------
+        file_path : str
+            File path including thermal model file name and file extension (.therm)
+        """
+        method = "ExportLabThermalModel"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
+
+    def build_lab_thermal_model(self):
+        """Export thermal model.
+
+        To build thermal model at various flow rates set the following
+        datastore parameters:
+
+        "ThermalModelVariableFlowRate" - set to true to enable variable flow rate.
+        "ThermalModelFlowRateMinimum" - set to minimum flow rate value.
+        ThermalModelFlowRateMaximum" - set to maximum flow rate value.
+        "ThermalModelFlowRateResolution" - set to number of flow rate points.
+        """
+        method = "BuildLabThermalModel"
+        return self.connection.send_and_receive(method)

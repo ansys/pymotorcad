@@ -265,20 +265,9 @@ class _RpcMethodsThermal:
         return self.connection.send_and_receive(method, params)
 
     def export_thermal_model(self, file_path):
-        """Export thermal model.
+        """Export the lab thermal model to a file.
 
-        To export thermal model at various flow rates set the following
-        datastore parameters:
-
-        "ThermalModelVariableFlowRate" - set to true to enable variable flow rate.
-        "ThermalModelFlowRateMinimum" - set to minimum flow rate value.
-        ThermalModelFlowRateMaximum" - set to maximum flow rate value.
-        "ThermalModelFlowRateResolution" - set to number of flow rate points.
-
-        Parameters
-        ----------
-        file_path : str
-            File path including thermal model file name and file extension (.therm)
+        Deprecated - to be removed - use export_lab_thermal_model instead.
         """
         method = "ExportThermalModel"
         params = [file_path]
