@@ -63,7 +63,7 @@ if MOTORCAD_EXE_GLOBAL == "":
         if pymotorcad_exe_environment_variable != "":
             MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
-MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD", "MotorCAD_Console", "Motor-CAD_Console"]
+MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
@@ -550,7 +550,12 @@ class _MotorCADConnection:
         found_free_instance = False
         for proc in psutil.process_iter():
             try:
-                proc_name = proc.name()
+                # Use exe() on Linux to avoid 15-char truncation of comm field
+                # Fall back to name() for compatibility
+                if platform.system() == "Linux":
+                    proc_name = str(Path(proc.exe()).name)
+                else:
+                    proc_name = proc.name()
             except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
             if any(motor_proc_name in proc_name for motor_proc_name in MOTORCAD_PROC_NAMES):
