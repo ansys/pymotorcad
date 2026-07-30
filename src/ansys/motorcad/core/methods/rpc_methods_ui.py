@@ -23,10 +23,59 @@
 """RPC methods for UI."""
 from packaging import version
 
+from ansys.motorcad.core.enums import MotorCADPopupDisplayLevel
+
 
 class _RpcMethodsUI:
     def __init__(self, mc_connection):
         self.connection = mc_connection
+
+    def enable_popups(self):
+        """Enable the display of popups in Motor-CAD."""
+        method = "EnablePopups"
+        return self.connection.send_and_receive(method)
+
+    def disable_popups(self):
+        """Disable the display of popups in Motor-CAD."""
+        method = "DisablePopups"
+        return self.connection.send_and_receive(method)
+
+    def get_popups_enabled(self):
+        """Get whether popups are enabled in Motor-CAD.
+
+        Returns
+        -------
+        bool
+            Whether popups are enabled. If ``True``, popups are enabled. If ``False``,
+            popups are disabled.
+        """
+        method = "GetPopupsEnabled"
+        return self.connection.send_and_receive(method)
+
+    def set_popup_display_level(self, level):
+        """Set the display level of popups in Motor-CAD.
+
+        Parameters
+        ----------
+        level : MotorCADPopupDisplayLevel
+            The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
+              ``4`` = fatal.
+        """
+        method = "PopupDisplayLevel"
+        params = [level]
+        return self.connection.send_and_receive(method, params)
+
+    def get_popup_display_level(self):
+        """Get the display level of popups in Motor-CAD.
+
+        Returns
+        -------
+        int
+            The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
+             ``4`` = fatal.
+        """
+        method = "GetPopupDisplayLevel"
+        return MotorCADPopupDisplayLevel(self.connection.send_and_receive(method))
 
     def disable_error_messages(self, active):
         """Disable the display of error messages.
