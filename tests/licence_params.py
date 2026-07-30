@@ -47,7 +47,6 @@ if __name__ == "__main__":
 
     # old licence type with UI
     if test1 == True:
-        #mc = MotorCAD(licence_type=0)
         mc = runTest(licence_type=0)
 
         # should have attempted to use old 'motorcad' and motorcad_pm licence
@@ -57,8 +56,6 @@ if __name__ == "__main__":
 
     # old licence type without UI
     if test2 == True:
-
-        #mc = MotorCAD(licence_type=0, headless=1)
         mc = runTest(licence_type=0, headless=1)
 
         # should have attempted to use old 'motorcad' and motorcad_pm licences in headless mode
@@ -68,7 +65,6 @@ if __name__ == "__main__":
 
     # using black box licence (also setting new licence method)
     if test3 == True:
-        #mc = MotorCAD(use_blackbox_licence=1, licence_type=1)
         mc = runTest(use_blackbox_licence=1, licence_type=1)
         # should be in blackbox mode using blackbox licence, ignores licence_type setting
         # should not fallback
@@ -77,7 +73,6 @@ if __name__ == "__main__":
 
     # new licence type with UI (not using black box licence)
     if test4 == True:
-        #mc = MotorCAD(use_blackbox_licence=0, licence_type=1)
         mc = runTest(use_blackbox_licence=0, licence_type=1)
         # should show UI using motor_gui, motorcad_pm and elec_solve_level1 licences
         # should fallback to 'motorcad' and motorcad_pm licences
@@ -86,13 +81,8 @@ if __name__ == "__main__":
 
     # new licence type without UI (not using black box licence)
     if test5 == True:
-        #mc = MotorCAD(use_blackbox_licence=0, licence_type=1, headless=1)
         mc = runTest(use_blackbox_licence=0, licence_type=1, headless=1)
         # should not show UI and will use motorcad_pm and elec_solve_level1 licences
         # should not fallback
         if mc is not None:
             mc.quit()
-
-
-#mc2 = MotorCAD(use_blackbox_licence=False)
-#mc = MotorCAD(use_blackbox_licence=True)
