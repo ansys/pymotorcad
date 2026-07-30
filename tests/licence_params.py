@@ -1,16 +1,10 @@
 """Live integration tests for MotorCAD constructor parameter combinations."""
 # licence_type, use_blackbox_licence and headless
 
-from itertools import product
 import os
-import psutil
-import sys
 
 from ansys.motorcad.core import MotorCAD
 from ansys.motorcad.core.rpc_client_core import MotorCADError
-
-import os
-import subprocess
 
 
 def runTest(**motorcad_kwargs):
