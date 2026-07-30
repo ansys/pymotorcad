@@ -334,7 +334,12 @@ class _MotorCADConnection:
                 raise MotorCADError("headless must be -1, 0, or 1.")
             os.environ["MOTORCAD_HEADLESS"] = str(headless_int)
 
-        if DEFAULT_INSTANCE != -1:
+        if environ.get("PYMOTORCAD_PORT") is not None:
+            # Port environment variable has been set
+            port = environ.get("PYMOTORCAD_PORT")
+            self._open_new_instance = False
+
+        elif DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
             self._open_new_instance = False
