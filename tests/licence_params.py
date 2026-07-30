@@ -48,7 +48,6 @@ if __name__ == "__main__":
     # old licence type with UI
     if test1 == True:
         mc = runTest(licence_type=0)
-
         # should have attempted to use old 'motorcad' and motorcad_pm licence
         # if not available then will fallback to new 'motorcad_gui' licence
         if mc is not None:
@@ -57,7 +56,6 @@ if __name__ == "__main__":
     # old licence type without UI
     if test2 == True:
         mc = runTest(licence_type=0, headless=1)
-
         # should have attempted to use old 'motorcad' and motorcad_pm licences in headless mode
         # if no 'motorcad' licence then will fail with no fallback
         if mc is not None:
