@@ -319,15 +319,19 @@ class _MotorCADConnection:
         if licence_type != -1:
             try:
                 licence_type_int = int(licence_type)
-            except (TypeError, ValueError):
-                raise MotorCADError("licence_type must be an integer (-1, 0, or 1).")
+            except (TypeError, ValueError) as e:
+                raise MotorCADError("licence_type must be an integer (-1, 0, or 1).") from e
+            if licence_type_int not in (0, 1):
+                raise MotorCADError("licence_type must be -1, 0, or 1.")
             os.environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
 
         if headless != -1:
             try:
                 headless_int = int(headless)
-            except (TypeError, ValueError):
-                raise MotorCADError("headless must be an integer (-1, 0, or 1).")
+            except (TypeError, ValueError) as e:
+                raise MotorCADError("headless must be an integer (-1, 0, or 1).") from e
+            if headless_int not in (0, 1):
+                raise MotorCADError("headless must be -1, 0, or 1.")
             os.environ["MOTORCAD_HEADLESS"] = str(headless_int)
 
         if DEFAULT_INSTANCE != -1:
