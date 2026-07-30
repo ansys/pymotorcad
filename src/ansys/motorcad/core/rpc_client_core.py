@@ -283,7 +283,6 @@ class _MotorCADConnection:
         self._last_error_message = ""
         self.program_version = ""
         self.pid = -1
-        self._headless = headless
 
         # Beta feature: reuse a single connection for all RPC calls.
         self._session = None
