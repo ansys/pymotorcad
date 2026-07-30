@@ -32,6 +32,7 @@ import warnings
 from packaging import version
 import psutil
 import requests
+import os
 
 try:
     import ansys.platform.instancemanagement as pypim
@@ -237,6 +238,8 @@ class _MotorCADConnection:
         timeout=2,
         compatibility_mode=False,
         use_blackbox_licence=None,
+        licence_type=-1,
+        headless : int=-1
     ):
         """Create a MotorCAD object for communication.
 
@@ -259,9 +262,17 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
+        timeout : int, default: 2
+            Timeout in seconds for waiting for Motor-CAD server to respond.
         use_blackbox_licence: Boolean, default: None
             Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
             behaviour will be used.
+        licence_type : int, default: -1
+            Licence type to use when launching Motor-CAD. If set to -1, the default licence
+            type will be used. 0 = Original, 1 = New (Enterprise plus)
+        headless : int, default: -1
+            Whether to run Motor-CAD in headless mode (without UI). Set to 0 to show UI,
+            1 to hide UI. If set to -1, Motor-CAD default behaviour is used.
 
         Returns
         -------
@@ -272,6 +283,7 @@ class _MotorCADConnection:
         self._last_error_message = ""
         self.program_version = ""
         self.pid = -1
+        self._headless = headless
 
         # Beta feature: reuse a single connection for all RPC calls.
         self._session = None
@@ -301,20 +313,23 @@ class _MotorCADConnection:
         if use_blackbox_licence is not None:
             # Use the user specified desired licensing
             if use_blackbox_licence:
-                putenv("MOTORDES_BLACKBOX", "1")
+                os.environ["MOTORDES_BLACKBOX"] = '1'
             else:
-                putenv("MOTORDES_BLACKBOX", "0")
-        else:
-            # User has not specified a desired licensing, so use default behaviour
-            # Ensure any changes to environment variable made in scripting environment are discarded
-            # Note: value returned by getenv is unaffected by calls to putenv
-            blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
-            if blackbox_env_var_orig is None:
-                # Original blackbox environment variable does not exist, so delete if present
-                unsetenv("MOTORDES_BLACKBOX")
-            else:
-                # Reset environment variable to original value
-                putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
+                os.environ["MOTORDES_BLACKBOX"] = '0'
+
+        if licence_type != -1:
+            try:
+                licence_type_int = int(licence_type)
+            except (TypeError, ValueError):
+                raise MotorCADError("licence_type must be an integer (-1, 0, or 1).")
+            os.environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
+
+        if headless != -1:
+            try:
+                headless_int = int(headless)
+            except (TypeError, ValueError):
+                raise MotorCADError("headless must be an integer (-1, 0, or 1).")
+            os.environ["MOTORCAD_HEADLESS"] = str(headless_int)
 
         if DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
