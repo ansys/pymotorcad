@@ -63,7 +63,7 @@ if MOTORCAD_EXE_GLOBAL == "":
         if pymotorcad_exe_environment_variable != "":
             MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
-MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
+MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD", "MotorCAD_Console", "Motor-CAD_Console"]
 
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
