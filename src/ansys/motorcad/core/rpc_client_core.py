@@ -181,9 +181,8 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
-    motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
-
     if platform.system() == "Windows":
+        motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
         # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
         # For backwards compatibility
         if motor_batch_file_path is None:
@@ -235,11 +234,12 @@ def _find_motor_cad_exe():
     elif platform.system() == "Linux":
         # If wanting an explicit version of MotorCAD, set the PYMOTORCAD_EXE environment variable.
         # But if not set, then see if the Motor-CAD executable file is in the PATH environment variable.
-        motor_exe = shutil.which("MotorCAD")
-        if motor_exe is not None:
-            if path.isfile(motor_exe):
-                # MotorCAD exists on the path. Return this one.
-                return motor_exe
+        for proc_name in MOTORCAD_PROC_NAMES:
+            motor_exe = shutil.which(proc_name)
+            if motor_exe is not None:
+                if path.isfile(motor_exe):
+                    # MotorCAD exists on the path. Return this one.
+                    return motor_exe
 
         # Use the PYMOTORCAD_EXE environment variable to find the Motor-CAD executable file.
         # This will set MOTORCAD_EXE_GLOBAL on startup, so if it is not already set, then the user
