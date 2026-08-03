@@ -362,7 +362,7 @@ class _RpcMethodsAdaptiveGeometry:
             regions.append(returned_region)
 
         return regions
-     
+
     def edit_region(
         self,
         region_name,
