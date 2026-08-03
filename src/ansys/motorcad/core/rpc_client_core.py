@@ -250,7 +250,7 @@ def _find_motor_cad_exe():
             "    set_motorcad_exe('/path/to/MotorCAD')\n"
             "or by setting the PYMOTORCAD_EXE environment variable.\n"
             "    export PYMOTORCAD_EXE=/path/to/MotorCAD\n"
-            "To make this persistent, add the line to ~/.bashrc or ~/.bash_profile."
+            "To make this persistent, add the line to ~/.bashrc or ~/.profile."
         )
     else:
         raise MotorCADError("Unsupported platform: " + platform.system() + ".")
