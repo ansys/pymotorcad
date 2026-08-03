@@ -68,7 +68,7 @@ MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
 
-USE_BETA_SESSION = getenv("PYMOTORCAD_USE_BETA_SESSION")
+USE_SESSION = True
 
 DEBUG_LOG_FILE = getenv("PYMOTORCAD_DEBUG_LOG")
 
@@ -181,11 +181,17 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
+    motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
+
     if platform.system() == "Windows":
-        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+        # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
+        # For backwards compatibility
+        if motor_batch_file_path is None:
+            motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+
         if motor_batch_file_path is None:
             raise MotorCADError(
-                "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + str_alt_method
+                "Failed to retrieve MOTORCAD_AUTOMATION environment variable. " + str_alt_method
             )
 
         try:
@@ -196,7 +202,7 @@ def _find_motor_cad_exe():
             raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
 
         try:
-            # Grab MotorCAD exe from activex batch file
+            # Grab MotorCAD exe from automation batch file
             motor_batch_file = open(motor_batch_file_path, "r")
 
             motor_batch_file_lines = motor_batch_file.readlines()
@@ -304,7 +310,7 @@ class _MotorCADConnection:
         # Beta feature: reuse a single connection for all RPC calls.
         self._session = None
 
-        if USE_BETA_SESSION:
+        if USE_SESSION:
             self._session = requests.Session()
             self._post = self._session.post
         else:
@@ -344,7 +350,12 @@ class _MotorCADConnection:
                 # Reset environment variable to original value
                 putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
 
-        if DEFAULT_INSTANCE != -1:
+        if environ.get("PYMOTORCAD_PORT") is not None:
+            # Port environment variable has been set
+            port = environ.get("PYMOTORCAD_PORT")
+            self._open_new_instance = False
+
+        elif DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
             self._open_new_instance = False
@@ -607,10 +618,22 @@ class _MotorCADConnection:
     def check_if_feature_exists(self, feature_name):
         """Check if the Motor-CAD feature is present.
 
-        Useful for development versions where PyMotorCAD and Motor-CAD have circular dependencies
-        for testing.
+        Useful for development versions where PyMotorCAD and Motor-CAD have circular
+        dependencies for testing.
+        Parameters
+        ----------
+        feature_name : str
+            Name of the feature to check.
+
+        required_version : str
+            Minimum version of Motor-CAD required for the feature to exist.
+
         """
-        return self.send_and_receive("CheckIfFeatureExists", [feature_name])
+        if self.check_version_at_least("2027.0"):
+            return self.send_and_receive("CheckIfFeatureExists", [feature_name])
+        else:
+            # Version of Motor-CAD is definitely too old for this feature
+            return False
 
     def _wait_for_server_to_start_local(self, process):
         number_of_tries = 0
