@@ -44,7 +44,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         timeout=2,
         use_blackbox_licence=None,
         licence_type=-1,
-        headless=-1,
+        ShowGUI=-1,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -57,7 +57,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             timeout=timeout,
             use_blackbox_licence=use_blackbox_licence,
             licence_type=licence_type,
-            headless=headless,
+            ShowGUI=ShowGUI,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -89,8 +89,8 @@ class MotorCAD(_MotorCADCore):
         behaviour will be used.
     licence_type : int, default: -1
         Licence type selection mode for Motor-CAD launch behaviour.
-    headless : int, default: -1
-        Headless/UI launch mode selection for Motor-CAD launch behaviour.
+    ShowGUI : int, default: -1
+        Show or hide GUI launch mode selection for Motor-CAD launch behaviour.
 
     Returns
     -------
@@ -108,7 +108,7 @@ class MotorCAD(_MotorCADCore):
         url="",
         use_blackbox_licence=None,
         licence_type=-1,
-        headless: int = -1
+        ShowGUI: int = -1
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -122,7 +122,7 @@ class MotorCAD(_MotorCADCore):
             url=url,
             use_blackbox_licence=use_blackbox_licence,
             licence_type=licence_type,
-            headless=headless,
+            ShowGUI=ShowGUI,
         )
 
 

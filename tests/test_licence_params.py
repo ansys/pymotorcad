@@ -19,7 +19,7 @@ LIVE_LICENCE_TEST_ENV_VAR = "PYMOTORCAD_RUN_LIVE_LICENCE_TESTS"
 MOTORCAD_ENV_VARS = (
     "MOTORDES_BLACKBOX",
     "MOTORCAD_LICENCE_TYPE",
-    "MOTORCAD_HEADLESS",
+    "MOTORCAD_SHOWGUI",
 )
 
 
@@ -53,7 +53,7 @@ def _start_motorcad_and_probe(**motorcad_kwargs):
     return mc
 
 
-# Run the same smoke test across the legacy/new licence modes and UI/headless variants.
+# Run the same smoke test across the legacy/new licence modes and GUI/no GUI variants.
 @pytest.mark.parametrize(
     ("motorcad_kwargs", "scenario"),
     [  # should attempt to use old 'motorcad' and motorcad_pm licence
@@ -64,12 +64,12 @@ def _start_motorcad_and_probe(**motorcad_kwargs):
             id="old-licence-ui",
 
         ),
-        # should attempt to use old 'motorcad' and motorcad_pm licences in headless mode
+        # should attempt to use old 'motorcad' and motorcad_pm licences in when not showing GUI
         # if no 'motorcad' licence then will fail with no fallback
         pytest.param(
-            {"licence_type": 0, "headless": 1},
+            {"licence_type": 0, "ShowGUI": 0},
             "old licence type without UI",
-            id="old-licence-headless",
+            id="old-licence-NoGUI",
             marks=pytest.mark.xfail(
                 reason="No motorcad licence available",
                 strict=True,
@@ -97,9 +97,9 @@ def _start_motorcad_and_probe(**motorcad_kwargs):
         # should not show UI and will use motorcad_pm and elec_solve_level1 licences
         # should not fallback
         pytest.param(
-            {"use_blackbox_licence": 0, "licence_type": 1, "headless": 1},
+            {"use_blackbox_licence": 0, "licence_type": 1, "ShowGUI": 0},
             "new licence type without UI",
-            id="new-licence-headless",
+            id="new-licence-hideGUI",
         ),
     ],
 )

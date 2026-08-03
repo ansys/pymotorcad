@@ -239,7 +239,7 @@ class _MotorCADConnection:
         compatibility_mode=False,
         use_blackbox_licence=None,
         licence_type=-1,
-        headless : int=-1
+        ShowGUI : int=-1
     ):
         """Create a MotorCAD object for communication.
 
@@ -270,9 +270,9 @@ class _MotorCADConnection:
         licence_type : int, default: -1
             Licence type to use when launching Motor-CAD. If set to -1, the default licence
             type will be used. 0 = Original, 1 = New (Enterprise plus)
-        headless : int, default: -1
-            Whether to run Motor-CAD in headless mode (without UI). Set to 0 to show UI,
-            1 to hide UI. If set to -1, Motor-CAD default behaviour is used.
+        ShowGUI : int, default: -1
+            Whether to run Motor-CAD in with or without UI). Set to 0 to hide UI,
+            1 to show UI. If set to -1, Motor-CAD default behaviour is used.
 
         Returns
         -------
@@ -325,14 +325,14 @@ class _MotorCADConnection:
                 raise MotorCADError("licence_type must be -1, 0, or 1.")
             os.environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
 
-        if headless != -1:
+        if ShowGUI != -1:
             try:
-                headless_int = int(headless)
+                ShowGUI_int = int(ShowGUI)
             except (TypeError, ValueError) as e:
-                raise MotorCADError("headless must be an integer (-1, 0, or 1).") from e
-            if headless_int not in (-1, 0, 1):
-                raise MotorCADError("headless must be -1, 0, or 1.")
-            os.environ["MOTORCAD_HEADLESS"] = str(headless_int)
+                raise MotorCADError("ShowGUI_int must be an integer (-1, 0, or 1).") from e
+            if ShowGUI_int not in (-1, 0, 1):
+                raise MotorCADError("ShowGUI_int must be -1, 0, or 1.")
+            os.environ["MOTORCAD_SHOWGUI"] = str(ShowGUI_int)
 
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
