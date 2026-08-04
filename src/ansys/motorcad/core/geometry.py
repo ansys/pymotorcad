@@ -32,6 +32,7 @@ import ansys.motorcad.core
 from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
+COMPONENTOWNER_GEOMETRYENGINE = 2
 
 
 class RegionType(Enum):
@@ -47,7 +48,6 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
-    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
     stator_frame = "Stator Support Frame"
@@ -76,6 +76,7 @@ class RegionType(Enum):
     rotor_copper = "Rotor Copper"
     rotor_impreg = "Rotor Impreg"
     shaft = "Shaft"
+    shaft_hole = "Shaft Hole"
     axle = "Axle"
     rotor_duct = "Rotor Duct"
     magnet = "Magnet"
@@ -102,6 +103,7 @@ class RegionType(Enum):
     surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
+    rotor_bar = "Rotor Bar"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
@@ -202,7 +204,7 @@ class Region(object):
 
     def _get_new_object_of_type_self(self):
         """Return self object."""
-        if self.region_type:
+        if self.region_type and self.region_type != RegionType.magnet:
             return type(self)(region_type=self.region_type)
         else:
             return type(self)()
@@ -495,9 +497,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        # const for material component owner in geometry engine
-        COMPONENTOWNER_GEOMETRYENGINE = 2
-
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
@@ -1089,13 +1088,10 @@ class Region(object):
                 "Corner radius is too large for these entities. "
                 "You must specify a smaller radius."
             )
-        # get and set the new start and end coordinates for the adjacent entities
-        adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
-            corner_coordinate, distance
-        )
-        adj_entities[1].start = adj_entities[1].get_coordinate_from_distance(
-            corner_coordinate, distance
-        )
+
+        # get the new start and end coordinates for the adjacent entities
+        new_point_0 = adj_entities[0].get_coordinate_from_distance(corner_coordinate, distance)
+        new_point_1 = adj_entities[1].get_coordinate_from_distance(corner_coordinate, distance)
 
         # if the internal angle of the corner is more than 180, a negative radius must be applied
         if corner_internal_angle > 180:
@@ -1104,8 +1100,22 @@ class Region(object):
             e = 1
 
         # create the round corner arc and insert at the index after the first adjacent entity.
-        corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
+        try:
+            corner_arc = Arc(new_point_0, new_point_1, radius=e * radius)
+        except Exception as e:
+            if "It is not possible to draw an arc with this geometry" in str(e):
+                raise ValueError(
+                    "Corner radius is too large for these entities. "
+                    "You must specify a smaller radius."
+                )
+            else:
+                raise e
+
         self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
+
+        # set the new start and end coordinates for the adjacent entities
+        adj_entities[0].end = new_point_0
+        adj_entities[1].start = new_point_1
 
     def round_corner(self, corner_coordinate, radius, maximise=True):
         """Round the corner of a region.
@@ -1575,6 +1585,20 @@ class Coordinate(object):
         self.x += x
         self.y += y
 
+    def distance(self, other):
+        """Find the distance to a coordinate.
+
+        Parameters
+        ----------
+        other: Coordinate
+            Find distance to this point.
+
+        Returns
+        -------
+        float
+        """
+        return abs(other - self)
+
     @classmethod
     def from_polar_coords(cls, radius, theta):
         """Create Coordinate from polar coordinates.
@@ -1956,11 +1980,21 @@ class Line(Entity):
         if ref_coordinate == self.end:
             coordinate_1 = self.end
             coordinate_2 = self.start
-        else:
+        elif ref_coordinate == self.start:
             coordinate_1 = self.start
             coordinate_2 = self.end
+        elif self.coordinate_on_entity(ref_coordinate):
+            if ref_coordinate.distance(self.start) <= ref_coordinate.distance(self.end):
+                # Ref coordinate closer to start, so go between ref and end
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.end
+            else:
+                coordinate_1 = ref_coordinate
+                coordinate_2 = self.start
+        else:
+            raise ValueError("Invalid ref_coordinate provided, it must be on the line.")
 
-        t = distance / self.length
+        t = distance / coordinate_1.distance(coordinate_2)
         x = ((1 - t) * coordinate_1.x) + (t * coordinate_2.x)
         y = ((1 - t) * coordinate_1.y) + (t * coordinate_2.y)
 

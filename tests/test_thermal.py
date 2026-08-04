@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from os import path, remove
+import time
 
 import pytest
 
@@ -116,3 +118,32 @@ def test_get_node_exists(mc):
     with pytest.raises(MotorCADError) as e_info:
         mc.get_node_exists(0.5)
     assert "nodeNumber: Integer" in str(e_info.value)
+
+
+def test_thermal_model_export(mc):
+    mc.set_variable("MessageDisplayState", 2)
+    file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
+
+    mc.load_template("e3")
+
+    if path.exists(file_path):
+        remove(file_path)
+
+    assert path.exists(file_path) is False
+
+    mc.export_thermal_model(file_path)
+
+    # Exporting the thermal model takes a few seconds and so a delay is required before
+    # asserting the .therm file is present.
+    checks = 0
+
+    while checks < 60:
+        time.sleep(1)
+        if path.exists(file_path) is False:
+            checks += 1
+        else:
+            break
+
+    assert path.exists(file_path) is True
+
+    remove(file_path)

@@ -1,6 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
+    cooldown:
+      default-days: 10 # Fallback cooldown if no specific rule applies
     directory: "/"
     schedule:
       interval: "daily"
@@ -11,6 +13,8 @@ updates:
       - "pyansys-ci-bot"
 
   - package-ecosystem: "github-actions"
+    cooldown:
+      default-days: 10 # Fallback cooldown if no specific rule applies
     directory: "/"
     schedule:
       interval: "daily"
