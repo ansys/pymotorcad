@@ -26,6 +26,7 @@ Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 """
 
 from ansys.motorcad.core.methods.adaptive_geometry import _RpcMethodsAdaptiveGeometry
+from ansys.motorcad.core.methods.deprecated_methods import _RpcMethodsDeprecated
 from ansys.motorcad.core.methods.rpc_methods_calculations import _RpcMethodsCalculations
 from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAGeometry
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
@@ -54,6 +55,7 @@ class _RpcMethodsCore(
     _RpcMethodsMaterials,
     _RpcMethodsAdaptiveGeometry,
     _RpcMethodsTesting,
+    _RpcMethodsDeprecated,
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
@@ -71,3 +73,4 @@ class _RpcMethodsCore(
         _RpcMethodsMaterials.__init__(self, self.connection)
         _RpcMethodsAdaptiveGeometry.__init__(self, self.connection)
         _RpcMethodsTesting.__init__(self, self.connection)
+        _RpcMethodsDeprecated.__init__(self, self.connection)
