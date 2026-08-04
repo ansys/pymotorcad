@@ -20,11 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import builtins
 from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
+import os
 import tempfile
 
 import pytest
@@ -59,7 +59,9 @@ def generate_constant_region():
 
     region.entities.append(geometry.Line(geometry.Coordinate(-1, 0), geometry.Coordinate(1, 0)))
     region.entities.append(
-        geometry.Arc(geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1)
+        geometry.Arc(
+            geometry.Coordinate(1, 0), geometry.Coordinate(0, 1), geometry.Coordinate(0, 0), 1
+        )
     )
     region.entities.append(geometry.Line(geometry.Coordinate(0, 1), geometry.Coordinate(-1, 0)))
 
@@ -122,7 +124,9 @@ def test_set_get_winding_coil(mc):
     return_position = "C"
     turns = 10
 
-    mc.set_winding_coil(phase, path, coil, go_slot, go_position, return_slot, return_position, turns)
+    mc.set_winding_coil(
+        phase, path, coil, go_slot, go_position, return_slot, return_position, turns
+    )
 
     (
         go_slot_test,
@@ -234,9 +238,13 @@ def test_get_region_dxf(mc):
         )
     )
     expected_region.add_entity(
-        geometry.Line(geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0))
+        geometry.Line(
+            geometry.Coordinate(19.4454364826301, 19.4454364826301), geometry.Coordinate(0, 0)
+        )
     )
-    expected_region.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0)))
+    expected_region.add_entity(
+        geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(27.5, 0))
+    )
 
     region = mc.get_region_dxf("DXFRegion_Rotor")
     assert region == expected_region
@@ -326,7 +334,9 @@ def test_region_insert_entity():
 def test_region_insert_polyline():
     polyline = [
         geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(1, 1)),
-        geometry.Arc(geometry.Coordinate(1, 1), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1),
+        geometry.Arc(
+            geometry.Coordinate(1, 1), geometry.Coordinate(1, 0), geometry.Coordinate(0, 0), 1
+        ),
         geometry.Line(geometry.Coordinate(1, 0), geometry.Coordinate(0, 0)),
     ]
 
@@ -516,7 +526,9 @@ def test_EntityList_is_anticlockwise():
     # are correctly accounted for
     test_el3 = EntityList()
     test_el3.append(Line(Coordinate(0, 0), Coordinate(0, 2)))
-    test_el3.append(Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0)))
+    test_el3.append(
+        Arc.from_coordinates(Coordinate(0.2, 2.4), Coordinate(-0.3, 1), Coordinate(0, 0))
+    )
     test_el3.append(Line(Coordinate(0, 2), Coordinate(0.2, 2.4)))
     assert test_el3.is_anticlockwise == True
 
@@ -746,7 +758,9 @@ def test_line_get_coordinate_from_distance():
     line = geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0))
 
     # test using the 'distance' argument
-    assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(1, 0)
+    assert line.get_coordinate_from_distance(geometry.Coordinate(0, 0), 1) == geometry.Coordinate(
+        1, 0
+    )
     # test using the 'fraction' argument
     assert line.get_coordinate_from_distance(
         geometry.Coordinate(0, 0), fraction=0.5
@@ -773,7 +787,9 @@ def test_line_get_coordinate_from_distance():
 
     # fraction and percentage
     with pytest.warns(UserWarning) as record:
-        coord = line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6, percentage=40)
+        coord = line.get_coordinate_from_distance(
+            geometry.Coordinate(0, 0), fraction=0.6, percentage=40
+        )
     assert "Both fraction and percentage provided" in record[0].message.args[0]
     # check that fraction is used
     assert coord == line.get_coordinate_from_distance(geometry.Coordinate(0, 0), fraction=0.6)
@@ -1242,8 +1258,12 @@ def test_check_collisions_1(mc):
     region_a = generate_constant_region()
 
     region_b = geometry.Region(RegionType.stator_air)
-    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2)))
-    region_b.add_entity(geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2)))
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, -2), geometry.Coordinate(-0.2, 0.2))
+    )
+    region_b.add_entity(
+        geometry.Line(geometry.Coordinate(-0.2, 0.2), geometry.Coordinate(0.2, 0.2))
+    )
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, 0.2), geometry.Coordinate(0.2, -2)))
     region_b.add_entity(geometry.Line(geometry.Coordinate(0.2, -2), geometry.Coordinate(-0.2, -2)))
 
@@ -2170,8 +2190,12 @@ def test_extend_entity_region_method():
     assert parallelogram_1.entities[0].end == square_1.entities[0].end
     assert parallelogram_1.entities[2].end == square_1.entities[2].end
     # check that the horizontal lines are still horizontal
-    assert isclose(parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE)
-    assert isclose(parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE)
+    assert isclose(
+        parallelogram_1.entities[1].angle, square_1.entities[1].angle, abs_tol=GEOM_TOLERANCE
+    )
+    assert isclose(
+        parallelogram_1.entities[3].angle, square_1.entities[3].angle, abs_tol=GEOM_TOLERANCE
+    )
     # check that the horizontal lines have been shortened by the correct amount
     assert isclose(
         parallelogram_1.entities[1].length,
@@ -2247,7 +2271,9 @@ def test_extend_entity_region_method():
 
     # fraction and factor
     with pytest.warns(UserWarning) as record:
-        parallelogram_3.extend_entity(0, fraction=extension_fractional_distance, factor=extension_factor)
+        parallelogram_3.extend_entity(
+            0, fraction=extension_fractional_distance, factor=extension_factor
+        )
     assert "More than one optional argument provided" in record[0].message.args[0]
     # check that fraction is used
     assert isclose(
@@ -3110,7 +3136,9 @@ def test_region_find_entity_from_coordinates():
 
     assert c1.find_entity_from_coordinates(Coordinate(99, 99), Coordinate(99, 99)) is None
 
-    assert c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+    assert (
+        c1.find_entity_from_coordinates(c1.entities[0].start, c1.entities[0].end) == c1.entities[0]
+    )
 
 
 def test_reset_geometry(mc):

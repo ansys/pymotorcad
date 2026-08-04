@@ -33,6 +33,7 @@ if platform.system() == "Windows":
 else:
     pytest.skip("UI tests are only supported on Windows", allow_module_level=True)
 
+
 @pytest.fixture(scope="module")
 def mc_ui():
     """Set up test environment for whole unit of tests"""

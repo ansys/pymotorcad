@@ -22,6 +22,7 @@
 
 import os
 import platform
+
 import pytest
 
 from RPC_Test_Common import (
@@ -85,7 +86,9 @@ def test_load_fea_result(mc):
     assert unit == "T"
 
 
-@pytest.mark.skipif(platform.system() != "Windows", reason="export results is only supported on Windows")
+@pytest.mark.skipif(
+    platform.system() != "Windows", reason="export results is only supported on Windows"
+)
 def test_export_results(mc):
     mc.do_steady_state_analysis()
 
@@ -131,7 +134,9 @@ def test_load_dxf_file():
         mc2.quit()
 
 
-@pytest.mark.skipif(platform.system() != "Windows", reason="Animations are only supported on Windows")
+@pytest.mark.skipif(
+    platform.system() != "Windows", reason="Animations are only supported on Windows"
+)
 def test_export_force_animation(mc):
     mc.do_multi_force_calculation()
 
@@ -195,8 +200,12 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # EMag test
     mc_reset_to_default_on_teardown.do_magnetic_calculation()
     mc_reset_to_default_on_teardown.save_results("EMagnetic")
-    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "outputResults.mot"))
-    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "GraphResults.ini"))
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "outputResults.mot")
+    )
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "GraphResults.ini")
+    )
 
     mc_reset_to_default_on_teardown.load_from_file(
         os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
@@ -210,7 +219,9 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # Thermal test - transient graphs only
     mc_reset_to_default_on_teardown.do_transient_analysis()
     mc_reset_to_default_on_teardown.save_results("Thermal")
-    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file", "Thermal", "GraphResults.ini"))
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "Thermal", "GraphResults.ini")
+    )
 
     mc_reset_to_default_on_teardown.load_from_file(
         os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
@@ -273,7 +284,9 @@ def test_download_mot_file(mc_reset_to_default_on_teardown):
 
 def test_upload_mot_file(mc_reset_to_default_on_teardown):
     # Load and save base file so that contents are updated for this version of Motor-CAD
-    mc_reset_to_default_on_teardown.load_from_file(os.path.join(get_test_files_dir_path(), "IM_test_file.mot"))
+    mc_reset_to_default_on_teardown.load_from_file(
+        os.path.join(get_test_files_dir_path(), "IM_test_file.mot")
+    )
     save_file_path = os.path.join(get_temp_files_dir_path(), "IM_test_file_copy.mot")
     mc_reset_to_default_on_teardown.save_to_file(save_file_path)
 

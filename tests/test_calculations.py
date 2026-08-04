@@ -64,7 +64,9 @@ def test_do_mechanical_calculation(mc):
 
 
 def test_calculate_im_saturation_model(mc_reset_to_default_on_teardown):
-    mc_reset_to_default_on_teardown.load_from_file(os.path.join(get_dir_path(), "test_files", "IM_test_file.mot"))
+    mc_reset_to_default_on_teardown.load_from_file(
+        os.path.join(get_dir_path(), "test_files", "IM_test_file.mot")
+    )
 
     mc_reset_to_default_on_teardown.calculate_im_saturation_model()
 

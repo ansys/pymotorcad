@@ -24,13 +24,13 @@
 
 from os import environ, getenv, path, putenv, unsetenv
 from pathlib import Path
+import platform
 import re
 import shutil
 import socket
 import subprocess
 import time
 import warnings
-import platform
 
 from packaging import version
 import psutil
@@ -233,7 +233,8 @@ def _find_motor_cad_exe():
             raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
     elif platform.system() == "Linux":
         # If wanting an explicit version of MotorCAD, set the PYMOTORCAD_EXE environment variable.
-        # But if not set, then see if the Motor-CAD executable file is in the PATH environment variable.
+        # But if not set, then see if the Motor-CAD executable file is in the PATH environment
+        # variable.
         for proc_name in MOTORCAD_PROC_NAMES:
             motor_exe = shutil.which(proc_name)
             if motor_exe is not None:
@@ -243,7 +244,8 @@ def _find_motor_cad_exe():
 
         # Use the PYMOTORCAD_EXE environment variable to find the Motor-CAD executable file.
         # This will set MOTORCAD_EXE_GLOBAL on startup, so if it is not already set, then the user
-        # has not set the environment variable. Raise an error to inform the user to set the environment variable.
+        # has not set the environment variable. Raise an error to inform the user to set the
+        # environment variable.
         raise MotorCADError(
             "Could not find MotorCAD on the system PATH.\n"
             "To specify a version, set using set_motorcad_exe():\n"
@@ -716,7 +718,9 @@ class _MotorCADConnection:
             else:
                 success = response["result"]["success"]
 
-            if (method == "CheckIfGeometryIsValid") or (method == "CheckIfGeometryIsValidWithContext"):
+            if (method == "CheckIfGeometryIsValid") or (
+                method == "CheckIfGeometryIsValidWithContext"
+            ):
                 # This doesn't have the normal success var
                 success_value = 1
             else:
@@ -729,7 +733,9 @@ class _MotorCADConnection:
                 if response["result"]["errorMessage"] != "":
                     error_message = response["result"]["errorMessage"]
                 else:
-                    error_message = "An error occurred in Motor-CAD."  # put some generic error message
+                    error_message = (
+                        "An error occurred in Motor-CAD."  # put some generic error message
+                    )
 
                 self._last_error_message = error_message
 

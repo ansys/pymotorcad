@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+
 import pytest
 
 from RPC_Test_Common import almost_equal, get_dir_path

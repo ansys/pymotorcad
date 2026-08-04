@@ -562,7 +562,10 @@ def test_get_region_value(mc_fea_old):
     mc_fea_old.do_magnetic_calculation()
 
     mc_fea_old.load_fea_result(
-        os.path.join(get_temp_files_dir_path(), "temp_test_file", "FEResultsData", "StaticLoad_result_1.mes"), 0
+        os.path.join(
+            get_temp_files_dir_path(), "temp_test_file", "FEResultsData", "StaticLoad_result_1.mes"
+        ),
+        0,
     )
 
     value, area = mc_fea_old.get_region_value("B", "Rotor")
