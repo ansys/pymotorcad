@@ -20,24 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""PyMotorCAD is a Python RPC-JSON interface for Motor-CAD."""
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:  # pragma: no cover
-    import importlib_metadata
+"""Enumerations for Motor-CAD."""
+from enum import Enum
 
-from ansys.motorcad.core.enums import MotorCADContext
-import ansys.motorcad.core.geometry
-from ansys.motorcad.core.motorcad_methods import MotorCAD, MotorCADCompatibility
-from ansys.motorcad.core.rpc_client_core import (
-    MotorCADError,
-    MotorCADWarning,
-    is_running_in_internal_scripting,
-    set_default_instance,
-    set_motorcad_exe,
-    set_server_ip,
-)
 
-# Read from the pyproject.toml
-# major, minor, patch
-__version__ = importlib_metadata.version("ansys-motorcad-core")
+class MotorCADContext(str, Enum):
+    """Provides an enumeration for Motor-CAD analysis context."""
+
+    magnetic = "Magnetic"
+    thermal = "Thermal"
+    mechanical = "Mechanical"
