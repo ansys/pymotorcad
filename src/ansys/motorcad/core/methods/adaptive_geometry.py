@@ -177,7 +177,7 @@ class _RpcMethodsAdaptiveGeometry:
         region : ansys.motorcad.core.geometry.Region
             Motor-CAD region object.
         """
-        self.connection.ensure_version_at_least("2027.0")
+        self.connection.check_if_feature_exists("set_region_dxf")
 
         raw_region = region._to_json()
 
@@ -354,7 +354,7 @@ class _RpcMethodsAdaptiveGeometry:
         ansys.motorcad.core.geometry_tree.GeometryTree
             Motor-CAD DXF geometry tree
         """
-        self.connection.ensure_version_at_least("2027.0")
+        self.connection.check_if_feature_exists("get_geometry_tree_dxf")
         method = "GetGeometryTree_DXF"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
@@ -367,7 +367,7 @@ class _RpcMethodsAdaptiveGeometry:
         tree : ansys.motorcad.core.geometry_tree.GeometryTree
              GeometryTree object containing the DXF geometry to set in Motor-CAD.
         """
-        self.connection.ensure_version_at_least("2027.0")
+        self.connection.check_if_feature_exists("set_geometry_tree_dxf")
         params = [tree._to_json()]
         method = "SetGeometryTree_DXF"
         return self.connection.send_and_receive(method, params)
@@ -395,7 +395,7 @@ class _RpcMethodsAdaptiveGeometry:
         boolean
             True if region_A is inside region_B, False otherwise.
         """
-        self.connection.ensure_version_at_least("2027.0.0")
+        self.connection.check_if_feature_exists("check_region_inside_region")
         method = "CheckRegionInsideRegion"
         params = [region_a._to_json(), region_b._to_json()]
         is_inside = self.connection.send_and_receive(method, params)
