@@ -101,7 +101,6 @@ Ansys Twin Builder.
 
 from __future__ import annotations
 
-import csv
 from dataclasses import astuple, dataclass
 import itertools
 import logging
@@ -523,9 +522,7 @@ class MotorCADTwinModel:
         return self.getExportedVector(exportDirectory / f"{self.motFileName}.cmf")
 
     def getRmfData(self, exportDirectory: Path):
-        resistanceMatrix = self.getExportedMatrix(
-            exportDirectory / f"{self.motFileName}.rmf"
-        )
+        resistanceMatrix = self.getExportedMatrix(exportDirectory / f"{self.motFileName}.rmf")
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
         if self.motorcadV2025OrNewer:
@@ -1124,7 +1121,7 @@ class MotorCADTwinModel:
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(str(exportDirectory))
-        # TODO await workaround from Motor-CAD devs to include non-zero capacitance for 
+        # TODO await workaround from Motor-CAD devs to include non-zero capacitance for
         # new grouped spray cooling.
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
@@ -1173,7 +1170,9 @@ class MotorCADTwinModel:
         ]
 
         # Generate list of nodes that have a fixed temperature
-        fixedTempNodes = [self.nodeNumbers[i] for i, temp in enumerate(temperatureVector) if temp > -10000000.0]
+        fixedTempNodes = [
+            self.nodeNumbers[i] for i, temp in enumerate(temperatureVector) if temp > -10000000.0
+        ]
 
         G = nx.DiGraph()
         G.add_edges_from(fluidFluidResistances)
@@ -1204,7 +1203,9 @@ class MotorCADTwinModel:
                     # an outlet (as well as an inlet)
                     outletNodes = [nodes[0]]
                 else:
-                    outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
+                    outletNodes = [
+                        n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)
+                    ]
 
                 # 3. Cooling system associated with this subgraph
                 if len(inletNodes) > 0:
@@ -2113,9 +2114,7 @@ class MotorCADTwinModel:
                     )
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
-                        with open(
-                            exportPath / f"{filePrefix}{fileInd}.csv", "w"
-                        ) as fout:
+                        with open(exportPath / f"{filePrefix}{fileInd}.csv", "w") as fout:
                             for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
                                 paramValueTB = paramValue + paramList[index].tbOffset
@@ -2322,7 +2321,7 @@ class MotorCADTwinModel:
                     param.name, param.nodeNumber, paramVal, param.name
                 )
                 circuitEditsMade = True
-        
+
         self.computeMatrices(exportDirectory)
 
         if circuitEditsMade:
