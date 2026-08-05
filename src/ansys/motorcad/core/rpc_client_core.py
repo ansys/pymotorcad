@@ -239,7 +239,7 @@ class _MotorCADConnection:
         compatibility_mode=False,
         use_blackbox_licence=None,
         licence_type=-1,
-        ShowGUI : int=-1
+        ShowGUI=-1
     ):
         """Create a MotorCAD object for communication.
 
