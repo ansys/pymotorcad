@@ -48,7 +48,9 @@ def mc_ui():
     motorcad_instance_ui.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance_ui)
 
-    return motorcad_instance_ui
+    yield motorcad_instance_ui
+
+    motorcad_instance_ui.quit()
 
 
 def test_show_message(mc_ui):
