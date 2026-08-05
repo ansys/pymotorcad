@@ -108,7 +108,7 @@ class MotorCAD(_MotorCADCore):
         url="",
         use_blackbox_licence=None,
         licence_type=-1,
-        ShowGUI: int = -1
+        ShowGUI=-1
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
