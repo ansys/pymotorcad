@@ -3458,6 +3458,9 @@ def test_check_region_inside_region_fully_contained(mc):
     #   |           |
     #   |-----------|
     #
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     # Create outer region (region B)
     region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
     region_b.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(4, 0)))
@@ -3491,6 +3494,9 @@ def test_check_region_inside_region_not_inside(mc):
     #                   |  B  |  ->  Region A is not inside Region B
     #                   |-----|
     #
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     # Create region A
     region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
     region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
@@ -3523,6 +3529,9 @@ def test_check_region_inside_region_partial_overlap(mc):
     #   |-----|     |
     #         |-----|
     #
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     # Create region A
     region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
     region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
@@ -3555,6 +3564,9 @@ def test_check_region_inside_region_touching_edge(mc):
     #   ||-----|    |
     #   |-----------|
     #
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     # Create outer region (region B)
     region_b = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
     region_b.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(4, 0)))
@@ -3589,6 +3601,9 @@ def test_check_region_inside_region_circular_regions(mc):
     #    |     |
     #     \___/
     #
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     # Create outer circular region (region B)
     region_b = geometry.Region(RegionType.stator_air)
     region_b.add_entity(
@@ -3646,6 +3661,9 @@ def test_check_region_inside_region_identical_regions(mc):
     #   |-----|
     #
     # Create identical regions
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region API not available in this version of Motor-CAD")
+
     region_a = geometry.Region(RegionType.stator_air, motorcad_instance=mc)
     region_a.add_entity(geometry.Line(geometry.Coordinate(0, 0), geometry.Coordinate(2, 0)))
     region_a.add_entity(geometry.Line(geometry.Coordinate(2, 0), geometry.Coordinate(2, 2)))
