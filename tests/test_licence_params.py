@@ -11,7 +11,12 @@ import os
 
 import pytest
 
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import (
+    MotorCAD,
+    MotorCADBlackboxLicence,
+    MotorCADLicenceType,
+    MotorCADShowGUI,
+)
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 MOTORCAD_ENV_VARS = (
@@ -54,7 +59,7 @@ def is_motorcad_gui_visible(mc):
 # if not available then will fall back to new 'motorcad_gui' licence
 
 def test_oldmotorcad_visible():
-    mc = MotorCAD(licence_type=0)
+    mc = MotorCAD(licence_type=MotorCADLicenceType.original)
     assert mc.is_open()
     assert mc.get_licence() is None
     mc.get_messages(1)
@@ -70,7 +75,10 @@ def test_oldmotorcad_visible():
 def test_oldmotorcad_nogui():
     # Test old licence type without UI - expected to fail due to missing licence."""
     with pytest.raises(MotorCADError):
-        mc = MotorCAD(licence_type=0, ShowGUI=0)
+        mc = MotorCAD(
+            licence_type=MotorCADLicenceType.original,
+            ShowGUI=MotorCADShowGUI.hide,
+        )
         try:
             assert mc.is_open()
         finally:
@@ -85,7 +93,10 @@ def test_oldmotorcad_nogui():
 def test_newmotorcad_blackbox():
     # Test old licence type without UI - expected to fail due to missing licence."""
     with pytest.raises(MotorCADError):
-        mc = MotorCAD(use_blackbox_licence=1, licence_type=1)
+        mc = MotorCAD(
+            use_blackbox_licence=MotorCADBlackboxLicence.enable,
+            licence_type=MotorCADLicenceType.enterprise_plus,
+        )
         try:
             assert mc.is_open()
         finally:
@@ -95,7 +106,7 @@ def test_newmotorcad_blackbox():
 
 # test 4: new licence type with UI (not using black box licence)
 def test_newmotorcad_withui():
-    mc = MotorCAD(licence_type=1)
+    mc = MotorCAD(licence_type=MotorCADLicenceType.enterprise_plus)
     assert mc.is_open(), "Failed to open MotorCAD"
     assert mc.get_licence() is None, "Failed to get licence"
     mc.get_messages(1)
@@ -108,7 +119,10 @@ def test_newmotorcad_withui():
 
 # test 5: new licence type without UI (not using black box licence)
 def test_newmotorcad_withoutui():
-    mc = MotorCAD(licence_type=1, ShowGUI=0)
+    mc = MotorCAD(
+        licence_type=MotorCADLicenceType.enterprise_plus,
+        ShowGUI=MotorCADShowGUI.hide,
+    )
     assert mc.is_open()
     assert mc.get_licence() is None
     mc.get_messages(1)

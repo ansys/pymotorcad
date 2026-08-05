@@ -26,7 +26,12 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     import importlib_metadata
 
-from ansys.motorcad.core.enums import MotorCADContext, MotorCADLicenceType
+from ansys.motorcad.core.enums import (
+    MotorCADBlackboxLicence,
+    MotorCADContext,
+    MotorCADLicenceType,
+    MotorCADShowGUI,
+)
 import ansys.motorcad.core.geometry
 from ansys.motorcad.core.motorcad_methods import MotorCAD, MotorCADCompatibility
 from ansys.motorcad.core.rpc_client_core import (
