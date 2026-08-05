@@ -160,7 +160,7 @@ class _RpcMethodsGeneral:
             Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
             This MUST be specified for versions of Motor-CAD later than 2027R1.
         """
-        if self.connection.check_version_at_least("2027.0"):
+        if self.connection.check_if_feature_exists("load_dxf_file_with_context"):
             if context == "":
                 raise MotorCADError(
                     "Context must be specified for LoadDXFFile for Motor-CAD version"

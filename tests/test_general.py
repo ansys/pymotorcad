@@ -112,7 +112,7 @@ def test_load_dxf_file():
         # mc2.clear_all_data()
         # mc2.initiate_geometry_from_script()
 
-        if mc2.connection.check_version_at_least("2027.0"):
+        if mc2.connection.check_if_feature_exists("load_dxf_file_with_context"):
             mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf", "Magnetic")
         else:
             mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
