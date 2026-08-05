@@ -356,7 +356,7 @@ class _RpcMethodsAdaptiveGeometry:
         boolean
             True if region_A is inside region_B, False otherwise.
         """
-        self.connection.ensure_version_at_least("2027.0.0")
+        self.connection.check_if_feature_exists("check_region_inside_region")
         method = "CheckRegionInsideRegion"
         params = [region_a._to_json(), region_b._to_json(), include_entity_overlap]
         is_inside = self.connection.send_and_receive(method, params)
