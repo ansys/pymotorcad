@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Enumerations for Motor-CAD."""
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class MotorCADContext(str, Enum):
@@ -30,3 +30,12 @@ class MotorCADContext(str, Enum):
     magnetic = "Magnetic"
     thermal = "Thermal"
     mechanical = "Mechanical"
+
+
+class MotorCADLicenceType(IntEnum):
+    """Provides valid values for ``licence_type`` in the Motor-CAD constructor."""
+
+    default = -1
+    original = 0
+    enterprise_plus = 1
+
