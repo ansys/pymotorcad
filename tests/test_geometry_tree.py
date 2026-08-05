@@ -38,6 +38,8 @@ def sample_tree(mc):
 
 @pytest.fixture(scope="session")
 def sample_tree_dxf(mc):
+    if not mc.connection.check_if_feature_exists("get_geometry_tree_dxf"):
+        pytest.skip("get_geometry_tree_dxf not available in this version of Motor-CAD")
     mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
     mc.reset_adaptive_geometry()
     return mc.get_geometry_tree_dxf()

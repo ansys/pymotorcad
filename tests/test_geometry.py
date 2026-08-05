@@ -268,6 +268,8 @@ def test_set_region(mc):
 
 def test_set_region_dxf(mc):
     """Test setting region in Motor-CAD from DXF region."""
+    if not mc.connection.check_if_feature_exists("set_region_dxf"):
+        pytest.skip("set_region_dxf not available in this version of Motor-CAD")
     region = generate_constant_region()
     mc.set_region_dxf(region)
     returned_region = mc.get_region_dxf("testing_region")
