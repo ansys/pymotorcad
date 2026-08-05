@@ -326,7 +326,7 @@ class _RpcMethodsGeneral:
             is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"``
             and ``"Mechanical"``.
         """
-        if self.connection.check_version_at_least("2027.0"):
+        if self.connection.check_if_feature_exists("geometry_export_with_context"):
             if context == "":
                 raise MotorCADError(
                     "Context must be specified for geometry_export for Motor-CAD version "
