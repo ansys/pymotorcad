@@ -291,7 +291,7 @@ class FakeRequestsPostWithWarning:
 def test_warnings(mc, monkeypatch):
     # Create fake request result so we can test this before Motor-CAD 24R1
     # TODO - replace with actual call with warnings e.g. set_region
-    monkeypatch.setattr("requests.post", FakeRequestsPostWithWarning)
+    monkeypatch.setattr(mc.connection, "_post", FakeRequestsPostWithWarning)
 
     with pytest.warns(MotorCADWarning):
         # Call something which triggers send_and_receive
@@ -337,17 +337,36 @@ def test__resolve_localhost():
 
 def test_blackbox_licencing():
     mc1 = MotorCAD(use_blackbox_licence=True)
-    # Not sure it's possible to assert that only a blackbox licence was consumed
-    # Just check it works for now
-    mc1.get_licence()
+    try:
+        # Not sure it's possible to assert that only a blackbox licence was consumed
+        # Just check it works for now
+        mc1.get_licence()
+    finally:
+        mc1.quit()
 
     mc2 = MotorCAD(use_blackbox_licence=False)
-    # Not sure it's possible to assert that only a non-blackbox licence was consumed
-    # Just check it works for now
-    mc2.get_licence()
+    try:
+        # Not sure it's possible to assert that only a non-blackbox licence was consumed
+        # Just check it works for now
+        mc2.get_licence()
+    finally:
+        mc2.quit()
 
     mc3 = MotorCAD()
-    # Not sure it's possible to check which licence type has been used, and whether this
-    # matches the default setting
-    # Just check it works for now
-    mc3.get_licence()
+    try:
+        # Not sure it's possible to check which licence type has been used, and whether this
+        # matches the default setting
+        # Just check it works for now
+        mc3.get_licence()
+    finally:
+        mc3.quit()
+
+
+def test_feature_exists_check(mc):
+    if mc.connection.check_version_at_least("2027.0"):
+        geo_check_context = mc.connection.check_if_feature_exists(
+            "check_if_geometry_is_valid_with_context"
+        )
+
+        assert geo_check_context is True
+        assert mc.connection.check_if_feature_exists("not_a_real_feature") is False
