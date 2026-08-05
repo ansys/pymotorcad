@@ -23,6 +23,7 @@
 # import os
 
 from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path
+from ansys.motorcad.core.enums import MotorCADContext
 
 
 def test_do_magnetic_thermal_calculation(mc):
@@ -77,7 +78,11 @@ def test_calculate_force_harmonics_temporal(mc):
 
 
 def test_do_weight_calculation(mc):
-    mc.do_weight_calculation()
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.do_weight_calculation(MotorCADContext.magnetic)
+        mc.do_weight_calculation(MotorCADContext.thermal)
+    else:
+        mc.do_weight_calculation()
 
 
 def test_create_winding_pattern(mc):

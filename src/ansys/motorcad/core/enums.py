@@ -19,44 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import pytest
 
-from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
-from ansys.motorcad.core import MotorCAD
-
-
-def pytest_sessionstart(session):
-    reset_temp_file_folder()
+"""Enumerations for Motor-CAD."""
+from enum import Enum
 
 
-@pytest.fixture(scope="session")
-def mc():
-    """Set up test environment for whole unit of tests"""
-    motorcad_instance = MotorCAD()
-    # Disable messages if opened with UI
-    motorcad_instance.set_variable("MessageDisplayState", 2)
-    reset_to_default_file(motorcad_instance)
+class MotorCADContext(str, Enum):
+    """Provides an enumeration for Motor-CAD analysis context."""
 
-    yield motorcad_instance
-
-    motorcad_instance.quit()
-
-
-@pytest.fixture(scope="function")
-def mc_reset_to_default_on_teardown(mc):
-    """Set up test environment for whole unit of tests"""
-    yield mc
-    reset_to_default_file(mc)
-
-
-@pytest.fixture(scope="session")
-def mc_fea_old():
-    """Old fea geometry tests cause lots of conflicts - use a new MotorCAD"""
-    motorcad_instance_fea_old = MotorCAD()
-    # Disable messages if opened with UI
-    motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
-    reset_to_default_file(motorcad_instance_fea_old)
-
-    yield motorcad_instance_fea_old
-
-    motorcad_instance_fea_old.quit()
+    magnetic = "Magnetic"
+    thermal = "Thermal"
+    mechanical = "Mechanical"
