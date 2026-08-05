@@ -263,6 +263,8 @@ def test_set_region(mc):
 
 def test_set_region_dxf(mc):
     """Test setting region in Motor-CAD from DXF region."""
+    if not mc.connection.check_if_feature_exists("set_region_dxf"):
+        pytest.skip("set_region_dxf not available in this version of Motor-CAD")
     region = generate_constant_region()
     mc.set_region_dxf(region)
     returned_region = mc.get_region_dxf("testing_region")
@@ -2608,6 +2610,8 @@ def test_subtract_region_2(mc):
 
 def test_region_inside_region(mc):
     """Test if region is within another region"""
+    if not mc.connection.check_if_feature_exists("check_region_inside_region"):
+        pytest.skip("check_region_inside_region not available in this version of Motor-CAD")
     outer_square = create_square()
     outer_square.motorcad_instance = mc
 
