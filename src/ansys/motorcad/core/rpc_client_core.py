@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, getenv, path, putenv, unsetenv
+from os import environ, getenv, path
 from pathlib import Path
 import re
 import socket
