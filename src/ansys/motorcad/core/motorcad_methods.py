@@ -97,7 +97,7 @@ class MotorCAD(_MotorCADCore):
         Licence type selection mode for Motor-CAD launch behaviour.
         Valid values are ``MotorCADLicenceType.default`` (-1),
         ``MotorCADLicenceType.original`` (0), and
-        ``MotorCADLicenceType.enterprise_plus`` (1).
+        ``MotorCADLicenceType.new`` (1).
     ShowGUI : int or MotorCADShowGUI, default: MotorCADShowGUI.default
         Show or hide GUI launch mode selection for Motor-CAD launch behaviour.
         Valid values are ``MotorCADShowGUI.default`` (-1),

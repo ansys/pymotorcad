@@ -277,7 +277,7 @@ class _MotorCADConnection:
         licence_type : int or MotorCADLicenceType, default: MotorCADLicenceType.default
             Licence type to use when launching Motor-CAD. Valid values are
             ``MotorCADLicenceType.default`` (-1), ``MotorCADLicenceType.original`` (0),
-            and ``MotorCADLicenceType.enterprise_plus`` (1).
+            and ``MotorCADLicenceType.new`` (1).
         ShowGUI : int or MotorCADShowGUI, default: MotorCADShowGUI.default
             Whether to run Motor-CAD with or without UI. Valid values are
             ``MotorCADShowGUI.default`` (-1), ``MotorCADShowGUI.hide`` (0), and
@@ -338,11 +338,11 @@ class _MotorCADConnection:
             except (TypeError, ValueError) as e:
                 raise MotorCADError(
                     "licence_type must be an integer or MotorCADLicenceType "
-                    "(-1/default, 0/original, or 1/enterprise_plus)."
+                    "(-1/default, 0/original, or 1/new)."
                 ) from e
             if licence_type_int not in [int(value) for value in MotorCADLicenceType]:
                 raise MotorCADError(
-                    "licence_type must be -1/default, 0/original, or 1/enterprise_plus."
+                    "licence_type must be -1/default, 0/original, or 1/new."
                 )
             os.environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
 

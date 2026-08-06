@@ -37,7 +37,7 @@ class MotorCADLicenceType(IntEnum):
 
     default = -1
     original = 0
-    enterprise_plus = 1
+    new = 1
 
 
 class MotorCADShowGUI(IntEnum):
