@@ -30,12 +30,7 @@ from psutil import pid_exists
 import pytest
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core import (
-    MotorCAD,
-    MotorCADBlackboxLicence,
-    MotorCADError,
-    MotorCADWarning,
-)
+from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
@@ -341,12 +336,12 @@ def test__resolve_localhost():
 
 
 def test_blackbox_licencing():
-    mc1 = MotorCAD(use_blackbox_licence=MotorCADBlackboxLicence.enable)
+    mc1 = MotorCAD(use_blackbox_licence=True)
     # Not sure it's possible to assert that only a blackbox licence was consumed
     # Just check it works for now
     mc1.get_licence()
 
-    mc2 = MotorCAD(use_blackbox_licence=MotorCADBlackboxLicence.disable)
+    mc2 = MotorCAD(use_blackbox_licence=False)
     # Not sure it's possible to assert that only a non-blackbox licence was consumed
     # Just check it works for now
     mc2.get_licence()
