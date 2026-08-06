@@ -166,7 +166,7 @@ def test_keeping_instance_open(monkeypatch):
 
     original_port = mc2.connection._port
 
-    # finished with this instance
+    # finished with this instance - instance should stay open
     del mc2
 
     # connect to the same instance (if it is still open)
@@ -185,7 +185,8 @@ def test_keeping_instance_open(monkeypatch):
     mc2 = MotorCAD(keep_instance_open=True)
 
     original_port = mc2.connection._port
-
+	
+    # as PYMOTORCAD_DOCS_BUILD has been set then this should call quit and Motor-CAD should close
     del mc2
 
     with pytest.raises(Exception):
