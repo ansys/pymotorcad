@@ -53,5 +53,3 @@ class MotorCADBlackboxLicence(IntEnum):
 
     disable = 0
     enable = 1
-
-
