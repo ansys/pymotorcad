@@ -180,6 +180,7 @@ def test_keeping_instance_open(monkeypatch):
     del mc3
 
     # Check keep_instance_open ignored when building docs
+    # quit will now be called and Motor-CAD will close if instance is deleted
     monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
 
     mc2 = MotorCAD(keep_instance_open=True)
