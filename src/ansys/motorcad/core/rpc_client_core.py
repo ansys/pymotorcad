@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, getenv, path
+from os import environ, getenv, path, putenv, unsetenv
 from pathlib import Path
 import re
 import socket
@@ -32,8 +32,6 @@ import warnings
 from packaging import version
 import psutil
 import requests
-
-from ansys.motorcad.core.enums import MotorCADBlackboxLicence, MotorCADLicenceType, MotorCADShowGUI
 
 try:
     import ansys.platform.instancemanagement as pypim
@@ -239,8 +237,6 @@ class _MotorCADConnection:
         timeout=2,
         compatibility_mode=False,
         use_blackbox_licence=None,
-        licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default,
     ):
         """Create a MotorCAD object for communication.
 
@@ -263,21 +259,9 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
-        timeout : int, default: 2
-            Timeout in seconds for waiting for Motor-CAD server to respond.
-        use_blackbox_licence: bool, int, or MotorCADBlackboxLicence, default: None
+        use_blackbox_licence: Boolean, default: None
             Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
-            behaviour will be used. Valid values are
-            ``MotorCADBlackboxLicence.disable`` (0) and
-            ``MotorCADBlackboxLicence.enable`` (1).
-        licence_type : int or MotorCADLicenceType, default: MotorCADLicenceType.default
-            Licence type to use when launching Motor-CAD. Valid values are
-            ``MotorCADLicenceType.default`` (-1), ``MotorCADLicenceType.original`` (0),
-            and ``MotorCADLicenceType.new`` (1).
-        ShowGUI : int or MotorCADShowGUI, default: MotorCADShowGUI.default
-            Whether to run Motor-CAD with or without UI. Valid values are
-            ``MotorCADShowGUI.default`` (-1), ``MotorCADShowGUI.hide`` (0), and
-            ``MotorCADShowGUI.show`` (1).
+            behaviour will be used.
 
         Returns
         -------
@@ -315,42 +299,22 @@ class _MotorCADConnection:
         self._timeout = timeout
 
         if use_blackbox_licence is not None:
-            try:
-                use_blackbox_licence_int = int(use_blackbox_licence)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "use_blackbox_licence must be a bool, integer, or "
-                    "MotorCADBlackboxLicence (0/disable or 1/enable)."
-                ) from e
-            if use_blackbox_licence_int not in [int(value) for value in MotorCADBlackboxLicence]:
-                raise MotorCADError("use_blackbox_licence must be 0/disable or 1/enable.")
-            environ["MOTORDES_BLACKBOX"] = str(use_blackbox_licence_int)
-
-        if licence_type != MotorCADLicenceType.default:
-            try:
-                licence_type_int = int(licence_type)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "licence_type must be an integer or MotorCADLicenceType "
-                    "(-1/default, 0/original, or 1/new)."
-                ) from e
-            if licence_type_int not in [int(value) for value in MotorCADLicenceType]:
-                raise MotorCADError(
-                    "licence_type must be -1/default, 0/original, or 1/new."
-                )
-            environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
-
-        if ShowGUI != MotorCADShowGUI.default:
-            try:
-                ShowGUI_int = int(ShowGUI)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "ShowGUI must be an integer or MotorCADShowGUI "
-                    "(-1/default, 0/hide, or 1/show)."
-                ) from e
-            if ShowGUI_int not in [int(value) for value in MotorCADShowGUI]:
-                raise MotorCADError("ShowGUI must be -1/default, 0/hide, or 1/show.")
-            environ["MOTORCAD_SHOWGUI"] = str(ShowGUI_int)
+            # Use the user specified desired licensing
+            if use_blackbox_licence:
+                putenv("MOTORDES_BLACKBOX", "1")
+            else:
+                putenv("MOTORDES_BLACKBOX", "0")
+        else:
+            # User has not specified a desired licensing, so use default behaviour
+            # Ensure any changes to environment variable made in scripting environment are discarded
+            # Note: value returned by getenv is unaffected by calls to putenv
+            blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
+            if blackbox_env_var_orig is None:
+                # Original blackbox environment variable does not exist, so delete if present
+                unsetenv("MOTORDES_BLACKBOX")
+            else:
+                # Reset environment variable to original value
+                putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
 
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
@@ -816,8 +780,4 @@ class _MotorCADConnection:
         else:
             # local machine
             method = "Quit"
-            result = self.send_and_receive(method)
-            # Quitting MotorCAD can take a moment to close the RPC server.
-            # Sleep for half a second to ensure the connection is closed.
-            time.sleep(0.5)
-            return result
+            return self.send_and_receive(method)
