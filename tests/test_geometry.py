@@ -2532,6 +2532,7 @@ def test_subtract_region_1(mc):
     rectangle = geometry.Region(RegionType.stator_air)
     expected_region_1 = geometry.Region(RegionType.stator_air)
     expected_region_2 = geometry.Region(RegionType.stator_air)
+    expected_region_2.name = "_1"
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
