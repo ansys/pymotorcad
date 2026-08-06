@@ -3,8 +3,6 @@
 Test results assume licence server has MotorCAD enterprise plus licence available
 and no MotorCAD enterprise licences available.
 
-These tests exercise real licence acquisition behaviour and therefore remain opt-in.
-Set ``PYMOTORCAD_RUN_LIVE_LICENCE_TESTS=1`` to execute them.
 """
 
 import os
