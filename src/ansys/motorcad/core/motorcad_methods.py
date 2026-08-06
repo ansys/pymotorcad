@@ -24,11 +24,7 @@
 
 from warnings import warn
 
-from ansys.motorcad.core.enums import (
-    MotorCADBlackboxLicence,
-    MotorCADLicenceType,
-    MotorCADShowGUI,
-)
+from ansys.motorcad.core.enums import MotorCADLicenceType, MotorCADShowGUI
 from ansys.motorcad.core.methods.rpc_methods_utility import _RpcMethodsUtility
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCore, _RpcMethodsCoreOld
@@ -119,7 +115,7 @@ class MotorCAD(_MotorCADCore):
         url="",
         use_blackbox_licence=None,
         licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default
+        ShowGUI=MotorCADShowGUI.default,
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(

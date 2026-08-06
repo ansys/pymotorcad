@@ -29,15 +29,11 @@ import subprocess
 import time
 import warnings
 
-from ansys.motorcad.core.enums import (
-    MotorCADBlackboxLicence,
-    MotorCADLicenceType,
-    MotorCADShowGUI,
-)
 from packaging import version
 import psutil
 import requests
-import os
+
+from ansys.motorcad.core.enums import MotorCADBlackboxLicence, MotorCADLicenceType, MotorCADShowGUI
 
 try:
     import ansys.platform.instancemanagement as pypim
@@ -244,7 +240,7 @@ class _MotorCADConnection:
         compatibility_mode=False,
         use_blackbox_licence=None,
         licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default
+        ShowGUI=MotorCADShowGUI.default,
     ):
         """Create a MotorCAD object for communication.
 
@@ -327,10 +323,8 @@ class _MotorCADConnection:
                     "MotorCADBlackboxLicence (0/disable or 1/enable)."
                 ) from e
             if use_blackbox_licence_int not in [int(value) for value in MotorCADBlackboxLicence]:
-                raise MotorCADError(
-                    "use_blackbox_licence must be 0/disable or 1/enable."
-                )
-            os.environ["MOTORDES_BLACKBOX"] = str(use_blackbox_licence_int)
+                raise MotorCADError("use_blackbox_licence must be 0/disable or 1/enable.")
+            environ["MOTORDES_BLACKBOX"] = str(use_blackbox_licence_int)
 
         if licence_type != MotorCADLicenceType.default:
             try:
@@ -344,7 +338,7 @@ class _MotorCADConnection:
                 raise MotorCADError(
                     "licence_type must be -1/default, 0/original, or 1/enterprise_plus."
                 )
-            os.environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
+            environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
 
         if ShowGUI != MotorCADShowGUI.default:
             try:
@@ -356,7 +350,7 @@ class _MotorCADConnection:
                 ) from e
             if ShowGUI_int not in [int(value) for value in MotorCADShowGUI]:
                 raise MotorCADError("ShowGUI must be -1/default, 0/hide, or 1/show.")
-            os.environ["MOTORCAD_SHOWGUI"] = str(ShowGUI_int)
+            environ["MOTORCAD_SHOWGUI"] = str(ShowGUI_int)
 
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
