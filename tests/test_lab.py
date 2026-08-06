@@ -227,6 +227,12 @@ def test_export_concept_ev_model(mc):
 
 
 def test_thermal_model_export(mc):
+    if not (
+        mc.connection.check_if_feature_exists("BuildLabThermalModel")
+        and mc.connection.check_if_feature_exists("ExportLabThermalModel")
+    ):
+        pytest.skip("Motor-CAD version is missing LabThermalModel functions")
+
     mc.set_variable("MessageDisplayState", 2)
     file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
 
@@ -237,27 +243,23 @@ def test_thermal_model_export(mc):
 
     assert path.exists(file_path) is False
 
-    # Feature flags to be removed after motor-CAD update
-    if mc.connection.check_if_feature_exists(
-        "BuildLabThermalModel"
-    ) and mc.connection.check_if_feature_exists("ExportLabThermalModel"):
-        mc.build_lab_thermal_model()
-        mc.export_lab_thermal_model(file_path)
+    mc.build_lab_thermal_model()
+    mc.export_lab_thermal_model(file_path)
 
-        # Exporting the thermal model takes a few seconds and so a delay is required before
-        # asserting the .therm file is present.
-        checks = 0
+    # Exporting the thermal model takes a few seconds and so a delay is required before
+    # asserting the .therm file is present.
+    checks = 0
 
-        while checks < 60:
-            time.sleep(1)
-            if path.exists(file_path) is False:
-                checks += 1
-            else:
-                break
+    while checks < 60:
+        time.sleep(1)
+        if path.exists(file_path) is False:
+            checks += 1
+        else:
+            break
 
-        assert path.exists(file_path) is True
+    assert path.exists(file_path) is True
 
-        remove(file_path)
+    remove(file_path)
 
 
 # def test_lab_model_export(mc):

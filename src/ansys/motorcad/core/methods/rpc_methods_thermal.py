@@ -263,12 +263,3 @@ class _RpcMethodsThermal:
         method = "ClearFixedTemperatureValue"
         params = [node1]
         return self.connection.send_and_receive(method, params)
-
-    def export_thermal_model(self, file_path):
-        """Export the lab thermal model to a file.
-
-        Deprecated - to be removed - use export_lab_thermal_model instead.
-        """
-        method = "ExportThermalModel"
-        params = [file_path]
-        return self.connection.send_and_receive(method, params)

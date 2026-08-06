@@ -486,6 +486,7 @@ class _RpcMethodsLab:
         file_path : str
             File path including thermal model file name and file extension (.therm)
         """
+        self.connection.ensure_feature_exists("export_lab_thermal_model")
         method = "ExportLabThermalModel"
         params = [file_path]
         return self.connection.send_and_receive(method, params)
@@ -501,5 +502,6 @@ class _RpcMethodsLab:
         ThermalModelFlowRateMaximum" - set to maximum flow rate value.
         "ThermalModelFlowRateResolution" - set to number of flow rate points.
         """
+        self.connection.ensure_feature_exists("build_lab_thermal_model")
         method = "BuildLabThermalModel"
         return self.connection.send_and_receive(method)
