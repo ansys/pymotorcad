@@ -109,6 +109,7 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import colorlog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -403,7 +404,14 @@ class MotorCADTwinModel:
             format="%(asctime)s - %(levelname)s - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
-        logging.getLogger().addHandler(logging.StreamHandler())
+        streamHandler = logging.StreamHandler()
+        streamHandler.setFormatter(
+            colorlog.ColoredFormatter(
+                fmt="%(log_color)s%(asctime)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+            )
+        )
+        logging.getLogger().addHandler(streamHandler)
         logger.info("Python script execution initiated")
         logger.info(f"Input Motor-CAD file: {self.inputMotFilePath}")
         logger.info(f"Output directory: {self.outputDirectory}")
@@ -1121,7 +1129,6 @@ class MotorCADTwinModel:
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(str(exportDirectory))
-        
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
