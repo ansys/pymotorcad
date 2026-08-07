@@ -1121,8 +1121,7 @@ class MotorCADTwinModel:
 
         self.mcad.do_steady_state_analysis()
         self.mcad.export_matrices(str(exportDirectory))
-        # TODO await workaround from Motor-CAD devs to include non-zero capacitance for
-        # new grouped spray cooling.
+        
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
