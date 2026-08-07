@@ -446,6 +446,12 @@ class MotorCADTwinModel:
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
+        logger.info(f"Parameters used for data generation:")
+        logger.info(f"rpms = {rpms}")
+        logger.info(f"housingAmbientTemperatures = {housingAmbientTemperatures}")
+        logger.info(f"airgapTemperatures = {airgapTemperatures}")
+        logger.info(f"coolingSystemsParameterSweeps = {coolingSystemsParameterSweeps}")
+
         housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(
             rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
         )
