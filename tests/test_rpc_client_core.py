@@ -180,13 +180,17 @@ def test_keeping_instance_open(monkeypatch):
     del mc3
 
     # Check keep_instance_open ignored when building docs
-    # quit will now be called and Motor-CAD will close if instance is deleted
+    # (del will call to quit MotorCAD and close the connection).
     monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
 
     mc2 = MotorCAD(keep_instance_open=True)
 
     original_port = mc2.connection._port
     del mc2
+
+    # Quitting MotorCAD can take a moment to close the RPC server.
+    # Sleep for half a second to ensure the connection is closed.
+    sleep(0.5)
 
     with pytest.raises(Exception):
         _ = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)

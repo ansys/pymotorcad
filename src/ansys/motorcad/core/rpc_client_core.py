@@ -780,8 +780,4 @@ class _MotorCADConnection:
         else:
             # local machine
             method = "Quit"
-            result = self.send_and_receive(method)
-            # Quitting MotorCAD can take a moment to close the RPC server.
-            # Sleep for half a second to ensure the connection is closed.
-            time.sleep(0.5)
-            return result
+            return self.send_and_receive(method)
