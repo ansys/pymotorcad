@@ -2437,13 +2437,6 @@ if Path(inputMotFilePath).exists() == False:
     motorcad.quit()
 
 # %%
-# Create the ``MotorCADTwinModel`` object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the generated training data should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDirectory)
-
-# %%
 # Choose the speed sample points
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Choose the speed points that the model should be sampled at. The generated Thermal ROM will
@@ -2497,15 +2490,18 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
 # %%
 # Generate the training data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Finally, generate the required data. This function will write the data to the directory
-# specified previously. The identified cooling system node flow paths are automatically plotted.
+# First create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file
+# and the directory to which the generated training data should be saved.
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDirectory)
+
+# Then call the ``generateTwinData`` method, which will run the Motor-CAD calculations and write the
+# data to the output directory.
 MotorCADTwin.generateTwinData(
     rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
     coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
 )
-
 
 # %%
 # Generate the Thermal ROM in Twin Builder
