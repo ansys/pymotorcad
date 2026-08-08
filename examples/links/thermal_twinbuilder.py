@@ -26,14 +26,13 @@ Motor-CAD Thermal Twin Builder ROM
 This example shows how to transform a Motor-CAD model into a Thermal ROM (reduced order model) in
 Ansys Twin Builder.
 
-.. important:: We strongly recommend using Ansys Twin Builder 2026 R1 or newer, as it includes
-  significant new Thermal ROM capabilities.
+.. important:: This script is designed to be used with Ansys Twin Builder 2027 R1 or newer.
 
 """
 
 # %%
-# Background
-# --------------
+# Overview
+# --------
 # Several options exist to transform a Motor-CAD Thermal Model into a Thermal ROM. The most
 # comprehensive and recommended option is to use this workflow to create a Thermal ROM in Ansys Twin
 # Builder. The process has two steps:
@@ -49,21 +48,31 @@ Ansys Twin Builder.
 #
 # The following screenshot shows a resulting Thermal ROM in Twin Builder. The input and output pins
 # were automatically created. Values to feed into the input pins (yellow boxes) and plots of the
-# time-varying values of the input and output pins (two bottom graphs) were manually added.
+# time-varying plots of the input and output pins (two bottom graphs) were manually added.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# The Thermal ROM has been designed to require minimal setup expertise, have a quick setup time and
-# maintain high solve accuracy when compared to the full fidelity Motor-CAD thermal model. During
-# runtime, the Thermal ROM will automatically interpolate between the operating points used to
-# generate the training data, ensuring validity over the full user defined operating range.
+# The Thermal ROM is designed for rapid deployment with minimal setup effort while maintaining high
+# accuracy relative to the full Motor-CAD thermal model. During simulation, it automatically
+# interpolates between the operating points used for training, ensuring reliable results across the
+# user-defined operating range.
 #
-# User friendly input and output pins ensure ease of use, even for those unfamiliar with Motor-CAD.
-# The pins have been designed to allow easy linking between the Thermal ROM and the Motor-CAD Lab
-# FMU, allowing for fast, coupled, drive cycle simulations.
+# User-friendly input and output pins simplify integration, including seamless coupling with the
+# Motor-CAD Lab FMU for efficient drive cycle simulations.
 #
-# The Thermal ROM is also standalone (does not require Motor-CAD at runtime), thus allowing it to be
-# distributed and used in alternate systems whilst obscuring the underlying Motor-CAD geometry.
+# As a thermal-only model, the ROM requires losses to be supplied as inputs. These can be provided
+# by the Motor-CAD Lab FMU or any other suitable source.
+#
+# The Thermal ROM is delivered as an SML file containing the thermal resistance and capacitance
+# network derived from the underlying Motor-CAD model. It operates independently of Motor-CAD and
+# can be exported as an FMU for deployment in third-party simulation environments. This enables
+# straightforward distribution while protecting the underlying Motor-CAD geometry and intellectual
+# property.
+
+# %%
+# Capabilities and model support
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This workflow supports all Motor-CAD models.
 #
 # Key features include:
 #
@@ -88,12 +97,49 @@ Ansys Twin Builder.
 # * Automatic output pin creation for post-processed temperatures for solids (e.g. Armature Winding
 #   Average Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
 #
-# * Ability to set arbitrary initial temperatures, per component
+# * Ability to set arbitrary initial temperatures
 #
 # * Ability to export the Thermal ROM as an FMU, which can be deployed within any FMU compatible
 #   tool
 #
-# Please see :ref:`example_use_case` to see an example of ROM generation.
+# The following Motor-CAD model settings are unsupported:
+#
+# * Heat Exchanger cooling system. 
+#
+#   The Motor-CAD Heat Exchanger cooling system is not supported by the Thermal ROM. If the Heat 
+#   Exchanger is enabled, this ROM generation script will raise an error. The workaround is to
+#   disable the Heat Exchanger cooling system in the Motor-CAD model, generate the Thermal ROM, and
+#   manually recreate the heat exchanger model in Twin Builder.
+#
+# * Temperature dependent airgap fluid properties with Wet Rotor cooling or Ventilated cooling.
+#
+#   If these cooling systems are enabled and have flow in the airgap, the ``airgapTemperatures``
+#   parameter must be set to None. If it is not, this ROM generation script will raise an error.
+#   This is expected to result in only a minor deviation in the Thermal ROM results.
+#
+# * Local temperature dependent fluid properties.
+#
+#   Some Motor-CAD cooling systems determine fluid properties based on the local fluid temperature.
+#   This is not supported by the Thermal ROM. It is expected to affect a minority of models with
+#   only a minor deviation in the Thermal ROM results.
+#
+# * Altitude variation.
+#
+#   The Thermal ROM is only valid for the altitude selected in the Motor-CAD model, and variation of
+#   altitude is not supported. Given that ambient temperature variation is supported, the lack of
+#   altitude variation support is expected to result in only a minor deviation in the Thermal ROM
+#   results.
+#
+# * Temperature dependent copper loss distribution.
+#
+#   If stator copper loss variation has been set to use local winding temperatures, the distribution
+#   of the copper losses will vary with temperature in Motor-CAD. This is not supported by the
+#   Thermal ROM, and the loss distribution will be fixed to the distribution at the ambient
+#   temperature. Note that by default, Motor-CAD has temperature dependent loss distribution
+#   disabled. Therefore, this limitation is expected to affect very few models with only a minor
+#   deviation in the Thermal ROM results.
+#
+# Skip to the :ref:`example_use_case` to see an example of ROM generation.
 
 # %%
 # Workflow python script
