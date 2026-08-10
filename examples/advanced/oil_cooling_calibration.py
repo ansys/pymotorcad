@@ -217,7 +217,7 @@ from experimental testing.
 
 # %%
 # Automated spray cooling calibration via scripting
-# -------------------------------------------------------
+# -------------------------------------------------
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import ``repeat`` from ``itertools`` and ``Pool`` from ``multiprocessing`` to manage the multiple
@@ -225,21 +225,32 @@ from experimental testing.
 # Import ``os`` and ``shutil`` for saving and loading the files required by the example.
 # Import ``statistics`` for analysing the temperature data.
 # Import ``time`` for logging the time required for processes to complete.
+# Import ``warnings`` for raising warnings if necessary.
+# Import ``math`` for rounding numbers up and down.
+# Import ``ascii_lowercase`` from ``string`` for labelling hairpins alphabetically.
 # Import ``numpy`` to define the bounds for correlation factors.
 # Import ``pandas`` to read data from CSV files.
 # Import ``Bounds`` and ``minimize`` from ``scipy.optimize`` to carry out the optimisation.
+# Import ``RegularGridInterpolator`` from ``scipy.interpolate`` to carry out interpolation of the
+# calibration results.
+# Import ``matplotlib`` to plot results.
 # Import ``pymotorcad`` to access Motor-CAD.
 
 # sphinx_gallery_thumbnail_path = 'images/oil_cooling_calibration/thumbnail.png'
 from itertools import repeat
+import math
 from multiprocessing import Pool
 import os
 import shutil
 import statistics
+from string import ascii_lowercase as alc
 import time
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import Bounds, minimize
 
 import ansys.motorcad.core as pymotorcad
@@ -382,6 +393,8 @@ def load_testcase_data(inputs_folder):
 #    and the copper loss, which varies throughout each test, will be set later.
 # e. Disable temperature scaling of the copper loss. The input electrical power has been measured at
 #    steady state (it is effectively already scaled), so these are the absolute values.
+# f. Disable Lab-Thermal coupling in Motor-CAD, so that when the Thermal Steady State Calculation is
+#    carried out, losses are not imported from Lab.
 def create_base_motfile(mcad, working_folder):
     mcad.set_variable("MessageDisplayState", 2)
     mcad.load_template("e10")
@@ -405,6 +418,9 @@ def create_base_motfile(mcad, working_folder):
     mcad.set_variable("Rotor_Iron_Loss_@Ref_Speed_[Back_Iron]", 0)
     mcad.set_variable("Windage_Loss_(Ext_Fan)@Ref_Speed", 0)
     mcad.set_variable("Copper_Losses_Vary_With_Temperature", False)
+
+    # Don't calculate losses in lab -> No Coupling (default)
+    mcad.set_variable("LabThermalCoupling", 0)
 
     # Save the resulting file to the ``working_folder`` as ``e10_calibration_base.mot``. This will
     # be used as the start point to create the individual test case files.
@@ -794,7 +810,7 @@ def calibrate_model(
     # decides the optimisation is complete, rather it sets a relevant solve-specific tolerance.
     # This can be adjusted to balance the optimisation runtime and the accuracy of the results.
     # A lower tolerance will lead to a more accurate result, but will take longer to run.
-    tolerance = 1.0
+    tolerance = 0.01
 
     # Use an initial guess of 1 for the correlation factor of all surfaces of each layer.
     initial_guess = [1.0] * num_variables
@@ -814,6 +830,7 @@ def calibrate_model(
     mc.save_to_file(testcase_filepath)
 
     # Summarise the optimisation results
+    print(f"\n\nTest case file saved to {testcase_filepath} with optimised correlation factors.")
     print("Status : %s" % result["message"])
     print("Total Evaluations: %d" % result["nfev"])
     print(result.x[0])
@@ -827,25 +844,30 @@ def calibrate_model(
 # the temperature values for each test case from the test data dataframe and returns them in a list.
 # Each element of the list corresponds to a test case and contains the twelve temperature values for
 # that test case.
-def all_testcase_temperatures(testcase_data):
+def all_testcase_temperatures(testcase_data, num_hairpins):
     all_testcase_temperatures = []
     for _, row in testcase_data.iterrows():
-        all_testcase_temperatures.append(
-            [
-                row["T_layer_a_f"],
-                row["T_layer_b_f"],
-                row["T_layer_c_f"],
-                row["T_layer_d_f"],
-                row["T_layer_e_f"],
-                row["T_layer_f_f"],
-                row["T_layer_a_r"],
-                row["T_layer_b_r"],
-                row["T_layer_c_r"],
-                row["T_layer_d_r"],
-                row["T_layer_e_r"],
-                row["T_layer_f_r"],
-            ]
-        )
+        rows = []
+        for end in ["f", "r"]:
+            for i in alc[:num_hairpins]:
+                rows.append(row[f"T_layer_{i}_{end}"])
+        all_testcase_temperatures.append(rows)
+        # all_testcase_temperatures.append(
+        #     [
+        #         row["T_layer_a_f"],
+        #         row["T_layer_b_f"],
+        #         row["T_layer_c_f"],
+        #         row["T_layer_d_f"],
+        #         row["T_layer_e_f"],
+        #         row["T_layer_f_f"],
+        #         row["T_layer_a_r"],
+        #         row["T_layer_b_r"],
+        #         row["T_layer_c_r"],
+        #         row["T_layer_d_r"],
+        #         row["T_layer_e_r"],
+        #         row["T_layer_f_r"],
+        #     ]
+        # )
     return all_testcase_temperatures
 
 
@@ -913,7 +935,7 @@ def calibrate_testcases(
             calibrate_model,
             zip(
                 testcase_filepaths,
-                all_testcase_temperatures(testcase_data),
+                all_testcase_temperatures(testcase_data, num_hairpins),
                 repeat(num_hairpins),
                 repeat(ewdg_nodes_f),
                 repeat(ewdg_nodes_r),
@@ -934,7 +956,7 @@ def calibrate_testcases(
         # documentation and for users who do not have the resources or licences to run multiple
         # parallel instances of Motor-CAD.
         for testcase_filepath, testcase_temperatures in zip(
-            testcase_filepaths, all_testcase_temperatures(testcase_data)
+            testcase_filepaths, all_testcase_temperatures(testcase_data, num_hairpins)
         ):
             calibrate_model(
                 testcase_filepath,
@@ -971,44 +993,31 @@ def collate_results(
     oil_node_f,
     oil_node_r,
 ):
-    # Append three Motor-CAD columns to each existing row so later steps can populate them.
+    # Append four Motor-CAD columns for each hairpin layer at the front and rear of the machine.
+    # Later steps can populate these columns for each row.
     results_filepath = pd.read_csv(
         os.path.join(inputs_folder, "test_data.csv"), index_col="Test_case"
     )
 
-    temp_f_mcad = [
-        "T_layer_a_f_motorcad",
-        "T_layer_b_f_motorcad",
-        "T_layer_c_f_motorcad",
-        "T_layer_d_f_motorcad",
-        "T_layer_e_f_motorcad",
-        "T_layer_f_f_motorcad",
-    ]
-    temp_r_mcad = [
-        "T_layer_a_r_motorcad",
-        "T_layer_b_r_motorcad",
-        "T_layer_c_r_motorcad",
-        "T_layer_d_r_motorcad",
-        "T_layer_e_r_motorcad",
-        "T_layer_f_r_motorcad",
-    ]
-    cf_f_mcad = [
-        "Correlation_Factor_layer_a_f_motorcad",
-        "Correlation_Factor_layer_b_f_motorcad",
-        "Correlation_Factor_layer_c_f_motorcad",
-        "Correlation_Factor_layer_d_f_motorcad",
-        "Correlation_Factor_layer_e_f_motorcad",
-        "Correlation_Factor_layer_f_f_motorcad",
-    ]
-    cf_r_mcad = [
-        "Correlation_Factor_layer_a_r_motorcad",
-        "Correlation_Factor_layer_b_r_motorcad",
-        "Correlation_Factor_layer_c_r_motorcad",
-        "Correlation_Factor_layer_d_r_motorcad",
-        "Correlation_Factor_layer_e_r_motorcad",
-        "Correlation_Factor_layer_f_r_motorcad",
-    ]
-    new_columns = temp_f_mcad + temp_r_mcad + cf_f_mcad + cf_r_mcad
+    # Use a dictionary to store the new data column names. Loop through front and rear ends of the
+    # machine and use ``ascii_lowercase`` from ``string`` to loop through the number of hairpin
+    # layers alphabetically.
+    # Columns will be named:
+    #   "T_layer_a_f_motorcad", "T_layer_b_f_motorcad", ...
+    #   "T_layer_a_r_motorcad", "T_layer_b_r_motorcad", ...
+    #   "Correlation_Factor_layer_a_f_motorcad", "Correlation_Factor_layer_b_f_motorcad", ...
+    #   "Correlation_Factor_layer_a_r_motorcad", "Correlation_Factor_layer_b_r_motorcad", ...
+    column_dict = {}
+    column_dict["column_names"] = []
+    for output in ["T", "Correlation_Factor"]:
+        for end in ["f", "r"]:
+            column_dict[f"{output}_{end}_mcad"] = []
+            column_dict["column_names"].append(f"{output}_{end}_mcad")
+            for i in alc[:num_hairpins]:
+                column_dict[f"{output}_{end}_mcad"].append(f"{output}_layer_{i}_{end}_motorcad")
+    new_columns = []
+    for name in column_dict["column_names"]:
+        new_columns.extend(column_dict[name])
 
     mcad = pymotorcad.MotorCAD()
     mcad.set_variable("MessageDisplayState", 2)
@@ -1024,7 +1033,7 @@ def collate_results(
         )
 
         # Extract the correlation factors for each layer. These will be the same for all surfaces
-        # of a layer, so only one surface per layer is extracted.
+        # of a layer, so only one surface (Inner) per layer is extracted.
         correlation_factors_f = [
             mcad.get_array_variable(
                 "Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_Inner_F", index
@@ -1081,3 +1090,551 @@ if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
     # function call in a ``if __name__ == "__main__":`` block to avoid issues with multiprocessing.
     if __name__ == "__main__":
         perform_calibration(parallel_workers)
+
+
+# %%
+# Validate calibration results with test temperatures
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Validate the calibration by comparing temperature results with the test data. Plot the results on
+# a grouped bar chart, so that the temperature differences can be easily assessed. To validate the
+# calibration, compare the temperature results from Motor-CAD with the test data temperatures.
+#
+# Run the Motor-CAD model with default correlation factor values to obtain the non-calibrated model
+# temperature results. Then, compare these temperature results with the test data and the calibrated
+# Motor-CAD model temperatures.
+#
+# Define a function to get the temperature results from Motor-CAD for one of the test cases with
+# the default, non-calibrated spray cooling correlation factors:
+#
+# * Launch Motor-CAD and open the e10 template
+#
+# * Extract the default correlation factors. These will be the same for all hairpin layers in the
+#   e10 template file, so correlation factors for only one hairpin layer are extracted. Loop through
+#   the surfaces to get the different values.
+#
+# * Open the calibrated test file Motor-CAD model, which was saved to the ``outputs_folder`` during
+#   the calibration process.
+#
+# * Set the default correlation factor values in Motor-CAD and re-run the steady state thermal
+#   calculation for the non-calibrated model.
+#
+# * Get the end winding enamel temperatures for each hairpin layer for the non-calibrated model,
+#   calculated with the default correlation factors. Also return the number of hairpin layers.
+def noncalibrated_motorcad_results(testcase_filepath):
+    # launch Motor-CAD and open e10 template
+    mcApp = pymotorcad.MotorCAD()
+
+    mcApp.set_variable("MessageDisplayState", 2)
+    mcApp.load_template("e10")
+
+    # Extract the default correlation factors for each surface.
+    default_correlation_factors_f = []
+    default_correlation_factors_r = []
+    for surface in ["Inner", "Outer", "Front", "Rear"]:
+        default_correlation_factors_f.append(
+            mcApp.get_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F", 0
+            )
+        )
+        default_correlation_factors_r.append(
+            mcApp.get_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R", 0
+            )
+        )
+
+    # Open the calibrated test case file. Get the necessary model data, node numbers for hairpin end
+    # winding enamel temperatures, number of hairpins.
+    num_hairpins, oil_node_f, oil_node_r, ewdg_nodes_f, ewdg_nodes_r = get_model_data(
+        mcApp, [testcase_filepath, None]
+    )
+
+    # Set the default correlation factor values in Motor-CAD and re-run the steady state thermal
+    # calculation for the non-calibrated model.
+    i = 0
+    for surface in ["Inner", "Outer", "Front", "Rear"]:
+        for j in range(num_hairpins):
+            mcApp.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F",
+                j,
+                default_correlation_factors_f[i],
+            )
+
+            mcApp.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R",
+                j,
+                default_correlation_factors_r[i],
+            )
+        i += 1
+    mcApp.do_steady_state_analysis()
+
+    # Get the end winding enamel temperatures for each hairpin layer for the non-calibrated model,
+    # with default correlation factors.
+    default_enamel_temperatures_f, default_enamel_temperatures_r = calculate_enamel_temperatures(
+        mcApp, ewdg_nodes_f, ewdg_nodes_r, oil_node_f, oil_node_r
+    )
+    # Return the number of hairpins and the enamel temperatures.
+    return num_hairpins, default_enamel_temperatures_f, default_enamel_temperatures_r
+
+
+# %%
+# Define a function to plot the temperature results from a Motor-CAD model before calibration, the
+# test temperatures and the calibrated Motor-CAD model temperature results for one of the test
+# cases. This function uses matplotlib to plot the results on a grouped bar chart.
+#
+# Use the ``noncalibrated_motorcad_results()`` function to find the non-calibrated Motor-CAD
+# results. Read the test temperatures and calibrated Motor-CAD model result temperatures from the
+# ``results_data.csv`` file. The CSV file must be in the ``outputs_folder``.
+def validate_calibration_results(test_case, outputs_folder):
+    testcase_filepath = os.path.join(outputs_folder, f"test_case_{test_case}.mot")
+    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
+
+    # Print the shaft speed, oil flow rate and oil inlet temperature for the specific test case.
+    print(f"\n\nPlotting calibrated temperature results for Test {test_case}.")
+    print(f"Shaft speed = {results['Speed'][test_case]} rpm")
+    print(f"Oil flow rate = {results['Flow_rate'][test_case]} l/min")
+    print(f"Oil inlet temperature = {results['Inlet_temperature'][test_case]} °C")
+
+    # Get temperature results data from the non-calibrated Motor-CAD model using the
+    # ``noncalibrated_motorcad_results()`` function.
+    (
+        num_hairpins,
+        default_enamel_temperatures_f,
+        default_enamel_temperatures_r,
+    ) = noncalibrated_motorcad_results(testcase_filepath)
+
+    # Set up a dictionary for storing the temperature data to be plotted
+    labels = []
+    temperatures = {
+        "Non-Calibrated Motor-CAD Results": [],
+        "Test Data": [],
+        "Calibrated Motor-CAD Results": [],
+    }
+
+    # Store the non-calibrated temperature data from Motor-CAD in the ``temperatures`` dictionary
+    temperatures["Non-Calibrated Motor-CAD Results"].extend(default_enamel_temperatures_f)
+    temperatures["Non-Calibrated Motor-CAD Results"].extend(default_enamel_temperatures_r)
+
+    # Get the test data temperatures and calibrated model temperatures from the ``results_data.csv``
+    # file and store in the ``temperatures`` dictionary.
+    for end in ["f", "r"]:
+        for i in alc[:num_hairpins]:
+            labels.append(f"{i}_{end}")
+            temperatures["Test Data"].append(results[f"T_layer_{i}_{end}"][test_case])
+            temperatures["Calibrated Motor-CAD Results"].append(
+                results[f"T_layer_{i}_{end}_motorcad"][test_case]
+            )
+
+    # Set up the matplotlib grouped bar chart
+    # Define the label locations
+    x = np.arange(len(labels))
+    # Define the width of bars
+    width = 0.3
+
+    # Create the figure and subplot axes
+    fig, ax = plt.subplots(layout="constrained")
+
+    # Add the bars to the bar chart
+    multiplier = 0
+    for attribute, measurement in temperatures.items():
+        offset = width * multiplier
+        ax.bar(x + offset, measurement, width, label=attribute)
+        multiplier += 1
+
+    # Add axis labels, title and custom x-axis tick labels to the bar chart
+    ax.set_xlabel("Hairpin layer")
+    ax.set_ylabel("Temperature [°C]")
+    ax.set_title(f"Temperature Comparison [Test {test_case}]")
+    ax.set_xticks(x + width, labels)
+    # Add a legend
+    ax.legend(loc="upper left", ncols=2, fontsize="small")
+    # set axis limits as multiples of 5 at least 2 °C below(/above) the min(/max) temperatures
+    min_temperatures = [
+        min(temperatures["Test Data"]),
+        min(temperatures["Calibrated Motor-CAD Results"]),
+        min(temperatures["Non-Calibrated Motor-CAD Results"]),
+    ]
+    max_temperatures = [
+        max(temperatures["Test Data"]),
+        max(temperatures["Calibrated Motor-CAD Results"]),
+        max(temperatures["Non-Calibrated Motor-CAD Results"]),
+    ]
+    y_axis_lower_lim = 5 * math.floor((min(min_temperatures) - 2) / 5)
+    y_axis_upper_lim = 5 * math.ceil((max(max_temperatures) + 2) / 5)
+    ax.set_ylim(y_axis_lower_lim, y_axis_upper_lim)
+
+    plt.show()
+
+    # Determine the maximum difference between test data and calibrated model:
+    max_difference = 0
+    max_difference_i = None
+    for i in range(len(temperatures["Test Data"])):
+        temperature_difference = (
+            temperatures["Test Data"][i] - temperatures["Calibrated Motor-CAD Results"][i]
+        )
+        if abs(temperature_difference) > abs(max_difference):
+            max_difference = temperature_difference
+            max_difference_i = i
+    # Print the maximum temperature difference
+    print(
+        f"Maximum temperature difference between test and calibrated Motor-CAD model: "
+        f"{round(max_difference, 2)} °C [Hairpin layer {labels[max_difference_i]}]"
+    )
+
+
+# %%
+# Plot the results for test case 17 by running the ``validate_calibration_results()`` function.
+# Compare the temperature results obtained using the default, non-calibrated Motor-CAD spray cooling
+# model, where default correlation factor values are applied to the test data temperatures and the
+# calibrated Motor-CAD model results, where correlation factors have been optimised based on the
+# test data.
+#
+# As we are using the multiprocessing module, it is necessary to wrap the
+# ``validate_calibration_results()`` function call in a ``if __name__ == "__main__":`` block to
+# avoid issues with multiprocessing.
+if __name__ == "__main__":
+    # load in the results
+    test_case = 17
+    working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
+    outputs_folder = os.path.join(working_folder, "outputs")
+
+    # Run the validation and plot the results
+    validate_calibration_results(test_case, outputs_folder)
+
+
+# %%
+# Implementation of calibrated spray cooling correlation factors
+# --------------------------------------------------------------
+# Now that the calibration results have been obtained for the set of test data cases, these results
+# can be used to determine appropriate **Correlation Factor** values for other cases with different
+# oil inlet temperature, oil flow rate or shaft speed. The ``results_data.csv`` file consists of a
+# table of oil inlet temperature, oil flow rate, shaft speed and calibrated correlation factors,
+# which can be interpolated to determine correlation factors for different combinations of inputs.
+#
+# Begin by defining some necessary functions.
+#
+# Set up a Motor-CAD model for implementing the calibrated model
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set up a Motor-CAD model with **Spray Cooling (Radial from Housing)** where the spray cooling
+# input parameters are different from any of the test cases.
+#
+# Open the e10 template, where the **Spray Cooling (Radial from Housing)** cooling system is coupled
+# to the **Housing Water Jacket** cooling system:
+#
+# * The oil flow rate and inlet temperature are set in the **Housing Water Jacket** model input
+#   data.
+#
+# * The calculated **Housing Water Jacket** outlet temperature is automatically set as the
+#   **Spray Cooling (Radial from Housing)** inlet temperature.
+#
+# * The flow proportions are defined in the **Spray Cooling (Radial from Housing)** model input
+#   data, such that half the oil flow is sprayed from the housing at the front of the machine and
+#   half passes through the **Housing Water Jacket**. At the rear of the machine, all the remaining
+#   oil flow is sprayed from the housing.
+#
+# Set the following input parameters for the **Housing Water Jacket** model:
+#
+# * **Housing Water Jacket** flow rate = 10 l/min
+#
+# * **Housing Water Jacket** inlet temperature = 65 °C
+#
+# With these **Housing Water Jacket** input parameter settings, and the
+# **Spray Cooling (Radial from Housing)** **Spray Flow Source** set to
+# **Housing Water Jacket (Front Inlet)**:
+#
+# * The **Spray Cooling (Radial from Housing)** oil flow rate will be **5 l/min** at the front and
+#   **5 l/min** at the rear of the machine.
+#
+# * The **Spray Cooling (Radial from Housing)** oil inlet temperature at the front of the machine
+#   will be a value slightly higher than **65 °C** due to the heat absorbed by the oil in the
+#   **Housing Water Jacket** around the front end space.
+#
+# * The **Spray Cooling (Radial from Housing)** oil inlet temperature at the rear of the machine
+#   will be a value more than **65 °C**, with this value depending on the amount of heat absorbed by
+#   the oil in the **Housing Water Jacket** around the active part of the machine.
+#
+# Set the **Shaft speed** for the **Steady State** thermal calculation = 6000 rpm
+#
+# Set the **Lab -> Thermal** coupling so that the losses for this operating point are calculated
+# in the Motor-CAD Lab module and imported to Thermal, and set the
+# **Copper Losses Vary With Temperature** variable to **True** so that the losses are scaled with
+# temperature. This models the realistic case where the motor is operating with electromagnetic
+# losses, unlike the calibration test cases.
+#
+# Save the MOT file to the ``working_folder``.
+def create_implement_model_motfile(mcad, working_folder):
+    mcad.set_variable("MessageDisplayState", 2)
+    mcad.load_template("e10")
+    mcad.show_thermal_context()
+
+    # Calculate losses from Lab
+    mcad.set_variable("LabThermalCoupling", 1)
+    mcad.set_variable("Copper_Losses_Vary_With_Temperature", True)
+
+    # Set up the Housing Water Jacket cooling system
+    mcad.set_variable("WJ_Fluid_Volume_Flow_Rate", 10 / 60000)
+    mcad.set_variable("HousingWJ_Inlet_Temperature", 65)
+
+    # set the steady state calculation speed
+    mcad.set_variable("ShaftSpeed", 6000)
+
+    # Save the resulting file to the ``working_folder`` as ``e10_calibration_implementation.mot``.
+    implementation_motfile = os.path.join(working_folder, "e10_calibration_implementation.mot")
+    mcad.save_to_file(implementation_motfile)
+
+    return implementation_motfile
+
+
+# %%
+# Look up correlation factors for Motor-CAD file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a function that identifies the **Shaft Speed** and spray cooling model parameters (oil
+# volume flow rate and inlet temperature at front and rear of the machine) from the Motor-CAD file
+# and obtains the corresponding correlation factors.
+#
+# The speed and/or model parameters may not have been covered by the test cases, so define
+# interpolation functions for each correlation factor to determine the appropriate value based on
+# the calibration results. Using the RegularGridInterpolator from scipy.interpolate, define the
+# interpolation function for each correlation factor. Inputs are speed, flow rate and inlet
+# temperature. Output is correlation factor.
+#
+# Return a list of correlation factors for the front and rear of the machine.
+def lookup_correlation_factors(mcad, results):
+    # Get the Shaft Speed and oil spray fluid volume flow rate and inlet temperatures from the
+    # Motor-CAD model
+    o_speed = mcad.get_variable("ShaftSpeed")
+    o_oil_flow_rate_f = mcad.get_variable("Spray_RadialHousing_VolumeFlowRate_" + "F") * 60000
+    o_oil_flow_rate_r = mcad.get_variable("Spray_RadialHousing_VolumeFlowRate_" + "R") * 60000
+    o_inlet_temperature_f = mcad.get_variable("Spray_RadialHousing_InletTemperature_" + "F")
+    o_inlet_temperature_r = mcad.get_variable("Spray_RadialHousing_InletTemperature_" + "R")
+
+    # Print the Shaft Speed and oil spray fluid volume flow rate and inlet temperatures
+    print(
+        f"Motor-CAD model to implement calibrated Spray Cooling (Radial from Housing) correlation"
+        f" factors is set up with:"
+    )
+    print(f"- Steady State calculation shaft speed: {o_speed} rpm")
+    print(
+        f"- Spray Cooling (Radial from Housing) oil flow rate [front]: "
+        f"{round(o_oil_flow_rate_f, 2)} l/min"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil flow rate [rear]: "
+        f"{round(o_oil_flow_rate_r, 2)} l/min"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil inlet temperature [front]: "
+        f"{round(o_inlet_temperature_f, 2)} °C"
+    )
+    print(
+        f"- Spray Cooling (Radial from Housing) oil inlet temperature [rear]: "
+        f"{round(o_inlet_temperature_r, 2)} °C"
+    )
+
+    # get lists of the unique values of speed, flow rate and inlet temperature from the test cases
+    # results CSV file.
+    data_speed = list(set(results["Speed"]))
+    data_flow_rate = list(set(results["Flow_rate"]))
+    data_inlet_temperature = list(set(results["Inlet_temperature"]))
+
+    # raise a warning if the speed value in the Motor-CAD file is outside the test data range
+    if o_speed < min(data_speed) * 0.99 or o_speed > max(data_speed) * 1.01:
+        warnings.warn(
+            f"The speed {o_speed} rpm is outside of the test data range "
+            f"({min(data_speed)} to {max(data_speed)} rpm). "
+            f"Spray Cooling model accuracy may be affected."
+        )
+
+    # raise a warning if the flow rate value in the Motor-CAD file is outside the test data range
+    #  (1 % tolerance)
+    if (
+        o_oil_flow_rate_f < min(data_flow_rate) * 0.99
+        or o_oil_flow_rate_f > max(data_flow_rate) * 1.01
+    ):
+        warnings.warn(
+            f"The oil flow rate {round(o_oil_flow_rate_f, 2)} l/min at front of the machine is "
+            f"outside of the test data range ({min(data_flow_rate)} to "
+            f"{max(data_flow_rate)} l/min). Spray Cooling model accuracy may be affected."
+        )
+    elif o_oil_flow_rate_r != o_oil_flow_rate_f:
+        if (
+            o_oil_flow_rate_r < min(data_flow_rate) * 0.99
+            or o_oil_flow_rate_r > max(data_flow_rate) * 1.01
+        ):
+            warnings.warn(
+                f"The oil flow rate {round(o_oil_flow_rate_r, 2)} l/min at rear of the machine is "
+                f"outside of the test data range ({min(data_flow_rate)} to "
+                f"{max(data_flow_rate)} l/min). Spray Cooling model accuracy may be "
+                f"affected."
+            )
+
+    # raise a warning if the inlet temperature value in the Motor-CAD file is outside the test data
+    # range (1 % tolerance)
+    if (
+        o_inlet_temperature_f < min(data_inlet_temperature) * 0.99
+        or o_inlet_temperature_f > max(data_inlet_temperature) * 1.01
+    ):
+        warnings.warn(
+            f"The oil inlet temperature {round(o_inlet_temperature_f, 2)} °C at front of the "
+            f"machine is outside of the test data range ({min(data_inlet_temperature)} to "
+            f"{max(data_inlet_temperature)} °C). Spray Cooling model accuracy may be affected."
+        )
+    elif o_inlet_temperature_r != o_inlet_temperature_f:
+        if (
+            o_inlet_temperature_r < min(data_inlet_temperature) * 0.99
+            or o_inlet_temperature_r > max(data_inlet_temperature) * 1.01
+        ):
+            warnings.warn(
+                f"The oil inlet temperature {round(o_inlet_temperature_r, 2)} °C at rear of the "
+                f"machine is outside of the test data range ({min(data_inlet_temperature)} to "
+                f"{max(data_inlet_temperature)} °C). Spray Cooling model accuracy may be "
+                f"affected."
+            )
+
+    # get the names of correlation factor columns from the results CSV file. There will be 2
+    # correlation factors for each hairpin end winding layer (1 for each end of the machine).
+
+    # create a dictionary object for storing and organising the correlation factor results.
+    # Add the correlation factor names (column names from the results CSV file)
+    # Add an empty numpy array for each correlation factor. The array has dimensions x*y*z where
+    # x is the number of speed values, y is the number of flow rate values and z is the number of
+    # inlet temperature values in the test data.
+    correlation_factors = {}
+    correlation_factors["names"] = []
+    for column_name in list(results):
+        if "Correlation_Factor" in column_name:
+            correlation_factors["names"].append(column_name)
+            correlation_factors[column_name] = np.zeros(
+                (len(data_speed), len(data_flow_rate), len(data_inlet_temperature))
+            )
+
+    # Loop through all test cases. Find the corresponding test variables (speed, flow rate and inlet
+    # temperature) for each test case and identify the index in the lists of unique test variable
+    # values.
+    #
+    # Using the indices of the test variables, store the correlation factor result values in the
+    # corresponding location of the numpy arrays.
+    for i in range(len(results["Speed"])):
+        x = data_speed.index(results["Speed"][i + 1])
+        y = data_flow_rate.index(results["Flow_rate"][i + 1])
+        z = data_inlet_temperature.index(results["Inlet_temperature"][i + 1])
+        # for each correlation factor, get the result value and store in the array
+        for name in correlation_factors["names"]:
+            correlation_factors[name][x][y][z] = results[name][i + 1]
+
+    # Using the RegularGridInterpolator from scipy.interpolate, define the interpolation function
+    # for each correlation factor. Inputs are speed, flow rate and inlet temperature. Output is
+    # correlation factor.
+    # Append the interpolate functions to a new list in the dictionary.
+    correlation_factors["interpolate functions"] = []
+    for name in correlation_factors["names"]:
+        correlation_factors["interpolate functions"].append(
+            RegularGridInterpolator(
+                points=[data_speed, data_flow_rate, data_inlet_temperature],
+                values=correlation_factors[name],
+                fill_value=None,
+                bounds_error=False,
+            )
+        )
+
+    # Get lists of correlation factors for the front and rear of the machine for this set of input
+    # parameters (speed, flow rate and inlet temperature).
+    # Loop through all correlation factor names, checking the name to identify whether it applies to
+    # the front or rear of the machine.
+    # Use the interpolate function to obtain the correlation factor for this set of input
+    # parameters.
+    correlation_factors_to_set_f = []
+    correlation_factors_to_set_r = []
+    for i in range(len(correlation_factors["names"])):
+        name = correlation_factors["names"][i]
+        if "_f_motorcad" in name:
+            params = (o_speed, o_oil_flow_rate_f, o_inlet_temperature_f)
+            correlation_factors_to_set_f.append(
+                float(correlation_factors["interpolate functions"][i](params))
+            )
+        else:
+            params = (o_speed, o_oil_flow_rate_r, o_inlet_temperature_r)
+            correlation_factors_to_set_r.append(
+                float(correlation_factors["interpolate functions"][i](params))
+            )
+
+    # return the lists of correlation factors
+    return correlation_factors_to_set_f, correlation_factors_to_set_r
+
+
+# %%
+# Set correlation factors in the Motor-CAD file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set up a Motor-CAD model with **Spray Cooling (Radial from Housing)** correlation factors for the
+# front and rear of the machine. For each hairpin layer, set the same correlation factor value for
+# each of the 4 surfaces (**Inner**, **Outer**, **Front** and **Rear**).
+def set_correlation_factors(mcad, correlation_factors_f, correlation_factors_r):
+    # set values in Motor-CAD
+    surfaces = ["Inner", "Outer", "Front", "Rear"]
+    for i in range(len(correlation_factors_f)):
+        for surface in surfaces:
+            mcad.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_F",
+                i,
+                correlation_factors_f[i],
+            )
+            mcad.set_array_variable(
+                f"Spray_RadialHousing_CorrelationFactor_Hairpin_EWdg_{surface}_R",
+                i,
+                correlation_factors_r[i],
+            )
+
+
+# %%
+# Perform the calibrated model implementation in Motor-CAD
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use the functions to set up a Motor-CAD model and implement a set of correlation factors based on
+# the calibration results.
+#
+# This workflow raises warnings if the model parameters are outside the ranges of the test cases.
+# If multiple warnings are raised, we want them all to be displayed.
+warnings.simplefilter("always", UserWarning)
+
+# %%
+# As we are using the multiprocessing module for the calibration workflow, it is necessary to wrap
+# the calibration implementation workflow in a ``if __name__ == "__main__":`` block to avoid issues
+# with multiprocessing.
+
+if __name__ == "__main__":
+    # load in the results:
+    working_folder = os.path.join(os.getcwd(), "oil_cooling_calibration")
+    outputs_folder = os.path.join(working_folder, "outputs")
+    results = pd.read_csv(os.path.join(outputs_folder, "results_data.csv"), index_col="Test_case")
+
+    # connect to Motor-CAD
+    mcApp = pymotorcad.MotorCAD(keep_instance_open=True)
+
+    # initialise the Motor-CAD model, based on e10 template.
+    motfile_to_calibrate = create_implement_model_motfile(mcApp, working_folder)
+
+    # Run a Thermal Steady State calculation to initialise the thermal circuit and model
+    mcApp.do_steady_state_analysis()
+
+    # get corresponding correlation factors from test case results for the set of parameters
+    # (shaft speed, oil flow rate, oil inlet temperature) currently set up in the Motor-CAD
+    # file.
+    correlation_factors_to_set_f, correlation_factors_to_set_r = lookup_correlation_factors(
+        mcApp, results
+    )
+
+    # set values in Motor-CAD
+    set_correlation_factors(mcApp, correlation_factors_to_set_f, correlation_factors_to_set_r)
+
+    # save Motor-CAD model
+    mcApp.save_to_file(motfile_to_calibrate)
+
+# %%
+# This external python script sets the spray cooling correlation factors based on the
+# ``results_data.csv`` and the parameters (shaft speed, oil flow rate and inlet temperature) that
+# are currently set in the Motor-CAD file. An internal Python script could be set up within a
+# Motor-CAD file with the ``lookup_correlation_factors()`` and ``set_correlation_factors()`` to
+# apply this spray cooling calibration model implementation.
+#
+# Using the **Run during Analysis** option in Motor-CAD for the internal Python script, the
+# correlation factors could be automatically updated based on the current model parameters for each
+# calculation run. This would allow the calibrated spray cooling model to be applied across a wide
+# range of operating conditions and model parameters.
