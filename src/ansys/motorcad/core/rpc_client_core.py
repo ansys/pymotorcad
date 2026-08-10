@@ -335,9 +335,7 @@ class _MotorCADConnection:
                     "(-1/default, 0/original, or 1/new)."
                 ) from e
             if licence_type_int not in [int(value) for value in MotorCADLicenceType]:
-                raise MotorCADError(
-                    "licence_type must be -1/default, 0/original, or 1/new."
-                )
+                raise MotorCADError("licence_type must be -1/default, 0/original, or 1/new.")
             environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
 
         if ShowGUI != MotorCADShowGUI.default:
