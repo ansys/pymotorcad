@@ -60,3 +60,20 @@ class _RpcMethodsTesting:
         method = "RunRegressionTests"
         params = [test_categories, calculation_method, decimal_separator]
         return self.connection.send_and_receive(method, params)
+
+    def get_parameter_info(self, parameter_list):
+        """Retrieve information about specified parameters.
+
+        Parameters
+        ----------
+        parameter_list : list of str
+            List of parameter names to retrieve information for.
+
+        Returns
+        -------
+        dict
+            Information about the specified parameters.
+        """
+        method = "GetParameterInfo"
+        params = [parameter_list]
+        return self.connection.send_and_receive(method, params)
