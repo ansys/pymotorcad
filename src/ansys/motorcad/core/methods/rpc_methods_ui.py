@@ -61,7 +61,7 @@ class _RpcMethodsUI:
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
               ``4`` = fatal.
         """
-        method = "PopupDisplayLevel"
+        method = "SetPopupDisplayLevel"
         params = [level]
         return self.connection.send_and_receive(method, params)
 
