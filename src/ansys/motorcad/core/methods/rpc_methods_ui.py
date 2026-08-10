@@ -77,6 +77,28 @@ class _RpcMethodsUI:
         method = "GetPopupDisplayLevel"
         return MotorCADPopupDisplayLevel(self.connection.send_and_receive(method))
 
+    def enable_verbose_messages(self):
+        """Enable the display of verbose messages in Motor-CAD."""
+        method = "EnableVerboseMessages"
+        return self.connection.send_and_receive(method)
+
+    def disable_verbose_messages(self):
+        """Disable the display of verbose messages in Motor-CAD."""
+        method = "DisableVerboseMessages"
+        return self.connection.send_and_receive(method)
+
+    def get_verbose_messages_enabled(self):
+        """Get whether verbose messages are enabled in Motor-CAD.
+
+        Returns
+        -------
+        bool
+            Whether verbose messages are enabled. If ``True``, verbose messages are enabled.
+            If ``False``, verbose messages are disabled.
+        """
+        method = "GetVerboseMessagesEnabled"
+        return self.connection.send_and_receive(method)
+
     def disable_error_messages(self, active):
         """Disable the display of error messages.
 
