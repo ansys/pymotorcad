@@ -186,7 +186,7 @@ def test_keeping_instance_open(monkeypatch):
     mc2 = MotorCAD(keep_instance_open=True)
 
     original_port = mc2.connection._port
-	
+
     # as PYMOTORCAD_DOCS_BUILD has been set then this should call quit and Motor-CAD should close
     del mc2
 
