@@ -86,10 +86,9 @@ class MotorCAD(_MotorCADCore):
         Whether to keep the Motor-CAD instance open after the instance becomes free.
     url: string, default = ""
         Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
-    use_blackbox_licence: bool, int, or MotorCADBlackboxLicence, default: None
+    use_blackbox_licence : bool, default: None
         Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
-        behaviour will be used. Valid values are ``MotorCADBlackboxLicence.disable`` (0)
-        and ``MotorCADBlackboxLicence.enable`` (1).
+        behaviour will be used. True enables the blackbox licence, False disables it.
     use_new_license_type : bool, default: None
         Select the licence type for Motor-CAD. True uses the new licence type, False uses the
         original. If None, the Motor-CAD default behaviour is used.

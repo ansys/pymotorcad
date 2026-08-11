@@ -33,8 +33,6 @@ from packaging import version
 import psutil
 import requests
 
-from ansys.motorcad.core.enums import MotorCADBlackboxLicence
-
 try:
     import ansys.platform.instancemanagement as pypim
 
@@ -263,11 +261,9 @@ class _MotorCADConnection:
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
         timeout : int, default: 2
             Timeout in seconds for waiting for Motor-CAD server to respond.
-        use_blackbox_licence: bool, int, or MotorCADBlackboxLicence, default: None
+        use_blackbox_licence : bool, default: None
             Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
-            behaviour will be used. Valid values are
-            ``MotorCADBlackboxLicence.disable`` (0) and
-            ``MotorCADBlackboxLicence.enable`` (1).
+            behaviour will be used. True enables the blackbox licence, False disables it.
         use_new_license_type : bool, default: None
             Select the licence type for Motor-CAD. True uses the new licence type, False uses the
             original. If None, the Motor-CAD default behaviour is used.
@@ -313,16 +309,7 @@ class _MotorCADConnection:
         self._timeout = timeout
 
         if use_blackbox_licence is not None:
-            try:
-                use_blackbox_licence_int = int(use_blackbox_licence)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "use_blackbox_licence must be a bool, integer, or "
-                    "MotorCADBlackboxLicence (0/disable or 1/enable)."
-                ) from e
-            if use_blackbox_licence_int not in [int(value) for value in MotorCADBlackboxLicence]:
-                raise MotorCADError("use_blackbox_licence must be 0/disable or 1/enable.")
-            environ["MOTORDES_BLACKBOX"] = str(use_blackbox_licence_int)
+            environ["MOTORDES_BLACKBOX"] = "1" if use_blackbox_licence else "0"
 
         if use_new_license_type is not None:
             environ["MOTORCAD_LICENCE_TYPE"] = "1" if use_new_license_type else "0"
