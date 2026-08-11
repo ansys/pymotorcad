@@ -33,7 +33,7 @@ from packaging import version
 import psutil
 import requests
 
-from ansys.motorcad.core.enums import MotorCADBlackboxLicence, MotorCADLicenceType, MotorCADShowGUI
+from ansys.motorcad.core.enums import MotorCADBlackboxLicence
 
 try:
     import ansys.platform.instancemanagement as pypim
@@ -239,8 +239,9 @@ class _MotorCADConnection:
         timeout=2,
         compatibility_mode=False,
         use_blackbox_licence=None,
-        licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default,
+        use_new_license_type=None,
+        show_gui=None,
+        full_headless_beta=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -270,14 +271,14 @@ class _MotorCADConnection:
             behaviour will be used. Valid values are
             ``MotorCADBlackboxLicence.disable`` (0) and
             ``MotorCADBlackboxLicence.enable`` (1).
-        licence_type : int or MotorCADLicenceType, default: MotorCADLicenceType.default
-            Licence type to use when launching Motor-CAD. Valid values are
-            ``MotorCADLicenceType.default`` (-1), ``MotorCADLicenceType.original`` (0),
-            and ``MotorCADLicenceType.new`` (1).
-        ShowGUI : int or MotorCADShowGUI, default: MotorCADShowGUI.default
-            Whether to run Motor-CAD with or without UI. Valid values are
-            ``MotorCADShowGUI.default`` (-1), ``MotorCADShowGUI.hide`` (0), and
-            ``MotorCADShowGUI.show`` (1).
+        use_new_license_type : bool, default: None
+            Select the licence type for Motor-CAD. True uses the new licence type, False uses the
+            original. If None, the Motor-CAD default behaviour is used.
+        show_gui : bool, default: None
+            Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
+            If None, the Motor-CAD default behaviour is used.
+        full_headless_beta : bool, default: False
+            Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
 
         Returns
         -------
@@ -326,31 +327,19 @@ class _MotorCADConnection:
                 raise MotorCADError("use_blackbox_licence must be 0/disable or 1/enable.")
             environ["MOTORDES_BLACKBOX"] = str(use_blackbox_licence_int)
 
-        if licence_type != MotorCADLicenceType.default:
-            try:
-                licence_type_int = int(licence_type)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "licence_type must be an integer or MotorCADLicenceType "
-                    "(-1/default, 0/original, or 1/new)."
-                ) from e
-            if licence_type_int not in [int(value) for value in MotorCADLicenceType]:
-                raise MotorCADError(
-                    "licence_type must be -1/default, 0/original, or 1/new."
-                )
-            environ["MOTORCAD_LICENCE_TYPE"] = str(licence_type_int)
+        if use_new_license_type is not None:
+            environ["MOTORCAD_LICENCE_TYPE"] = "1" if use_new_license_type else "0"
 
-        if ShowGUI != MotorCADShowGUI.default:
-            try:
-                ShowGUI_int = int(ShowGUI)
-            except (TypeError, ValueError) as e:
-                raise MotorCADError(
-                    "ShowGUI must be an integer or MotorCADShowGUI "
-                    "(-1/default, 0/hide, or 1/show)."
-                ) from e
-            if ShowGUI_int not in [int(value) for value in MotorCADShowGUI]:
-                raise MotorCADError("ShowGUI must be -1/default, 0/hide, or 1/show.")
-            environ["MOTORCAD_SHOWGUI"] = str(ShowGUI_int)
+        if show_gui is not None:
+            environ["MOTORCAD_SHOWGUI"] = "1" if show_gui else "0"
+
+        if full_headless_beta:
+            warnings.warn(
+                "full_headless_beta is a beta setting. This will be incorporated into the "
+                "show_gui parameter in a future release.",
+                UserWarning,
+            )
+        self._full_headless_beta = full_headless_beta
 
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
@@ -528,7 +517,17 @@ class _MotorCADConnection:
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _open_motor_cad_local(self):
-        self.__MotorExe = _find_motor_cad_exe()
+        if self._full_headless_beta:
+            standard_exe = _find_motor_cad_exe()
+            console_exe = Path(standard_exe).parent / "MotorCAD_Console.exe"
+            if not console_exe.exists():
+                raise MotorCADError(
+                    "MotorCAD_Console.exe was not found. full_headless_beta requires "
+                    "Motor-CAD 2027R1 or later."
+                )
+            self.__MotorExe = str(console_exe)
+        else:
+            self.__MotorExe = _find_motor_cad_exe()
 
         if self.__MotorExe == "":
             self._raise_if_allowed(

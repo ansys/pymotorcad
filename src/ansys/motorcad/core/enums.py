@@ -32,22 +32,6 @@ class MotorCADContext(str, Enum):
     mechanical = "Mechanical"
 
 
-class MotorCADLicenceType(IntEnum):
-    """Provides valid values for ``licence_type`` in the Motor-CAD constructor."""
-
-    default = -1
-    original = 0
-    new = 1
-
-
-class MotorCADShowGUI(IntEnum):
-    """Provides valid values for ``ShowGUI`` in the Motor-CAD constructor."""
-
-    default = -1
-    hide = 0
-    show = 1
-
-
 class MotorCADBlackboxLicence(IntEnum):
     """Provides valid values for ``use_blackbox_licence`` in the Motor-CAD constructor."""
 

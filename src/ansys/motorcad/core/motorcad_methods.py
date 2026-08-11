@@ -24,7 +24,6 @@
 
 from warnings import warn
 
-from ansys.motorcad.core.enums import MotorCADLicenceType, MotorCADShowGUI
 from ansys.motorcad.core.methods.rpc_methods_utility import _RpcMethodsUtility
 from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
 from ansys.motorcad.core.rpc_methods_core_old import _RpcMethodsCore, _RpcMethodsCoreOld
@@ -44,8 +43,9 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         url="",
         timeout=2,
         use_blackbox_licence=None,
-        licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default,
+        use_new_license_type=None,
+        show_gui=None,
+        full_headless_beta=False,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -57,8 +57,9 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             url=url,
             timeout=timeout,
             use_blackbox_licence=use_blackbox_licence,
-            licence_type=licence_type,
-            ShowGUI=ShowGUI,
+            use_new_license_type=use_new_license_type,
+            show_gui=show_gui,
+            full_headless_beta=full_headless_beta,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -89,15 +90,15 @@ class MotorCAD(_MotorCADCore):
         Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
         behaviour will be used. Valid values are ``MotorCADBlackboxLicence.disable`` (0)
         and ``MotorCADBlackboxLicence.enable`` (1).
-    licence_type : int or MotorCADLicenceType, default: MotorCADLicenceType.default
-        Licence type selection mode for Motor-CAD launch behaviour.
-        Valid values are ``MotorCADLicenceType.default`` (-1),
-        ``MotorCADLicenceType.original`` (0), and
-        ``MotorCADLicenceType.new`` (1).
-    ShowGUI : int or MotorCADShowGUI, default: MotorCADShowGUI.default
-        Show or hide GUI launch mode selection for Motor-CAD launch behaviour.
-        Valid values are ``MotorCADShowGUI.default`` (-1),
-        ``MotorCADShowGUI.hide`` (0), and ``MotorCADShowGUI.show`` (1).
+    use_new_license_type : bool, default: None
+        Select the licence type for Motor-CAD. True uses the new licence type, False uses the
+        original. If None, the Motor-CAD default behaviour is used.
+    show_gui : bool, default: None
+        Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
+        If None, the Motor-CAD default behaviour is used.
+    full_headless_beta : bool, default: False
+        Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
+        This is a beta setting and will be incorporated into ``show_gui`` in a future release.
 
     Returns
     -------
@@ -114,8 +115,9 @@ class MotorCAD(_MotorCADCore):
         keep_instance_open=False,
         url="",
         use_blackbox_licence=None,
-        licence_type=MotorCADLicenceType.default,
-        ShowGUI=MotorCADShowGUI.default,
+        use_new_license_type=None,
+        show_gui=None,
+        full_headless_beta=False,
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -128,8 +130,9 @@ class MotorCAD(_MotorCADCore):
             keep_instance_open=keep_instance_open,
             url=url,
             use_blackbox_licence=use_blackbox_licence,
-            licence_type=licence_type,
-            ShowGUI=ShowGUI,
+            use_new_license_type=use_new_license_type,
+            show_gui=show_gui,
+            full_headless_beta=full_headless_beta,
         )
 
 
