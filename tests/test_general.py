@@ -142,7 +142,12 @@ def test_load_dxf_file():
         # mc2.clear_all_data()
         # mc2.initiate_geometry_from_script()
 
-        mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        if mc2.connection.check_if_feature_exists("load_dxf_file_with_context"):
+            mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf", "Magnetic")
+            with pytest.raises(MotorCADError):
+                mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        else:
+            mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
         # mc2.create_optimised_mesh()
 
