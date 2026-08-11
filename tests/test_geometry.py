@@ -3447,6 +3447,190 @@ def test_region_creation_type(mc):
         new_region_3 = Region(1)
 
 
+def test_split_region_about_entity(mc):
+    #        Before
+    #      __________(50,50)
+    #     |          |
+    #     |    in    |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+    #         After
+    #      __________(50,50)
+    #     |    0     |
+    #   __|__________|__(y=25)
+    #     |    1     |
+    #     |__________|
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [Coordinate(0, 0), Coordinate(0, 50), Coordinate(50, 50), Coordinate(50, 0)]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 25),
+        Coordinate(50, 25),
+        Coordinate(50, 50),
+        Coordinate(0, 50),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    reg_expected_1 = Region(RegionType.stator_air)
+    reg_expected_1_points = [
+        Coordinate(0, 0),
+        Coordinate(50, 0),
+        Coordinate(50, 25),
+        Coordinate(0, 25),
+    ]
+    reg_expected_1.entities += create_lines_from_points(reg_expected_1_points)
+    reg_expected_1.name = "_1"
+
+    entity1 = Line(Coordinate(0, 25), Coordinate(50, 25))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 2
+
+    assert out[0] == reg_expected_0
+    assert out[1] == reg_expected_1
+
+
+def test_split_region_about_entity_1(mc):
+    #        Before
+    #      __________(50,50)
+    #     |          |
+    #     |    in    |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+    #         After
+    #   ________________(y=60)
+    #
+    #      __________(50,50)
+    #     |          |
+    #     |    0     |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [Coordinate(0, 0), Coordinate(0, 50), Coordinate(50, 50), Coordinate(50, 0)]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 50),
+        Coordinate(50, 50),
+        Coordinate(50, 0),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    entity1 = Line(Coordinate(0, 60), Coordinate(50, 60))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 1
+
+    assert out[0] == reg_expected_0
+
+
+def test_split_region_about_entity_2(mc):
+    #        Before
+    #      __________(60,60)
+    #     |    in    |
+    #     |    __    | _(y=30)
+    #     |   |  |   |
+    #     |___|  |___|
+    # (0,0)   ^  ^
+    #    (20,0)  (40,0)
+    #
+    #         After
+    #      __________(60,60)
+    #     |    0     |
+    #     |    __    | _(y=30)
+    #   __|___|__|___|__(y=15)
+    #  1->|___|  |___|<-2
+    # (0,0)   ^  ^
+    #    (20,0)  (40,0)
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 0),
+        Coordinate(40, 0),
+        Coordinate(40, 30),
+        Coordinate(20, 30),
+        Coordinate(20, 0),
+    ]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 15),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 15),
+        Coordinate(40, 15),
+        Coordinate(40, 30),
+        Coordinate(20, 30),
+        Coordinate(20, 15),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    reg_expected_1 = Region(RegionType.stator_air)
+    reg_expected_1_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 15),
+        Coordinate(20, 15),
+        Coordinate(20, 0),
+    ]
+    reg_expected_1.entities += create_lines_from_points(reg_expected_1_points)
+    reg_expected_1.name = "_1"
+
+    reg_expected_2 = Region(RegionType.stator_air)
+    reg_expected_2_points = [
+        Coordinate(40, 0),
+        Coordinate(40, 15),
+        Coordinate(60, 15),
+        Coordinate(60, 0),
+    ]
+    reg_expected_2.entities += create_lines_from_points(reg_expected_2_points)
+    reg_expected_2.name = "_2"
+
+    entity1 = Line(Coordinate(0, 15), Coordinate(60, 15))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 3
+
+    assert out[0] == reg_expected_0
+    assert out[1] == reg_expected_1
+    assert out[2] == reg_expected_2
+
+
 # def test_edit_region(mc_reset_to_default_on_teardown):
 #     """Test edit_region updates region properties, verified via get_region."""
 #     mc = mc_reset_to_default_on_teardown
