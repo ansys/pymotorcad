@@ -830,4 +830,23 @@ class _MotorCADConnection:
         else:
             # local machine
             method = "Quit"
-            return self.send_and_receive(method)
+            result = self.send_and_receive(method)
+
+            if platform.system() == "Linux":
+                # On Linux, wait for the process to exit before returning from quit()
+                # and then kill the process if it doesn't exit within 10 seconds.
+                # This is because the Motor-CAD process on Linux becomes a zombie process
+                # if it doesn't exit before the Python script exits.
+                if self.pid != -1:
+                    try:
+                        proc = psutil.Process(self.pid)
+                    except psutil.NoSuchProcess:
+                        return result
+
+                    try:
+                        proc.wait(timeout=10)
+                    except psutil.TimeoutExpired:
+                        proc.kill()
+                        proc.wait()
+
+            return result
