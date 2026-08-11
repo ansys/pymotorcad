@@ -160,10 +160,7 @@ def _get_port_from_motorcad_process(process):
 
 
 def _find_motor_cad_exe():
-    if MOTORCAD_EXE_GLOBAL != "":
-        motor_exe = MOTORCAD_EXE_GLOBAL
-        return motor_exe
-
+    """Find Motor-CAD exe from batch file. Does not apply any overrides."""
     str_alt_method = (
         "Try setting the Motor-CAD executable file manually before creating "
         "the MotorCAD() object with the MotorCAD_Methods.set_motorcad_exe(location) "
@@ -341,6 +338,24 @@ class _MotorCADConnection:
             )
         self._full_headless_beta = full_headless_beta
 
+        # Launch options have no effect when connecting to an existing instance
+        if not open_new_instance:
+            if use_new_license_type is not None:
+                warnings.warn(
+                    "use_new_license_type has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
+            if show_gui is not None:
+                warnings.warn(
+                    "show_gui has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
+            if full_headless_beta:
+                warnings.warn(
+                    "full_headless_beta has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
+
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
             port = environ.get("PYMOTORCAD_PORT")
@@ -516,18 +531,34 @@ class _MotorCADConnection:
             # Create url from server ip and port
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
-    def _open_motor_cad_local(self):
+    def _resolve_motor_cad_exe(self):
+        """Resolve the exe to launch, respecting manual override and full_headless_beta."""
+        if MOTORCAD_EXE_GLOBAL != "":
+            if self._full_headless_beta:
+                warnings.warn(
+                    "full_headless_beta is ignored when the Motor-CAD executable is set manually.",
+                    UserWarning,
+                )
+            return MOTORCAD_EXE_GLOBAL
+
+        standard_exe = _find_motor_cad_exe()
+
         if self._full_headless_beta:
-            standard_exe = _find_motor_cad_exe()
-            console_exe = Path(standard_exe).parent / "MotorCAD_Console.exe"
+            # On Linux, the batch file already points to MotorCAD_Console — use it directly
+            if Path(standard_exe).name == "MotorCAD_Console.exe":
+                return standard_exe
+            console_exe = Path(standard_exe).parent.parent / "headless" / "MotorCAD_Console.exe"
             if not console_exe.exists():
                 raise MotorCADError(
                     "MotorCAD_Console.exe was not found. full_headless_beta requires "
                     "Motor-CAD 2027R1 or later."
                 )
-            self.__MotorExe = str(console_exe)
-        else:
-            self.__MotorExe = _find_motor_cad_exe()
+            return str(console_exe)
+
+        return standard_exe
+
+    def _open_motor_cad_local(self):
+        self.__MotorExe = self._resolve_motor_cad_exe()
 
         if self.__MotorExe == "":
             self._raise_if_allowed(
