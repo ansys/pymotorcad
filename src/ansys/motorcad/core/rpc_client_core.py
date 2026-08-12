@@ -854,10 +854,11 @@ class _MotorCADConnection:
 
                 # Process still exists, so force kill it.
                 try:
-                    warnings.warn("Motor-CAD has still not closed. Forcing-killing process.")
                     proc = psutil.Process(self.pid)
                     proc.kill()
                     proc.wait()
+
+                    raise MotorCADError("Motor-CAD process did not exit and was force killed.")
                 except psutil.NoSuchProcess:
                     return result
             return result
