@@ -234,7 +234,7 @@ def test_thermal_model_export(mc):
         pytest.skip("Motor-CAD version is missing LabThermalModel functions")
 
     mc.set_variable("MessageDisplayState", 2)
-    file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
+    file_path = path.join(get_dir_path(), "test_files", "temp_files", "thermal_model_export.therm")
 
     mc.load_template("e3")
 
