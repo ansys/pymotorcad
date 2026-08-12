@@ -356,6 +356,9 @@ class _RpcMethodsAdaptiveGeometry:
         params = [targetRegion._to_json(), entity._to_json()]
         split_raw_regions = self.connection.send_and_receive(method, params)
 
+        if len(split_raw_regions) == 0:
+            raise MotorCADError(f"Failed to split region '{targetRegion.name}' about entity.")
+
         regions = []
         for split_raw in split_raw_regions:
             returned_region = Region._from_json(split_raw, motorcad_instance=self)

@@ -3631,6 +3631,37 @@ def test_split_region_about_entity_2(mc):
     assert out[2] == reg_expected_2
 
 
+def test_split_region_about_entity_3(mc):
+    #        Before
+    #      __________(60,60)
+    #     |    in    |
+    #     |          |
+    #     |          |
+    #     |          |
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 0),
+    ]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+    reg_in.entities.pop()
+
+    entity1 = Line(Coordinate(0, 15), Coordinate(60, 15))
+
+    with pytest.raises(MotorCADError):
+        out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+
 # def test_edit_region(mc_reset_to_default_on_teardown):
 #     """Test edit_region updates region properties, verified via get_region."""
 #     mc = mc_reset_to_default_on_teardown
