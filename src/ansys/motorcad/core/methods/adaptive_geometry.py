@@ -169,6 +169,22 @@ class _RpcMethodsAdaptiveGeometry:
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
 
+    def set_region_dxf(self, region):
+        """Set Motor-CAD dxf geometry region.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+        """
+        self.connection.check_if_feature_exists("set_region_dxf")
+
+        raw_region = region._to_json()
+
+        method = "SetRegion_DXF"
+        params = [raw_region]
+        return self.connection.send_and_receive(method, params)
+
     def check_collisions(self, region, regions_to_check):
         """Check region does not collide with other geometry regions.
 
@@ -330,11 +346,61 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
 
+    def get_geometry_tree_dxf(self):
+        """Fetch a GeometryTree object containing all the defining DXF geometry of the loaded motor.
+
+        Returns
+        -------
+        ansys.motorcad.core.geometry_tree.GeometryTree
+            Motor-CAD DXF geometry tree
+        """
+        self.connection.check_if_feature_exists("get_geometry_tree_dxf")
+        method = "GetGeometryTree_DXF"
+        json = self.connection.send_and_receive(method)
+        return GeometryTree._from_json(json, self)
+
+    def set_geometry_tree_dxf(self, tree: GeometryTree):
+        """Use a GeometryTree object to set the defining DXF geometry of the loaded motor.
+
+        Parameters
+        ----------
+        tree : ansys.motorcad.core.geometry_tree.GeometryTree
+             GeometryTree object containing the DXF geometry to set in Motor-CAD.
+        """
+        self.connection.check_if_feature_exists("set_geometry_tree_dxf")
+        params = [tree._to_json()]
+        method = "SetGeometryTree_DXF"
+        return self.connection.send_and_receive(method, params)
+
     def get_maxwell_udm_geometry_json(self):
         """Fetch a dict defining Maxwell UDM geometry."""
         self.connection.ensure_version_at_least("2026.0")
         method = "GetGeometryTree_Maxwell_UDM"
         return self.connection.send_and_receive(method)
+
+    def check_region_inside_region(self, region_a, region_b):
+        """Check if one Motor-CAD region is inside another.
+
+        Parameters
+        ----------
+        region_a : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+
+        region_b : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+
+
+        Returns
+        -------
+        boolean
+            True if region_A is inside region_B, False otherwise.
+        """
+        self.connection.check_if_feature_exists("check_region_inside_region")
+        method = "CheckRegionInsideRegion"
+        params = [region_a._to_json(), region_b._to_json()]
+        is_inside = self.connection.send_and_receive(method, params)
+
+        return is_inside
 
     def edit_region(
         self,
