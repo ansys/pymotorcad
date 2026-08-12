@@ -166,7 +166,7 @@ def test_keeping_instance_open(monkeypatch):
 
     original_port = mc2.connection._port
 
-    # finished with this instance
+    # finished with this instance - instance should stay open
     del mc2
 
     # connect to the same instance (if it is still open)
@@ -180,13 +180,17 @@ def test_keeping_instance_open(monkeypatch):
     del mc3
 
     # Check keep_instance_open ignored when building docs
+    # (del will call to quit MotorCAD and close the connection).
     monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
 
     mc2 = MotorCAD(keep_instance_open=True)
 
     original_port = mc2.connection._port
-
     del mc2
+
+    # Quitting MotorCAD can take a moment to close the RPC server.
+    # Sleep for half a second to ensure the connection is closed.
+    sleep(0.5)
 
     with pytest.raises(Exception):
         _ = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
@@ -337,20 +341,29 @@ def test__resolve_localhost():
 
 def test_blackbox_licencing():
     mc1 = MotorCAD(use_blackbox_licence=True)
-    # Not sure it's possible to assert that only a blackbox licence was consumed
-    # Just check it works for now
-    mc1.get_licence()
+    try:
+        # Not sure it's possible to assert that only a blackbox licence was consumed
+        # Just check it works for now
+        mc1.get_licence()
+    finally:
+        mc1.quit()
 
     mc2 = MotorCAD(use_blackbox_licence=False)
-    # Not sure it's possible to assert that only a non-blackbox licence was consumed
-    # Just check it works for now
-    mc2.get_licence()
+    try:
+        # Not sure it's possible to assert that only a non-blackbox licence was consumed
+        # Just check it works for now
+        mc2.get_licence()
+    finally:
+        mc2.quit()
 
     mc3 = MotorCAD()
-    # Not sure it's possible to check which licence type has been used, and whether this
-    # matches the default setting
-    # Just check it works for now
-    mc3.get_licence()
+    try:
+        # Not sure it's possible to check which licence type has been used, and whether this
+        # matches the default setting
+        # Just check it works for now
+        mc3.get_licence()
+    finally:
+        mc3.quit()
 
 
 def test_feature_exists_check(mc):
