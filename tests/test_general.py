@@ -77,6 +77,9 @@ def test_export_matrices(mc):
 
 
 def test_load_fea_result(mc):
+    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
+        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
+
     mc.show_magnetic_context()
 
     mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
