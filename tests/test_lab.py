@@ -19,16 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-# from os import path, remove
-# import time
-
 import os
+from os import path, remove
+import time
 
 from openpyxl import load_workbook
 import pytest
 
-from RPC_Test_Common import almost_equal_percentage, reset_to_default_file  # (get_dir_path,
+from RPC_Test_Common import (  # (get_dir_path,
+    almost_equal_percentage,
+    get_dir_path,
+    reset_to_default_file,
+)
 
 
 def test_model_build_lab(mc):
@@ -222,6 +224,42 @@ def test_export_concept_ev_model(mc):
     torque_sheet = wb["Shaft_Torque"]
     assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 227.89, 0.1)
     reset_to_default_file(mc)
+
+
+def test_thermal_model_export(mc):
+    if not (
+        mc.connection.check_if_feature_exists("BuildLabThermalModel")
+        and mc.connection.check_if_feature_exists("ExportLabThermalModel")
+    ):
+        pytest.skip("Motor-CAD version is missing LabThermalModel functions")
+
+    mc.set_variable("MessageDisplayState", 2)
+    file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
+
+    mc.load_template("e3")
+
+    if path.exists(file_path):
+        remove(file_path)
+
+    assert path.exists(file_path) is False
+
+    mc.build_lab_thermal_model()
+    mc.export_lab_thermal_model(file_path)
+
+    # Exporting the thermal model takes a few seconds and so a delay is required before
+    # asserting the .therm file is present.
+    checks = 0
+
+    while checks < 60:
+        time.sleep(1)
+        if path.exists(file_path) is False:
+            checks += 1
+        else:
+            break
+
+    assert path.exists(file_path) is True
+
+    remove(file_path)
 
 
 # def test_lab_model_export(mc):
