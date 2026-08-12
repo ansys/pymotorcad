@@ -161,3 +161,24 @@ def test_newmotorcad_withoutui():
     if is_motorcad_gui_visible(mc) == True:
         assert True
     mc.quit()
+
+
+# test6: try to set licence type when using existing instance
+def test_existinginstance_withlicencetype():
+    mc = MotorCAD(
+        use_new_license_type=True,
+        show_gui=False,
+    )
+    mc2 = MotorCAD(
+        open_new_instance=False,
+        use_new_license_type=True,
+        show_gui=False,
+    )
+    assert mc.is_open(), "Failed to open MotorCAD"
+    assert mc2.is_open()
+    assert mc2.get_licence() is None
+    mc2.get_messages(1)
+    if is_motorcad_gui_visible(mc2) == True:
+        assert True
+    mc2.quit()
+    mc.quit()
