@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
-from os import environ, getenv, path, putenv, unsetenv
+from os import environ, getenv, path
 from pathlib import Path
 import re
 import socket
@@ -158,10 +158,7 @@ def _get_port_from_motorcad_process(process):
 
 
 def _find_motor_cad_exe():
-    if MOTORCAD_EXE_GLOBAL != "":
-        motor_exe = MOTORCAD_EXE_GLOBAL
-        return motor_exe
-
+    """Find Motor-CAD exe from batch file. Does not apply any overrides."""
     str_alt_method = (
         "Try setting the Motor-CAD executable file manually before creating "
         "the MotorCAD() object with the MotorCAD_Methods.set_motorcad_exe(location) "
@@ -237,6 +234,9 @@ class _MotorCADConnection:
         timeout=2,
         compatibility_mode=False,
         use_blackbox_licence=None,
+        use_new_license_type=None,
+        show_gui=None,
+        full_headless_beta=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -259,9 +259,19 @@ class _MotorCADConnection:
             Whether to try to run an old script written for ActiveX.
         url: string, default = ""
             Full url for Motor-CAD connection. Assumes we are connecting to existing instance.
-        use_blackbox_licence: Boolean, default: None
+        timeout : int, default: 2
+            Timeout in seconds for waiting for Motor-CAD server to respond.
+        use_blackbox_licence : bool, default: None
             Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD
-            behaviour will be used.
+            behaviour will be used. True enables the blackbox licence, False disables it.
+        use_new_license_type : bool, default: None
+            Select the licence type for Motor-CAD. True uses the new licence type, False uses the
+            original. If None, the Motor-CAD default behaviour is used.
+        show_gui : bool, default: None
+            Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
+            If None, the Motor-CAD default behaviour is used.
+        full_headless_beta : bool, default: False
+            Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
 
         Returns
         -------
@@ -299,22 +309,39 @@ class _MotorCADConnection:
         self._timeout = timeout
 
         if use_blackbox_licence is not None:
-            # Use the user specified desired licensing
-            if use_blackbox_licence:
-                putenv("MOTORDES_BLACKBOX", "1")
-            else:
-                putenv("MOTORDES_BLACKBOX", "0")
-        else:
-            # User has not specified a desired licensing, so use default behaviour
-            # Ensure any changes to environment variable made in scripting environment are discarded
-            # Note: value returned by getenv is unaffected by calls to putenv
-            blackbox_env_var_orig = getenv("MOTORDES_BLACKBOX")
-            if blackbox_env_var_orig is None:
-                # Original blackbox environment variable does not exist, so delete if present
-                unsetenv("MOTORDES_BLACKBOX")
-            else:
-                # Reset environment variable to original value
-                putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
+            environ["MOTORDES_BLACKBOX"] = "1" if use_blackbox_licence else "0"
+
+        if use_new_license_type is not None:
+            environ["MOTORCAD_LICENCE_TYPE"] = "1" if use_new_license_type else "0"
+
+        if show_gui is not None:
+            environ["MOTORCAD_SHOWGUI"] = "1" if show_gui else "0"
+
+        if full_headless_beta:
+            warnings.warn(
+                "full_headless_beta is a beta setting. This will be incorporated into the "
+                "show_gui parameter in a future release.",
+                UserWarning,
+            )
+        self._full_headless_beta = full_headless_beta
+
+        # Launch options have no effect when connecting to an existing instance
+        if not open_new_instance:
+            if use_new_license_type is not None:
+                warnings.warn(
+                    "use_new_license_type has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
+            if show_gui is not None:
+                warnings.warn(
+                    "show_gui has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
+            if full_headless_beta:
+                warnings.warn(
+                    "full_headless_beta has no effect when open_new_instance is False.",
+                    UserWarning,
+                )
 
         if environ.get("PYMOTORCAD_PORT") is not None:
             # Port environment variable has been set
@@ -491,8 +518,34 @@ class _MotorCADConnection:
             # Create url from server ip and port
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
+    def _resolve_motor_cad_exe(self):
+        """Resolve the exe to launch, respecting manual override and full_headless_beta."""
+        if MOTORCAD_EXE_GLOBAL != "":
+            if self._full_headless_beta:
+                warnings.warn(
+                    "full_headless_beta is ignored when the Motor-CAD executable is set manually.",
+                    UserWarning,
+                )
+            return MOTORCAD_EXE_GLOBAL
+
+        standard_exe = _find_motor_cad_exe()
+
+        if self._full_headless_beta:
+            # On Linux, the batch file already points to MotorCAD_Console — use it directly
+            if Path(standard_exe).name == "MotorCAD_Console.exe":
+                return standard_exe
+            console_exe = Path(standard_exe).parent.parent / "headless" / "MotorCAD_Console.exe"
+            if not console_exe.exists():
+                raise MotorCADError(
+                    "MotorCAD_Console.exe was not found. full_headless_beta requires "
+                    "Motor-CAD 2027R1 or later."
+                )
+            return str(console_exe)
+
+        return standard_exe
+
     def _open_motor_cad_local(self):
-        self.__MotorExe = _find_motor_cad_exe()
+        self.__MotorExe = self._resolve_motor_cad_exe()
 
         if self.__MotorExe == "":
             self._raise_if_allowed(
