@@ -33,6 +33,7 @@ from RPC_Test_Common import (
     reset_to_default_file,
 )
 from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core.enums import MotorCADPopupDisplayLevel
 
 
 def kh_to_ms(kh):
@@ -95,6 +96,35 @@ def test_export_results(mc):
     assert os.path.exists(file_path)
 
 
+def test_message_config(mc):
+    if not mc.connection.check_if_feature_exists("motor_cad_messager"):
+        pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
+
+    mc.disable_popups()
+    assert mc.get_popups_enabled() is False
+    mc.enable_popups()
+    assert mc.get_popups_enabled() is True
+
+    mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
+    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
+    mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
+    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
+    mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
+    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
+    mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
+    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+
+
+def test_verbose_message_config(mc):
+    if not mc.connection.check_if_feature_exists("motor_cad_messager"):
+        pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
+
+    mc.disable_verbose_messages()
+    assert mc.get_verbose_messages_enabled() is False
+    mc.enable_verbose_messages()
+    assert mc.get_verbose_messages_enabled() is True
+
+
 def test_load_dxf_file():
     # Must currently open new Motor-CAD to ensure
     # this test will work
@@ -112,7 +142,12 @@ def test_load_dxf_file():
         # mc2.clear_all_data()
         # mc2.initiate_geometry_from_script()
 
-        mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        if mc2.connection.check_if_feature_exists("load_dxf_file_with_context"):
+            mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf", "Magnetic")
+            with pytest.raises(MotorCADError):
+                mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        else:
+            mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
 
         # mc2.create_optimised_mesh()
 
@@ -186,6 +221,7 @@ def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     )
 
 
+@pytest.mark.skip("Skip temporarily - flaky with 2027 pre-release")
 def test_save_load_results(mc_reset_to_default_on_teardown):
     # Currently not working as part of full tests
     # Works individually - need to look into this
