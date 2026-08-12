@@ -846,7 +846,11 @@ class _MotorCADConnection:
                         # process exited correctly
                         return result
 
-                    time.sleep(1)
+                    try:
+                        proc.wait(timeout=1)
+                    except psutil.TimeoutExpired:
+                        # Process still exists, so wait for next ping
+                        continue
 
                 # Process still exists, so force kill it.
                 try:
