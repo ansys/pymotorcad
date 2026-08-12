@@ -832,8 +832,8 @@ class _MotorCADConnection:
             method = "Quit"
             result = self.send_and_receive(method)
 
-            # Wait for the process to exit before returning from quit() and then kill the process if it
-            # doesn't exit within 60 seconds.
+            # Wait for the process to exit before returning from quit() and then kill the process
+            # if it doesn't exit within 60 seconds.
             # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
             # script exits.
             if self.pid != -1:
