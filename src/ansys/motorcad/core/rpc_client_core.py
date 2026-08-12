@@ -169,11 +169,16 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
-    motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+    motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
+
+    # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
+    # For backwards compatibility
+    if motor_batch_file_path is None:
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
 
     if motor_batch_file_path is None:
         raise MotorCADError(
-            "Failed to retrieve MOTORCAD_ACTIVEX environment variable. " + str_alt_method
+            "Failed to retrieve MOTORCAD_AUTOMATION environment variable. " + str_alt_method
         )
 
     try:
@@ -184,7 +189,7 @@ def _find_motor_cad_exe():
         raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
 
     try:
-        # Grab MotorCAD exe from activex batch file
+        # Grab MotorCAD exe from automation batch file
         motor_batch_file = open(motor_batch_file_path, "r")
 
         motor_batch_file_lines = motor_batch_file.readlines()
@@ -311,7 +316,12 @@ class _MotorCADConnection:
                 # Reset environment variable to original value
                 putenv("MOTORDES_BLACKBOX", blackbox_env_var_orig)
 
-        if DEFAULT_INSTANCE != -1:
+        if environ.get("PYMOTORCAD_PORT") is not None:
+            # Port environment variable has been set
+            port = environ.get("PYMOTORCAD_PORT")
+            self._open_new_instance = False
+
+        elif DEFAULT_INSTANCE != -1:
             # Getting called from MotorCAD internal scripting so port is known
             port = DEFAULT_INSTANCE
             self._open_new_instance = False
