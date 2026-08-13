@@ -224,7 +224,11 @@ def test_get_region(mc):
 
 
 def test_get_region_dxf(mc):
-    mc.load_dxf_file(os.path.join(get_dir_path(), "test_files", "dxf_import.dxf"))
+    dxf_file = os.path.join(get_dir_path(), "test_files", "dxf_import.dxf")
+    if mc.connection.check_if_feature_exists("load_dxf_file_with_context"):
+        mc.load_dxf_file(dxf_file, "Magnetic")
+    else:
+        mc.load_dxf_file(dxf_file)
     expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
