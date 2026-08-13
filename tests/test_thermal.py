@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import os
 import pytest
 
 from RPC_Test_Common import almost_equal, get_dir_path
@@ -61,7 +62,7 @@ def test_save_load_clear_external_circuit(mc):
     res = mc.get_node_to_node_resistance(3, 4)
     assert res == 150
 
-    save_path = path.join(get_dir_path(), "test_files", "external_circuit.ecf")
+    save_path = os.path.join(get_dir_path(), "test_files", "external_circuit.ecf")
 
     mc.save_external_circuit(save_path)
 
