@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+
 from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
 
 MATERIAL_INVALID_NAME = "invalid material name here"
