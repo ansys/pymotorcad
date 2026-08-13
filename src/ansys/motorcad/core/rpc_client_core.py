@@ -903,15 +903,13 @@ class _MotorCADConnection:
                 for step in range(max_time):
                     try:
                         proc = psutil.Process(self.pid)
-                    except psutil.NoSuchProcess:
-                        # process exited correctly
-                        return result
-
-                    try:
                         proc.wait(timeout=1)
                     except psutil.TimeoutExpired:
                         # Process still exists, so wait for next ping
                         continue
+                    except psutil.NoSuchProcess:
+                        # process exited correctly
+                        return result
 
                 # Process still exists, so force kill it.
                 try:
