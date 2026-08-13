@@ -104,9 +104,9 @@ Ansys Twin Builder.
 #
 # The following Motor-CAD model settings are unsupported:
 #
-# * Heat Exchanger cooling system. 
+# * Heat Exchanger cooling system.
 #
-#   The Motor-CAD Heat Exchanger cooling system is not supported by the Thermal ROM. If the Heat 
+#   The Motor-CAD Heat Exchanger cooling system is not supported by the Thermal ROM. If the Heat
 #   Exchanger is enabled, this ROM generation script will raise an error. The workaround is to
 #   disable the Heat Exchanger cooling system in the Motor-CAD model, generate the Thermal ROM, and
 #   manually recreate the heat exchanger model in Twin Builder.
