@@ -894,7 +894,9 @@ class _MotorCADConnection:
                 # The process has already exited, so send_and_recieve will fail.
                 # Possible that another MotorCAD object has already sent the Quit command,
                 # or the user has closed Motor-CAD.
-                raise MotorCADError("Motor-CAD process has already exited. Cannot send Quit command.")
+                raise MotorCADError(
+                    "Motor-CAD process has already exited. Cannot send Quit command."
+                )
 
             method = "Quit"
             result = self.send_and_receive(method)
