@@ -908,6 +908,9 @@ class _MotorCADConnection:
                     try:
                         proc = psutil.Process(self.pid)
                         proc.wait(timeout=1)
+                        # Process exited correctly after waiting.
+                        # If it didn't exceptions will be caught and the loop will continue to ping.
+                        return result
                     except psutil.TimeoutExpired:
                         # Process still exists, so wait for next ping
                         continue
