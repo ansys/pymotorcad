@@ -24,6 +24,7 @@ import builtins
 from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
+import os
 import tempfile
 
 import pytest
@@ -223,10 +224,11 @@ def test_get_region(mc):
 
 
 def test_get_region_dxf(mc):
+    dxf_file = os.path.join(get_dir_path(), "test_files", "dxf_import.dxf")
     if mc.connection.check_if_feature_exists("load_dxf_file_with_context"):
-        mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf", "Magnetic")
+        mc.load_dxf_file(dxf_file, "Magnetic")
     else:
-        mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        mc.load_dxf_file(dxf_file)
     expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
@@ -266,7 +268,7 @@ def test_set_region(mc):
 
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     # load file into Motor-CAD
     mc.load_adaptive_script(filepath)
 
@@ -280,11 +282,11 @@ def test_load_adaptive_script(mc):
 
 def test_save_adaptive_script(mc):
     """Test save adaptive template script from Motor-CAD to specified file path."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     mc.load_adaptive_script(filepath)
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
 
-    filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
+    filepath = os.path.join(tempfile.gettempdir(), "adaptive_templates_script.py")
     mc.save_adaptive_script(filepath)
     # sum number of lines in saved file and check against number of lines from Motor-CAD
     with open(filepath, "r") as f:
@@ -3337,20 +3339,26 @@ def test_set_lamination_type(mc_reset_to_default_on_teardown):
     rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
-    solid_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    solid_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_solid_rotor_region.mot"
     )
-    lam_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    lam_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_lam_rotor_region.mot"
     )
 
-    solid_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    solid_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_solid_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
-    lam_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    lam_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_lam_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
 
     # load file into Motor-CAD
