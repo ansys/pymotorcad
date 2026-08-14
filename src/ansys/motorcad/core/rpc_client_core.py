@@ -890,5 +890,45 @@ class _MotorCADConnection:
             self.pim_instance.delete()
         else:
             # local machine
+            if not psutil.pid_exists(self.pid):
+                # The process has already exited, so send_and_recieve will fail.
+                # Possible that another MotorCAD object has already sent the Quit command,
+                # or the user has closed Motor-CAD.
+                raise MotorCADError(
+                    "Motor-CAD process has already exited. Cannot send Quit command."
+                )
+
             method = "Quit"
-            return self.send_and_receive(method)
+            result = self.send_and_receive(method)
+
+            # Wait for the process to exit before returning from quit() and then kill the process
+            # if it doesn't exit within 60 seconds.
+            # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
+            # script exits.
+            if self.pid != -1:
+                # ping every second for a max of 60 seconds to force kill.
+                max_time = 60
+                for step in range(max_time):
+                    try:
+                        proc = psutil.Process(self.pid)
+                        proc.wait(timeout=1)
+                        # Process exited correctly after waiting.
+                        # If it didn't exceptions will be caught and the loop will continue to ping.
+                        return result
+                    except psutil.TimeoutExpired:
+                        # Process still exists, so wait for next ping
+                        continue
+                    except psutil.NoSuchProcess:
+                        # process exited correctly
+                        return result
+
+                # Process still exists after max_time seconds, so force kill it.
+                try:
+                    proc = psutil.Process(self.pid)
+                    proc.kill()
+                    proc.wait()
+
+                    raise MotorCADError("Motor-CAD process did not exit and was force killed.")
+                except psutil.NoSuchProcess:
+                    return result
+            return result
