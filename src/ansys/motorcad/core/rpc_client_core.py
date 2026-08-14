@@ -23,9 +23,7 @@
 """Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""
 from os import environ, getenv, path
 from pathlib import Path
-import platform
 import re
-import shutil
 import socket
 import subprocess
 import time
@@ -62,7 +60,7 @@ if MOTORCAD_EXE_GLOBAL == "":
         if pymotorcad_exe_environment_variable != "":
             MOTORCAD_EXE_GLOBAL = pymotorcad_exe_environment_variable
 
-MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD", "MotorCAD_Console", "Motor-CAD_Console"]
+MOTORCAD_PROC_NAMES = ["MotorCAD", "Motor-CAD"]
 
 # Useful for debugging new functions when using debug Motor-CAD
 DONT_CHECK_MOTORCAD_VERSION = False
@@ -149,21 +147,12 @@ class MotorCADWarning(Warning):
 
 
 def _get_port_from_motorcad_process(process):
-    try:
-        connection_list = process.connections()
-    except psutil.AccessDenied:
-        return -1
-    for connect in connection_list:
-        if platform.system() == "Windows":
-            # Take the IPv6 port.
+    connection_list = process.connections()
+    if len(connection_list) > 0:
+        for connect in connection_list:
             if connect.family == socket.AddressFamily.AF_INET6:
                 port = connect.laddr.port
                 return port
-        else:
-            # Only consider the RPC listening socket, not outbound connections
-            # (e.g. to the licence server) which appear in the list during startup.
-            if connect.status == psutil.CONN_LISTEN:
-                return connect.laddr.port
     # Failed to get port from process
     return -1
 
@@ -172,86 +161,62 @@ def _find_motor_cad_exe():
     """Find Motor-CAD exe from batch file. Does not apply any overrides."""
     str_alt_method = (
         "Try setting the Motor-CAD executable file manually before creating "
-        "the MotorCAD() object with the set_motorcad_exe(location) "
+        "the MotorCAD() object with the MotorCAD_Methods.set_motorcad_exe(location) "
         "method. "
     )
 
     # Find Motor-CAD exe
-    if platform.system() == "Windows":
-        motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
-        # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
-        # For backwards compatibility
-        if motor_batch_file_path is None:
-            motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+    motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
 
-        if motor_batch_file_path is None:
-            raise MotorCADError(
-                "Failed to retrieve MOTORCAD_AUTOMATION environment variable. " + str_alt_method
-            )
+    # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
+    # For backwards compatibility
+    if motor_batch_file_path is None:
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
 
-        try:
-            motor_batch_file_path = path.normpath(motor_batch_file_path)
-            # Get rid of quotations from environ.get
-            motor_batch_file_path = motor_batch_file_path.replace('"', "")
-        except Exception as e:
-            raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
-
-        try:
-            # Grab MotorCAD exe from automation batch file
-            motor_batch_file = open(motor_batch_file_path, "r")
-
-            motor_batch_file_lines = motor_batch_file.readlines()
-
-            for MotorBatchFileLine in motor_batch_file_lines:
-                motor_exe_list = re.split('"', MotorBatchFileLine)
-                if "call" in motor_exe_list[0]:
-                    # Check we're on the right line
-                    motor_exe = motor_exe_list[1]
-                    if path.isfile(motor_exe):
-                        return motor_exe
-                    else:
-                        # Not a valid path
-                        raise MotorCADError(
-                            "File does not exist: "
-                            + motor_exe
-                            + "\nTry updating batch file location in "
-                            + "Defaults->Automation->Update to Current Version."
-                            + "\nAlternative Method: "
-                            + str_alt_method
-                        )
-            else:
-                # Couldn't find line containing call
-                raise
-        except MotorCADError:
-            # Raise our custom Error Message
-            raise
-        except Exception:
-            raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
-    elif platform.system() == "Linux":
-        # If wanting an explicit version of MotorCAD, set the PYMOTORCAD_EXE environment variable.
-        # But if not set, then see if the Motor-CAD executable file is in the PATH environment
-        # variable.
-        for proc_name in MOTORCAD_PROC_NAMES:
-            motor_exe = shutil.which(proc_name)
-            if motor_exe is not None:
-                if path.isfile(motor_exe):
-                    # MotorCAD exists on the path. Return this one.
-                    return motor_exe
-
-        # Use the PYMOTORCAD_EXE environment variable to find the Motor-CAD executable file.
-        # This will set MOTORCAD_EXE_GLOBAL on startup, so if it is not already set, then the user
-        # has not set the environment variable. Raise an error to inform the user to set the
-        # environment variable.
+    if motor_batch_file_path is None:
         raise MotorCADError(
-            "Could not find MotorCAD on the system PATH.\n"
-            "To specify a version, set using set_motorcad_exe():\n"
-            "    set_motorcad_exe('/path/to/MotorCAD')\n"
-            "or by setting the PYMOTORCAD_EXE environment variable.\n"
-            "    export PYMOTORCAD_EXE=/path/to/MotorCAD\n"
-            "To make this persistent, add the line to ~/.bashrc or ~/.profile."
+            "Failed to retrieve MOTORCAD_AUTOMATION environment variable. " + str_alt_method
         )
-    else:
-        raise MotorCADError("Unsupported platform: " + platform.system() + ".")
+
+    try:
+        motor_batch_file_path = path.normpath(motor_batch_file_path)
+        # Get rid of quotations from environ.get
+        motor_batch_file_path = motor_batch_file_path.replace('"', "")
+    except Exception as e:
+        raise MotorCADError("Failed to get file path. " + str(e) + str_alt_method)
+
+    try:
+        # Grab MotorCAD exe from automation batch file
+        motor_batch_file = open(motor_batch_file_path, "r")
+
+        motor_batch_file_lines = motor_batch_file.readlines()
+
+        for MotorBatchFileLine in motor_batch_file_lines:
+            motor_exe_list = re.split('"', MotorBatchFileLine)
+            if "call" in motor_exe_list[0]:
+                # Check we're on the right line
+                motor_exe = motor_exe_list[1]
+                if path.isfile(motor_exe):
+                    return motor_exe
+                else:
+                    # Not a valid path
+                    raise MotorCADError(
+                        "File does not exist: "
+                        + motor_exe
+                        + "\nTry updating batch file location in "
+                        + "Defaults->Automation->Update to Current Version."
+                        + "\nAlternative Method: "
+                        + str_alt_method
+                    )
+        else:
+            # Couldn't find line containing call
+            raise
+
+    except MotorCADError:
+        # Raise our custom Error Message
+        raise
+    except Exception:
+        raise MotorCADError("Error reading Motor-CAD batch file. " + str_alt_method)
 
 
 class _MotorCADConnection:
@@ -580,12 +545,6 @@ class _MotorCADConnection:
         return standard_exe
 
     def _open_motor_cad_local(self):
-        def get_arg(arg):
-            if platform.system() == "Windows":
-                return "/" + arg
-            else:
-                return "--" + arg
-
         self.__MotorExe = self._resolve_motor_cad_exe()
 
         if self.__MotorExe == "":
@@ -597,7 +556,7 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")],
+            [self.__MotorExe, "/PORT=" + str(self._port), "/SCRIPTING"],
             cwd=Path(self.__MotorExe).parent.absolute(),
         )
 
@@ -614,15 +573,7 @@ class _MotorCADConnection:
     def _find_free_motor_cad(self):
         found_free_instance = False
         for proc in psutil.process_iter():
-            try:
-                # Use exe() on Linux to avoid 15-char truncation of comm field
-                # Fall back to name() for compatibility
-                if platform.system() == "Linux":
-                    proc_name = str(Path(proc.exe()).name)
-                else:
-                    proc_name = proc.name()
-            except (psutil.AccessDenied, psutil.NoSuchProcess):
-                continue
+            proc_name = proc.name()
             if any(motor_proc_name in proc_name for motor_proc_name in MOTORCAD_PROC_NAMES):
                 port = _get_port_from_motorcad_process(proc)
 
