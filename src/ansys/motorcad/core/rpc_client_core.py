@@ -890,6 +890,12 @@ class _MotorCADConnection:
             self.pim_instance.delete()
         else:
             # local machine
+            if not psutil.pid_exists(self.pid):
+                # The process has already exited, so send_and_recieve will fail.
+                # Possible that another MotorCAD object has already sent the Quit command,
+                # or the user has closed Motor-CAD.
+                raise MotorCADError("Motor-CAD process has already exited. Cannot send Quit command.")
+
             method = "Quit"
             result = self.send_and_receive(method)
 
@@ -901,10 +907,6 @@ class _MotorCADConnection:
                 # ping every second for a max of 60 seconds to force kill.
                 max_time = 60
                 for step in range(max_time):
-                    if psutil.pid_exists(self.pid) is False:
-                        # Process exited correctly
-                        return result
-
                     try:
                         proc = psutil.Process(self.pid)
                         proc.wait(timeout=1)
