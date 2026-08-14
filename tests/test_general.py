@@ -77,9 +77,6 @@ def test_export_matrices(mc):
 
 
 def test_load_fea_result(mc):
-    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
-        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
-
     mc.show_magnetic_context()
 
     mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
@@ -87,6 +84,15 @@ def test_load_fea_result(mc):
     value, unit = mc.get_point_value("B", 61, -16)
     assert almost_equal(value, 1.505, 3)
     assert unit == "T"
+
+
+def test_get_region_max_min_avg(mc):
+    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
+        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
+
+    mc.show_magnetic_context()
+
+    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
 
     [b_max, b_min, b_avg] = mc.get_region_max_min_avg("B", "Rotor")
     assert almost_equal(b_max, 2.402)
