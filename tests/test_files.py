@@ -27,7 +27,7 @@ from RPC_Test_Common import get_dir_path
 
 def test_load_from_file(mc_reset_to_default_on_teardown):
     # This has some differences to the default file so can test it's loaded correctly
-    file_path = get_dir_path() + r"\test_files\SaveLoadFiles.mot"
+    file_path = path.join(get_dir_path(), "test_files", "SaveLoadFiles.mot")
     mc_reset_to_default_on_teardown.set_variable("slot_number", 21)
     mc_reset_to_default_on_teardown.save_to_file(file_path)
 
@@ -45,7 +45,7 @@ def test_load_from_file(mc_reset_to_default_on_teardown):
 
 
 def test_save_to_file(mc_reset_to_default_on_teardown):
-    file_path = get_dir_path() + r"\test_files\SaveLoadFiles.mot"
+    file_path = path.join(get_dir_path(), "test_files", "SaveLoadFiles.mot")
 
     if path.exists(file_path):
         remove(file_path)
