@@ -852,6 +852,10 @@ class _MotorCADConnection:
                 # ping every second for a max of 60 seconds to force kill.
                 max_time = 60
                 for step in range(max_time):
+                    if psutil.pid_exists(self.pid) is False:
+                        # Process exited correctly
+                        return result
+
                     try:
                         proc = psutil.Process(self.pid)
                         proc.wait(timeout=1)
@@ -862,7 +866,7 @@ class _MotorCADConnection:
                         # process exited correctly
                         return result
 
-                # Process still exists, so force kill it.
+                # Process still exists after max_time seconds, so force kill it.
                 try:
                     proc = psutil.Process(self.pid)
                     proc.kill()
