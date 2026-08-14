@@ -341,6 +341,7 @@ def test__resolve_localhost():
         mc2.quit()
 
 
+@pytest.mark.licensing
 def test_blackbox_licencing():
     mc1 = MotorCAD(use_blackbox_licence=True)
     try:
@@ -405,6 +406,7 @@ def test_show_gui(mc):
         MotorCAD(open_new_instance=False, port=mc.connection._port, show_gui=True)
 
 
+@pytest.mark.licensing
 def test_use_new_license_type(mc):
     if not mc.connection.check_version_at_least("2027.0"):
         pytest.skip("use_new_license_type requires Motor-CAD 2027.0 or later")

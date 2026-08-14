@@ -51,6 +51,7 @@ def clean_motorcad_env():
         os.environ.pop(var, None)
 
 
+@pytest.mark.licensing
 def is_motorcad_gui_visible(mc):
     """Best-effort visibility check for Motor-CAD GUI.
 
@@ -73,6 +74,7 @@ def is_motorcad_gui_visible(mc):
 # if not available then will fall back to new 'motorcad_gui' licence
 
 
+@pytest.mark.licensing
 def test_oldmotorcad_visible():
     mc = MotorCAD(use_new_license_type=False)
     assert mc.is_open()
@@ -88,6 +90,7 @@ def test_oldmotorcad_visible():
 # if no 'motorcad' licence then will fail with no fall back
 
 
+@pytest.mark.licensing
 def test_oldmotorcad_nogui():
     # Test old licence type without UI - expected to fail due to missing licence."""
     # with pytest.raises(MotorCADError):
@@ -115,6 +118,7 @@ def test_oldmotorcad_nogui():
 # should not fall back
 
 
+@pytest.mark.licensing
 def test_newmotorcad_blackbox():
     # Test old licence type without UI - expected to fail due to missing licence."""
     # with pytest.raises(MotorCADError):
@@ -139,6 +143,7 @@ def test_newmotorcad_blackbox():
 
 
 # test 4: new licence type with UI (not using black box licence)
+@pytest.mark.licensing
 def test_newmotorcad_withui():
     mc = MotorCAD(use_new_license_type=True)
     assert mc.is_open(), "Failed to open MotorCAD"
@@ -150,6 +155,7 @@ def test_newmotorcad_withui():
 
 
 # test 5: new licence type without UI (not using black box licence)
+@pytest.mark.licensing
 def test_newmotorcad_withoutui():
     mc = MotorCAD(
         use_new_license_type=True,
@@ -164,6 +170,7 @@ def test_newmotorcad_withoutui():
 
 
 # test6: try to set licence type when using existing instance
+@pytest.mark.licensing
 def test_existinginstance_withlicencetype():
     mc = MotorCAD(
         use_new_license_type=True,
