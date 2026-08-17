@@ -85,7 +85,7 @@ class _RpcMethodsVariables:
             result = self.connection.send_and_receive(method)
 
         if recommended:
-            if self.connection.check_if_feature_exists("RestoreCompatibilitySettings"):
+            if self.connection.check_if_feature_exists("restore_compatibility_settings"):
                 result = self.connection.send_and_receive("RestoreCompatibilitySettings")
             else:
                 warn(
