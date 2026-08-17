@@ -85,13 +85,13 @@ class _RpcMethodsVariables:
             result = self.connection.send_and_receive(method)
 
         if recommended:
-            if self.connection.check_if_feature_exists("restore_compatibility_settings"):
-                result = self.connection.send_and_receive("RestoreCompatibilitySettings")
+            if self.connection.check_if_feature_exists("restore_recommended_settings"):
+                result = self.connection.send_and_receive("RestoreRecommendedSettings")
             else:
                 warn(
-                    "RestoreCompatibilitySettings not available in Motor-CAD "
+                    "restoring recommended settings not available in Motor-CAD "
                     + self.connection.program_version
-                    + ". Cannot restore recommended settings."
+                    + ". Please update to a newer version of Motor-CAD to use this feature."
                 )
 
         return result
