@@ -3733,4 +3733,3 @@ def test_split_region_about_entity_3(mc):
 #     assert magnet.magnetisation_direction == new_magnetisation_direction
 #     assert region.colour == new_colour
 #     assert region.region_type == new_region_type
-#     assert region.lamination_type == new_lamination_type
