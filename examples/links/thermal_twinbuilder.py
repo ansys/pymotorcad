@@ -102,42 +102,21 @@ Ansys Twin Builder.
 # * Ability to export the Thermal ROM as an FMU, which can be deployed within any FMU compatible
 #   tool
 #
-# The following Motor-CAD model settings are unsupported:
+# The following Motor-CAD features are unsupported:
 #
 # * Heat Exchanger cooling system.
 #
-#   The Motor-CAD Heat Exchanger cooling system is not supported by the Thermal ROM. If the Heat
-#   Exchanger is enabled, this ROM generation script will raise an error. The workaround is to
-#   disable the Heat Exchanger cooling system in the Motor-CAD model, generate the Thermal ROM, and
-#   manually recreate the heat exchanger model in Twin Builder.
-#
-# * Temperature dependent airgap fluid properties with Wet Rotor cooling or Ventilated cooling.
-#
-#   If these cooling systems are enabled and have flow in the airgap, the ``airgapTemperatures``
-#   parameter must be set to None. If it is not, this ROM generation script will raise an error.
-#   This is expected to result in only a minor deviation in the Thermal ROM results.
-#
-# * Local temperature dependent fluid properties.
-#
-#   Some Motor-CAD cooling systems determine fluid properties based on the local fluid temperature.
-#   This is not supported by the Thermal ROM. It is expected to affect a minority of models with
-#   only a minor deviation in the Thermal ROM results.
+#   If the Motor-CAD Heat Exchanger cooling system is enabled, this ROM generation script will
+#   report an error as this feature is not supported. The workaround is to disable the Heat
+#   Exchanger cooling system in the Motor-CAD model, generate the Thermal ROM whilst treating the
+#   coupled cooling system as having a user controlled variable inlet temperature, and then manually
+#   recreate the heat exchanger model in Twin Builder to control the inlet temperature.
 #
 # * Altitude variation.
 #
-#   The Thermal ROM is only valid for the altitude selected in the Motor-CAD model, and variation of
-#   altitude is not supported. Given that ambient temperature variation is supported, the lack of
-#   altitude variation support is expected to result in only a minor deviation in the Thermal ROM
-#   results.
-#
-# * Temperature dependent copper loss distribution.
-#
-#   If stator copper loss variation has been set to use local winding temperatures, the distribution
-#   of the copper losses will vary with temperature in Motor-CAD. This is not supported by the
-#   Thermal ROM, and the loss distribution will be fixed to the distribution at the ambient
-#   temperature. Note that by default, Motor-CAD has temperature dependent loss distribution
-#   disabled. Therefore, this limitation is expected to affect very few models with only a minor
-#   deviation in the Thermal ROM results.
+#   The Thermal ROM is only valid for the altitude selected in the Motor-CAD model. Given that
+#   ambient temperature variation is supported, the lack of altitude variation support is expected
+#   to result in only a minor deviation in the Thermal ROM results.
 #
 # Skip to the :ref:`example_use_case` to see an example of ROM generation.
 
