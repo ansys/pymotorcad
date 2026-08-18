@@ -7,8 +7,11 @@
 ## Individual Contributors
 
 * [Aidan Crandell](https://github.com/aidanc-ansys)
+* [Alex Cowdale](https://github.com/a-cowdale)
 * [Alex Warwick](https://github.com/a-warwick)
+* [Caroline Leak](https://github.com/Caroline-Leak)
 * [Devin](https://github.com/Devin-Crawford)
+* [Dougie Hawkins](https://github.com/dougiehawkins)
 * [DragosVMosteanu](https://github.com/DragosVMosteanu)
 * [GiadaVent](https://github.com/GiadaVent)
 * [gmalinve](https://github.com/gmalinve)
@@ -23,6 +26,7 @@
 * [Matthew Jones](https://github.com/matthewAnsys)
 * [Matthew Leak](https://github.com/matthew-leak)
 * [Maxime Rey](https://github.com/MaxJPRey)
+* [Misheel Ganzorig](https://github.com/MisheelGanzorigAnsys)
 * [Ravi Sundaria](https://github.com/ravi-ansys)
 * [Revathy Venugopal](https://github.com/Revathyvenugopal162)
 * [Rob Kelly](https://github.com/RobKellyAnsys)

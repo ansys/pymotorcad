@@ -32,6 +32,7 @@ import ansys.motorcad.core
 from ansys.motorcad.core.geometry_extrusion import ExtrusionBlockList
 
 GEOM_TOLERANCE = 1e-6
+COMPONENTOWNER_GEOMETRYENGINE = 2
 
 
 class RegionType(Enum):
@@ -47,7 +48,6 @@ class RegionType(Enum):
     rotor_liner = "Rotor Liner"
     wedge = "Wedge"
     stator_duct = "Stator Duct"
-    housing_wj_wall = "Housing WJ Duct Wall"
     housing = "Housing"
     housing_magnetic = "Magnetic Housing"
     stator_frame = "Stator Support Frame"
@@ -76,6 +76,7 @@ class RegionType(Enum):
     rotor_copper = "Rotor Copper"
     rotor_impreg = "Rotor Impreg"
     shaft = "Shaft"
+    shaft_hole = "Shaft Hole"
     axle = "Axle"
     rotor_duct = "Rotor Duct"
     magnet = "Magnet"
@@ -102,6 +103,7 @@ class RegionType(Enum):
     surrounding_air = "Surrounding air"
     adaptive = "Adaptive Region"
     no_type = "No type"
+    rotor_bar = "Rotor Bar"
 
 
 RegionType.slot_area_stator_deprecated.__doc__ = "Only for use with Motor-CAD 2025.1 and earlier"
@@ -202,7 +204,7 @@ class Region(object):
 
     def _get_new_object_of_type_self(self):
         """Return self object."""
-        if self.region_type:
+        if self.region_type and self.region_type != RegionType.magnet:
             return type(self)(region_type=self.region_type)
         else:
             return type(self)()
@@ -495,9 +497,6 @@ class Region(object):
         dict
             Geometry region json representation
         """
-        # const for material component owner in geometry engine
-        COMPONENTOWNER_GEOMETRYENGINE = 2
-
         # Previous implementations had users only generally interact with the unique name,
         # assigning it as the name attribute if possible. This behaviour is maintained for
         # now, though it is a piece of information lost that future users may want control over
@@ -1089,13 +1088,10 @@ class Region(object):
                 "Corner radius is too large for these entities. "
                 "You must specify a smaller radius."
             )
-        # get and set the new start and end coordinates for the adjacent entities
-        adj_entities[0].end = adj_entities[0].get_coordinate_from_distance(
-            corner_coordinate, distance
-        )
-        adj_entities[1].start = adj_entities[1].get_coordinate_from_distance(
-            corner_coordinate, distance
-        )
+
+        # get the new start and end coordinates for the adjacent entities
+        new_point_0 = adj_entities[0].get_coordinate_from_distance(corner_coordinate, distance)
+        new_point_1 = adj_entities[1].get_coordinate_from_distance(corner_coordinate, distance)
 
         # if the internal angle of the corner is more than 180, a negative radius must be applied
         if corner_internal_angle > 180:
@@ -1104,8 +1100,22 @@ class Region(object):
             e = 1
 
         # create the round corner arc and insert at the index after the first adjacent entity.
-        corner_arc = Arc(adj_entities[0].end, adj_entities[1].start, radius=e * radius)
+        try:
+            corner_arc = Arc(new_point_0, new_point_1, radius=e * radius)
+        except Exception as e:
+            if "It is not possible to draw an arc with this geometry" in str(e):
+                raise ValueError(
+                    "Corner radius is too large for these entities. "
+                    "You must specify a smaller radius."
+                )
+            else:
+                raise e
+
         self.insert_entity(adj_entity_indices[0] + 1, corner_arc)
+
+        # set the new start and end coordinates for the adjacent entities
+        adj_entities[0].end = new_point_0
+        adj_entities[1].start = new_point_1
 
     def round_corner(self, corner_coordinate, radius, maximise=True):
         """Round the corner of a region.
@@ -1325,6 +1335,24 @@ class Region(object):
                 return entity
 
         return None
+
+    def split_about_entity(self, entity):
+        """Split self about the entity, updates self and then returns the other split regions.
+
+        Parameters
+        ----------
+        entity: ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region split about the entity
+        """
+        self._check_connection()
+        regions = self.motorcad_instance.split_region_about_entity(self, entity)
+
+        if len(regions) > 0:
+            self.update(regions[0])
+            return regions[1 : len(regions)]
 
 
 class RegionMagnet(Region):
@@ -1822,6 +1850,13 @@ class Line(Entity):
 
         return (max_radius, max(xs), min(xs), max(ys), min(ys))
 
+    def _to_json(self):
+        return {
+            "type": "line",
+            "start": {"x": self.start.x, "y": self.start.y},
+            "end": {"x": self.end.x, "y": self.end.y},
+        }
+
     @property
     def midpoint(self):
         """Get midpoint of Line.
@@ -2108,6 +2143,15 @@ class _BaseArc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
+
+    def _to_json(self):
+        return {
+            "type": "arc",
+            "start": {"x": self.start.x, "y": self.start.y},
+            "end": {"x": self.end.x, "y": self.end.y},
+            "centre": {"x": self.centre.x, "y": self.centre.y},
+            "radius": self.radius,
+        }
 
     @property
     def midpoint(self):
@@ -2842,29 +2886,7 @@ def _convert_entities_to_json(entities):
     dict
         entities in json format
     """
-    json_entities = []
-
-    for entity in entities:
-        if isinstance(entity, Line):
-            json_entities.append(
-                {
-                    "type": "line",
-                    "start": {"x": entity.start.x, "y": entity.start.y},
-                    "end": {"x": entity.end.x, "y": entity.end.y},
-                }
-            )
-        elif isinstance(entity, Arc):
-            json_entities.append(
-                {
-                    "type": "arc",
-                    "start": {"x": entity.start.x, "y": entity.start.y},
-                    "end": {"x": entity.end.x, "y": entity.end.y},
-                    "centre": {"x": entity.centre.x, "y": entity.centre.y},
-                    "radius": entity.radius,
-                }
-            )
-
-    return json_entities
+    return [entity._to_json() for entity in entities]
 
 
 def _convert_entities_from_json(json_array):

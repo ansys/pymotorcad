@@ -24,12 +24,14 @@ import builtins
 from copy import copy, deepcopy
 import math
 from math import inf, isclose, pi, radians, sin, sqrt
+import os
 import tempfile
 
 import pytest
 
 from RPC_Test_Common import get_dir_path
 from ansys.motorcad.core import MotorCADError, geometry
+from ansys.motorcad.core.enums import MotorCADContext
 from ansys.motorcad.core.geometry import (
     GEOM_TOLERANCE,
     Arc,
@@ -46,7 +48,6 @@ from ansys.motorcad.core.geometry import (
     rt_to_xy,
 )
 from ansys.motorcad.core.geometry_shapes import eq_triangle_h, square, triangular_notch
-import ansys.motorcad.core.rpc_client_core as rpc_client_core
 from ansys.motorcad.core.rpc_client_core import DEFAULT_INSTANCE, set_default_instance
 
 
@@ -144,16 +145,25 @@ def test_set_get_winding_coil(mc):
 
 def test_check_if_geometry_is_valid(mc):
     # base_test_file should have valid geometry
-    mc.check_if_geometry_is_valid(0)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
+    else:
+        mc.check_if_geometry_is_valid(0)
 
     save_slot_depth = mc.get_variable("Slot_Depth")
 
     mc.set_variable("Slot_Depth", 50)
     with pytest.raises(MotorCADError):
-        mc.check_if_geometry_is_valid(0)
+        if mc.connection.check_version_at_least("2027.0"):
+            mc.check_if_geometry_is_valid(0, MotorCADContext.magnetic)
+        else:
+            mc.check_if_geometry_is_valid(0)
 
     # Check resetting geometry works
-    mc.check_if_geometry_is_valid(1)
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.check_if_geometry_is_valid(1, MotorCADContext.magnetic)
+    else:
+        mc.check_if_geometry_is_valid(1)
 
     mc.set_variable("Slot_Depth", save_slot_depth)
 
@@ -214,7 +224,11 @@ def test_get_region(mc):
 
 
 def test_get_region_dxf(mc):
-    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    dxf_file = os.path.join(get_dir_path(), "test_files", "dxf_import.dxf")
+    if mc.connection.check_if_feature_exists("load_dxf_file_with_context"):
+        mc.load_dxf_file(dxf_file, "Magnetic")
+    else:
+        mc.load_dxf_file(dxf_file)
     expected_region = geometry.Region(region_type=RegionType.dxf_import)
     expected_region.name = "DXFRegion_Rotor"
     expected_region.colour = (192, 192, 192)
@@ -254,7 +268,7 @@ def test_set_region(mc):
 
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     # load file into Motor-CAD
     mc.load_adaptive_script(filepath)
 
@@ -268,11 +282,11 @@ def test_load_adaptive_script(mc):
 
 def test_save_adaptive_script(mc):
     """Test save adaptive template script from Motor-CAD to specified file path."""
-    filepath = get_dir_path() + r"\test_files\adaptive_templates_script.py"
+    filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
     mc.load_adaptive_script(filepath)
     num_lines = mc.get_variable("AdaptiveTemplates_ScriptLines")
 
-    filepath = tempfile.gettempdir() + r"\adaptive_templates_script.py"
+    filepath = os.path.join(tempfile.gettempdir(), "adaptive_templates_script.py")
     mc.save_adaptive_script(filepath)
     # sum number of lines in saved file and check against number of lines from Motor-CAD
     with open(filepath, "r") as f:
@@ -620,16 +634,18 @@ def test_region_set_parent(mc):
     assert square.name in shaft_expected._child_names
 
 
-def test_region_children(mc):
-    rotor = mc.get_region("rotor")
-    children = rotor.children
+# commented out as functionality requires updated Motor-CAD version
+# def test_region_children(mc):
+#     rotor = mc.get_region("rotor")
+#     children = rotor.children
 
-    assert len(children) == 16
+#     assert len(children) == 16
 
 
-def test_region_linked_regions(mc):
-    duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
-    assert len(duct.linked_regions) == 1
+# commented out as functionality requires updated Motor-CAD version
+# def test_region_linked_regions(mc):
+#     duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
+#     assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():
@@ -1596,15 +1612,15 @@ def test_round_corner():
             assert not entity.coordinate_on_entity(corners[i])
 
     # check exception is raised when a point that is not a corner is specified
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corner(corners[0], radius)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_1.round_corner(triangle_1.entities[0].midpoint, radius)
 
     # check exception is raised when the corner radius is too large
     # this is the case when the distance by which an original entity is to be shortened is larger
     # than the entity's original length
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         triangle_2.round_corner(triangle_2.entities[0].end, 100 * radius)
 
     # check the case when corner internal angle is negative
@@ -1651,6 +1667,28 @@ def test_round_corner():
     assert type(region_rounded.entities[3]) == Arc
     # print(region_rounded.entities[3].midpoint.y)
     assert region_rounded.entities[3].midpoint.y < centre.y
+
+    # test the case when the arc cannot be created:
+    # Define corner
+    corner = Coordinate(2, 0)
+
+    # Define entities
+    line = Line(Coordinate(0, 3), corner)
+    arc = Arc(corner, Coordinate(1.5, 4.5), radius=100)
+
+    # Create region and add entities
+    region = Region(region_type=RegionType.rotor_air)
+    region.add_entity(line)
+    region.add_entity(arc)
+    region_orig = deepcopy(region)
+
+    # Check that ValueError is raised for case when the Arc cannot be drawn between
+    # the lines.
+    with pytest.raises(ValueError) as e_info:
+        region.round_corner(corner, 0.8, maximise=False)
+        assert "Corner radius is too large for these entities" in str(e_info)
+    # check that the region entities are unchanged by the failed corner rounding.
+    assert region.entities == region_orig.entities
 
 
 def test_round_corners():
@@ -3268,7 +3306,6 @@ def test_get_set_region_magnet(mc):
 
 def test_get_set_region_compatibility(mc, monkeypatch):
     monkeypatch.setattr(mc.connection, "program_version", "2024.1")
-    monkeypatch.setattr(rpc_client_core, "DONT_CHECK_MOTORCAD_VERSION", False)
     test_region = RegionMagnet()
     test_region.br_multiplier = 2
     with pytest.warns(UserWarning):
@@ -3302,20 +3339,26 @@ def test_set_lamination_type(mc_reset_to_default_on_teardown):
     rotor = mc_reset_to_default_on_teardown.get_region("Rotor")
     assert rotor.lamination_type == "Solid"
 
-    solid_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region.mot"
+    solid_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_solid_rotor_region.mot"
     )
-    lam_rotor_section_file = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region.mot"
+    lam_rotor_section_file = os.path.join(
+        get_dir_path(), "test_files", "adaptive_template_testing_lam_rotor_region.mot"
     )
 
-    solid_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_solid_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    solid_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_solid_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
-    lam_rotor_section_result = (
-        get_dir_path() + r"\test_files\adaptive_template_testing_lam_rotor_region"
-        r"\FEResultsData\StaticLoadInductance_result_1.mes"
+    lam_rotor_section_result = os.path.join(
+        get_dir_path(),
+        "test_files",
+        "adaptive_template_testing_lam_rotor_region",
+        "FEResultsData",
+        "StaticLoadInductance_result_1.mes",
     )
 
     # load file into Motor-CAD
@@ -3413,3 +3456,281 @@ def test_region_creation_type(mc):
     with pytest.raises(Exception):
         # Passing in something that's not a string or motorcad object should give an exception
         new_region_3 = Region(1)
+
+
+def test_split_region_about_entity(mc):
+    #        Before
+    #      __________(50,50)
+    #     |          |
+    #     |    in    |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+    #         After
+    #      __________(50,50)
+    #     |    0     |
+    #   __|__________|__(y=25)
+    #     |    1     |
+    #     |__________|
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [Coordinate(0, 0), Coordinate(0, 50), Coordinate(50, 50), Coordinate(50, 0)]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 25),
+        Coordinate(50, 25),
+        Coordinate(50, 50),
+        Coordinate(0, 50),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    reg_expected_1 = Region(RegionType.stator_air)
+    reg_expected_1_points = [
+        Coordinate(0, 0),
+        Coordinate(50, 0),
+        Coordinate(50, 25),
+        Coordinate(0, 25),
+    ]
+    reg_expected_1.entities += create_lines_from_points(reg_expected_1_points)
+    reg_expected_1.name = "_1"
+
+    entity1 = Line(Coordinate(0, 25), Coordinate(50, 25))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 2
+
+    assert out[0] == reg_expected_0
+    assert out[1] == reg_expected_1
+
+
+def test_split_region_about_entity_1(mc):
+    #        Before
+    #      __________(50,50)
+    #     |          |
+    #     |    in    |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+    #         After
+    #   ________________(y=60)
+    #
+    #      __________(50,50)
+    #     |          |
+    #     |    0     |
+    #     |          |
+    #     |__________|
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [Coordinate(0, 0), Coordinate(0, 50), Coordinate(50, 50), Coordinate(50, 0)]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 50),
+        Coordinate(50, 50),
+        Coordinate(50, 0),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    entity1 = Line(Coordinate(0, 60), Coordinate(50, 60))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 1
+
+    assert out[0] == reg_expected_0
+
+
+def test_split_region_about_entity_2(mc):
+    #        Before
+    #      __________(60,60)
+    #     |    in    |
+    #     |    __    | _(y=30)
+    #     |   |  |   |
+    #     |___|  |___|
+    # (0,0)   ^  ^
+    #    (20,0)  (40,0)
+    #
+    #         After
+    #      __________(60,60)
+    #     |    0     |
+    #     |    __    | _(y=30)
+    #   __|___|__|___|__(y=15)
+    #  1->|___|  |___|<-2
+    # (0,0)   ^  ^
+    #    (20,0)  (40,0)
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 0),
+        Coordinate(40, 0),
+        Coordinate(40, 30),
+        Coordinate(20, 30),
+        Coordinate(20, 0),
+    ]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+
+    reg_expected_0 = Region(RegionType.stator_air)
+    reg_expected_0_points = [
+        Coordinate(0, 15),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 15),
+        Coordinate(40, 15),
+        Coordinate(40, 30),
+        Coordinate(20, 30),
+        Coordinate(20, 15),
+    ]
+    reg_expected_0.entities += create_lines_from_points(reg_expected_0_points)
+
+    reg_expected_1 = Region(RegionType.stator_air)
+    reg_expected_1_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 15),
+        Coordinate(20, 15),
+        Coordinate(20, 0),
+    ]
+    reg_expected_1.entities += create_lines_from_points(reg_expected_1_points)
+    reg_expected_1.name = "_1"
+
+    reg_expected_2 = Region(RegionType.stator_air)
+    reg_expected_2_points = [
+        Coordinate(40, 0),
+        Coordinate(40, 15),
+        Coordinate(60, 15),
+        Coordinate(60, 0),
+    ]
+    reg_expected_2.entities += create_lines_from_points(reg_expected_2_points)
+    reg_expected_2.name = "_2"
+
+    entity1 = Line(Coordinate(0, 15), Coordinate(60, 15))
+
+    out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+    assert len(out) == 3
+
+    assert out[0] == reg_expected_0
+    assert out[1] == reg_expected_1
+    assert out[2] == reg_expected_2
+
+
+def test_split_region_about_entity_3(mc):
+    #        Before
+    #      __________(60,60)
+    #     |    in    |
+    #     |          |
+    #     |          |
+    #     |          |
+    # (0,0)
+    #
+
+    if not mc.connection.check_if_feature_exists("split_region_about_entity"):
+        pytest.skip("split_region_about_entity API not available in this version of Motor-CAD")
+
+    mc.reset_adaptive_geometry()
+
+    reg_in = Region(RegionType.stator_air)
+    reg_in_points = [
+        Coordinate(0, 0),
+        Coordinate(0, 60),
+        Coordinate(60, 60),
+        Coordinate(60, 0),
+    ]
+    reg_in.entities += create_lines_from_points(reg_in_points)
+    reg_in.entities.pop()
+
+    entity1 = Line(Coordinate(0, 15), Coordinate(60, 15))
+
+    with pytest.raises(MotorCADError):
+        out: list[Region] = mc.split_region_about_entity(reg_in, entity1)
+
+
+# def test_edit_region(mc_reset_to_default_on_teardown):
+#     """Test edit_region updates region properties, verified via get_region."""
+#     mc = mc_reset_to_default_on_teardown
+#     # only test versions with edit_region API available
+#     if not mc.connection.check_if_feature_exists("edit_region_improved"):
+#         pytest.skip("edit_region API not available in this version of Motor-CAD")
+#
+#     region_name = "Stator"
+#     new_material = "M470-50A"
+#     new_mesh_length = 0.1
+#     new_colour = (255, 255, 0)
+#     new_region_type = RegionType.rotor
+#     new_lamination_type = "Solid"
+#
+#     mc.edit_region(
+#         region_name,
+#         material=new_material,
+#         mesh_length=new_mesh_length,
+#         colour=new_colour,
+#         region_type=new_region_type,
+#         lamination_type=new_lamination_type,
+#     )
+#
+#     region = mc.get_region(region_name)
+#     assert region.material == new_material
+#     assert region.mesh_length == new_mesh_length
+#
+#
+# def test_edit_magnet_region(mc_reset_to_default_on_teardown):
+#     """Test edit_magnet_region updates magnet properties, verified via get_region."""
+#     mc = mc_reset_to_default_on_teardown
+#     # only test versions with edit_magnet_region API available
+#     if not mc.connection.check_if_feature_exists("edit_region_improved"):
+#         pytest.skip("edit_magnet_region API not available in this version of Motor-CAD")
+#
+#     mc.set_variable("GeometryTemplateType", 1)
+#     mc.reset_adaptive_geometry()
+#
+#     region_name = "L1_1Magnet2"
+#     new_br_multiplier = 1.5
+#     new_magnet_angle = 45.0
+#     new_magnet_polarity = "S"
+#     new_magnetisation_direction = MagnetisationDirection.radial
+#
+#     mc.edit_region_magnet(
+#         region_name,
+#         br_multiplier=new_br_multiplier,
+#         magnet_angle=new_magnet_angle,
+#         magnet_polarity=new_magnet_polarity,
+#         magnetisation_direction=new_magnetisation_direction,
+#     )
+#
+#     magnet = mc.get_region(region_name)
+#     assert isinstance(magnet, RegionMagnet)
+#     assert magnet.br_multiplier == new_br_multiplier
+#     assert magnet.magnet_angle == new_magnet_angle
+#     assert magnet.magnet_polarity == new_magnet_polarity
+#     assert magnet.magnetisation_direction == new_magnetisation_direction
+#     assert region.colour == new_colour
+#     assert region.region_type == new_region_type
+#     assert region.lamination_type == new_lamination_type

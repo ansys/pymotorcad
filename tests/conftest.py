@@ -22,13 +22,11 @@
 import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
-import ansys.motorcad.core
 from ansys.motorcad.core import MotorCAD
 
 
 def pytest_sessionstart(session):
     reset_temp_file_folder()
-    ansys.motorcad.core.rpc_client_core.DONT_CHECK_MOTORCAD_VERSION = True
 
 
 @pytest.fixture(scope="session")
