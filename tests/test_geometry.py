@@ -2532,7 +2532,8 @@ def test_subtract_region_1(mc):
     rectangle = geometry.Region(RegionType.stator_air)
     expected_region_1 = geometry.Region(RegionType.stator_air)
     expected_region_2 = geometry.Region(RegionType.stator_air)
-    expected_region_2.name = "_1"
+    if mc.connection.check_if_feature_exists("subtract_region_unique_name_enforcment"):
+        expected_region_2.name = "_1"
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
