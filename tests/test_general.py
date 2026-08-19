@@ -115,8 +115,8 @@ def test_message_config(mc):
     assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
     mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
     assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+    mc.set_popup_display_level(MotorCADPopupDisplayLevel.query)
+    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.query
 
 
 def test_verbose_message_config(mc):
