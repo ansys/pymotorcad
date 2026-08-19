@@ -494,7 +494,7 @@ class _RpcMethodsGeneral:
           This method is deprecated. License is checked out at startup.
         """
         if self.connection.check_version_at_least("2027.1"):
-            print('get_licence is deprecated for 27R1 or later. License is checked out at startup.')
+            print("get_licence is deprecated for 27R1 or later. License is checked out at startup.")
         else:
             method = "GetLicence"
             return self.connection.send_and_receive(method)
