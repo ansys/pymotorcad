@@ -490,7 +490,6 @@ class _RpcMethodsGeneral:
         """Check if a license is available for the current context and machine type.
 
         If such a license is available, it is checked out.
-        
         ..note::
           This method is deprecated. License is checked out at startup.
         """
