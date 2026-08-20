@@ -490,9 +490,15 @@ class _RpcMethodsGeneral:
         """Check if a license is available for the current context and machine type.
 
         If such a license is available, it is checked out.
+
+        ..note::
+          This method is deprecated. License is checked out at startup.
         """
-        method = "GetLicence"
-        return self.connection.send_and_receive(method)
+        if self.connection.check_version_at_least("2027.1"):
+            print("get_licence is deprecated for 27R1 or later. License is checked out at startup.")
+        else:
+            method = "GetLicence"
+            return self.connection.send_and_receive(method)
 
     def get_license(self):
         """Check if a license is available for the current context and machine type.
