@@ -32,7 +32,7 @@ def pytest_sessionstart(session):
 @pytest.fixture(scope="session")
 def mc():
     """Set up test environment for whole unit of tests"""
-    motorcad_instance = MotorCAD(use_original_licensing=False)
+    motorcad_instance = MotorCAD(use_new_license_type=True)
     # Disable messages if opened with UI
     motorcad_instance.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance)
