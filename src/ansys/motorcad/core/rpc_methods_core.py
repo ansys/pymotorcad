@@ -27,6 +27,7 @@ Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 
 from ansys.motorcad.core.methods.adaptive_geometry import _RpcMethodsAdaptiveGeometry
 from ansys.motorcad.core.methods.deprecated_methods import _RpcMethodsDeprecated
+from ansys.motorcad.core.methods.rpc_message_config import _RpcMessageConfig
 from ansys.motorcad.core.methods.rpc_methods_calculations import _RpcMethodsCalculations
 from ansys.motorcad.core.methods.rpc_methods_fea_geometry import _RpcMethodsFEAGeometry
 from ansys.motorcad.core.methods.rpc_methods_general import _RpcMethodsGeneral
@@ -59,6 +60,7 @@ class _RpcMethodsCore(
 ):
     def __init__(self, mc_connection):
         self.connection = mc_connection
+        self.messageconfig = _RpcMessageConfig(self.connection)
 
         _RpcMethodsVariables.__init__(self, self.connection)
         _RpcMethodsUI.__init__(self, self.connection)

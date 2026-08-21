@@ -104,29 +104,34 @@ def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
 
-    mc.disable_popups()
-    assert mc.get_popups_enabled() is False
-    mc.enable_popups()
-    assert mc.get_popups_enabled() is True
+    mc.messageconfig.disable_popups()
+    assert mc.messageconfig.get_popups_enabled() is False
+    mc.messageconfig.enable_popups()
+    assert mc.messageconfig.get_popups_enabled() is True
 
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+    mc.messageconfig.set_popup_display_level(MotorCADPopupDisplayLevel.info)
+    assert mc.messageconfig.get_popup_display_level() == MotorCADPopupDisplayLevel.info
+    mc.messageconfig.set_popup_display_level(MotorCADPopupDisplayLevel.error)
+    assert mc.messageconfig.get_popup_display_level() == MotorCADPopupDisplayLevel.error
+    mc.messageconfig.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
+    assert mc.messageconfig.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
+    mc.messageconfig.set_popup_display_level(MotorCADPopupDisplayLevel.query)
+    assert mc.messageconfig.get_popup_display_level() == MotorCADPopupDisplayLevel.query
 
 
 def test_verbose_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
 
-    mc.disable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is False
-    mc.enable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is True
+    mc.messageconfig.disable_verbose_messages()
+    assert mc.messageconfig.get_verbose_messages_enabled() is False
+    mc.messageconfig.enable_verbose_messages()
+    assert mc.messageconfig.get_verbose_messages_enabled() is True
+
+    mc.messageconfig.disable_verbose_fea_messages()
+    assert mc.messageconfig.get_verbose_fea_messages_enabled() is False
+    mc.messageconfig.enable_verbose_fea_messages()
+    assert mc.messageconfig.get_verbose_fea_messages_enabled() is True
 
 
 def test_load_dxf_file():

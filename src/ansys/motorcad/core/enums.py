@@ -38,4 +38,4 @@ class MotorCADPopupDisplayLevel(int, Enum):
     info = 1
     warning = 2
     error = 3
-    fatal = 4
+    query = 4
