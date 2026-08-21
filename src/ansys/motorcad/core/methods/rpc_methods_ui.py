@@ -21,16 +21,30 @@
 # SOFTWARE.
 
 """RPC methods for UI."""
+from warnings import warn
+
 from packaging import version
+
+
+def deprecation_warning(name, replacement):
+    """Output deprecation warning for old method names."""
+    warn(
+        "Function: " + name + " is deprecated."
+        "\nThis functionality has been replaced by " + replacement,
+        DeprecationWarning,
+    )
 
 
 class _RpcMethodsUI:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
-    # Move this to mc.messageconfig ? (rpc_message_config.py)
     def disable_error_messages(self, active):
         """Disable the display of error messages.
+
+        .. deprecated:: 0.6.0
+          `disable_error_messages` has been removed in Motor-CAD 2027R1.
+          Functionality replaced by methods in mc.messageconfig.
 
         Parameters
         ----------
@@ -39,6 +53,7 @@ class _RpcMethodsUI:
             error messages are hidden. If ``False``, error messages are
             shown.
         """
+        deprecation_warning("disable_error_messages", "methods in mc.messageconfig.")
         method = "DisableErrorMessages"
         params = [active]
         return self.connection.send_and_receive(method, params)
