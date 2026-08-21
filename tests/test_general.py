@@ -199,7 +199,11 @@ def test_export_multi_force_data(mc):
 def test_geometry_export(mc):
     file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
-    mc.geometry_export()
+
+    if mc.connection.check_if_feature_exists("geometry_export_with_context"):
+        mc.geometry_export("Magnetic")
+    else:
+        mc.geometry_export()
 
     assert os.path.exists(file_path)
 
