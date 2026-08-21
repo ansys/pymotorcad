@@ -2673,6 +2673,63 @@ def test_subtract_region_4(mc):
     assert subtracted_regions[0].child_names[0] == inner_square.name
 
 
+def test_subtract_region_5(mc):
+    region_target = Region(RegionType.stator_air, mc)
+    region_target.entities += create_lines_from_points(
+        [Coordinate(0, 0), Coordinate(10, 0), Coordinate(10, 10), Coordinate(0, 10)]
+    )
+
+    region1 = Region(RegionType.stator_air, mc)
+    region1.entities += create_lines_from_points(
+        [Coordinate(4.5, -1), Coordinate(5.5, -1), Coordinate(5.5, 11), Coordinate(4.5, 11)]
+    )
+
+    region2 = Region(RegionType.stator_air, mc)
+    region2.entities += create_lines_from_points(
+        [Coordinate(-2, 5), Coordinate(2, 5), Coordinate(2, 12), Coordinate(-2, 12)]
+    )
+
+    region3 = Region(RegionType.stator_air, mc)
+    region3.entities += create_lines_from_points(
+        [Coordinate(-5, -5), Coordinate(-5, -3), Coordinate(-3, -3), Coordinate(-3, -5)]
+    )
+
+    region4 = Region(RegionType.stator_air, mc)
+    region4.entities += create_lines_from_points(
+        [Coordinate(8, -2), Coordinate(8, 5), Coordinate(12, 5), Coordinate(12, -2)]
+    )
+
+    expected_region1 = Region(RegionType.stator_air, mc)
+    expected_region1.entities += create_lines_from_points(
+        [
+            Coordinate(0, 0),
+            Coordinate(4.5, 0),
+            Coordinate(4.5, 10),
+            Coordinate(2, 10),
+            Coordinate(2, 5),
+            Coordinate(0, 5),
+        ]
+    )
+
+    expected_region2 = Region(RegionType.stator_air, mc)
+    expected_region2.entities += create_lines_from_points(
+        [
+            Coordinate(5.5, 0),
+            Coordinate(8, 0),
+            Coordinate(8, 5),
+            Coordinate(10, 5),
+            Coordinate(10, 10),
+            Coordinate(5.5, 10),
+        ]
+    )
+
+    out = region_target.subtract([region1, region2, region3, region4])
+
+    assert len(out) == 1
+    assert expected_region1 == region_target
+    assert expected_region2 == out[0]
+
+
 def test_region_mirror():
     square = create_square()
     square.name = "square"
