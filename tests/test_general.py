@@ -229,7 +229,6 @@ def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     )
 
 
-@pytest.mark.skip("Skip temporarily - flaky with 2027 pre-release")
 def test_save_load_results(mc_reset_to_default_on_teardown):
     # Currently not working as part of full tests
     # Works individually - need to look into this
