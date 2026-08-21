@@ -1,0 +1,6 @@
+br\_value
+=========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.br_value

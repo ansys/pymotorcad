@@ -1,0 +1,6 @@
+get\_intersection
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.get_intersection

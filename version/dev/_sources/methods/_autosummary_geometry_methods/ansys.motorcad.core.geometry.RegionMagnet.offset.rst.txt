@@ -1,0 +1,6 @@
+offset
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.offset

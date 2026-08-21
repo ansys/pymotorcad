@@ -1,0 +1,24 @@
+.. _ref_Graphs_API:
+Graphs
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Graphs
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    get_fea_graph
+    get_fea_graph_point
+    get_heatflow_graph
+    get_magnetic_3d_graph
+    get_magnetic_3d_graph_point
+    get_magnetic_graph
+    get_magnetic_graph_point
+    get_power_graph
+    get_power_graph_point
+    get_temperature_graph
+    get_temperature_graph_point

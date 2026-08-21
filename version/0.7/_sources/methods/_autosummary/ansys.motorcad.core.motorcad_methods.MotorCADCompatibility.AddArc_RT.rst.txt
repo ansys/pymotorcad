@@ -1,0 +1,6 @@
+AddArc\_RT
+==========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddArc_RT

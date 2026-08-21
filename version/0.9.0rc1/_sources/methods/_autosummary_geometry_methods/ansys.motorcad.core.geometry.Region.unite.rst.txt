@@ -1,0 +1,6 @@
+unite
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.unite

@@ -1,0 +1,6 @@
+ClearModelBuild\_Lab
+====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ClearModelBuild_Lab

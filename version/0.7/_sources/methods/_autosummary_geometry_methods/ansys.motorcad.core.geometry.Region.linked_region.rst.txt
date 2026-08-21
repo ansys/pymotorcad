@@ -1,0 +1,6 @@
+linked\_region
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.linked_region

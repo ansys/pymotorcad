@@ -1,0 +1,6 @@
+magnet
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.magnet

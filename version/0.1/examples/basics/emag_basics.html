@@ -1,0 +1,881 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Motor-CAD E-magnetic example script &#8212; pymotorcad-core</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js\table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/basics/emag_basics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nocname.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.1';
+        </script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Motor-CAD Lab model example script" href="lab_basics.html" />
+    <link rel="prev" title="Basic examples" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  <link rel="canonical" href="https://motorcad.docs.pyansys.com/version/stable/examples/basics/emag_basics.html" />
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      <!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+    
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-toggle="dropdown">
+        0.1  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+      </div>
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymotorcad-core</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Basic examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Motor-CAD E-magnetic example script</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../methods/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-toggle="dropdown">
+        0.1  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+      </div>
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pymotorcad" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pymotorcad/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Basic examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Motor-CAD E-magnetic example script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lab_basics.html">Motor-CAD Lab model example script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermal_basics.html">Motor-CAD thermal example script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../links/index.html">Linking examples</a></li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-basics-emag-basics-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="motor-cad-e-magnetic-example-script">
+<span id="ref-emag-basics"></span><span id="sphx-glr-examples-basics-emag-basics-py"></span><h1>Motor-CAD E-magnetic example script<a class="headerlink" href="#motor-cad-e-magnetic-example-script" title="Permalink to this heading">#</a></h1>
+<p>This example provides a Motor-CAD E-magnetic script. This script
+creates a partial custom winding pattern using ActiveX to change
+parameter values, run the analysis, and plot results. To create
+a full winding pattern, you would have to specify parameters
+for all coils.</p>
+<section id="set-up-example">
+<h2>Set up example<a class="headerlink" href="#set-up-example" title="Permalink to this heading">#</a></h2>
+<p>Setting up this example consists of performing imports, specifying the
+working directory, launching Motor-CAD, and disabling all popup
+messages from Motor-CAD.</p>
+<p>%%
+Perform required imports
+~~~~~~~~~~~~~~~~~~~~~~~~
+Import the required packages.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">ansys.motorcad.core</span> <span class="k">as</span> <span class="nn">pymotorcad</span>
+
+<span class="k">if</span> <span class="s2">&quot;QT_API&quot;</span> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="p">[</span><span class="s2">&quot;QT_API&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pyqt&quot;</span>
+</pre></div>
+</div>
+<section id="specify-working-directory">
+<h3>Specify working directory<a class="headerlink" href="#specify-working-directory" title="Permalink to this heading">#</a></h3>
+<p>Specify the working directory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.html#os.getcwd" title="os.getcwd" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span></a><span class="p">()</span>
+
+<span class="k">if</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.isdir" title="os.path.isdir" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Working folder does not exist. Choose a folder that exists and try again.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="launch-motor-cad">
+<h3>Launch Motor-CAD<a class="headerlink" href="#launch-motor-cad" title="Permalink to this heading">#</a></h3>
+<p>Initialize ActiveX automation and launch Motor-CAD.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting initialization.&quot;</span><span class="p">)</span>
+<span class="n">mcad</span> <span class="o">=</span> <span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCAD</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Starting initialization.
+</pre></div>
+</div>
+</section>
+<section id="disable-popup-messages">
+<h3>Disable popup messages<a class="headerlink" href="#disable-popup-messages" title="Permalink to this heading">#</a></h3>
+<p>Disable all popup messages from Motor-CAD.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;MessageDisplayState&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initialization completed.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running simulation.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Initialization completed.
+Running simulation.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="create-analysis">
+<h2>Create analysis<a class="headerlink" href="#create-analysis" title="Permalink to this heading">#</a></h2>
+<p>Creating the analysis consists of showing the magnetic context, displaying
+the <strong>Scripting</strong> tab, setting the geometry and parameters, and saving
+the file.</p>
+<p>Show the magnetic context.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">show_magnetic_context</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Display the <strong>Scripting</strong> tab.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s2">&quot;Scripting&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Set the geometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;Slot_Number&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;Tooth_Width&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;Magnet_Thickness&quot;</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Set parameters for creating the custom winding pattern.</p>
+<p>The following code creates only a partial winding pattern.</p>
+<p>Set the winding type to custom:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('MagWindingType',</span> <span class="pre">1)</span></code></p>
+<p>Set the path type to upper and lower:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('MagPathType',</span> <span class="pre">1)</span></code></p>
+<p>Set the number of phases:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('MagPhases',</span> <span class="pre">3)</span></code></p>
+<p>Set the number of parallel paths:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('ParallelPaths',</span> <span class="pre">1)</span></code></p>
+<p>Set the number of winding layers:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('WindingLayers',</span> <span class="pre">2)</span></code></p>
+<p>Define a coil’s parameters:
+<code class="code docutils literal notranslate"><span class="pre">set_winding_coil(phase,</span>
+<span class="pre">path,</span> <span class="pre">coil,</span> <span class="pre">go_slot,</span> <span class="pre">go_position,</span> <span class="pre">return_slot,</span> <span class="pre">return_position,</span> <span class="pre">turns)</span></code></p>
+<p>Set the stator/rotor lamination materials.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_component_material</span><span class="p">(</span><span class="s2">&quot;Stator Lam (Back Iron)&quot;</span><span class="p">,</span> <span class="s2">&quot;M250-35A&quot;</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_component_material</span><span class="p">(</span><span class="s2">&quot;Rotor Lam (Back Iron)&quot;</span><span class="p">,</span> <span class="s2">&quot;M250-35A&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Set the torque calculation options.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_per_cycle</span></a> <span class="o">=</span> <span class="mi">30</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_cycles</span></a> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;TorquePointsPerCycle&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_per_cycle</span></a><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;TorqueNumberCycles&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_cycles</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>Disable all performance tests except the ones for transient torque.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;BackEMFCalculation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;CoggingTorqueCalculation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;ElectromagneticForcesCalc_OC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;TorqueSpeedCalculation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;DemagnetizationCalc&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;ElectromagneticForcesCalc_Load&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;InductanceCalc&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;BPMShortCircuitCalc&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Enable transient torque.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;TorqueCalculation&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Set the operating point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;Shaft_Speed_[RPM]&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;CurrentDefinition&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;PeakCurrent&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;DCBusVoltage&quot;</span><span class="p">,</span> <span class="mi">350</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="s2">&quot;PhaseAdvance&quot;</span><span class="p">,</span> <span class="mi">45</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save the file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">,</span> <span class="s2">&quot;../ActiveX_Scripting_EMagnetic.mot&quot;</span><span class="p">)</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">save_to_file</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-simulation">
+<h2>Run simulation<a class="headerlink" href="#run-simulation" title="Permalink to this heading">#</a></h2>
+<p>Run the simulation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">do_magnetic_calculation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="export-results-to-csv-file">
+<h2>Export results to CSV file<a class="headerlink" href="#export-results-to-csv-file" title="Permalink to this heading">#</a></h2>
+<p>Export results to a CSV file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">exportFile</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">working_folder</span></a><span class="p">,</span> <span class="s2">&quot;../Export_EMag_Results.csv&quot;</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">mcad</span><span class="o">.</span><span class="n">export_results</span><span class="p">(</span><span class="s2">&quot;EMagnetic&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">exportFile</span></a><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results successfully exported.&quot;</span><span class="p">)</span>
+<span class="k">except</span> <a href="https://docs.python.org/dev/library/exceptions.html#Exception" title="builtins.Exception" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-exception"><span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCADError</span></a><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results failed to export.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Results successfully exported.
+</pre></div>
+</div>
+</section>
+<section id="get-and-analyze-results">
+<h2>Get and analyze results<a class="headerlink" href="#get-and-analyze-results" title="Permalink to this heading">#</a></h2>
+<p>Get torque and voltage data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shaft_torque</span></a> <span class="o">=</span> <span class="n">mcad</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;ShaftTorque&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">line_voltage</span></a> <span class="o">=</span> <span class="n">mcad</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="s2">&quot;PeakLineLineVoltage&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Graph the torque data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">num_torque_points</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_per_cycle</span></a> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_cycles</span></a>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rotor_position</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque_vw</span></a> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">num_torque_points</span></a><span class="p">):</span>
+    <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span> <span class="o">=</span> <span class="n">mcad</span><span class="o">.</span><span class="n">get_magnetic_graph_point</span><span class="p">(</span><span class="s2">&quot;TorqueVW&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rotor_position</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque_vw</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>Graph the airgap flux density data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">loop</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">success</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mech_angle</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airgap_flux_density</span></a> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>Keep looking until you cannot find the point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">success</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span> <span class="o">=</span> <span class="n">mcad</span><span class="o">.</span><span class="n">get_fea_graph_point</span><span class="p">(</span><span class="s2">&quot;B Gap (on load)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">loop</span></a><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mech_angle</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airgap_flux_density</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">loop</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">loop</span></a> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">except</span> <a href="https://docs.python.org/dev/library/exceptions.html#Exception" title="builtins.Exception" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-exception"><span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCADError</span></a><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">success</span></a> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Graph the harmonic data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">initialise_tab_names</span><span class="p">()</span>
+<span class="n">mcad</span><span class="o">.</span><span class="n">display_screen</span><span class="p">(</span><span class="s2">&quot;Graphs;Harmonics;Torque&quot;</span><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">num_harmonic_points</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_per_cycle</span></a> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">number_cycles</span></a><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_point</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque</span></a> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">num_harmonic_points</span></a><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span> <span class="o">=</span> <span class="n">mcad</span><span class="o">.</span><span class="n">get_magnetic_graph_point</span><span class="p">(</span><span class="s2">&quot;HarmonicDataCycle&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_point</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">)</span>
+    <span class="k">except</span> <a href="https://docs.python.org/dev/library/exceptions.html#Exception" title="builtins.Exception" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-exception"><span class="n">pymotorcad</span><span class="o">.</span><span class="n">MotorCADError</span></a><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results failed to export.&quot;</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation completed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Simulation completed.
+</pre></div>
+</div>
+</section>
+<section id="plot-results">
+<h2>Plot results<a class="headerlink" href="#plot-results" title="Permalink to this heading">#</a></h2>
+<p>Plot results from the simulation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mech_angle</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airgap_flux_density</span></a><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Mech Angle&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Airgap Flux Density&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rotor_position</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque_vw</span></a><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Rotor Position&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;TorqueVW&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_point</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torque</span></a><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;DataPoint&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Torque (Nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_emag_basics_001.png" srcset="../../_images/sphx_glr_emag_basics_001.png" alt="emag basics" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_emag_basics_002.png" srcset="../../_images/sphx_glr_emag_basics_002.png" alt="emag basics" class = "sphx-glr-multi-img"/></li>
+</ul>
+</section>
+<section id="exit-motor-cad">
+<h2>Exit Motor-CAD<a class="headerlink" href="#exit-motor-cad" title="Permalink to this heading">#</a></h2>
+<p>Exit Motor-CAD.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mcad</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you want to continue working with this instance of Motor-CAD, rather
+than using the preceding command, use this command:
+<code class="code docutils literal notranslate"><span class="pre">mcad.set_variable('MessageDisplayState',</span> <span class="pre">0)</span></code></p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  47.532 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-basics-emag-basics-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a9f704bbd74ca12e4cdd1d3b5b10e7d3/emag_basics.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">emag_basics.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/575fe2db9198b0a8cfa5f444690b3f19/emag_basics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">emag_basics.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#set-up-example">
+   Set up example
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#specify-working-directory">
+     Specify working directory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#launch-motor-cad">
+     Launch Motor-CAD
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#disable-popup-messages">
+     Disable popup messages
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-analysis">
+   Create analysis
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#run-simulation">
+   Run simulation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#export-results-to-csv-file">
+   Export results to CSV file
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-and-analyze-results">
+   Get and analyze results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#plot-results">
+   Plot results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#exit-motor-cad">
+   Exit Motor-CAD
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../_sources/examples/basics/emag_basics.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

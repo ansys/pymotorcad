@@ -1,0 +1,113 @@
+
+
+.. _sphx_glr_examples_internal_scripting:
+
+Internal scripting examples
+---------------------------
+These examples show you how to use the internal scripting functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="E-magnetic">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_emag_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_emag.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">E-magnetic</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Mechanical force">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_mechanical_force_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_mechanical_force.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Mechanical force</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Mechanical stress">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_mechanical_stress_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_mechanical_stress.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Mechanical stress</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Thermal steady-state">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_thermal_steady_state_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_thermal_steady_state.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Thermal steady-state</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Thermal transient">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_thermal_transient_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_thermal_transient.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Thermal transient</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/internal_scripting/emag
+   /examples/internal_scripting/mechanical_force
+   /examples/internal_scripting/mechanical_stress
+   /examples/internal_scripting/thermal_steady_state
+   /examples/internal_scripting/thermal_transient
+

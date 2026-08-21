@@ -1,0 +1,6 @@
+insert\_entity
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.insert_entity

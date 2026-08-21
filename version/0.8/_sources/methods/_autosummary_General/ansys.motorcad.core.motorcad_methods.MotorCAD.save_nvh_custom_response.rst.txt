@@ -1,0 +1,6 @@
+﻿save\_nvh\_custom\_response
+===========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.save_nvh_custom_response

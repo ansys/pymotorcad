@@ -1,0 +1,6 @@
+get\_coordinate\_from\_distance
+===============================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Line.get_coordinate_from_distance
