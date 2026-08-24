@@ -77,8 +77,10 @@ Available in Linux from 27R1
 - ``load_adaptive_script``
 - ``load_custom_drive_cycle``
 - ``load_duty_cycle``
+- ``load_dxf_file``
 - ``load_external_model_lab``
 - ``load_fea_result``
+- ``load_from_file``
 - ``load_magnetisation_curves``
 - ``load_nvh_custom_response``
 - ``load_script``
@@ -115,43 +117,57 @@ Available in Linux from 27R1
 - ``subtract_region``
 - ``unite_regions``
 - ``upload_mot_file``
+- ``quit``
 
 
 
 
-Not yet available in Linux as of 27R1
+Work In Progress
 -------------------------------------
 
 .. check_collisions is in progress
+- ``build_model_lab``
 - ``check_collisions``
+- ``export_to_ansys_discovery``
+- ``export_to_ansys_electronics_desktop``
 - ``get_license``
 - ``get_magnetic_graph_harmonics``
-.. quit is in review
-- ``quit``
+- ``get_region_loss``
+- ``load_template``
+- ``save_fea_data``
 - ``update_force_analysis_results``
 
 
-Not planned for Linux 27R1
+Unsupported Functionality
 --------------------------
 
+- ``clear_messages``
+- ``disable_error_messages``
+- ``disable_popups``
+- ``disable_verbose_messages``
+- ``display_screen``
+- ``enable_popups``
+- ``enable_verbose_messages``
 - ``export_figure_lab``
 - ``export_force_animation``
 - ``export_results``
 - ``get_force_frequency_domain_amplitude``
 - ``get_messages``
+- ``get_popup_display_level``
+- ``get_popups_enabled``
 - ``get_region_value``
+- ``get_verbose_messages_enabled``
 - ``go_slot_finite_element``
+- ``initialise_tab_names``
 - ``load_results``
 - ``run_script``
-
-Not yet tested commands
------------------------
-
-- ``build_model_lab``
-- ``export_to_ansys_discovery``
-- ``export_to_ansys_electronics_desktop``
-- ``get_region_loss``
-- ``load_dxf_file``
-- ``load_from_file``
-- ``load_template``
-- ``save_fea_data``
+- ``save_motorcad_screen_to_file``
+- ``save_screen_to_file``
+- ``set_3d_component_visibility``
+- ``set_motorlab_context``
+- ``set_popup_display_level``
+- ``set_visible``
+- ``show_magnetic_context``
+- ``show_mechanical_context``
+- ``show_message``
+- ``show_thermal_context``
