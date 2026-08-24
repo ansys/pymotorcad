@@ -635,6 +635,9 @@ def test_region_set_parent(mc):
 
 
 def test_region_children(mc):
+    if not mc.connection.check_if_feature_exists("variable_DuctGeometryMethod"):
+        pytest.skip("Variable DuctGeometryMethod does not exist, skipping test_region_children")
+
     rotor = mc.get_region("rotor")
     children = rotor.children
 
@@ -651,6 +654,9 @@ def test_region_children(mc):
 
 
 def test_region_linked_regions(mc):
+    if not mc.connection.check_if_feature_exists("variable_DuctGeometryMethod"):
+        pytest.skip("Variable DuctGeometryMethod does not exist, skipping test_region_children")
+
     # set duct geometry method back to original to test linked regions
     mc.set_variable("DuctGeometryMethod", 0)
     # force geometry to be recreated after updating duct geometry method
@@ -664,12 +670,6 @@ def test_region_linked_regions(mc):
         mc.set_variable("DuctGeometryMethod", 1)
         # force geometry to be recreated after updating duct geometry method
         mc.reset_adaptive_geometry()
-
-
-# commented out as functionality requires updated Motor-CAD version
-# def test_region_linked_regions(mc):
-#     duct = mc.get_region("RotorDuctFluidRegion_1", get_linked=True)
-#     assert len(duct.linked_regions) == 1
 
 
 def test_reverse_entity():
