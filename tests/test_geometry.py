@@ -655,7 +655,9 @@ def test_region_children(mc):
 
 def test_region_linked_regions(mc):
     if not mc.connection.check_if_feature_exists("variable_DuctGeometryMethod"):
-        pytest.skip("Variable DuctGeometryMethod does not exist, skipping test_region_children")
+        pytest.skip(
+            "Variable DuctGeometryMethod does not exist, skipping test_region_linked_regions"
+        )
 
     # set duct geometry method back to original to test linked regions
     mc.set_variable("DuctGeometryMethod", 0)
