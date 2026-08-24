@@ -24,7 +24,6 @@
 from warnings import warn
 
 from ansys.motorcad.core.datastore import Datastore
-from ansys.motorcad.core.rpc_methods_core_old import deprecation_warning
 
 
 class _RpcMethodsVariables:
@@ -71,8 +70,16 @@ class _RpcMethodsVariables:
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
-        """Restore model deprecated settings to default values to use the latest methods."""
-        deprecation_warning("restore_compatibility_settings", "restore_deprecated_settings")
+        """Restore model deprecated settings to default values to use the latest methods.
+
+        .. deprecated:: 0.9.0
+          `restore_compatibility_settings` has been removed in Motor-CAD 2027R1.
+          Functionality replaced by `restore_deprecated_settings`.
+        """
+        warn(
+            "restore_compatibility_settings is deprecated. Use restore_deprecated_settings",
+            DeprecationWarning,
+        )
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
 
