@@ -3181,7 +3181,7 @@ def test_reset_geometry(mc):
 
 
 def test_region_offset(mc):
-    if not mc.connection.check_if_feature_exists("offset"):
+    if not mc.connection.check_if_feature_exists("offset_region"):
         pytest.skip("offset API not available in this version of Motor-CAD")
 
     original_region = geometry.Region(RegionType.stator_air)
