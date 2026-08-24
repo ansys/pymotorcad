@@ -3582,11 +3582,11 @@ def test_check_region_inside_region_touching_edge(mc):
     region_a.add_entity(geometry.Line(geometry.Coordinate(0, 3), geometry.Coordinate(0, 1)))
 
     # Test with include_entity_overlap = False (region not inside)
-    is_inside = region_b.inside_region(region_a, False)
+    is_inside = region_a.inside_region(region_b, False)
     assert is_inside is False
 
     # Test with include_entity_overlap = True
-    is_inside = region_b.inside_region(region_a, True)
+    is_inside = region_a.inside_region(region_b, True)
     assert is_inside is True
 
 
