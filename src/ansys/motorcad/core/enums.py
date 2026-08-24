@@ -20,50 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import shutil
+"""Enumerations for Motor-CAD."""
+from enum import Enum
 
 
-def get_dir_path():
-    return os.path.dirname(os.path.realpath(__file__))
+class MotorCADContext(str, Enum):
+    """Provides an enumeration for Motor-CAD analysis context."""
+
+    magnetic = "Magnetic"
+    thermal = "Thermal"
+    mechanical = "Mechanical"
 
 
-def get_test_files_dir_path():
-    return os.path.join(get_dir_path(), "test_files")
+class MotorCADPopupDisplayLevel(int, Enum):
+    """Provides an enumeration for Motor-CAD popup display levels."""
 
-
-def get_base_test_file_path():
-    return os.path.join(get_test_files_dir_path(), "base_test_file.mot")
-
-
-def get_temp_files_dir_path():
-    return os.path.join(get_test_files_dir_path(), "temp_files")
-
-
-def almost_equal(a, b, decimal_places=1):
-    # Rough check
-    return round(a - b, decimal_places) == 0
-
-
-def almost_equal_percentage(a, b, percentage):
-    return abs(a - b) < abs(a * (percentage / 100))
-
-
-def almost_equal_fixed(a, b, allowed_difference=0):
-    return abs(a - b) < +allowed_difference
-
-
-def reset_to_default_file(motorcad_instance):
-    motorcad_instance.load_from_file(get_base_test_file_path())
-
-    # save to temp location to avoid editing base file
-    motorcad_instance.save_to_file(os.path.join(get_temp_files_dir_path(), "temp_test_file.mot"))
-
-
-def reset_temp_file_folder():
-    dir_path = get_temp_files_dir_path()
-
-    if os.path.exists(dir_path):
-        shutil.rmtree(dir_path)
-
-    os.mkdir(dir_path)
+    info = 1
+    warning = 2
+    error = 3
+    fatal = 4

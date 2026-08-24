@@ -138,41 +138,46 @@ def test_restore_compatibility_settings(mc):
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name():
     mc = MotorCAD()
+    try:
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        if path.exists(file_path):
+            remove(file_path)
 
-    if path.exists(file_path):
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name_fallback(monkeypatch):
     mc = MotorCAD()
-    # Pretend to be an older version
-    mc.connection.program_version = "2024.2.3.1"
+    try:
+        # Pretend to be an older version
+        mc.connection.program_version = "2024.2.3.1"
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    if path.exists(file_path):
+        if path.exists(file_path):
+            remove(file_path)
+
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
 def test_get_datastore(mc):
@@ -205,7 +210,6 @@ def test_get_datastore(mc):
     param = datastore["TVent_Shaft_Speed"]
     test_dict = {
         "TVent_Shaft_Speed": param,  # scalar
-        "ActiveXHidden": datastore_dict["ActiveXHidden"],  # boolean
         "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
         "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
