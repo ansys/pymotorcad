@@ -3476,11 +3476,11 @@ def test_check_region_inside_region_fully_contained(mc):
     region_a.add_entity(geometry.Line(geometry.Coordinate(1, 3), geometry.Coordinate(1, 1)))
 
     # Test with include_entity_overlap = False (fully contained)
-    is_inside = region_b.inside_region(region_a, False)
+    is_inside = region_a.inside_region(region_b, False)
     assert is_inside is True
 
     # Test with include_entity_overlap = True (fully contained)
-    is_inside = region_b.inside_region(region_a, True)
+    is_inside = region_a.inside_region(region_b, True)
     assert is_inside is True
 
 
