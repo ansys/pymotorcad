@@ -1046,7 +1046,7 @@ class MotorCADTwinModel:
             self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
             if self.heatFlowMethod == 0:
                 logger.warning(
-                    "Warning: The Motor-CAD model is using the Original Fluid Heat Flow Method. It "
+                    "The Motor-CAD model is using the Original Fluid Heat Flow Method. It "
                     "is recommended to use the Improved calculation method, which will also "
                     "provide additional features for the Twin Builder Thermal ROM. To update the "
                     "calculation method, in Motor-CAD, go to Defaults > Default Settings and "
@@ -1058,7 +1058,7 @@ class MotorCADTwinModel:
             # method is available, which corresponds to zero.
             self.heatFlowMethod = 0
             logger.warning(
-                "Warning: The Motor-CAD version in use does not support the Improved Fluid Heat "
+                "The Motor-CAD version in use does not support the Improved Fluid Heat "
                 "Flow Method. We recommend upgrading to the latest version of Motor-CAD to make "
                 "use of this setting, which will also enable additional features for the Twin "
                 "Builder Thermal ROM."
