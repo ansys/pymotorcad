@@ -77,14 +77,13 @@ class _RpcMethodsTesting:
         """
         method = "RunRegressionTests"
 
-        # Remove trailing None values
-
-        params = params = [
+        params = [
             test_categories,
             calculation_method,
             decimal_separator,
-            model_file_dir,
-            comparison_file_dir,
         ]
+
+        if self.connection.check_version_at_least("2027.0"):
+            params += [model_file_dir, comparison_file_dir]
 
         return self.connection.send_and_receive(method, params)
