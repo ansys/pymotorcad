@@ -398,6 +398,33 @@ class _RpcMethodsAdaptiveGeometry:
 
         return regions
 
+    def check_region_inside_region(self, region_a, region_b, include_entity_overlap):
+        """Check if one Motor-CAD region is inside another.
+
+        Parameters
+        ----------
+        region_a : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+
+        region_b : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object.
+
+        include_entity_overlap : boolean
+            Whether to consider regions that overlap to be inside each other. If False, then
+            only regions that are fully contained will be considered inside.
+
+        Returns
+        -------
+        boolean
+            True if region_A is inside region_B, False otherwise.
+        """
+        self.connection.check_if_feature_exists("check_region_inside_region")
+        method = "CheckRegionInsideRegion"
+        params = [region_a._to_json(), region_b._to_json(), include_entity_overlap]
+        is_inside = self.connection.send_and_receive(method, params)
+
+        return is_inside
+
     def edit_region(
         self,
         region_name,
