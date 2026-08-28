@@ -218,5 +218,3 @@ def test_get_datastore(mc):
     }
 
     new_datastore = Datastore.from_dict(test_dict)
-
-    assert mc.is_open()

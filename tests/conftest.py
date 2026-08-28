@@ -19,12 +19,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import logging
-
 import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
-from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core import MotorCAD
 
 
 def pytest_sessionstart(session):
@@ -44,11 +42,7 @@ def mc():
 
     yield motorcad_instance
 
-    try:
-        motorcad_instance.quit()
-    except MotorCADError:
-        # Process may have already crashed/exited - nothing left to clean up
-        logging.warning("Failed to quit Motor-CAD instance in 'mc' fixture teardown", exc_info=True)
+    motorcad_instance.quit()
 
 
 @pytest.fixture(scope="function")
@@ -71,10 +65,4 @@ def mc_fea_old():
 
     yield motorcad_instance_fea_old
 
-    try:
-        motorcad_instance_fea_old.quit()
-    except MotorCADError:
-        # Process may have already crashed/exited - nothing left to clean up
-        logging.warning(
-            "Failed to quit Motor-CAD instance in 'mc_fea_old' fixture teardown", exc_info=True
-        )
+    motorcad_instance_fea_old.quit()
