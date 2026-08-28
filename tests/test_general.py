@@ -87,6 +87,20 @@ def test_load_fea_result(mc):
     assert unit == "T"
 
 
+def test_get_region_max_min_avg(mc):
+    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
+        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
+
+    mc.show_magnetic_context()
+
+    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
+
+    [b_max, b_min, b_avg] = mc.get_region_max_min_avg("B", "Rotor")
+    assert almost_equal(b_max, 2.402)
+    assert almost_equal(b_min, 0.036)
+    assert almost_equal(b_avg, 0.970)
+
+
 @pytest.mark.skipif(
     platform.system() != "Windows", reason="export results is only supported on Windows"
 )
@@ -199,7 +213,11 @@ def test_export_multi_force_data(mc):
 def test_geometry_export(mc):
     file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
-    mc.geometry_export()
+
+    if mc.connection.check_if_feature_exists("geometry_export_with_context"):
+        mc.geometry_export("Magnetic")
+    else:
+        mc.geometry_export()
 
     assert os.path.exists(file_path)
 
