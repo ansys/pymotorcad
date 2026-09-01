@@ -829,6 +829,28 @@ class Region(object):
         united_region = self.motorcad_instance.unite_regions(self, regions)
         self.update(united_region)
 
+    def inside_region(self, region, include_entity_overlap=True):
+        """Check whether the specified region is inside self.
+
+        Parameters
+        ----------
+        region : ansys.motorcad.core.geometry.Region
+            Motor-CAD region object
+
+        include_entity_overlap : boolean
+            Whether to consider regions that overlap to be inside each other.
+            If False, then only regions that are fully contained will be considered inside.
+
+        Returns
+        -------
+        boolean
+            True if region is inside self, False otherwise.
+        """
+        self._check_connection()
+        return self.motorcad_instance.check_region_inside_region(
+            self, region, include_entity_overlap
+        )
+
     def collides(self, regions):
         """Check whether any of the specified regions collide with self.
 
@@ -902,6 +924,28 @@ class Region(object):
         """
         for entity in self._entities:
             entity.translate(x, y)
+
+    def offset(self, offset):
+        """Offset Region to increase or decrease region size.
+
+        Modifies region, and returns any additional regions.
+
+        Parameters
+        ----------
+        offset : float
+            Distance to offset by. Positive will increase region size.
+        """
+        offset_regions = self.motorcad_instance.offset_region(self, offset)
+        if len(offset_regions) > 0:
+            offset_region = offset_regions[0]
+            self.update(offset_region)
+        else:
+            raise Exception("Region offset failed.")
+        additional_regions = []
+        if len(offset_regions) > 1:
+            additional_regions = offset_regions[1:]
+
+        return additional_regions
 
     def update(self, region):
         """Update class fields from another region.
@@ -1359,6 +1403,24 @@ class Region(object):
                 return entity
 
         return None
+
+    def split_about_entity(self, entity):
+        """Split self about the entity, updates self and then returns the other split regions.
+
+        Parameters
+        ----------
+        entity: ansys.motorcad.core.geometry.Line or ansys.motorcad.core.geometry.Arc
+
+        Returns
+        -------
+        list of ansys.motorcad.core.geometry.Region split about the entity
+        """
+        self._check_connection()
+        regions = self.motorcad_instance.split_region_about_entity(self, entity)
+
+        if len(regions) > 0:
+            self.update(regions[0])
+            return regions[1 : len(regions)]
 
 
 class RegionMagnet(Region):
@@ -1856,6 +1918,13 @@ class Line(Entity):
 
         return (max_radius, max(xs), min(xs), max(ys), min(ys))
 
+    def _to_json(self):
+        return {
+            "type": "line",
+            "start": {"x": self.start.x, "y": self.start.y},
+            "end": {"x": self.end.x, "y": self.end.y},
+        }
+
     @property
     def midpoint(self):
         """Get midpoint of Line.
@@ -2142,6 +2211,15 @@ class _BaseArc(Entity):
             and self.centre == other.centre
             and self.radius == other.radius
         )
+
+    def _to_json(self):
+        return {
+            "type": "arc",
+            "start": {"x": self.start.x, "y": self.start.y},
+            "end": {"x": self.end.x, "y": self.end.y},
+            "centre": {"x": self.centre.x, "y": self.centre.y},
+            "radius": self.radius,
+        }
 
     @property
     def midpoint(self):
@@ -2876,29 +2954,7 @@ def _convert_entities_to_json(entities):
     dict
         entities in json format
     """
-    json_entities = []
-
-    for entity in entities:
-        if isinstance(entity, Line):
-            json_entities.append(
-                {
-                    "type": "line",
-                    "start": {"x": entity.start.x, "y": entity.start.y},
-                    "end": {"x": entity.end.x, "y": entity.end.y},
-                }
-            )
-        elif isinstance(entity, Arc):
-            json_entities.append(
-                {
-                    "type": "arc",
-                    "start": {"x": entity.start.x, "y": entity.start.y},
-                    "end": {"x": entity.end.x, "y": entity.end.y},
-                    "centre": {"x": entity.centre.x, "y": entity.centre.y},
-                    "radius": entity.radius,
-                }
-            )
-
-    return json_entities
+    return [entity._to_json() for entity in entities]
 
 
 def _convert_entities_from_json(json_array):
