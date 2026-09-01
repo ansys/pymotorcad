@@ -3706,6 +3706,8 @@ def test_edit_region(mc_reset_to_default_on_teardown):
     # only test versions with edit_region API available
     if not mc.connection.check_if_feature_exists("edit_region_improved"):
         pytest.skip("edit_region API not available in this version of Motor-CAD")
+    if not mc.connection.check_if_feature_exists("internal_create_geometry"):
+        pytest.skip("internal_create_geometry API not available in this version of Motor-CAD")
 
     region_name = "Stator"
     new_material = "M470-50A"
@@ -3737,6 +3739,8 @@ def test_edit_magnet_region(mc_reset_to_default_on_teardown):
     # only test versions with edit_magnet_region API available
     if not mc.connection.check_if_feature_exists("edit_region_improved"):
         pytest.skip("edit_magnet_region API not available in this version of Motor-CAD")
+    if not mc.connection.check_if_feature_exists("internal_create_geometry"):
+        pytest.skip("internal_create_geometry API not available in this version of Motor-CAD")
 
     mc.set_variable("GeometryTemplateType", 1)
     mc.reset_adaptive_geometry()
