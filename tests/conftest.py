@@ -34,7 +34,10 @@ def mc():
     """Set up test environment for whole unit of tests"""
     motorcad_instance = MotorCAD()
     # Disable messages if opened with UI
-    motorcad_instance.set_variable("MessageDisplayState", 2)
+    if motorcad_instance.connection.check_if_feature_exists("motor_cad_messager"):
+        motorcad_instance.disable_popups()
+    else:
+        motorcad_instance.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance)
 
     yield motorcad_instance
@@ -54,7 +57,10 @@ def mc_fea_old():
     """Old fea geometry tests cause lots of conflicts - use a new MotorCAD"""
     motorcad_instance_fea_old = MotorCAD()
     # Disable messages if opened with UI
-    motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
+    if motorcad_instance_fea_old.connection.check_if_feature_exists("motor_cad_messager"):
+        motorcad_instance_fea_old.disable_popups()
+    else:
+        motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance_fea_old)
 
     yield motorcad_instance_fea_old

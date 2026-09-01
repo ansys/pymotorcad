@@ -118,29 +118,35 @@ def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
 
-    mc.disable_popups()
-    assert mc.get_popups_enabled() is False
-    mc.enable_popups()
-    assert mc.get_popups_enabled() is True
+    try:
+        mc.disable_popups()
+        assert mc.get_popups_enabled() is False
+        mc.enable_popups()
+        assert mc.get_popups_enabled() is True
 
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+    finally:
+        mc.disable_popups()
 
 
 def test_verbose_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
 
-    mc.disable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is False
-    mc.enable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is True
+    try:
+        mc.disable_verbose_messages()
+        assert mc.get_verbose_messages_enabled() is False
+        mc.enable_verbose_messages()
+        assert mc.get_verbose_messages_enabled() is True
+    finally:
+        mc.disable_verbose_messages()
 
 
 def test_load_dxf_file():
@@ -213,7 +219,11 @@ def test_export_multi_force_data(mc):
 def test_geometry_export(mc):
     file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
-    mc.geometry_export()
+
+    if mc.connection.check_if_feature_exists("geometry_export_with_context"):
+        mc.geometry_export("Magnetic")
+    else:
+        mc.geometry_export()
 
     assert os.path.exists(file_path)
 
