@@ -48,6 +48,18 @@ CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 DEFAULT_INSTANCE = -1
 
+if DEFAULT_INSTANCE == -1:
+    if "MOTORCAD_DEFAULT_INSTANCE" in environ:
+        default_instance_environment_variable = environ["MOTORCAD_DEFAULT_INSTANCE"]
+        if default_instance_environment_variable != "":
+            try:
+                DEFAULT_INSTANCE = int(default_instance_environment_variable)
+            except ValueError:
+                raise Exception(
+                    "Failed to convert MOTORCAD_DEFAULT_INSTANCE environment variable to int."
+                )
+
+
 LOCALHOST_ADDRESS = "http://localhost"
 TRY_RESOLVE_LOCALHOST = True
 SERVER_IP = LOCALHOST_ADDRESS

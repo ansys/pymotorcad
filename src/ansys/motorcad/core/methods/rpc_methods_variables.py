@@ -69,10 +69,32 @@ class _RpcMethodsVariables:
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
-    def restore_compatibility_settings(self):
-        """Restore model compatibility settings to default values to use the latest methods."""
-        method = "RestoreCompatibilitySettings"
-        return self.connection.send_and_receive(method)
+    def restore_compatibility_settings(self, deprecated=True, recommended=False):
+        """Restore model compatibility settings to default values to use the latest methods.
+
+        Parameters
+        ----------
+        deprecated : bool, optional
+            If True, restore deprecated settings to default values. Default is True.
+        recommended : bool, optional
+            If True, restore recommended settings to default values. Default is False.
+        """
+        result = None
+        if deprecated:
+            method = "RestoreCompatibilitySettings"
+            result = self.connection.send_and_receive(method)
+
+        if recommended:
+            if self.connection.check_if_feature_exists("restore_recommended_settings"):
+                result = self.connection.send_and_receive("RestoreRecommendedSettings")
+            else:
+                warn(
+                    "restoring recommended settings not available in Motor-CAD "
+                    + self.connection.program_version
+                    + ". Please update to a newer version of Motor-CAD to use this feature."
+                )
+
+        return result
 
     def get_variable(self, variable_name):
         """Get a Motor-CAD variable.
