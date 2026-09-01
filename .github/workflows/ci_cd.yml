@@ -80,10 +80,6 @@ jobs:
 
       - name: Test with tox
         # Only the tox environment specified in the tox.ini gh-actions is run
-        # Licensing tests are excluded here as they manage their own Motor-CAD
-        # instances/licence types and can interfere with the shared test fixtures.
-        env:
-          PYTEST_MARKERS: -m "not licensing"
         run: tox -e py312-coverage
         
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
