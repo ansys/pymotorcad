@@ -2534,9 +2534,14 @@ def test_subtract_region_1(mc):
     #      |---|
     #
     square = create_square()
+    square.name = "test_region"
+
     rectangle = geometry.Region(RegionType.stator_air)
     expected_region_1 = geometry.Region(RegionType.stator_air)
+    expected_region_1.name = "test_region"
+
     expected_region_2 = geometry.Region(RegionType.stator_air)
+    expected_region_2.name = "test_region_1"
 
     points_rectangle = [
         geometry.Coordinate(0.5, -1),
