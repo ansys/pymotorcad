@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import platform
 
 import pytest
 
@@ -33,6 +34,7 @@ from RPC_Test_Common import (
     reset_to_default_file,
 )
 from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core.enums import MotorCADPopupDisplayLevel
 
 
 def kh_to_ms(kh):
@@ -51,7 +53,7 @@ def test_save_load_clear_duty_cycle(mc_reset_to_default_on_teardown):
         kh_to_ms(64.21),
     )
 
-    save_path = get_temp_files_dir_path() + r"\duty_cycle.dat"
+    save_path = os.path.join(get_temp_files_dir_path(), "duty_cycle.dat")
     mc_reset_to_default_on_teardown.save_duty_cycle(save_path)
 
     mc_reset_to_default_on_teardown.clear_duty_cycle()
@@ -69,30 +71,82 @@ def test_export_matrices(mc):
 
     mc.export_matrices(get_temp_files_dir_path())
 
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.nmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.pmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.rmf")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file.tmf")
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.nmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.pmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.rmf"))
+    assert os.path.exists(os.path.join(get_temp_files_dir_path(), "temp_test_file.tmf"))
 
 
 def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
-    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
+    mc.load_fea_result(os.path.join(get_dir_path(), "test_files", "TorqueSpeed_result_1_5.mes"), 0)
 
     value, unit = mc.get_point_value("B", 61, -16)
     assert almost_equal(value, 1.505, 3)
     assert unit == "T"
 
 
+def test_get_region_max_min_avg(mc):
+    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
+        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
+
+    mc.show_magnetic_context()
+
+    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
+
+    [b_max, b_min, b_avg] = mc.get_region_max_min_avg("B", "Rotor")
+    assert almost_equal(b_max, 2.402)
+    assert almost_equal(b_min, 0.036)
+    assert almost_equal(b_avg, 0.970)
+
+
+@pytest.mark.skipif(
+    platform.system() != "Windows", reason="export results is only supported on Windows"
+)
 def test_export_results(mc):
     mc.do_steady_state_analysis()
 
-    file_path = get_temp_files_dir_path() + r"\steady_state_result.csv"
+    file_path = os.path.join(get_temp_files_dir_path(), "steady_state_result.csv")
 
     mc.export_results("SteadyState", file_path)
 
     assert os.path.exists(file_path)
+
+
+def test_message_config(mc):
+    if not mc.connection.check_if_feature_exists("motor_cad_messager"):
+        pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
+
+    try:
+        mc.disable_popups()
+        assert mc.get_popups_enabled() is False
+        mc.enable_popups()
+        assert mc.get_popups_enabled() is True
+
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
+        mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
+        assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+    finally:
+        mc.disable_popups()
+
+
+def test_verbose_message_config(mc):
+    if not mc.connection.check_if_feature_exists("motor_cad_messager"):
+        pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
+
+    try:
+        mc.disable_verbose_messages()
+        assert mc.get_verbose_messages_enabled() is False
+        mc.enable_verbose_messages()
+        assert mc.get_verbose_messages_enabled() is True
+    finally:
+        mc.disable_verbose_messages()
 
 
 def test_load_dxf_file():
@@ -112,7 +166,13 @@ def test_load_dxf_file():
         # mc2.clear_all_data()
         # mc2.initiate_geometry_from_script()
 
-        mc2.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+        dxf_file = os.path.join(get_dir_path(), "test_files", "dxf_import.dxf")
+        if mc2.connection.check_if_feature_exists("load_dxf_file_with_context"):
+            mc2.load_dxf_file(dxf_file, "Magnetic")
+            with pytest.raises(MotorCADError):
+                mc2.load_dxf_file(dxf_file)
+        else:
+            mc2.load_dxf_file(dxf_file)
 
         # mc2.create_optimised_mesh()
 
@@ -130,10 +190,13 @@ def test_load_dxf_file():
         mc2.quit()
 
 
+@pytest.mark.skipif(
+    platform.system() != "Windows", reason="Animations are only supported on Windows"
+)
 def test_export_force_animation(mc):
     mc.do_multi_force_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\test_animation.gif"
+    file_path = os.path.join(get_temp_files_dir_path(), "test_animation.gif")
     mc.export_force_animation("Radial", file_path)
 
 
@@ -147,27 +210,31 @@ def test_load_template(mc_reset_to_default_on_teardown):
 def test_export_multi_force_data(mc):
     mc.do_multi_force_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\force_data.json"
+    file_path = os.path.join(get_temp_files_dir_path(), "force_data.json")
     mc.export_multi_force_data(file_path)
 
     assert os.path.exists(file_path)
 
 
 def test_geometry_export(mc):
-    file_path = get_temp_files_dir_path() + r"\dxf_export_file.dxf"
+    file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
-    mc.geometry_export()
+
+    if mc.connection.check_if_feature_exists("geometry_export_with_context"):
+        mc.geometry_export("Magnetic")
+    else:
+        mc.geometry_export()
 
     assert os.path.exists(file_path)
 
 
 def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     mc_reset_to_default_on_teardown.load_from_file(
-        get_dir_path() + r"\test_files\SRM_test_file.mot"
+        os.path.join(get_dir_path(), "test_files", "SRM_test_file.mot")
     )
     mc_reset_to_default_on_teardown.do_magnetic_calculation()
 
-    file_path = get_temp_files_dir_path() + r"\mag_curves.txt"
+    file_path = os.path.join(get_temp_files_dir_path(), "mag_curves.txt")
 
     mc_reset_to_default_on_teardown.save_magnetisation_curves(file_path)
     assert os.path.exists(file_path)
@@ -186,6 +253,7 @@ def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     )
 
 
+@pytest.mark.skip("Skip temporarily - flaky with 2027 pre-release")
 def test_save_load_results(mc_reset_to_default_on_teardown):
     # Currently not working as part of full tests
     # Works individually - need to look into this
@@ -193,11 +261,15 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # EMag test
     mc_reset_to_default_on_teardown.do_magnetic_calculation()
     mc_reset_to_default_on_teardown.save_results("EMagnetic")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\outputResults.mot")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\EMag\GraphResults.ini")
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "outputResults.mot")
+    )
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "EMag", "GraphResults.ini")
+    )
 
     mc_reset_to_default_on_teardown.load_from_file(
-        get_temp_files_dir_path() + r"\temp_test_file.mot"
+        os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
     )
 
     mc_reset_to_default_on_teardown.load_results("EMagnetic")
@@ -208,10 +280,12 @@ def test_save_load_results(mc_reset_to_default_on_teardown):
     # Thermal test - transient graphs only
     mc_reset_to_default_on_teardown.do_transient_analysis()
     mc_reset_to_default_on_teardown.save_results("Thermal")
-    assert os.path.exists(get_temp_files_dir_path() + r"\temp_test_file\Thermal\GraphResults.ini")
+    assert os.path.exists(
+        os.path.join(get_temp_files_dir_path(), "temp_test_file", "Thermal", "GraphResults.ini")
+    )
 
     mc_reset_to_default_on_teardown.load_from_file(
-        get_temp_files_dir_path() + r"\temp_test_file.mot"
+        os.path.join(get_temp_files_dir_path(), "temp_test_file.mot")
     )
 
     mc_reset_to_default_on_teardown.load_results("TheRmal")
@@ -259,10 +333,10 @@ def file_line_differences(file_1, file_2):
 def test_download_mot_file(mc_reset_to_default_on_teardown):
     # Load and save base file so that contents are updated for this version of Motor-CAD
     mc_reset_to_default_on_teardown.load_from_file(get_base_test_file_path())
-    save_file_path = get_temp_files_dir_path() + r"\base_test_file_copy.mot"
+    save_file_path = os.path.join(get_temp_files_dir_path(), "base_test_file_copy.mot")
     mc_reset_to_default_on_teardown.save_to_file(save_file_path)
 
-    download_mot_file_path = get_temp_files_dir_path() + r"\download_test_file.mot"
+    download_mot_file_path = os.path.join(get_temp_files_dir_path(), "download_test_file.mot")
     mc_reset_to_default_on_teardown.download_mot_file(download_mot_file_path)
 
     # File contents should be identical since downloading file without modifying
@@ -271,14 +345,16 @@ def test_download_mot_file(mc_reset_to_default_on_teardown):
 
 def test_upload_mot_file(mc_reset_to_default_on_teardown):
     # Load and save base file so that contents are updated for this version of Motor-CAD
-    mc_reset_to_default_on_teardown.load_from_file(get_test_files_dir_path() + r"\IM_test_file.mot")
-    save_file_path = get_temp_files_dir_path() + r"\IM_test_file_copy.mot"
+    mc_reset_to_default_on_teardown.load_from_file(
+        os.path.join(get_test_files_dir_path(), "IM_test_file.mot")
+    )
+    save_file_path = os.path.join(get_temp_files_dir_path(), "IM_test_file_copy.mot")
     mc_reset_to_default_on_teardown.save_to_file(save_file_path)
 
-    IM_test_file_path = get_test_files_dir_path() + r"\IM_test_file.mot"
+    IM_test_file_path = os.path.join(get_test_files_dir_path(), "IM_test_file.mot")
     mc_reset_to_default_on_teardown.upload_mot_file(IM_test_file_path)
 
-    upload_mot_file_path = get_temp_files_dir_path() + r"\upload_test_file.mot"
+    upload_mot_file_path = os.path.join(get_temp_files_dir_path(), "upload_test_file.mot")
     mc_reset_to_default_on_teardown.save_to_file(upload_mot_file_path)
 
     # File might have slight differences (paths etc.) since we are uploading and
@@ -315,7 +391,7 @@ def test_save_load_custom_response(mc_reset_to_default_on_teardown):
     mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 1, 1, 60)
     mc_reset_to_default_on_teardown.set_array_variable_2d("CustomNVHFRFResponse", 2, 1, 80)
 
-    file_path = get_dir_path() + r"\test_files\SaveLoadNVHResponse.txt"
+    file_path = os.path.join(get_dir_path(), "test_files", "SaveLoadNVHResponse.txt")
     if os.path.exists(file_path):
         os.remove(file_path)
 
