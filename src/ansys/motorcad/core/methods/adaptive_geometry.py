@@ -483,7 +483,6 @@ class _RpcMethodsAdaptiveGeometry:
         material=None,
         colour=None,
         mesh_length=None,
-        lamination_type=None,
         br_multiplier=None,
         magnet_angle=None,
         magnet_polarity=None,
@@ -501,8 +500,6 @@ class _RpcMethodsAdaptiveGeometry:
             RGB colour tuple.
         mesh_length : float, optional
             Mesh length.
-        lamination_type : str, optional
-            Lamination type.
         br_multiplier : float, optional
             Br multiplier applied to the magnet.
         magnet_angle : float, optional
@@ -520,7 +517,6 @@ class _RpcMethodsAdaptiveGeometry:
                 for key, value in {
                     "material": material,
                     "mesh_length": mesh_length,
-                    "lamination_type": lamination_type,
                     "magnet_magfactor": br_multiplier,
                     "magnet_angle": magnet_angle,
                     "magnet_polarity": magnet_polarity,
