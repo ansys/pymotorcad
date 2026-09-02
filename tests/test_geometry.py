@@ -2675,6 +2675,7 @@ def test_subtract_region_4(mc):
 
 def test_subtract_region_5(mc):
     region_target = Region(RegionType.stator_air, mc)
+    region_target.name = "test_region"
     region_target.entities += create_lines_from_points(
         [Coordinate(0, 0), Coordinate(10, 0), Coordinate(10, 10), Coordinate(0, 10)]
     )
@@ -2700,6 +2701,7 @@ def test_subtract_region_5(mc):
     )
 
     expected_region1 = Region(RegionType.stator_air, mc)
+    expected_region1.name = "test_region"
     expected_region1.entities += create_lines_from_points(
         [
             Coordinate(0, 0),
@@ -2712,6 +2714,7 @@ def test_subtract_region_5(mc):
     )
 
     expected_region2 = Region(RegionType.stator_air, mc)
+    expected_region2.name = "test_region_1"
     expected_region2.entities += create_lines_from_points(
         [
             Coordinate(5.5, 0),
