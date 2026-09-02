@@ -55,6 +55,7 @@ def test_get_node_to_node_resistance(mc):
     assert almost_equal(res, 0.0043, 3)
 
 
+# tests for when include_resistance_multiplier is unset but the feature exists
 def test_get_node_to_node_resistance_unset_up_to_date(mc):
     if not mc.connection.check_if_feature_exists(
         "check_if_get_node_to_node_resistance_with_multiplier"
@@ -80,6 +81,7 @@ def test_get_node_to_node_resistance_unset_up_to_date(mc):
     assert almost_equal(r_bu, 3, 3)
 
 
+# tests for when include_resistance_multiplier is set and the feature exists
 def test_get_node_to_node_resistance_intended_use(mc):
     if not mc.connection.check_if_feature_exists(
         "check_if_get_node_to_node_resistance_with_multiplier"
@@ -109,6 +111,7 @@ def test_get_node_to_node_resistance_intended_use(mc):
     assert almost_equal(r_at, 6, 3)
 
 
+# tests for backwards compatibility when include_resistance_multiplier feature does not exist
 def test_get_node_to_node_resistance_backwards_compatibility(mc, monkeypatch):
     monkeypatch.setattr(mc.connection, "program_version", "2026.1.2")
     print("Program version: ", mc.connection.program_version)

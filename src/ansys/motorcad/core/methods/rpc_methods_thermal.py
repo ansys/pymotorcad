@@ -192,10 +192,12 @@ class _RpcMethodsThermal:
         params = [node1, node2]
 
         # If using with old version of Motor-CAD
-        if not self.connection.check_version_at_least("2027.0"):
+        if not self.connection.check_if_feature_exists(
+            "check_if_get_node_to_node_resistance_with_multiplier"
+        ):
             # Raise error if out of date but set
             if include_resistance_multiplier is not None:
-                raise ValueError(
+                raise MotorCADError(
                     "Resistance multiplier not supported in this version of MotorCad. "
                     "Upgrade to 2027.0 or later."
                 )
