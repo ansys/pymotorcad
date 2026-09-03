@@ -32,7 +32,7 @@ def pytest_sessionstart(session):
 @pytest.fixture(scope="session")
 def mc():
     """Set up test environment for whole unit of tests"""
-    motorcad_instance = MotorCAD()
+    motorcad_instance = MotorCAD(use_new_license_type=True)
     # Disable messages if opened with UI
     if motorcad_instance.connection.check_if_feature_exists("motor_cad_messager"):
         motorcad_instance.disable_popups()
@@ -55,7 +55,7 @@ def mc_reset_to_default_on_teardown(mc):
 @pytest.fixture(scope="session")
 def mc_fea_old():
     """Old fea geometry tests cause lots of conflicts - use a new MotorCAD"""
-    motorcad_instance_fea_old = MotorCAD()
+    motorcad_instance_fea_old = MotorCAD(use_new_license_type=True)
     # Disable messages if opened with UI
     if motorcad_instance_fea_old.connection.check_if_feature_exists("motor_cad_messager"):
         motorcad_instance_fea_old.disable_popups()
