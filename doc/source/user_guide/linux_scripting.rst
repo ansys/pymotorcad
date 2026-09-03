@@ -125,7 +125,6 @@ Available in Linux from 27R1
 Work in progress
 ----------------
 
-.. check_collisions is in progress
 - ``build_model_lab``
 - ``check_collisions``
 - ``export_to_ansys_discovery``
