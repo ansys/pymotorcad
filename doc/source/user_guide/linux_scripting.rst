@@ -122,8 +122,8 @@ Available in Linux from 27R1
 
 
 
-Work In Progress
--------------------------------------
+Work in progress
+----------------
 
 .. check_collisions is in progress
 - ``build_model_lab``
@@ -138,14 +138,15 @@ Work In Progress
 - ``update_force_analysis_results``
 
 
-Unsupported Functionality
---------------------------
+Unsupported
+-----------
 
 - ``clear_messages``
 - ``disable_error_messages``
 - ``disable_popups``
 - ``disable_verbose_messages``
 - ``display_screen``
+- ``do_slot_finite_element``
 - ``enable_popups``
 - ``enable_verbose_messages``
 - ``export_figure_lab``
@@ -157,7 +158,6 @@ Unsupported Functionality
 - ``get_popups_enabled``
 - ``get_region_value``
 - ``get_verbose_messages_enabled``
-- ``go_slot_finite_element``
 - ``initialise_tab_names``
 - ``load_results``
 - ``run_script``
