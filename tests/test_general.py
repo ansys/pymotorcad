@@ -133,7 +133,7 @@ def test_message_config(mc):
         mc.messageconfig.set_popup_display_level(MotorCADPopupDisplayLevel.query)
         assert mc.messageconfig.get_popup_display_level() == MotorCADPopupDisplayLevel.query
     finally:
-        mc.disable_popups()
+        mc.messageconfig.disable_popups()
 
 
 def test_verbose_message_config(mc):
@@ -151,8 +151,8 @@ def test_verbose_message_config(mc):
         mc.messageconfig.enable_verbose_fea_messages()
         assert mc.messageconfig.get_verbose_fea_messages_enabled() is True
     finally:
-        mc.disable_verbose_messages()
-        mc.disable_verbose_fea_messages()
+        mc.messageconfig.disable_verbose_messages()
+        mc.messageconfig.disable_verbose_fea_messages()
 
 
 def test_load_dxf_file():
