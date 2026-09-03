@@ -92,6 +92,16 @@ def test_get_array_variable(mc):
     assert isinstance(var, bool)
 
 
+def test_get_array_variable_list(mc):
+    reset_to_default_file(mc)
+    mc.set_variable("AxialSliceDefinition", 4)
+    mc.set_variable("ThroughVentilation", 1)
+    var = mc.get_array_variable_list("h_Adjust_TVent_Airgap_Stator")
+    assert isinstance(var, list)
+    assert len(var) == 9
+    assert isinstance(var[0], int)
+
+
 def test_set_array_variable(mc):
     # Float
     mc.set_array_variable("Duty_Cycle_Time", 2, 30)
@@ -107,6 +117,31 @@ def test_set_array_variable(mc):
     mc.set_array_variable("CustomOutputEnabled_Python", 2, True)
     var = mc.get_array_variable("CustomOutputEnabled_Python", 2)
     assert var is True
+
+
+def test_set_array_variable_list(mc):
+    reset_to_default_file(mc)
+    mc.set_variable("AxialSliceDefinition", 4)
+    mc.set_variable("ThroughVentilation", 1)
+    # set based on a single value
+    mc.set_array_variable_list("Calc_Input_h_TVent_Airgap_Stator", 1)
+    var = mc.get_array_variable_list("Calc_Input_h_TVent_Airgap_Stator")
+    assert isinstance(var, list)
+    assert len(var) == 9
+    assert isinstance(var[0], int)
+    for value in var:
+        assert value == 1
+    # set multiple values
+    new_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    mc.set_array_variable_list("h_Input_TVent_Airgap_Stator", new_values)
+    var = mc.get_array_variable_list("h_Input_TVent_Airgap_Stator")
+    assert isinstance(var, list)
+    assert len(var) == 9
+    assert isinstance(var[0], int)
+    for i in range(len(var)):
+        assert var[i] == new_values[i]
+
+    print("hello")
 
 
 def test_get_set_array_variable_2d(mc):
