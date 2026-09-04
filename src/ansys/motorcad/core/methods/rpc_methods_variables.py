@@ -84,7 +84,7 @@ class _RpcMethodsVariables:
         return self.connection.send_and_receive(method)
 
     def restore_deprecated_settings(self, deprecated=True, recommended=False):
-        """Restore model deprecated settings to default values to use the old methods."""
+        """Restore model deprecated settings to default values to use the latest method."""
 
         Parameters
         ----------
