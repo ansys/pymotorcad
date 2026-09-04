@@ -481,19 +481,22 @@ class _MotorCADConnection:
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
-        if self._close_motorcad_on_exit():
-            try:
+        try:
+            if self._close_motorcad_on_exit():
                 self._quit()
-            except Exception:
-                # Don't raise exception at this point
-                # Motor-CAD might already have been closed by user
-                pass
+        except Exception:
+            # Don't raise exceptions during object or interpreter teardown.
+            pass
 
         # Close the persistent requests session if the beta reuse-connection
         # feature was enabled. This releases the pooled TCP socket promptly
         # instead of waiting for garbage collection of the Session.
-        if self._session:
-            self._session.close()
+        try:
+            session = getattr(self, "_session", None)
+            if session:
+                session.close()
+        except Exception:
+            pass
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
