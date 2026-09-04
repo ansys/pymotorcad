@@ -936,6 +936,8 @@ class _MotorCADConnection:
                     except psutil.TimeoutExpired:
                         # Process still exists, so wait for next ping
                         continue
+                    except psutil.AccessDenied:
+                        return result
                     except psutil.NoSuchProcess:
                         # process exited correctly
                         return result
