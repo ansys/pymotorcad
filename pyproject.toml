@@ -53,7 +53,8 @@ doc = [
     "scipy",
     "pypandoc==1.16.2",
     "networkx",
-    "pandas"
+    "pandas",
+    "colorlog"
 ]
 
 [project.urls]
