@@ -35,7 +35,7 @@ def mc():
     motorcad_instance = MotorCAD()
     # Disable messages if opened with UI
     if motorcad_instance.connection.check_if_feature_exists("motor_cad_messager"):
-        motorcad_instance.disable_popups()
+        motorcad_instance.messageconfig.disable_popups()
     else:
         motorcad_instance.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance)
@@ -58,7 +58,7 @@ def mc_fea_old():
     motorcad_instance_fea_old = MotorCAD()
     # Disable messages if opened with UI
     if motorcad_instance_fea_old.connection.check_if_feature_exists("motor_cad_messager"):
-        motorcad_instance_fea_old.disable_popups()
+        motorcad_instance_fea_old.messageconfig.disable_popups()
     else:
         motorcad_instance_fea_old.set_variable("MessageDisplayState", 2)
     reset_to_default_file(motorcad_instance_fea_old)
