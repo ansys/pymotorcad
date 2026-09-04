@@ -896,8 +896,15 @@ class _MotorCADConnection:
         """
         return self._last_error_message
 
-    def _quit(self):
-        """Quit MotorCAD."""
+    def _quit(self, max_wait=200):
+        """Quit MotorCAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it. Default is 200.
+        """
         if self.pim_instance is not None:
             self.pim_instance.delete()
         else:
@@ -914,13 +921,12 @@ class _MotorCADConnection:
             result = self.send_and_receive(method)
 
             # Wait for the process to exit before returning from quit() and then kill the process
-            # if it doesn't exit within 60 seconds.
+            # if it doesn't exit within max_wait seconds.
             # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
             # script exits.
             if self.pid != -1:
-                # ping every second for a max of 60 seconds to force kill.
-                max_time = 60
-                for step in range(max_time):
+                # ping every second for up to max_wait seconds to force kill.
+                for step in range(max_wait):
                     try:
                         proc = psutil.Process(self.pid)
                         proc.wait(timeout=1)
@@ -934,13 +940,13 @@ class _MotorCADConnection:
                         # process exited correctly
                         return result
 
-                # Process still exists after max_time seconds, so force kill it.
+                # Process still exists after max_wait seconds, so force kill it.
                 try:
                     proc = psutil.Process(self.pid)
                     proc.kill()
                     proc.wait()
 
-                    raise MotorCADError("Motor-CAD process did not exit and was force killed.")
+                    warnings.warn("Motor-CAD process did not exit in time and was force killed.")
                 except psutil.NoSuchProcess:
                     return result
             return result

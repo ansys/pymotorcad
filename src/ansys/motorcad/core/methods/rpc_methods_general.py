@@ -527,9 +527,16 @@ class _RpcMethodsGeneral:
         method = "ClearMessageLog"
         return self.connection.send_and_receive(method)
 
-    def quit(self):
-        """Quit Motor-CAD."""
-        self.connection._quit()
+    def quit(self, max_wait=200):
+        """Quit Motor-CAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it. Default is 200.
+        """
+        self.connection._quit(max_wait=max_wait)
 
     def set_free(self):
         """Free the Motor-CAD instance."""
