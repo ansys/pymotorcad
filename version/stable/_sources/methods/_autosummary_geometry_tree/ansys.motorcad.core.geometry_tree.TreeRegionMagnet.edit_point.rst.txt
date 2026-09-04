@@ -1,0 +1,6 @@
+edit\_point
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.edit_point

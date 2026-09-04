@@ -1,0 +1,6 @@
+stator\_air
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_air

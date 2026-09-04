@@ -1,0 +1,28 @@
+.. _ref_Calculations_API:
+Calculations
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Calculations
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    calculate_force_harmonics_spatial
+    calculate_force_harmonics_temporal
+    calculate_im_saturation_model
+    calculate_saturation_map
+    calculate_torque_envelope
+    create_winding_pattern
+    do_magnetic_calculation
+    do_magnetic_thermal_calculation
+    do_mechanical_calculation
+    do_multi_force_calculation
+    do_steady_state_analysis
+    do_transient_analysis
+    do_weight_calculation
+    get_force_frequency_domain_amplitude
+    update_force_analysis_results

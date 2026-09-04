@@ -1,0 +1,6 @@
+distance
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Coordinate.distance

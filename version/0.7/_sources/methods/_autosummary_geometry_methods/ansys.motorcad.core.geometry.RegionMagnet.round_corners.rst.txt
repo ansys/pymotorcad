@@ -1,0 +1,6 @@
+round\_corners
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.round_corners

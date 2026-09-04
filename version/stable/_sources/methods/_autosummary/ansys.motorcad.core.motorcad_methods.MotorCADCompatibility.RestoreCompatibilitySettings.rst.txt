@@ -1,0 +1,6 @@
+RestoreCompatibilitySettings
+============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.RestoreCompatibilitySettings

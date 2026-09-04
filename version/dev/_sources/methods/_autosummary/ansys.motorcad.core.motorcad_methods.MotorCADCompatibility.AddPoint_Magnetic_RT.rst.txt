@@ -1,0 +1,6 @@
+AddPoint\_Magnetic\_RT
+======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddPoint_Magnetic_RT

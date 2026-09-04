@@ -1,0 +1,6 @@
+﻿triangular\_notch
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry_shapes
+
+.. autofunction:: triangular_notch

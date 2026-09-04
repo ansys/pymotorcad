@@ -1,0 +1,81 @@
+﻿GeometryTree
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoclass:: GeometryTree
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      GeometryTree.clear
+      
+      
+      GeometryTree.copy
+      
+      
+      GeometryTree.create_region
+      
+      
+      GeometryTree.fromkeys
+      
+      
+      GeometryTree.get
+      
+      
+      GeometryTree.get_region
+      
+      
+      GeometryTree.get_regions_of_type
+      
+      
+      GeometryTree.get_subtree
+      
+      
+      GeometryTree.items
+      
+      
+      GeometryTree.keys
+      
+      
+      GeometryTree.pop
+      
+      
+      GeometryTree.popitem
+      
+      
+      GeometryTree.remove_branch
+      
+      
+      GeometryTree.remove_region
+      
+      
+      GeometryTree.setdefault
+      
+      
+      GeometryTree.update
+      
+      
+      GeometryTree.values
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      GeometryTree.lowercase_keys
+      GeometryTree.root_node
+   
+   

@@ -1,0 +1,6 @@
+impreg\_loss\_lot\_ac\_loss
+===========================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.impreg_loss_lot_ac_loss

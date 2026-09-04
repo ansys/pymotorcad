@@ -1,0 +1,6 @@
+angle
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.angle
