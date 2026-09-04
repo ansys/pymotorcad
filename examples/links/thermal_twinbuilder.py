@@ -26,7 +26,12 @@ Motor-CAD Thermal Twin Builder ROM
 This example shows how to transform a Motor-CAD model into a Thermal ROM (reduced order model) in
 Ansys Twin Builder.
 
-.. important:: This script is designed to be used with Ansys Twin Builder 2027 R1 or newer.
+.. important:: This script is designed to be used with Ansys Motor-CAD 2027 R1 (or newer) and Ansys
+               Twin Builder 2027 R1 (or newer). We strongly recommend using these versions for
+               optimal performance.
+
+               For scripts compatible with earlier versions of Motor-CAD and Twin Builder, please
+               refer to earlier versions of the PyMotorCAD Documentation.
 
 """
 
