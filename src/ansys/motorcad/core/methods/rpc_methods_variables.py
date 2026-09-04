@@ -69,8 +69,22 @@ class _RpcMethodsVariables:
         params = [array_name, array_index1, array_index2, {"variant": new_value}]
         return self.connection.send_and_receive(method, params)
 
-    def restore_compatibility_settings(self, deprecated=True, recommended=False):
-        """Restore model compatibility settings to default values to use the latest methods.
+    def restore_compatibility_settings(self):
+        """Restore model deprecated settings to default values to use the latest methods.
+
+        .. deprecated:: 0.9.0
+          `restore_compatibility_settings` has been removed in Motor-CAD 2027R1.
+          Functionality replaced by `restore_deprecated_settings`.
+        """
+        warn(
+            "restore_compatibility_settings is deprecated. Use restore_deprecated_settings",
+            DeprecationWarning,
+        )
+        method = "RestoreCompatibilitySettings"
+        return self.connection.send_and_receive(method)
+
+    def restore_deprecated_settings(self, deprecated=True, recommended=False):
+        """Restore model deprecated settings to default values to use the latest method."""
 
         Parameters
         ----------
