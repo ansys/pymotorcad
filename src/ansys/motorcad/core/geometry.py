@@ -2009,7 +2009,7 @@ class Line(Entity):
     def get_coordinate_from_distance(
         self, ref_coordinate, distance=None, fraction=None, percentage=None
     ):
-        """Get the coordinate at the specified distance along the line from the reference.
+        """Get the coordinateg at the specified distance along the line from the reference.
 
         Parameters
         ----------

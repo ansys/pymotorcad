@@ -20,8 +20,54 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import functools
 import os
 import shutil
+
+import pytest
+
+
+def _find_mc_fixture(kwargs):
+    """Locate the Motor-CAD fixture instance from the test's keyword arguments."""
+    for name in ("mc", "mc_reset_to_default_on_teardown", "mc_fea_old"):
+        if name in kwargs:
+            return kwargs[name]
+    raise RuntimeError(
+        "requires_motorcad_feature/version decorator requires an mc fixture "
+        "(mc, mc_reset_to_default_on_teardown, or mc_fea_old) on the test."
+    )
+
+
+def requires_motorcad_feature(feature_name):
+    """Skip the decorated test if the connected Motor-CAD lacks ``feature_name``."""
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            mc = _find_mc_fixture(kwargs)
+            if not mc.connection.check_if_feature_exists(feature_name):
+                pytest.skip(f"{feature_name} API not available in this version of Motor-CAD")
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def requires_motorcad_version(required_version):
+    """Skip the decorated test if the connected Motor-CAD is older than ``required_version``."""
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            mc = _find_mc_fixture(kwargs)
+            if not mc.connection.check_version_at_least(required_version):
+                pytest.skip(f"Motor-CAD version {required_version} or later required for this test")
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def get_dir_path():

@@ -22,7 +22,15 @@
 import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
-from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core import MotorCAD, MotorCADError
+
+
+def _quit_motorcad_instance(motorcad_instance):
+    try:
+        motorcad_instance.quit()
+    except MotorCADError:
+        # Motor-CAD may have already exited on the remote test runner.
+        pass
 
 
 def pytest_sessionstart(session):
@@ -39,7 +47,7 @@ def mc():
 
     yield motorcad_instance
 
-    motorcad_instance.quit()
+    _quit_motorcad_instance(motorcad_instance)
 
 
 @pytest.fixture(scope="function")
@@ -59,4 +67,4 @@ def mc_fea_old():
 
     yield motorcad_instance_fea_old
 
-    motorcad_instance_fea_old.quit()
+    _quit_motorcad_instance(motorcad_instance_fea_old)
