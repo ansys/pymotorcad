@@ -32,7 +32,7 @@ class MotorCADContext(str, Enum):
     mechanical = "Mechanical"
 
 
-class MotorCADPopupDisplayLevel(int, Enum):
+class PopupDisplayLevel(int, Enum):
     """Provides an enumeration for Motor-CAD popup display levels."""
 
     info = 1

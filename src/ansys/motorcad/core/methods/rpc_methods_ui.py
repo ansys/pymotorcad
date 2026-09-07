@@ -42,7 +42,7 @@ class _RpcMethodsUI:
     def disable_error_messages(self, active):
         """Disable the display of error messages.
 
-        .. deprecated:: 0.6.0
+        .. deprecated:: 0.9.0
           `disable_error_messages` has been removed in Motor-CAD 2027R1.
           Functionality replaced by methods in mc.messageconfig.
 
