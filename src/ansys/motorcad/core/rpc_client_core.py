@@ -609,8 +609,7 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")],
-            cwd=Path(self.__MotorExe).parent.absolute(),
+            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")]
         )
 
         pid = motor_process.pid
