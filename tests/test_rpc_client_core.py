@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from os import environ
 from time import sleep
 from unittest.mock import create_autospec
 import warnings
@@ -61,11 +62,12 @@ def test_set_motorcad_exe():
 
     pymotorcad.set_motorcad_exe(test_path)
 
-    assert pymotorcad.rpc_client_core._find_motor_cad_exe() == test_path
-
-    # reset path
-    pymotorcad.set_motorcad_exe(save_global_exe)
-    pymotorcad.rpc_client_core._find_motor_cad_exe()
+    try:
+        mock_conn = create_autospec(_MotorCADConnection, instance=True)
+        mock_conn._full_headless_beta = False
+        assert _MotorCADConnection._resolve_motor_cad_exe(mock_conn) == test_path
+    finally:
+        pymotorcad.set_motorcad_exe(save_global_exe)
 
 
 # Test the method used to connect to Motor-CAD from internal scripting
@@ -166,7 +168,7 @@ def test_keeping_instance_open(monkeypatch):
 
     original_port = mc2.connection._port
 
-    # finished with this instance
+    # finished with this instance - instance should stay open
     del mc2
 
     # connect to the same instance (if it is still open)
@@ -180,13 +182,17 @@ def test_keeping_instance_open(monkeypatch):
     del mc3
 
     # Check keep_instance_open ignored when building docs
+    # (del will call to quit MotorCAD and close the connection).
     monkeypatch.setenv("PYMOTORCAD_DOCS_BUILD", "True")
 
     mc2 = MotorCAD(keep_instance_open=True)
 
     original_port = mc2.connection._port
-
     del mc2
+
+    # Quitting MotorCAD can take a moment to close the RPC server.
+    # Sleep for half a second to ensure the connection is closed.
+    sleep(0.5)
 
     with pytest.raises(Exception):
         _ = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
@@ -335,22 +341,32 @@ def test__resolve_localhost():
         mc2.quit()
 
 
+@pytest.mark.licensing
 def test_blackbox_licencing():
     mc1 = MotorCAD(use_blackbox_licence=True)
-    # Not sure it's possible to assert that only a blackbox licence was consumed
-    # Just check it works for now
-    mc1.get_licence()
+    try:
+        # Not sure it's possible to assert that only a blackbox licence was consumed
+        # Just check it works for now
+        mc1.get_licence()
+    finally:
+        mc1.quit()
 
     mc2 = MotorCAD(use_blackbox_licence=False)
-    # Not sure it's possible to assert that only a non-blackbox licence was consumed
-    # Just check it works for now
-    mc2.get_licence()
+    try:
+        # Not sure it's possible to assert that only a non-blackbox licence was consumed
+        # Just check it works for now
+        mc2.get_licence()
+    finally:
+        mc2.quit()
 
     mc3 = MotorCAD()
-    # Not sure it's possible to check which licence type has been used, and whether this
-    # matches the default setting
-    # Just check it works for now
-    mc3.get_licence()
+    try:
+        # Not sure it's possible to check which licence type has been used, and whether this
+        # matches the default setting
+        # Just check it works for now
+        mc3.get_licence()
+    finally:
+        mc3.quit()
 
 
 def test_feature_exists_check(mc):
@@ -361,3 +377,89 @@ def test_feature_exists_check(mc):
 
         assert geo_check_context is True
         assert mc.connection.check_if_feature_exists("not_a_real_feature") is False
+
+
+def test_show_gui(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("show_gui requires Motor-CAD 2027.0 or later")
+
+    mc1 = MotorCAD(show_gui=False)
+    try:
+        assert environ.get("MOTORCAD_SHOWGUI") == "0"
+    finally:
+        mc1.quit()
+
+    mc2 = MotorCAD(show_gui=True)
+    try:
+        assert environ.get("MOTORCAD_SHOWGUI") == "1"
+    finally:
+        mc2.quit()
+        del environ["MOTORCAD_SHOWGUI"]
+
+    mc3 = MotorCAD()
+    try:
+        assert "MOTORCAD_SHOWGUI" not in environ
+    finally:
+        mc3.quit()
+
+    with pytest.warns(UserWarning, match="show_gui has no effect"):
+        MotorCAD(open_new_instance=False, port=mc.connection._port, show_gui=True)
+
+
+@pytest.mark.licensing
+def test_use_new_license_type(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("use_new_license_type requires Motor-CAD 2027.0 or later")
+
+    mc1 = MotorCAD(use_new_license_type=True)
+    try:
+        assert environ.get("MOTORCAD_LICENCE_TYPE") == "1"
+    finally:
+        mc1.quit()
+
+    mc2 = MotorCAD(use_new_license_type=False)
+    try:
+        assert environ.get("MOTORCAD_LICENCE_TYPE") == "0"
+    finally:
+        mc2.quit()
+
+    del environ["MOTORCAD_LICENCE_TYPE"]
+    mc3 = MotorCAD()
+
+    try:
+        assert "MOTORCAD_LICENCE_TYPE" not in environ
+    finally:
+        mc3.quit()
+
+    with pytest.warns(UserWarning, match="use_new_license_type has no effect"):
+        MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
+
+
+def test_full_headless_beta(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
+
+    with pytest.warns(UserWarning, match="full_headless_beta is a beta setting"):
+        mc1 = MotorCAD(full_headless_beta=True)
+    try:
+        assert mc1.connection._full_headless_beta is True
+        mc1.get_licence()
+    finally:
+        mc1.quit()
+
+    with pytest.warns(UserWarning, match="full_headless_beta has no effect"):
+        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless_beta=True)
+
+
+def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():
+    save_global_exe = MOTORCAD_EXE_GLOBAL
+    test_path = r"test_path/test"
+    pymotorcad.set_motorcad_exe(test_path)
+    try:
+        mock_conn = create_autospec(_MotorCADConnection, instance=True)
+        mock_conn._full_headless_beta = True
+        with pytest.warns(UserWarning, match="full_headless_beta is ignored"):
+            result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
+        assert result == test_path
+    finally:
+        pymotorcad.set_motorcad_exe(save_global_exe)
