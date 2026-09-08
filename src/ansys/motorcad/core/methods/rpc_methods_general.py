@@ -148,7 +148,7 @@ class _RpcMethodsGeneral:
         params = [solution_type, file_path]
         return self.connection.send_and_receive(method, params)
 
-    def load_dxf_file(self, file_name):
+    def load_dxf_file(self, file_name, context=""):
         """Load a DXF geometry file.
 
         Parameters
@@ -156,9 +156,22 @@ class _RpcMethodsGeneral:
         file_name : str
             Name of the DXF file. Use r'filepath' syntax to force Python
             to ignore special characters.
+        context : str, optional
+            Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
+            This MUST be specified for versions of Motor-CAD later than 2027R1.
         """
-        method = "LoadDXFFile"
-        params = [file_name]
+        if self.connection.check_if_feature_exists("load_dxf_file_with_context"):
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for LoadDXFFile for Motor-CAD version"
+                    "2027R1 and later."
+                )
+            method = "LoadDXFFileWithContext"
+            params = [file_name, context]
+        else:
+            method = "LoadDXFFile"
+            params = [file_name]
+
         return self.connection.send_and_receive(method, params)
 
     def create_report(self, file_path, template_file_path):
@@ -316,10 +329,29 @@ class _RpcMethodsGeneral:
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def geometry_export(self):
-        """Export the geometry to the file specified in the ``DXFFileName`` parameter."""
-        method = "GeometryExport"
-        return self.connection.send_and_receive(method)
+    def geometry_export(self, context=""):
+        """Export the geometry to the file specified in the ``DXFFileName`` parameter.
+
+        Parameters
+        ----------
+        context : str, optional
+            Context for which to export the geometry. If not specified, the geometry
+            is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"``
+            and ``"Mechanical"``.
+        """
+        if self.connection.check_if_feature_exists("geometry_export_with_context"):
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for geometry_export for Motor-CAD version "
+                    "2027R1 and later."
+                )
+            method = "GeometryExportWithContext"
+            params = [context]
+        else:
+            method = "GeometryExport"
+            params = []
+
+        return self.connection.send_and_receive(method, params)
 
     def export_to_ansys_discovery(self, file_path):
         """Export the model to a Python script file that can be run in Ansys Discovery.

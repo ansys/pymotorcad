@@ -30,3 +30,12 @@ class MotorCADContext(str, Enum):
     magnetic = "Magnetic"
     thermal = "Thermal"
     mechanical = "Mechanical"
+
+
+class MotorCADPopupDisplayLevel(int, Enum):
+    """Provides an enumeration for Motor-CAD popup display levels."""
+
+    info = 1
+    warning = 2
+    error = 3
+    fatal = 4
