@@ -927,7 +927,7 @@ class _MotorCADConnection:
             # if it doesn't exit within max_wait seconds.
             # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
             # script exits.
-            if self.pid != -1:
+            if (platform.system() == "Linux") and (self.pid != -1):
                 # ping every second for up to max_wait seconds to force kill.
                 for step in range(max_wait):
                     try:
