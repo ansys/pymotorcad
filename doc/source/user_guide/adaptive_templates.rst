@@ -699,7 +699,10 @@ be added at the rotor outer boundary. This air band can be united with the notch
 single **Rotor Air** region. To account for the new air band region, the airgap can be reduced by
 the same distance. For example, if the original airgap is 1 mm, and a new air band of 0.1 mm
 thickness is added, the airgap should be reduced to 0.9 mm to keep the effective full airgap (airgap
-plus rotor air region) unchanged.
+plus rotor air region) unchanged. Depending on the rotor type, it may also be necessary to modify
+other standard template parameter values, such as the **Bridge Thickness** parameter for IPM
+topologies, to ensure that the rotor geometry is unchanged. The **Bridge Thickness** will still be
+measured from the airgap surface before any adaptive templates modifications.
 
 .. figure:: ../images/adaptive_templates/user_guide_airgap_5.png
     :width: 600pt
