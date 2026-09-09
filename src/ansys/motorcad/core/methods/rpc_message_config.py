@@ -57,7 +57,7 @@ class _RpcMessageConfig:
         ----------
         level : ansys.motorcad.core.PopupDisplayLevel
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
-              ``4`` = query.
+            ``4`` = query.
         """
         method = "SetPopupDisplayLevel"
         params = [level]
@@ -70,7 +70,7 @@ class _RpcMessageConfig:
         -------
         ansys.motorcad.core.PopupDisplayLevel
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
-             ``4`` = query.
+            ``4`` = query.
         """
         method = "GetPopupDisplayLevel"
         return PopupDisplayLevel(self._connection.send_and_receive(method))
