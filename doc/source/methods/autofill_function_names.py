@@ -10,7 +10,8 @@ import shutil
 # If you are adding a new documentation category, follow these steps :
 #  1. Add a new entry to the `doc_catagories` list with the appropriate values using a
 #     _DocCategory obj.
-#  2. Run this script to generate the documentation files.
+#  2. Add to doc/source/methods/MotorCAD_object.rst file
+#  3. Run this script to generate the documentation files.
 #
 # If you are adding a Unit category spesificly, the rpc_methods_core python file will
 # need to be updated. A class attribute will need to be added and set to be an alias of
