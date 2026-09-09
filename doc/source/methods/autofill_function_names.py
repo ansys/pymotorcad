@@ -12,6 +12,15 @@ import shutil
 #     _DocCategory obj.
 #  2. Run this script to generate the documentation files.
 #
+# If you are adding a Unit category spesificly, the rpc_methods_core python file will
+# need to be updated. A class attribute will need to be added and set to be an alias of
+# the rpc class, this attribute will share the name as the runtime instance used. This is
+# used by the doc gen to find the methods but has no functional impact when using the api.
+# e.g. for messageconfig, the runtime instance is referenced via MotorCad.messageconfig.<method>
+#      and is set to _RpcMessageConfig(mc_connection). Along with this there needs to be a
+#      _RpcMethodsCore.messageconfig attribute set to _RpcMessageConfig.
+# See messageconfig in rpc_methods_core for an example.
+#
 # If you are adding a new documentation category generation type, follow the steps:
 #  1. Add a new entry to the _DocCategoryGenType enumeration with the appropriate value.
 #  2. Update _DocCategory with any new fields required for the new generation type.
