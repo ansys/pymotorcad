@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
+
 import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
@@ -66,3 +68,14 @@ def mc_fea_old():
     yield motorcad_instance_fea_old
 
     motorcad_instance_fea_old.quit()
+
+
+@pytest.fixture()
+def mc_headless():
+    """Launch a fully headless Motor-CAD instance for testing GUI-only method warnings."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        instance = MotorCAD(full_headless_beta=True)
+
+    yield instance
+    instance.quit()
