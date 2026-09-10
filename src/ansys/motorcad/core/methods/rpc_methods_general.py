@@ -534,7 +534,7 @@ class _RpcMethodsGeneral:
         ----------
         max_wait : int, optional
             Maximum number of seconds to wait for the Motor-CAD process to exit before force
-            killing it. Default is 200.
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
         """
         self.connection._quit(max_wait=max_wait)
 
