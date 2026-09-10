@@ -1,0 +1,6 @@
+motorcad\_instance
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.motorcad_instance

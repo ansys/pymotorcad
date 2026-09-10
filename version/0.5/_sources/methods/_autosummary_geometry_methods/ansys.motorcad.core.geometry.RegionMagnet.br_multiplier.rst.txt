@@ -1,0 +1,6 @@
+br\_multiplier
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.br_multiplier

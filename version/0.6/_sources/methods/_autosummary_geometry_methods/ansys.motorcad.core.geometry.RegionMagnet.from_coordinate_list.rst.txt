@@ -1,0 +1,6 @@
+from\_coordinate\_list
+======================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.from_coordinate_list

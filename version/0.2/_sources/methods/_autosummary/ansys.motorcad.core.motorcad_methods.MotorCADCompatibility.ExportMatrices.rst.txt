@@ -1,0 +1,6 @@
+ExportMatrices
+==============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ExportMatrices

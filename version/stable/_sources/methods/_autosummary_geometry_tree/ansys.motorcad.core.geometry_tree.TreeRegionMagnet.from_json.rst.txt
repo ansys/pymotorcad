@@ -1,0 +1,6 @@
+from\_json
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.from_json

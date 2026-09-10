@@ -1,0 +1,1610 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ansys.motorcad.core.rpc_client_core &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../../_static/documentation_options.js?v=bd005284"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ansys/motorcad/core/rpc_client_core';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.9';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0rc1" />
+  <meta name="robots" content="noindex, follow" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Module code</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ansys.motorcad.core.rpc_client_core</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for ansys.motorcad.core.rpc_client_core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the "Software"), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all</span>
+<span class="c1"># copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="sd">"""Contains the JSON-RPC client for connecting to an instance of Motor-CAD."""</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">getenv</span><span class="p">,</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">packaging</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">ansys.platform.instancemanagement</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pypim</span>
+
+    <span class="n">_HAS_PIM</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="n">_HAS_PIM</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="n">DETACHED_PROCESS</span> <span class="o">=</span> <span class="mh">0x00000008</span>
+<span class="n">CREATE_NEW_PROCESS_GROUP</span> <span class="o">=</span> <span class="mh">0x00000200</span>
+
+<span class="n">DEFAULT_INSTANCE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="k">if</span> <span class="n">DEFAULT_INSTANCE</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"MOTORCAD_DEFAULT_INSTANCE"</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">:</span>
+        <span class="n">default_instance_environment_variable</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s2">"MOTORCAD_DEFAULT_INSTANCE"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">default_instance_environment_variable</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">DEFAULT_INSTANCE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">default_instance_environment_variable</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="s2">"Failed to convert MOTORCAD_DEFAULT_INSTANCE environment variable to int."</span>
+                <span class="p">)</span>
+
+
+<span class="n">LOCALHOST_ADDRESS</span> <span class="o">=</span> <span class="s2">"http://localhost"</span>
+<span class="n">TRY_RESOLVE_LOCALHOST</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">LOCALHOST_ADDRESS</span>
+
+<span class="n">_METHOD_SUCCESS</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">MOTORCAD_EXE_GLOBAL</span> <span class="o">=</span> <span class="s2">""</span>
+
+<span class="k">if</span> <span class="n">MOTORCAD_EXE_GLOBAL</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"PYMOTORCAD_EXE"</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">:</span>
+        <span class="n">pymotorcad_exe_environment_variable</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s2">"PYMOTORCAD_EXE"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pymotorcad_exe_environment_variable</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="n">MOTORCAD_EXE_GLOBAL</span> <span class="o">=</span> <span class="n">pymotorcad_exe_environment_variable</span>
+
+<span class="n">MOTORCAD_PROC_NAMES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MotorCAD"</span><span class="p">,</span> <span class="s2">"Motor-CAD"</span><span class="p">,</span> <span class="s2">"MotorCAD_Console"</span><span class="p">,</span> <span class="s2">"Motor-CAD_Console"</span><span class="p">]</span>
+
+<span class="c1"># Useful for debugging new functions when using debug Motor-CAD</span>
+<span class="n">DONT_CHECK_MOTORCAD_VERSION</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">USE_SESSION</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">DEBUG_LOG_FILE</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s2">"PYMOTORCAD_DEBUG_LOG"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_if_enabled</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Append one timestamped line to ``PYMOTORCAD_DEBUG_LOG`` (no-op if unset)."""</span>
+    <span class="k">if</span> <span class="n">DEBUG_LOG_FILE</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DEBUG_LOG_FILE</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S'</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">DEBUG_LOG_FILE</span><span class="p">:</span>
+    <span class="c1"># Log every request with info about sockets</span>
+    <span class="c1"># For Motor-CAD team debugging only - a bit hacky to monkeypatch _HTTPConnection</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib3.connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span> <span class="k">as</span> <span class="n">_HTTPConnection</span>
+
+    <span class="n">_orig_connect</span> <span class="o">=</span> <span class="n">_HTTPConnection</span><span class="o">.</span><span class="n">connect</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_patched_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_orig_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">log_if_enabled</span><span class="p">(</span><span class="sa">f</span><span class="s2">"connect </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">_HTTPConnection</span><span class="o">.</span><span class="n">connect</span> <span class="o">=</span> <span class="n">_patched_connect</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_running_in_internal_scripting</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Whether the script is running internally in Motor-CAD."""</span>
+    <span class="k">return</span> <span class="n">DEFAULT_INSTANCE</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span>
+
+
+<div class="viewcode-block" id="set_server_ip">
+<a class="viewcode-back" href="../../../../methods/_autosummary_utility_functions/ansys.motorcad.core.rpc_client_core.set_server_ip.html#ansys.motorcad.core.rpc_client_core.set_server_ip">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_server_ip</span><span class="p">(</span><span class="n">ip</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set the IP address of the machine that Motor-CAD is running on.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ip : str</span>
+<span class="sd">        IP address of the machine that Motor-CAD is running on.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">SERVER_IP</span>
+    <span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">ip</span></div>
+
+
+
+<div class="viewcode-block" id="set_default_instance">
+<a class="viewcode-back" href="../../../../methods/_autosummary_utility_functions/ansys.motorcad.core.rpc_client_core.set_default_instance.html#ansys.motorcad.core.rpc_client_core.set_default_instance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_default_instance</span><span class="p">(</span><span class="n">port</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set the Motor-CAD instance to use as the default when running scripts from MotorCAD.</span>
+
+<span class="sd">    For Motor-CAD internal use only. Do not use this function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        port : int</span>
+<span class="sd">            Port number of the Motor-CAD instance to set as the default.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">DEFAULT_INSTANCE</span>
+    <span class="n">DEFAULT_INSTANCE</span> <span class="o">=</span> <span class="n">port</span></div>
+
+
+
+<div class="viewcode-block" id="set_motorcad_exe">
+<a class="viewcode-back" href="../../../../methods/_autosummary_utility_functions/ansys.motorcad.core.rpc_client_core.set_motorcad_exe.html#ansys.motorcad.core.rpc_client_core.set_motorcad_exe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_motorcad_exe</span><span class="p">(</span><span class="n">exe_location</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set the path of the Motor-CAD executable file to launch.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exe_location : str</span>
+<span class="sd">        Path of the Motor-CAD executable file to launch.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">MOTORCAD_EXE_GLOBAL</span>
+    <span class="n">MOTORCAD_EXE_GLOBAL</span> <span class="o">=</span> <span class="n">exe_location</span></div>
+
+
+
+<div class="viewcode-block" id="MotorCADError">
+<a class="viewcode-back" href="../../../../methods/_autosummary_MotorCAD_errors/ansys.motorcad.core.rpc_client_core.MotorCADError.html#ansys.motorcad.core.rpc_client_core.MotorCADError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotorCADError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Provides the errors to display when issues are raised by the Motor-CAD executable file."""</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MotorCADWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Provides the warnings to display when issues are raised by the Motor-CAD executable file."""</span>
+
+    <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_port_from_motorcad_process</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">connection_list</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">connections</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">AccessDenied</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">connect</span> <span class="ow">in</span> <span class="n">connection_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Windows"</span><span class="p">:</span>
+            <span class="c1"># Take the IPv6 port.</span>
+            <span class="k">if</span> <span class="n">connect</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="n">socket</span><span class="o">.</span><span class="n">AddressFamily</span><span class="o">.</span><span class="n">AF_INET6</span><span class="p">:</span>
+                <span class="n">port</span> <span class="o">=</span> <span class="n">connect</span><span class="o">.</span><span class="n">laddr</span><span class="o">.</span><span class="n">port</span>
+                <span class="k">return</span> <span class="n">port</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Only consider the RPC listening socket, not outbound connections</span>
+            <span class="c1"># (e.g. to the licence server) which appear in the list during startup.</span>
+            <span class="k">if</span> <span class="n">connect</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">psutil</span><span class="o">.</span><span class="n">CONN_LISTEN</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">connect</span><span class="o">.</span><span class="n">laddr</span><span class="o">.</span><span class="n">port</span>
+    <span class="c1"># Failed to get port from process</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_motor_cad_exe</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Find Motor-CAD exe from batch file. Does not apply any overrides."""</span>
+    <span class="n">str_alt_method</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"Try setting the Motor-CAD executable file manually before creating "</span>
+        <span class="s2">"the MotorCAD() object with the set_motorcad_exe(location) "</span>
+        <span class="s2">"method. "</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Find Motor-CAD exe</span>
+    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Windows"</span><span class="p">:</span>
+        <span class="n">motor_batch_file_path</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"MOTORCAD_AUTOMATION"</span><span class="p">)</span>
+        <span class="c1"># If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX</span>
+        <span class="c1"># For backwards compatibility</span>
+        <span class="k">if</span> <span class="n">motor_batch_file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">motor_batch_file_path</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"MOTORCAD_ACTIVEX"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">motor_batch_file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                <span class="s2">"Failed to retrieve MOTORCAD_AUTOMATION environment variable. "</span> <span class="o">+</span> <span class="n">str_alt_method</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">motor_batch_file_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">motor_batch_file_path</span><span class="p">)</span>
+            <span class="c1"># Get rid of quotations from environ.get</span>
+            <span class="n">motor_batch_file_path</span> <span class="o">=</span> <span class="n">motor_batch_file_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Failed to get file path. "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="n">str_alt_method</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Grab MotorCAD exe from automation batch file</span>
+            <span class="n">motor_batch_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">motor_batch_file_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span>
+
+            <span class="n">motor_batch_file_lines</span> <span class="o">=</span> <span class="n">motor_batch_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">MotorBatchFileLine</span> <span class="ow">in</span> <span class="n">motor_batch_file_lines</span><span class="p">:</span>
+                <span class="n">motor_exe_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="n">MotorBatchFileLine</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">"call"</span> <span class="ow">in</span> <span class="n">motor_exe_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="c1"># Check we're on the right line</span>
+                    <span class="n">motor_exe</span> <span class="o">=</span> <span class="n">motor_exe_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">motor_exe</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">motor_exe</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Not a valid path</span>
+                        <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                            <span class="s2">"File does not exist: "</span>
+                            <span class="o">+</span> <span class="n">motor_exe</span>
+                            <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Try updating batch file location in "</span>
+                            <span class="o">+</span> <span class="s2">"Defaults-&gt;Automation-&gt;Update to Current Version."</span>
+                            <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Alternative Method: "</span>
+                            <span class="o">+</span> <span class="n">str_alt_method</span>
+                        <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Couldn't find line containing call</span>
+                <span class="k">raise</span>
+        <span class="k">except</span> <span class="n">MotorCADError</span><span class="p">:</span>
+            <span class="c1"># Raise our custom Error Message</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Error reading Motor-CAD batch file. "</span> <span class="o">+</span> <span class="n">str_alt_method</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Linux"</span><span class="p">:</span>
+        <span class="c1"># If wanting an explicit version of MotorCAD, set the PYMOTORCAD_EXE environment variable.</span>
+        <span class="c1"># But if not set, then see if the Motor-CAD executable file is in the PATH environment</span>
+        <span class="c1"># variable.</span>
+        <span class="k">for</span> <span class="n">proc_name</span> <span class="ow">in</span> <span class="n">MOTORCAD_PROC_NAMES</span><span class="p">:</span>
+            <span class="n">motor_exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">proc_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">motor_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">motor_exe</span><span class="p">):</span>
+                    <span class="c1"># MotorCAD exists on the path. Return this one.</span>
+                    <span class="k">return</span> <span class="n">motor_exe</span>
+
+        <span class="c1"># Use the PYMOTORCAD_EXE environment variable to find the Motor-CAD executable file.</span>
+        <span class="c1"># This will set MOTORCAD_EXE_GLOBAL on startup, so if it is not already set, then the user</span>
+        <span class="c1"># has not set the environment variable. Raise an error to inform the user to set the</span>
+        <span class="c1"># environment variable.</span>
+        <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+            <span class="s2">"Could not find MotorCAD on the system PATH.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"To specify a version, set using set_motorcad_exe():</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"    set_motorcad_exe('/path/to/MotorCAD')</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"or by setting the PYMOTORCAD_EXE environment variable.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"    export PYMOTORCAD_EXE=/path/to/MotorCAD</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"To make this persistent, add the line to ~/.bashrc or ~/.profile."</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Unsupported platform: "</span> <span class="o">+</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_MotorCADConnection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Provides the Motor-CAD instance attached to each MotorCAD object."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">,</span>
+        <span class="n">open_new_instance</span><span class="p">,</span>
+        <span class="n">enable_exceptions</span><span class="p">,</span>
+        <span class="n">enable_success_variable</span><span class="p">,</span>
+        <span class="n">reuse_parallel_instances</span><span class="p">,</span>
+        <span class="n">keep_instance_open</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">compatibility_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_blackbox_licence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_new_license_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_gui</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">full_headless_beta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Create a MotorCAD object for communication.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        port : int</span>
+<span class="sd">            Port to use for communication.</span>
+<span class="sd">        open_new_instance: Boolean</span>
+<span class="sd">            Open a new Motor-CAD instance or try to connect to an existing instance.</span>
+<span class="sd">        enable_exceptions : Boolean</span>
+<span class="sd">            Whether to show Motor-CAD communication errors as Python exceptions.</span>
+<span class="sd">        enable_success_variable: Boolean</span>
+<span class="sd">            Whether Motor-CAD methods are to return a success variable (first object in tuple).</span>
+<span class="sd">        reuse_parallel_instances: Boolean</span>
+<span class="sd">            Whether to reuse MotorCAD instances when running in parallel. You must free</span>
+<span class="sd">            instances after use.</span>
+<span class="sd">        keep_instance_open : Boolean, default: False</span>
+<span class="sd">            Whether to keep the Motor-CAD instance open after the instance becomes free.</span>
+<span class="sd">        compatibility_mode: Boolean, default: False</span>
+<span class="sd">            Whether to try to run an old script written for ActiveX.</span>
+<span class="sd">        url: string, default = ""</span>
+<span class="sd">            Full url for Motor-CAD connection. Assumes we are connecting to existing instance.</span>
+<span class="sd">        timeout : int, default: 2</span>
+<span class="sd">            Timeout in seconds for waiting for Motor-CAD server to respond.</span>
+<span class="sd">        use_blackbox_licence : bool, default: None</span>
+<span class="sd">            Ask Motor-CAD to consume blackbox licence. If set to None, existing Motor-CAD</span>
+<span class="sd">            behaviour will be used. True enables the blackbox licence, False disables it.</span>
+<span class="sd">        use_new_license_type : bool, default: None</span>
+<span class="sd">            Select the licence type for Motor-CAD. True uses the new licence type, False uses the</span>
+<span class="sd">            original. If None, the Motor-CAD default behaviour is used.</span>
+<span class="sd">        show_gui : bool, default: None</span>
+<span class="sd">            Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.</span>
+<span class="sd">            If None, the Motor-CAD default behaviour is used.</span>
+<span class="sd">        full_headless_beta : bool, default: False</span>
+<span class="sd">            Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        MotorCAD object.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_error_message</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">program_version</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Beta feature: reuse a single connection for all RPC calls.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">USE_SESSION</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">post</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_post</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_exceptions</span> <span class="o">=</span> <span class="n">enable_exceptions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuse_parallel_instances</span> <span class="o">=</span> <span class="n">reuse_parallel_instances</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_instance_open</span> <span class="o">=</span> <span class="n">keep_instance_open</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="o">=</span> <span class="n">open_new_instance</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_success_variable</span> <span class="o">=</span> <span class="n">enable_success_variable</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compatibility_mode</span> <span class="o">=</span> <span class="n">compatibility_mode</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+        <span class="k">if</span> <span class="n">use_blackbox_licence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">environ</span><span class="p">[</span><span class="s2">"MOTORDES_BLACKBOX"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span> <span class="k">if</span> <span class="n">use_blackbox_licence</span> <span class="k">else</span> <span class="s2">"0"</span>
+
+        <span class="k">if</span> <span class="n">use_new_license_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">environ</span><span class="p">[</span><span class="s2">"MOTORCAD_LICENCE_TYPE"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span> <span class="k">if</span> <span class="n">use_new_license_type</span> <span class="k">else</span> <span class="s2">"0"</span>
+
+        <span class="k">if</span> <span class="n">show_gui</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">environ</span><span class="p">[</span><span class="s2">"MOTORCAD_SHOWGUI"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span> <span class="k">if</span> <span class="n">show_gui</span> <span class="k">else</span> <span class="s2">"0"</span>
+
+        <span class="k">if</span> <span class="n">full_headless_beta</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"full_headless_beta is a beta setting. This will be incorporated into the "</span>
+                <span class="s2">"show_gui parameter in a future release."</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_full_headless_beta</span> <span class="o">=</span> <span class="n">full_headless_beta</span>
+
+        <span class="c1"># Launch options have no effect when connecting to an existing instance</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">open_new_instance</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">use_new_license_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">"use_new_license_type has no effect when open_new_instance is False."</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">show_gui</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">"show_gui has no effect when open_new_instance is False."</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">full_headless_beta</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">"full_headless_beta has no effect when open_new_instance is False."</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PYMOTORCAD_PORT"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Port environment variable has been set</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PYMOTORCAD_PORT"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">elif</span> <span class="n">DEFAULT_INSTANCE</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Getting called from MotorCAD internal scripting so port is known</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">DEFAULT_INSTANCE</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_parallel_instances</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="c1"># Don't want to start a Motor-CAD instance</span>
+            <span class="c1"># Already have full url in _get_url()</span>
+            <span class="c1"># Also don't want to exit Motor-CAD upon script ending</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">_HAS_PIM</span> <span class="ow">and</span> <span class="n">pypim</span><span class="o">.</span><span class="n">is_configured</span><span class="p">():</span>
+            <span class="c1"># Start with PyPIM if the environment is configured for it</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_launch_motorcad_remote</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># run/connect to motor-cad on local machine</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_launch_motorcad_local</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">SERVER_IP</span> <span class="o">==</span> <span class="n">LOCALHOST_ADDRESS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">TRY_RESOLVE_LOCALHOST</span><span class="p">:</span>
+            <span class="c1"># Try to resolve localhost at same time as checking for connection</span>
+            <span class="c1"># to decrease connection _start_times</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_resolve_wait_for_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check for response</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected</span><span class="p">:</span>
+            <span class="c1"># Store Motor-CAD version number for any required backwards compatibility</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_program_version</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_process_id</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                <span class="s2">"Failed to connect to Motor-CAD instance: port="</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">", Url="</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">())</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_localhost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Try to resolve localhost so that we don't have to do this for every api method.</span>
+
+<span class="sd">        Replace the address http://localhost with the corresponding IP address.</span>
+<span class="sd">        On some configurations this was increasing each api method time to 1/2 seconds.</span>
+<span class="sd">        """</span>
+        <span class="k">global</span> <span class="n">SERVER_IP</span>
+
+        <span class="n">ipv6_localhost</span> <span class="o">=</span> <span class="s2">"http://[::1]"</span>
+        <span class="n">ipv4_localhost</span> <span class="o">=</span> <span class="s2">"http://127.0.0.1"</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_address_for_response</span><span class="p">(</span><span class="n">ipv6_localhost</span><span class="p">):</span>
+            <span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">ipv6_localhost</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_address_for_response</span><span class="p">(</span><span class="n">ipv4_localhost</span><span class="p">):</span>
+            <span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">ipv4_localhost</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_address_for_response</span><span class="p">(</span><span class="n">LOCALHOST_ADDRESS</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_address_for_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Try to communicate with Motor-CAD with specific url, returns True if response received.</span>
+
+<span class="sd">        Uses handshake method. Used to resolve localhost.</span>
+<span class="sd">        """</span>
+        <span class="c1"># This function is only called from _resolve_localhost so SERVER_IP will be localhost</span>
+        <span class="c1"># address</span>
+        <span class="c1"># If connecting to remote machine then SERVER_IP is deprecated - should use url class</span>
+        <span class="c1"># parameter instead</span>
+        <span class="k">global</span> <span class="n">SERVER_IP</span>
+
+        <span class="n">save_SERVER_IP</span> <span class="o">=</span> <span class="n">SERVER_IP</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">address</span>
+            <span class="n">address_responds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_response</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Reset global SERVER_IP to original</span>
+            <span class="c1"># Calling function can set SERVER_IP depending on address_responds return value</span>
+            <span class="n">SERVER_IP</span> <span class="o">=</span> <span class="n">save_SERVER_IP</span>
+
+        <span class="k">return</span> <span class="n">address_responds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Close Motor-CAD when MotorCAD object leaves memory."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close_motorcad_on_exit</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Don't raise exceptions during object or interpreter teardown.</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Close the persistent requests session if the beta reuse-connection</span>
+        <span class="c1"># feature was enabled. This releases the pooled TCP socket promptly</span>
+        <span class="c1"># instead of waiting for garbage collection of the Session.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_session"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_close_motorcad_on_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Check whether to close Motor-CAD when MotorCAD object __del__ is called."""</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reuse_parallel_instances</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compatibility_mode</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># Local Motor-CAD has been launched by Python</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_instance_open</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"PYMOTORCAD_DOCS_BUILD"</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">:</span>
+                    <span class="c1"># Building PyMotorCAD docs so don't keep open</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+                <span class="c1"># keep the instance open if specified</span>
+        <span class="k">elif</span> <span class="n">_HAS_PIM</span> <span class="ow">and</span> <span class="n">pypim</span><span class="o">.</span><span class="n">is_configured</span><span class="p">():</span>
+            <span class="c1"># Always try to close Ansys Lab instance</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Close Motor-CAD if not asked to keep open</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_launch_motorcad_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Launch local Motor-CAD instance."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_new_instance</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_motor_cad_local</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># (self._open_new_instance == False)</span>
+            <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># port is not defined</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_find_free_motor_cad</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_launch_motorcad_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Launch Motor-CAD in Ansys Lab."""</span>
+        <span class="n">pim</span> <span class="o">=</span> <span class="n">pypim</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span> <span class="o">=</span> <span class="n">pim</span><span class="o">.</span><span class="n">create_instance</span><span class="p">(</span><span class="n">product_name</span><span class="o">=</span><span class="s2">"motorcad"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span><span class="o">.</span><span class="n">wait_for_ready</span><span class="p">()</span>
+        <span class="c1"># get ip and port for motorcad</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s2">"http"</span><span class="p">]</span><span class="o">.</span><span class="n">uri</span>
+
+        <span class="n">ip</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">set_server_ip</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Wait for Motor-CAD RPC server to start on remote machine - this might take a few minutes</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_response</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Failed to connect to Motor-CAD instance on: "</span> <span class="o">+</span> <span class="n">address</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_raise_if_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_exceptions</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get url for RPC communication."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="c1"># Already have full url from launch params</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">+</span> <span class="s2">"/jsonrpc"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create url from server ip and port</span>
+            <span class="k">return</span> <span class="n">SERVER_IP</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"/jsonrpc"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_motor_cad_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Resolve the exe to launch, respecting manual override and full_headless_beta."""</span>
+        <span class="k">if</span> <span class="n">MOTORCAD_EXE_GLOBAL</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_headless_beta</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">"full_headless_beta is ignored when the Motor-CAD executable is set manually."</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">MOTORCAD_EXE_GLOBAL</span>
+
+        <span class="n">standard_exe</span> <span class="o">=</span> <span class="n">_find_motor_cad_exe</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_headless_beta</span><span class="p">:</span>
+            <span class="c1"># On Linux, the batch file already points to MotorCAD_Console — use it directly</span>
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">standard_exe</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"MotorCAD_Console.exe"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">standard_exe</span>
+            <span class="n">console_exe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">standard_exe</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"headless"</span> <span class="o">/</span> <span class="s2">"MotorCAD_Console.exe"</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">console_exe</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                    <span class="s2">"MotorCAD_Console.exe was not found. full_headless_beta requires "</span>
+                    <span class="s2">"Motor-CAD 2027R1 or later."</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">console_exe</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">standard_exe</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_open_motor_cad_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_arg</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Windows"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">"/"</span> <span class="o">+</span> <span class="n">arg</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">"--"</span> <span class="o">+</span> <span class="n">arg</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__MotorExe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_motor_cad_exe</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__MotorExe</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_allowed</span><span class="p">(</span>
+                <span class="s2">"Failed to find instance of Motor-CAD to open."</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">", Url="</span>
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">())</span>
+            <span class="p">)</span>
+
+        <span class="n">motor_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__MotorExe</span><span class="p">,</span> <span class="n">get_arg</span><span class="p">(</span><span class="s2">"PORT="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)),</span> <span class="n">get_arg</span><span class="p">(</span><span class="s2">"SCRIPTING"</span><span class="p">)]</span>
+        <span class="p">)</span>
+
+        <span class="n">pid</span> <span class="o">=</span> <span class="n">motor_process</span><span class="o">.</span><span class="n">pid</span>
+
+        <span class="n">motor_util</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_server_to_start_local</span><span class="p">(</span><span class="n">motor_util</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="n">motor_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Motor-CAD failed to get a license"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_free_motor_cad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">found_free_instance</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">process_iter</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Use exe() on Linux to avoid 15-char truncation of comm field</span>
+                <span class="c1"># Fall back to name() for compatibility</span>
+                <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Linux"</span><span class="p">:</span>
+                    <span class="n">proc_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">exe</span><span class="p">())</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_name</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">AccessDenied</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">motor_proc_name</span> <span class="ow">in</span> <span class="n">proc_name</span> <span class="k">for</span> <span class="n">motor_proc_name</span> <span class="ow">in</span> <span class="n">MOTORCAD_PROC_NAMES</span><span class="p">):</span>
+                <span class="n">port</span> <span class="o">=</span> <span class="n">_get_port_from_motorcad_process</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+
+                <span class="c1"># If Motor-CAD has RPC server running</span>
+                <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_parallel_instances</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_busy</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">success</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">found_free_instance</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">break</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="k">pass</span>
+                            <span class="c1"># SetBusy failed because thread was already busy</span>
+                            <span class="c1"># Means other python exe is trying to connect to this instance</span>
+                            <span class="c1"># Happens when you try to launch multiple at same time</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># If we are not reusing instances then no need to check if busy</span>
+                        <span class="n">found_free_instance</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">found_free_instance</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reuse_parallel_instances</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compatibility_mode</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="c1"># reset port to default otherwise it will try to use port set in the above for loop</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_open_motor_cad_local</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                    <span class="s2">"Could not find a Motor-CAD instance to connect to."</span>
+                    <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"> Ensure that Motor-CAD RPC server is enabled."</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ensure_version_at_least</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required_version</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Ensure if the Motor-CAD version is later or equal to required version."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_version_at_least</span><span class="p">(</span><span class="n">required_version</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                <span class="s2">"This function requires Motor-CAD version: "</span> <span class="o">+</span> <span class="n">required_version</span> <span class="o">+</span> <span class="s2">" or later"</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_version_at_least</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required_version</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Check if the Motor-CAD version is later or equal to required version."""</span>
+        <span class="k">if</span> <span class="n">DONT_CHECK_MOTORCAD_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">program_version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">required_version</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_if_feature_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Check if the Motor-CAD feature is present.</span>
+
+<span class="sd">        Useful for development versions where PyMotorCAD and Motor-CAD have circular</span>
+<span class="sd">        dependencies for testing.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        feature_name : str</span>
+<span class="sd">            Name of the feature to check.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_version_at_least</span><span class="p">(</span><span class="s2">"2027.0"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="s2">"CheckIfFeatureExists"</span><span class="p">,</span> <span class="p">[</span><span class="n">feature_name</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Version of Motor-CAD is definitely too old for this feature</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ensure_feature_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Raise MotorCADError if the Motor-CAD feature is not present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        feature_name : str</span>
+<span class="sd">            Name of the feature to check.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_if_feature_exists</span><span class="p">(</span><span class="n">feature_name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span>
+                <span class="s2">"This function requires a later version of Motor-CAD: "</span> <span class="o">+</span> <span class="n">feature_name</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_server_to_start_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="n">number_of_tries</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c1"># in seconds</span>
+        <span class="c1"># Don't poll this too much</span>
+        <span class="n">pause_time</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+        <span class="k">while</span> <span class="n">pause_time</span> <span class="o">*</span> <span class="n">number_of_tries</span> <span class="o">&lt;</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">_get_port_from_motorcad_process</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+
+                <span class="c1"># Check port has active RPC connection</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_response</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">pause_time</span><span class="p">)</span>
+            <span class="n">number_of_tries</span> <span class="o">=</span> <span class="n">number_of_tries</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MotorCADError</span><span class="p">(</span><span class="s2">"Failed to find Motor-CAD port."</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_response</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">send_and_receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">success_var</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"method"</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+            <span class="s2">"params"</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span>
+            <span class="s2">"jsonrpc"</span><span class="p">:</span> <span class="s2">"2.0"</span><span class="p">,</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span>  <span class="c1"># Can be any number not just linked to port</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Special case as there won't be a response</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"Quit"</span><span class="p">:</span>
+                <span class="n">log_if_enabled</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">(),</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_if_enabled</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">(),</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="n">log_if_enabled</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&lt;&lt;&lt; </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># This can occur when an assert fails in Motor-CAD debug</span>
+            <span class="n">log_if_enabled</span><span class="p">(</span><span class="sa">f</span><span class="s2">"!!! </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_allowed</span><span class="p">(</span><span class="s2">"RPC Communication failed: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># No exceptions in RPC communication</span>
+            <span class="k">if</span> <span class="s2">"error"</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                <span class="n">error_string</span> <span class="o">=</span> <span class="s2">"RPC Communication Error: "</span> <span class="o">+</span> <span class="n">response</span><span class="p">[</span><span class="s2">"error"</span><span class="p">][</span><span class="s2">"message"</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s2">"Invalid params"</span> <span class="ow">in</span> <span class="n">error_string</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># common error - give a better error message</span>
+                        <span class="n">new_error_string</span> <span class="o">=</span> <span class="n">error_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"hint"</span><span class="p">)</span>
+                        <span class="c1"># Get last part</span>
+                        <span class="n">new_error_string</span> <span class="o">=</span> <span class="n">new_error_string</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                        <span class="n">new_error_string</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">method</span>
+                            <span class="o">+</span> <span class="s2">": One or more parameter types were invalid. HINT ["</span>
+                            <span class="o">+</span> <span class="n">new_error_string</span>
+                        <span class="p">)</span>
+                        <span class="n">error_string</span> <span class="o">=</span> <span class="n">new_error_string</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="c1"># use old error string if that failed</span>
+                        <span class="k">pass</span>
+
+                <span class="n">success</span> <span class="o">=</span> <span class="o">-</span><span class="mi">99</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_error_message</span> <span class="o">=</span> <span class="n">error_string</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_allowed</span><span class="p">(</span><span class="n">error_string</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"success"</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">method</span> <span class="o">==</span> <span class="s2">"CheckIfGeometryIsValid"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">method</span> <span class="o">==</span> <span class="s2">"CheckIfGeometryIsValidWithContext"</span>
+            <span class="p">):</span>
+                <span class="c1"># This doesn't have the normal success var</span>
+                <span class="n">success_value</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">success_value</span> <span class="o">=</span> <span class="n">_METHOD_SUCCESS</span>
+
+            <span class="k">if</span> <span class="n">success</span> <span class="o">!=</span> <span class="n">success_value</span><span class="p">:</span>
+                <span class="c1"># This is an error caused by bad user code</span>
+                <span class="c1"># Exception is enabled by default</span>
+                <span class="c1"># Can get error message (get_last_error_message) instead</span>
+                <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"errorMessage"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+                    <span class="n">error_message</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"errorMessage"</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">"An error occurred in Motor-CAD."</span>  <span class="c1"># put some generic error message</span>
+                    <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_raise_if_allowed</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+
+            <span class="c1"># Warning message only exists in response from Motor-CAD version &gt;= 24R1</span>
+            <span class="k">if</span> <span class="s2">"warningMessage"</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">]:</span>
+                <span class="n">warning_message</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"warningMessage"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">warning_message</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+                    <span class="c1"># Code in Motor-CAD wants to raise a warning in Python</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"warningMessage"</span><span class="p">],</span> <span class="n">MotorCADWarning</span><span class="p">)</span>
+
+            <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">success_var</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">success_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_success_variable</span>
+
+            <span class="k">if</span> <span class="n">success_var</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">success</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"output"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"output"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"output"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">"result"</span><span class="p">][</span><span class="s2">"output"</span><span class="p">]))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">result_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"Handshake"</span>
+
+        <span class="n">delay</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">success_var</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">response</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_try_resolve_wait_for_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">):</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_localhost</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_program_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"GetVariable"</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"program_version"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">success_var</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_process_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"GetVariable"</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MotorCADprocessID"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">success_var</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_busy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"SetBusy"</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">success_var</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"SetFree"</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the most recent error message.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            Most recent error message.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_error_message</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_wait</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Quit MotorCAD.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_wait : int, optional</span>
+<span class="sd">            Maximum number of seconds to wait for the Motor-CAD process to exit before force</span>
+<span class="sd">            killing it (Note: This argument only has an effect on Linux). Default is 200.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pim_instance</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># local machine</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">psutil</span><span class="o">.</span><span class="n">pid_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">):</span>
+                <span class="c1"># The process has already exited, so send_and_recieve will fail.</span>
+                <span class="c1"># Possible that another MotorCAD object has already sent the Quit command,</span>
+                <span class="c1"># or the user has closed Motor-CAD.</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Motor-CAD process has already exited. Cannot send Quit command."</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">method</span> <span class="o">=</span> <span class="s2">"Quit"</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_and_receive</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+            <span class="c1"># Wait for the process to exit before returning from quit() and then kill the process</span>
+            <span class="c1"># if it doesn't exit within max_wait seconds.</span>
+            <span class="c1"># The Motor-CAD process becomes a zombie process if it doesn't exit before the Python</span>
+            <span class="c1"># script exits.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Linux"</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># ping every second for up to max_wait seconds to force kill.</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_wait</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">proc</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+                        <span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="c1"># Process exited correctly after waiting.</span>
+                        <span class="c1"># If it didn't exceptions will be caught and the loop will continue to ping.</span>
+                        <span class="k">return</span> <span class="n">result</span>
+                    <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+                        <span class="c1"># Process still exists, so wait for next ping</span>
+                        <span class="k">continue</span>
+                    <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">AccessDenied</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">result</span>
+                    <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span><span class="p">:</span>
+                        <span class="c1"># process exited correctly</span>
+                        <span class="k">return</span> <span class="n">result</span>
+
+                <span class="c1"># Process still exists after max_wait seconds, so force kill it.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">proc</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+                    <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                    <span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Motor-CAD process did not exit in time and was force killed."</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">NoSuchProcess</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">result</span>
+            <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../../_static/search.json";
+</script>
+
+
+<script src="../../../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

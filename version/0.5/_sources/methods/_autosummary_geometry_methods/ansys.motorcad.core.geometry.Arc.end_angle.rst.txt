@@ -1,0 +1,6 @@
+end\_angle
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Arc.end_angle

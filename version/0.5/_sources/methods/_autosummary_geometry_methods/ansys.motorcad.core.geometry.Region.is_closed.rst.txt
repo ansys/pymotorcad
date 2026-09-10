@@ -1,0 +1,6 @@
+is\_closed
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.is_closed

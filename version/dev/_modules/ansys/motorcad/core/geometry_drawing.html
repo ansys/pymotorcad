@@ -1,0 +1,1411 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ansys.motorcad.core.geometry_drawing &#8212; pymotorcad-core</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=40c929c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../../_static/documentation_options.js?v=bd005284"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ansys/motorcad/core/geometry_drawing';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://motorcad.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.9';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0rc1" />
+  <meta name="robots" content="noindex, follow" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="pymotorcad-core - Home"/>
+    <img src="../../../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="pymotorcad-core - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../methods/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../samples/index.html">
+    Example scripts repository
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contribute
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pymotorcad/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Module code</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ansys.motorcad.core.geometry_drawing</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for ansys.motorcad.core.geometry_drawing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2022 - 2026 ANSYS, Inc. and/or its affiliates.</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the "Software"), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all</span>
+<span class="c1"># copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="sd">"""Unit containing region drawing functions."""</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.motorcad.core.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEOM_TOLERANCE</span><span class="p">,</span> <span class="n">Arc</span><span class="p">,</span> <span class="n">Coordinate</span><span class="p">,</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Region</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.motorcad.core.geometry_tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometryTree</span><span class="p">,</span> <span class="n">TreeRegion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.motorcad.core.rpc_client_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_running_in_internal_scripting</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">transforms</span>
+
+    <span class="c1"># Flake8 incorrectly flagged this as unused</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckButtons</span>  <span class="c1"># noqa: F401</span>
+
+    <span class="n">MATPLOTLIB_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">MATPLOTLIB_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">_MAX_RECURSION</span> <span class="o">=</span> <span class="mi">100</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BiDict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Simple bi-directional dictionary for use with legend labels."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Initialize a bi-directional dictionary."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backward</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Insert key-value pair."""</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">:</span>
+            <span class="n">old_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="p">[</span><span class="n">old_value</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="p">:</span>
+            <span class="n">old_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">old_key</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get a dictionary with keys as keys."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get a dictionary with keys as values."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_by_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Remove a key-value pair from the dictionary, by key."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_by_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Remove a key-value pair from the dictionary, by value."""</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backward</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_RegionDrawing</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">stored_coords</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stored_coords</span> <span class="o">=</span> <span class="n">stored_coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys_and_labels</span> <span class="o">=</span> <span class="n">BiDict</span><span class="p">()</span>
+        <span class="c1"># Dict containing the maximum radius of each region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_geometry</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">states_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="c1"># Make certain label is appropriate for regions that might not be a part of trees</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Region</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">TreeRegion</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># Tuples used to draw lists of entities. The second value input is an integer used to</span>
+        <span class="c1"># grant unique labels</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">object</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s2">"root"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"root"</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">label</span> <span class="o">+=</span> <span class="s2">"│   "</span> <span class="o">*</span> <span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">level</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">object</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cap</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">elif</span> <span class="nb">object</span> <span class="o">==</span> <span class="nb">object</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">cap</span> <span class="o">=</span> <span class="s2">"└── "</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cap</span> <span class="o">=</span> <span class="s2">"├── "</span>
+        <span class="n">label</span> <span class="o">+=</span> <span class="n">cap</span>
+        <span class="n">label</span> <span class="o">+=</span> <span class="nb">object</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">return</span> <span class="n">label</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">enable_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="c1"># Size the legend based on the length of the longest label</span>
+        <span class="n">x_boundary</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">backward</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.05</span>
+
+        <span class="n">rax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">x_boundary</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rax</span> <span class="o">=</span> <span class="n">rax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Create the CheckButtons object that makes up the actual legend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="n">CheckButtons</span><span class="p">(</span>
+            <span class="n">rax</span><span class="p">,</span>
+            <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">backward</span><span class="p">)[</span><span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states_list</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Shift the original plot aside to make room</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">transforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_extents</span><span class="p">(</span><span class="n">x_boundary</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
+
+        <span class="c1"># Link the above function to the CheckButtons object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+
+        <span class="c1"># Link the direction keys and scroll wheel to the cycling function</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">on_press</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_check</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">"key_press_event"</span><span class="p">,</span> <span class="n">on_press</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">on_scroll</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_check</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">"scroll_event"</span><span class="p">,</span> <span class="n">on_scroll</span><span class="p">)</span>
+
+        <span class="n">rax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+            <span class="n">xycoords</span><span class="o">=</span><span class="s2">"axes fraction"</span><span class="p">,</span>
+            <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">"&lt;-&gt;"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">):</span>
+            <span class="n">scroll_bar_bottom</span> <span class="o">=</span> <span class="mf">0.8</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll_bar</span> <span class="o">=</span> <span class="n">rax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="s2">""</span><span class="p">,</span>
+                <span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="n">scroll_bar_bottom</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+                <span class="n">xycoords</span><span class="o">=</span><span class="s2">"axes fraction"</span><span class="p">,</span>
+                <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">"&lt;|-|&gt;"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Function that cycles the labels displayed on the CheckButtons object up or down</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cycle_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span>
+        <span class="n">current_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">backward</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">"down"</span><span class="p">:</span>
+            <span class="c1"># Don't scroll if at the bottom</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">==</span> <span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">):</span>
+                <span class="n">new_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_index</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">number</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">new_index</span><span class="p">])</span>
+                <span class="c1"># Avoid actually modifying data with just a scrolling action</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">eventson</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">states_list</span><span class="p">[</span><span class="n">new_index</span><span class="p">])</span>
+                <span class="c1"># Make certain changes can occur once scrolling is done</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">eventson</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">"up"</span><span class="p">:</span>
+            <span class="c1"># Don't scroll if at the top</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">):</span>
+                <span class="n">new_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_index</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">number</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">new_index</span><span class="p">])</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">eventson</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">states_list</span><span class="p">[</span><span class="n">new_index</span><span class="p">])</span>
+                <span class="n">check</span><span class="o">.</span><span class="n">eventson</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="n">scroll_size</span> <span class="o">=</span> <span class="n">number</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_size</span>
+        <span class="n">scroll_bar_top</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">-</span> <span class="p">((</span><span class="mf">0.7</span> <span class="o">/</span> <span class="n">scroll_size</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_index</span><span class="p">)</span>
+        <span class="n">scroll_bar_bottom</span> <span class="o">=</span> <span class="n">scroll_bar_top</span> <span class="o">-</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_bar</span><span class="o">.</span><span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="n">scroll_bar_bottom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_bar</span><span class="o">.</span><span class="n">xyann</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.96</span><span class="p">,</span> <span class="n">scroll_bar_top</span><span class="p">)</span>
+
+    <span class="c1"># Define the behaviour of a checkbox upon being clicked</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">backward</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">region_object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+            <span class="n">region_object</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize_drawing</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">resize_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_geometry</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_drawn_radius</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.05</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_drawn_radius</span><span class="p">()</span> <span class="o">+</span> <span class="n">margin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">lim</span><span class="p">,</span> <span class="n">lim</span><span class="p">),</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">lim</span><span class="p">,</span> <span class="n">lim</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_x_and_y</span><span class="p">()</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span> <span class="o">*</span> <span class="mf">0.05</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">margin</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">margin</span><span class="p">),</span>
+                <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">margin</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">margin</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_plot_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># plot should be square so get_xlim() == get_ylim()</span>
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_x_and_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">max_x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">min_x</span> <span class="o">=</span> <span class="mi">1000000</span>
+        <span class="n">max_y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">min_y</span> <span class="o">=</span> <span class="mi">1000000</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_x</span><span class="p">:</span>
+                <span class="n">max_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_x</span><span class="p">:</span>
+                <span class="n">min_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_y</span><span class="p">:</span>
+                <span class="n">max_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_y</span><span class="p">:</span>
+                <span class="n">min_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">min_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">,</span> <span class="n">min_y</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_drawn_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">max_rad</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_rad</span><span class="p">:</span>
+                <span class="n">max_rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">max_rad</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_coord_no_overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_coord</span><span class="p">,</span> <span class="n">tried_coords</span><span class="p">,</span> <span class="n">modifier</span><span class="p">):</span>
+        <span class="c1"># adjust depending on text size</span>
+        <span class="c1"># 0.04 good compromise</span>
+        <span class="n">overlap_tol</span> <span class="o">=</span> <span class="mf">0.04</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entity_coord</span><span class="p">)</span>
+
+        <span class="n">recursion_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tried_coords</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">recursion_depth</span> <span class="o">&gt;</span> <span class="n">_MAX_RECURSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">entity_coord</span> <span class="ow">in</span> <span class="n">tried_coords</span><span class="p">:</span>
+            <span class="c1"># Already tried this coordinate</span>
+            <span class="c1"># Might be flip-flopping between 2 points</span>
+            <span class="c1"># Add a small amount to how far we move the coord to try and force out of pattern</span>
+            <span class="n">modifier</span> <span class="o">+=</span> <span class="mf">0.01</span>
+
+        <span class="n">tried_coords</span> <span class="o">+=</span> <span class="p">[</span><span class="n">entity_coord</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">stored_coord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stored_coords</span><span class="p">:</span>
+            <span class="n">difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">entity_coord</span> <span class="o">-</span> <span class="n">stored_coord</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plot_range</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Handle case where coordinates are exactly the same</span>
+                <span class="c1"># Set to very small amount</span>
+                <span class="n">difference</span> <span class="o">=</span> <span class="n">Coordinate</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">,</span> <span class="mf">0.00001</span><span class="p">)</span>
+
+            <span class="n">unit_vector</span> <span class="o">=</span> <span class="n">difference</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">overlap_tol</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">unit_vector</span> <span class="o">*</span> <span class="n">overlap_tol</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plot_range</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.1</span> <span class="o">+</span> <span class="n">modifier</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_coord_no_overlap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">tried_coords</span><span class="p">,</span> <span class="n">modifier</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_text_no_overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+        <span class="c1"># Reset params for recursive function</span>
+        <span class="n">tried_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">modifier</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">new_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_coord_no_overlap</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">tried_coords</span><span class="p">,</span> <span class="n">modifier</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new_coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warning_str</span> <span class="o">=</span> <span class="s2">"Failed to plot all labels on graph"</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Warning : "</span> <span class="o">+</span> <span class="n">warning_str</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"red"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stored_coords</span> <span class="o">+=</span> <span class="p">[</span><span class="n">new_coord</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">text</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">new_coord</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plot_range</span><span class="p">(),</span>
+                    <span class="n">new_coord</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plot_range</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span>
+                <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">shrinkA</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="n">TreeRegion</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw all region duplications."""</span>
+        <span class="n">duplication_angle</span> <span class="o">=</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">region</span><span class="o">.</span><span class="n">duplications</span>
+
+        <span class="k">for</span> <span class="n">duplicate_number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">duplications</span><span class="p">):</span>
+            <span class="n">duplicate</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+            <span class="n">duplicate</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">Coordinate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">duplication_angle</span> <span class="o">*</span> <span class="n">duplicate_number</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_draw_region</span><span class="p">(</span><span class="n">duplicate</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">full_geometry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full_geometry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">draw_points</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw region onto a plot."""</span>
+        <span class="c1"># Get duplication angle and colour for the region</span>
+        <span class="n">duplication_angle</span> <span class="o">=</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">region</span><span class="o">.</span><span class="n">duplications</span>
+        <span class="n">colour</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">channel</span> <span class="o">/</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">colour</span><span class="p">)</span>
+        <span class="n">fill_points_x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fill_points_y</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Define the legend key for the region based on the key or name</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">TreeRegion</span><span class="p">):</span>
+            <span class="n">legend_key</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">legend_key</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="c1"># create a list to define the region bounds.</span>
+        <span class="n">entity_bounds</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">region</span><span class="o">.</span><span class="n">entities</span><span class="p">:</span>
+            <span class="n">entity_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">get_bounds</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Line</span><span class="p">):</span>
+                <span class="n">num_points</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_points</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span>
+                        <span class="mi">720</span>
+                        <span class="o">*</span> <span class="p">(</span>
+                            <span class="n">entity</span><span class="o">.</span><span class="n">length</span>
+                            <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="mf">3.14159265358979323846264338327950288</span> <span class="o">*</span> <span class="n">entity</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">entity</span><span class="o">.</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+                    <span class="n">num_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="mf">0.05</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="c1"># account for the case where very short Arcs result in 1 point. Minimum of 2</span>
+                    <span class="c1"># points required for drawing Arcs.</span>
+                    <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">num_points</span> <span class="o">=</span> <span class="mi">2</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_points</span><span class="p">):</span>
+                <span class="n">fractional_distance</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">point_i</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_coordinate_from_distance</span><span class="p">(</span>
+                    <span class="n">entity</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="n">fractional_distance</span>
+                <span class="p">)</span>
+                <span class="n">fill_points_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_i</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">fill_points_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_i</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="c1"># If geometry is full, lines separating region duplications shouldn't be drawn.</span>
+            <span class="c1"># These are determined by seeing if, for Line entities, the angle</span>
+            <span class="c1"># (modulo duplication angle) matches zero or the duplication angle, and seeing</span>
+            <span class="c1"># if they also pass through the origin.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="n">full_geometry</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Line</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span>
+                    <span class="p">((</span><span class="n">entity</span><span class="o">.</span><span class="n">angle</span> <span class="o">%</span> <span class="n">duplication_angle</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">GEOM_TOLERANCE</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="p">((</span><span class="n">entity</span><span class="o">.</span><span class="n">angle</span> <span class="o">%</span> <span class="n">duplication_angle</span><span class="p">)</span> <span class="o">-</span> <span class="n">duplication_angle</span> <span class="o">&lt;</span> <span class="n">GEOM_TOLERANCE</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="c1"># Check start and end of a line are not the same, to avoid unsupported</span>
+                <span class="c1"># operand types in the next line</span>
+                <span class="ow">and</span> <span class="n">entity</span><span class="o">.</span><span class="n">start</span> <span class="o">!=</span> <span class="n">entity</span><span class="o">.</span><span class="n">end</span>
+                <span class="ow">and</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_coordinate_distance</span><span class="p">(</span><span class="n">Coordinate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">GEOM_TOLERANCE</span>
+            <span class="p">):</span>
+                <span class="c1"># Draw entity and add it to legend_objects in the appropriate region's list for</span>
+                <span class="c1"># later access</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_draw_entity</span><span class="p">(</span>
+                        <span class="n">entity</span><span class="p">,</span>
+                        <span class="s2">"black"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="c1"># Add bounds to region_drawing for later sizing</span>
+        <span class="n">region_bound</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">region_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">entity_bound</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">entity_bound</span> <span class="ow">in</span> <span class="n">entity_bounds</span><span class="p">))</span>
+        <span class="n">region_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">entity_bound</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">entity_bound</span> <span class="ow">in</span> <span class="n">entity_bounds</span><span class="p">))</span>
+        <span class="n">region_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">entity_bound</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">entity_bound</span> <span class="ow">in</span> <span class="n">entity_bounds</span><span class="p">))</span>
+        <span class="n">region_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">entity_bound</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">entity_bound</span> <span class="ow">in</span> <span class="n">entity_bounds</span><span class="p">))</span>
+        <span class="n">region_bound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">entity_bound</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">entity_bound</span> <span class="ow">in</span> <span class="n">entity_bounds</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">region_bound</span>
+
+        <span class="c1"># Draw region's colouring and add it to legend_objects in the appropriate list for</span>
+        <span class="c1"># later access</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">fill_points_x</span><span class="p">,</span> <span class="n">fill_points_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
+
+        <span class="c1"># Draw midpoints and endpoints, place them in a region's list in legend_objects</span>
+        <span class="k">if</span> <span class="n">draw_points</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entity_num</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">entities</span><span class="p">):</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">"e</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entity_num</span><span class="p">)</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">midpoint</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+            <span class="n">points</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">points</span>
+            <span class="k">for</span> <span class="n">point_num</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">"p</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">point_num</span><span class="p">)</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">draw_points</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw entity onto plot.</span>
+
+<span class="sd">        Entities are drawn with relatively large line width, so that they do not end up covered</span>
+<span class="sd">        by the region's filled interior colours.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Line</span><span class="p">):</span>
+            <span class="n">drawn_entity</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">y</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Arc</span><span class="p">):</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">radius</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">radius</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">centre</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">centre</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">centre</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">rad1</span><span class="p">,</span> <span class="n">angle1</span> <span class="o">=</span> <span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">entity</span><span class="o">.</span><span class="n">centre</span><span class="p">)</span><span class="o">.</span><span class="n">get_polar_coords_deg</span><span class="p">()</span>
+            <span class="n">rad2</span><span class="p">,</span> <span class="n">angle2</span> <span class="o">=</span> <span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">entity</span><span class="o">.</span><span class="n">centre</span><span class="p">)</span><span class="o">.</span><span class="n">get_polar_coords_deg</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">radius</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start_angle</span> <span class="o">=</span> <span class="n">angle1</span>
+                <span class="n">end_angle</span> <span class="o">=</span> <span class="n">angle2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start_angle</span> <span class="o">=</span> <span class="n">angle2</span>
+                <span class="n">end_angle</span> <span class="o">=</span> <span class="n">angle1</span>
+            <span class="n">drawn_entity</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Arc</span><span class="p">(</span>
+                <span class="n">centre</span><span class="p">,</span>
+                <span class="n">width</span><span class="p">,</span>
+                <span class="n">height</span><span class="p">,</span>
+                <span class="n">theta1</span><span class="o">=</span><span class="n">start_angle</span><span class="p">,</span>
+                <span class="n">theta2</span><span class="o">=</span><span class="n">end_angle</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s2">"-o"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">drawn_entity</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">draw_points</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">midpoint</span><span class="p">,</span> <span class="s2">"m"</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_text_no_overlap</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="s2">"e"</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">"box"</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">drawn_entity</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Draw coordinate onto plot."""</span>
+        <span class="n">drawn_coordinate</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">drawn_coordinate</span>
+
+
+<div class="viewcode-block" id="draw_objects_debug">
+<a class="viewcode-back" href="../../../../methods/_autosummary_geometry_drawing/ansys.motorcad.core.geometry_drawing.draw_objects_debug.html#ansys.motorcad.core.geometry_drawing.draw_objects_debug">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_objects_debug</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Draw regions on plot if not being run in Motor-CAD.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objects : List of objects</span>
+<span class="sd">        entities to draw</span>
+<span class="sd">    """</span>
+    <span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"draw_objects_debug() WILL BE DEPRECATED SOON - Use geometry_drawing.draw_objects instead"</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_running_in_internal_scripting</span><span class="p">():</span>
+        <span class="n">draw_objects</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="draw_objects">
+<a class="viewcode-back" href="../../../../methods/_autosummary_geometry_drawing/ansys.motorcad.core.geometry_drawing.draw_objects.html#ansys.motorcad.core.geometry_drawing.draw_objects">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_objects</span><span class="p">(</span>
+    <span class="n">objects</span><span class="p">,</span>
+    <span class="n">label_regions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">full_geometry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">draw_points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">axes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">toggle_regions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">optimise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">expose_region_drawing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">draw_internal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Draw geometry objects on a plot.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objects : list of Coordinate or Entity or Region</span>
+<span class="sd">        Geometry objects to draw</span>
+<span class="sd">    label_regions : bool</span>
+<span class="sd">        Whether labels should be drawn. Default is False</span>
+<span class="sd">    full_geometry : bool</span>
+<span class="sd">        Whether duplications of regions should be drawn</span>
+<span class="sd">    draw_points : bool</span>
+<span class="sd">        Whether to draw end and midpoints of entities. Default is False, except for sole entities.</span>
+<span class="sd">    save : str</span>
+<span class="sd">        Path to save file to. Default is None.</span>
+<span class="sd">    dpi : int</span>
+<span class="sd">        Resolution of figure (used primarily when exporting images as pngs)</span>
+<span class="sd">    legend : bool</span>
+<span class="sd">        Whether interactable legend should be drawn</span>
+<span class="sd">    axes : bool</span>
+<span class="sd">        Whether axes should be drawn</span>
+<span class="sd">    toggle_regions : list of str</span>
+<span class="sd">        Used for GeometryTrees: provided regions will be drawn if not already, and not if</span>
+<span class="sd">        already drawn.</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Title of figure</span>
+<span class="sd">    optimise : bool</span>
+<span class="sd">        Whether geometry tree drawing should be optimized or not. Default is False. Incompatible</span>
+<span class="sd">        with toggle_regions, as prevents regions that are not by default displayed from being</span>
+<span class="sd">        calculated.</span>
+<span class="sd">    expose_region_drawing : bool</span>
+<span class="sd">        Whether _RegionDrawing object should be returned (which allows access to the axes and</span>
+<span class="sd">         figure). Default is False.</span>
+<span class="sd">    draw_internal : bool</span>
+<span class="sd">        Whether to draw interactive region drawing when running internally. Has no effect if saving</span>
+<span class="sd">         to file. Default is False.</span>
+<span class="sd">    display : bool</span>
+<span class="sd">        Whether to draw interactive plot. Useful to set as false when planning on further</span>
+<span class="sd">        modifications to the figure before drawing.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">draw_internal</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_running_in_internal_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="n">save</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">MATPLOTLIB_AVAILABLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">"Failed to draw geometry. Please ensure MatPlotLib and a suitable backend "</span>
+            <span class="s2">"e.g. PyQt5 are installed"</span>
+        <span class="p">)</span>
+
+    <span class="n">stored_coords</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">region_drawing</span> <span class="o">=</span> <span class="n">_RegionDrawing</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">stored_coords</span><span class="p">)</span>
+    <span class="n">region_drawing</span><span class="o">.</span><span class="n">full_geometry</span> <span class="o">=</span> <span class="n">full_geometry</span>
+
+    <span class="c1"># Determine a label that portrays appropriate positional information in the tree (if, indeed,</span>
+    <span class="c1"># a tree is supplied)</span>
+
+    <span class="c1"># Draw a geometry tree</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">GeometryTree</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">toggle_regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">toggle_regions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c1"># Set legend to by default be drawn if showing defining geometry</span>
+        <span class="k">if</span> <span class="n">legend</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">full_geometry</span><span class="p">:</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># The list below determines which objects types (and children) are by default drawn.</span>
+        <span class="n">region_types</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"Stator"</span><span class="p">,</span>
+            <span class="s2">"Split Slot"</span><span class="p">,</span>
+            <span class="s2">"Wedge"</span><span class="p">,</span>
+            <span class="s2">"Stator Air"</span><span class="p">,</span>
+            <span class="s2">"Rotor"</span><span class="p">,</span>
+            <span class="s2">"Shaft"</span><span class="p">,</span>
+            <span class="s2">"Banding"</span><span class="p">,</span>
+            <span class="s2">"Magnet"</span><span class="p">,</span>
+            <span class="s2">"Coil Separator"</span><span class="p">,</span>
+            <span class="s2">"Rotor Slot"</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># A set is used to avoid elements that are both of an appropriate type and children of</span>
+        <span class="c1"># an appropriate type being listed twice</span>
+        <span class="n">drawn_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">starting_node</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">starting_node</span><span class="o">.</span><span class="n">region_type</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">region_types</span> <span class="ow">and</span> <span class="n">starting_node</span><span class="o">.</span><span class="n">key</span> <span class="o">!=</span> <span class="s2">"root"</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subnode</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">get_subtree</span><span class="p">(</span><span class="n">starting_node</span><span class="p">):</span>
+                    <span class="n">drawn_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">subnode</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">optimise</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="n">drawn_nodes</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span> <span class="o">!=</span> <span class="s2">"root"</span><span class="p">:</span>
+                    <span class="n">objects</span><span class="o">.</span><span class="n">remove_region</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="n">legend_key</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">if</span> <span class="n">legend_key</span> <span class="o">!=</span> <span class="s2">"root"</span><span class="p">:</span>
+                <span class="c1"># Establish a place to store all the drawn entities composing an object, for</span>
+                <span class="c1"># later use in toggling visibility</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">region_drawing</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">full_geometry</span><span class="p">:</span>
+                    <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_duplicates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">label_regions</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">draw_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_region</span><span class="p">(</span>
+                            <span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">label_regions</span><span class="p">,</span> <span class="n">draw_points</span><span class="o">=</span><span class="n">draw_points</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_region</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">label_regions</span><span class="p">)</span>
+
+            <span class="c1"># Assign each region an appropriate visibility state based on what should be by default</span>
+            <span class="c1"># displayed</span>
+            <span class="k">if</span> <span class="n">legend_key</span> <span class="ow">in</span> <span class="n">drawn_nodes</span><span class="p">:</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span> <span class="o">!=</span> <span class="s2">"root"</span><span class="p">:</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="n">toggle_regions</span><span class="p">:</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span>
+                    <span class="n">legend_key</span>
+                <span class="p">]</span>
+
+        <span class="c1"># Enforce initial visibility</span>
+        <span class="k">for</span> <span class="n">drawn_region</span> <span class="ow">in</span> <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">drawn_object</span> <span class="ow">in</span> <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">drawn_region</span><span class="p">]:</span>
+                <span class="n">drawn_object</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">drawn_region</span><span class="p">])</span>
+
+    <span class="c1"># Draw a list of entities or nodes</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="c1"># mix of regions and entities</span>
+        <span class="k">if</span> <span class="n">draw_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">draw_points</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="nb">object</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Region</span><span class="p">):</span>
+                <span class="n">legend_key</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">region_drawing</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="nb">object</span><span class="p">))</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_region</span><span class="p">(</span>
+                    <span class="nb">object</span><span class="p">,</span> <span class="nb">object</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">label_regions</span><span class="p">,</span> <span class="n">draw_points</span><span class="o">=</span><span class="n">draw_points</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+                <span class="n">legend_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">legend_key</span><span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_entity</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">,</span> <span class="n">draw_points</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">get_bounds</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Coordinate</span><span class="p">):</span>
+                <span class="n">legend_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">legend_key</span><span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_coordinate</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">region_drawing</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">Coordinate</span><span class="o">.</span><span class="n">get_polar_coords_deg</span><span class="p">(</span><span class="nb">object</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Draw a sole region</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">Region</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">TreeRegion</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">draw_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">draw_points</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">Region</span><span class="p">):</span>
+            <span class="n">legend_key</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">legend_key</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">key</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">legend_key</span><span class="p">)</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_region</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">objects</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">label_regions</span><span class="p">,</span> <span class="n">draw_points</span><span class="o">=</span><span class="n">draw_points</span><span class="p">)</span>
+
+    <span class="c1"># Draw a sole entity</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">draw_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">draw_points</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">legend_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">objects</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">legend_key</span><span class="p">)</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_entity</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">,</span> <span class="n">draw_points</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="n">get_bounds</span><span class="p">()</span>
+
+    <span class="c1"># Draw a sole coordinate</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">Coordinate</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"drawing a coordinate"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">draw_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">draw_points</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">legend_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">objects</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">object_states</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">keys_and_labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">legend_key</span><span class="p">,</span> <span class="n">legend_key</span><span class="p">)</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">legend_objects</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">region_drawing</span><span class="o">.</span><span class="n">_draw_coordinate</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">legend_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Coordinate</span><span class="o">.</span><span class="n">get_polar_coords_deg</span><span class="p">(</span><span class="n">objects</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">objects</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">objects</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">objects</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">objects</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Create an interactable legend to label and change displayed regions</span>
+    <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="n">region_drawing</span><span class="o">.</span><span class="n">enable_legend</span><span class="p">()</span>
+    <span class="n">region_drawing</span><span class="o">.</span><span class="n">resize_drawing</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">axes</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">display</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">expose_region_drawing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">region_drawing</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<!-- If there is no fix edit button function, use the PyData edit-this-button-->
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../../_static/search.json";
+</script>
+
+
+<script src="../../../../_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

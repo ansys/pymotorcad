@@ -1,0 +1,6 @@
+remove\_entity
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.remove_entity

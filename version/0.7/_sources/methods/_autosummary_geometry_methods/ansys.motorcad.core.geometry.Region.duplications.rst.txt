@@ -1,0 +1,6 @@
+duplications
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.duplications

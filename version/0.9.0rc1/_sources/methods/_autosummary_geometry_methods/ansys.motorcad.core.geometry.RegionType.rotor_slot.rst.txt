@@ -1,0 +1,6 @@
+rotor\_slot
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.rotor_slot

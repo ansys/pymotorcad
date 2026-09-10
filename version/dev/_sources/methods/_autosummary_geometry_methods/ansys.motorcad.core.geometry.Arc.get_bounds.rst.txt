@@ -1,0 +1,6 @@
+get\_bounds
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.get_bounds

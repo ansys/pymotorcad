@@ -1,0 +1,6 @@
+slot\_area\_stator\_deprecated
+==============================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.slot_area_stator_deprecated

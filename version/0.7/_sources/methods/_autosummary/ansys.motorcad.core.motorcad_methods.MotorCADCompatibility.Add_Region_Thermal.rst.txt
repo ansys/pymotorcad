@@ -1,0 +1,6 @@
+Add\_Region\_Thermal
+====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.Add_Region_Thermal

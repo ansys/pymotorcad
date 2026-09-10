@@ -1,0 +1,6 @@
+﻿check\_region\_inside\_region
+=============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.check_region_inside_region

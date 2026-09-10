@@ -1,0 +1,6 @@
+split\_about\_entity
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.split_about_entity

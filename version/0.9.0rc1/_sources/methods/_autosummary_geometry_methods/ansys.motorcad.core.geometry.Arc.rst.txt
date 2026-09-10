@@ -1,0 +1,76 @@
+﻿Arc
+===
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: Arc
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Arc.coordinate_on_entity
+      
+      
+      Arc.coordinate_within_arc_radius
+      
+      
+      Arc.extend
+      
+      
+      Arc.from_coordinates
+      
+      
+      Arc.get_arc_intersection
+      
+      
+      Arc.get_bounds
+      
+      
+      Arc.get_coordinate_from_distance
+      
+      
+      Arc.get_coordinate_from_percentage_distance
+      
+      
+      Arc.get_intersection
+      
+      
+      Arc.get_line_intersection
+      
+      
+      Arc.mirror
+      
+      
+      Arc.reverse
+      
+      
+      Arc.rotate
+      
+      
+      Arc.translate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Arc.centre
+      Arc.end_angle
+      Arc.length
+      Arc.midpoint
+      Arc.start_angle
+      Arc.total_angle
+   
+   

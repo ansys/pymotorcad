@@ -1,0 +1,6 @@
+airgap
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.airgap

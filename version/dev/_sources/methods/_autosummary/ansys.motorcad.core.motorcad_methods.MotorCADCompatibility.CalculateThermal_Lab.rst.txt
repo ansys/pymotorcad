@@ -1,0 +1,6 @@
+CalculateThermal\_Lab
+=====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateThermal_Lab

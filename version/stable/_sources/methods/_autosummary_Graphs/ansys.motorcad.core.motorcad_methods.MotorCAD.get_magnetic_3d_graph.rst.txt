@@ -1,0 +1,6 @@
+﻿get\_magnetic\_3d\_graph
+========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_magnetic_3d_graph

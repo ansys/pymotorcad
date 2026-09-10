@@ -1,0 +1,59 @@
+﻿Line
+====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: Line
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Line.coordinate_on_entity
+      
+      
+      Line.get_coordinate_from_distance
+      
+      
+      Line.get_coordinate_from_percentage_distance
+      
+      
+      Line.get_line_intersection
+      
+      
+      Line.mirror
+      
+      
+      Line.reverse
+      
+      
+      Line.rotate
+      
+      
+      Line.translate
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Line.angle
+      Line.gradient
+      Line.is_horizontal
+      Line.is_vertical
+      Line.length
+      Line.midpoint
+      Line.y_intercept
+   
+   

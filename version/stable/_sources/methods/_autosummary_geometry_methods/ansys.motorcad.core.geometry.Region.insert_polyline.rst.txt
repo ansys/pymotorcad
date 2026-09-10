@@ -1,0 +1,6 @@
+insert\_polyline
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.insert_polyline

@@ -1,0 +1,6 @@
+CalculateForceHarmonics\_Temporal
+=================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateForceHarmonics_Temporal

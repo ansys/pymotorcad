@@ -1,0 +1,6 @@
+limit\_arc\_chord
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.limit_arc_chord

@@ -1,0 +1,6 @@
+﻿add\_internal\_custom\_loss
+===========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.add_internal_custom_loss

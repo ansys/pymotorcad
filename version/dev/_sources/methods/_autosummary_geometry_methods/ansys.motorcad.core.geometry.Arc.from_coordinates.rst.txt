@@ -1,0 +1,6 @@
+from\_coordinates
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.from_coordinates
