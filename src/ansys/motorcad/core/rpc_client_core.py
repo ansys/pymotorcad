@@ -905,7 +905,7 @@ class _MotorCADConnection:
         ----------
         max_wait : int, optional
             Maximum number of seconds to wait for the Motor-CAD process to exit before force
-            killing it. Default is 200.
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
         """
         if self.pim_instance is not None:
             self.pim_instance.delete()
@@ -915,9 +915,8 @@ class _MotorCADConnection:
                 # The process has already exited, so send_and_recieve will fail.
                 # Possible that another MotorCAD object has already sent the Quit command,
                 # or the user has closed Motor-CAD.
-                raise MotorCADError(
-                    "Motor-CAD process has already exited. Cannot send Quit command."
-                )
+                warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+                return
 
             method = "Quit"
             result = self.send_and_receive(method)
