@@ -22,6 +22,7 @@
 
 """RPC methods for updating message config."""
 from ansys.motorcad.core import PopupDisplayLevel
+from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
 class _RpcMessageConfig:
@@ -30,11 +31,21 @@ class _RpcMessageConfig:
 
     def enable_popups(self):
         """Enable the display of popups in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "EnablePopups"
         return self._connection.send_and_receive(method)
 
     def disable_popups(self):
         """Disable the display of popups in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "DisablePopups"
         return self._connection.send_and_receive(method)
 
@@ -47,6 +58,11 @@ class _RpcMessageConfig:
             Whether popups are enabled. If ``True``, popups are enabled. If ``False``,
             popups are disabled.
         """
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "GetPopupsEnabled"
         return self._connection.send_and_receive(method)
 
@@ -59,6 +75,11 @@ class _RpcMessageConfig:
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
             ``4`` = query.
         """
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "SetPopupDisplayLevel"
         params = [level]
         return self._connection.send_and_receive(method, params)
@@ -72,16 +93,31 @@ class _RpcMessageConfig:
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
             ``4`` = query.
         """
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "GetPopupDisplayLevel"
         return PopupDisplayLevel(self._connection.send_and_receive(method))
 
     def enable_verbose_messages(self):
         """Enable the display of verbose messages in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "EnableVerboseMessages"
         return self._connection.send_and_receive(method)
 
     def disable_verbose_messages(self):
         """Disable the display of verbose messages in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "DisableVerboseMessages"
         return self._connection.send_and_receive(method)
 
@@ -94,16 +130,31 @@ class _RpcMessageConfig:
             Whether verbose messages are enabled. If ``True``, verbose messages are enabled.
             If ``False``, verbose messages are disabled.
         """
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "GetVerboseMessagesEnabled"
         return self._connection.send_and_receive(method)
 
     def enable_verbose_fea_messages(self):
         """Enable the display of verbose FEA messages in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager_fea"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager FEA config is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "EnableVerboseFEAMessages"
         return self._connection.send_and_receive(method)
 
     def disable_verbose_fea_messages(self):
         """Disable the display of verbose FEA messages in Motor-CAD."""
+        if not self._connection.check_if_feature_exists("motor_cad_messager_fea"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager FEA config is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "DisableVerboseFEAMessages"
         return self._connection.send_and_receive(method)
 
@@ -116,5 +167,10 @@ class _RpcMessageConfig:
             Whether verbose FEA messages are enabled. If ``True``, verbose FEA messages are
             enabled. If ``False``, verbose FEA messages are disabled.
         """
+        if not self._connection.check_if_feature_exists("motor_cad_messager_fea"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager FEA config is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
         method = "GetVerboseFEAMessagesEnabled"
         return self._connection.send_and_receive(method)

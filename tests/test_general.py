@@ -139,6 +139,9 @@ def test_verbose_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
 
+    if not mc.connection.check_if_feature_exists("motor_cad_messager_fea"):
+        pytest.skip("Motor-CAD Messager FEA is not enabled, skipping test_verbose_message_config")
+
     try:
         mc.messageconfig.disable_verbose_messages()
         assert mc.messageconfig.get_verbose_messages_enabled() is False
