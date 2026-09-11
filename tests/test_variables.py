@@ -134,6 +134,14 @@ def test_restore_deprecated_settings(mc):
     mc.restore_deprecated_settings()
     assert mc.get_variable(test_deprecated_setting) == improved_method
 
+    if mc.connection.check_if_feature_exists("restore_recommended_settings"):
+        test_recommended_setting = "ShaftAxleHoleGeometryMethod"
+        mc.set_variable(test_recommended_setting, original_method)
+        assert mc.get_variable(test_recommended_setting) == original_method
+
+        mc.restore_deprecated_settings(deprecated=False, recommended=True)
+        assert mc.get_variable(test_recommended_setting) == improved_method
+
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name():
