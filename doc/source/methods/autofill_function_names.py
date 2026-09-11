@@ -8,12 +8,12 @@ import shutil
 # FOR DEVELOPERS :
 #
 # If you are adding a new documentation category, follow these steps :
-#  1. Add a new entry to the `doc_catagories` list with the appropriate values using a
+#  1. Add a new entry to the `doc_categories` list with the appropriate values using a
 #     _DocCategory obj.
 #  2. Add to doc/source/methods/MotorCAD_object.rst file
 #  3. Run this script to generate the documentation files.
 #
-# If you are adding a Unit category spesificly, the rpc_methods_core python file will
+# If you are adding a Unit category specifically, the rpc_methods_core python file will
 # need to be updated. A class attribute will need to be added and set to be an alias of
 # the rpc class, this attribute will share the name as the runtime instance used. This is
 # used by the doc gen to find the methods but has no functional impact when using the api.
@@ -72,7 +72,7 @@ def generate_method_docs():
     #
     # See _DocCategoryGenType for structure
     #
-    doc_catagories = [
+    doc_categories = [
         _DocCategory(_DocCategoryGenType.default, "Calculations", "rpc_methods_calculations.py"),
         _DocCategory(_DocCategoryGenType.default, "FEA Geometry", "rpc_methods_fea_geometry.py"),
         _DocCategory(_DocCategoryGenType.default, "General", "rpc_methods_general.py"),
@@ -112,7 +112,7 @@ def generate_method_docs():
     templates_folder.mkdir(exist_ok=True)
 
     # Generate documentation for each category
-    for i, category in enumerate(doc_catagories):
+    for i, category in enumerate(doc_categories):
         # rpc methods python file path
         file_path = str(
             (
