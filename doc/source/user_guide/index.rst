@@ -4,10 +4,10 @@ User guide
 ============
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    internal_scripting
    external_scripting
+   linux_scripting
    matlab_scripting
    backwards_compatibility
    troubleshooting
@@ -42,6 +42,12 @@ the command line or via scripts from a Python IDE of your choice.
 For more information on using PyMotorCAD with an external Python installation, see :ref:`ref_external_scripting`.
 
 PyMotorCAD can also be used in MATLAB, for information on this, see :ref:`ref_matlab_scripting`.
+
+Using PyMotorCAD scripts for Linux
+-----------------------------------
+
+PyMotorCAD scripts can be used with Motor-CAD on Linux from 27R1. For more information,
+see :ref:`ref_linux_scripting`.
 
 Adaptive templates scripts
 --------------------------
