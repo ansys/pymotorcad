@@ -11,6 +11,7 @@ User guide
    matlab_scripting
    backwards_compatibility
    troubleshooting
+   port_issue
    Motor-CAD_setup
    adaptive_templates
    virtual_env_motorcad
