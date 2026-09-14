@@ -25,6 +25,8 @@
 Not for direct use. Inherited by _MotorCADCore/_RpcMethodsCoreOld
 """
 
+from typing import cast
+
 from ansys.motorcad.core.methods.adaptive_geometry import _RpcMethodsAdaptiveGeometry
 from ansys.motorcad.core.methods.deprecated_methods import _RpcMethodsDeprecated
 from ansys.motorcad.core.methods.rpc_message_config import _RpcMessageConfig
@@ -62,7 +64,7 @@ class _RpcMethodsCore(
     # for API docs; overridden per-instance with a real _RpcMessageConfig in __init__.
     #  _RpcMethodsCore.messageconfig is NOT the same as _RpcMethodsCore().messageconfig
     # same variable name but are independent; ONLY use _RpcMethodsCore().messageconfig
-    messageconfig = _RpcMessageConfig
+    messageconfig: _RpcMessageConfig = cast(_RpcMessageConfig, _RpcMessageConfig)
 
     def __init__(self, mc_connection):
         self.connection = mc_connection
