@@ -802,12 +802,18 @@ class _MotorCADConnection:
             # the call because it is not available on the current Motor-CAD
             # platform (headless or Linux).
             if "supported" in response["result"] and response["result"]["supported"] is False:
-                # functionScope enum: 0=ftGuiOnly, 1=ftWindowsOnly, 2=ftAllPlatforms, 3=ftUndefined
-                scope = response["result"].get("functionScope")
-                if response["result"]["supported"] == 0:
+                # functionScope enum: 0=ftUndefined, 1=ftAllPlatforms, 2=ftGuiOnly,
+                # 3=ftWindowsOnly, 4=ftFullRelease
+                scope = response["result"]["functionScope"]
+                if scope == 2:
                     scope_available = "This function is only available in Motor-CAD with a GUI."
-                elif response["result"]["supported"] == 1:
+                elif scope == 3:
                     scope_available = "This function is only available in Motor-CAD on Windows."
+                elif scope == 4:
+                    scope_available = (
+                        "This function is not available yet but may be included in "
+                        "a future full release."
+                    )
                 else:
                     # Server should only set supported=False for the scopes above.
                     self._raise_if_allowed(
