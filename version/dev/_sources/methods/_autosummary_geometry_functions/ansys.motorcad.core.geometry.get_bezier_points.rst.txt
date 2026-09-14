@@ -1,0 +1,6 @@
+﻿get\_bezier\_points
+===================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autofunction:: get_bezier_points

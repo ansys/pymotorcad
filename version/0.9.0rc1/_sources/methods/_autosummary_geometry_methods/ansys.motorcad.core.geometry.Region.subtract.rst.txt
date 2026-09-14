@@ -1,0 +1,6 @@
+subtract
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.subtract

@@ -1,0 +1,6 @@
+extrusion\_blocks
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.extrusion_blocks

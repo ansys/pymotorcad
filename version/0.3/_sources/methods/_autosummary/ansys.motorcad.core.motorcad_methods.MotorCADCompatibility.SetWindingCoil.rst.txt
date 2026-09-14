@@ -1,0 +1,6 @@
+SetWindingCoil
+==============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetWindingCoil

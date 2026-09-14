@@ -1,0 +1,6 @@
+stator\_divider
+===============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_divider

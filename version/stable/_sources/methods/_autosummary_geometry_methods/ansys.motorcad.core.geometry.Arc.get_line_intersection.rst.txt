@@ -1,0 +1,6 @@
+get\_line\_intersection
+=======================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.get_line_intersection

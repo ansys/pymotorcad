@@ -1,0 +1,6 @@
+ExportToAnsysElectronicsDesktop
+===============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ExportToAnsysElectronicsDesktop
