@@ -804,7 +804,7 @@ class _MotorCADConnection:
             if "supported" in response["result"] and response["result"]["supported"] is False:
                 # functionScope enum: 0=ftUndefined, 1=ftAllPlatforms, 2=ftGuiOnly,
                 # 3=ftWindowsOnly, 4=ftFullRelease
-                scope = response["result"]["functionScope"]
+                scope = response["result"]["functionscope"]
                 if scope == 2:
                     scope_available = "This function is only available in Motor-CAD with a GUI."
                 elif scope == 3:
