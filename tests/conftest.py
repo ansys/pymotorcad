@@ -66,3 +66,13 @@ def mc_fea_old():
     yield motorcad_instance_fea_old
 
     motorcad_instance_fea_old.quit()
+
+
+@pytest.fixture()
+def mc_headless():
+    """Launch a fully headless Motor-CAD instance for testing GUI-only method warnings."""
+    mc_headless = MotorCAD(full_headless_beta=True)
+    reset_to_default_file(mc_headless)
+
+    yield mc_headless
+    mc_headless.quit()
