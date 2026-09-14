@@ -775,8 +775,8 @@ class Region(object):
 
         Parameters
         ----------
-        region : ansys.motorcad.core.geometry.Region
-            Motor-CAD region object
+        region : ansys.motorcad.core.geometry.Region OR list of ansys.motorcad.core.geometry.Region
+            Motor-CAD region object OR list of Motor-CAD region object
 
         Returns
         -------
@@ -784,11 +784,35 @@ class Region(object):
             list of Motor-CAD region object
         """
         self._check_connection()
-        regions = self.motorcad_instance.subtract_region(self, region)
+
+        if isinstance(region, Region):
+            regions = self.motorcad_instance.subtract_region(self, region)
+        elif isinstance(region, list) and all(isinstance(i, Region) for i in region):
+            regions = self._subtract_list(region)
+        else:
+            raise TypeError("Input must be a Region or a list of Regions.")
 
         if len(regions) > 0:
             self.update(regions[0])
             return regions[1 : len(regions)]
+
+    def _subtract_list(self, regions):
+        out_regions: list[Region] = [self]
+
+        for sub_region in regions:
+            new_out_regions: list[Region] = []
+
+            for target_region in out_regions:
+                if target_region.collides(sub_region):
+                    new_out_regions += self.motorcad_instance.subtract_region(
+                        target_region, sub_region
+                    )
+                else:
+                    new_out_regions.append(target_region)
+
+            out_regions = new_out_regions
+
+        return out_regions
 
     def unite(self, regions):
         """Unite one or more other regions with self.
