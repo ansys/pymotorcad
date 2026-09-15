@@ -329,10 +329,29 @@ class _RpcMethodsGeneral:
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
-    def geometry_export(self):
-        """Export the geometry to the file specified in the ``DXFFileName`` parameter."""
-        method = "GeometryExport"
-        return self.connection.send_and_receive(method)
+    def geometry_export(self, context=""):
+        """Export the geometry to the file specified in the ``DXFFileName`` parameter.
+
+        Parameters
+        ----------
+        context : str, optional
+            Context for which to export the geometry. If not specified, the geometry
+            is exported for the current context. Options are ``"Magnetic"``, ``"Thermal"``
+            and ``"Mechanical"``.
+        """
+        if self.connection.check_if_feature_exists("geometry_export_with_context"):
+            if context == "":
+                raise MotorCADError(
+                    "Context must be specified for geometry_export for Motor-CAD version "
+                    "2027R1 and later."
+                )
+            method = "GeometryExportWithContext"
+            params = [context]
+        else:
+            method = "GeometryExport"
+            params = []
+
+        return self.connection.send_and_receive(method, params)
 
     def export_to_ansys_discovery(self, file_path):
         """Export the model to a Python script file that can be run in Ansys Discovery.
@@ -508,9 +527,16 @@ class _RpcMethodsGeneral:
         method = "ClearMessageLog"
         return self.connection.send_and_receive(method)
 
-    def quit(self):
-        """Quit Motor-CAD."""
-        self.connection._quit()
+    def quit(self, max_wait=200):
+        """Quit Motor-CAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
+        """
+        self.connection._quit(max_wait=max_wait)
 
     def set_free(self):
         """Free the Motor-CAD instance."""

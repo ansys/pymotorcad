@@ -125,4 +125,4 @@ class _RpcMethodsGeometry:
             method = "CheckIfGeometryIsValid"
             params = [edit_geometry]
 
-        return self.connection.send_and_receive(method, params)
+        return self.connection.send_and_receive(method, params, success_var=True)
