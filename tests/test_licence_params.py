@@ -179,11 +179,14 @@ def test_existinginstance_withlicencetype():
     mc2 = MotorCAD(
         open_new_instance=False, use_new_license_type=True, show_gui=False, full_headless_beta=True
     )
-    assert mc.is_open(), "Failed to open MotorCAD"
-    assert mc2.is_open()
-    assert mc2.get_licence() is None
-    mc2.get_messages(1)
-    if is_motorcad_gui_visible(mc2) == True:
-        assert True
-    mc2.quit()
-    mc.quit()
+    try:
+        assert mc.is_open(), "Failed to open MotorCAD"
+        assert mc2.is_open()
+        assert mc2.get_licence() is None
+        mc2.get_messages(1)
+        if is_motorcad_gui_visible(mc2) == True:
+            assert True
+    finally:
+        # Do not call quit for mc2 as it is connected to the same process.
+        # it will already be closed when mc.quit() is called.
+        mc.quit()

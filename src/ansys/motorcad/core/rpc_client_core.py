@@ -481,19 +481,22 @@ class _MotorCADConnection:
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
-        if self._close_motorcad_on_exit():
-            try:
+        try:
+            if self._close_motorcad_on_exit():
                 self._quit()
-            except Exception:
-                # Don't raise exception at this point
-                # Motor-CAD might already have been closed by user
-                pass
+        except Exception:
+            # Don't raise exceptions during object or interpreter teardown.
+            pass
 
         # Close the persistent requests session if the beta reuse-connection
         # feature was enabled. This releases the pooled TCP socket promptly
         # instead of waiting for garbage collection of the Session.
-        if self._session:
-            self._session.close()
+        try:
+            session = getattr(self, "_session", None)
+            if session:
+                session.close()
+        except Exception:
+            pass
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
@@ -895,11 +898,58 @@ class _MotorCADConnection:
         """
         return self._last_error_message
 
-    def _quit(self):
-        """Quit MotorCAD."""
+    def _quit(self, max_wait=200):
+        """Quit MotorCAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
+        """
         if self.pim_instance is not None:
             self.pim_instance.delete()
         else:
             # local machine
+            if not psutil.pid_exists(self.pid):
+                # The process has already exited, so send_and_recieve will fail.
+                # Possible that another MotorCAD object has already sent the Quit command,
+                # or the user has closed Motor-CAD.
+                warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+                return
+
             method = "Quit"
-            return self.send_and_receive(method)
+            result = self.send_and_receive(method)
+
+            # Wait for the process to exit before returning from quit() and then kill the process
+            # if it doesn't exit within max_wait seconds.
+            # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
+            # script exits.
+            if (platform.system() == "Linux") and (self.pid != -1):
+                # ping every second for up to max_wait seconds to force kill.
+                for step in range(max_wait):
+                    try:
+                        proc = psutil.Process(self.pid)
+                        proc.wait(timeout=1)
+                        # Process exited correctly after waiting.
+                        # If it didn't exceptions will be caught and the loop will continue to ping.
+                        return result
+                    except psutil.TimeoutExpired:
+                        # Process still exists, so wait for next ping
+                        continue
+                    except psutil.AccessDenied:
+                        return result
+                    except psutil.NoSuchProcess:
+                        # process exited correctly
+                        return result
+
+                # Process still exists after max_wait seconds, so force kill it.
+                try:
+                    proc = psutil.Process(self.pid)
+                    proc.kill()
+                    proc.wait()
+
+                    warnings.warn("Motor-CAD process did not exit in time and was force killed.")
+                except psutil.NoSuchProcess:
+                    return result
+            return result
