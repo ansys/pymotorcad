@@ -22,7 +22,7 @@
 
 """
 Material and Mesh Properties
-=================
+============================
 This script applies the adaptive templates functionality to modify material and mesh properties
 in a turbocharger machine.
 """
@@ -120,7 +120,7 @@ mc.set_adaptive_parameter_default(
 
 # %%
 # Create points and entities for rotor band
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 rt_region = mc.get_region("Rotor")  # get the rotor region
 st_bore = mc.get_variable("Stator_Bore")  # Get the stator inner diameter
@@ -142,7 +142,7 @@ arc_rt = Arc(p4, p3, centre=None, radius=-rt_band_radius)
 
 # %%
 # Create rotor band region with material and mesh properties
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 rt_band = Region(region_type=RegionType.rotor)
 rt_band.name = "rotor band"
@@ -169,7 +169,7 @@ mc.set_region(rt_band)
 
 # %%
 # Run the EMag (On Load > Torque) calculation
-# ------------------------------------------
+# -------------------------------------------
 # The flux density distribution of the rotor with rotor band will be visible as shown below.
 
 # %%
