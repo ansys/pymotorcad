@@ -23,7 +23,7 @@
 # Keywords: **Tapered Bar**, **Induction Motor**, **motor**
 """
 Converting IM parallel tooth bar to tapered tooth bar
-=========================================
+=====================================================
 
 This script applies the adaptive templates functionality to change
 the points at the bottom of parallel tooth to create a tapered tooth bar geometry.
