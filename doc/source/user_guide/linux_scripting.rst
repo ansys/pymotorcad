@@ -88,8 +88,7 @@ Available in Linux from 27R1
 - ``remove_external_custom_loss``
 - ``remove_internal_custom_loss``
 - ``reset_adaptive_geometry``
-.. restore_compatibility_settings is to be renamed restore_deprecated_settings.
-- ``restore_compatibility_settings``
+- ``restore_deprecated_settings``
 - ``save_adaptive_script``
 - ``save_duty_cycle``
 - ``save_iron_loss_coefficients``
