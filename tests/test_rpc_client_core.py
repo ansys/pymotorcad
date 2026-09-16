@@ -315,6 +315,13 @@ def test_warnings(mc, monkeypatch):
         mc.get_variable("n/a")
 
 
+def test_unsupported_method_warning(mc_headless):
+    # In fully headless Motor-CAD the server marks GUI-only methods as unsupported
+    # and skips them. The client should emit a MotorCADWarning without raising.
+    with pytest.warns(MotorCADWarning, match="only available in Motor-CAD with a GUI"):
+        mc_headless.set_visible(False)
+
+
 def test_using_url_to_connect(mc):
     port = mc.connection._port
     url = "http://localhost:" + str(port)
