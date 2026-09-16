@@ -31,6 +31,8 @@ Available in Linux from 27R1
 - ``create_winding_pattern``
 - ``delete_region``
 - ``delete_solid_material``
+- ``disable_verbose_fea_messages``
+- ``disable_verbose_messages``
 - ``do_magnetic_calculation``
 - ``do_magnetic_thermal_calculation``
 - ``do_mechanical_calculation``
@@ -40,6 +42,8 @@ Available in Linux from 27R1
 - ``do_weight_calculation``
 - ``download_mot_file``
 - ``edit_region_magnet``
+- ``enable_verbose_fea_messages``
+- ``enable_verbose_messages``
 - ``export_concept_ev_model``
 - ``export_duty_cycle_lab``
 - ``export_lab_model``
@@ -72,6 +76,8 @@ Available in Linux from 27R1
 - ``get_temperature_graph``
 - ``get_temperature_graph_point``
 - ``get_variable``
+- ``get_verbose_fea_messages_enabled``
+- ``get_verbose_messages_enabled``
 - ``get_winding_coil``
 - ``import_solid_material``
 - ``load_adaptive_script``
@@ -84,6 +90,7 @@ Available in Linux from 27R1
 - ``load_magnetisation_curves``
 - ``load_nvh_custom_response``
 - ``load_script``
+- ``load_template``
 - ``load_winding_pattern``
 - ``remove_external_custom_loss``
 - ``remove_internal_custom_loss``
@@ -131,7 +138,6 @@ Work in progress
 - ``get_license``
 - ``get_magnetic_graph_harmonics``
 - ``get_region_loss``
-- ``load_template``
 - ``save_fea_data``
 - ``update_force_analysis_results``
 
@@ -142,11 +148,9 @@ Unsupported
 - ``clear_messages``
 - ``disable_error_messages``
 - ``disable_popups``
-- ``disable_verbose_messages``
 - ``display_screen``
 - ``do_slot_finite_element``
 - ``enable_popups``
-- ``enable_verbose_messages``
 - ``export_figure_lab``
 - ``export_force_animation``
 - ``export_results``
@@ -155,7 +159,6 @@ Unsupported
 - ``get_popup_display_level``
 - ``get_popups_enabled``
 - ``get_region_value``
-- ``get_verbose_messages_enabled``
 - ``initialise_tab_names``
 - ``load_results``
 - ``run_script``
