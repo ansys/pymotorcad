@@ -24,8 +24,8 @@ MotorCAD API
    _autogen_Internal Scripting
    _autogen_Lab
    _autogen_Materials
+   _autogen_Message Config
    _autogen_Thermal
    _autogen_UI
    _autogen_Utility
    _autogen_Variables
-

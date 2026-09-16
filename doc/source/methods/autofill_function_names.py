@@ -9,41 +9,83 @@ def generate_method_docs():
 
     New categories also need adding in MotorCAD_object.rst
     """
-    function_categories = [
-        "Calculations",
-        "FEA Geometry",
-        "General",
-        "Geometry",
-        "Adaptive Geometry",
-        "Graphs",
-        "Internal Scripting",
-        "Lab",
-        "Materials",
-        "Thermal",
-        "UI",
-        "Utility",
-        "Variables",
+    category_configs = [
+        {
+            "category": "Calculations",
+            "file_name": "rpc_methods_calculations.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "FEA Geometry",
+            "file_name": "rpc_methods_fea_geometry.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "General",
+            "file_name": "rpc_methods_general.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Geometry",
+            "file_name": "rpc_methods_geometry.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Adaptive Geometry",
+            "file_name": "adaptive_geometry.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Graphs",
+            "file_name": "rpc_methods_graphs.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Internal Scripting",
+            "file_name": "rpc_methods_internal_scripting.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Lab",
+            "file_name": "rpc_methods_lab.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Materials",
+            "file_name": "rpc_methods_materials.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Message Config",
+            "file_name": "rpc_message_config.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD.messageconfig",
+        },
+        {
+            "category": "Thermal",
+            "file_name": "rpc_methods_thermal.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "UI",
+            "file_name": "rpc_methods_ui.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Utility",
+            "file_name": "rpc_methods_utility.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
+        {
+            "category": "Variables",
+            "file_name": "rpc_methods_variables.py",
+            "currentmodule": "ansys.motorcad.core.motorcad_methods.MotorCAD",
+        },
     ]
 
-    file_names = [
-        "rpc_methods_calculations.py",
-        "rpc_methods_fea_geometry.py",
-        "rpc_methods_general.py",
-        "rpc_methods_geometry.py",
-        "adaptive_geometry.py",
-        "rpc_methods_graphs.py",
-        "rpc_methods_internal_scripting.py",
-        "rpc_methods_lab.py",
-        "rpc_methods_materials.py",
-        "rpc_methods_thermal.py",
-        "rpc_methods_ui.py",
-        "rpc_methods_utility.py",
-        "rpc_methods_variables.py",
-    ]
-
-    for i in range(len(function_categories)):
-        category = function_categories[i]
-        file_name = file_names[i]
+    for config in category_configs:
+        category = config["category"]
+        file_name = config["file_name"]
+        currentmodule = config["currentmodule"]
 
         current_folder = pathlib.Path(__file__).parent.resolve()
         parent_path = current_folder.parents[2].absolute()
@@ -80,6 +122,7 @@ def generate_method_docs():
 
         # replace some names/paths
         file_contents = file_contents.replace("Category", category)
+        file_contents = file_contents.replace("CurrentmodulePath", currentmodule)
         file_contents = file_contents.replace("_autosummary_path", "_autosummary_" + category)
         doc_file.close()
 

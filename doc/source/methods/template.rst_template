@@ -2,7 +2,7 @@
 Category
 ==============================
 
-.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+.. currentmodule:: CurrentmodulePath
 
 .. autosummary::
    :toctree: _autosummary_path
@@ -10,4 +10,3 @@ Category
    :methods:
 
    .. start of auto documentation - do not write past this line
-
