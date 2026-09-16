@@ -15,7 +15,7 @@ import shutil
 #
 # If you are adding a Unit category specifically, the rpc_methods_core python file will
 # need to be updated. A class attribute will need to be added and set to be an alias of
-# the rpc class, this attribute will share the name as the runtime instance used. This is
+# the rpc class, this attribute will share the same name as the runtime instance used. This is
 # used by the doc gen to find the methods but has no functional impact when using the api.
 # e.g. for messageconfig, the runtime instance is referenced via MotorCad.messageconfig.<method>
 #      and is set to _RpcMessageConfig(mc_connection). Along with this there needs to be a
