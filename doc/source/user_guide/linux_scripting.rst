@@ -135,7 +135,6 @@ Work in progress
 - ``check_collisions``
 - ``export_to_ansys_discovery``
 - ``export_to_ansys_electronics_desktop``
-- ``get_licence``
 - ``get_magnetic_graph_harmonics``
 - ``get_region_loss``
 - ``save_fea_data``
