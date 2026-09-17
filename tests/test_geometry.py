@@ -2738,6 +2738,17 @@ def test_subtract_region_5(mc):
     assert expected_region2 == out[0]
 
 
+def test_subtract_region_list_empty(mc):
+    region_target = create_square()
+    region_target.motorcad_instance = mc
+    expected_region = deepcopy(region_target)
+
+    out = region_target.subtract([])
+
+    assert out == []
+    assert region_target == expected_region
+
+
 def test_region_mirror():
     square = create_square()
     square.name = "square"
