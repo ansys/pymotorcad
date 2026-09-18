@@ -26,6 +26,7 @@ import pytest
 
 from RPC_Test_Common import get_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCAD, MotorCADError
+from ansys.motorcad.core.datastore import Datastore, DataTypes
 
 
 def test_get_variable(mc):
@@ -122,79 +123,106 @@ def test_get_set_array_variable_2d(mc):
     mc.set_array_variable_2d("ConductorCentre_L_x", 2, 2, save_value)
 
 
-def test_restore_compatibility_settings(mc):
-    test_compatibility_setting = "EWdgAreaCalculation"
+def test_restore_deprecated_settings(mc):
+    test_deprecated_setting = "EWdgAreaCalculation"
     original_method = 0
     improved_method = 1
 
-    mc.set_variable(test_compatibility_setting, original_method)
-    assert mc.get_variable(test_compatibility_setting) == original_method
+    mc.set_variable(test_deprecated_setting, original_method)
+    assert mc.get_variable(test_deprecated_setting) == original_method
 
-    mc.restore_compatibility_settings()
-    assert mc.get_variable(test_compatibility_setting) == improved_method
+    mc.restore_deprecated_settings()
+    assert mc.get_variable(test_deprecated_setting) == improved_method
+
+    if mc.connection.check_if_feature_exists("restore_recommended_settings"):
+        test_recommended_setting = "ShaftAxleHoleGeometryMethod"
+        mc.set_variable(test_recommended_setting, original_method)
+        assert mc.get_variable(test_recommended_setting) == original_method
+
+        mc.restore_deprecated_settings(deprecated=False, recommended=True)
+        assert mc.get_variable(test_recommended_setting) == improved_method
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name():
     mc = MotorCAD()
+    try:
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        if path.exists(file_path):
+            remove(file_path)
 
-    if path.exists(file_path):
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name_fallback(monkeypatch):
     mc = MotorCAD()
-    # Pretend to be an older version
-    mc.connection.program_version = "2024.2.3.1"
+    try:
+        # Pretend to be an older version
+        mc.connection.program_version = "2024.2.3.1"
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    if path.exists(file_path):
+        if path.exists(file_path):
+            remove(file_path)
+
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
-# TODO - introduce testing for datastore class (not functional at the moment).
-# def test_get_datastore(mc):
-#     """Incomplete testing"""
-#     datastore = mc.get_datastore()
-#
-#     test = datastore.get_variable("slot_width")
-#     test_rec = datastore.get_variable_record("test_int")
-#
-#     test_array = datastore.get_variable("IMInductance_CurrentProp")
-#     test_array_2d = datastore.get_variable("ConductorCentre_L_x")
-#
-#     test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
-#     test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
-#
-#     arrays = [
-#         datastore[item]
-#         for item in datastore
-#         if (datastore[item].is_array) and (datastore[item].dynamic)
-#     ]
-#     arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
-#
-#     datastore.pop("slot_width")
-#     datastore.pop("test_int")
-#     filtered_output = datastore.filter_variables(file_sections=["SaturationMap"], inout_types=[0])
-#     datastore_json = datastore.to_json()
-#     datastore_dict = datastore.to_dict()
+def test_get_datastore(mc):
+    datastore = mc.get_datastore()
+
+    test = datastore.get_variable("slot_width")
+    test_rec = datastore.get_variable_record("test_int")
+
+    test_array = datastore.get_variable("IMInductance_CurrentProp")
+    test_array_2d = datastore.get_variable("ConductorCentre_L_x")
+
+    test_array_ref = datastore.get_variable_record("IMInductance_CurrentProp").array_length_ref
+    test_array_2d_ref = datastore.get_variable_record("ConductorCentre_L_x").array_length_ref_2d
+
+    arrays = [
+        datastore[item]
+        for item in datastore
+        if (datastore[item].is_array) and (datastore[item].dynamic)
+    ]
+    arrays_2d = [datastore[item] for item in datastore if datastore[item].is_array_2d]
+
+    datastore.pop("slot_width")
+    datastore.pop("LitzWireSubConductors")
+    filtered_output = datastore.filter_variables(
+        file_sections=["SaturationMap"], inout_types=[DataTypes.input]
+    )
+    datastore_json = datastore.to_json()
+    datastore_dict = datastore.to_dict()
+
+    param = datastore["TVent_Shaft_Speed"]
+    test_dict = {
+        "TVent_Shaft_Speed": param,  # scalar
+        "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
+        "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
+        "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
+        "EWdgLayerLength_R": datastore_dict["EWdgLayerLength_F"],  # 1D list
+        "ConductorCentre_L_y": datastore_dict["ConductorCentre_L_y"],  # 2D list
+    }
+
+    new_datastore = Datastore.from_dict(test_dict)

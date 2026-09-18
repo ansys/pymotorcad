@@ -20,9 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import os
+import os
 
 from RPC_Test_Common import almost_equal, almost_equal_fixed, get_dir_path
+from ansys.motorcad.core.enums import MotorCADContext
 
 
 def test_do_magnetic_thermal_calculation(mc):
@@ -32,7 +33,7 @@ def test_do_magnetic_thermal_calculation(mc):
 
 
 # def test_calculate_saturation_map():
-#     file_path = get_temp_files_dir_path() + r"\SaturationLossMap.mat"
+#     file_path = os.path.join(get_temp_files_dir_path(), "SaturationLossMap.mat")
 #     mc.set_variable("SaturationMap_ExportFile", file_path)
 #     mc.calculate_saturation_map()
 #
@@ -63,7 +64,9 @@ def test_do_mechanical_calculation(mc):
 
 
 def test_calculate_im_saturation_model(mc_reset_to_default_on_teardown):
-    mc_reset_to_default_on_teardown.load_from_file(get_dir_path() + r"\test_files\IM_test_file.mot")
+    mc_reset_to_default_on_teardown.load_from_file(
+        os.path.join(get_dir_path(), "test_files", "IM_test_file.mot")
+    )
 
     mc_reset_to_default_on_teardown.calculate_im_saturation_model()
 
@@ -77,7 +80,11 @@ def test_calculate_force_harmonics_temporal(mc):
 
 
 def test_do_weight_calculation(mc):
-    mc.do_weight_calculation()
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.do_weight_calculation(MotorCADContext.magnetic)
+        mc.do_weight_calculation(MotorCADContext.thermal)
+    else:
+        mc.do_weight_calculation()
 
 
 def test_create_winding_pattern(mc):

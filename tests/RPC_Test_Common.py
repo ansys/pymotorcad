@@ -29,15 +29,15 @@ def get_dir_path():
 
 
 def get_test_files_dir_path():
-    return get_dir_path() + r"\test_files"
+    return os.path.join(get_dir_path(), "test_files")
 
 
 def get_base_test_file_path():
-    return get_test_files_dir_path() + r"\base_test_file.mot"
+    return os.path.join(get_test_files_dir_path(), "base_test_file.mot")
 
 
 def get_temp_files_dir_path():
-    return get_test_files_dir_path() + r"\temp_files"
+    return os.path.join(get_test_files_dir_path(), "temp_files")
 
 
 def almost_equal(a, b, decimal_places=1):
@@ -57,7 +57,7 @@ def reset_to_default_file(motorcad_instance):
     motorcad_instance.load_from_file(get_base_test_file_path())
 
     # save to temp location to avoid editing base file
-    motorcad_instance.save_to_file(get_temp_files_dir_path() + r"\temp_test_file.mot")
+    motorcad_instance.save_to_file(os.path.join(get_temp_files_dir_path(), "temp_test_file.mot"))
 
 
 def reset_temp_file_folder():
