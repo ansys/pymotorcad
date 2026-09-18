@@ -1,0 +1,6 @@
+mounting\_base
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.mounting_base

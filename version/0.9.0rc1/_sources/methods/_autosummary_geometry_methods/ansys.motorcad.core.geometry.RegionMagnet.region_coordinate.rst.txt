@@ -1,0 +1,6 @@
+region\_coordinate
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.region_coordinate

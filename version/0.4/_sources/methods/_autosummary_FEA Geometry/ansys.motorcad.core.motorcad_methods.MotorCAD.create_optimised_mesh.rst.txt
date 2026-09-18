@@ -1,0 +1,6 @@
+﻿create\_optimised\_mesh
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.create_optimised_mesh

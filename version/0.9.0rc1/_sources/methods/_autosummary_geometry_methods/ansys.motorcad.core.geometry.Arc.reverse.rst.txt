@@ -1,0 +1,6 @@
+reverse
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.reverse

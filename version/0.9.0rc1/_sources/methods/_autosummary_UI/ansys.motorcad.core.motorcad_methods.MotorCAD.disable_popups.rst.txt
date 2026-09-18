@@ -1,0 +1,6 @@
+﻿disable\_popups
+===============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.disable_popups

@@ -1,0 +1,6 @@
+﻿check\_collisions
+=================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.check_collisions

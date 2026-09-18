@@ -1,0 +1,6 @@
+centre
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Arc.centre

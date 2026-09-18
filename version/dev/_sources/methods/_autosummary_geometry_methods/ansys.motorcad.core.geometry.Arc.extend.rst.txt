@@ -1,0 +1,6 @@
+extend
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Arc.extend

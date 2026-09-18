@@ -1,0 +1,6 @@
+adaptive
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.adaptive
