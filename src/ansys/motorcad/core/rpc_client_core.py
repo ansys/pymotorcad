@@ -370,7 +370,7 @@ class _MotorCADConnection:
                 "show_gui parameter in a future release.",
                 UserWarning,
             )
-        self._full_headless_beta = full_headless
+        self._headless_beta = full_headless
 
         # Launch options have no effect when connecting to an existing instance
         if not open_new_instance:
@@ -571,7 +571,7 @@ class _MotorCADConnection:
     def _resolve_motor_cad_exe(self):
         """Resolve the exe to launch, respecting manual override and full_headless_beta."""
         if MOTORCAD_EXE_GLOBAL != "":
-            if self._full_headless_beta:
+            if self._headless_beta:
                 warnings.warn(
                     "full_headless_beta is ignored when the Motor-CAD executable is set manually.",
                     UserWarning,
@@ -580,7 +580,7 @@ class _MotorCADConnection:
 
         standard_exe = _find_motor_cad_exe()
 
-        if self._full_headless_beta:
+        if self._headless_beta:
             # On Linux, the batch file already points to MotorCAD_Console — use it directly
             if Path(standard_exe).name == "MotorCAD_Console.exe":
                 return standard_exe
