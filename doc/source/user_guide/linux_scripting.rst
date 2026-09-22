@@ -11,6 +11,7 @@ Available in Linux from 27R1
 
 - ``add_external_custom_loss``
 - ``add_internal_custom_loss``
+- ``build_model_lab``
 - ``calculate_duty_cycle_lab``
 - ``calculate_force_harmonics_spatial``
 - ``calculate_force_harmonics_temporal``
@@ -98,6 +99,7 @@ Available in Linux from 27R1
 - ``restore_deprecated_settings``
 - ``save_adaptive_script``
 - ``save_duty_cycle``
+- ``save_fea_data``
 - ``save_iron_loss_coefficients``
 - ``save_magnet_parameters``
 - ``save_results``
@@ -131,13 +133,11 @@ Available in Linux from 27R1
 Work in progress
 ----------------
 
-- ``build_model_lab``
 - ``check_collisions``
 - ``export_to_ansys_discovery``
 - ``export_to_ansys_electronics_desktop``
 - ``get_magnetic_graph_harmonics``
 - ``get_region_loss``
-- ``save_fea_data``
 - ``update_force_analysis_results``
 
 
