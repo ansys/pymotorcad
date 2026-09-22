@@ -366,7 +366,7 @@ class _MotorCADConnection:
 
         if full_headless:
             warnings.warn(
-                "full_headless_beta is a beta setting. This will be incorporated into the "
+                "full_headless is a beta setting. This will be incorporated into the "
                 "show_gui parameter in a future release.",
                 UserWarning,
             )
