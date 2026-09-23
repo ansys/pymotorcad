@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for updating message config."""
-from ansys.motorcad.core import PopupDisplayLevel
+from ansys.motorcad.core import MessageDisplayLevel
 from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
@@ -71,7 +71,7 @@ class _RpcMessageConfig:
 
         Parameters
         ----------
-        level : ansys.motorcad.core.PopupDisplayLevel
+        level : ansys.motorcad.core.MessageDisplayLevel
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
             ``4`` = query.
         """
@@ -89,7 +89,7 @@ class _RpcMessageConfig:
 
         Returns
         -------
-        ansys.motorcad.core.PopupDisplayLevel
+        ansys.motorcad.core.MessageDisplayLevel
             The display level for popups. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
             ``4`` = query.
         """
@@ -99,7 +99,7 @@ class _RpcMessageConfig:
                 " It is available with Motor-CAD 2027.0 or later."
             )
         method = "GetPopupDisplayLevel"
-        return PopupDisplayLevel(self._connection.send_and_receive(method))
+        return MessageDisplayLevel(self._connection.send_and_receive(method))
 
     def enable_verbose_messages(self):
         """Enable the display of verbose messages in Motor-CAD."""

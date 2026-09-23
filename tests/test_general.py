@@ -33,7 +33,7 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-from ansys.motorcad.core import MotorCAD, MotorCADError, PopupDisplayLevel
+from ansys.motorcad.core import MessageDisplayLevel, MotorCAD, MotorCADError
 
 
 def kh_to_ms(kh):
@@ -123,14 +123,14 @@ def test_message_config(mc):
         mc.messageconfig.enable_popups()
         assert mc.messageconfig.get_popups_enabled() is True
 
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.info)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.info
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.error)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.error
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.warning)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.warning
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.query)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.query
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.info)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.info
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.error)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.error
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.warning)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.warning
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.query)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.query
     finally:
         mc.messageconfig.disable_popups()
 
