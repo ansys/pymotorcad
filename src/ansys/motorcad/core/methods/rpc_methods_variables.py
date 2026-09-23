@@ -162,7 +162,7 @@ class _RpcMethodsVariables:
             variable_name in ["MessageDisplayState", "VerboseMessageOutput"]
             and self.connection.check_if_feature_exists("motor_cad_messager")
         ) or (
-            variable_name in ["VERBOSEFEAMESSAGEOUTPUT", "VERBOSEFEAOUTPUT"]
+            variable_name in ["VerboseFeaMessageOutput", "VerboseFeaOutput"]
             and self.connection.check_if_feature_exists("motor_cad_messager_fea")
         ):
             warn(
