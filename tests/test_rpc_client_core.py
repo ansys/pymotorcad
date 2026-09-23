@@ -349,9 +349,10 @@ def test_supported_method_no_warning():
 
     with warnings.catch_warnings(record=True) as caught_warnings:
         warnings.simplefilter("always")
-        connection.send_and_receive("GetVariable", ["MessageDisplayState"])
+        result = connection.send_and_receive("GetVariable", ["MessageDisplayState"])
 
-    assert caught_warnings == []
+    assert result is None
+    assert len(caught_warnings) == 0
 
 
 def test_using_url_to_connect(mc):
