@@ -130,20 +130,10 @@ Available in Linux from 27R1
 
 
 
-Work in progress
-----------------
-
-- ``check_collisions``
-- ``export_to_ansys_discovery``
-- ``export_to_ansys_electronics_desktop``
-- ``get_magnetic_graph_harmonics``
-- ``get_region_loss``
-- ``update_force_analysis_results``
-
-
 Unsupported
 -----------
 
+- ``check_collisions``
 - ``clear_messages``
 - ``disable_error_messages``
 - ``disable_popups``
@@ -153,10 +143,14 @@ Unsupported
 - ``export_figure_lab``
 - ``export_force_animation``
 - ``export_results``
+- ``export_to_ansys_discovery``
+- ``export_to_ansys_electronics_desktop``
 - ``get_force_frequency_domain_amplitude``
+- ``get_magnetic_graph_harmonics``
 - ``get_messages``
 - ``get_popup_display_level``
 - ``get_popups_enabled``
+- ``get_region_loss``
 - ``get_region_value``
 - ``initialise_tab_names``
 - ``load_results``
@@ -171,3 +165,4 @@ Unsupported
 - ``show_mechanical_context``
 - ``show_message``
 - ``show_thermal_context``
+- ``update_force_analysis_results``
