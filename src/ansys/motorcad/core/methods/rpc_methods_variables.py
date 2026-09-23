@@ -158,7 +158,9 @@ class _RpcMethodsVariables:
         """
         # Deprication warnings
         # note : stacklevel 2 means it shows what called set_variable, not the warning itself
-        if variable_name == "MessageDisplayState":
+        if variable_name == "MessageDisplayState" and self.connection.check_if_feature_exists(
+            "motor_cad_messager"
+        ):
             warn(
                 "The 'MessageDisplayState' variable is deprecated\n"
                 + "Please switch to 'MotorCad.MessageConfig.<method>'.",
