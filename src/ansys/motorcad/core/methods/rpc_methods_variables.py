@@ -159,10 +159,10 @@ class _RpcMethodsVariables:
         # Deprication warnings
         # note : stacklevel 2 means it shows what called set_variable, not the warning itself
         if (
-            variable_name in ["MessageDisplayState", "VerboseMessageOutput"]
+            variable_name.lower() in ["messagedisplaystate", "verbomessageoutput"]
             and self.connection.check_if_feature_exists("motor_cad_messager")
         ) or (
-            variable_name in ["VerboseFeaMessageOutput", "VerboseFeaOutput"]
+            variable_name.lower() in ["verbosefeamessageoutput", "verbosefeaoutput"]
             and self.connection.check_if_feature_exists("motor_cad_messager_fea")
         ):
             warn(
