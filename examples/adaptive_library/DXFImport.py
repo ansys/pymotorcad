@@ -111,6 +111,13 @@ else:
     mc.set_array_variable(
         "RotorCircularDuctLayer_ChannelDiameter", 1, 4.94
     )  # Set the Rotor Duct Diameter to 4.94 mm for Layer 2
+    mc.set_variable("CornerRounding_Rotor", 0)  #  Turn off corner rounding
+    mc.set_variable("CornerRounding_Magnets", 0)  #  Turn off corner rounding
+
+    if mc.connection.check_version_at_least("2027.0"):
+        mc.set_variable(
+            "DuctGeometryMethod", 0
+        )  # Ensure the duct is split to match the DXF regions
 
     # Open relevant file
     working_folder = os.path.join(tempfile.gettempdir(), "adaptive_library")

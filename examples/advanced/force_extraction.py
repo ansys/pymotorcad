@@ -76,8 +76,9 @@ for operating_point in range(num_operating_points):
 #
 #   - All motor types and options: `LoadPoint_Speed_Array`
 #   - BPM or similar for torque based definition: `LoadPoint_Torque_Array`
-#   - BPM or similar for current/phase advance definition: `LoadPoint_Current_Array`,
-#   and `LoadPoint_PhaseAdvance_Array`
+#   - BPM or similar for current/phase advance definition:
+#       - `LoadPoint_Current_Array`,
+#       - `LoadPoint_PhaseAdvance_Array`
 #   - SRM: `LoadPoint_Current_Array`, `LoadPoint_OnAngle_Array`, and `LoadPoint_OffAngle_Array`
 #   - IM: `LoadPoint_Current_Array` and `LoadPoint_Slip_Array`
 

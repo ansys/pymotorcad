@@ -35,6 +35,17 @@ from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
+def test_connection_destructor_ignores_interpreter_teardown_errors(monkeypatch):
+    connection = object.__new__(_MotorCADConnection)
+    connection.reuse_parallel_instances = False
+    connection._open_new_instance = False
+    connection._compatibility_mode = False
+    connection._session = None
+    monkeypatch.setattr(pypim, "is_configured", None)
+
+    connection.__del__()
+
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
@@ -302,6 +313,22 @@ def test_warnings(mc, monkeypatch):
     with pytest.warns(MotorCADWarning):
         # Call something which triggers send_and_receive
         mc.get_variable("n/a")
+
+
+def test_unsupported_method_warning(mc_headless):
+    # In fully headless Motor-CAD the server marks GUI-only methods as unsupported
+    # and skips them. The client should emit a MotorCADWarning without raising.
+    with pytest.warns(MotorCADWarning, match="only available in Motor-CAD with a GUI"):
+        mc_headless.set_visible(False)
+
+
+def test_supported_method_no_warning(mc_headless):
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter("always")
+        result = mc_headless.get_variable("Tooth_Width")
+
+    assert result is not None
+    assert len(caught_warnings) == 0
 
 
 def test_using_url_to_connect(mc):
