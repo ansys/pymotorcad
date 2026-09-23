@@ -322,6 +322,15 @@ def test_unsupported_method_warning(mc_headless):
         mc_headless.set_visible(False)
 
 
+def test_supported_method_no_warning(mc_headless):
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter("always")
+        result = mc_headless.get_variable("MessageDisplayState")
+
+    assert result is not None
+    assert len(caught_warnings) == 0
+
+
 def test_using_url_to_connect(mc):
     port = mc.connection._port
     url = "http://localhost:" + str(port)
