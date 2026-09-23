@@ -305,6 +305,23 @@ class FakeRequestsPostWithWarning:
         return response
 
 
+class FakeRequestsPostSupported:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def json(self):
+        result = {
+            "success": 0,
+            "output": [],
+            "errorMessage": "",
+            "warningMessage": "",
+            "supported": True,
+            "functionscope": 1,
+        }
+        response = {"jsonrpc": "2.0", "id": 347289, "result": result}
+        return response
+
+
 def test_warnings(mc, monkeypatch):
     # Create fake request result so we can test this before Motor-CAD 24R1
     # TODO - replace with actual call with warnings e.g. set_region
@@ -320,6 +337,21 @@ def test_unsupported_method_warning(mc_headless):
     # and skips them. The client should emit a MotorCADWarning without raising.
     with pytest.warns(MotorCADWarning, match="only available in Motor-CAD with a GUI"):
         mc_headless.set_visible(False)
+
+
+def test_supported_method_no_warning():
+    connection = object.__new__(_MotorCADConnection)
+    connection._port = 347289
+    connection._post = FakeRequestsPostSupported
+    connection._get_url = lambda: "http://localhost/jsonrpc"
+    connection._raise_if_allowed = lambda message: pytest.fail(message)
+    connection.enable_success_variable = False
+
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter("always")
+        connection.send_and_receive("GetVariable", ["MessageDisplayState"])
+
+    assert caught_warnings == []
 
 
 def test_using_url_to_connect(mc):
