@@ -114,7 +114,7 @@ class _RpcMethodsGeneral:
         params = [file_path, solution_number]
         return self.connection.send_and_receive(method, params)
 
-    def load_fea_model(self, file_path):
+    def load_fea_model(self, file_path, context=""):
         """Load an existing FEA model (extension .mdfea).
 
         Parameters
@@ -123,9 +123,12 @@ class _RpcMethodsGeneral:
             Filepath for loading the file with the existing FEA model.
             Use the ``r'filepath'`` syntax to force Python to ignore
             special characters.
+        context : str
+            Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
+            This MUST be specified.
         """
         method = "LoadFEAModel"
-        params = [file_path]
+        params = [file_path, context]
         return self.connection.send_and_receive(method, params)
 
     def export_to_ansys_electronics_desktop(self, file_path):
