@@ -114,13 +114,27 @@ class _RpcMethodsGeneral:
         params = [file_path, solution_number]
         return self.connection.send_and_receive(method, params)
 
+    def load_fea_model(self, file_path):
+        """Load an existing FEA model (extension .mdfea).
+
+        Parameters
+        ----------
+        file_path : str
+            Filepath for loading the file with the existing FEA model.
+            Use the ``r'filepath'`` syntax to force Python to ignore
+            special characters.
+        """
+        method = "LoadFEAModel"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
+
     def export_to_ansys_electronics_desktop(self, file_path):
         """Export the model to a VBS script file that can run in Ansys Electronics Desktop.
 
         Parameters
         ----------
         file_path : str
-            Absolute filepath for the VSB script file. The default filepath
+            Absolute filepath for the VBS script file. The default filepath
             is the Windows directory on the C: drive. The filepath must include
             the name of the file. To specify a different filepath, use the ``r'filepath'``
             syntax to force Python to ignore special characters.
