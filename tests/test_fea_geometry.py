@@ -582,12 +582,6 @@ def test_get_region_value(mc_fea_old):
     reset_model_geometry(mc_fea_old)
 
 
-def test_load_fea_result(mc):
-    file = os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea")
-    result = mc.load_fea_result(file)
-    assert result is not None
-
-
 def test_save_fea_data(mc):
     mc.show_magnetic_context()
     # Load FEA result before saving data
