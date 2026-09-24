@@ -189,4 +189,4 @@ doc/source/examples/gallery_examples/*
 /tests/test_files/SaveLoadFiles.mot
 /tests/test_files/adaptive_template_testing_lam_rotor_region/*
 /tests/test_files/adaptive_template_testing_solid_rotor_region/*
-/test/test_files/Simple_FEA_Model.fea
+/tests/test_files/Simple_FEA_Model.fea
