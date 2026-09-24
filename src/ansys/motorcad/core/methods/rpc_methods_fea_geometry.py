@@ -133,6 +133,18 @@ class _RpcMethodsFEAGeometry:
         params = [file, first_step, final_step, outputs, regions, separator]
         return self.connection.send_and_receive(method, params)
 
+    def save_fea_model(self, file):
+        """Save the current FEA model to a .mdfea file.
+
+        Parameters
+        ----------
+        file : str
+            File to write to. (extension will be forced to .mdfea)
+        """
+        method = "SaveFEAModel"
+        params = [file]
+        return self.connection.send_and_receive(method, params)
+
     def get_region_value(self, expression, region_name):
         """Calculate the integral value for an expression of a region."""
         method = "GetRegionValue"
