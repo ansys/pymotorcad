@@ -142,6 +142,7 @@ class _RpcMethodsFEAGeometry:
         file : str
             File to write to. (extension will be forced to .mdfea)
         """
+        self.connection.ensure_version_at_least("2027.0")
         method = "SaveFEAModel"
         params = [file]
         return self.connection.send_and_receive(method, params)

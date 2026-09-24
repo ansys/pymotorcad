@@ -22,6 +22,8 @@
 
 import os
 
+import pytest
+
 from RPC_Test_Common import (
     almost_equal,
     get_temp_files_dir_path,
@@ -600,6 +602,9 @@ def test_save_fea_data(mc):
 
 
 def test_save_fea_model(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("save_fea_model requires Motor-CAD 2027.0 or later")
+
     # Load FEA result before saving the model
     input_file = os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea")
     mc.load_fea_model(input_file, context="Magnetic")

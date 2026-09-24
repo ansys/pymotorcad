@@ -127,6 +127,7 @@ class _RpcMethodsGeneral:
             Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
             This MUST be specified.
         """
+        self.connection.ensure_version_at_least("2027.0")
         method = "LoadFEAModel"
         params = [file_path, context]
         return self.connection.send_and_receive(method, params)

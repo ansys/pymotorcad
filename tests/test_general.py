@@ -87,6 +87,9 @@ def test_load_fea_result(mc):
 
 
 def test_load_fea_model(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("load_fea_model requires Motor-CAD 2027.0 or later")
+
     mc.show_magnetic_context()
 
     mc.load_fea_model(
