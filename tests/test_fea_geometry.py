@@ -22,7 +22,12 @@
 
 import os
 
-from RPC_Test_Common import almost_equal, get_temp_files_dir_path, reset_to_default_file
+from RPC_Test_Common import (
+    almost_equal,
+    get_temp_files_dir_path,
+    get_test_files_dir_path,
+    reset_to_default_file,
+)
 
 MATERIAL_INVALID_NAME = "invalid material name here"
 MATERIAL_EPOXY = "Epoxy"
@@ -575,3 +580,35 @@ def test_get_region_value(mc_fea_old):
     assert almost_equal(value, 0.0016, 2)
     assert almost_equal(area, 0.0018, 2)
     reset_model_geometry(mc_fea_old)
+
+
+def test_load_fea_result(mc):
+    file = os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea")
+    result = mc.load_fea_result(file)
+    assert result is not None
+
+
+def test_save_fea_data(mc):
+    mc.show_magnetic_context()
+    # Load FEA result before saving data
+    mc.load_fea_model(
+        os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea"), context="Magnetic"
+    )
+    output_file = os.path.join(get_temp_files_dir_path(), "test_fea_data.csv")
+    first_step = 0
+    final_step = 0
+    outputs = "RegCode,B,Pt"
+    regions = ""
+    separator = ","
+    mc.save_fea_data(output_file, first_step, final_step, outputs, regions, separator)
+
+    assert os.path.getsize(output_file) > 0
+
+
+def test_save_fea_model(mc):
+    # Load FEA result before saving the model
+    input_file = os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea")
+    mc.load_fea_model(input_file, context="Magnetic")
+    output_file = os.path.join(get_temp_files_dir_path(), "test_fea_model.mdfea")
+    mc.save_fea_model(output_file)
+    assert os.path.getsize(output_file) == os.path.getsize(input_file)

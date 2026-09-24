@@ -79,10 +79,21 @@ def test_export_matrices(mc):
 def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
-    mc.load_fea_result(os.path.join(get_dir_path(), "test_files", "TorqueSpeed_result_1_5.mes"), 0)
+    mc.load_fea_result(os.path.join(get_test_files_dir_path(), "TorqueSpeed_result_1_5.mes"), 0)
 
     value, unit = mc.get_point_value("B", 61, -16)
     assert almost_equal(value, 1.505, 3)
+    assert unit == "T"
+
+
+def test_load_fea_model(mc):
+    mc.show_magnetic_context()
+
+    mc.load_fea_model(
+        os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea"), context="Magnetic"
+    )
+    value, unit = mc.get_point_value("B", 40, 40)
+    assert almost_equal(value, 0.948, 3)
     assert unit == "T"
 
 
