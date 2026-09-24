@@ -108,7 +108,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
-        """Save raw data for the current FEA solution.
+        """Save data for the current FEA solution to a human readable .csv file.
 
         Parameters
         ----------
@@ -121,6 +121,7 @@ class _RpcMethodsFEAGeometry:
         outputs : str
             FEA data requested, for example RegCode, B, Pt. Multiple outputs be passed as a
             comma-separated string, for example 'RegCode,B,Pt'.
+            All available outputs will be included if using "DEFAULT".
         regions : str
             FEA region names that data is wanted for, for example L1_1Magnet1N1, Rotor,
             ArmatureSlotR2. Multiple regions must be passed as a comma-separated string,
@@ -134,7 +135,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_model(self, file):
-        """Save the current FEA model to a .mdfea file.
+        """Save the current FEA model to a .mdfea binary file.
 
         Parameters
         ----------
