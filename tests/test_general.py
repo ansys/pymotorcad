@@ -92,9 +92,10 @@ def test_load_fea_model(mc):
     mc.load_fea_model(
         os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea"), context="Magnetic"
     )
-    value, unit = mc.get_point_value("B", 40, 40)
-    assert almost_equal(value, 0.948, 3)
-    assert unit == "T"
+    mesh_nodes = mc.get_variable("FEA_MeshNodes")
+    mesh_elements = mc.get_variable("FEA_MeshElements")
+    assert mesh_nodes == 17209
+    assert mesh_elements == 32532
 
 
 def test_get_region_max_min_avg(mc):
