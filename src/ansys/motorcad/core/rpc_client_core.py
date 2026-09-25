@@ -189,12 +189,17 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
+    # By default, we try to find ACTIVEX first, this ensures that if
+    # a user has a release pre-27R1 (when the environment variable
+    # was renamed to MOTORCAD_AUTOMATION) installed, as well as a version post 27R1
+    # then the behaviour of the Motor-CAD connection is consistent (both use ACTIVEX)
+    # If a user has only ever installed 27R1 or later, then it is safe to always
+    # use MotorCAD_AUTOMATION instead
     if platform.system() == "Windows":
-        motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
-        # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
-        # For backwards compatibility
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+        # If MOTORCAD_ACTIVEX does not exist, try MOTORCAD_AUTOMATION
         if motor_batch_file_path is None:
-            motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+            motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
 
         if motor_batch_file_path is None:
             raise MotorCADError(
