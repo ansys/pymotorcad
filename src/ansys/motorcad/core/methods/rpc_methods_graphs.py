@@ -91,8 +91,12 @@ class _RpcMethodsGraphs:
         x_points = []
         y_points = []
         # turning off message poput window
-        save_message_display_state = self.get_variable("MessageDisplayState")
-        self.set_variable("MessageDisplayState", 2)
+        if self.connection.check_if_feature_exists("motor_cad_messager"):
+            save_popups_enabled = self.messageconfig.get_popups_enabled()
+            self.messageconfig.disable_popups()
+        else:
+            save_message_display_state = self.get_variable("MessageDisplayState")
+            self.set_variable("MessageDisplayState", 2)
         try:
             while True:
                 try:
@@ -108,7 +112,13 @@ class _RpcMethodsGraphs:
                         raise
         finally:
             # switching on again the message window
-            self.set_variable("MessageDisplayState", save_message_display_state)
+            if self.connection.check_if_feature_exists("motor_cad_messager"):
+                if save_popups_enabled:
+                    self.messageconfig.enable_popups()
+                else:
+                    self.messageconfig.disable_popups()
+            else:
+                self.set_variable("MessageDisplayState", save_message_display_state)
         return x_points, y_points
 
     def get_magnetic_graph_point(self, graph_name, point_number):
