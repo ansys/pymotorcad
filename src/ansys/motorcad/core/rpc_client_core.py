@@ -801,6 +801,34 @@ class _MotorCADConnection:
             else:
                 success_value = _METHOD_SUCCESS
 
+            # Post 2027R1 - When supported is False, the server skipped
+            # the call because it is not available on the current Motor-CAD
+            # platform (headless or Linux).
+            if "supported" in response["result"] and response["result"]["supported"] is False:
+                # functionScope enum: 0=ftUndefined, 1=ftAllPlatforms, 2=ftGuiOnly,
+                # 3=ftWindowsOnly
+                scope = response["result"]["functionscope"]
+                if scope == 2:
+                    scope_available = "This function is only available in Motor-CAD with a GUI."
+                elif scope == 3:
+                    scope_available = "This function is only available in Motor-CAD on Windows."
+                else:
+                    # Server should only set supported=False for the scopes above.
+                    self._raise_if_allowed(
+                        f"'{method}' returned supported=False with unexpected "
+                        f"functionScope={scope!r}."
+                    )
+                    return
+                warnings.warn(
+                    f"'{method}' was skipped. {scope_available}",
+                    MotorCADWarning,
+                )
+                # Server forces success=kSuccess when skipping the call.
+                if success != success_value:
+                    self._raise_if_allowed(
+                        f"'{method}' was skipped but caused an unexpected failure."
+                    )
+
             if success != success_value:
                 # This is an error caused by bad user code
                 # Exception is enabled by default
