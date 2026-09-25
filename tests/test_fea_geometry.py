@@ -611,3 +611,18 @@ def test_save_fea_model(mc):
     output_file = os.path.join(get_temp_files_dir_path(), "test_fea_model.mdfea")
     mc.save_fea_model(output_file)
     assert os.path.getsize(output_file) > 0
+
+
+def test_load_fea_model(mc):
+    if not mc.connection.check_version_at_least("2027.0"):
+        pytest.skip("load_fea_model requires Motor-CAD 2027.0 or later")
+
+    mc.show_magnetic_context()
+
+    mc.load_fea_model(
+        os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea"), context="Magnetic"
+    )
+    mesh_nodes = mc.get_variable("FEA_MeshNodes")
+    mesh_elements = mc.get_variable("FEA_MeshElements")
+    assert mesh_nodes == 17209
+    assert mesh_elements == 32532
