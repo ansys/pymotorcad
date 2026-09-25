@@ -1,0 +1,28 @@
+﻿Coordinate
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: Coordinate
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Coordinate.get_polar_coords_deg
+      
+      
+      Coordinate.mirror
+      
+   
+   
+
+   
+   
+   

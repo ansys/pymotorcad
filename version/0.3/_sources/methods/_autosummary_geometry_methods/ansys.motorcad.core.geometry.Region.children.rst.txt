@@ -1,0 +1,6 @@
+children
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.children

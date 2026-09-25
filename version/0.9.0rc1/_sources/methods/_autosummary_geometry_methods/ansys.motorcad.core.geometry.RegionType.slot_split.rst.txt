@@ -1,0 +1,6 @@
+slot\_split
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.slot_split

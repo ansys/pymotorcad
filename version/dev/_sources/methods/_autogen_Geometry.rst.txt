@@ -1,0 +1,16 @@
+.. _ref_Geometry_API:
+Geometry
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Geometry
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    check_if_geometry_is_valid
+    get_winding_coil
+    set_winding_coil

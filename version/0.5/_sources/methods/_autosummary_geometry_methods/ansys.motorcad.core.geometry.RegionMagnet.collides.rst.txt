@@ -1,0 +1,6 @@
+collides
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.collides

@@ -1,0 +1,6 @@
+﻿eq\_triangle\_h
+===============
+
+.. currentmodule:: ansys.motorcad.core.geometry_shapes
+
+.. autofunction:: eq_triangle_h

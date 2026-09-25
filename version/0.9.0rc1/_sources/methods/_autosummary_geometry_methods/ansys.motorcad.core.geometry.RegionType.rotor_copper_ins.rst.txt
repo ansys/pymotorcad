@@ -1,0 +1,6 @@
+rotor\_copper\_ins
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.rotor_copper_ins

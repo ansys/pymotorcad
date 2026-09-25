@@ -1,0 +1,17 @@
+
+:orphan:
+
+.. _sphx_glr_examples_basics_sg_execution_times:
+
+
+Computation times
+=================
+**02:31.549** total execution time for **examples_basics** files:
+
++---------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_basics_lab_basics.py` (``lab_basics.py``)         | 01:09.595 | 0.0 MB |
++---------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_basics_emag_basics.py` (``emag_basics.py``)       | 00:44.641 | 0.0 MB |
++---------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_basics_thermal_basics.py` (``thermal_basics.py``) | 00:37.313 | 0.0 MB |
++---------------------------------------------------------------------------+-----------+--------+

@@ -1,0 +1,6 @@
+﻿export\_to\_ansys\_discovery
+============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.export_to_ansys_discovery

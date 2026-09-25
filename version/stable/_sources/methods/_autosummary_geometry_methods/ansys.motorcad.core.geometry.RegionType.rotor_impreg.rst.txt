@@ -1,0 +1,6 @@
+rotor\_impreg
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.rotor_impreg

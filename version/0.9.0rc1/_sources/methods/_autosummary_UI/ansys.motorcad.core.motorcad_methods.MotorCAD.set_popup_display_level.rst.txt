@@ -1,0 +1,6 @@
+﻿set\_popup\_display\_level
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.set_popup_display_level

@@ -1,0 +1,6 @@
+AddLine\_Boundary\_XY
+=====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddLine_Boundary_XY
