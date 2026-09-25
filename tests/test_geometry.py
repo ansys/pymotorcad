@@ -2664,7 +2664,7 @@ def test_subtract_region_4(mc):
         geometry.Coordinate(0.5, 0.5),
         geometry.Coordinate(0.5, 1.5),
         geometry.Coordinate(1.5, 1.5),
-        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(1.5, 0.5),
     ]
     # create and add line entities to region from their respective points
     inner_square.entities += create_lines_from_points(points)
