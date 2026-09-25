@@ -108,7 +108,7 @@ class _RpcMethodsFEAGeometry:
         return self.connection.send_and_receive(method, params)
 
     def save_fea_data(self, file, first_step, final_step, outputs, regions, separator):
-        """Save raw data for the current FEA solution.
+        """Save data for the current FEA solution to a human readable .csv file.
 
         Parameters
         ----------
@@ -121,6 +121,7 @@ class _RpcMethodsFEAGeometry:
         outputs : str
             FEA data requested, for example RegCode, B, Pt. Multiple outputs be passed as a
             comma-separated string, for example 'RegCode,B,Pt'.
+            All available outputs will be included if using "DEFAULT".
         regions : str
             FEA region names that data is wanted for, for example L1_1Magnet1N1, Rotor,
             ArmatureSlotR2. Multiple regions must be passed as a comma-separated string,
@@ -131,6 +132,37 @@ class _RpcMethodsFEAGeometry:
         """
         method = "SaveFEAData"
         params = [file, first_step, final_step, outputs, regions, separator]
+        return self.connection.send_and_receive(method, params)
+
+    def save_fea_model(self, file):
+        """Save the current FEA model to a .mdfea binary file.
+
+        Parameters
+        ----------
+        file : str
+            File to write to. (extension will be forced to .mdfea)
+        """
+        self.connection.ensure_version_at_least("2027.0")
+        method = "SaveFEAModel"
+        params = [file]
+        return self.connection.send_and_receive(method, params)
+
+    def load_fea_model(self, file_path, context=""):
+        """Load an existing FEA model (extension .mdfea).
+
+        Parameters
+        ----------
+        file_path : str
+            Filepath for loading the file with the existing FEA model.
+            Use the ``r'filepath'`` syntax to force Python to ignore
+            special characters.
+        context : str
+            Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
+            This MUST be specified.
+        """
+        self.connection.ensure_version_at_least("2027.0")
+        method = "LoadFEAModel"
+        params = [file_path, context]
         return self.connection.send_and_receive(method, params)
 
     def get_region_value(self, expression, region_name):

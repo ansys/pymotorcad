@@ -594,7 +594,7 @@ class _MotorCADConnection:
         standard_exe = _find_motor_cad_exe()
 
         if self._full_headless_beta:
-            # On Linux, the batch file already points to MotorCAD_Console — use it directly
+            # On Linux, the batch file already points to MotorCAD_Console - use it directly
             if Path(standard_exe).name == "MotorCAD_Console.exe":
                 return standard_exe
             console_exe = Path(standard_exe).parent.parent / "headless" / "MotorCAD_Console.exe"
