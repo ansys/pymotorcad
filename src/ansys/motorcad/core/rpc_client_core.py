@@ -355,6 +355,14 @@ class _MotorCADConnection:
         self._url = url
         self._timeout = timeout
 
+        if use_new_license_type and use_blackbox_licence:
+            warnings.warn(
+                "use_new_license_type and use_blackbox_licence are mutually exclusive."
+                + " Ignoring use_blackbox_licence.",
+                UserWarning,
+            )
+            use_blackbox_licence = False
+
         if use_blackbox_licence is not None:
             environ["MOTORDES_BLACKBOX"] = "1" if use_blackbox_licence else "0"
 
