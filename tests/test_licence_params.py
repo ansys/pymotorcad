@@ -132,7 +132,13 @@ def test_newmotorcad_blackbox():
     #     if mc is not None:
     #         mc.quit()
     # have licence so will succeed
-    mc = MotorCAD(use_blackbox_licence=True, use_new_license_type=True)
+    with pytest.warns(
+        UserWarning,
+        match="use_new_license_type and use_blackbox_licence are mutually exclusive."
+        + " Ignoring use_blackbox_licence.",
+    ):
+        mc = MotorCAD(use_blackbox_licence=True, use_new_license_type=True)
+
     assert mc.is_open(), "Failed to open MotorCAD"
     assert mc.is_open()
     assert mc.get_licence() is None
