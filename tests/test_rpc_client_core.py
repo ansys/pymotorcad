@@ -343,11 +343,15 @@ def test__resolve_localhost():
 
 @pytest.mark.licensing
 def test_blackbox_licencing():
+    # get_licence() is deprecated in 27R1 as MotorCAD checks out the license on startup,
+    # so an exception will be raised on startup to give test failure.
+    # Don't need to check the licence explicitly.
     mc1 = MotorCAD(use_blackbox_licence=True)
     try:
         # Not sure it's possible to assert that only a blackbox licence was consumed
         # Just check it works for now
-        mc1.get_licence()
+        if not mc1.connection.check_version_at_least("2027.0"):
+            mc1.get_licence()
     finally:
         mc1.quit()
 
@@ -355,7 +359,8 @@ def test_blackbox_licencing():
     try:
         # Not sure it's possible to assert that only a non-blackbox licence was consumed
         # Just check it works for now
-        mc2.get_licence()
+        if not mc2.connection.check_version_at_least("2027.0"):
+            mc2.get_licence()
     finally:
         mc2.quit()
 
@@ -364,7 +369,8 @@ def test_blackbox_licencing():
         # Not sure it's possible to check which licence type has been used, and whether this
         # matches the default setting
         # Just check it works for now
-        mc3.get_licence()
+        if not mc3.connection.check_version_at_least("2027.0"):
+            mc3.get_licence()
     finally:
         mc3.quit()
 
@@ -443,7 +449,8 @@ def test_full_headless_beta(mc):
         mc1 = MotorCAD(full_headless_beta=True)
     try:
         assert mc1.connection._full_headless_beta is True
-        mc1.get_licence()
+        if not mc1.connection.check_version_at_least("2027.0"):
+            mc1.get_licence()
     finally:
         mc1.quit()
 
