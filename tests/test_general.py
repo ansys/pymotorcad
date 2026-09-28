@@ -117,6 +117,9 @@ def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
 
+    popup_level = mc.messageconfig.get_popup_display_level()
+    console_level = mc.messageconfig.get_console_log_level()
+
     try:
         mc.messageconfig.disable_popups()
         assert mc.messageconfig.get_popups_enabled() is False
@@ -131,8 +134,19 @@ def test_message_config(mc):
         assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.warning
         mc.messageconfig.set_popup_display_level(MessageDisplayLevel.query)
         assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.query
+
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.info)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.info
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.warning)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.warning
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.error)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.error
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.query)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.query
     finally:
         mc.messageconfig.disable_popups()
+        mc.messageconfig.set_popup_display_level(popup_level)
+        mc.messageconfig.set_console_log_level(console_level)
 
 
 def test_verbose_message_config(mc):
