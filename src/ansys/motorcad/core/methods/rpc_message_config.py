@@ -119,6 +119,23 @@ class _RpcMessageConfig:
         params = [level]
         return self._connection.send_and_receive(method, params)
 
+    def get_console_log_level(self):
+        """Get the console log level in Motor-CAD.
+
+        Returns
+        -------
+        ansys.motorcad.core.MessageDisplayLevel
+            The log level for the console. Values, ``1`` = info, ``2`` = warning, ``3`` = error,
+            ``4`` = query.
+        """
+        if not self._connection.check_if_feature_exists("motor_cad_messager"):
+            raise MotorCADWarning(
+                "Motor-CAD Messager is not available in this version of Motor-CAD."
+                " It is available with Motor-CAD 2027.0 or later."
+            )
+        method = "GetConsoleLogLevel"
+        return MessageDisplayLevel(self._connection.send_and_receive(method))
+
     def enable_verbose_messages(self):
         """Enable the display of verbose messages in Motor-CAD."""
         if not self._connection.check_if_feature_exists("motor_cad_messager"):
