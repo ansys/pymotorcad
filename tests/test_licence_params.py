@@ -134,7 +134,13 @@ def test_newmotorcad_blackbox():
     #     if mc is not None:
     #         mc.quit()
     # have licence so will succeed
-    mc = MotorCAD(use_blackbox_licence=True, use_new_license_type=True)
+    with pytest.warns(
+        UserWarning,
+        match="use_new_license_type and use_blackbox_licence are mutually exclusive."
+        + " Ignoring use_blackbox_licence.",
+    ):
+        mc = MotorCAD(use_blackbox_licence=True, use_new_license_type=True)
+
     assert mc.is_open(), "Failed to open MotorCAD"
     assert mc.is_open()
     if not mc.connection.check_version_at_least("2027.0"):
@@ -184,12 +190,15 @@ def test_existinginstance_withlicencetype():
     mc2 = MotorCAD(
         open_new_instance=False, use_new_license_type=True, show_gui=False, full_headless_beta=True
     )
-    assert mc.is_open(), "Failed to open MotorCAD"
-    assert mc2.is_open()
-    if not mc2.connection.check_version_at_least("2027.0"):
-        assert mc2.get_licence() is None
-    mc2.get_messages(1)
-    if is_motorcad_gui_visible(mc2):
-        assert True
-    mc2.quit()
-    mc.quit()
+    try:
+        assert mc.is_open(), "Failed to open MotorCAD"
+        assert mc2.is_open()
+        if not mc2.connection.check_version_at_least("2027.0"):
+            assert mc2.get_licence() is None
+        mc2.get_messages(1)
+        if is_motorcad_gui_visible(mc2):
+            assert True
+    finally:
+        # Do not call quit for mc2 as it is connected to the same process.
+        # it will already be closed when mc.quit() is called.
+        mc.quit()

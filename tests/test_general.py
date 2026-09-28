@@ -33,8 +33,7 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-from ansys.motorcad.core import MotorCAD, MotorCADError
-from ansys.motorcad.core.enums import MotorCADPopupDisplayLevel
+from ansys.motorcad.core import MotorCAD, MotorCADError, PopupDisplayLevel
 
 
 def kh_to_ms(kh):
@@ -87,6 +86,20 @@ def test_load_fea_result(mc):
     assert unit == "T"
 
 
+def test_get_region_max_min_avg(mc):
+    if not mc.connection.check_if_feature_exists("get_region_max_min_avg"):
+        pytest.skip("get_region_max_min_avg API not available in this version of Motor-CAD")
+
+    mc.show_magnetic_context()
+
+    mc.load_fea_result(get_dir_path() + r"\test_files\TorqueSpeed_result_1_5.mes", 0)
+
+    [b_max, b_min, b_avg] = mc.get_region_max_min_avg("B", "Rotor")
+    assert almost_equal(b_max, 2.402)
+    assert almost_equal(b_min, 0.036)
+    assert almost_equal(b_avg, 0.970)
+
+
 @pytest.mark.skipif(
     platform.system() != "Windows", reason="export results is only supported on Windows"
 )
@@ -104,29 +117,44 @@ def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
 
-    mc.disable_popups()
-    assert mc.get_popups_enabled() is False
-    mc.enable_popups()
-    assert mc.get_popups_enabled() is True
+    try:
+        mc.messageconfig.disable_popups()
+        assert mc.messageconfig.get_popups_enabled() is False
+        mc.messageconfig.enable_popups()
+        assert mc.messageconfig.get_popups_enabled() is True
 
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.info)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.info
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.error)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.error
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.warning)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.warning
-    mc.set_popup_display_level(MotorCADPopupDisplayLevel.fatal)
-    assert mc.get_popup_display_level() == MotorCADPopupDisplayLevel.fatal
+        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.info)
+        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.info
+        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.error)
+        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.error
+        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.warning)
+        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.warning
+        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.query)
+        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.query
+    finally:
+        mc.messageconfig.disable_popups()
 
 
 def test_verbose_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_verbose_message_config")
 
-    mc.disable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is False
-    mc.enable_verbose_messages()
-    assert mc.get_verbose_messages_enabled() is True
+    if not mc.connection.check_if_feature_exists("motor_cad_messager_fea"):
+        pytest.skip("Motor-CAD Messager FEA is not enabled, skipping test_verbose_message_config")
+
+    try:
+        mc.messageconfig.disable_verbose_messages()
+        assert mc.messageconfig.get_verbose_messages_enabled() is False
+        mc.messageconfig.enable_verbose_messages()
+        assert mc.messageconfig.get_verbose_messages_enabled() is True
+
+        mc.messageconfig.disable_verbose_fea_messages()
+        assert mc.messageconfig.get_verbose_fea_messages_enabled() is False
+        mc.messageconfig.enable_verbose_fea_messages()
+        assert mc.messageconfig.get_verbose_fea_messages_enabled() is True
+    finally:
+        mc.messageconfig.disable_verbose_messages()
+        mc.messageconfig.disable_verbose_fea_messages()
 
 
 def test_load_dxf_file():
@@ -199,7 +227,11 @@ def test_export_multi_force_data(mc):
 def test_geometry_export(mc):
     file_path = os.path.join(get_temp_files_dir_path(), "dxf_export_file.dxf")
     mc.set_variable("DXFFileName", file_path)
-    mc.geometry_export()
+
+    if mc.connection.check_if_feature_exists("geometry_export_with_context"):
+        mc.geometry_export("Magnetic")
+    else:
+        mc.geometry_export()
 
     assert os.path.exists(file_path)
 
@@ -229,7 +261,6 @@ def test_save_load_magnetisation_curves(mc_reset_to_default_on_teardown):
     )
 
 
-@pytest.mark.skip("Skip temporarily - flaky with 2027 pre-release")
 def test_save_load_results(mc_reset_to_default_on_teardown):
     # Currently not working as part of full tests
     # Works individually - need to look into this

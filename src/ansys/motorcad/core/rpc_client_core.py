@@ -48,6 +48,18 @@ CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 DEFAULT_INSTANCE = -1
 
+if DEFAULT_INSTANCE == -1:
+    if "MOTORCAD_DEFAULT_INSTANCE" in environ:
+        default_instance_environment_variable = environ["MOTORCAD_DEFAULT_INSTANCE"]
+        if default_instance_environment_variable != "":
+            try:
+                DEFAULT_INSTANCE = int(default_instance_environment_variable)
+            except ValueError:
+                raise Exception(
+                    "Failed to convert MOTORCAD_DEFAULT_INSTANCE environment variable to int."
+                )
+
+
 LOCALHOST_ADDRESS = "http://localhost"
 TRY_RESOLVE_LOCALHOST = True
 SERVER_IP = LOCALHOST_ADDRESS
@@ -177,12 +189,17 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
+    # By default, we try to find ACTIVEX first, this ensures that if
+    # a user has a release pre-27R1 (when the environment variable
+    # was renamed to MOTORCAD_AUTOMATION) installed, as well as a version post 27R1
+    # then the behaviour of the Motor-CAD connection is consistent (both use ACTIVEX)
+    # If a user has only ever installed 27R1 or later, then it is safe to always
+    # use MotorCAD_AUTOMATION instead
     if platform.system() == "Windows":
-        motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
-        # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
-        # For backwards compatibility
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+        # If MOTORCAD_ACTIVEX does not exist, try MOTORCAD_AUTOMATION
         if motor_batch_file_path is None:
-            motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+            motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
 
         if motor_batch_file_path is None:
             raise MotorCADError(
@@ -343,6 +360,14 @@ class _MotorCADConnection:
         self._url = url
         self._timeout = timeout
 
+        if use_new_license_type and use_blackbox_licence:
+            warnings.warn(
+                "use_new_license_type and use_blackbox_licence are mutually exclusive."
+                + " Ignoring use_blackbox_licence.",
+                UserWarning,
+            )
+            use_blackbox_licence = False
+
         if use_blackbox_licence is not None:
             environ["MOTORDES_BLACKBOX"] = "1" if use_blackbox_licence else "0"
 
@@ -469,19 +494,22 @@ class _MotorCADConnection:
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
-        if self._close_motorcad_on_exit():
-            try:
+        try:
+            if self._close_motorcad_on_exit():
                 self._quit()
-            except Exception:
-                # Don't raise exception at this point
-                # Motor-CAD might already have been closed by user
-                pass
+        except Exception:
+            # Don't raise exceptions during object or interpreter teardown.
+            pass
 
         # Close the persistent requests session if the beta reuse-connection
         # feature was enabled. This releases the pooled TCP socket promptly
         # instead of waiting for garbage collection of the Session.
-        if self._session:
-            self._session.close()
+        try:
+            session = getattr(self, "_session", None)
+            if session:
+                session.close()
+        except Exception:
+            pass
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
@@ -597,8 +625,7 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")],
-            cwd=Path(self.__MotorExe).parent.absolute(),
+            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")]
         )
 
         pid = motor_process.pid
@@ -884,11 +911,58 @@ class _MotorCADConnection:
         """
         return self._last_error_message
 
-    def _quit(self):
-        """Quit MotorCAD."""
+    def _quit(self, max_wait=200):
+        """Quit MotorCAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
+        """
         if self.pim_instance is not None:
             self.pim_instance.delete()
         else:
             # local machine
+            if not psutil.pid_exists(self.pid):
+                # The process has already exited, so send_and_recieve will fail.
+                # Possible that another MotorCAD object has already sent the Quit command,
+                # or the user has closed Motor-CAD.
+                warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+                return
+
             method = "Quit"
-            return self.send_and_receive(method)
+            result = self.send_and_receive(method)
+
+            # Wait for the process to exit before returning from quit() and then kill the process
+            # if it doesn't exit within max_wait seconds.
+            # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
+            # script exits.
+            if (platform.system() == "Linux") and (self.pid != -1):
+                # ping every second for up to max_wait seconds to force kill.
+                for step in range(max_wait):
+                    try:
+                        proc = psutil.Process(self.pid)
+                        proc.wait(timeout=1)
+                        # Process exited correctly after waiting.
+                        # If it didn't exceptions will be caught and the loop will continue to ping.
+                        return result
+                    except psutil.TimeoutExpired:
+                        # Process still exists, so wait for next ping
+                        continue
+                    except psutil.AccessDenied:
+                        return result
+                    except psutil.NoSuchProcess:
+                        # process exited correctly
+                        return result
+
+                # Process still exists after max_wait seconds, so force kill it.
+                try:
+                    proc = psutil.Process(self.pid)
+                    proc.kill()
+                    proc.wait()
+
+                    warnings.warn("Motor-CAD process did not exit in time and was force killed.")
+                except psutil.NoSuchProcess:
+                    return result
+            return result

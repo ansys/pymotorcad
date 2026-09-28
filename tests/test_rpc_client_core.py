@@ -35,6 +35,17 @@ from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
+def test_connection_destructor_ignores_interpreter_teardown_errors(monkeypatch):
+    connection = object.__new__(_MotorCADConnection)
+    connection.reuse_parallel_instances = False
+    connection._open_new_instance = False
+    connection._compatibility_mode = False
+    connection._session = None
+    monkeypatch.setattr(pypim, "is_configured", None)
+
+    connection.__del__()
+
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
