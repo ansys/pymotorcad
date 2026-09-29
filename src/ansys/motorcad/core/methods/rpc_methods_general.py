@@ -486,6 +486,19 @@ class _RpcMethodsGeneral:
         params = [file_name]
         return self.connection.send_and_receive(method, params)
 
+    def load_translation_file(self, file_name):
+        """Load a translation file for Motor-CAD.
+
+        Parameters
+        ----------
+        file_name : str
+            Full path to the translation file, including the file name. Use the ``r'filepath'``
+            syntax to force Python to ignore special characters.
+        """
+        method = "LoadTranslationFile"
+        params = [file_name]
+        return self.connection.send_and_receive(method, params)
+
     def get_messages(self, num_messages):
         """Get a list of the last *N* messages from the message history.
 
