@@ -288,7 +288,7 @@ class _MotorCADConnection:
         use_blackbox_licence=None,
         use_new_license_type=None,
         show_gui=None,
-        full_headless_beta=False,
+        full_headless=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -322,7 +322,7 @@ class _MotorCADConnection:
         show_gui : bool, default: None
             Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
             If None, the Motor-CAD default behaviour is used.
-        full_headless_beta : bool, default: False
+        full_headless : bool, default: False
             Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
 
         Returns
@@ -377,13 +377,13 @@ class _MotorCADConnection:
         if show_gui is not None:
             environ["MOTORCAD_SHOWGUI"] = "1" if show_gui else "0"
 
-        if full_headless_beta:
+        if full_headless:
             warnings.warn(
-                "full_headless_beta is a beta setting. This will be incorporated into the "
+                "full_headless is a beta setting. This will be incorporated into the "
                 "show_gui parameter in a future release.",
                 UserWarning,
             )
-        self._full_headless_beta = full_headless_beta
+        self._full_headless = full_headless
 
         # Launch options have no effect when connecting to an existing instance
         if not open_new_instance:
@@ -397,9 +397,9 @@ class _MotorCADConnection:
                     "show_gui has no effect when open_new_instance is False.",
                     UserWarning,
                 )
-            if full_headless_beta:
+            if full_headless:
                 warnings.warn(
-                    "full_headless_beta has no effect when open_new_instance is False.",
+                    "full_headless has no effect when open_new_instance is False.",
                     UserWarning,
                 )
 
@@ -582,25 +582,25 @@ class _MotorCADConnection:
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _resolve_motor_cad_exe(self):
-        """Resolve the exe to launch, respecting manual override and full_headless_beta."""
+        """Resolve the exe to launch, respecting manual override and full_headless."""
         if MOTORCAD_EXE_GLOBAL != "":
-            if self._full_headless_beta:
+            if self._full_headless:
                 warnings.warn(
-                    "full_headless_beta is ignored when the Motor-CAD executable is set manually.",
+                    "full_headless is ignored when the Motor-CAD executable is set manually.",
                     UserWarning,
                 )
             return MOTORCAD_EXE_GLOBAL
 
         standard_exe = _find_motor_cad_exe()
 
-        if self._full_headless_beta:
+        if self._full_headless:
             # On Linux, the batch file already points to MotorCAD_Console — use it directly
             if Path(standard_exe).name == "MotorCAD_Console.exe":
                 return standard_exe
             console_exe = Path(standard_exe).parent.parent / "headless" / "MotorCAD_Console.exe"
             if not console_exe.exists():
                 raise MotorCADError(
-                    "MotorCAD_Console.exe was not found. full_headless_beta requires "
+                    "MotorCAD_Console.exe was not found. full_headless requires "
                     "Motor-CAD 2027R1 or later."
                 )
             return str(console_exe)
