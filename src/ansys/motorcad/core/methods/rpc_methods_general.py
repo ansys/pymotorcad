@@ -495,9 +495,16 @@ class _RpcMethodsGeneral:
             Full path to the translation file, including the file name. Use the ``r'filepath'``
             syntax to force Python to ignore special characters.
         """
+        self.connection.ensure_version_at_least("2027.0")
         method = "LoadTranslationFile"
         params = [file_name]
         return self.connection.send_and_receive(method, params)
+
+    def clear_translation(self):
+        """Clear the currently loaded translation file for Motor-CAD."""
+        self.connection.ensure_version_at_least("2027.0")
+        method = "ClearTranslation"
+        return self.connection.send_and_receive(method)
 
     def get_messages(self, num_messages):
         """Get a list of the last *N* messages from the message history.
