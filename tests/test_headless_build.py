@@ -36,18 +36,18 @@ from ansys.motorcad.core.rpc_client_core import (
 
 def test_full_headless_beta(mc):
     if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
+        pytest.skip("full_headless requires Motor-CAD 2027.0 or later")
 
-    with pytest.warns(UserWarning, match="full_headless_beta is a beta setting"):
-        mc1 = MotorCAD(full_headless_beta=True)
+    with pytest.warns(UserWarning, match="full_headless is a beta setting"):
+        mc1 = MotorCAD(full_headless=True)
     try:
-        assert mc1.connection._full_headless_beta is True
+        assert mc1.connection._full_headless is True
         mc1.get_licence()
     finally:
         mc1.quit()
 
-    with pytest.warns(UserWarning, match="full_headless_beta has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless_beta=True)
+    with pytest.warns(UserWarning, match="full_headless has no effect"):
+        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
 
 
 def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():

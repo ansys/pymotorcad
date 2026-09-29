@@ -75,7 +75,7 @@ def test_set_motorcad_exe():
 
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = False
+        mock_conn._full_headless = False
         assert _MotorCADConnection._resolve_motor_cad_exe(mock_conn) == test_path
     finally:
         pymotorcad.set_motorcad_exe(save_global_exe)
