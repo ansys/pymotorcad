@@ -162,13 +162,24 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     needs: package
     runs-on: ubuntu-latest
+    # Trusted publishing to PyPI requires these permissions
+    permissions:
+      id-token: write
+      contents: write
     steps:
-      - name: Release to PyPI repository
-        uses: ansys/actions/release-pypi-public@v11.0.8
+      - name: "Download the library artifacts from the package job"
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          library-name: ${{ env.LIBRARY_NAME }}
-          twine-username: __token__
-          twine-token: ${{ secrets.PYPI_TOKEN }}
+          name: ${{ env.LIBRARY_NAME }}-artifacts
+          path: ${{ env.LIBRARY_NAME }}-artifacts
+
+      - name: "Upload artifacts to PyPI using trusted publisher"
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        with:
+          repository-url: "https://upload.pypi.org/legacy/"
+          print-hash: true
+          packages-dir: ${{ env.LIBRARY_NAME }}-artifacts
+          skip-existing: false
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
