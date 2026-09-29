@@ -95,7 +95,7 @@ class MotorCAD(_MotorCADCore):
     show_gui : bool, default: None
         Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
         If None, the Motor-CAD default behaviour is used.
-    full_headless_beta : bool, default: False
+    full_headless : bool, default: False
         Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
         This is a beta setting and will be incorporated into ``show_gui`` in a future release.
 

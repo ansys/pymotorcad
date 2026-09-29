@@ -177,7 +177,7 @@ def test_existinginstance_withlicencetype():
         show_gui=False,
     )
     mc2 = MotorCAD(
-        open_new_instance=False, use_new_license_type=True, show_gui=False, full_headless_beta=True
+        open_new_instance=False, use_new_license_type=True, show_gui=False, full_headless=True
     )
     try:
         assert mc.is_open(), "Failed to open MotorCAD"
