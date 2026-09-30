@@ -162,10 +162,11 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     needs: package
     runs-on: ubuntu-latest
-    # Trusted publishing to PyPI requires these permissions
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
     permissions:
-      id-token: write
-      contents: write
+      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
+      contents: write   # Required to create GitHub releases and upload release assets
     steps:
       - name: "Download the library artifacts from the package job"
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
@@ -181,18 +182,11 @@ jobs:
           packages-dir: ${{ env.LIBRARY_NAME }}-artifacts
           skip-existing: false
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      # TODO: This should be updated once changelog mechanism is added to the repo
+      - name: Release to GitHub
+        uses: ansys/actions/release-github@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
-          persist-credentials: false
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: "Release to GitHub"
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
-        with:
-          files: |
-            ./**/*.whl
-            ./**/*.tar.gz
-            documentation-html 
+          library-name: ${{ env.LIBRARY_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          use-python-cache: false
+          changelog-release-notes: false
