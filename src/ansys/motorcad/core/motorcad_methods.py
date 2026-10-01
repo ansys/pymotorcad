@@ -45,7 +45,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
         use_blackbox_licence=None,
         use_new_license_type=None,
         show_gui=None,
-        full_headless_beta=False,
+        full_headless=False,
     ):
         self.connection = _MotorCADConnection(
             port,
@@ -59,7 +59,7 @@ class _MotorCADCore(_RpcMethodsCore, _RpcMethodsUtility):
             use_blackbox_licence=use_blackbox_licence,
             use_new_license_type=use_new_license_type,
             show_gui=show_gui,
-            full_headless_beta=full_headless_beta,
+            full_headless=full_headless,
         )
 
         _RpcMethodsCore.__init__(self, mc_connection=self.connection)
@@ -95,7 +95,7 @@ class MotorCAD(_MotorCADCore):
     show_gui : bool, default: None
         Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
         If None, the Motor-CAD default behaviour is used.
-    full_headless_beta : bool, default: False
+    full_headless : bool, default: False
         Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
         This is a beta setting and will be incorporated into ``show_gui`` in a future release.
 
@@ -116,7 +116,7 @@ class MotorCAD(_MotorCADCore):
         use_blackbox_licence=None,
         use_new_license_type=None,
         show_gui=None,
-        full_headless_beta=False,
+        full_headless=False,
     ):
         """Initiate MotorCAD object."""
         _MotorCADCore.__init__(
@@ -131,7 +131,7 @@ class MotorCAD(_MotorCADCore):
             use_blackbox_licence=use_blackbox_licence,
             use_new_license_type=use_new_license_type,
             show_gui=show_gui,
-            full_headless_beta=full_headless_beta,
+            full_headless=full_headless,
         )
 
 

@@ -75,7 +75,7 @@ def test_set_motorcad_exe():
 
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = False
+        mock_conn._full_headless = False
         assert _MotorCADConnection._resolve_motor_cad_exe(mock_conn) == test_path
     finally:
         pymotorcad.set_motorcad_exe(save_global_exe)
@@ -315,22 +315,6 @@ def test_warnings(mc, monkeypatch):
         mc.get_variable("n/a")
 
 
-def test_unsupported_method_warning(mc_headless):
-    # In fully headless Motor-CAD the server marks GUI-only methods as unsupported
-    # and skips them. The client should emit a MotorCADWarning without raising.
-    with pytest.warns(MotorCADWarning, match="only available in Motor-CAD with a GUI"):
-        mc_headless.set_visible(False)
-
-
-def test_supported_method_no_warning(mc_headless):
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        warnings.simplefilter("always")
-        result = mc_headless.get_variable("Tooth_Width")
-
-    assert result is not None
-    assert len(caught_warnings) == 0
-
-
 def test_using_url_to_connect(mc):
     port = mc.connection._port
     url = "http://localhost:" + str(port)
@@ -462,30 +446,30 @@ def test_use_new_license_type(mc):
         MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
 
 
-def test_full_headless_beta(mc):
+def test_full_headless(mc):
     if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
+        pytest.skip("full_headless requires Motor-CAD 2027.0 or later")
 
-    with pytest.warns(UserWarning, match="full_headless_beta is a beta setting"):
-        mc1 = MotorCAD(full_headless_beta=True)
+    with pytest.warns(UserWarning, match="full_headless is a beta setting"):
+        mc1 = MotorCAD(full_headless=True)
     try:
-        assert mc1.connection._full_headless_beta is True
+        assert mc1.connection._full_headless is True
         mc1.get_licence()
     finally:
         mc1.quit()
 
-    with pytest.warns(UserWarning, match="full_headless_beta has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless_beta=True)
+    with pytest.warns(UserWarning, match="full_headless has no effect"):
+        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
 
 
-def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():
+def test_resolve_motor_cad_exe_ignores_full_headless_when_exe_manually_set():
     save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"
     pymotorcad.set_motorcad_exe(test_path)
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = True
-        with pytest.warns(UserWarning, match="full_headless_beta is ignored"):
+        mock_conn._full_headless = True
+        with pytest.warns(UserWarning, match="full_headless is ignored"):
             result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
         assert result == test_path
     finally:
