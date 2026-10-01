@@ -49,14 +49,14 @@ def test_full_headless_beta(mc):
         MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
 
 
-def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():
+def test_resolve_motor_cad_exe_ignores_full_headless_when_exe_manually_set():
     save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"
     set_motorcad_exe(test_path)
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = True
-        with pytest.warns(UserWarning, match="full_headless_beta is ignored"):
+        mock_conn._full_headless = True
+        with pytest.warns(UserWarning, match="full_headless is ignored"):
             result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
         assert result == test_path
     finally:

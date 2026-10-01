@@ -72,9 +72,9 @@ def mc_fea_old():
 def mc_headless(mc):
     """Launch a fully headless Motor-CAD instance for testing GUI-only method warnings."""
     if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
+        pytest.skip("full_headless requires Motor-CAD 2027.0 or later")
 
-    mc_headless = MotorCAD(full_headless_beta=True)
+    mc_headless = MotorCAD(full_headless=True)
     reset_to_default_file(mc_headless)
 
     yield mc_headless
