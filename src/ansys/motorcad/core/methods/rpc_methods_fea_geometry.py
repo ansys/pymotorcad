@@ -142,7 +142,7 @@ class _RpcMethodsFEAGeometry:
         file : str
             File to write to. (extension will be forced to .mdfea)
         """
-        self.connection.ensure_version_at_least("2027.0")
+        self.connection.ensure_feature_exists("save_fea_model")
         method = "SaveFEAModel"
         params = [file]
         return self.connection.send_and_receive(method, params)
@@ -160,7 +160,7 @@ class _RpcMethodsFEAGeometry:
             Options are ``"Thermal"``,``"Mechanical"``, ``"Lab"``, and ``"Magnetic"``.
             This MUST be specified.
         """
-        self.connection.ensure_version_at_least("2027.0")
+        self.connection.ensure_feature_exists("load_fea_model")
         method = "LoadFEAModel"
         params = [file_path, context]
         return self.connection.send_and_receive(method, params)
