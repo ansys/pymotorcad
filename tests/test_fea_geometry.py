@@ -602,8 +602,8 @@ def test_save_fea_data(mc):
 
 
 def test_save_fea_model(mc):
-    if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("save_fea_model requires Motor-CAD 2027.0 or later")
+    if not mc.connection.check_version_at_least("2027.1.0.9250"):
+        pytest.skip("save_fea_model requires Motor-CAD 2027.1.0.9250 or later")
 
     # Load FEA result before saving the model
     input_file = os.path.join(get_test_files_dir_path(), "Simple_FEA_Model.mdfea")
@@ -614,8 +614,8 @@ def test_save_fea_model(mc):
 
 
 def test_load_fea_model(mc):
-    if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("load_fea_model requires Motor-CAD 2027.0 or later")
+    if not mc.connection.check_version_at_least("2027.1.0.9250"):
+        pytest.skip("load_fea_model requires Motor-CAD 2027.1.0.9250 or later")
 
     mc.show_magnetic_context()
 
