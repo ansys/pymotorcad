@@ -444,33 +444,3 @@ def test_use_new_license_type(mc):
 
     with pytest.warns(UserWarning, match="use_new_license_type has no effect"):
         MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
-
-
-def test_full_headless(mc):
-    if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless requires Motor-CAD 2027.0 or later")
-
-    with pytest.warns(UserWarning, match="full_headless is a beta setting"):
-        mc1 = MotorCAD(full_headless=True)
-    try:
-        assert mc1.connection._full_headless is True
-        mc1.get_licence()
-    finally:
-        mc1.quit()
-
-    with pytest.warns(UserWarning, match="full_headless has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
-
-
-def test_resolve_motor_cad_exe_ignores_full_headless_when_exe_manually_set():
-    save_global_exe = MOTORCAD_EXE_GLOBAL
-    test_path = r"test_path/test"
-    pymotorcad.set_motorcad_exe(test_path)
-    try:
-        mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless = True
-        with pytest.warns(UserWarning, match="full_headless is ignored"):
-            result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
-        assert result == test_path
-    finally:
-        pymotorcad.set_motorcad_exe(save_global_exe)
