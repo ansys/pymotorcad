@@ -34,7 +34,7 @@ from ansys.motorcad.core.rpc_client_core import (
 )
 
 
-def test_full_headless_beta(mc):
+def test_full_headless(mc):
     if not mc.connection.check_version_at_least("2027.0"):
         pytest.skip("full_headless requires Motor-CAD 2027.0 or later")
 
