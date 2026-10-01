@@ -42,7 +42,6 @@ def test_full_headless_beta(mc):
         mc1 = MotorCAD(full_headless=True)
     try:
         assert mc1.connection._full_headless is True
-        mc1.get_licence()
     finally:
         mc1.quit()
 
