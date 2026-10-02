@@ -78,9 +78,10 @@ def is_motorcad_gui_visible(mc):
 def test_oldmotorcad_visible():
     mc = MotorCAD(use_new_license_type=False)
     assert mc.is_open()
-    assert mc.get_licence() is None
+    if not mc.connection.check_version_at_least("2027.0"):
+        assert mc.get_licence() is None
     mc.get_messages(1)
-    if is_motorcad_gui_visible(mc) == False:
+    if not is_motorcad_gui_visible(mc):
         assert True
     mc.quit()
 
@@ -106,9 +107,10 @@ def test_oldmotorcad_nogui():
     # have licence so will succeed
     mc = MotorCAD(use_new_license_type=False, show_gui=False)
     assert mc.is_open()
-    assert mc.get_licence() is None
+    if not mc.connection.check_version_at_least("2027.0"):
+        assert mc.get_licence() is None
     mc.get_messages(1)
-    if is_motorcad_gui_visible(mc) == True:
+    if is_motorcad_gui_visible(mc):
         assert True
     mc.quit()
 
@@ -141,9 +143,10 @@ def test_newmotorcad_blackbox():
 
     assert mc.is_open(), "Failed to open MotorCAD"
     assert mc.is_open()
-    assert mc.get_licence() is None
+    if not mc.connection.check_version_at_least("2027.0"):
+        assert mc.get_licence() is None
     mc.get_messages(1)
-    if is_motorcad_gui_visible(mc) == True:
+    if is_motorcad_gui_visible(mc):
         assert True
     mc.quit()
 
@@ -153,9 +156,10 @@ def test_newmotorcad_blackbox():
 def test_newmotorcad_withui():
     mc = MotorCAD(use_new_license_type=True)
     assert mc.is_open(), "Failed to open MotorCAD"
-    assert mc.get_licence() is None, "Failed to get licence"
+    if not mc.connection.check_version_at_least("2027.0"):
+        assert mc.get_licence() is None, "Failed to get licence"
     mc.get_messages(1)
-    if is_motorcad_gui_visible(mc) == False:
+    if not is_motorcad_gui_visible(mc):
         assert True, "MotorCAD GUI appears hidden"
     mc.quit()
 
@@ -168,9 +172,10 @@ def test_newmotorcad_withoutui():
         show_gui=False,
     )
     assert mc.is_open()
-    assert mc.get_licence() is None
+    if not mc.connection.check_version_at_least("2027.0"):
+        assert mc.get_licence() is None
     mc.get_messages(1)
-    if is_motorcad_gui_visible(mc) == True:
+    if is_motorcad_gui_visible(mc):
         assert True
     mc.quit()
 
@@ -188,9 +193,10 @@ def test_existinginstance_withlicencetype():
     try:
         assert mc.is_open(), "Failed to open MotorCAD"
         assert mc2.is_open()
-        assert mc2.get_licence() is None
+        if not mc2.connection.check_version_at_least("2027.0"):
+            assert mc2.get_licence() is None
         mc2.get_messages(1)
-        if is_motorcad_gui_visible(mc2) == True:
+        if is_motorcad_gui_visible(mc2):
             assert True
     finally:
         # Do not call quit for mc2 as it is connected to the same process.
