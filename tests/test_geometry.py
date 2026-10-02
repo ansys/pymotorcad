@@ -266,6 +266,16 @@ def test_set_region(mc):
     assert returned_region == region
 
 
+def test_set_region_dxf(mc):
+    """Test setting region in Motor-CAD from DXF region."""
+    if not mc.connection.check_if_feature_exists("set_region_dxf"):
+        pytest.skip("set_region_dxf not available in this version of Motor-CAD")
+    region = generate_constant_region()
+    mc.set_region_dxf(region)
+    returned_region = mc.get_region_dxf("testing_region")
+    assert returned_region == region
+
+
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
     filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
