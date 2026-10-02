@@ -1,0 +1,6 @@
+length
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.length

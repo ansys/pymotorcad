@@ -1,0 +1,6 @@
+gradient
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.gradient

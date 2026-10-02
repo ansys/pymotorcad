@@ -1,0 +1,34 @@
+.. _ref_Thermal_API:
+Thermal
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Thermal
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    clear_external_circuit
+    clear_fixed_temperature_value
+    create_new_node
+    get_node_capacitance
+    get_node_exists
+    get_node_power
+    get_node_temperature
+    get_node_to_node_resistance
+    get_offset_node_number
+    load_external_circuit
+    modify_node
+    remove_external_component
+    save_external_circuit
+    save_transient_power_values
+    save_transient_temperatures
+    set_capacitance_value
+    set_fixed_temperature_value
+    set_power_injection_value
+    set_power_source_value
+    set_resistance_multiplier
+    set_resistance_value

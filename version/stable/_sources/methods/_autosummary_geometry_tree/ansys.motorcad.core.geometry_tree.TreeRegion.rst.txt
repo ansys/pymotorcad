@@ -1,0 +1,121 @@
+﻿TreeRegion
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoclass:: TreeRegion
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      TreeRegion.add_entity
+      
+      
+      TreeRegion.add_point
+      
+      
+      TreeRegion.collides
+      
+      
+      TreeRegion.edit_point
+      
+      
+      TreeRegion.extend_entity
+      
+      
+      TreeRegion.find_entity_from_coordinates
+      
+      
+      TreeRegion.from_coordinate_list
+      
+      
+      TreeRegion.from_json
+      
+      
+      TreeRegion.insert_entity
+      
+      
+      TreeRegion.insert_polyline
+      
+      
+      TreeRegion.is_closed
+      
+      
+      TreeRegion.limit_arc_chord
+      
+      
+      TreeRegion.mirror
+      
+      
+      TreeRegion.remove_entity
+      
+      
+      TreeRegion.replace
+      
+      
+      TreeRegion.rotate
+      
+      
+      TreeRegion.round_corner
+      
+      
+      TreeRegion.round_corners
+      
+      
+      TreeRegion.subtract
+      
+      
+      TreeRegion.translate
+      
+      
+      TreeRegion.unite
+      
+      
+      TreeRegion.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TreeRegion.area
+      TreeRegion.centroid
+      TreeRegion.child_keys
+      TreeRegion.child_names
+      TreeRegion.children
+      TreeRegion.colour
+      TreeRegion.duplication_angle
+      TreeRegion.duplications
+      TreeRegion.entities
+      TreeRegion.extrusion_blocks
+      TreeRegion.key
+      TreeRegion.lamination_type
+      TreeRegion.level
+      TreeRegion.linked_region
+      TreeRegion.linked_region_names
+      TreeRegion.linked_regions
+      TreeRegion.material
+      TreeRegion.mesh_length
+      TreeRegion.motorcad_instance
+      TreeRegion.name
+      TreeRegion.parent
+      TreeRegion.parent_key
+      TreeRegion.parent_name
+      TreeRegion.points
+      TreeRegion.region_coordinate
+      TreeRegion.region_type
+      TreeRegion.singular
+   
+   

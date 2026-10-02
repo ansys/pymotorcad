@@ -1,0 +1,6 @@
+is\_vertical
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Line.is_vertical

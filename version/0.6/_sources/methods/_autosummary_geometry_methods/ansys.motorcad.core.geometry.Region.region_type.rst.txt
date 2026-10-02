@@ -1,0 +1,6 @@
+region\_type
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.region_type

@@ -1,0 +1,6 @@
+find\_entity\_from\_coordinates
+===============================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.find_entity_from_coordinates

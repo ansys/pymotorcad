@@ -1,0 +1,6 @@
+region\_type
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.region_type

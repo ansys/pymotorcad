@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.parent_name

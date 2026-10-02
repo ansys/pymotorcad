@@ -1,0 +1,6 @@
+LoadFromFile
+============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.LoadFromFile

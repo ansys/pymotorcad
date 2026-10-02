@@ -1,0 +1,6 @@
+SaveMotorCADScreenToFile
+========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveMotorCADScreenToFile

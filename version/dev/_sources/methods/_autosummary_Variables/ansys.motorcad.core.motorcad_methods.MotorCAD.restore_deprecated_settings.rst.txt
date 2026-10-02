@@ -1,0 +1,6 @@
+﻿restore\_deprecated\_settings
+=============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.restore_deprecated_settings
