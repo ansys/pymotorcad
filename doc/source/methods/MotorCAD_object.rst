@@ -28,4 +28,5 @@ MotorCAD API
    _autogen_UI
    _autogen_Utility
    _autogen_Variables
+   _autogen_Message Config
 

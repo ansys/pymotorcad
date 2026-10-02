@@ -1,0 +1,8 @@
+# styles
+styles/*
+!styles/Vocab/
+!styles/Vocab/**
+!styles/.gitignore
+
+# templates
+source/_templates/generated/**
