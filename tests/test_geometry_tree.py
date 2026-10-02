@@ -28,6 +28,7 @@ import pytest
 from ansys.motorcad.core.geometry import Coordinate, Line, RegionType
 from ansys.motorcad.core.geometry_tree import GeometryTree
 from tests.RPC_Test_Common import get_dir_path
+from ansys.motorcad.core.enums import MotorCADContext
 
 
 @pytest.fixture(scope="session")
@@ -40,7 +41,7 @@ def sample_tree(mc):
 def sample_tree_dxf(mc):
     if not mc.connection.check_if_feature_exists("get_geometry_tree_dxf"):
         pytest.skip("get_geometry_tree_dxf not available in this version of Motor-CAD")
-    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf")
+    mc.load_dxf_file(get_dir_path() + r"\test_files\dxf_import.dxf", MotorCADContext.magnetic)
     mc.reset_adaptive_geometry()
     return mc.get_geometry_tree_dxf()
 
