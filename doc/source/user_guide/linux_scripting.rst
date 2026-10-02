@@ -86,6 +86,7 @@ Available in Linux from 27R1
 - ``load_duty_cycle``
 - ``load_dxf_file``
 - ``load_external_model_lab``
+- ``load_fea_model``
 - ``load_fea_result``
 - ``load_from_file``
 - ``load_magnetisation_curves``
@@ -155,6 +156,7 @@ Unsupported
 - ``initialise_tab_names``
 - ``load_results``
 - ``run_script``
+- ``save_fea_model``
 - ``save_motorcad_screen_to_file``
 - ``save_screen_to_file``
 - ``set_3d_component_visibility``

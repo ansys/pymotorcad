@@ -120,7 +120,7 @@ class _RpcMethodsGeneral:
         Parameters
         ----------
         file_path : str
-            Absolute filepath for the VSB script file. The default filepath
+            Absolute filepath for the VBS script file. The default filepath
             is the Windows directory on the C: drive. The filepath must include
             the name of the file. To specify a different filepath, use the ``r'filepath'``
             syntax to force Python to ignore special characters.
