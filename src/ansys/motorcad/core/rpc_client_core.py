@@ -189,12 +189,17 @@ def _find_motor_cad_exe():
     )
 
     # Find Motor-CAD exe
+    # By default, we try to find ACTIVEX first, this ensures that if
+    # a user has a release pre-27R1 (when the environment variable
+    # was renamed to MOTORCAD_AUTOMATION) installed, as well as a version post 27R1
+    # then the behaviour of the Motor-CAD connection is consistent (both use ACTIVEX)
+    # If a user has only ever installed 27R1 or later, then it is safe to always
+    # use MotorCAD_AUTOMATION instead
     if platform.system() == "Windows":
-        motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
-        # If MOTORCAD_AUTOMATION does not exist, try MOTORCAD_ACTIVEX
-        # For backwards compatibility
+        motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+        # If MOTORCAD_ACTIVEX does not exist, try MOTORCAD_AUTOMATION
         if motor_batch_file_path is None:
-            motor_batch_file_path = environ.get("MOTORCAD_ACTIVEX")
+            motor_batch_file_path = environ.get("MOTORCAD_AUTOMATION")
 
         if motor_batch_file_path is None:
             raise MotorCADError(
@@ -283,7 +288,7 @@ class _MotorCADConnection:
         use_blackbox_licence=None,
         use_new_license_type=None,
         show_gui=None,
-        full_headless_beta=False,
+        full_headless=False,
     ):
         """Create a MotorCAD object for communication.
 
@@ -317,7 +322,7 @@ class _MotorCADConnection:
         show_gui : bool, default: None
             Whether to show the Motor-CAD GUI. True shows the GUI, False hides it.
             If None, the Motor-CAD default behaviour is used.
-        full_headless_beta : bool, default: False
+        full_headless : bool, default: False
             Launch Motor-CAD using the MotorCAD_Console executable instead of the standard one.
 
         Returns
@@ -355,6 +360,14 @@ class _MotorCADConnection:
         self._url = url
         self._timeout = timeout
 
+        if use_new_license_type and use_blackbox_licence:
+            warnings.warn(
+                "use_new_license_type and use_blackbox_licence are mutually exclusive."
+                + " Ignoring use_blackbox_licence.",
+                UserWarning,
+            )
+            use_blackbox_licence = False
+
         if use_blackbox_licence is not None:
             environ["MOTORDES_BLACKBOX"] = "1" if use_blackbox_licence else "0"
 
@@ -364,13 +377,13 @@ class _MotorCADConnection:
         if show_gui is not None:
             environ["MOTORCAD_SHOWGUI"] = "1" if show_gui else "0"
 
-        if full_headless_beta:
+        if full_headless:
             warnings.warn(
-                "full_headless_beta is a beta setting. This will be incorporated into the "
+                "full_headless is a beta setting. This will be incorporated into the "
                 "show_gui parameter in a future release.",
                 UserWarning,
             )
-        self._full_headless_beta = full_headless_beta
+        self._full_headless = full_headless
 
         # Launch options have no effect when connecting to an existing instance
         if not open_new_instance:
@@ -384,9 +397,9 @@ class _MotorCADConnection:
                     "show_gui has no effect when open_new_instance is False.",
                     UserWarning,
                 )
-            if full_headless_beta:
+            if full_headless:
                 warnings.warn(
-                    "full_headless_beta has no effect when open_new_instance is False.",
+                    "full_headless has no effect when open_new_instance is False.",
                     UserWarning,
                 )
 
@@ -481,19 +494,22 @@ class _MotorCADConnection:
 
     def __del__(self):
         """Close Motor-CAD when MotorCAD object leaves memory."""
-        if self._close_motorcad_on_exit():
-            try:
+        try:
+            if self._close_motorcad_on_exit():
                 self._quit()
-            except Exception:
-                # Don't raise exception at this point
-                # Motor-CAD might already have been closed by user
-                pass
+        except Exception:
+            # Don't raise exceptions during object or interpreter teardown.
+            pass
 
         # Close the persistent requests session if the beta reuse-connection
         # feature was enabled. This releases the pooled TCP socket promptly
         # instead of waiting for garbage collection of the Session.
-        if self._session:
-            self._session.close()
+        try:
+            session = getattr(self, "_session", None)
+            if session:
+                session.close()
+        except Exception:
+            pass
 
     def _close_motorcad_on_exit(self):
         """Check whether to close Motor-CAD when MotorCAD object __del__ is called."""
@@ -566,25 +582,25 @@ class _MotorCADConnection:
             return SERVER_IP + ":" + str(self._port) + "/jsonrpc"
 
     def _resolve_motor_cad_exe(self):
-        """Resolve the exe to launch, respecting manual override and full_headless_beta."""
+        """Resolve the exe to launch, respecting manual override and full_headless."""
         if MOTORCAD_EXE_GLOBAL != "":
-            if self._full_headless_beta:
+            if self._full_headless:
                 warnings.warn(
-                    "full_headless_beta is ignored when the Motor-CAD executable is set manually.",
+                    "full_headless is ignored when the Motor-CAD executable is set manually.",
                     UserWarning,
                 )
             return MOTORCAD_EXE_GLOBAL
 
         standard_exe = _find_motor_cad_exe()
 
-        if self._full_headless_beta:
-            # On Linux, the batch file already points to MotorCAD_Console — use it directly
+        if self._full_headless:
+            # On Linux, the batch file already points to MotorCAD_Console - use it directly
             if Path(standard_exe).name == "MotorCAD_Console.exe":
                 return standard_exe
             console_exe = Path(standard_exe).parent.parent / "headless" / "MotorCAD_Console.exe"
             if not console_exe.exists():
                 raise MotorCADError(
-                    "MotorCAD_Console.exe was not found. full_headless_beta requires "
+                    "MotorCAD_Console.exe was not found. full_headless requires "
                     "Motor-CAD 2027R1 or later."
                 )
             return str(console_exe)
@@ -609,8 +625,7 @@ class _MotorCADConnection:
             )
 
         motor_process = subprocess.Popen(
-            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")],
-            cwd=Path(self.__MotorExe).parent.absolute(),
+            [self.__MotorExe, get_arg("PORT=" + str(self._port)), get_arg("SCRIPTING")]
         )
 
         pid = motor_process.pid
@@ -799,6 +814,34 @@ class _MotorCADConnection:
             else:
                 success_value = _METHOD_SUCCESS
 
+            # Post 2027R1 - When supported is False, the server skipped
+            # the call because it is not available on the current Motor-CAD
+            # platform (headless or Linux).
+            if "supported" in response["result"] and response["result"]["supported"] is False:
+                # functionScope enum: 0=ftUndefined, 1=ftAllPlatforms, 2=ftGuiOnly,
+                # 3=ftWindowsOnly
+                scope = response["result"]["functionscope"]
+                if scope == 2:
+                    scope_available = "This function is only available in Motor-CAD with a GUI."
+                elif scope == 3:
+                    scope_available = "This function is only available in Motor-CAD on Windows."
+                else:
+                    # Server should only set supported=False for the scopes above.
+                    self._raise_if_allowed(
+                        f"'{method}' returned supported=False with unexpected "
+                        f"functionScope={scope!r}."
+                    )
+                    return
+                warnings.warn(
+                    f"'{method}' was skipped. {scope_available}",
+                    MotorCADWarning,
+                )
+                # Server forces success=kSuccess when skipping the call.
+                if success != success_value:
+                    self._raise_if_allowed(
+                        f"'{method}' was skipped but caused an unexpected failure."
+                    )
+
             if success != success_value:
                 # This is an error caused by bad user code
                 # Exception is enabled by default
@@ -896,11 +939,58 @@ class _MotorCADConnection:
         """
         return self._last_error_message
 
-    def _quit(self):
-        """Quit MotorCAD."""
+    def _quit(self, max_wait=200):
+        """Quit MotorCAD.
+
+        Parameters
+        ----------
+        max_wait : int, optional
+            Maximum number of seconds to wait for the Motor-CAD process to exit before force
+            killing it (Note: This argument only has an effect on Linux). Default is 200.
+        """
         if self.pim_instance is not None:
             self.pim_instance.delete()
         else:
             # local machine
+            if not psutil.pid_exists(self.pid):
+                # The process has already exited, so send_and_recieve will fail.
+                # Possible that another MotorCAD object has already sent the Quit command,
+                # or the user has closed Motor-CAD.
+                warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+                return
+
             method = "Quit"
-            return self.send_and_receive(method)
+            result = self.send_and_receive(method)
+
+            # Wait for the process to exit before returning from quit() and then kill the process
+            # if it doesn't exit within max_wait seconds.
+            # The Motor-CAD process becomes a zombie process if it doesn't exit before the Python
+            # script exits.
+            if (platform.system() == "Linux") and (self.pid != -1):
+                # ping every second for up to max_wait seconds to force kill.
+                for step in range(max_wait):
+                    try:
+                        proc = psutil.Process(self.pid)
+                        proc.wait(timeout=1)
+                        # Process exited correctly after waiting.
+                        # If it didn't exceptions will be caught and the loop will continue to ping.
+                        return result
+                    except psutil.TimeoutExpired:
+                        # Process still exists, so wait for next ping
+                        continue
+                    except psutil.AccessDenied:
+                        return result
+                    except psutil.NoSuchProcess:
+                        # process exited correctly
+                        return result
+
+                # Process still exists after max_wait seconds, so force kill it.
+                try:
+                    proc = psutil.Process(self.pid)
+                    proc.kill()
+                    proc.wait()
+
+                    warnings.warn("Motor-CAD process did not exit in time and was force killed.")
+                except psutil.NoSuchProcess:
+                    return result
+            return result
