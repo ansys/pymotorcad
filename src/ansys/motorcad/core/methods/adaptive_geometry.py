@@ -168,7 +168,7 @@ class _RpcMethodsAdaptiveGeometry:
         method = "SetRegion"
         params = [raw_region]
         return self.connection.send_and_receive(method, params)
-    
+
     def set_region_dxf(self, region):
         """Set Motor-CAD dxf geometry region.
 
@@ -382,7 +382,7 @@ class _RpcMethodsAdaptiveGeometry:
         params = [tree._to_json()]
         method = "SetGeometryTree"
         return self.connection.send_and_receive(method, params)
-    
+
     def get_geometry_tree_dxf(self):
         """Fetch a GeometryTree object containing all the defining DXF geometry of the loaded motor.
 
@@ -395,10 +395,10 @@ class _RpcMethodsAdaptiveGeometry:
         method = "GetGeometryTree_DXF"
         json = self.connection.send_and_receive(method)
         return GeometryTree._from_json(json, self)
-    
+
     def set_geometry_tree_dxf(self, tree: GeometryTree):
         """Use a GeometryTree object to set the defining DXF geometry of the loaded motor.
-        
+
         Parameters
         ----------
         tree : ansys.motorcad.core.geometry_tree.GeometryTree

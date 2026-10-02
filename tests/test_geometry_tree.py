@@ -25,10 +25,10 @@ from copy import deepcopy
 
 import pytest
 
+from ansys.motorcad.core.enums import MotorCADContext
 from ansys.motorcad.core.geometry import Coordinate, Line, RegionType
 from ansys.motorcad.core.geometry_tree import GeometryTree
 from tests.RPC_Test_Common import get_dir_path
-from ansys.motorcad.core.enums import MotorCADContext
 
 
 @pytest.fixture(scope="session")
