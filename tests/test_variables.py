@@ -92,11 +92,11 @@ def test_get_array_variable(mc):
     assert isinstance(var, bool)
 
 
-def test_get_array_variable_list(mc):
+def test_get_full_array_variable(mc):
     reset_to_default_file(mc)
     mc.set_variable("AxialSliceDefinition", 4)
     mc.set_variable("ThroughVentilation", 1)
-    var = mc.get_array_variable_list("h_Adjust_TVent_Airgap_Stator")
+    var = mc.get_full_array_variable("h_Adjust_TVent_Airgap_Stator")
     assert isinstance(var, list)
     assert len(var) == 9
     assert isinstance(var[0], int)
@@ -119,13 +119,13 @@ def test_set_array_variable(mc):
     assert var is True
 
 
-def test_set_array_variable_list(mc):
+def test_set_full_array_variable(mc):
     reset_to_default_file(mc)
     mc.set_variable("AxialSliceDefinition", 4)
     mc.set_variable("ThroughVentilation", 1)
     # set based on a single value
-    mc.set_array_variable_list("Calc_Input_h_TVent_Airgap_Stator", 1)
-    var = mc.get_array_variable_list("Calc_Input_h_TVent_Airgap_Stator")
+    mc.set_full_array_variable("Calc_Input_h_TVent_Airgap_Stator", [1] * 9)
+    var = mc.get_full_array_variable("Calc_Input_h_TVent_Airgap_Stator")
     assert isinstance(var, list)
     assert len(var) == 9
     assert isinstance(var[0], int)
@@ -133,8 +133,8 @@ def test_set_array_variable_list(mc):
         assert value == 1
     # set multiple values
     new_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    mc.set_array_variable_list("h_Input_TVent_Airgap_Stator", new_values)
-    var = mc.get_array_variable_list("h_Input_TVent_Airgap_Stator")
+    mc.set_full_array_variable("h_Input_TVent_Airgap_Stator", new_values)
+    var = mc.get_full_array_variable("h_Input_TVent_Airgap_Stator")
     assert isinstance(var, list)
     assert len(var) == 9
     assert isinstance(var[0], int)

@@ -110,7 +110,7 @@ class _RpcMethodsVariables:
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
-    def get_array_variable_list(self, array_name):
+    def get_full_array_variable(self, array_name):
         """Get the full array of a Motor-CAD array variable as a list.
 
         Parameters
@@ -181,7 +181,7 @@ class _RpcMethodsVariables:
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
 
-    def set_array_variable_list(self, array_name, variable_list):
+    def set_full_array_variable(self, array_name, variable_list):
         """Set the full array of a Motor-CAD array variable as a list.
 
         If a single value is provided, every element of the array will be set to this value.
