@@ -21,7 +21,11 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
+
+from typing import Any
 from warnings import warn
+
+import numpy as np
 
 from ansys.motorcad.core.datastore import Datastore
 
@@ -193,12 +197,36 @@ class _RpcMethodsVariables:
         variable_list : list of int|float|str|bool
             Values to set the variables to.
         """
+
+        def check_serializable_input(value: Any) -> Any:
+            """Convert input value to a serializable type.
+
+            Parameters
+            ----------
+            value: Any
+                The input value to change to a serializable type.
+
+            Returns
+            -------
+            Any
+                The input value as a serializable type.
+            """
+            if isinstance(value, (np.ndarray, list)):
+                return [check_serializable_input(element) for element in value]
+            else:
+                if isinstance(value, np.integer):
+                    return int(value)
+                elif isinstance(value, np.floating):
+                    return float(value)
+                else:
+                    return value
+
         if not isinstance(variable_list, list):
             raise TypeError("variable_list must be a list.")
 
         if self.connection.check_if_feature_exists("set_array"):
             method = "SetArray"
-            params = [array_name, variable_list]
+            params = [array_name, check_serializable_input(variable_list)]
             return self.connection.send_and_receive(method, params)
         else:
             # Get the original array variable to determine the length of the array
