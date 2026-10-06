@@ -124,7 +124,7 @@ class _RpcMethodsVariables:
 
         Returns
         -------
-        list of int|float|str|bool
+        list of int|float|str|bool|list
             List of values of the Motor-CAD variable
         """
         if self.connection.check_if_feature_exists("get_array"):
@@ -188,13 +188,11 @@ class _RpcMethodsVariables:
     def set_full_array_variable(self, array_name, variable_list):
         """Set the full array of a Motor-CAD array variable as a list.
 
-        If a single value is provided, every element of the array will be set to this value.
-
         Parameters
         ----------
         array_name : str
             Name of the array
-        variable_list : list of int|float|str|bool
+        variable_list : list of int|float|str|bool|list
             Values to set the variables to.
         """
 
@@ -221,12 +219,14 @@ class _RpcMethodsVariables:
                 else:
                     return value
 
-        if not isinstance(variable_list, list):
+        new_list = check_serializable_input(variable_list)
+
+        if not isinstance(new_list, list):
             raise TypeError("variable_list must be a list.")
 
         if self.connection.check_if_feature_exists("set_array"):
             method = "SetArray"
-            params = [array_name, check_serializable_input(variable_list)]
+            params = [array_name, new_list]
             return self.connection.send_and_receive(method, params)
         else:
             # Get the original array variable to determine the length of the array
@@ -234,17 +234,17 @@ class _RpcMethodsVariables:
             values_orig = values_orig.split(":")
 
             # If the provided list of variables is longer than the original array, raise an error.
-            if len(variable_list) != len(values_orig):
+            if len(new_list) != len(values_orig):
                 raise ValueError(
                     f"The array variable {array_name} has length = {len(values_orig)}. The "
                     f"variable_list provided has length = "
-                    f"{len(variable_list)}. Please provide a list of {len(values_orig)} "
+                    f"{len(new_list)}. Please provide a list of {len(values_orig)} "
                     f"values."
                 )
 
             # Loop through all elements of the array, setting the value for each index
-            for i in range(len(variable_list)):
-                value = variable_list[i]
+            for i in range(len(new_list)):
+                value = new_list[i]
                 self.set_array_variable(array_name, i, value)
 
     def get_file_name(self):
