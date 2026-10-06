@@ -22,7 +22,7 @@
 
 from os import environ
 from time import sleep
-from unittest.mock import create_autospec
+from unittest.mock import Mock, create_autospec
 import warnings
 
 import ansys.platform.instancemanagement as pypim
@@ -222,6 +222,32 @@ def test_deleting_object():
     sleep(5)
 
     assert pid_exists(proc_id) is False
+
+
+@pytest.mark.parametrize("has_pim_instance", [False, True])
+@pytest.mark.parametrize("configured", [None, False, True])
+def test_cleanup_uses_owned_pim_instance(monkeypatch, has_pim_instance, configured):
+    connection = _MotorCADConnection.__new__(_MotorCADConnection)
+    connection.reuse_parallel_instances = False
+    connection._open_new_instance = False
+    connection._compatibility_mode = False
+    connection.pim_instance = Mock() if has_pim_instance else None
+    connection._session = Mock()
+    connection._quit = Mock()
+
+    mock_is_configured = None if configured is None else Mock(return_value=configured)
+    monkeypatch.setattr(pypim, "is_configured", mock_is_configured)
+
+    try:
+        assert connection._close_motorcad_on_exit() is has_pim_instance
+        connection.__del__()
+        assert connection._quit.call_count == int(has_pim_instance)
+        connection._session.close.assert_called_once_with()
+        if mock_is_configured is not None:
+            mock_is_configured.assert_not_called()
+    finally:
+        connection.pim_instance = None
+        connection._session = None
 
 
 def test_rpc_communication_error(mc):

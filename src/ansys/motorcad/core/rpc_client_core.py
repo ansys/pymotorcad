@@ -528,7 +528,7 @@ class _MotorCADConnection:
             else:
                 return True
                 # keep the instance open if specified
-        elif _HAS_PIM and pypim.is_configured():
+        elif self.pim_instance is not None:
             # Always try to close Ansys Lab instance
             return True
         else:
