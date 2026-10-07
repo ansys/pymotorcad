@@ -63,3 +63,21 @@ Check the registration form to see which version is registered.
 
 .. image:: /_static/troubleshooting_automation_dropdown.png
     :width: 600
+
+
+Matplotlib backend error in Jupyter notebooks with Motor-CAD
+------------------------------------------------------------
+When using Motor-CAD within a Jupyter notebook, you may encounter errors related to the Matplotlib backend.
+This is because Jupyter notebooks require an interactive backend to display plots, but Motor-CAD Lab calculations cannot have an interactive backend.
+
+To resolve this issue, set the Matplotlib backend to an interactive one, such as `inline` or `notebook`, at the beginning of your notebook:
+
+.. code:: ipython
+
+   %matplotlib inline
+
+or
+
+.. code:: ipython
+   
+   %matplotlib notebook
