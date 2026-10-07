@@ -22,18 +22,22 @@
 
 """
 Motor-CAD Thermal Twin Builder ROM
-=================================
+==================================
 This example shows how to transform a Motor-CAD model into a Thermal ROM (reduced order model) in
 Ansys Twin Builder.
 
-.. important:: We strongly recommend using Ansys Twin Builder 2026 R1 or newer, as it includes
-  significant new Thermal ROM capabilities.
+.. important:: This script is designed to be used with Ansys Motor-CAD 2027 R1 (or newer) and Ansys
+               Twin Builder 2027 R1 (or newer). We strongly recommend using these versions for
+               optimal performance.
+
+               For scripts compatible with earlier versions of Motor-CAD and Twin Builder, please
+               refer to earlier versions of the PyMotorCAD Documentation.
 
 """
 
 # %%
-# Background
-# --------------
+# Overview
+# --------
 # Several options exist to transform a Motor-CAD Thermal Model into a Thermal ROM. The most
 # comprehensive and recommended option is to use this workflow to create a Thermal ROM in Ansys Twin
 # Builder. The process has two steps:
@@ -49,21 +53,31 @@ Ansys Twin Builder.
 #
 # The following screenshot shows a resulting Thermal ROM in Twin Builder. The input and output pins
 # were automatically created. Values to feed into the input pins (yellow boxes) and plots of the
-# time-varying values of the input and output pins (two bottom graphs) were manually added.
+# time-varying plots of the input and output pins (two bottom graphs) were manually added.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_TwinBuilderROM.png
 #
-# The Thermal ROM has been designed to require minimal setup expertise, have a quick setup time and
-# maintain high solve accuracy when compared to the full fidelity Motor-CAD thermal model. During
-# runtime, the Thermal ROM will automatically interpolate between the operating points used to
-# generate the training data, ensuring validity over the full user defined operating range.
+# The Thermal ROM is designed for rapid deployment with minimal setup effort while maintaining high
+# accuracy relative to the full Motor-CAD thermal model. During simulation, it automatically
+# interpolates between the operating points used for training, ensuring reliable results across the
+# user-defined operating range.
 #
-# User friendly input and output pins ensure ease of use, even for those unfamiliar with Motor-CAD.
-# The pins have been designed to allow easy linking between the Thermal ROM and the Motor-CAD Lab
-# FMU, allowing for fast, coupled, drive cycle simulations.
+# User-friendly input and output pins simplify integration, including seamless coupling with the
+# Motor-CAD Lab FMU for efficient drive cycle simulations.
 #
-# The Thermal ROM is also standalone (does not require Motor-CAD at runtime), thus allowing it to be
-# distributed and used in alternate systems whilst obscuring the underlying Motor-CAD geometry.
+# As a thermal-only model, the ROM requires losses to be supplied as inputs. These can be provided
+# by the Motor-CAD Lab FMU or any other suitable source.
+#
+# The Thermal ROM is delivered as an SML file containing the thermal resistance and capacitance
+# network derived from the underlying Motor-CAD model. It operates independently of Motor-CAD and
+# can be exported as an FMU for deployment in third-party simulation environments. This enables
+# straightforward distribution while protecting the underlying Motor-CAD geometry and intellectual
+# property.
+
+# %%
+# Capabilities and model support
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This workflow supports all Motor-CAD models.
 #
 # Key features include:
 #
@@ -88,12 +102,28 @@ Ansys Twin Builder.
 # * Automatic output pin creation for post-processed temperatures for solids (e.g. Armature Winding
 #   Average Temperature) and coolant flows (e.g. Housing Water Jacket Outlet Temperature)
 #
-# * Ability to set arbitrary initial temperatures, per component
+# * Ability to set arbitrary initial temperatures
 #
 # * Ability to export the Thermal ROM as an FMU, which can be deployed within any FMU compatible
 #   tool
 #
-# Please see :ref:`example_use_case` to see an example of ROM generation.
+# The following Motor-CAD features are unsupported:
+#
+# * Heat Exchanger cooling system.
+#
+#   If the Motor-CAD Heat Exchanger cooling system is enabled, this ROM generation script will
+#   report an error as this feature is not supported. The workaround is to disable the Heat
+#   Exchanger cooling system in the Motor-CAD model, generate the Thermal ROM whilst treating the
+#   coupled cooling system as having a user controlled variable inlet temperature, and then manually
+#   recreate the heat exchanger model in Twin Builder to control the inlet temperature.
+#
+# * Altitude variation.
+#
+#   The Thermal ROM is only valid for the altitude selected in the Motor-CAD model. Given that
+#   ambient temperature variation is supported, the lack of altitude variation support is expected
+#   to result in only a minor deviation in the Thermal ROM results.
+#
+# Skip to the :ref:`example_use_case` to see an example of ROM generation.
 
 # %%
 # Workflow python script
@@ -101,7 +131,6 @@ Ansys Twin Builder.
 
 from __future__ import annotations
 
-import csv
 from dataclasses import astuple, dataclass
 import itertools
 import logging
@@ -110,11 +139,13 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import colorlog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
 import ansys.motorcad.core as pymotorcad
+from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 # sphinx_gallery_thumbnail_path = 'images/Thermal_Twinbuilder_TwinBuilderROM_Zoom.png'
 
@@ -137,10 +168,7 @@ class AutomationParam:
 
     @property
     def tbOffset(self):
-        if self.isTemperature:
-            return 273.15
-        else:
-            return 0.0
+        return 273.15 if self.isTemperature else 0.0
 
     def __iter__(self):
         return iter(astuple(self))
@@ -296,7 +324,7 @@ housingTempSweepType = Optional[dict[float, List[float]]]
 #    ``HousingTempDependency`` folder
 # 10. Temperature dependent airgap heat transfer is characterized and saved to the
 #     ``AirGapTempDependency`` folder
-# 11. Initial tempearature pins are created and saved to ``TemperatureInitialization.csv``
+# 11. Initial temperature pins are created and saved to ``TemperatureInitialization.csv``
 # 12. Output temperature pins are created and saved to ``TemperatureOutputs.csv``
 
 
@@ -386,23 +414,37 @@ class MotorCADTwinModel:
             )
 
     # Initialization function for objects of this class.
-    def __init__(self, inputMotFilePath: str, outputDir: str):
-        self.inputMotFilePath = inputMotFilePath
-        self.outputDirectory = outputDir
-        os.system('rmdir /S /Q "{}"'.format(self.outputDirectory))
-        if not os.path.isdir(self.outputDirectory):
-            os.makedirs(self.outputDirectory)
+    def __init__(self, inputMotFilePath: str, outputDirectory: str):
+        self.inputMotFilePath = Path(inputMotFilePath)
+        self.outputDirectory = Path(outputDirectory)
 
-        pythonLog = os.path.join(self.outputDirectory, "pythonlog.txt")
+        if self.outputDirectory.exists():
+            if any(self.outputDirectory.iterdir()):
+                raise FileExistsError(
+                    f"Output directory {self.outputDirectory} already exists and is not empty. "
+                    "Please specify an alternate output directory or remove the existing files."
+                )
+        else:
+            self.outputDirectory.mkdir(parents=True)
+
+        pythonLog = self.outputDirectory / "pythonlog.txt"
         logging.basicConfig(
             filename=pythonLog,
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
-        logging.getLogger().addHandler(logging.StreamHandler())
+        streamHandler = logging.StreamHandler()
+        streamHandler.setFormatter(
+            colorlog.ColoredFormatter(
+                fmt="%(log_color)s%(asctime)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+            )
+        )
+        logging.getLogger().addHandler(streamHandler)
         logger.info("Python script execution initiated")
-        logger.info("Input Motor-CAD file: " + self.inputMotFilePath)
+        logger.info(f"Input Motor-CAD file: {self.inputMotFilePath}")
+        logger.info(f"Output directory: {self.outputDirectory}")
 
         self.motFileName = None
         self.motFilePath = None
@@ -424,7 +466,7 @@ class MotorCADTwinModel:
         self.mcad.set_variable("MessageDisplayState", 2)
         # check which Motor-CAD version is being used as this affects the resistance matrix format
         self.motorcadV2025OrNewer = self.mcad.connection.check_version_at_least("2025.0")
-        self.mcad.load_from_file(self.inputMotFilePath)
+        self.mcad.load_from_file(str(self.inputMotFilePath))
 
     # Main function to call which generates the required data for the Twin Builder export
     def generateTwinData(
@@ -434,6 +476,12 @@ class MotorCADTwinModel:
         airgapTemperatures=None,
         coolingSystemsParameterSweeps: coolingSystemSweepType = None,
     ):
+        logger.info("Parameters used for data generation:")
+        logger.info(f"rpms = {rpms}")
+        logger.info(f"housingAmbientTemperatures = {housingAmbientTemperatures}")
+        logger.info(f"airgapTemperatures = {airgapTemperatures}")
+        logger.info(f"coolingSystemsParameterSweeps = {coolingSystemsParameterSweeps}")
+
         housingTempDependency, airGapTempDependency, coolingSystemsInputs = self.validateInputs(
             rpms, housingAmbientTemperatures, airgapTemperatures, coolingSystemsParameterSweeps
         )
@@ -476,29 +524,23 @@ class MotorCADTwinModel:
             "CopperLossScaling": 0,
             "SpeedDependentLosses": 0,
         }
-        with open(os.path.join(self.outputDirectory, "config.txt"), "w") as cf:
+        with open(self.outputDirectory / "config.txt", "w") as cf:
             for key, value in configFlags.items():
                 cf.write(f"{key}={value}\n")
 
-        self.FixedTemperaturesWorkaround()
-
         self.mcad.quit()
-        logger.info("Twin Builder Input Files: " + self.outputDirectory)
+        logger.info(f"Twin Builder Input Files: {self.outputDirectory}")
         logger.info("Python script execution completed")
 
     # Helper functions to parse the exported Motor-CAD matrices (``.cmf``, ``.nmf``, ``.pmf``,
     # ``.rmf`` and .``.tmf``)
     def unbracket(self, string):
-        val = string.replace("(", "_").replace(")", "").replace(" ", "")
-        return val
+        return string.replace("(", "_").replace(")", "").replace(" ", "")
 
     def getExportedVector(self, file):
         with open(file, "r") as f:
             lines = f.readlines()[3:]
-            vector = []
-            for line in lines[:-1]:
-                lineSplit = line.split(";")
-                vector.append(float(lineSplit[1]))
+            vector = [float(line.split(";")[1]) for line in lines[:-1]]
             # Some files have "Ambient" included explicitly, but not all
             if "0 (Ambient)" not in lines[0]:
                 vector = [0.0] + vector
@@ -509,31 +551,22 @@ class MotorCADTwinModel:
             lines = f.readlines()[4:]
             matrix = []
             for line in lines[:-1]:
-                row = []
                 lineSplit = line.split(";")
-                for ind in range(1, len(lineSplit) - 1):
-                    row.append(float(lineSplit[ind]))
+                row = [float(x) for x in lineSplit[1:-1]]
                 matrix.append(row)
         return matrix
 
-    def getPmfData(self, exportDirectory):
-        pmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".pmf")
-        powerVector = self.getExportedVector(pmfFile)
-        return powerVector
+    def getPmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.pmf")
 
-    def getTmfData(self, exportDirectory):
-        tmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".tmf")
-        temperatureVector = self.getExportedVector(tmfFile)
-        return temperatureVector
+    def getTmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.tmf")
 
-    def getCmfData(self, exportDirectory):
-        cmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".cmf")
-        capacitanceMatrix = self.getExportedVector(cmfFile)
-        return capacitanceMatrix
+    def getCmfData(self, exportDirectory: Path):
+        return self.getExportedVector(exportDirectory / f"{self.motFileName}.cmf")
 
-    def getRmfData(self, exportDirectory):
-        rmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".rmf")
-        resistanceMatrix = self.getExportedMatrix(rmfFile)
+    def getRmfData(self, exportDirectory: Path):
+        resistanceMatrix = self.getExportedMatrix(exportDirectory / f"{self.motFileName}.rmf")
 
         # resistance matrix exported by v2025R1 and newer is transposed vs older versions
         if self.motorcadV2025OrNewer:
@@ -541,9 +574,9 @@ class MotorCADTwinModel:
 
         return resistanceMatrix
 
-    def getNmfData(self, exportDirectory):
+    def getNmfData(self, exportDirectory: Path):
         # obtain the node numbers, node names, and node groupings from the nmf file
-        nmfFile = os.path.join(exportDirectory, str(self.motFileName) + ".nmf")
+        nmfFile = exportDirectory / f"{self.motFileName}.nmf"
         nodeNumbers = []
         nodeNames_original = []
         nodeNames = []
@@ -594,11 +627,10 @@ class MotorCADTwinModel:
         return axialSliceNodes_valid
 
     def getExternalCircuitLosses(self):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
-        if not os.path.isdir(exportDirectory):
-            os.makedirs(exportDirectory)
-        exportFile = os.path.join(exportDirectory, "externalcircuit.ecf")
-        self.mcad.save_external_circuit(exportFile)
+        exportDirectory = self.outputDirectory / "tmp"
+        exportDirectory.mkdir(parents=True, exist_ok=True)
+        exportFile = exportDirectory / "externalcircuit.ecf"
+        self.mcad.save_external_circuit(str(exportFile))
 
         powerInjections = []
         powerSources = []
@@ -727,11 +759,13 @@ class MotorCADTwinModel:
                     coolingSystem in coolingSystemNames,
                     ValueError,
                     f"The {coolingSystem.name} cooling system is not part of the list of Cooling "
-                    f"Systems {coolingSystemNames}",
+                    f"Systems {[cs.name for cs in coolingSystemNames]}",
                 )
                 try:
                     sprayType = self.mcad.get_variable("SprayCoolingNozzleDefinition")
-                except:
+                except MotorCADError:
+                    # Variable not present due to old Motor-CAD version being used. Only original
+                    # spray cooling type is available, which corresponds to zero.
                     sprayType = 0
                 validate(
                     not ((sprayType == 0) and (coolingSystem in groupedSprays)),
@@ -1017,22 +1051,22 @@ class MotorCADTwinModel:
             self.heatFlowMethod = self.mcad.get_variable("FluidHeatFlowMethod")
             if self.heatFlowMethod == 0:
                 logger.warning(
-                    "The Motor-CAD model is using the Original Fluid Heat Flow Method. It is "
-                    "recommended to use the Improved calculation method, which will also provide "
-                    "additional features for the Twin Builder Thermal ROM. To update the "
+                    "The Motor-CAD model is using the Original Fluid Heat Flow Method. It "
+                    "is recommended to use the Improved calculation method, which will also "
+                    "provide additional features for the Twin Builder Thermal ROM. To update the "
                     "calculation method, in Motor-CAD, go to Defaults > Default Settings and "
                     "change the Fluid Heat Flow Method to Improved. This may affect calculation "
                     "results."
                 )
-        except:
-            # variable does not exist due to using older version of Motor-CAD
-            # set parameter to 0 which signifies use of the old method
+        except MotorCADError:
+            # Variable not present due to old Motor-CAD version being used. Only original heat flow
+            # method is available, which corresponds to zero.
             self.heatFlowMethod = 0
             logger.warning(
-                "The Motor-CAD version in use does not support the Improved Fluid Heat Flow "
-                "Method. We recommend upgrading to the latest version of Motor-CAD to make use of "
-                "this setting, which will also enable additional features for the Twin Builder "
-                "Thermal ROM."
+                "The Motor-CAD version in use does not support the Improved Fluid Heat "
+                "Flow Method. We recommend upgrading to the latest version of Motor-CAD to make "
+                "use of this setting, which will also enable additional features for the Twin "
+                "Builder Thermal ROM."
             )
 
     # Set non-zero values for each parameter in the parameter sweep to ensure all extracted data
@@ -1065,13 +1099,13 @@ class MotorCADTwinModel:
     def saveTwinMotfile(self):
         # save the updated model so it is clear which Motor-CAD file can be used to validate
         # the Twin Builder Motor-CAD ROM component
-        self.motFileName = Path(self.inputMotFilePath).stem + "_TwinModel"
-        self.motFilePath = os.path.join(self.outputDirectory, self.motFileName + ".mot")
-        self.mcad.save_to_file(self.motFilePath)
+        self.motFileName = self.inputMotFilePath.stem + "_TwinModel"
+        self.motFilePath = self.outputDirectory / f"{self.motFileName}.mot"
+        self.mcad.save_to_file(str(self.motFilePath))
 
     def loadTwinMotfile(self):
         # re-load the model used to generate the Twin Builder Motor-CAD ROM component
-        self.mcad.load_from_file(self.motFilePath)
+        self.mcad.load_from_file(str(self.motFilePath))
 
     # If Power Injection custom losses are present, save these so that they are treated the same as
     # all other default losses. If Power Source custom losses are present, report an error as these
@@ -1079,7 +1113,7 @@ class MotorCADTwinModel:
     def incorporateCustomLosses(self):
         self.customPowerInjections, powerSources = self.getExternalCircuitLosses()
 
-        if len(powerSources) > 0:
+        if powerSources:
             message = (
                 f"Custom loss Power Sources are present in the model but are not supported. "
                 f"Remove the Power Sources {powerSources}. This can be done by opening the .mot "
@@ -1089,7 +1123,7 @@ class MotorCADTwinModel:
             logger.error(message, stack_info=True)
             raise NotImplementedError(message)
 
-        if len(self.customPowerInjections) > 0:
+        if self.customPowerInjections:
             # Power injections will be treated like default Motor-CAD losses by the TB ROM
             logger.info(
                 "Custom loss Power Injections found in model. These losses will be treated in the "
@@ -1100,7 +1134,7 @@ class MotorCADTwinModel:
     # when all losses (default Motor-CAD losses + Customer Power Injection losses) are set to zero.
     def validateLossIdentification(self):
         self.setLosses(0)
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        exportDirectory = self.outputDirectory / "tmp"
         self.computeMatrices(exportDirectory)
 
         powerVector = self.getPmfData(exportDirectory)
@@ -1123,19 +1157,19 @@ class MotorCADTwinModel:
     # Helper function that solves the Motor-CAD thermal network and exports the matrices,
     # setting any operating-point specific required settings beforehand
     def computeMatrices(self, exportDirectory, rpm=None):
-        if not os.path.isdir(exportDirectory):
-            os.makedirs(exportDirectory)
+        exportDirectory = Path(exportDirectory)
+        exportDirectory.mkdir(parents=True, exist_ok=True)
 
         if rpm is not None:
             self.mcad.set_variable(RPM.automationString, rpm)
 
         self.mcad.do_steady_state_analysis()
-        self.mcad.export_matrices(exportDirectory)
+        self.mcad.export_matrices(str(exportDirectory))
 
     # Function that determines self.nodeNumbers, self.nodeNames, self.nodeGroupings, self.fluidPaths
     def getNodeData(self):
         logger.info("Initialization: Obtaining node data")
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        exportDirectory = self.outputDirectory / "tmp"
         self.computeMatrices(exportDirectory)
 
         (
@@ -1151,11 +1185,11 @@ class MotorCADTwinModel:
         if self.heatFlowMethod == 0:
             self.generateCoolingSystemNetwork_Original(resistanceMatrix, temperatureVector)
         else:
-            self.generateCoolingSystemNetwork_Improved(resistanceMatrix)
+            self.generateCoolingSystemNetwork_Improved(resistanceMatrix, temperatureVector)
             self.generateNodeToNodeTempMapping()
             self.identifyCoupledFluidPaths()
 
-    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix):
+    def generateCoolingSystemNetwork_Improved(self, resistanceMatrix, temperatureVector):
         resistances = set()
         # get all the resistances
         for i, resistanceRow in enumerate(resistanceMatrix):
@@ -1177,6 +1211,11 @@ class MotorCADTwinModel:
             if group in coolingsystemGroupings
         ]
 
+        # Generate list of nodes that have a fixed temperature
+        fixedTempNodes = [
+            self.nodeNumbers[i] for i, temp in enumerate(temperatureVector) if temp > -10000000.0
+        ]
+
         G = nx.DiGraph()
         G.add_edges_from(fluidFluidResistances)
         G.add_nodes_from(fluidNodes)
@@ -1184,7 +1223,8 @@ class MotorCADTwinModel:
         if len(G) > 0:
             plt.figure()
             nx.draw(G, with_labels=True)
-            plt.savefig(os.path.join(self.outputDirectory, "cooling.png"))
+            plt.savefig(self.outputDirectory / "cooling.png")
+            plt.close()
 
             # Get all fluid subgraphs
             subgraphs = [
@@ -1195,9 +1235,19 @@ class MotorCADTwinModel:
                 # 1. All nodes in the subgraph
                 nodes = list(graph)
 
-                # 2. Inlet and outlet nodes in the subgraph (0, 1, or more)
+                # 2. Inlet and outlet nodes in the subgraph (there could be 0, 1, or more)
                 inletNodes = [n for n, d in graph.in_degree if d == 0]
-                outletNodes = [n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)]
+                # Outlet nodes are either:
+                # (1) sole nodes with a fixed temperature (the case for the grouped spray cooling)
+                # (2) nodes at fluid path end which are not an inlet (most common)
+                if len(nodes) == 1 and nodes[0] in fixedTempNodes:
+                    # If the only node in the fluid path has a fixed temperature, it is treated as
+                    # an outlet (as well as an inlet)
+                    outletNodes = [nodes[0]]
+                else:
+                    outletNodes = [
+                        n for n, d in graph.out_degree if (d == 0) and (n not in inletNodes)
+                    ]
 
                 # 3. Cooling system associated with this subgraph
                 if len(inletNodes) > 0:
@@ -1279,7 +1329,7 @@ class MotorCADTwinModel:
                     coolingFile.append(f"{l}\n")
 
         if coolingFile:
-            with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
+            with open(self.outputDirectory / "CoolingSystems.csv", "w") as cs:
                 for line in coolingFile:
                     cs.write(line)
 
@@ -1359,11 +1409,11 @@ class MotorCADTwinModel:
 
                 plt.figure(index)
                 nx.draw(curG, with_labels=True)
-                plt.savefig(os.path.join(self.outputDirectory, str(inletNode) + "_cooling.png"))
+                plt.savefig(self.outputDirectory / f"{inletNode}_cooling.png")
 
             # write cooling systems config file
             if len(connectedNodesLists) > 0:
-                with open(os.path.join(self.outputDirectory, "CoolingSystems.csv"), "w") as cs:
+                with open(self.outputDirectory / "CoolingSystems.csv", "w") as cs:
                     k = 0
                     for connectedNodesList in connectedNodesLists:
                         cs.write(
@@ -1416,7 +1466,7 @@ class MotorCADTwinModel:
                 raise RuntimeError(message)
 
         # Add any nodes with fixed temperatures to the FixedTemperatures.csv file
-        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "w") as ft:
+        with open(self.outputDirectory / "FixedTemperatures.csv", "w") as ft:
             for nodeIndex, controllingParameter in parameterFixedTempMapping.items():
                 if controllingParameter is not None:
                     ft.write(f"{self.nodeNames[nodeIndex]},{controllingParameter}\n")
@@ -1428,13 +1478,13 @@ class MotorCADTwinModel:
                 couplings += f"{self.nodeNames[nodeIndex]},{self.nodeNames[controllingNodeIndex]}\n"
 
         if couplings:
-            with open(os.path.join(self.outputDirectory, "CoupledNodes.csv"), "w") as ft:
+            with open(self.outputDirectory / "CoupledNodes.csv", "w") as ft:
                 ft.write(couplings)
 
     # Generate mapping between the user chosen input pins and the fixed temperature nodes they
     # control
     def getParameterToNodeTempMapping(self, coolingSystemsParameterSweeps: coolingSystemSweepType):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp", "fixed_temperatures")
+        exportDirectory = self.outputDirectory / "tmp" / "fixed_temperatures"
         self.computeMatrices(exportDirectory)
 
         temperatureVector = self.getTmfData(exportDirectory)
@@ -1447,7 +1497,7 @@ class MotorCADTwinModel:
         }
 
         # Special case for Ambient node
-        fixedNodeTempMapping[0].append("Ambient_Temp")  # TODO check if fixed string name
+        fixedNodeTempMapping[0].append("Ambient_Temp")
 
         # Generate list of parameters that may affect fixed temperature nodes
         temperatureParameterSweeps: list[AutomationParam] = []
@@ -1459,12 +1509,12 @@ class MotorCADTwinModel:
 
         # Identify fixed temperatures controlled by each of the parameter sweeps
         if len(temperatureParameterSweeps) > 0:
-            # Higher losses helps avoid erroeneously detecting inlet-outlet coupled temperatures
+            # Higher losses helps avoid erroneously detecting inlet-outlet coupled temperatures
             self.setLosses(10)
             # Use a test temperature which is 1 or 2 degrees hotter than the maximum temperature
             testTemperature = round(max(temperatureVector)) + 2
             for i, parameter in enumerate(temperatureParameterSweeps):
-                fixedTempExportDirectory = os.path.join(exportDirectory, str(i))
+                fixedTempExportDirectory = exportDirectory / str(i)
 
                 originalValue = self.mcad.get_variable(parameter.automationString)
                 self.mcad.set_variable(parameter.automationString, testTemperature)
@@ -1501,7 +1551,7 @@ class MotorCADTwinModel:
 
     # Generate mapping between fluid nodes and the fixed temperature nodes they control
     def generateNodeToNodeTempMapping(self):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp", "coupled_nodes")
+        exportDirectory = self.outputDirectory / "tmp" / "coupled_nodes"
         self.computeMatrices(exportDirectory)
 
         temperatureVector = self.getTmfData(exportDirectory)
@@ -1528,7 +1578,7 @@ class MotorCADTwinModel:
 
                 # Check if any other nodes have the same fixed temperature, to identify any
                 # couplings via fixed temperature
-                coupledTempExportDirectory = os.path.join(exportDirectory, str(i))
+                coupledTempExportDirectory = exportDirectory / str(i)
                 self.computeMatrices(coupledTempExportDirectory)
 
                 temperatureVector = self.getTmfData(coupledTempExportDirectory)
@@ -1629,7 +1679,7 @@ class MotorCADTwinModel:
         remainingNodes = [x for x in self.nodeNames if x not in initialisedNodes]
         initialisations.append(("T_Initial_Other", remainingNodes))
 
-        with open(os.path.join(outputDir, "TemperatureInitialization.csv"), "w") as f:
+        with open(self.outputDirectory / "TemperatureInitialization.csv", "w") as f:
             for name, nodeNames in initialisations:
                 if len(nodeNames) > 0:
                     f.write(f"{name},{nodeNames}\n")
@@ -1695,11 +1745,9 @@ class MotorCADTwinModel:
                     outletNodeNames = [
                         self.nodeNames[self.nodeNumbers.index(n)] for n in outletNodes
                     ]
-                    # TODO workaround for 26R1. This will be fixed in 26R1 SP2
-                    outputs.append(("avg_cap", "Approx_Outlet_" + cs.name, outletNodeNames))
-                    # outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
+                    outputs.append(("avg_fluid", "Outlet_" + cs.name, outletNodeNames))
 
-        with open(os.path.join(outputDir, "TemperatureOutputs.csv"), "w") as f:
+        with open(self.outputDirectory / "TemperatureOutputs.csv", "w") as f:
             for type, name, nodeNames in outputs:
                 if len(nodeNames) > 0:
                     f.write(f"{type},{name},{nodeNames}\n")
@@ -1712,12 +1760,12 @@ class MotorCADTwinModel:
         for index, rpm in enumerate(rpmSamples):
             logger.info(f"RPM {index + 1}/{numRPMs}: {rpm}")
             dpName = "dp" + str(index).zfill(6)
-            exportDirectory = os.path.join(self.outputDirectory, dpName)
+            exportDirectory = self.outputDirectory / dpName
             self.computeMatrices(exportDirectory, rpm=rpm)
             dps.append((dpName, rpm))
 
         # write doe file
-        with open(os.path.join(self.outputDirectory, "doe.csv"), "w") as cf:
+        with open(self.outputDirectory / "doe.csv", "w") as cf:
             cf.write("Name, rpm\n")
             for dpName, rpm in dps:
                 cf.write(dpName + ", " + str(rpm))
@@ -1747,9 +1795,7 @@ class MotorCADTwinModel:
                 f"Loss distribution {lossIndex + 1}/{numLossParameters}: {lossNames[lossIndex]}"
             )
 
-            exportDirectory = os.path.join(
-                self.outputDirectory, "tmp", "dis", "dis" + str(lossIndex)
-            )
+            exportDirectory = self.outputDirectory / "tmp" / "dis" / f"dis{lossIndex}"
 
             lossVector = [0.0] * numLossParameters
             lossVector[lossIndex] = inputLoss
@@ -1762,7 +1808,7 @@ class MotorCADTwinModel:
                 if nodePower > 0:
                     lossDistributionMatrix[lossIndex, nodeIndex] = nodePower / inputLoss
 
-        with open(os.path.join(self.outputDirectory, "LossDistribution.csv"), "w") as outfile:
+        with open(self.outputDirectory / "LossDistribution.csv", "w") as outfile:
             outfile.write(" ")
             for nodeName in self.nodeNames_original:
                 outfile.write(", " + nodeName)
@@ -1795,11 +1841,10 @@ class MotorCADTwinModel:
         coolingSystemsParameterSweeps: coolingSystemSweepType,
     ):
         if housingAmbientTemperatures is not None:
-            exportDirectory = os.path.join(self.outputDirectory, "HousingTempDependency")
-            if not os.path.isdir(exportDirectory):
-                os.makedirs(os.path.join(exportDirectory))
+            exportDirectory = self.outputDirectory / "HousingTempDependency"
+            exportDirectory.mkdir(parents=True, exist_ok=True)
 
-            with open(os.path.join(exportDirectory, "tamb_values.txt"), "w") as fout:
+            with open(exportDirectory / "tamb_values.txt", "w") as fout:
                 fout.write("Ambient_Temp=[")
                 ambientTemperatures = [tAmbient + 273.15 for tAmbient in housingAmbientTemperatures]
                 fout.write(",".join(map(str, ambientTemperatures)))
@@ -1820,7 +1865,7 @@ class MotorCADTwinModel:
             ):
                 blownover = coolingSystemsParameterSweeps[Blown_Over]
                 param, paramValues = list(blownover.items())[0]
-                with open(os.path.join(exportDirectory, "dp_values.txt"), "w") as fout:
+                with open(exportDirectory / "dp_values.txt", "w") as fout:
                     paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                     fout.write(param.name + "=" + str(paramValuesTB))
                     fout.write("\n")
@@ -1842,7 +1887,7 @@ class MotorCADTwinModel:
                 self.mcad.set_variable("T_Ambient", ambientTemperature)
 
                 if hasBlownOver:
-                    if param == None:
+                    if param is None:
                         message = "Unidentified Blown Over parameter sweep. Please contact support"
                         logger.error(message, stack_info=True)
                         raise RuntimeError(message)
@@ -1857,9 +1902,7 @@ class MotorCADTwinModel:
                     housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
                 )
 
-                with open(
-                    os.path.join(exportDirectory, "Housing_Temp" + str(fileInd) + ".csv"), "w"
-                ) as fout:
+                with open(exportDirectory / f"Housing_Temp{fileInd}.csv", "w") as fout:
                     fout.write(str(ambientTemperature + 273.15))
                     fout.write("\n")
 
@@ -1877,7 +1920,7 @@ class MotorCADTwinModel:
     def computeMatricesHousingTemps(
         self, housingNodeNumbers, housingNodeIndices, fixedHousingTemperatures, message
     ):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        exportDirectory = self.outputDirectory / "tmp"
 
         file_content = dict()
 
@@ -1919,7 +1962,7 @@ class MotorCADTwinModel:
             raise NotImplementedError(message)
         elif tVent or sVent:
             statorCoolingOnly = self.mcad.get_variable("TVent_NoAirgapFlow")
-            if statorCoolingOnly == False:
+            if not statorCoolingOnly:
                 valid = False
                 message = (
                     "Temperature dependent airgap not supported for ventilated cooling with "
@@ -1943,11 +1986,10 @@ class MotorCADTwinModel:
             fileInd = fileInd + 1
             file_content = self.computeMatricesAirgapTemp(airgapNodesList, airgapTemperatures, rpm)
 
-            exportPath = os.path.join(self.outputDirectory, "AirGapTempDependency")
-            if not os.path.isdir(exportPath):
-                os.makedirs(os.path.join(exportPath))
+            exportPath = self.outputDirectory / "AirGapTempDependency"
+            exportPath.mkdir(parents=True, exist_ok=True)
 
-            with open(os.path.join(exportPath, "AirGap_Temp" + str(fileInd) + ".csv"), "w") as fout:
+            with open(exportPath / f"AirGap_Temp{fileInd}.csv", "w") as fout:
                 header = str(rpm)
                 for airgapNodeStator, airgapNodeRotor in airgapNodesList:
                     airgapNodeStatorName = self.nodeNames[self.nodeNumbers.index(airgapNodeStator)]
@@ -1961,7 +2003,7 @@ class MotorCADTwinModel:
                     fout.write("\n")
 
     def computeMatricesAirgapTemp(self, airgapNodesList, airgapTemperatures, rpm):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        exportDirectory = self.outputDirectory / "tmp"
         file_content = dict()
 
         # Loop over each airgap average temperature
@@ -2070,7 +2112,7 @@ class MotorCADTwinModel:
 
                 numDPs = 0
                 paramNames = []
-                with open(os.path.join(exportPath, "dp_values.txt"), "w") as fout:
+                with open(exportPath / "dp_values.txt", "w") as fout:
                     for param, paramValues in parameters.items():
                         paramValuesTB = [paramValue + param.tbOffset for paramValue in paramValues]
                         paramNames.append(param.name)
@@ -2084,7 +2126,7 @@ class MotorCADTwinModel:
                 else:
                     r_list, c_list = self.coolingSystemRCs_Original(cooling)
 
-                with open(os.path.join(exportPath, "r_nodes.txt"), "w") as fRout:
+                with open(exportPath / "r_nodes.txt", "w") as fRout:
                     for node1, node2 in r_list:
                         fRout.write(
                             self.nodeNames[self.nodeNumbers.index(node1)]
@@ -2093,7 +2135,7 @@ class MotorCADTwinModel:
                             + "\n"
                         )
 
-                with open(os.path.join(exportPath, "c_nodes.txt"), "w") as fCout:
+                with open(exportPath / "c_nodes.txt", "w") as fCout:
                     for node in c_list:
                         fCout.write(self.nodeNames[self.nodeNumbers.index(node)] + "\n")
 
@@ -2114,9 +2156,7 @@ class MotorCADTwinModel:
                     )
 
                     for elementList, filePrefix in [(R, "R"), (C, "C")]:
-                        with open(
-                            os.path.join(exportPath, filePrefix + str(fileInd) + ".csv"), "w"
-                        ) as fout:
+                        with open(exportPath / f"{filePrefix}{fileInd}.csv", "w") as fout:
                             for index, paramValue in enumerate(paramValues):
                                 # write parameter values to file
                                 paramValueTB = paramValue + paramList[index].tbOffset
@@ -2135,15 +2175,15 @@ class MotorCADTwinModel:
                 csBaseName = "coupled"
 
         csName = csBaseName
-        exportPath = os.path.join(self.outputDirectory, "CoolingSystems", csName)
+        exportPath = self.outputDirectory / "CoolingSystems" / csName
 
         n = 1
-        while os.path.isdir(exportPath):
+        while exportPath.is_dir():
             csName = csBaseName + str(n)
-            exportPath = os.path.join(self.outputDirectory, "CoolingSystems", csName)
+            exportPath = self.outputDirectory / "CoolingSystems" / csName
             n += 1
         else:
-            os.makedirs(exportPath)
+            exportPath.mkdir(parents=True)
 
         return exportPath, csName
 
@@ -2205,15 +2245,13 @@ class MotorCADTwinModel:
 
         return r_list, c_list
 
-    def fluidPathToRClist(self, r_list, c_list, fluidPath):
+    def fluidPathToRClist(self, r_list, c_list, fluidPath: FluidPath):
         r_list.extend(fluidPath.rtsFluidFluid)
         r_list.extend(fluidPath.rtsFluidSolid)
-        # identify all fluid nodes that are not the inlet node
-        nodes = [n for n in fluidPath.fluidNodes if n not in fluidPath.inletNodes]
-        c_list.extend(nodes)
+        c_list.extend(fluidPath.fluidNodes)
 
     def coolingSystemRCs_Original(self, coolingSystem):
-        if isinstance(coolingSystem, CoolingSystem) == False:
+        if not isinstance(coolingSystem, CoolingSystem):
             message = (
                 "Error in original heat flow method handling of coupled cooling systems. "
                 "Please contact support."
@@ -2221,7 +2259,7 @@ class MotorCADTwinModel:
             logger.error(message, stack_info=True)
             raise RuntimeError(message)
 
-        exportDirectory = os.path.join(self.outputDirectory, "tmp")
+        exportDirectory = self.outputDirectory / "tmp"
 
         resistanceMatrix = self.getRmfData(exportDirectory)
         r_list = []
@@ -2314,9 +2352,7 @@ class MotorCADTwinModel:
         c_list,
         fileInd,
     ):
-        exportDirectory = os.path.join(self.outputDirectory, "tmp", "dp" + str(fileInd).zfill(6))
-        if not os.path.isdir(exportDirectory):
-            os.makedirs(exportDirectory)
+        exportDirectory = self.outputDirectory / "tmp" / f"dp{str(fileInd).zfill(6)}"
 
         circuitEditsMade = False
         for param, paramVal in zip(paramList, paramValues):
@@ -2328,8 +2364,7 @@ class MotorCADTwinModel:
                 )
                 circuitEditsMade = True
 
-        self.mcad.do_steady_state_analysis()
-        self.mcad.export_matrices(exportDirectory)
+        self.computeMatrices(exportDirectory)
 
         if circuitEditsMade:
             # Reload .mot file to remove any circuit editing modifications
@@ -2352,48 +2387,6 @@ class MotorCADTwinModel:
             C.append(capacitance)
 
         return R, C
-
-    # Workaround for versions until 26R1 SP2 is released.
-    # The SML generation will fail if the node names in Fixedtemperatures.csv have different
-    # original and unbracketed names. This workaround overwrites all instances of the original names
-    # within the *.mf files as well as in LossDistribution.csv with the unbracketed version
-    def FixedTemperaturesWorkaround(self):
-        with open(os.path.join(self.outputDirectory, "FixedTemperatures.csv"), "r") as f:
-            csvFile = csv.reader(f)
-            nodeNames = [line[0] for line in csvFile]  # these are unbracketed
-            # Generate list of names which need to be searched for and replaced due to having
-            # different original and unbracketed values
-            searchNames = []
-            replaceNames = []
-            for nodeName in nodeNames:
-                nodeName_original = self.nodeNames_original[self.nodeNames.index(nodeName)]
-                if nodeName != nodeName_original:
-                    # This node will be affected by bug
-                    searchNames.append(nodeName_original)
-                    replaceNames.append(nodeName)
-
-        if searchNames:
-            filesToModify: list[Path] = []
-            filesToModify.append(Path(os.path.join(self.outputDirectory, "LossDistribution.csv")))
-
-            fileExtensions = ["*.cmf", "*.nmf", "*.pmf", "*.rmf", "*.tmf"]
-            for extension in fileExtensions:
-                filesToModify.extend(Path(self.outputDirectory).rglob(extension))
-
-            for index, file in enumerate(filesToModify):
-                with open(file, "r") as f:
-                    contents = f.read()
-
-                if index == 0:  # LossDistribution.csv
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(searchName, replaceName)
-                else:  # .*mf files
-                    for searchName, replaceName in zip(searchNames, replaceNames):
-                        contents = contents.replace(f"({searchName})", f"({replaceName})")
-
-                with open(file, "w") as f:
-                    f.write(contents)
-        return
 
 
 # %%
@@ -2468,25 +2461,16 @@ def temperaturesHousingAmbient(
 # Specify input .mot file and output directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Specify the input .mot file and the directory to save the output data to.
-working_folder = os.getcwd()
-mcad_name = "e8_mobility"
-inputMotFilePath = os.path.join(working_folder, mcad_name + ".mot")
-outputDir = os.path.join(working_folder, "thermal_twinbuilder_" + mcad_name)
+inputMotFilePath = os.path.join(os.getcwd(), "e8_mobility.mot")
+outputDirectory = os.path.join(os.getcwd(), "thermal_twinbuilder_e8_mobility")
 
 # %%
-# Create the e8 input file if it does not exist already.
+# For the purposes of this example, if the specified input file does not exist, use the e8 template.
 if Path(inputMotFilePath).exists() == False:
     motorcad = pymotorcad.MotorCAD()
     motorcad.load_template("e8")
     motorcad.save_to_file(inputMotFilePath)
     motorcad.quit()
-
-# %%
-# Create the ``MotorCADTwinModel`` object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file as
-# well as the directory to which the generated training data should be saved.
-MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDir)
 
 # %%
 # Choose the speed sample points
@@ -2542,15 +2526,18 @@ coolingSystemsParameterSweeps: coolingSystemSweepType = {
 # %%
 # Generate the training data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Finally, generate the required data. This function will write the data to the directory
-# specified previously. The identified cooling system node flow paths are automatically plotted.
+# First create a ``MotorCADTwinModel`` object, passing as arguments the path to the input .mot file
+# and the directory to which the generated training data should be saved.
+MotorCADTwin = MotorCADTwinModel(inputMotFilePath, outputDirectory)
+
+# Then call the ``generateTwinData`` method, which will run the Motor-CAD calculations and write the
+# data to the output directory.
 MotorCADTwin.generateTwinData(
     rpms=speeds,
     housingAmbientTemperatures=housingAmbientTemps,
     airgapTemperatures=airgapTemps,
     coolingSystemsParameterSweeps=coolingSystemsParameterSweeps,
 )
-
 
 # %%
 # Generate the Thermal ROM in Twin Builder
@@ -2562,8 +2549,8 @@ MotorCADTwin.generateTwinData(
 # .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Blank.png
 #
 # The **Input Files** must point to the folder which contains the generated training data. Under
-# **Input Files**, press the ``...`` icon and choose the ``outputDir`` as specified in the previous
-# step. Then press the **Generate** button.
+# **Input Files**, press the ``...`` icon and choose the ``outputDirectory`` as specified in the
+# previous step. Then press the **Generate** button.
 #
 # .. image:: ../../images/Thermal_Twinbuilder_GenerateROM_Filled.png
 #

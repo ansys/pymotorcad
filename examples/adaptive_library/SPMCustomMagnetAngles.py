@@ -65,6 +65,7 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # * set the **Halbach Magnetization** type to **Sinusoidal Array**,
 #
 # * save the file to a temporary folder.
+#
 # To keep a new Motor-CAD instance open after executing the script, use the
 # ``MotorCAD(keep_instance_open=True)`` option when opening the new instance. Alternatively, use the
 # ``MotorCAD()`` method, which closes the Motor-CAD instance after the script is executed.
