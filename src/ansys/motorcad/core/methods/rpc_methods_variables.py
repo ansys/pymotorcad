@@ -114,6 +114,26 @@ class _RpcMethodsVariables:
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
+    def get_array(self, array_name):
+        """Get every element of a Motor-CAD array variable in a single API call.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array. This can be a 1D or a 2D array.
+
+        Returns
+        -------
+        list of int|float|str|bool|list
+            Values of the Motor-CAD array variable. A 2D array is returned as a list of lists.
+        """
+        self.connection.ensure_version_at_least("2026.0")
+        method = "LabInternal_GetArray"
+        params = [array_name]
+        result = self.connection.send_and_receive(method, params)
+        # result is a dict comprised of {"value" : list, "data_type" : str}
+        return result["value"]
+
     def get_full_array_variable(self, array_name):
         """Get the full array of a Motor-CAD array variable as a list.
 
@@ -183,6 +203,27 @@ class _RpcMethodsVariables:
         """
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]
+        return self.connection.send_and_receive(method, params)
+
+    def set_array(self, array_name, array_values):
+        """Set every element of a Motor-CAD array variable in a single API call.
+
+        Dynamically sized arrays are resized to match the number of values provided.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array. This can be a 1D or a 2D array.
+        array_values : list of int|float|str|bool|list
+            Values to set the array elements to. Use a list of lists for a 2D array.
+        """
+        self.connection.ensure_version_at_least("2026.0")
+
+        if not isinstance(array_values, list):
+            raise TypeError("array_values must be a list of values.")
+
+        method = "LabInternal_SetListOfVariables"
+        params = [{array_name: array_values}]
         return self.connection.send_and_receive(method, params)
 
     def set_full_array_variable(self, array_name, variable_list):

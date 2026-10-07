@@ -144,6 +144,23 @@ def test_set_full_array_variable(mc):
     print("hello")
 
 
+def test_get_set_array(mc):
+    reset_to_default_file(mc)
+
+    values = mc.get_array("Aux_Loss_Distribution")
+    values[0] = 0.2
+    values[1] = 0.2
+    values[2] = 0.6
+    mc.set_array("Aux_Loss_Distribution", values)
+    assert mc.get_array("Aux_Loss_Distribution") == values
+
+    values_2d = mc.get_array("ConductorCentre_L_x")
+    assert isinstance(values_2d[0], list)
+    values_2d[0][0] = -5
+    mc.set_array("ConductorCentre_L_x", values_2d)
+    assert mc.get_array("ConductorCentre_L_x") == values_2d
+
+
 def test_get_set_array_variable_2d(mc):
     test_value = 10
 
