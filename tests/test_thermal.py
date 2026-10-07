@@ -98,6 +98,9 @@ def test_get_node_to_node_resistance_intended_use(mc):
     r_bt = mc.get_node_to_node_resistance(node1, node2, True)  # 3
     r_bf = mc.get_node_to_node_resistance(node1, node2, False)  # 3
 
+    with pytest.raises(ValueError):
+        mc.get_node_to_node_resistance(node1, node2, "foobar")  # Exception
+
     mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
 
     mc.do_steady_state_analysis()
@@ -123,9 +126,9 @@ def test_get_node_to_node_resistance_backwards_compatibility(mc, monkeypatch):
     mc.do_steady_state_analysis()
     r_ou = mc.get_node_to_node_resistance(node1, node2)  # 3
 
-    with pytest.raises(ValueError):
+    with pytest.raises(MotorCADError):
         mc.get_node_to_node_resistance(node1, node2, True)  # Exception
-    with pytest.raises(ValueError):
+    with pytest.raises(MotorCADError):
         mc.get_node_to_node_resistance(node1, node2, False)  # Exception
 
     assert almost_equal(r_ou, 3, 3)
