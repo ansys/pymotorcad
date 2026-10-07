@@ -56,7 +56,9 @@ def test_get_node_to_node_resistance(mc):
 
 
 # tests for when include_resistance_multiplier is unset but the feature exists
-def test_get_node_to_node_resistance_unset_up_to_date(mc):
+def test_get_node_to_node_resistance_unset_up_to_date(mc_reset_to_default_on_teardown):
+    mc = mc_reset_to_default_on_teardown
+
     if not mc.connection.check_if_feature_exists(
         "check_if_get_node_to_node_resistance_with_multiplier"
     ):
@@ -82,7 +84,9 @@ def test_get_node_to_node_resistance_unset_up_to_date(mc):
 
 
 # tests for when include_resistance_multiplier is set and the feature exists
-def test_get_node_to_node_resistance_intended_use(mc):
+def test_get_node_to_node_resistance_intended_use(mc_reset_to_default_on_teardown):
+    mc = mc_reset_to_default_on_teardown
+
     if not mc.connection.check_if_feature_exists(
         "check_if_get_node_to_node_resistance_with_multiplier"
     ):
@@ -115,7 +119,11 @@ def test_get_node_to_node_resistance_intended_use(mc):
 
 
 # tests for backwards compatibility when include_resistance_multiplier feature does not exist
-def test_get_node_to_node_resistance_backwards_compatibility(mc, monkeypatch):
+def test_get_node_to_node_resistance_backwards_compatibility(
+    mc_reset_to_default_on_teardown, monkeypatch
+):
+    mc = mc_reset_to_default_on_teardown
+
     monkeypatch.setattr(mc.connection, "program_version", "2026.1.2")
     print("Program version: ", mc.connection.program_version)
 
