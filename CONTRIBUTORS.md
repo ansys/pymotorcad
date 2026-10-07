@@ -13,6 +13,7 @@
 * [Devin](https://github.com/Devin-Crawford)
 * [Dougie Hawkins](https://github.com/dougiehawkins)
 * [DragosVMosteanu](https://github.com/DragosVMosteanu)
+* [Etienne Kaiser](https://github.com/Kaiser-E)
 * [GiadaVent](https://github.com/GiadaVent)
 * [gmalinve](https://github.com/gmalinve)
 * [Husain Adam](https://github.com/HusainAdam)
