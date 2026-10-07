@@ -412,9 +412,13 @@ class _RpcMethodsLab:
                 "Failed to export concept_ev_model. Please ensure Numpy and Scipy are installed"
             )
 
-        save_message_display_state = self.get_variable("MessageDisplayState")
-        try:
+        if self.connection.check_if_feature_exists("motor_cad_messager"):
+            save_popups_enabled = self.messageconfig.get_popups_enabled()
+            self.messageconfig.disable_popups()
+        else:
+            save_message_display_state = self.get_variable("MessageDisplayState")
             self.set_variable("MessageDisplayState", 2)
+        try:
             self.set_motorlab_context()
             file_path = self.get_variable("ResultsPath_MotorLAB") + "ConceptEV_elecdata.xlsx"
             # set model parameters
@@ -476,4 +480,39 @@ class _RpcMethodsLab:
                 ws["B" + str(i + 1)] = data["varUnits"][index][0]
             wb.save(file_path)
         finally:
-            self.set_variable("MessageDisplayState", save_message_display_state)
+            # switching on again the message window
+            if self.connection.check_if_feature_exists("motor_cad_messager"):
+                if save_popups_enabled:
+                    self.messageconfig.enable_popups()
+                else:
+                    self.messageconfig.disable_popups()
+            else:
+                self.set_variable("MessageDisplayState", save_message_display_state)
+
+    def export_lab_thermal_model(self, file_path):
+        """Export a built lab thermal model.
+
+        Parameters
+        ----------
+        file_path : str
+            File path including thermal model file name and file extension (.therm)
+        """
+        self.connection.ensure_feature_exists("export_lab_thermal_model")
+        method = "ExportLabThermalModel"
+        params = [file_path]
+        return self.connection.send_and_receive(method, params)
+
+    def build_lab_thermal_model(self):
+        """Export thermal model.
+
+        To build thermal model at various flow rates set the following
+        datastore parameters:
+
+        "ThermalModelVariableFlowRate" - set to true to enable variable flow rate.
+        "ThermalModelFlowRateMinimum" - set to minimum flow rate value.
+        ThermalModelFlowRateMaximum" - set to maximum flow rate value.
+        "ThermalModelFlowRateResolution" - set to number of flow rate points.
+        """
+        self.connection.ensure_feature_exists("build_lab_thermal_model")
+        method = "BuildLabThermalModel"
+        return self.connection.send_and_receive(method)

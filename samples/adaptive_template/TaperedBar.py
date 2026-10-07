@@ -23,7 +23,7 @@
 # Keywords: **Tapered Bar**, **Induction Motor**, **motor**
 """
 Converting IM parallel tooth bar to tapered tooth bar
-=========================================
+=====================================================
 
 This script applies the adaptive templates functionality to change
 the points at the bottom of parallel tooth to create a tapered tooth bar geometry.
@@ -40,9 +40,6 @@ from ansys.motorcad.core.geometry import Coordinate, rt_to_xy, xy_to_rt
 # Alternatively, we could open a new instance and load a file with mc.load_from_file()
 mc = pymotorcad.MotorCAD()
 
-# Reset geometry to default
-mc.reset_adaptive_geometry()
-
 # Disable popup messages
 mc.set_variable("MessageDisplayState", 2)
 
@@ -57,7 +54,11 @@ def chord_angle(cord_length, r):
 # Set IM motor type if not already
 if not pymotorcad.is_running_in_internal_scripting():
     mc.load_template("i6a")
+    # Simplify template geometry by turning off bar corner rounding
+    mc.set_variable("Bar Corner Radius[T]", 0)
 
+# Reset geometry to default
+mc.reset_adaptive_geometry()
 
 # Get the bar region
 bar = mc.get_region("TopRotorBar")

@@ -50,7 +50,7 @@ repos:
     - id: check-github-workflows
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.4.3
+  rev: v0.7.1
   hooks:
   - id: add-license-headers
     args:
