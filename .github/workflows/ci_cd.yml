@@ -190,3 +190,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-python-cache: false
           changelog-release-notes: false
+          upload-documentation: false
