@@ -10,17 +10,17 @@ import shutil
 # If you are adding a new documentation category, follow these steps :
 #  1. Add a new entry to the `doc_categories` list with the appropriate values using a
 #     _DocCategory obj.
-#  2. Add to doc/source/methods/MotorCAD_object.rst file
+#  2. Add a new entry to the doc/source/methods/MotorCAD_object.rst file
 #  3. Run this script to generate the documentation files.
 #
-# If you are adding a Unit category specifically, the rpc_methods_core python file will
-# need to be updated. A class attribute will need to be added and set to be an alias of
-# the rpc class, this attribute will share the same name as the runtime instance used. This is
-# used by the doc gen to find the methods but has no functional impact when using the api.
-# e.g. for messageconfig, the runtime instance is referenced via MotorCad.messageconfig.<method>
-#      and is set to _RpcMessageConfig(mc_connection). Along with this there needs to be a
-#      _RpcMethodsCore.messageconfig attribute set to _RpcMessageConfig.
-# See messageconfig in rpc_methods_core for an example.
+# If you are adding a Unit category specifically, you must update the rpc_methods_core python file
+# will. You must add a class attribute and set this to be an alias of the rpc class. This attribute
+# should share the same name as the runtime instance used. The doc generation process will use this
+# to find the methods but it has no functional impact when using the API.
+# For example: for messageconfig, the runtime instance is referenced via
+#      MotorCad.messageconfig.<method> and is set to _RpcMessageConfig(mc_connection). Along with
+#      this there needs to be an _RpcMethodsCore.messageconfig attribute set to _RpcMessageConfig.
+#      See messageconfig in rpc_methods_core for an example.
 #
 # If you are adding a new documentation category generation type, follow the steps:
 #  1. Add a new entry to the _DocCategoryGenType enumeration with the appropriate value.
@@ -62,9 +62,9 @@ def _doctemplate_find_and_replace(file_path: str, replace_dict: dict):
 
 
 def generate_method_docs():
-    """Add files to document and names for the units here.
+    """Add files to documentation and unit names.
 
-    New categories also need adding in MotorCAD_object.rst
+    You must also add new categories to MotorCAD_object.rst
     """
     # Docs can be generated in different ways depending on the category type :
     # default   :   MotorCAD.<method>
@@ -130,10 +130,9 @@ def generate_method_docs():
         #     if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
         #         func_names.append(node.name)
         #
-        # If below isn't finding all the rpc methods try switching to the above for loop instead.
-        # It is less strict, allowing methods outside of the _Rpc class to be included.
-        # I used this one as a bit safer, but it does have the potential to be more restrictive.
-        #
+        # Find the rpc methods
+        #   note: If some rpc methods are not found, you may need to replace the below for loop with
+        #        a less restrictive for loop, such as the example above.
         for node in tree.body:
             if isinstance(node, ast.ClassDef) and node.name.startswith("_Rpc"):
                 func_names = [
@@ -146,9 +145,9 @@ def generate_method_docs():
         else:
             raise ValueError(f"No class found in {file_path}")
 
-        func_names = sorted(func_names)  # sorted so more readable in the docs
+        func_names = sorted(func_names)  # sorted the methods to improve readability.
 
-        # Create method template for the category if it of the unit type
+        # Create method template for the category if it is unit type
         if category.category_type == _DocCategoryGenType.unit:
             unit_method_template = str(
                 (_templates_folder / "autosummary" / "unit_method.rst_template").absolute()
@@ -182,10 +181,10 @@ def generate_method_docs():
         shutil.copyfile(category_template, new_category_template_file)
 
         # Prepare the dictionary for replacing placeholders in the new category autogen file
-        #  note: currently optional feilds in _DocCategory default to None, it throws an error if
-        #        you pass None to the replace_dict. So it may be better for it to default to None
-        #        a "" (empty string) instead of None to avoid many if statements to emit un-used
-        #        fields when in a category type not supporting those fields.
+        #  note: currently optional fields in _DocCategory default to None, it throws an error if
+        #        you pass None to the replace_dict. You may need to set the default to an empty
+        #        string ("") instead of None. This alternative avoids requiring many if statements
+        #        to emit unused fields for category types that do not support those fields.
         replace_dict = {"[Category]": category.category_name}
         if category.category_type == _DocCategoryGenType.unit:
             replace_dict["[unitname]"] = category.unit_name
