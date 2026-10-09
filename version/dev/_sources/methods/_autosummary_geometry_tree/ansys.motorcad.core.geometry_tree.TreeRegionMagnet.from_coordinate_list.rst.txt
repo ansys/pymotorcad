@@ -1,0 +1,6 @@
+from\_coordinate\_list
+======================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegionMagnet.from_coordinate_list

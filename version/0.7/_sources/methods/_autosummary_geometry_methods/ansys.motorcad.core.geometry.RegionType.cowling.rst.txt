@@ -1,0 +1,6 @@
+cowling
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.cowling

@@ -1,0 +1,6 @@
+ImportSolidMaterial
+===================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ImportSolidMaterial

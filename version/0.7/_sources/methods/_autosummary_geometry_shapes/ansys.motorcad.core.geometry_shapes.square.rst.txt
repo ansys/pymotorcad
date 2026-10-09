@@ -1,0 +1,6 @@
+﻿square
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry_shapes
+
+.. autofunction:: square

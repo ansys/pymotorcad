@@ -1,0 +1,6 @@
+﻿export\_concept\_ev\_model
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.export_concept_ev_model

@@ -1,0 +1,6 @@
+AddCircularConductor\_A
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddCircularConductor_A

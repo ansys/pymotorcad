@@ -1,0 +1,6 @@
+linked\_region
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.linked_region

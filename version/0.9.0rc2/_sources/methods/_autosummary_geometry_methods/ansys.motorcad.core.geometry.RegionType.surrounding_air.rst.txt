@@ -1,0 +1,6 @@
+surrounding\_air
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.surrounding_air

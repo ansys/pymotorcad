@@ -1,0 +1,6 @@
+﻿build\_model\_lab
+=================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.build_model_lab

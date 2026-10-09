@@ -1,0 +1,6 @@
+﻿get\_maxwell\_udm\_geometry\_json
+=================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_maxwell_udm_geometry_json

@@ -1,0 +1,6 @@
+GetModelBuilt\_Lab
+==================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.GetModelBuilt_Lab

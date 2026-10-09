@@ -1,0 +1,6 @@
+total\_angle
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Arc.total_angle

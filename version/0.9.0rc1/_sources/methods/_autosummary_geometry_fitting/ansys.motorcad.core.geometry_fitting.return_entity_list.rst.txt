@@ -1,0 +1,6 @@
+﻿return\_entity\_list
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry_fitting
+
+.. autofunction:: return_entity_list

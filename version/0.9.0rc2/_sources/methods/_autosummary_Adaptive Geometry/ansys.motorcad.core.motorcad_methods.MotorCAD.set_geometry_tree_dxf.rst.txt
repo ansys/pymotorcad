@@ -1,0 +1,6 @@
+﻿set\_geometry\_tree\_dxf
+========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.set_geometry_tree_dxf

@@ -1,0 +1,6 @@
+insert
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: EntityList.insert

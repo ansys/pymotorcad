@@ -1,0 +1,6 @@
+material
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.material

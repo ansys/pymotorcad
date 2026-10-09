@@ -1,0 +1,6 @@
+housing\_magnetic
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.housing_magnetic

@@ -1,0 +1,6 @@
+SaveTransientTemperatures
+=========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveTransientTemperatures

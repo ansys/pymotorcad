@@ -1,0 +1,15 @@
+.. _ref_Utility_API:
+Utility
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Utility
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    is_file_loaded
+    is_open
