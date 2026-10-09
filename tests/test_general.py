@@ -33,7 +33,7 @@ from RPC_Test_Common import (
     get_test_files_dir_path,
     reset_to_default_file,
 )
-from ansys.motorcad.core import MotorCAD, MotorCADError, PopupDisplayLevel
+from ansys.motorcad.core import MessageDisplayLevel, MotorCAD, MotorCADError
 
 
 def kh_to_ms(kh):
@@ -79,7 +79,7 @@ def test_export_matrices(mc):
 def test_load_fea_result(mc):
     mc.show_magnetic_context()
 
-    mc.load_fea_result(os.path.join(get_dir_path(), "test_files", "TorqueSpeed_result_1_5.mes"), 0)
+    mc.load_fea_result(os.path.join(get_test_files_dir_path(), "TorqueSpeed_result_1_5.mes"), 0)
 
     value, unit = mc.get_point_value("B", 61, -16)
     assert almost_equal(value, 1.505, 3)
@@ -117,22 +117,36 @@ def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")
 
+    popup_level = mc.messageconfig.get_popup_display_level()
+    console_level = mc.messageconfig.get_console_log_level()
+
     try:
         mc.messageconfig.disable_popups()
         assert mc.messageconfig.get_popups_enabled() is False
         mc.messageconfig.enable_popups()
         assert mc.messageconfig.get_popups_enabled() is True
 
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.info)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.info
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.error)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.error
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.warning)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.warning
-        mc.messageconfig.set_popup_display_level(PopupDisplayLevel.query)
-        assert mc.messageconfig.get_popup_display_level() == PopupDisplayLevel.query
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.info)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.info
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.error)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.error
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.warning)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.warning
+        mc.messageconfig.set_popup_display_level(MessageDisplayLevel.query)
+        assert mc.messageconfig.get_popup_display_level() == MessageDisplayLevel.query
+
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.info)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.info
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.warning)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.warning
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.error)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.error
+        mc.messageconfig.set_console_log_level(MessageDisplayLevel.query)
+        assert mc.messageconfig.get_console_log_level() == MessageDisplayLevel.query
     finally:
         mc.messageconfig.disable_popups()
+        mc.messageconfig.set_popup_display_level(popup_level)
+        mc.messageconfig.set_console_log_level(console_level)
 
 
 def test_verbose_message_config(mc):
