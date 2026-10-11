@@ -21,7 +21,11 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
+
+from typing import Any
 from warnings import warn
+
+import numpy as np
 
 from ansys.motorcad.core.datastore import Datastore
 
@@ -146,6 +150,67 @@ class _RpcMethodsVariables:
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
+    def get_array(self, array_name):
+        """Get every element of a Motor-CAD array variable in a single API call.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array. This can be a 1D or a 2D array.
+
+        Returns
+        -------
+        list of int|float|str|bool|list
+            Values of the Motor-CAD array variable. A 2D array is returned as a list of lists.
+        """
+        self.connection.ensure_version_at_least("2026.0")
+        method = "LabInternal_GetArray"
+        params = [array_name]
+        result = self.connection.send_and_receive(method, params)
+        # result is a dict comprised of {"value" : list, "data_type" : str}
+        return result["value"]
+
+    def get_full_array_variable(self, array_name):
+        """Get the full array of a Motor-CAD array variable as a list.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array
+
+        Returns
+        -------
+        list of int|float|str|bool|list
+            List of values of the Motor-CAD variable
+        """
+        if self.connection.check_if_feature_exists("get_array"):
+            method = "GetArray"
+            params = [array_name]
+            result = self.connection.send_and_receive(method, params)
+            # result is a dict comprised of {"value" : list[], "data_type" : str}
+            return result["value"]
+        else:
+            # Get the array variable as a single string, delimited by colon.
+            # Split this string into a list.
+            value_string = self.get_variable(array_name)
+            value_string = value_string.split(":")
+            # Get the first variable of the array, and determine the type of the variable.
+            value_0 = self.get_array_variable(array_name, 0)
+            value_type = str
+            if isinstance(value_0, int):
+                value_type = int
+            if isinstance(value_0, float):
+                value_type = float
+            if isinstance(value_0, bool):
+                value_type = bool
+            # Create a list and append each value to the list.
+            # Convert the value if the value_type is not string.
+            values = []
+            if value_type is not None:
+                for value in value_string:
+                    values.append(value_type(value))
+            return values
+
     def set_variable(self, variable_name, variable_value):
         """Set a Motor-CAD variable.
 
@@ -190,6 +255,89 @@ class _RpcMethodsVariables:
         method = "SetArrayVariable"
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
+
+    def set_array(self, array_name, array_values):
+        """Set every element of a Motor-CAD array variable in a single API call.
+
+        Dynamically sized arrays are resized to match the number of values provided.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array. This can be a 1D or a 2D array.
+        array_values : list of int|float|str|bool|list
+            Values to set the array elements to. Use a list of lists for a 2D array.
+        """
+        self.connection.ensure_version_at_least("2026.0")
+
+        if not isinstance(array_values, list):
+            raise TypeError("array_values must be a list of values.")
+
+        method = "LabInternal_SetListOfVariables"
+        params = [{array_name: array_values}]
+        return self.connection.send_and_receive(method, params)
+
+    def set_full_array_variable(self, array_name, variable_list):
+        """Set the full array of a Motor-CAD array variable as a list.
+
+        Parameters
+        ----------
+        array_name : str
+            Name of the array
+        variable_list : list of int|float|str|bool|list
+            Values to set the variables to.
+        """
+
+        def check_serializable_input(value: Any) -> Any:
+            """Convert input value to a serializable type.
+
+            Parameters
+            ----------
+            value: Any
+                The input value to change to a serializable type.
+
+            Returns
+            -------
+            Any
+                The input value as a serializable type.
+            """
+            if isinstance(value, (np.ndarray, list)):
+                return [check_serializable_input(element) for element in value]
+            else:
+                if isinstance(value, np.integer):
+                    return int(value)
+                elif isinstance(value, np.floating):
+                    return float(value)
+                else:
+                    return value
+
+        new_list = check_serializable_input(variable_list)
+
+        if not isinstance(new_list, list):
+            raise TypeError("variable_list must be a list.")
+
+        if self.connection.check_if_feature_exists("set_array"):
+            method = "SetArray"
+            params = [array_name, new_list]
+            return self.connection.send_and_receive(method, params)
+        else:
+            # Get the original array variable to determine the length of the array
+            values_orig = self.get_variable(array_name)
+            values_orig = values_orig.split(":")
+
+            # If the provided list of variables is longer than the original array, raise an error.
+            if len(new_list) != len(values_orig):
+                raise ValueError(
+                    f"The array variable {array_name} has length = {len(values_orig)}. The "
+                    f"variable_list provided has length = "
+                    f"{len(new_list)}. Please provide a list of {len(values_orig)} "
+                    f"values."
+                )
+
+            # Loop through all elements of the array, setting the value for each index
+            for i in range(len(new_list)):
+                value = new_list[i]
+                self.set_array_variable(array_name, i, value)
 
     def get_file_name(self):
         """Get current .mot file name and path.
