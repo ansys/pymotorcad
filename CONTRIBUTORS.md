@@ -18,6 +18,7 @@
 * [gmalinve](https://github.com/gmalinve)
 * [Husain Adam](https://github.com/HusainAdam)
 * [Jack](https://github.com/JackB-Ansys)
+* [James Derrick](https://github.com/jgd10)
 * [James Packer](https://github.com/james-packer)
 * [James Schaffer](https://github.com/James-Schaffer)
 * [Jamie MacLeod](https://github.com/jmacleod-ansys)
