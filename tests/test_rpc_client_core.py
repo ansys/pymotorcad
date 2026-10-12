@@ -35,6 +35,17 @@ from ansys.motorcad.core import MotorCAD, MotorCADError, MotorCADWarning
 from ansys.motorcad.core.rpc_client_core import MOTORCAD_EXE_GLOBAL, _MotorCADConnection
 
 
+def test_connection_destructor_ignores_interpreter_teardown_errors(monkeypatch):
+    connection = object.__new__(_MotorCADConnection)
+    connection.reuse_parallel_instances = False
+    connection._open_new_instance = False
+    connection._compatibility_mode = False
+    connection._session = None
+    monkeypatch.setattr(pypim, "is_configured", None)
+
+    connection.__del__()
+
+
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test__find_free_motor_cad(mc):
     # Test if we can find open Motor-CAD instance
@@ -64,7 +75,7 @@ def test_set_motorcad_exe():
 
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = False
+        mock_conn._full_headless = False
         assert _MotorCADConnection._resolve_motor_cad_exe(mock_conn) == test_path
     finally:
         pymotorcad.set_motorcad_exe(save_global_exe)
@@ -343,11 +354,15 @@ def test__resolve_localhost():
 
 @pytest.mark.licensing
 def test_blackbox_licencing():
+    # get_licence() is deprecated in 27R1 as MotorCAD checks out the license on startup,
+    # so an exception will be raised on startup to give test failure.
+    # Don't need to check the licence explicitly.
     mc1 = MotorCAD(use_blackbox_licence=True)
     try:
         # Not sure it's possible to assert that only a blackbox licence was consumed
         # Just check it works for now
-        mc1.get_licence()
+        if not mc1.connection.check_version_at_least("2027.0"):
+            mc1.get_licence()
     finally:
         mc1.quit()
 
@@ -355,7 +370,8 @@ def test_blackbox_licencing():
     try:
         # Not sure it's possible to assert that only a non-blackbox licence was consumed
         # Just check it works for now
-        mc2.get_licence()
+        if not mc2.connection.check_version_at_least("2027.0"):
+            mc2.get_licence()
     finally:
         mc2.quit()
 
@@ -364,7 +380,8 @@ def test_blackbox_licencing():
         # Not sure it's possible to check which licence type has been used, and whether this
         # matches the default setting
         # Just check it works for now
-        mc3.get_licence()
+        if not mc3.connection.check_version_at_least("2027.0"):
+            mc3.get_licence()
     finally:
         mc3.quit()
 
@@ -433,33 +450,3 @@ def test_use_new_license_type(mc):
 
     with pytest.warns(UserWarning, match="use_new_license_type has no effect"):
         MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
-
-
-def test_full_headless_beta(mc):
-    if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
-
-    with pytest.warns(UserWarning, match="full_headless_beta is a beta setting"):
-        mc1 = MotorCAD(full_headless_beta=True)
-    try:
-        assert mc1.connection._full_headless_beta is True
-        mc1.get_licence()
-    finally:
-        mc1.quit()
-
-    with pytest.warns(UserWarning, match="full_headless_beta has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless_beta=True)
-
-
-def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():
-    save_global_exe = MOTORCAD_EXE_GLOBAL
-    test_path = r"test_path/test"
-    pymotorcad.set_motorcad_exe(test_path)
-    try:
-        mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = True
-        with pytest.warns(UserWarning, match="full_headless_beta is ignored"):
-            result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
-        assert result == test_path
-    finally:
-        pymotorcad.set_motorcad_exe(save_global_exe)
