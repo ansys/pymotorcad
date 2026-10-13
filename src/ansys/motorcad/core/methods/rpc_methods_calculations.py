@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for calculations."""
+from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 
 class _RpcMethodsCalculations:
@@ -113,10 +114,23 @@ class _RpcMethodsCalculations:
         method = "DoMagneticCalculation"
         return self.connection.send_and_receive(method)
 
-    def do_weight_calculation(self):
+    def do_weight_calculation(self, context=None):
         """Run the Motor-CAD weight calculation."""
-        method = "DoWeightCalculation"
-        return self.connection.send_and_receive(method)
+        if self.connection.check_if_feature_exists("do_weight_calculation_with_context"):
+            if context is None:
+                raise MotorCADWarning(
+                    "It is recommended to specify the context for do_weight_calculation"
+                    " with Motor-CAD 2027.0 or later. If no context is specified, the calculation"
+                    " will be checked for the current UI context, this will not work for headless"
+                    " mode."
+                )
+            method = "DoWeightCalculationWithContext"
+            params = [context]
+        else:
+            method = "DoWeightCalculation"
+            params = []
+
+        return self.connection.send_and_receive(method, params)
 
     def do_mechanical_calculation(self):
         """Run the Motor-CAD mechanical calculation."""
@@ -126,7 +140,15 @@ class _RpcMethodsCalculations:
     def create_winding_pattern(self):
         """Create winding pattern.
 
-        Refreshes the UI to recreate winding pattern. Will be replaced by direct API call soon.
+        With Motor-CAD version 27R1 or greater, updates winding pattern, properties, and weights,
+        after changing winding parameters.
+        With Motor-CAD version less than 27R1, refreshes the UI to recreate winding pattern.
         """
-        self.display_screen("Scripting")
-        self.display_screen("Winding;Definition")
+        if self.connection.check_version_at_least("2027.1"):
+            # Update parameters on the Winding Pattern page.
+            method = "CreateWindingPattern"
+            return self.connection.send_and_receive(method)
+        else:
+            # Retain for now, as still lots of work done in the UI on this tab.
+            self.display_screen("Scripting")
+            self.display_screen("Winding;Definition")

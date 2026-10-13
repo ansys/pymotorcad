@@ -54,7 +54,7 @@ mc.set_variable("MultiForceThreading", 0)  # 0 is multithreaded, 1 is single thr
 
 # %%
 # Set operating points, in this case for speed and torque definition.
-operating_points_speed = [250, 8000, 8000]  # RPM
+operating_points_speed = [250, 4000, 8000]  # RPM
 operating_points_torque = [250, 250, 100]  # Nm
 num_operating_points = len(operating_points_speed)
 
@@ -76,8 +76,9 @@ for operating_point in range(num_operating_points):
 #
 #   - All motor types and options: `LoadPoint_Speed_Array`
 #   - BPM or similar for torque based definition: `LoadPoint_Torque_Array`
-#   - BPM or similar for current/phase advance definition: `LoadPoint_Current_Array`,
-#   and `LoadPoint_PhaseAdvance_Array`
+#   - BPM or similar for current/phase advance definition:
+#       - `LoadPoint_Current_Array`,
+#       - `LoadPoint_PhaseAdvance_Array`
 #   - SRM: `LoadPoint_Current_Array`, `LoadPoint_OnAngle_Array`, and `LoadPoint_OffAngle_Array`
 #   - IM: `LoadPoint_Current_Array` and `LoadPoint_Slip_Array`
 
