@@ -1,0 +1,6 @@
+AddRectangularConductor\_A
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddRectangularConductor_A

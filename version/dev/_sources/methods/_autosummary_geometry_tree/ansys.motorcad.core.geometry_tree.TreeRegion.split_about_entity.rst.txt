@@ -1,0 +1,6 @@
+split\_about\_entity
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.split_about_entity

@@ -1,0 +1,6 @@
+remove
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: EntityList.remove

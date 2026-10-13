@@ -1,0 +1,6 @@
+unite
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.unite

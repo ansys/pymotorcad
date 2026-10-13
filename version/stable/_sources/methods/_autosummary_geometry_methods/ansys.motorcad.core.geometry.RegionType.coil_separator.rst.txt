@@ -1,0 +1,6 @@
+coil\_separator
+===============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.coil_separator

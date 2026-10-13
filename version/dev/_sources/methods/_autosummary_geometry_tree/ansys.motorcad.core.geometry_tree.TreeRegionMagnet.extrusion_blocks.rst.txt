@@ -1,0 +1,6 @@
+extrusion\_blocks
+=================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.extrusion_blocks

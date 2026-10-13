@@ -1,0 +1,412 @@
+:orphan:
+
+.. _ref_examples:
+
+Examples
+========
+End-to-end examples show how you can use PyMotorCAD. If PyMotorCAD is installed
+on your machine, you can download these examples as Python files or Jupyter
+notebooks and run them locally.
+
+.. note::
+    Some examples require additional Python packages.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+Adaptive templates examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Library of adaptive templates examples for setting up custom geometries in Motor-CAD.
+These scripts can be loaded into the Motor-CAD Adaptive Templates tab.
+
+.. note::
+    Adaptive Templates in Motor-CAD require v2024.1.2 (Motor-CAD 2024 R1 Update) or later.
+
+.. note::
+    For more information on the use of Adaptive Templates in Motor-CAD,
+    and how to create, modify and debug Adaptive Templates Scripts,
+    see :ref:`ref_adaptive_templates_UG` in the :ref:`ref_user_guide`.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Triangular Rotor Notches for IPM">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_BPMTriangularRotorNotches_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_BPMTriangularRotorNotches.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Triangular Rotor Notches for IPM</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Bezier curve rotor pockets">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_BezierCurveRotorPockets_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_BezierCurveRotorPockets.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Bezier curve rotor pockets</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Custom DXF Geometry">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_DXFImport_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_DXFImport.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Custom DXF Geometry</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Oblong stator ducts with thermal adjustment">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_OblongStatorDuct_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_OblongStatorDuct.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Oblong stator ducts with thermal adjustment</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Trapezoidal ducts">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_TrapezoidalDuct_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_TrapezoidalDuct.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Trapezoidal ducts</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Curved Rotor Flux Barriers for SYNCREL U-Shape">
+
+.. only:: html
+
+  .. image:: /examples/adaptive_library/images/thumb/sphx_glr_UShapeSYNCRELCurvedFluxBarriers_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_adaptive_library_UShapeSYNCRELCurvedFluxBarriers.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Curved Rotor Flux Barriers for SYNCREL U-Shape</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Advanced examples
+-----------------
+These examples show you how to use the basic functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="todo: expand this...">
+
+.. only:: html
+
+  .. image:: /examples/advanced/images/thumb/sphx_glr_force_extraction_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_advanced_force_extraction.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD force extraction example script</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Basic examples
+--------------
+These examples show you how to use the basic functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD E-magnetic example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_emag_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_emag_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD E-magnetic example script</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD Lab model example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_lab_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_lab_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD Lab model example script</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD thermal example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_thermal_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_thermal_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD thermal example script</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Internal scripting examples
+---------------------------
+These examples show you how to use the internal scripting functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="E-magnetic">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_emag_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_emag.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">E-magnetic</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Mechanical force">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_mechanical_force_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_mechanical_force.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Mechanical force</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Mechanical stress">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_mechanical_stress_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_mechanical_stress.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Mechanical stress</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Thermal steady-state">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_thermal_steady_state_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_thermal_steady_state.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Thermal steady-state</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Thermal transient">
+
+.. only:: html
+
+  .. image:: /examples/internal_scripting/images/thumb/sphx_glr_thermal_transient_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_internal_scripting_thermal_transient.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Thermal transient</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Linking examples
+~~~~~~~~~~~~~~~~
+These examples show how you can link PyMotorCAD to other Ansys products.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD EMag Twin Builder ECE">
+
+.. only:: html
+
+  .. image:: /examples/links/images/thumb/sphx_glr_ece_export_for_twinbuilder_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_links_ece_export_for_twinbuilder.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD EMag Twin Builder ECE</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+   :includehidden:
+
+
+   /examples/adaptive_library/index.rst
+   /examples/advanced/index.rst
+   /examples/basics/index.rst
+   /examples/internal_scripting/index.rst
+   /examples/links/index.rst
+
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

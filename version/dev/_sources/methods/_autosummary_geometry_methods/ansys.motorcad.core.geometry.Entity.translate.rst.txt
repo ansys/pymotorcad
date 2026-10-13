@@ -1,0 +1,6 @@
+translate
+=========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Entity.translate

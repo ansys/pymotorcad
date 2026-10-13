@@ -1,0 +1,45 @@
+General
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_General
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    clear_duty_cycle
+    clear_message_log
+    create_report
+    export_force_animation
+    export_matrices
+    export_multi_force_data
+    export_nvh_results_data
+    export_results
+    export_to_ansys_discovery
+    export_to_ansys_electronics_desktop
+    geometry_export
+    get_licence
+    get_license
+    get_messages
+    load_custom_drive_cycle
+    load_duty_cycle
+    load_dxf_file
+    load_fea_result
+    load_from_file
+    load_magnetisation_curves
+    load_report_structure
+    load_report_tree
+    load_results
+    load_template
+    load_winding_pattern
+    quit
+    save_duty_cycle
+    save_magnetisation_curves
+    save_results
+    save_template
+    save_to_file
+    save_winding_pattern
+    set_free

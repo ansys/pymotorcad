@@ -1,0 +1,128 @@
+﻿TreeRegionMagnet
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoclass:: TreeRegionMagnet
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      TreeRegionMagnet.add_entity
+      
+      
+      TreeRegionMagnet.add_point
+      
+      
+      TreeRegionMagnet.collides
+      
+      
+      TreeRegionMagnet.edit_point
+      
+      
+      TreeRegionMagnet.extend_entity
+      
+      
+      TreeRegionMagnet.find_entity_from_coordinates
+      
+      
+      TreeRegionMagnet.from_coordinate_list
+      
+      
+      TreeRegionMagnet.from_json
+      
+      
+      TreeRegionMagnet.insert_entity
+      
+      
+      TreeRegionMagnet.insert_polyline
+      
+      
+      TreeRegionMagnet.is_closed
+      
+      
+      TreeRegionMagnet.limit_arc_chord
+      
+      
+      TreeRegionMagnet.mirror
+      
+      
+      TreeRegionMagnet.remove_entity
+      
+      
+      TreeRegionMagnet.replace
+      
+      
+      TreeRegionMagnet.rotate
+      
+      
+      TreeRegionMagnet.round_corner
+      
+      
+      TreeRegionMagnet.round_corners
+      
+      
+      TreeRegionMagnet.subtract
+      
+      
+      TreeRegionMagnet.translate
+      
+      
+      TreeRegionMagnet.unite
+      
+      
+      TreeRegionMagnet.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TreeRegionMagnet.area
+      TreeRegionMagnet.br_multiplier
+      TreeRegionMagnet.br_used
+      TreeRegionMagnet.br_value
+      TreeRegionMagnet.br_x
+      TreeRegionMagnet.br_y
+      TreeRegionMagnet.centroid
+      TreeRegionMagnet.child_keys
+      TreeRegionMagnet.child_names
+      TreeRegionMagnet.children
+      TreeRegionMagnet.colour
+      TreeRegionMagnet.duplication_angle
+      TreeRegionMagnet.duplications
+      TreeRegionMagnet.entities
+      TreeRegionMagnet.extrusion_blocks
+      TreeRegionMagnet.key
+      TreeRegionMagnet.lamination_type
+      TreeRegionMagnet.level
+      TreeRegionMagnet.linked_region
+      TreeRegionMagnet.linked_region_names
+      TreeRegionMagnet.linked_regions
+      TreeRegionMagnet.magnet_angle
+      TreeRegionMagnet.magnet_polarity
+      TreeRegionMagnet.material
+      TreeRegionMagnet.mesh_length
+      TreeRegionMagnet.motorcad_instance
+      TreeRegionMagnet.name
+      TreeRegionMagnet.parent
+      TreeRegionMagnet.parent_key
+      TreeRegionMagnet.parent_name
+      TreeRegionMagnet.points
+      TreeRegionMagnet.region_coordinate
+      TreeRegionMagnet.region_type
+      TreeRegionMagnet.singular
+   
+   

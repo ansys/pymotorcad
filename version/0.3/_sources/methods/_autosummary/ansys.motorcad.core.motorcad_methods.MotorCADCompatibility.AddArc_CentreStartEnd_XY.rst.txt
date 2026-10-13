@@ -1,0 +1,6 @@
+AddArc\_CentreStartEnd\_XY
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddArc_CentreStartEnd_XY
