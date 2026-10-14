@@ -1,0 +1,7 @@
+{{ name | escape | underline }}
+
+``MotorCAD.[unitname].{{ name }}``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: [unitname].{{ name }}
