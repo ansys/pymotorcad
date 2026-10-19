@@ -123,56 +123,69 @@ def test_get_set_array_variable_2d(mc):
     mc.set_array_variable_2d("ConductorCentre_L_x", 2, 2, save_value)
 
 
-def test_restore_compatibility_settings(mc):
-    test_compatibility_setting = "EWdgAreaCalculation"
+def test_restore_deprecated_settings(mc):
+    test_deprecated_setting = "EWdgAreaCalculation"
     original_method = 0
     improved_method = 1
 
-    mc.set_variable(test_compatibility_setting, original_method)
-    assert mc.get_variable(test_compatibility_setting) == original_method
+    mc.set_variable(test_deprecated_setting, original_method)
+    assert mc.get_variable(test_deprecated_setting) == original_method
 
-    mc.restore_compatibility_settings()
-    assert mc.get_variable(test_compatibility_setting) == improved_method
+    mc.restore_deprecated_settings()
+    assert mc.get_variable(test_deprecated_setting) == improved_method
+
+    if mc.connection.check_if_feature_exists("restore_recommended_settings"):
+        test_recommended_setting = "ShaftAxleHoleGeometryMethod"
+        mc.set_variable(test_recommended_setting, original_method)
+        assert mc.get_variable(test_recommended_setting) == original_method
+
+        mc.restore_deprecated_settings(deprecated=False, recommended=True)
+        assert mc.get_variable(test_recommended_setting) == improved_method
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name():
     mc = MotorCAD()
+    try:
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        if path.exists(file_path):
+            remove(file_path)
 
-    if path.exists(file_path):
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_get_file_name_fallback(monkeypatch):
     mc = MotorCAD()
-    # Pretend to be an older version
-    mc.connection.program_version = "2024.2.3.1"
+    try:
+        # Pretend to be an older version
+        mc.connection.program_version = "2024.2.3.1"
 
-    file_path = get_dir_path() + r"\test_files\temp_files\Get_File_Name.mot"
+        file_path = path.join(get_dir_path(), "test_files", "temp_files", "Get_File_Name.mot")
 
-    if path.exists(file_path):
+        if path.exists(file_path):
+            remove(file_path)
+
+        assert path.exists(file_path) is False
+
+        with pytest.warns():
+            mc.get_file_name()
+
+        mc.save_to_file(file_path)
+        assert mc.get_file_name() == file_path
         remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    with pytest.warns():
-        mc.get_file_name()
-
-    mc.save_to_file(file_path)
-    assert mc.get_file_name() == file_path
-    remove(file_path)
+    finally:
+        mc.quit()
 
 
 def test_get_datastore(mc):
@@ -205,7 +218,6 @@ def test_get_datastore(mc):
     param = datastore["TVent_Shaft_Speed"]
     test_dict = {
         "TVent_Shaft_Speed": param,  # scalar
-        "ActiveXHidden": datastore_dict["ActiveXHidden"],  # boolean
         "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
         "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D

@@ -70,9 +70,45 @@ class _RpcMethodsVariables:
         return self.connection.send_and_receive(method, params)
 
     def restore_compatibility_settings(self):
-        """Restore model compatibility settings to default values to use the latest methods."""
+        """Restore model compatibility settings to default values to use the latest methods.
+
+        .. deprecated:: 0.9.0
+          `restore_compatibility_settings` has been removed in Motor-CAD 2027R1.
+          Functionality replaced by `restore_deprecated_settings`.
+        """
+        warn(
+            "restore_compatibility_settings is deprecated. Use restore_deprecated_settings",
+            DeprecationWarning,
+        )
         method = "RestoreCompatibilitySettings"
         return self.connection.send_and_receive(method)
+
+    def restore_deprecated_settings(self, deprecated=True, recommended=False):
+        """Restore model deprecated settings to default values to use the latest methods.
+
+        Parameters
+        ----------
+        deprecated : bool, optional
+            If True, restore deprecated settings to default values. Default is True.
+        recommended : bool, optional
+            If True, restore recommended settings to default values. Default is False.
+        """
+        result = None
+        if deprecated:
+            method = "RestoreCompatibilitySettings"
+            result = self.connection.send_and_receive(method)
+
+        if recommended:
+            if self.connection.check_if_feature_exists("restore_recommended_settings"):
+                result = self.connection.send_and_receive("RestoreRecommendedSettings")
+            else:
+                warn(
+                    "restoring recommended settings not available in Motor-CAD "
+                    + self.connection.program_version
+                    + ". Please update to a newer version of Motor-CAD to use this feature."
+                )
+
+        return result
 
     def get_variable(self, variable_name):
         """Get a Motor-CAD variable.
@@ -120,6 +156,21 @@ class _RpcMethodsVariables:
         variable_value : int|float|str|bool
             Value to set the variable to.
         """
+        # Deprication warnings
+        # note : stacklevel 2 means it shows what called set_variable, not the warning itself
+        if (
+            variable_name.lower() in ["messagedisplaystate", "verbomessageoutput"]
+            and self.connection.check_if_feature_exists("motor_cad_messager")
+        ) or (
+            variable_name.lower() in ["verbosefeamessageoutput", "verbosefeaoutput"]
+            and self.connection.check_if_feature_exists("motor_cad_messager_fea")
+        ):
+            warn(
+                f"The '{variable_name}' variable is deprecated\n"
+                + "Please switch to 'MotorCad.MessageConfig.<method>'.",
+                stacklevel=2,
+            )
+
         method = "SetVariable"
         params = [variable_name, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
