@@ -80,7 +80,7 @@ def test_load_reduced_nodes(mc):
     if not mc.connection.check_version_at_least("2027.0"):
         pytest.skip("load_reduced_nodes API not available in this version of Motor-CAD")
 
-    mc.load_reduced_nodes(os.path.join(get_temp_files_dir_path(), "ReducedNodes.rnm"))
+    mc.load_reduced_nodes(os.path.join(get_test_files_dir_path(), "ReducedNodes.rnm"))
 
     node_selection = mc.get_variable("ReducedNodeSelection")
     reduced_nodes_len = mc.get_variable("ReducedNodeNumber")
