@@ -21,12 +21,14 @@
 # SOFTWARE.
 
 from os import environ
+import subprocess
 from time import sleep
 from unittest.mock import create_autospec
 import warnings
 
 import ansys.platform.instancemanagement as pypim
 import grpc
+import psutil
 from psutil import pid_exists
 import pytest
 
@@ -116,6 +118,47 @@ def test_open_new_with_port():
         raise e
     finally:
         mc2.quit()
+
+
+@pytest.mark.parametrize(
+    "exit_code, expected_exception, expected_message",
+    [
+        (1, MotorCADError, "Motor-CAD licensing failed to initialise"),
+        (2, MotorCADError, "Motor-CAD failed to read the command line arguments"),
+        (3, MotorCADError, "Motor-CAD failed to get a license"),
+        (4, MotorCADError, "Motor-CAD failed during initialisation"),
+        # Exit code that PyMotorCAD doesn't have a specific error message for
+        (99, MotorCADError, "Motor-CAD failed to start up. Exit code: 99"),
+        # Process has gone without providing an exit code
+        (None, psutil.NoSuchProcess, "pid=1234"),
+    ],
+)
+def test_open_motor_cad_local_startup_errors(
+    monkeypatch, exit_code, expected_exception, expected_message
+):
+    """Check that a Motor-CAD instance which exits during startup gives a useful error."""
+
+    class FakeProcess:
+        pid = 1234
+
+        def wait(self, timeout=None):
+            return exit_code
+
+    def raise_no_such_process(self, process):
+        raise psutil.NoSuchProcess(FakeProcess.pid)
+
+    monkeypatch.setattr(_MotorCADConnection, "_resolve_motor_cad_exe", lambda self: "MotorCAD.exe")
+    monkeypatch.setattr(
+        _MotorCADConnection, "_wait_for_server_to_start_local", raise_no_such_process
+    )
+    monkeypatch.setattr(subprocess, "Popen", lambda *args, **kwargs: FakeProcess())
+    monkeypatch.setattr(psutil, "Process", lambda pid: object())
+
+    connection = object.__new__(_MotorCADConnection)
+    connection._port = 36000
+
+    with pytest.raises(expected_exception, match=expected_message):
+        connection._open_motor_cad_local()
 
 
 # Test connecting to known Motor-CAD instance
