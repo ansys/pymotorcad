@@ -647,7 +647,7 @@ class _MotorCADConnection:
                 4: "Motor-CAD failed during initialisation",
             }
 
-            error_message = startup_exit_code_errors[int(exit_code)]
+            error_message = startup_exit_code_errors.get(int(exit_code))
 
             if error_message is None:
                 error_message = "Motor-CAD failed to start up. Exit code: " + str(exit_code)

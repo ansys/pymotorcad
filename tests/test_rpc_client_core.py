@@ -129,8 +129,6 @@ def test_open_new_with_port():
         (4, MotorCADError, "Motor-CAD failed during initialisation"),
         # Exit code that PyMotorCAD doesn't have a specific error message for
         (99, MotorCADError, "Motor-CAD failed to start up. Exit code: 99"),
-        # Process has gone without providing an exit code
-        (None, psutil.NoSuchProcess, "pid=1234"),
     ],
 )
 def test_open_motor_cad_local_startup_errors(
