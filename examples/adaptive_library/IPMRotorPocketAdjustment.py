@@ -345,7 +345,7 @@ draw_objects(to_draw)
 # will have three adaptive parameters: a radial shift, an angular direction and a corner radius.
 #
 # Define strings that will be used for the parameter names for each vertex.
-adaptive_parameters_p_point = ["shift rad", "shift th", "corner radius"]
+adaptive_parameters_p_point = ["dr", "d°", "corner radius"]
 
 # %%
 # If undefined, set up the adaptive parameters for each control point with default values of 0.
