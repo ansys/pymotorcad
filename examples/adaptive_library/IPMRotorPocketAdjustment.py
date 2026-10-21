@@ -101,21 +101,21 @@ mc.reset_adaptive_geometry()
 # %%
 # Define required functions
 # -------------------------
-# Define a function to make the rotor pocket regions parent of the magnet regions in the geometry
-# tree.
+# Define a function to make the rotor pocket regions parent regions of the magnet regions in the
+# geometry tree.
 #
-# Get the magnet and the rotor pocket regions from the geometry tree based on the ``RegionType``,
-# then identify which magnet regions sit in each rotor pocket by trying to unite the regions. If
-# a magnet is in contact with the rotor pocket, then they can be successfully united.
+# * Get the magnet and the rotor pocket regions from the geometry tree based on the ``RegionType``,
+#   then identify which magnet regions sit in each rotor pocket by trying to unite the regions. If
+#   a magnet is in contact with the rotor pocket, then they can be successfully united.
 #
-# Replace the rotor pocket region entities with those of the united rotor pocket and magnet region,
-# which is the region that is cut out of the rotor lamination.
+# * Replace the rotor pocket region entities with those of the united rotor pocket and magnet
+#   region, which is the region that is cut out of the rotor lamination.
 #
-# Set each magnet region's parent to the rotor pocket region.
+# * Set each magnet region's parent to be the rotor pocket region.
 #
-# If the regions do not touch, then the magnet does not sit in this rotor pocket and we can pass
-# on to the next iteration of the magnet loop. Raise any other errors that may occur when trying to
-# unite the regions.
+# * If the regions do not touch, then the magnet does not sit in this rotor pocket. We can pass on
+#   to the next iteration of the magnet loop. Raise any other errors that may occur when trying
+#   to unite the regions.
 
 
 def make_pockets_parents_of_magnet_regions(geometry_tree, mc_i):
