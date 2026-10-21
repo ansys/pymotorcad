@@ -348,7 +348,15 @@ draw_objects(to_draw)
 adaptive_parameters_p_point = ["dr", "d°", "corner radius"]
 
 # %%
-# If undefined, set up the adaptive parameters for each control point with default values of 0.
+# If undefined, set up the adaptive parameters for each control point with default values defined by
+# the `adaptive_parameter_values` dictionary. Alternatively, you can set the default values of all
+# parameters to 0.
+adaptive_parameter_values = {
+    "dr" : [0, 5, 1.5, 0, 0.7, 1, 1.5, 2, 1.5, 0],
+    "d°" : [0, 325, 45, 0, 180, 0, 355, 90, 160, 0],
+    "corner radius" : [0.5, 0.5, 1, 0.5, 0, 1, 1, 1, 1, 1]
+}
+l = 0
 for i in range(len(rotor_pockets[side])):
     magnet = child_magnet_regions(rotor_pockets[side][i])[0]
     for j in range(2):
@@ -356,7 +364,9 @@ for i in range(len(rotor_pockets[side])):
             for parameter in adaptive_parameters_p_point:
                 # mc.set_adaptive_parameter_default(f"{magnet.name} end {j} point {k} {parameter}",
                 # 0)
-                mc.set_adaptive_parameter_default(f"mag {i} end {j} point {k} {parameter}", 0)
+                mc.set_adaptive_parameter_default(f"mag {i+1} end {j+1} point {k+1} {parameter}",
+                                                  adaptive_parameter_values[parameter][l])
+            l += 1
 
 # %%
 # Create the Adaptive Templates geometry
@@ -399,11 +409,11 @@ for i in range(len(rotor_pockets[side])):
                 *rt_to_xy(
                     mc.get_adaptive_parameter_value(
                         # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[0]}"
-                        f"mag {i} end {j} point {k} {adaptive_parameters_p_point[0]}"
+                        f"mag {i+1} end {j+1} point {k+1} {adaptive_parameters_p_point[0]}"
                     ),
                     mc.get_adaptive_parameter_value(
                         # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[1]}"
-                        f"mag {i} end {j} point {k} {adaptive_parameters_p_point[1]}"
+                        f"mag {i+1} end {j+1} point {k+1} {adaptive_parameters_p_point[1]}"
                     )
                     % 360,
                 )
@@ -425,7 +435,7 @@ for i in range(len(rotor_pockets[side])):
         for k in range(len(translated_points)):
             corner_radius = mc.get_adaptive_parameter_value(
                 # f"{magnet.name} end {j} point {k} {adaptive_parameters_p_point[2]}"
-                f"mag {i} end {j} point {k} {adaptive_parameters_p_point[2]}"
+                f"mag {i+1} end {j+1} point {k+1} {adaptive_parameters_p_point[2]}"
             )
             point = translated_points[k]
             pocket.round_corner(point, corner_radius)
