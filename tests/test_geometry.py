@@ -266,6 +266,16 @@ def test_set_region(mc):
     assert returned_region == region
 
 
+def test_set_region_dxf(mc):
+    """Test setting region in Motor-CAD from DXF region."""
+    if not mc.connection.check_if_feature_exists("set_region_dxf"):
+        pytest.skip("set_region_dxf not available in this version of Motor-CAD")
+    region = generate_constant_region()
+    mc.set_region_dxf(region)
+    returned_region = mc.get_region_dxf("testing_region")
+    assert returned_region == region
+
+
 def test_load_adaptive_script(mc):
     """Test loading adaptive template script into Motor-CAD from file."""
     filepath = os.path.join(get_dir_path(), "test_files", "adaptive_templates_script.py")
@@ -2664,7 +2674,7 @@ def test_subtract_region_4(mc):
         geometry.Coordinate(0.5, 0.5),
         geometry.Coordinate(0.5, 1.5),
         geometry.Coordinate(1.5, 1.5),
-        geometry.Coordinate(0.5, 1.5),
+        geometry.Coordinate(1.5, 0.5),
     ]
     # create and add line entities to region from their respective points
     inner_square.entities += create_lines_from_points(points)
@@ -2676,6 +2686,77 @@ def test_subtract_region_4(mc):
 
     assert len(subtracted_regions[0].child_names) == 1
     assert subtracted_regions[0].child_names[0] == inner_square.name
+
+
+def test_subtract_region_5(mc):
+    region_target = Region(RegionType.stator_air, mc)
+    region_target.name = "test_region"
+    region_target.entities += create_lines_from_points(
+        [Coordinate(0, 0), Coordinate(10, 0), Coordinate(10, 10), Coordinate(0, 10)]
+    )
+
+    region1 = Region(RegionType.stator_air, mc)
+    region1.entities += create_lines_from_points(
+        [Coordinate(4.5, -1), Coordinate(5.5, -1), Coordinate(5.5, 11), Coordinate(4.5, 11)]
+    )
+
+    region2 = Region(RegionType.stator_air, mc)
+    region2.entities += create_lines_from_points(
+        [Coordinate(-2, 5), Coordinate(2, 5), Coordinate(2, 12), Coordinate(-2, 12)]
+    )
+
+    region3 = Region(RegionType.stator_air, mc)
+    region3.entities += create_lines_from_points(
+        [Coordinate(-5, -5), Coordinate(-5, -3), Coordinate(-3, -3), Coordinate(-3, -5)]
+    )
+
+    region4 = Region(RegionType.stator_air, mc)
+    region4.entities += create_lines_from_points(
+        [Coordinate(8, -2), Coordinate(8, 5), Coordinate(12, 5), Coordinate(12, -2)]
+    )
+
+    expected_region1 = Region(RegionType.stator_air, mc)
+    expected_region1.name = "test_region"
+    expected_region1.entities += create_lines_from_points(
+        [
+            Coordinate(0, 0),
+            Coordinate(4.5, 0),
+            Coordinate(4.5, 10),
+            Coordinate(2, 10),
+            Coordinate(2, 5),
+            Coordinate(0, 5),
+        ]
+    )
+
+    expected_region2 = Region(RegionType.stator_air, mc)
+    expected_region2.name = "test_region_1"
+    expected_region2.entities += create_lines_from_points(
+        [
+            Coordinate(5.5, 0),
+            Coordinate(8, 0),
+            Coordinate(8, 5),
+            Coordinate(10, 5),
+            Coordinate(10, 10),
+            Coordinate(5.5, 10),
+        ]
+    )
+
+    out = region_target.subtract([region1, region2, region3, region4])
+
+    assert len(out) == 1
+    assert expected_region1 == region_target
+    assert expected_region2 == out[0]
+
+
+def test_subtract_region_list_empty(mc):
+    region_target = create_square()
+    region_target.motorcad_instance = mc
+    expected_region = deepcopy(region_target)
+
+    out = region_target.subtract([])
+
+    assert out == []
+    assert region_target == expected_region
 
 
 def test_region_mirror():

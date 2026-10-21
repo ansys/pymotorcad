@@ -21,12 +21,14 @@
 # SOFTWARE.
 
 from os import environ
+import subprocess
 from time import sleep
 from unittest.mock import create_autospec
 import warnings
 
 import ansys.platform.instancemanagement as pypim
 import grpc
+import psutil
 from psutil import pid_exists
 import pytest
 
@@ -75,7 +77,7 @@ def test_set_motorcad_exe():
 
     try:
         mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = False
+        mock_conn._full_headless = False
         assert _MotorCADConnection._resolve_motor_cad_exe(mock_conn) == test_path
     finally:
         pymotorcad.set_motorcad_exe(save_global_exe)
@@ -116,6 +118,45 @@ def test_open_new_with_port():
         raise e
     finally:
         mc2.quit()
+
+
+@pytest.mark.parametrize(
+    "exit_code, expected_exception, expected_message",
+    [
+        (1, MotorCADError, "Motor-CAD licensing failed to initialise"),
+        (2, MotorCADError, "Motor-CAD failed to read the command line arguments"),
+        (3, MotorCADError, "Motor-CAD failed to get a license"),
+        (4, MotorCADError, "Motor-CAD failed during initialisation"),
+        # Exit code that PyMotorCAD doesn't have a specific error message for
+        (99, MotorCADError, "Motor-CAD failed to start up. Exit code: 99"),
+    ],
+)
+def test_open_motor_cad_local_startup_errors(
+    monkeypatch, exit_code, expected_exception, expected_message
+):
+    """Check that a Motor-CAD instance which exits during startup gives a useful error."""
+
+    class FakeProcess:
+        pid = 1234
+
+        def wait(self, timeout=None):
+            return exit_code
+
+    def raise_no_such_process(self, process):
+        raise psutil.NoSuchProcess(FakeProcess.pid)
+
+    monkeypatch.setattr(_MotorCADConnection, "_resolve_motor_cad_exe", lambda self: "MotorCAD.exe")
+    monkeypatch.setattr(
+        _MotorCADConnection, "_wait_for_server_to_start_local", raise_no_such_process
+    )
+    monkeypatch.setattr(subprocess, "Popen", lambda *args, **kwargs: FakeProcess())
+    monkeypatch.setattr(psutil, "Process", lambda pid: object())
+
+    connection = object.__new__(_MotorCADConnection)
+    connection._port = 36000
+
+    with pytest.raises(expected_exception, match=expected_message):
+        connection._open_motor_cad_local()
 
 
 # Test connecting to known Motor-CAD instance
@@ -354,11 +395,15 @@ def test__resolve_localhost():
 
 @pytest.mark.licensing
 def test_blackbox_licencing():
+    # get_licence() is deprecated in 27R1 as MotorCAD checks out the license on startup,
+    # so an exception will be raised on startup to give test failure.
+    # Don't need to check the licence explicitly.
     mc1 = MotorCAD(use_blackbox_licence=True)
     try:
         # Not sure it's possible to assert that only a blackbox licence was consumed
         # Just check it works for now
-        mc1.get_licence()
+        if not mc1.connection.check_version_at_least("2027.0"):
+            mc1.get_licence()
     finally:
         mc1.quit()
 
@@ -366,7 +411,8 @@ def test_blackbox_licencing():
     try:
         # Not sure it's possible to assert that only a non-blackbox licence was consumed
         # Just check it works for now
-        mc2.get_licence()
+        if not mc2.connection.check_version_at_least("2027.0"):
+            mc2.get_licence()
     finally:
         mc2.quit()
 
@@ -375,7 +421,8 @@ def test_blackbox_licencing():
         # Not sure it's possible to check which licence type has been used, and whether this
         # matches the default setting
         # Just check it works for now
-        mc3.get_licence()
+        if not mc3.connection.check_version_at_least("2027.0"):
+            mc3.get_licence()
     finally:
         mc3.quit()
 
@@ -444,33 +491,3 @@ def test_use_new_license_type(mc):
 
     with pytest.warns(UserWarning, match="use_new_license_type has no effect"):
         MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
-
-
-def test_full_headless_beta(mc):
-    if not mc.connection.check_version_at_least("2027.0"):
-        pytest.skip("full_headless_beta requires Motor-CAD 2027.0 or later")
-
-    with pytest.warns(UserWarning, match="full_headless_beta is a beta setting"):
-        mc1 = MotorCAD(full_headless_beta=True)
-    try:
-        assert mc1.connection._full_headless_beta is True
-        mc1.get_licence()
-    finally:
-        mc1.quit()
-
-    with pytest.warns(UserWarning, match="full_headless_beta has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless_beta=True)
-
-
-def test_resolve_motor_cad_exe_ignores_full_headless_beta_when_exe_manually_set():
-    save_global_exe = MOTORCAD_EXE_GLOBAL
-    test_path = r"test_path/test"
-    pymotorcad.set_motorcad_exe(test_path)
-    try:
-        mock_conn = create_autospec(_MotorCADConnection, instance=True)
-        mock_conn._full_headless_beta = True
-        with pytest.warns(UserWarning, match="full_headless_beta is ignored"):
-            result = _MotorCADConnection._resolve_motor_cad_exe(mock_conn)
-        assert result == test_path
-    finally:
-        pymotorcad.set_motorcad_exe(save_global_exe)
