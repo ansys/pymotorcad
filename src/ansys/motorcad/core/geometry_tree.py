@@ -500,6 +500,15 @@ class TreeRegion(Region):
         """Get key of Region in dict."""
         return self._name
 
+    def update(self, region):
+        """Update tree region and keep tree keys consistent if name changes."""
+        old_key = self.key
+        super().update(region)
+
+        # Region.update writes _name directly, so re-key the tree mapping here.
+        if self.key != old_key and old_key in self.tree:
+            self.tree[self.key] = self.tree.pop(old_key)
+
     @classmethod
     def from_json(cls, geometry_tree, region_json, mc):
         """Create a RegionTree from JSON data, must link parent once whole tree is available.
