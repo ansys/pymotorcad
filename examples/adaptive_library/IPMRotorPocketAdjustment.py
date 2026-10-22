@@ -46,10 +46,9 @@ by shifting the original vertices and applying corner rounding.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
 
+# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/adusting_IPM_rpockets_thumbnail.png'
 from copy import deepcopy
 from math import isclose
-
-# sphinx_gallery_thumbnail_path = 'images/adaptive_templates/asymmetric_SPM_thumbnail.png'
 import os
 import shutil
 import sys
