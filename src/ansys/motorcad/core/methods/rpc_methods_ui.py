@@ -21,7 +21,18 @@
 # SOFTWARE.
 
 """RPC methods for UI."""
+from warnings import warn
+
 from packaging import version
+
+
+def deprecation_warning(name, replacement):
+    """Output deprecation warning for old method names."""
+    warn(
+        "Function: " + name + " is deprecated."
+        "\nThis functionality has been replaced by " + replacement,
+        DeprecationWarning,
+    )
 
 
 class _RpcMethodsUI:
@@ -31,6 +42,10 @@ class _RpcMethodsUI:
     def disable_error_messages(self, active):
         """Disable the display of error messages.
 
+        .. deprecated:: 0.9.0
+          `disable_error_messages` has been removed in Motor-CAD 2027R1.
+          Functionality replaced by methods in mc.messageconfig.
+
         Parameters
         ----------
         active : bool
@@ -38,6 +53,7 @@ class _RpcMethodsUI:
             error messages are hidden. If ``False``, error messages are
             shown.
         """
+        deprecation_warning("disable_error_messages", "methods in mc.messageconfig.")
         method = "DisableErrorMessages"
         params = [active]
         return self.connection.send_and_receive(method, params)
@@ -70,6 +86,21 @@ class _RpcMethodsUI:
         method = "SaveMotorCADScreenToFile"
         params = [screen_name, file_name]
         return self.connection.send_and_receive(method, params)
+
+    def get_visible(self):
+        """Get the visibility of the Motor-CAD UI.
+
+        Available only with Motor-CAD 2027.1 and later.
+
+        Returns
+        ----------
+        visible : bool
+            ``True`` if the Motor-CAD UI is visible, ``False`` otherwise.
+        """
+        self.connection.ensure_version_at_least("2027.0")
+
+        method = "GetVisible"
+        return self.connection.send_and_receive(method)
 
     def set_visible(self, visible):
         """Set the visibility of the Motor-CAD UI.
