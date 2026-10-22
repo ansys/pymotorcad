@@ -24,3 +24,6 @@ Powershell
 recognised
 exe
 UI
+Matplotlib
+Jupyter
+mot
