@@ -65,6 +65,26 @@ Check the registration form to see which version is registered.
     :width: 600
 
 
+Matplotlib backend error in Jupyter notebooks
+---------------------------------------------
+When using Motor-CAD within a Jupyter notebook and Matplotlib, you may encounter errors related to
+the Matplotlib backend. Jupyter notebooks set an environment variable for the Matplotlib
+backend, :code:`MPLBACKEND`, that conflicts with the backend required by Motor-CAD Lab calculations.
+
+To resolve this issue, the environment variable should be set appropriately before starting
+Motor-CAD, and restored so that the Jupyter notebook can continue to use its preferred Matplotlib
+backend:
+
+.. code:: python
+
+   original_backend = os.environ.pop("MPLBACKEND", None)
+   try:
+       mc = MotorCAD()
+   finally:
+       if original_backend is not None:
+           os.environ["MPLBACKEND"] = original_backend
+
+
 Port connection issues
 ----------------------
 
