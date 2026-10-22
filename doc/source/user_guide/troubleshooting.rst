@@ -185,7 +185,7 @@ If the issue persists after trying the above solutions:
 The log files will help the support team identify the root cause of the connection issue.
 
 Ansys developer ecosystem resources
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------
 
 Ansys has an extensive developer ecosystem where you can find assistance for a variety of issues.
 
