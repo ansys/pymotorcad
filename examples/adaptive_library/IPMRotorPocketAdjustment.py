@@ -31,8 +31,11 @@ by shifting the original vertices and applying corner rounding.
 #    This example uses Motor-CAD Geometry Tree functionality, introduced in v2026.1.1 (Motor-CAD
 #    2026 R1) and PyMotorCAD v0.8.4 or later.
 #
-# The vertices that define the shape of the rotor pockets are shifted to new positions based on
+# The vertices that define the shape of the rotor pockets are shifted to new positions based on new
 # adaptive parameters, and a corner radius is applied to each corner.
+#
+# .. image:: ../../images/adaptive_templates/adusting_IPM_rpockets_2.png
+#
 
 # %%
 # Perform required imports
@@ -64,7 +67,7 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # If this script is loaded into the Adaptive Templates file in Motor-CAD, the current Motor-CAD
 # instance is used.
 #
-# If the script is run externally, these actions occur: open a new Motor-CAD instance, load the e4a
+# If the script is run externally, these actions occur: open a new Motor-CAD instance, load the e10
 # IPM motor template, disable corner rounding for the standard template geometry (rotor lamination
 # and magnets) and save the file to a temporary folder. To keep a new Motor-CAD instance open after
 # executing the script, use the ``MotorCAD(keep_instance_open=True)`` option when opening the new
@@ -100,8 +103,12 @@ mc.reset_adaptive_geometry()
 # %%
 # Define required functions
 # -------------------------
-# Define a function to make the rotor pocket regions parent regions of the magnet regions in the
-# geometry tree.
+# Define a function to modify the geometry tree by making the rotor pocket regions parent regions of
+# the magnet regions in the tree.
+#
+# .. image:: ../../images/adaptive_templates/adusting_IPM_rpockets_1.png
+#
+# The ``make_pockets_parents_of_magnet_regions`` function performs the following actions:
 #
 # * Get the magnet and the rotor pocket regions from the geometry tree based on the ``RegionType``,
 #   then identify which magnet regions sit in each rotor pocket by trying to unite the regions. If
@@ -162,7 +169,7 @@ def region_below_mirror_line(region):
 
 
 # %%
-# Define a function to return the magnet regions are children of a rotor pocket region.
+# Define a function to return the magnet regions that are children of a rotor pocket region.
 def child_magnet_regions(rotor_pocket_region):
     child_magnet_regions = []
     # identify the magnet regions that sit in this rotor pocket
@@ -180,12 +187,12 @@ def child_magnet_regions(rotor_pocket_region):
 gt = mc.get_geometry_tree()
 
 # %%
-# Use the ``make_pockets_parents_of_magnet_regions`` to make the rotor pocket regions parents of the
-# magnet regions.
+# Use the ``make_pockets_parents_of_magnet_regions`` function to make the rotor pocket regions
+# parents of the magnet regions.
 make_pockets_parents_of_magnet_regions(gt, mc)
 
 # %%
-# Get regions from the geometry tree.
+# Get the rotor and rotor pocket regions from the geometry tree.
 rotor = gt["Rotor"]
 rotor_pockets_unsorted = gt.get_regions_of_type(RegionType.rotor_pocket)
 
@@ -193,7 +200,7 @@ rotor_pockets_unsorted = gt.get_regions_of_type(RegionType.rotor_pocket)
 # Sort the rotor pockets into two lists. The first list contains rotor pockets that sit to the right
 # of the mirror line (on one side of the rotor). The second list contains the rotor pockets that sit
 # on the other side of the rotor. Get the magnet regions that sit within the rotor pockets using the
-# ``Region.children`` method, and store the regions in lists using the same logic.
+# ``Region.children`` method, and store the magnet regions in lists using the same logic.
 rotor_pockets = [[], []]
 magnets = [[], []]
 for rotor_pocket in rotor_pockets_unsorted:
@@ -223,24 +230,26 @@ for rotor_pocket in rotor_pockets_unsorted:
 include_midpoints = False
 
 # %%
-# Loop through the regions on one side of the rotor, then by IPM layer. The e4a template only has
-# 1 magnet layer. To identify only the rotor pocket vertices, the magnet vertices are added to a
-# list of forbidden points.
+# Loop through the regions on one side of the rotor, then by IPM layer. The e10 template has 2
+# magnet layers.
+#
+# * To identify only the rotor pocket vertices, the magnet vertices are added to a list of forbidden
+#   points.
 side = 0
 layer = 0
 forbidden_points = []
 
-for rotor_pocket in rotor_pockets[side]:
+for pocket in rotor_pockets[side]:
     # identify the magnet regions that sit in this rotor pocket
-    for magnet in child_magnet_regions(rotor_pocket):
+    for magnet in child_magnet_regions(pocket):
         forbidden_points.extend(magnet.points)
 
 # %%
-# The long sides of the rotor pockets should remain unchanged. Identify the longest entities and
-# add the start and end points of these to the forbidden points list.
+# * The long sides of the rotor pockets should remain unchanged. Identify the longest entities and
+#   add the start and end points of these to the forbidden points list.
 #
-# If the midpoints of the rotor pocket entities are also to be included as control points, split the
-# original entities (not including the long sides).
+# * If the midpoints of the rotor pocket entities are also to be included as control points, split
+#   the original entities (not including the long sides).
 for pocket in rotor_pockets[side]:
     len_max = 0
     # find length of longest entity in pocket
@@ -290,10 +299,10 @@ for pocket in rotor_pockets[side]:
         pocket.entities = new_entities
 
 # %%
-# Loop through the rotor pockets and find the pocket vertices. These are the points that define the
-# shape of the rotor pocket end.
+# * Loop through the rotor pockets and find the pocket vertices. These are the points that define
+#   the shape of the rotor pocket end.
 #
-# Group the points into sub-lists for each end of the rotor pocket.
+# * Group the points into sub-lists for each end of the rotor pocket.
 points_to_edit_orig = []  # list of lists of points to be edited
 i = 0
 for pocket in rotor_pockets[side]:
@@ -331,6 +340,9 @@ for pocket in rotor_pockets[side]:
             points_to_edit_orig.append(pocket_end_points)
     i = len(points_to_edit_orig)
 
+# %%
+# Use the ``draw_objects`` method to display the rotor pocket regions and the identified control
+# points.
 to_draw = []
 for points_group in points_to_edit_orig:
     to_draw.extend(points_group)
@@ -341,20 +353,25 @@ draw_objects(to_draw)
 # Define adaptive parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the adaptive parameters that will be used to adjust the rotor pocket vertices. Each vertex
-# will have three adaptive parameters: a radial shift, an angular direction and a corner radius.
+# will have three adaptive parameters: a radial shift (dr), an angular direction (d°) and a corner
+# radius.
 #
 # Define strings that will be used for the parameter names for each vertex.
 adaptive_parameters_p_point = ["dr", "d°", "corner radius"]
 
 # %%
-# If undefined, set up the adaptive parameters for each control point with default values defined by
-# the `adaptive_parameter_values` dictionary. Alternatively, you can set the default values of all
-# parameters to 0.
+# Define a dictionary of default values to be used for the adaptive parameters in this example.
+# Alternatively, default values of 0 could be set instead.
 adaptive_parameter_values = {
     "dr": [0, 5, 1.5, 0, 0.7, 1, 1.5, 2, 1.5, 0],
     "d°": [0, 325, 45, 0, 180, 0, 355, 90, 160, 0],
     "corner radius": [0.5, 0.5, 1, 0.5, 0, 1, 1, 1, 1, 1],
 }
+
+# %%
+# If undefined, set up the adaptive parameters for each control point with default values defined by
+# the `adaptive_parameter_values` dictionary. Alternatively, you can set the default values of all
+# parameters to 0 by modifying the script.
 l = 0
 for i in range(len(rotor_pockets[side])):
     magnet = child_magnet_regions(rotor_pockets[side][i])[0]
@@ -372,8 +389,30 @@ for i in range(len(rotor_pockets[side])):
 # %%
 # Create the Adaptive Templates geometry
 # --------------------------------------
-# Loop through the rotor pockets on one side of the rotor
-
+# Loop through the rotor pockets on one side of the rotor and modify the rotor pockets one at a
+# time.
+#
+# For each pocket:
+#
+# * Find the corresponding magnet regions and identify the two magnet end sections
+#
+# * Use the magnet ends to define a local coordinate system, making the pocket edits independent of
+#   the global rotor orientation. Rotate the pocket control points into the local coordinate system
+#   and translate them relative to the magnet end.
+#
+# * Shift the control points based on the adaptive parameters (dr and d°)
+#
+# * Transform the shifted points back into the global coordinate system.
+#
+# * Apply corner rounding for each control point, based on the corner radius adaptive parameters
+#   using the ``round_corner`` region method.
+#
+# * After each pocket has been edited, mirror the modified geometry across the rotor symmetry line
+#   to modify the matching pocket on the opposite side of the rotor.
+#
+# Using the magnet-based local coordinate system for shifting the control points means that the
+# rotor pocket edits are robust and physically meaningful, and consistent with any standard geometry
+# parameter changes.
 l = 0
 for i in range(len(rotor_pockets[side])):
     pocket = rotor_pockets[side][i]
@@ -464,7 +503,7 @@ for rotor_half in magnets:
 # %%
 # Set the modified geometry tree in Motor-CAD
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Set the geometry tree and draw the geometry tree.
+# Set the modified geometry tree in Motor-CAD and draw it.
 mc.set_geometry_tree(gt)
 
 draw_objects(gt, full_geometry=True, axes=False)
