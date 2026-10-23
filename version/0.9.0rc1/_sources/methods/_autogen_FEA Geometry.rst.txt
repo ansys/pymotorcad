@@ -1,0 +1,22 @@
+.. _ref_FEA Geometry_API:
+FEA Geometry
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_FEA Geometry
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    do_slot_finite_element
+    edit_magnet_region
+    get_point_value
+    get_region_loss
+    get_region_value
+    save_fea_data
+    set_fea_path_arc
+    set_fea_path_line
+    set_fea_path_point

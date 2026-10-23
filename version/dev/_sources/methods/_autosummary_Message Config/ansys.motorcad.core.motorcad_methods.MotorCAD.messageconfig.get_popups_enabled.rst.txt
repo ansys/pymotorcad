@@ -1,0 +1,8 @@
+﻿get\_popups\_enabled
+====================
+
+``MotorCAD.messageconfig.get_popups_enabled``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.get_popups_enabled

@@ -1,0 +1,6 @@
+SetMotorLABContext
+==================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetMotorLABContext

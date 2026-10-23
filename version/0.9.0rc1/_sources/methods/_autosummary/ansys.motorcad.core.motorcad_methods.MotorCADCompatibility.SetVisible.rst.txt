@@ -1,0 +1,6 @@
+SetVisible
+==========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SetVisible

@@ -1,0 +1,6 @@
+wedge\_rotor
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.wedge_rotor

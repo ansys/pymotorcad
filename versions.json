@@ -1,0 +1,27 @@
+[
+  {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://motorcad.docs.pyansys.com/version/dev/"
+  },
+  {
+    "name": "0.9.0rc3",
+    "version": "0.9.0rc3",
+    "url": "https://motorcad.docs.pyansys.com/version/0.9.0rc3/"
+  },
+  {
+    "name": "0.9.0rc2",
+    "version": "0.9.0rc2",
+    "url": "https://motorcad.docs.pyansys.com/version/0.9.0rc2/"
+  },
+  {
+    "name": "0.9.0rc1",
+    "version": "0.9.0rc1",
+    "url": "https://motorcad.docs.pyansys.com/version/0.9.0rc1/"
+  },
+  {
+    "name": "Older version",
+    "version": "N/A",
+    "url": "https://motorcad.docs.pyansys.com/version/"
+  }
+]

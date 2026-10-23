@@ -1,0 +1,6 @@
+CalculateDutyCycle\_Lab
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateDutyCycle_Lab

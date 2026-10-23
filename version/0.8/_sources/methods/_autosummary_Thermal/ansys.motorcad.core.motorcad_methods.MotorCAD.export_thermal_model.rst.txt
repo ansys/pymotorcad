@@ -1,0 +1,6 @@
+﻿export\_thermal\_model
+======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.export_thermal_model

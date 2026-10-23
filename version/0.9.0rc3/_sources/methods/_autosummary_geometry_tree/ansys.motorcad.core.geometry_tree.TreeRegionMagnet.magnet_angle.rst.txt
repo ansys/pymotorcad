@@ -1,0 +1,6 @@
+magnet\_angle
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.magnet_angle

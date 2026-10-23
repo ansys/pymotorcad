@@ -1,0 +1,6 @@
+rotate
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Line.rotate

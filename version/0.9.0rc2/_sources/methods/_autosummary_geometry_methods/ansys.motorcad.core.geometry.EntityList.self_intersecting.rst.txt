@@ -1,0 +1,6 @@
+self\_intersecting
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: EntityList.self_intersecting

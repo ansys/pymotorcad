@@ -1,0 +1,6 @@
+mesh\_length
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.mesh_length

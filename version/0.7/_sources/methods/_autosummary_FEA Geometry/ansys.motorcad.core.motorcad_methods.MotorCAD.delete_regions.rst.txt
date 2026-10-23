@@ -1,0 +1,6 @@
+﻿delete\_regions
+===============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.delete_regions

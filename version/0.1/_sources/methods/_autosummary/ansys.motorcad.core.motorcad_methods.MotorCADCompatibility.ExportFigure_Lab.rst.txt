@@ -1,0 +1,6 @@
+ExportFigure\_Lab
+=================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ExportFigure_Lab
