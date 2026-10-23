@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys code style checks
-        uses: ansys/actions/code-style@v11.0.8
+        uses: ansys/actions/code-style@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys documentation style checks
-        uses: ansys/actions/doc-style@v11.0.8
+        uses: ansys/actions/doc-style@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v11.0.8
+        uses: ansys/actions/build-wheelhouse@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           operating-system: ${{ matrix.os }}
@@ -125,7 +125,7 @@ jobs:
     needs: package
     steps:
       - name: "Deploy development documentation"
-        uses: ansys/actions/doc-deploy-dev@v11.0.8
+        uses: ansys/actions/doc-deploy-dev@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -139,7 +139,7 @@ jobs:
     needs: release
     steps:
       - name: "Deploy stable documentation"
-        uses: ansys/actions/doc-deploy-stable@v11.0.8
+        uses: ansys/actions/doc-deploy-stable@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -152,7 +152,7 @@ jobs:
     needs: [doc-build, tests]
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@v11.0.8
+        uses: ansys/actions/build-library@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -184,7 +184,7 @@ jobs:
 
       # TODO: This should be updated once changelog mechanism is added to the repo
       - name: Release to GitHub
-        uses: ansys/actions/release-github@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
+        uses: ansys/actions/release-github@6700e198ce2c381605ed1ae7b260ad4a84ec7f4b # v11.1.1
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
