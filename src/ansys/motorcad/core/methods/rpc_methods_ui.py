@@ -87,6 +87,21 @@ class _RpcMethodsUI:
         params = [screen_name, file_name]
         return self.connection.send_and_receive(method, params)
 
+    def get_visible(self):
+        """Get the visibility of the Motor-CAD UI.
+
+        Available only with Motor-CAD 2027.1 and later.
+
+        Returns
+        ----------
+        visible : bool
+            ``True`` if the Motor-CAD UI is visible, ``False`` otherwise.
+        """
+        self.connection.ensure_version_at_least("2027.0")
+
+        method = "GetVisible"
+        return self.connection.send_and_receive(method)
+
     def set_visible(self, visible):
         """Set the visibility of the Motor-CAD UI.
 

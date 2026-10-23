@@ -156,6 +156,21 @@ class _RpcMethodsVariables:
         variable_value : int|float|str|bool
             Value to set the variable to.
         """
+        # Deprication warnings
+        # note : stacklevel 2 means it shows what called set_variable, not the warning itself
+        if (
+            variable_name.lower() in ["messagedisplaystate", "verbomessageoutput"]
+            and self.connection.check_if_feature_exists("motor_cad_messager")
+        ) or (
+            variable_name.lower() in ["verbosefeamessageoutput", "verbosefeaoutput"]
+            and self.connection.check_if_feature_exists("motor_cad_messager_fea")
+        ):
+            warn(
+                f"The '{variable_name}' variable is deprecated\n"
+                + "Please switch to 'MotorCad.MessageConfig.<method>'.",
+                stacklevel=2,
+            )
+
         method = "SetVariable"
         params = [variable_name, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
