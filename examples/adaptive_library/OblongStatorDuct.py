@@ -289,6 +289,7 @@ for child_name in st_region.child_names:
 # %%
 # .. image:: ../../images/adaptive_templates/OblongDuct.png
 #     :width: 600pt
+#     :align: center
 
 # %%
 # Duct Surface area in Motor-CAD Thermal
@@ -303,7 +304,6 @@ for child_name in st_region.child_names:
 
 # %%
 # .. image:: ../../images/adaptive_templates/OblongDuct_area.png
-#     :width: 600pt
 
 # %%
 # The **Input Data -> Housing Water Jacket -> Fluid Flow** tab in the **Thermal** context shows the
@@ -312,6 +312,7 @@ for child_name in st_region.child_names:
 # %%
 # .. image:: ../../images/adaptive_templates/OblongDuct_HWJ_26R1.png
 #     :width: 600pt
+#     :align: center
 
 # %%
 # As of **Motor-CAD v2026R1**, the **Housing Water Jacket** calculations will use the updated duct
