@@ -161,12 +161,14 @@ mc.reset_adaptive_geometry()
 #    # Reset geometry to default
 #    motorcad_instance.reset_adaptive_geometry()
 #
-#    # add your geometry template here using PyMotorCAD
+#    # get the geometry tree and get rotor duct, rotor pocket and rotor regions from the tree.
 #    gt = motorcad_instance.get_geometry_tree()
 #    rotor_ducts = gt.get_regions_of_type(RegionType.rotor_duct)
 #    rotor_pockets_orig = gt.get_regions_of_type(RegionType.rotor_pocket)
 #    rotor = gt.get_regions_of_type(RegionType.rotor)[0]
 #
+#    # Loop through the ducts and rotor pockets. Find the duct that overlaps each pocket and replace
+#    # the duct entities with the pocket entities. Remove the pocket from the geometry tree.
 #    for duct in rotor_ducts:
 #        for pocket in rotor_pockets_orig:
 #            temp = mc.subtract_region(pocket, duct)
