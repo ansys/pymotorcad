@@ -24,3 +24,7 @@ Powershell
 recognised
 exe
 UI
+RPCLogs
+Matplotlib
+Jupyter
+mot

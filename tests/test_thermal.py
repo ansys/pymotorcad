@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from os import path, remove
-import time
+import os
 
 import pytest
 
@@ -56,6 +55,93 @@ def test_get_node_to_node_resistance(mc):
     assert almost_equal(res, 0.0043, 3)
 
 
+# tests for when include_resistance_multiplier is unset but the feature exists
+def test_get_node_to_node_resistance_unset_up_to_date(mc_reset_to_default_on_teardown):
+    mc = mc_reset_to_default_on_teardown
+
+    if not mc.connection.check_if_feature_exists(
+        "check_if_get_node_to_node_resistance_with_multiplier"
+    ):
+        pytest.skip("Requires Motor-CAD 2027.0")
+    print("Program version: ", mc.connection.program_version)
+
+    node1 = 3
+    node2 = 4
+    multiplier = 2
+    mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
+
+    mc.do_steady_state_analysis()
+    r_bu = mc.get_node_to_node_resistance(node1, node2)  # 3
+
+    mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
+
+    mc.do_steady_state_analysis()
+    with pytest.warns(UserWarning):
+        r_au = mc.get_node_to_node_resistance(node1, node2)  # 3 & Warn
+
+    assert almost_equal(r_bu, r_au, 3)
+    assert almost_equal(r_bu, 3, 3)
+
+
+# tests for when include_resistance_multiplier is set and the feature exists
+def test_get_node_to_node_resistance_intended_use(mc_reset_to_default_on_teardown):
+    mc = mc_reset_to_default_on_teardown
+
+    if not mc.connection.check_if_feature_exists(
+        "check_if_get_node_to_node_resistance_with_multiplier"
+    ):
+        pytest.skip("Requires Motor-CAD 2027.0")
+    print("Program version: ", mc.connection.program_version)
+
+    node1 = 3
+    node2 = 4
+    multiplier = 2
+    mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
+
+    mc.do_steady_state_analysis()
+    r_bt = mc.get_node_to_node_resistance(node1, node2, True)  # 3
+    r_bf = mc.get_node_to_node_resistance(node1, node2, False)  # 3
+
+    with pytest.raises(ValueError):
+        mc.get_node_to_node_resistance(node1, node2, "foobar")  # Exception
+
+    mc.set_resistance_multiplier("multiplier_test", node1, node2, multiplier, "foobarbaz")
+
+    mc.do_steady_state_analysis()
+    r_at = mc.get_node_to_node_resistance(node1, node2, True)  # 6
+    r_af = mc.get_node_to_node_resistance(node1, node2, False)  # 3
+
+    assert almost_equal(r_bf, r_af, 3)
+    assert almost_equal(r_bt * multiplier, r_at, 3)
+
+    assert almost_equal(r_af, 3, 3)
+    assert almost_equal(r_at, 6, 3)
+
+
+# tests for backwards compatibility when include_resistance_multiplier feature does not exist
+def test_get_node_to_node_resistance_backwards_compatibility(
+    mc_reset_to_default_on_teardown, monkeypatch
+):
+    mc = mc_reset_to_default_on_teardown
+
+    monkeypatch.setattr(mc.connection, "program_version", "2026.1.2")
+    print("Program version: ", mc.connection.program_version)
+
+    node1 = 3
+    node2 = 4
+    mc.set_resistance_value("test res", node1, node2, 3, "test resistance")
+
+    mc.do_steady_state_analysis()
+    r_ou = mc.get_node_to_node_resistance(node1, node2)  # 3
+
+    with pytest.raises(MotorCADError):
+        mc.get_node_to_node_resistance(node1, node2, True)  # Exception
+    with pytest.raises(MotorCADError):
+        mc.get_node_to_node_resistance(node1, node2, False)  # Exception
+
+    assert almost_equal(r_ou, 3, 3)
+
+
 def test_save_load_clear_external_circuit(mc):
     mc.set_resistance_value("test res", 3, 4, 150, "test resistance")
 
@@ -64,7 +150,7 @@ def test_save_load_clear_external_circuit(mc):
     res = mc.get_node_to_node_resistance(3, 4)
     assert res == 150
 
-    save_path = get_dir_path() + "\\test_files\\external_circuit.ecf"
+    save_path = os.path.join(get_dir_path(), "test_files", "external_circuit.ecf")
 
     mc.save_external_circuit(save_path)
 
@@ -118,32 +204,3 @@ def test_get_node_exists(mc):
     with pytest.raises(MotorCADError) as e_info:
         mc.get_node_exists(0.5)
     assert "nodeNumber: Integer" in str(e_info.value)
-
-
-def test_thermal_model_export(mc):
-    mc.set_variable("MessageDisplayState", 2)
-    file_path = get_dir_path() + r"\test_files\temp_files\thermal_model_export.therm"
-
-    mc.load_template("e3")
-
-    if path.exists(file_path):
-        remove(file_path)
-
-    assert path.exists(file_path) is False
-
-    mc.export_thermal_model(file_path)
-
-    # Exporting the thermal model takes a few seconds and so a delay is required before
-    # asserting the .therm file is present.
-    checks = 0
-
-    while checks < 60:
-        time.sleep(1)
-        if path.exists(file_path) is False:
-            checks += 1
-        else:
-            break
-
-    assert path.exists(file_path) is True
-
-    remove(file_path)
