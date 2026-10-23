@@ -1,0 +1,16 @@
+.. _ref_[Category]_API:
+[Category]
+==============================
+
+``MotorCad.[unitname]``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD.[unitname]
+
+.. autosummary::
+   :toctree: _autosummary_[Category]
+   :template: generated/method_template_[Category].rst
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
