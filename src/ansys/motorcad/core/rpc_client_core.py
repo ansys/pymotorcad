@@ -633,10 +633,26 @@ class _MotorCADConnection:
         motor_util = psutil.Process(pid)
         try:
             self._wait_for_server_to_start_local(motor_util)
-        except psutil.NoSuchProcess as e:
-            exit_code = motor_process.poll()
-            if exit_code == 6:
-                raise MotorCADError("Motor-CAD failed to get a license")
+        except psutil.NoSuchProcess:
+            try:
+                exit_code = motor_process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                raise MotorCADError("Motor-CAD failed to start. Failed to retrieve exit code.")
+
+            # Error messages for the exit codes returned by Motor-CAD when it fails to start up
+            startup_exit_code_errors = {
+                1: "Motor-CAD licensing failed to initialise",
+                2: "Motor-CAD failed to read the command line arguments",
+                3: "Motor-CAD failed to get a license",
+                4: "Motor-CAD failed during initialisation",
+            }
+
+            error_message = startup_exit_code_errors.get(int(exit_code))
+
+            if error_message is None:
+                error_message = "Motor-CAD failed to start up. Exit code: " + str(exit_code)
+
+            raise MotorCADError(error_message)
 
     def _find_free_motor_cad(self):
         found_free_instance = False
