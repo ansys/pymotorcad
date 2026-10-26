@@ -31,15 +31,29 @@ This script applies the adaptive templates functionality to modify the stator in
 # corners are chamfered by a distance defined by a new adaptive parameter (**Square chamfer**).
 #
 # .. note::
-#    This example requires Motor-CAD v2026R1 or later.
+#    This example requires Motor-CAD v2026R1 or later. Motor-CAD v2027R1 introduces the ability to
+#    take advantage of the model symmetry to speed up calculations.
 #
 # .. note::
 #    This example modifies the symmetry of the stator region. By default, Motor-CAD standard
 #    template geometry uses 1 stator region per slot. This example modifies the symmetry so that
-#    the model geometry has 4 stator regions, each spanning a quarter of the machine. This means
-#    that the **Symmetry** setting under **Model Size** on the
-#    **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to **Full Non-Symmetry**
-#    for the FEA calculation to solve.
+#    the model geometry has 4 stator regions, each spanning a quarter of the machine.
+#
+#    * When using Motor-CAD v2026R1, the **Symmetry** setting under **Model Size** on the
+#      **Input Data -> Settings -> Calculation** tab in Motor-CAD must be set to
+#      **Full Non-Symmetry** for the FEA calculation to solve.
+#
+#    * When using Motor-CAD v2027R1 or later, the **Symmetry** setting under **Model Size** on the
+#      **Input Data -> Settings -> Calculation** tab in Motor-CAD can be set to
+#      **User Specified symmetry**, with:
+#
+#      * **Symmetry factor** = **4**
+#
+#      * **Slot/Pole Symmetry** set to **Multiple**
+#
+#      * **Stator Duplications** = **12**
+#
+#      to take advantage of the machine symmetry and speed up the FEA calculations.
 #
 # .. note::
 #    This example modifies the stator back iron so that it is larger than the original round stator.
@@ -59,13 +73,11 @@ This script applies the adaptive templates functionality to modify the stator in
 # %%
 # Perform required imports
 # ------------------------
-# Import ``pymotorcad`` to access Motor-CAD. Import ``Coordinate``, ``Line`` and ``RegionType`` from
-# ``ansys.motorcad.core.geometry`` to create the necessary geometry objects. Import ``draw_objects``
-# to plot figures of geometry objects.
+# Import ``pymotorcad`` to access Motor-CAD. Import ``RegionType``, ``EntityList``, ``Coordinate``,
+# ``Line`` and  ``Arc`` from ``ansys.motorcad.core.geometry`` to create the necessary geometry
+# objects. Import ``draw_objects`` to plot figures of geometry objects.
 # Import ``os``, ``shutil``, ``sys``, and ``tempfile``
 # to open and save a temporary .mot file if none is open.
-
-from copy import deepcopy
 
 # sphinx_gallery_thumbnail_path = 'images/adaptive_templates/square_stator_4.png'
 import os
@@ -74,7 +86,7 @@ import sys
 import tempfile
 
 import ansys.motorcad.core as pymotorcad
-from ansys.motorcad.core.geometry import Coordinate, Line, RegionType
+from ansys.motorcad.core.geometry import Arc, Coordinate, EntityList, Line, RegionType
 from ansys.motorcad.core.geometry_drawing import draw_objects
 
 # %%
@@ -89,8 +101,23 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 #
 # * load the e10 IPM motor template,
 #
-# * set the **Symmetry** setting under **Model Size** to **Full Non-Symmetry**
-#   (**Input Data -> Settings -> Calculation** tab),
+# * ensure that **Magnetic FEA Regions Method** is set to **Improved**,
+#
+# * with a try/except block, check whether the **Slot/Pole Symmetry** variable is available
+#   (Motor-CAD v2027R1 and later):
+#
+#   * if so:
+#
+#     * set **Symmetry** to **User Specified symmetry**,
+#
+#     * set **Symmetry factor** = **4**,
+#
+#     * set **Slot/Pole Symmetry** to **Multiple**,
+#
+#     * set the **Stator Duplications** = **12**,
+#
+#   * if not, set the **Symmetry** setting under **Model Size** to **Full Non-Symmetry**
+#     (**Input Data -> Settings -> Calculation** tab),
 #
 # * set the **Air region boundary** setting under **Surrounding Air Region** to **Circle**
 #   (**Input Data -> Settings -> Calculation** tab),
@@ -110,11 +137,23 @@ if pymotorcad.is_running_in_internal_scripting():
 else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
     mc.load_template("e10")
-    mc.set_variable("MagneticSymmetry", 3)  # set Full Non-Symmetry
+    mc.set_variable("MagneticFEARegionsMethod", 1)  # set Magnetic FEA Regions Method to Improved
+    try:
+        mc.set_variable("MagneticSlotPoleSymmetryType", 1)
+        mc.set_variable("MagneticSymmetry", 2)  # set User Specified symmetry
+        mc.set_variable("MagneticSymmetryFactor", 4)  # set Symmetry factor to 4
+        mc.set_variable("MagneticFEADuplications_Stator", 12)  # set Stator Duplications to 12
+
+    except pymotorcad.MotorCADError as e:
+        if "Error in SetVariable: Could not find MagneticSlotPoleSymmetryType" in str(e):
+            mc.set_variable("MagneticSymmetry", 3)  # set Full Non-Symmetry
+        else:
+            raise e
+
     mc.set_variable("SurroundingAirRegion_Boundary", 1)  # set Square Housing
     mc.set_variable("SurroundingAirRegion_CircleDiameter", 300)  # set Square Housing
     mc.set_variable("HousingType", 1)  # set Square Housing
@@ -134,32 +173,6 @@ mc.reset_adaptive_geometry()
 
 
 # %%
-# Define necessary functions
-# --------------------------
-# Define a function to modify a region by chamfering corners. Shorten entities that are adjacent to
-# the corner by a specified distance, and insert a new line between the shortened entities.
-def chamfer(region, corner, distance):
-    if distance < 0.1:
-        return
-    new_entity_start = None
-    new_entity_end = None
-    new_entity_index = None
-    i = 0
-    for entity in region.entities:
-        if entity.end == corner:
-            new_entity_end = entity.get_coordinate_from_distance(entity.end, distance=distance)
-            entity.end = new_entity_end
-        elif entity.start == corner:
-            new_entity_start = entity.get_coordinate_from_distance(entity.start, distance=distance)
-            entity.start = new_entity_start
-            new_entity_index = i
-        i += 1
-    if new_entity_start and new_entity_end:
-        new_line = Line(new_entity_end, new_entity_start)
-        region.insert_entity(new_entity_index, new_line)
-
-
-# %%
 # Get required parameters and objects
 # -----------------------------------
 # From Motor-CAD, get the required standard template objects and the adaptive parameter values.
@@ -172,8 +185,15 @@ chamfer_distance = mc.get_adaptive_parameter_value("Square chamfer")
 
 # %%
 # Get the geometry tree. Use the ``get_regions_of_type`` method to get the original stator region.
+# Get the Armature Slot, Wedge and Stator Air regions and store these in a ``stator_children``
+# list.
 gt = mc.get_geometry_tree()
-stator = gt.get_regions_of_type(RegionType.stator)[0]
+stator_region = gt.get_regions_of_type(RegionType.stator)[0]
+
+stator_children = []
+stator_children.extend(gt.get_regions_of_type(RegionType.slot_split))
+stator_children.extend(gt.get_regions_of_type(RegionType.wedge))
+stator_children.extend(gt.get_regions_of_type(RegionType.stator_air))
 
 # %%
 # Create the Adaptive Templates geometry
@@ -194,107 +214,106 @@ stator = gt.get_regions_of_type(RegionType.stator)[0]
 # %%
 # .. image:: ../../images/adaptive_templates/square_stator_2.png
 #     :width: 800pt
-
-# %%
-# Remove the outer arc and upper boundary of the original stator. These are the first and second
-# entities in the list. Use the ``draw_objects`` function to visualise the change.
-draw_objects(stator, draw_points=True)
-orig_entities_to_remove = [stator.entities[0], stator.entities[1]]
-for entity in orig_entities_to_remove:
-    stator.remove_entity(entity)
-draw_objects(stator.entities)
-
-# %%
-# The original stator has a single slot, but the square stator needs to have a quarter of the stator
-# slots (12 for a 48 pole machine). Generate the extra slots by copying the original stator slot
-# entities and rotating them around the origin.
 #
-# The lower boundary line is the only remaining entity that should not be copied and rotated. It is
-# the last entity in the entity list. Append the other entities to a list.
-lower_boundary_line = stator.entities[-1]
-entities_to_copy_and_rotate = []
-for entity in stator.entities:
-    if entity != lower_boundary_line:
-        entities_to_copy_and_rotate.append(entity)
+# Note that the square stator region images above do not have slots cut out. In this example, the
+# subtraction of the slots from the stator is handled by setting the Armature Slot, Wedge and Stator
+# Air regions as child regions of the Stator region.
 
 # %%
-# For each slot to be added to the stator (11 times for a 48-slot stator), use ``deep_copy`` to
-# create copies of the entities. The entities must be in anti-clockwise order going around the
-# region, so the ``entities_to_copy_and_rotate`` list is reversed.
+# Make regions children of the Stator region
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# By default, the Armature Slot, Wedge and Stator Air regions are not children of the Stator region
+# in the geometry tree. When regions are children of another regions, the subtraction of regions is
+# automatically handled by Motor-CAD. Therefore, to ensure that the Armature Slot, Wedge and Stator
+# Air regions are automatically subtracted from the new square Stator region, the parent of these
+# regions must be set to the Stator region. This means that it is not necessary to manually rotate
+# and duplicate the slot geometry and the Adaptive Templates script can be kept simple.
 #
-# Rotate entities around the origin (centre of the motor) by the appropriate angle.
+# .. image:: ../../images/adaptive_templates/square_stator_5.png
 #
-# Append the copied entities to a list. The first entity in the list is closest to the lower
-# boundary line (at 0°). The last entity in the list is closest to the upper boundary line.
-copied_entities = []
-for i in range(int((stator.duplications / 4) - 1)):
-    for entity in reversed(entities_to_copy_and_rotate):
-        copied_entity = deepcopy(entity)
-        copied_entity.rotate(Coordinate(0, 0), ((i + 1) * 360) / stator.duplications)
-        copied_entities.append(copied_entity)
+# Loop through the ``stator_children`` list of regions and set the parent of
+# each region to be the Stator region.
+for region in stator_children:
+    region.parent = stator_region
 
 # %%
-# Draw the slot entities to check that the new entities have been correctly defined.
-to_draw = entities_to_copy_and_rotate
-to_draw.extend(copied_entities)
-draw_objects(to_draw)
+# Create new square stator entities
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# To create the new square stator region geometry, create a new list of entities. The first entity
+# is the lower boundary line of the stator region, which is the last entity in the original stator
+# region entity list.
+square_stator_entities = EntityList()
+square_stator_entities.append(stator_region.entities[-1])
 
 # %%
-# Insert the new entities to the stator region. Insert each entity at index 0 to ensure the
-# anti-clockwise ordering.
-for i in range(len(copied_entities)):
-    stator.insert_entity(0, copied_entities[i])
+# Create a new upper boundary line by creating a copy of the lower boundary line and rotating it by
+# 90 degrees around the origin. Add the new upper boundary line to the new square stator entity
+# list and draw the lower and upper boundary lines.
+square_stator_entities.append(Line(square_stator_entities[0].end, square_stator_entities[0].start))
+square_stator_entities[1].rotate(Coordinate(0, 0), 90)
+
+draw_objects(square_stator_entities)
 
 # %%
-# Create the new upper boundary line of the stator region. Create a copy of the lower boundary line,
-# reverse and rotate it around the origin. Insert the new upper boundary line to the stator region
-# at index 0.
-#
-# These lines determine the width and height of the new square stator. The width and height are
-# equal to the original round stator diameter. To adjust the size, change the **Stator Lam Dia**
-# standard template parameter value.
-upper_boundary_line = deepcopy(lower_boundary_line)
-upper_boundary_line.reverse()
-upper_boundary_line.rotate(Coordinate(0, 0), 360 / 4)
-stator.insert_entity(0, upper_boundary_line)
+# Create the lines that define the outer edges of the square stator. If the ``chamfer distance``
+# adaptive parameter value is more than zero, shorten both lines by that value.
+square_stator_entities.insert(
+    1,
+    Line(
+        square_stator_entities[0].end,
+        Coordinate(
+            square_stator_entities[0].end.x, square_stator_entities[-1].start.y - chamfer_distance
+        ),
+    ),
+)
+square_stator_entities.insert(
+    2,
+    Line(
+        Coordinate(
+            square_stator_entities[0].end.x - chamfer_distance, square_stator_entities[-1].start.y
+        ),
+        square_stator_entities[-1].start,
+    ),
+)
 
 # %%
-# Draw the stator entities.
-draw_objects(stator.entities)
+# Insert the diagonal line to chamfer the corner of the square if the ``chamfer distance`` adaptive
+# parameter value is more than zero. Draw updated list of square stator entities.
+
+if chamfer_distance > 0:
+    square_stator_entities.insert(
+        2, Line(square_stator_entities[1].end, square_stator_entities[2].start)
+    )
+
+draw_objects(square_stator_entities)
 
 # %%
-# The only missing entities are the square stator outer edges. The corner is at the same
-# x-coordinate as the lower boundary line (the last entity) end point and the same y-coordinate as
-# the upper boundary line (the first entity) start point. Create the new vertical and horizontal
-# lines (edges of the square stator) using the corner coordinate and the boundary line start and end
-# points. Insert the new horizontal line as the first entity, and add the vertical entity as the
-# last entity in the stator region entity list.
-
-corner_point = Coordinate(stator.entities[-1].end.x, stator.entities[0].start.y)
-new_line_vert = Line(stator.entities[-1].end, corner_point)
-new_line_horiz = Line(corner_point, stator.entities[0].start)
-stator.insert_entity(0, new_line_horiz)
-stator.add_entity(new_line_vert)
+# Add the inner arc to complete the list of square stator entities.
+square_stator_entities.append(
+    Arc(square_stator_entities[-1].end, square_stator_entities[0].start, centre=Coordinate(0, 0))
+)
 
 # %%
-# Use the ``chamfer`` function to chamfer the corner of the square. Use the adaptive parameter value
-# ``chamfer_distance`` to define the distance to shorten the adjacent sides of the square region by.
-chamfer(stator, corner_point, chamfer_distance)
+# Replace the Stator entities
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Replace the original EntityList of the Stator region with the new square stator EntityList. Set
+# the duplication number of the Stator to the new symmetry factor (4) and draw the modified stator.
+# The original duplication number of the Stator region was 48.
+stator_region.entities = square_stator_entities
+stator_region.duplications = 4
 
-# %%
-# Set the number of stator duplications to 4 from the original 48.
-stator.duplications = 4
+draw_objects(stator_region)
 
 # %%
 # Use the ``subtract`` method to subtract the new square stator region from the original housing, to
 # update the cut-out shape in the housing.
 housing = gt.get_regions_of_type(RegionType.housing)[0]
 
-draw_objects([stator, housing])
+draw_objects([stator_region, housing])
 
-housing.subtract(stator)
+housing.subtract(stator_region)
 
-draw_objects([stator, housing])
+draw_objects([stator_region, housing])
 
 # %%
 # Set the modified geometry tree in Motor-CAD.
@@ -302,7 +321,7 @@ mc.set_geometry_tree(gt)
 
 # %%
 # Draw the updated geometry tree.
-draw_objects(gt, legend=False, axes=False)
+draw_objects(gt, legend=False, axes=False, full_geometry=True)
 
 # %%
 # Load in Adaptive Templates script if required
