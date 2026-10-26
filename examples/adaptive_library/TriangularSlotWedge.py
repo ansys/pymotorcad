@@ -160,16 +160,17 @@ triangle_l = triangle_r.mirror(mirror_line)
 draw_objects([rectangle_r, triangle_r, rectangle_l, triangle_l])
 
 # %%
-# Transform the new construction regions into original coordinate system by translating and rotating
-# based on the original wedge centroid and the angle of the bottom line of the original wedge.
+# Transform the new construction regions into the original wedge coordinate system by translating
+# and rotating based on the original wedge centroid and the angle of the bottom line of the original
+# wedge.
 for region in [rectangle_r, triangle_r, rectangle_l, triangle_l]:
     region.translate(wedge.centroid.x, wedge.centroid.y)
     region.rotate(wedge.centroid, wedge.entities[0].angle)
 
 # %%
 # Draw the construction regions along with the wedge to ensure that the transformation was correctly
-# applied.
-draw_objects([wedge, rectangle_r, triangle_r, rectangle_l, triangle_l])
+# applied. Ensure that ``wedge`` is drawn on top of the other regions by making it last in the list.
+draw_objects([rectangle_r, triangle_r, rectangle_l, triangle_l, wedge])
 
 # %%
 # Modify the wedge region
@@ -179,7 +180,7 @@ draw_objects([wedge, rectangle_r, triangle_r, rectangle_l, triangle_l])
 wedge.subtract(rectangle_r)
 wedge.subtract(rectangle_l)
 
-draw_objects([wedge, triangle_r, triangle_l])
+draw_objects([triangle_r, triangle_l, wedge])
 
 # %%
 # Then unite the wedge with the triangular regions to create the new wedge geometry and draw the
