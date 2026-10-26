@@ -60,7 +60,7 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 # Connect to Motor-CAD
 # --------------------
 # If the script is run externally, these actions occur: a new Motor-CAD instance is opened,
-# the e7 IM generator template is loaded and the file is saved to a temporary folder. To keep a new
+# the i7 IM generator template is loaded and the file is saved to a temporary folder. To keep a new
 # Motor-CAD instance open after executing the script, use the ``MotorCAD(keep_instance_open=True)``
 # option when opening the new instance. Alternatively, use the ``MotorCAD()`` method, which closes
 # the Motor-CAD instance after the script is executed.
@@ -83,7 +83,7 @@ else:
     except:
         pass
     os.mkdir(working_folder)
-    mot_name = "e7_IM_Triangular_Slot_Wedge"
+    mot_name = "i7_IM_Triangular_Slot_Wedge"
     mc.save_to_file(working_folder + "/" + mot_name + ".mot")
 
 # Reset geometry to default
