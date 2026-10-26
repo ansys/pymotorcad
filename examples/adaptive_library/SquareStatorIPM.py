@@ -52,7 +52,8 @@ This script applies the adaptive templates functionality to modify the stator in
 #    surrounding air **Circle Diameter** must be more than 280 mm.
 #
 # .. image:: ../../images/adaptive_templates/square_stator_surrounding_air.png
-#      :width: 300pt
+#     :width: 300pt
+#     :align: center
 
 
 # %%
