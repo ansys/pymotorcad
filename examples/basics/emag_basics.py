@@ -195,7 +195,7 @@ mc.set_variable("PhaseAdvance", 45)
 # Save the file
 # ~~~~~~~~~~~~~
 # Save the file to the temporary folder and display a message that the initialisation in complete.
-mc.save_to_file(working_folder + "/" + mot_name + ".mot")
+mc.save_to_file(f"{working_folder}\\{mot_name}.mot")
 print("Initialisation completed.")
 
 # %%
