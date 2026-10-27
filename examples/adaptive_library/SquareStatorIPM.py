@@ -142,8 +142,12 @@ else:
         mc.set_visible(True)
     mc.load_template("e10")
     try:
-        mc.set_variable("MagneticSlotPoleSymmetryType", 1) # Set **Slot/Pole Symmetry** to **Multiple**
-        mc.set_variable("MagneticFEARegionsMethod", 1)  # set Magnetic FEA Regions Method to Improved
+        mc.set_variable(
+            "MagneticSlotPoleSymmetryType", 1
+        )  # Set **Slot/Pole Symmetry** to **Multiple**
+        mc.set_variable(
+            "MagneticFEARegionsMethod", 1
+        )  # set Magnetic FEA Regions Method to Improved
         mc.set_variable("MagneticSymmetry", 2)  # set User Specified symmetry
         mc.set_variable("MagneticSymmetryFactor", 4)  # set Symmetry factor to 4
         mc.set_variable("MagneticFEADuplications_Stator", 12)  # set Stator Duplications to 12
