@@ -101,12 +101,12 @@ from ansys.motorcad.core.geometry_drawing import draw_objects
 #
 # * load the e10 IPM motor template,
 #
-# * ensure that **Magnetic FEA Regions Method** is set to **Improved**,
-#
 # * with a try/except block, check whether the **Slot/Pole Symmetry** variable is available
 #   (Motor-CAD v2027R1 and later):
 #
 #   * if so:
+#
+#     * ensure that **Magnetic FEA Regions Method** is set to **Improved**,
 #
 #     * set **Symmetry** to **User Specified symmetry**,
 #
@@ -137,13 +137,13 @@ if pymotorcad.is_running_in_internal_scripting():
 else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
-    mc.messageconfig.disable_popups()
+    mc.set_variable("MessageDisplayState", 2)
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
     mc.load_template("e10")
-    mc.set_variable("MagneticFEARegionsMethod", 1)  # set Magnetic FEA Regions Method to Improved
     try:
-        mc.set_variable("MagneticSlotPoleSymmetryType", 1)
+        mc.set_variable("MagneticSlotPoleSymmetryType", 1) # Set **Slot/Pole Symmetry** to **Multiple**
+        mc.set_variable("MagneticFEARegionsMethod", 1)  # set Magnetic FEA Regions Method to Improved
         mc.set_variable("MagneticSymmetry", 2)  # set User Specified symmetry
         mc.set_variable("MagneticSymmetryFactor", 4)  # set Symmetry factor to 4
         mc.set_variable("MagneticFEADuplications_Stator", 12)  # set Stator Duplications to 12
