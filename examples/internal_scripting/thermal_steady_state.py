@@ -52,7 +52,7 @@ class thermal_steady:
     def initial(self):
         # %%
         # Disable pop-up messages
-        mc.set_variable("MessageDisplayState", 2)
+        mc.messageconfig.disable_popups()
 
         # Adjust Losses
         mc.display_screen("Scripting")

@@ -41,7 +41,7 @@ from ansys.motorcad.core.geometry import Coordinate, rt_to_xy, xy_to_rt
 mc = pymotorcad.MotorCAD()
 
 # Disable popup messages
-mc.set_variable("MessageDisplayState", 2)
+mc.messageconfig.disable_popups()
 
 
 # function to return angle based on chord length

@@ -86,7 +86,7 @@ mc = pymotorcad.MotorCAD()
 #    dialogs used to reconcile differences in material data between the database and MOT file. In
 #    each case the default action will be taken. This setting will persist until Motor-CAD is
 #    closed.
-mc.set_variable("MessageDisplayState", 2)
+mc.messageconfig.disable_popups()
 
 # %%
 # Set Motor-CAD to EMag

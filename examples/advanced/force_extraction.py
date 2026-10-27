@@ -36,7 +36,7 @@ then displays some key force orders from a 2d FFT that may be important for NVH.
 import ansys.motorcad.core as pymotorcad
 
 mc = pymotorcad.MotorCAD()
-mc.set_variable("MessageDisplayState", 2)
+mc.messageconfig.disable_popups()
 
 # %%
 # Load a baseline model - in this case a template.

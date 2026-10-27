@@ -860,7 +860,7 @@ def open_motorcad_instances():
     # global mc exists as a separate global variable in each parallel worker / process
     global mc
     mc = pymotorcad.MotorCAD()
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
 
 
 # This function closes the Motor-CAD instances. It requires a dummy argument due to it being called
