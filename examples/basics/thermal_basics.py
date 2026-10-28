@@ -58,7 +58,7 @@ mcad = pymotorcad.MotorCAD()
 # Disable popup messages
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Disable all popup messages from Motor-CAD.
-mcad.messageconfig.disable_popups()
+mcad.set_variable("MessageDisplayState", 2)
 
 # %%
 # Open relevant file
