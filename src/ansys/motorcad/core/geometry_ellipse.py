@@ -76,10 +76,7 @@ class _BaseEllipse(EntityList):
                 # With given eccentricity, there is enough information to calculate a and b
                 self.eccentricity = eccentricity
                 self.a = sqrt(
-                    (
-                        (-(eccentricity**2) + 1) * self.relative_start.x**2
-                        + self.relative_start.y**2
-                    )
+                    ((-(eccentricity**2) + 1) * self.relative_start.x**2 + self.relative_start.y**2)
                     / (-(eccentricity**2) + 1)
                 )
                 self.b = sqrt(self.a**2 * (1 - eccentricity**2))

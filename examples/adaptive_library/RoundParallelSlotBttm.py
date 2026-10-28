@@ -26,6 +26,7 @@ Round Parallel Slot Bottom
 This script applies the adaptive templates functionality to modify parallel slot bottoms from
 having square corners to round corners.
 """
+
 # %%
 # Perform required imports
 # ------------------------

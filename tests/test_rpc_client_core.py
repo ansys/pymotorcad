@@ -69,6 +69,7 @@ def test_set_server_ip():
     assert pymotorcad.rpc_client_core.SERVER_IP == def_address
 
 
+@pytest.mark.headless_incompatible
 def test_set_motorcad_exe():
     save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"
@@ -437,6 +438,7 @@ def test_feature_exists_check(mc):
         assert mc.connection.check_if_feature_exists("not_a_real_feature") is False
 
 
+@pytest.mark.headless_incompatible
 def test_show_gui(mc):
     if not mc.connection.check_version_at_least("2027.0"):
         pytest.skip("show_gui requires Motor-CAD 2027.0 or later")

@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Methods for adaptive geometry."""
+
 from warnings import warn
 
 from ansys.motorcad.core.geometry import (
@@ -490,9 +491,9 @@ class _RpcMethodsAdaptiveGeometry:
                 for key, value in {
                     "material": material,
                     "mesh_length": mesh_length,
-                    "region_type": region_type.value
-                    if isinstance(region_type, RegionType)
-                    else region_type,
+                    "region_type": (
+                        region_type.value if isinstance(region_type, RegionType) else region_type
+                    ),
                     "lamination_type": lamination_type,
                 }.items()
                 if value is not None

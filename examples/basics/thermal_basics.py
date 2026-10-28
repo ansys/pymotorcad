@@ -172,7 +172,7 @@ time = []
 
 for timeStep in range(num_time_steps):
     try:
-        (x, y) = mcad.get_temperature_graph_point("Winding (Avg)", timeStep)
+        x, y = mcad.get_temperature_graph_point("Winding (Avg)", timeStep)
         time.append(x)
         winding_temp_average_transient.append(y)
     except pymotorcad.MotorCADError:

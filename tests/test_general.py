@@ -118,8 +118,9 @@ def test_get_region_max_min_avg(mc):
 
 
 @pytest.mark.skipif(
-    platform.system() != "Windows", reason="export results is only supported on Windows"
+    platform.system() != "Windows", reason="export results is only supported with Windows UI"
 )
+@pytest.mark.headless_incompatible(reason="export results is only supported with Windows UI")
 def test_export_results(mc):
     mc.do_steady_state_analysis()
 
@@ -130,6 +131,7 @@ def test_export_results(mc):
     assert os.path.exists(file_path)
 
 
+@pytest.mark.headless_incompatible
 def test_message_config(mc):
     if not mc.connection.check_if_feature_exists("motor_cad_messager"):
         pytest.skip("Motor-CAD Messager is not enabled, skipping test_message_config")

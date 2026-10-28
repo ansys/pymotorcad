@@ -28,6 +28,7 @@ Trapezoidal ducts
 This script applies the adaptive templates functionality to modify rectangular ducts
 into trapezoidal ducts.
 """
+
 # %%
 # Perform required imports
 # ------------------------
