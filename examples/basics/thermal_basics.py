@@ -58,7 +58,7 @@ mcad = pymotorcad.MotorCAD()
 # Disable popup messages
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Disable all popup messages from Motor-CAD.
-mcad.set_variable("MessageDisplayState", 2)
+mcad.messageconfig.disable_popups()
 
 # %%
 # Open relevant file
@@ -105,24 +105,21 @@ mcad.set_variable("WJ_Fluid_Inlet_Temperature", 25)
 mcad.set_fluid("HousingWJFluid", "Dynalene HF-LO")
 
 # %%
-# Set the heat transfer correlation.
-mcad.set_variable("Calc/Input_h[WJ]_Rear_Housing", 1)
-mcad.set_array_variable("HousingWJ_CalcInputH_A", 0, 1)
-
+# Set the heat transfer correlation in active section for every axial slice.
+num_slices = mcad.get_variable("NumAxialSlices")
 wj_fluid_k = mcad.get_variable("WJ_Fluid_Thermal_Conductivity")
 wj_fluid_rho = mcad.get_variable("WJ_Fluid_Density")
 wj_fluid_mu = mcad.get_variable("WJ_Fluid_Dynamic_Viscosity")
-wj_fluid_u_a = mcad.get_array_variable("HousingWJ_Velocity_A", 0)
-wj_fluid_u_r = mcad.get_variable("WJ_Channel_Fluid_Velocity_[Rear]")
+wj_fluid_flow_Rate = mcad.get_variable("WJ_Fluid_Volume_Flow_Rate")
 
-h_A = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_a / wj_fluid_mu
-h_R = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_r / wj_fluid_mu
+for slice_index in range(num_slices):
+    mcad.set_array_variable("HousingWJ_CalcInputH_A", slice_index, 1)
+    wj_fluid_cs_area = mcad.get_array_variable("HousingWJ_Channel_CSArea_A", slice_index)
+    wj_fluid_u_a = wj_fluid_flow_Rate / (wj_fluid_cs_area * 1e-6)
+    h_a = 0.005 * wj_fluid_k * wj_fluid_rho * wj_fluid_u_a / wj_fluid_mu
+    mcad.set_array_variable("HousingWJ_InputH_A", slice_index, h_a)
+    print(f"h_A[{slice_index}] = {h_a}")
 
-print("h_A = ", h_A)
-print("h_R = ", h_R)
-
-mcad.set_array_variable("HousingWJ_InputH_A", 0, h_A)
-mcad.set_variable("Input_Value_h[WJ]_Rear_Housing", h_R)
 
 # %%
 # Save the file.
