@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for calculations."""
+
 from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 

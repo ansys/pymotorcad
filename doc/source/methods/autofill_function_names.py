@@ -1,4 +1,5 @@
 """Test script for generating docs for methods."""
+
 import ast
 from dataclasses import dataclass
 from enum import Enum

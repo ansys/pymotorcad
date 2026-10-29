@@ -542,6 +542,7 @@ def test_get_region_properties_xy():
 #     reset_model_geometry(mc_fea_old)
 
 
+@pytest.mark.headless_incompatible(reason="Old method not supported in headless mode")
 def test_edit_magnet_region(mc_fea_old):
     reset_to_default_file(mc_fea_old)
 
@@ -562,6 +563,7 @@ def test_edit_magnet_region(mc_fea_old):
     reset_model_geometry(mc_fea_old)
 
 
+@pytest.mark.headless_incompatible(reason="Method not yet supported in headless mode")
 def test_get_region_value(mc_fea_old):
     # Ensure magnetic context active for FEA tests
     reset_to_default_file(mc_fea_old)

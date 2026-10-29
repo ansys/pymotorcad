@@ -27,6 +27,7 @@ Triangular Stator Notches
 =========================
 Adaptive Template script to create triangular stator notches to improve NVH performance.
 """
+
 # %%
 # .. note::
 #    For more information on the use of Adaptive Templates in Motor-CAD, and how to create, modify

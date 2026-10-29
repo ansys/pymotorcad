@@ -26,6 +26,7 @@ Material and Mesh Properties
 This script applies the adaptive templates functionality to modify material and mesh properties
 in a turbocharger machine.
 """
+
 # %%
 # .. note::
 #    Adaptive Templates material and mesh properties described in this example require v2025.1.1

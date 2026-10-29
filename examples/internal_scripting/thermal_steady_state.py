@@ -27,6 +27,7 @@ Thermal steady-state
 ====================
 This example demonstrates internal scripting thermal steady-state functionality
 """
+
 # %%
 # Perform required imports
 import ansys.motorcad.core as pymotorcad

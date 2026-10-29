@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods (general)."""
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 

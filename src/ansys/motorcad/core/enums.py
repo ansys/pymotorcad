@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Enumerations for Motor-CAD."""
+
 from enum import Enum
 
 

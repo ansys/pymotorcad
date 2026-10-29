@@ -25,6 +25,7 @@ Custom Magnet Angles for SPM
 ============================
 This script applies the adaptive templates functionality to modify magnet angles in a Halbach array.
 """
+
 # %%
 # Perform required imports
 # ------------------------

@@ -27,6 +27,7 @@ Motor-CAD E-magnetic example script
 ===================================
 This example provides a Motor-CAD E-magnetic script to run calculations and plot results.
 """
+
 # %%
 # This script will change model parameter values (geometry, winding pattern and materials),
 # run magnetic calculations, extract and plot results.

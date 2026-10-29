@@ -22,9 +22,12 @@
 
 import os
 
+import pytest
+
 from RPC_Test_Common import get_dir_path, get_temp_files_dir_path
 
 
+@pytest.mark.headless_incompatible(reason="internal scripting not yet supported in headless mode")
 def test_load_run_script(mc):
     save_tooth_width = mc.get_variable("tooth_width")
 
