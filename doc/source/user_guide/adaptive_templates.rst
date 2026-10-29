@@ -171,6 +171,11 @@ exists in Motor-CAD, the current value is kept and it is **not** set to the defa
 set an Adaptive Parameter value, you can use the ``set_adaptive_parameter_value()`` method from
 ``ansys.motorcad.core``.
 
+To set an Adaptive Parameter description in the Adaptive Templates script, use the
+``set_array_variable()`` method with the parameter name ``"AdaptiveTemplates_Parameters_Description"`` and
+the corresponding index. The index should be the same as the index of the Adaptive Parameter in the
+list of Adaptive Parameters (``"AdaptiveTemplates_Parameters_Name"``).
+
 Adaptive Parameters also appear in the **Geometry -> Radial** tab, alongside the Standard Template
 parameters.
 
@@ -186,6 +191,14 @@ defined by these Adaptive Parameters:
 .. code:: python
 
     number_notches = int(mc.get_adaptive_parameter_value("Notches per Pole"))
+
+Adaptive Parameters can be removed in the Motor-CAD GUI by selecting the parameter and clicking
+**Remove**. To remove all the current Adaptive Parameters, you can set the value of the
+``"Num_AdaptiveTemplates_Parameters"`` Motor-CAD variable to zero:
+
+.. code:: python
+
+    mc.set_variable("Num_AdaptiveTemplates_Parameters", 0)
 
 Scripting workflow
 *******************
