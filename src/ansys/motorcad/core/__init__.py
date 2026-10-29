@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """PyMotorCAD is a Python RPC-JSON interface for Motor-CAD."""
+
 try:
     import importlib.metadata as importlib_metadata
 except ModuleNotFoundError:  # pragma: no cover

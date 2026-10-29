@@ -23,10 +23,46 @@ import pytest
 
 from RPC_Test_Common import reset_temp_file_folder, reset_to_default_file
 from ansys.motorcad.core import MotorCAD
+from ansys.motorcad.core.rpc_client_core import _MotorCADConnection
+
+
+def pytest_addoption(parser):
+    """Register the headless command line argument with pytest."""
+    parser.addoption(
+        "--headless",
+        action="store_true",
+        default=False,
+        help="Use the fully headless Motor-CAD build for all local test launches.",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """On test collection find tests marked headless_incompatible and skip if --headless is set."""
+    if config.getoption("--headless"):
+        skip_headless = pytest.mark.skip(reason="Test is incompatible with --headless")
+        for item in items:
+            if item.get_closest_marker("headless_incompatible") is not None:
+                item.add_marker(skip_headless)
 
 
 def pytest_sessionstart(session):
     reset_temp_file_folder()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def enforce_headless(pytestconfig):
+    """Enforce headless executable selection for local launches throughout the session."""
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        if pytestconfig.getoption("--headless"):
+            resolve_motor_cad_exe = _MotorCADConnection._resolve_motor_cad_exe
+
+            def resolve_headless_exe(connection):
+                connection._full_headless = True
+                executable = resolve_motor_cad_exe(connection)
+                return executable
+
+            monkeypatch.setattr(_MotorCADConnection, "_resolve_motor_cad_exe", resolve_headless_exe)
+        yield
 
 
 @pytest.fixture(scope="session")

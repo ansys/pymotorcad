@@ -26,6 +26,7 @@ Bezier curve rotor pockets
 This script applies the adaptive templates functionality to modify rotor pockets
 with a custom curve defined using a Bezier function.
 """
+
 # %%
 # .. note::
 #    This script requires Motor-CAD 2024 R2 or later.

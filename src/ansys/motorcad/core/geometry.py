@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
+
 from cmath import polar, rect
 from copy import deepcopy
 from enum import Enum

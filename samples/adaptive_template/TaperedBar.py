@@ -29,7 +29,6 @@ This script applies the adaptive templates functionality to change
 the points at the bottom of parallel tooth to create a tapered tooth bar geometry.
 """
 
-
 import math
 import sys
 

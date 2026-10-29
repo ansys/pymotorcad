@@ -27,6 +27,7 @@ This script applies the adaptive templates functionality to modify rectangular d
 into oblong ducts. Further, the thermal effect of modified duct is taken into account by modifying
 the area adjustment under housing water jacket in thermal module.
 """
+
 # %%
 # Perform required imports
 # ------------------------

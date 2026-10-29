@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for UI."""
+
 from warnings import warn
 
 from packaging import version

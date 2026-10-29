@@ -27,6 +27,7 @@ E-magnetic
 ==========
 This example demonstrates internal scripting E-Mag functionality
 """
+
 import ansys.motorcad.core as pymotorcad
 
 mc = pymotorcad.MotorCAD()

@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Unit containing region drawing functions."""
+
 from copy import deepcopy
 import warnings
 from warnings import warn

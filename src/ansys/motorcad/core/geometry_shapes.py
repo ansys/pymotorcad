@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Function for ``Motor-CAD geometry`` not attached to Motor-CAD instance."""
+
 from math import cos, radians, sin, sqrt
 
 from ansys.motorcad.core.geometry import (
