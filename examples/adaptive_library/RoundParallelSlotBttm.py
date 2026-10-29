@@ -76,7 +76,7 @@ else:
         pass
     os.mkdir(working_folder)
     mot_name = "e3_WFSM_Round_Parallel_Slot"
-    mc.save_to_file(working_folder + "/" + mot_name + ".mot")
+    mc.save_to_file(f"{working_folder}\\{mot_name}.mot")
 
 # Reset geometry to default
 mc.reset_adaptive_geometry()
