@@ -2,13 +2,12 @@
 
 ## Project Lead
 
-* [Jack Davies](https://github.com/jgsdavies)
+* [Matthew Jones](https://github.com/matthewAnsys)
 
 ## Individual Contributors
 
 * [Aidan Crandell](https://github.com/aidanc-ansys)
 * [Alex Cowdale](https://github.com/a-cowdale)
-* [Alex Warwick](https://github.com/a-warwick)
 * [Caroline Leak](https://github.com/Caroline-Leak)
 * [Devin](https://github.com/Devin-Crawford)
 * [Dougie Hawkins](https://github.com/dougiehawkins)
@@ -18,6 +17,7 @@
 * [gmalinve](https://github.com/gmalinve)
 * [Husain Adam](https://github.com/HusainAdam)
 * [Jack](https://github.com/JackB-Ansys)
+* [Jack Davies](https://github.com/jgsdavies)
 * [James Derrick](https://github.com/jgd10)
 * [James Packer](https://github.com/james-packer)
 * [James Schaffer](https://github.com/James-Schaffer)
@@ -26,7 +26,6 @@
 * [Joel H.](https://github.com/Joel-H-dot)
 * [Kathy Pippert](https://github.com/PipKat)
 * [Kerry McAdams](https://github.com/klmcadams)
-* [Matthew Jones](https://github.com/matthewAnsys)
 * [Matthew Leak](https://github.com/matthew-leak)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [Misheel Ganzorig](https://github.com/MisheelGanzorigAnsys)
