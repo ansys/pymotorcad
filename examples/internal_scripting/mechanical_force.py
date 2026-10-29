@@ -54,7 +54,7 @@ class mechanical_forces:
     def initial(self):
         # %%
         # Disable pop-up messages
-        mc.set_variable("MessageDisplayState", 2)
+        mc.messageconfig.disable_popups()
 
         # Called before calculation
         # For each operating point, set requested torque and speed
