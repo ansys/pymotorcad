@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for variables."""
+
 from warnings import warn
 
 from ansys.motorcad.core.datastore import Datastore

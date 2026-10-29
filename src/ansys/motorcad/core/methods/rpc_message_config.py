@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for updating message config."""
+
 from ansys.motorcad.core import MessageDisplayLevel
 from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 

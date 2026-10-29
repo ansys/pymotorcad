@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for geometry."""
+
 from ansys.motorcad.core.rpc_client_core import MotorCADWarning
 
 

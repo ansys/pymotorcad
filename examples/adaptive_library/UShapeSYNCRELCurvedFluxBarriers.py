@@ -28,6 +28,7 @@ Curved Rotor Flux Barriers for SYNCREL U-Shape
 This script applies the adaptive templates functionality to alter SYNCREL U-Shape rotor template to
 use curved rotor pockets.
 """
+
 # %%
 # .. note::
 #    For more information on the use of Adaptive Templates in Motor-CAD,

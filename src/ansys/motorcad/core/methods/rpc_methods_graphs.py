@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """RPC methods for graphs."""
+
 from dataclasses import dataclass
 import math
 

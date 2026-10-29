@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Deprecated RPC methods."""
+
 from warnings import warn
 
 

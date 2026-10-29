@@ -49,6 +49,7 @@ def test_full_headless(mc):
         MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
 
 
+@pytest.mark.headless_incompatible
 def test_resolve_motor_cad_exe_ignores_full_headless_when_exe_manually_set():
     save_global_exe = MOTORCAD_EXE_GLOBAL
     test_path = r"test_path/test"

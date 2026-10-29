@@ -28,6 +28,8 @@ import pytest
 from RPC_Test_Common import get_temp_files_dir_path, reset_to_default_file
 from ansys.motorcad.core import MotorCAD
 
+pytestmark = pytest.mark.headless_incompatible
+
 if platform.system() == "Windows":
     pass
 else:

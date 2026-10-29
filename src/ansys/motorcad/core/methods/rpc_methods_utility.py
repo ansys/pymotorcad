@@ -25,6 +25,7 @@
 They only have access to methods within _MotorCADConnection and are visible to the user at
 the first level of the class. For example, ``MotorCAD.is_open``.
 """
+
 import psutil
 
 from ansys.motorcad.core.rpc_client_core import MotorCADError

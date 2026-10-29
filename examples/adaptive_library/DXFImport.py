@@ -26,6 +26,7 @@ Custom DXF Geometry
 This script applies the adaptive templates functionality to import custom rotor geometry from a
 DXF file.
 """
+
 # %%
 # .. note::
 #    For more information on how to add imported DXF geometries to Adaptive Templates in Motor-CAD,

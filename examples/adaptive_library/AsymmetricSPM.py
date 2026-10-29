@@ -26,6 +26,7 @@ Asymmetric Surface Permanent Magnet Rotor
 This script applies the adaptive templates functionality to modify a 28 pole surface permanent
 magnet rotor to have an asymmetric arrangement of magnets.
 """
+
 # %%
 # .. note::
 #    This example uses Motor-CAD Geometry Tree functionality, introduced in v2026.1.1 (Motor-CAD
