@@ -1,0 +1,6 @@
+update
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.update

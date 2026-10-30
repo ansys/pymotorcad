@@ -1,0 +1,6 @@
+slot\_area\_stator
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.slot_area_stator

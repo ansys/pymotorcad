@@ -1,0 +1,6 @@
+﻿get\_entities\_have\_common\_coordinate
+=======================================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autofunction:: get_entities_have_common_coordinate

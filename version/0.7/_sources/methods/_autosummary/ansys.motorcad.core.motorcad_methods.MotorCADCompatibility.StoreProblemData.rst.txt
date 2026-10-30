@@ -1,0 +1,6 @@
+StoreProblemData
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.StoreProblemData

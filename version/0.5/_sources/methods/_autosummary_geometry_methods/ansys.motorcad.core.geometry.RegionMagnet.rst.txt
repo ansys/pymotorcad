@@ -1,0 +1,93 @@
+﻿RegionMagnet
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: RegionMagnet
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      RegionMagnet.add_entity
+      
+      
+      RegionMagnet.add_point
+      
+      
+      RegionMagnet.collides
+      
+      
+      RegionMagnet.edit_point
+      
+      
+      RegionMagnet.find_entity_from_coordinates
+      
+      
+      RegionMagnet.from_coordinate_list
+      
+      
+      RegionMagnet.insert_entity
+      
+      
+      RegionMagnet.insert_polyline
+      
+      
+      RegionMagnet.is_closed
+      
+      
+      RegionMagnet.mirror
+      
+      
+      RegionMagnet.remove_entity
+      
+      
+      RegionMagnet.replace
+      
+      
+      RegionMagnet.rotate
+      
+      
+      RegionMagnet.subtract
+      
+      
+      RegionMagnet.translate
+      
+      
+      RegionMagnet.unite
+      
+      
+      RegionMagnet.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RegionMagnet.br_multiplier
+      RegionMagnet.br_used
+      RegionMagnet.br_value
+      RegionMagnet.br_x
+      RegionMagnet.br_y
+      RegionMagnet.child_names
+      RegionMagnet.children
+      RegionMagnet.magnet_angle
+      RegionMagnet.magnet_polarity
+      RegionMagnet.motorcad_instance
+      RegionMagnet.parent
+      RegionMagnet.parent_name
+      RegionMagnet.points
+      RegionMagnet.region_type
+   
+   

@@ -1,0 +1,44 @@
+
+
+.. _sphx_glr_examples_links:
+
+Linking examples
+~~~~~~~~~~~~~~~~
+These examples show how you can link PyMotorCAD to other Ansys products.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD EMag Twin Builder ECE">
+
+.. only:: html
+
+  .. image:: /examples/links/images/thumb/sphx_glr_ece_export_for_twinbuilder_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_links_ece_export_for_twinbuilder.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD EMag Twin Builder ECE</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/links/ece_export_for_twinbuilder
+

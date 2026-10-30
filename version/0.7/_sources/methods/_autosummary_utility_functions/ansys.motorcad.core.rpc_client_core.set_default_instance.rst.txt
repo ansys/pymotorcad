@@ -1,0 +1,6 @@
+﻿set\_default\_instance
+======================
+
+.. currentmodule:: ansys.motorcad.core.rpc_client_core
+
+.. autofunction:: set_default_instance

@@ -1,0 +1,6 @@
+﻿build\_lab\_thermal\_model
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.build_lab_thermal_model

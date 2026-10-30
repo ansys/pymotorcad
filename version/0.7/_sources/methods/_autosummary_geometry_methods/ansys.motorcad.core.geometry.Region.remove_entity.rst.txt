@@ -1,0 +1,6 @@
+remove\_entity
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Region.remove_entity

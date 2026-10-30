@@ -1,0 +1,21 @@
+.. _ref_Variables_API:
+Variables
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_Variables
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    get_array_variable
+    get_array_variable_2d
+    get_file_name
+    get_variable
+    restore_compatibility_settings
+    set_array_variable
+    set_array_variable_2d
+    set_variable

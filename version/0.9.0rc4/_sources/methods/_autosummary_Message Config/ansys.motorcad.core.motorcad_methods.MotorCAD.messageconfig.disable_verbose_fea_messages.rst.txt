@@ -1,0 +1,8 @@
+﻿disable\_verbose\_fea\_messages
+===============================
+
+``MotorCAD.messageconfig.disable_verbose_fea_messages``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.disable_verbose_fea_messages

@@ -1,0 +1,6 @@
+get\_regions\_of\_type
+======================
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: GeometryTree.get_regions_of_type

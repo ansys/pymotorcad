@@ -1,0 +1,6 @@
+count
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: EntityList.count

@@ -1,0 +1,6 @@
+CalculateTorqueEnvelope
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateTorqueEnvelope

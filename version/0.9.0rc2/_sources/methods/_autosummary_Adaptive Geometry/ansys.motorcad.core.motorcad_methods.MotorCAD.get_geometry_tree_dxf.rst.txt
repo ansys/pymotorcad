@@ -1,0 +1,6 @@
+﻿get\_geometry\_tree\_dxf
+========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_geometry_tree_dxf

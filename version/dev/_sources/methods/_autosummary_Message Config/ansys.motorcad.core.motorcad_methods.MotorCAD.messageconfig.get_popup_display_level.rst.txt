@@ -1,0 +1,8 @@
+﻿get\_popup\_display\_level
+==========================
+
+``MotorCAD.messageconfig.get_popup_display_level``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.get_popup_display_level

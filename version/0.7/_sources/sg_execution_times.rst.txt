@@ -1,0 +1,91 @@
+
+:orphan:
+
+.. _sphx_glr_sg_execution_times:
+
+
+Computation times
+=================
+**41:18.669** total execution time for 19 files **from all galleries**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_examples_links_thermal_twinbuilder.py` (``..\..\examples\links\thermal_twinbuilder.py``)
+     - 16:09.939
+     - 0.0
+   * - :ref:`sphx_glr_examples_links_ece_export_for_twinbuilder.py` (``..\..\examples\links\ece_export_for_twinbuilder.py``)
+     - 10:58.902
+     - 0.0
+   * - :ref:`sphx_glr_examples_internal_scripting_mechanical_force.py` (``..\..\examples\internal_scripting\mechanical_force.py``)
+     - 02:09.440
+     - 0.0
+   * - :ref:`sphx_glr_examples_advanced_force_extraction.py` (``..\..\examples\advanced\force_extraction.py``)
+     - 02:07.002
+     - 0.0
+   * - :ref:`sphx_glr_examples_basics_lab_basics.py` (``..\..\examples\basics\lab_basics.py``)
+     - 01:52.096
+     - 0.0
+   * - :ref:`sphx_glr_examples_internal_scripting_thermal_transient.py` (``..\..\examples\internal_scripting\thermal_transient.py``)
+     - 01:42.377
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_TrapezoidalDuct.py` (``..\..\examples\adaptive_library\TrapezoidalDuct.py``)
+     - 00:43.923
+     - 0.0
+   * - :ref:`sphx_glr_examples_basics_thermal_basics.py` (``..\..\examples\basics\thermal_basics.py``)
+     - 00:42.798
+     - 0.0
+   * - :ref:`sphx_glr_examples_basics_emag_basics.py` (``..\..\examples\basics\emag_basics.py``)
+     - 00:39.751
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_RoundParallelSlotBttm.py` (``..\..\examples\adaptive_library\RoundParallelSlotBttm.py``)
+     - 00:33.688
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_OblongStatorDuct.py` (``..\..\examples\adaptive_library\OblongStatorDuct.py``)
+     - 00:31.672
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_BezierCurveRotorPockets.py` (``..\..\examples\adaptive_library\BezierCurveRotorPockets.py``)
+     - 00:31.657
+     - 0.0
+   * - :ref:`sphx_glr_examples_internal_scripting_thermal_steady_state.py` (``..\..\examples\internal_scripting\thermal_steady_state.py``)
+     - 00:27.875
+     - 0.0
+   * - :ref:`sphx_glr_examples_internal_scripting_emag.py` (``..\..\examples\internal_scripting\emag.py``)
+     - 00:26.079
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_UShapeSYNCRELCurvedFluxBarriers.py` (``..\..\examples\adaptive_library\UShapeSYNCRELCurvedFluxBarriers.py``)
+     - 00:20.907
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_DXFImport.py` (``..\..\examples\adaptive_library\DXFImport.py``)
+     - 00:20.532
+     - 0.0
+   * - :ref:`sphx_glr_examples_internal_scripting_mechanical_stress.py` (``..\..\examples\internal_scripting\mechanical_stress.py``)
+     - 00:20.516
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_BPMTriangularRotorNotches.py` (``..\..\examples\adaptive_library\BPMTriangularRotorNotches.py``)
+     - 00:20.016
+     - 0.0
+   * - :ref:`sphx_glr_examples_adaptive_library_UpdateMaterialMesh.py` (``..\..\examples\adaptive_library\UpdateMaterialMesh.py``)
+     - 00:19.500
+     - 0.0

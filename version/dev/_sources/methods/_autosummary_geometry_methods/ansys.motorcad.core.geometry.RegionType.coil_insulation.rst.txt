@@ -1,0 +1,6 @@
+coil\_insulation
+================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.coil_insulation

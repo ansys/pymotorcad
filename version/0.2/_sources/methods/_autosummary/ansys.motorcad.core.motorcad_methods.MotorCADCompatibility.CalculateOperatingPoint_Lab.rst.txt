@@ -1,0 +1,6 @@
+CalculateOperatingPoint\_Lab
+============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateOperatingPoint_Lab
