@@ -41,12 +41,12 @@ def test_motorcadcompatibility(mc, monkeypatch):
     # Ensure Motor-CAD has opened successfully
     mc.connection._wait_for_response(30)
 
-    mc2 = MotorCADCompatibility(port=mc.connection._port)
+    mc2 = MotorCADCompatibility(port=mc.connection.get_connected_port())
 
     # should have connected to open instance
     # Think this will actually just throw an exception if this fails
     assert open_new_instance_flag == False
-    assert mc2.connection._port == mc.connection._port
+    assert mc2.connection.get_connected_port() == mc.connection.get_connected_port()
 
     # Try simple method
     succ, var = mc2.GetVariable("Tooth_Width")

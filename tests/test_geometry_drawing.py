@@ -314,7 +314,7 @@ def test_draw_region_with_Arc():
 #
 #     drawing_flag = False
 #     save_def_instance = DEFAULT_INSTANCE
-#     set_default_instance(mc.connection._port)
+#     set_default_instance(mc.connection.connected_port)
 #
 #     draw_objects_debug(region)
 #     assert drawing_flag is False

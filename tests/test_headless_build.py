@@ -46,7 +46,9 @@ def test_full_headless(mc):
         mc1.quit()
 
     with pytest.warns(UserWarning, match="full_headless has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, full_headless=True)
+        MotorCAD(
+            open_new_instance=False, port=mc.connection.get_connected_port(), full_headless=True
+        )
 
 
 @pytest.mark.headless_incompatible

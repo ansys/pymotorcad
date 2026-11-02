@@ -3253,7 +3253,7 @@ def test_reset_geometry(mc):
     assert stator.entities == stator_copy.entities
 
     save_default_instance = DEFAULT_INSTANCE
-    set_default_instance(mc.connection._port)
+    set_default_instance(mc.connection.get_connected_port())
 
     mc.set_region(stator_edited)
     stator = mc.get_region("stator")

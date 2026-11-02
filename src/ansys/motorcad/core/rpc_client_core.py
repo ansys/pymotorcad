@@ -450,6 +450,10 @@ class _MotorCADConnection:
                 + str(self._get_url())
             )
 
+    @property
+    def connected_port(self):
+        return self._port
+
     def _resolve_localhost(self):
         """Try to resolve localhost so that we don't have to do this for every api method.
 

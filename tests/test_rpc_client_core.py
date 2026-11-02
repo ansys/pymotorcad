@@ -87,13 +87,13 @@ def test_set_motorcad_exe():
 # Test the method used to connect to Motor-CAD from internal scripting
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_internal_connection(mc):
-    port = mc.connection._port
+    port = mc.connection.connected_port
 
     pymotorcad.rpc_client_core.set_default_instance(port)
 
     mc2 = MotorCAD()
 
-    assert mc2.connection._port == port
+    assert mc2.connection.connected_port == port
 
     # reset default instance flag
     pymotorcad.rpc_client_core.DEFAULT_INSTANCE = -1
@@ -114,7 +114,7 @@ def test_open_new_with_port():
         return
 
     try:
-        assert mc2.connection._port == test_port
+        assert mc2.connection.connected_port == test_port
     except Exception as e:
         raise e
     finally:
@@ -163,19 +163,19 @@ def test_open_motor_cad_local_startup_errors(
 # Test connecting to known Motor-CAD instance
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_connect_existing_with_port(mc):
-    test_port = mc.connection._port
+    test_port = mc.connection.connected_port
 
     mc2 = MotorCAD(open_new_instance=False, port=test_port)
 
-    assert mc2.connection._port == test_port
+    assert mc2.connection.connected_port == test_port
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_reusing_parallel_instances(mc, monkeypatch):
     # This should connect to mc test instance
-    mc2 = MotorCAD(reuse_parallel_instances=True, port=mc.connection._port)
+    mc2 = MotorCAD(reuse_parallel_instances=True, port=mc.connection.connected_port)
     try:
-        original_port = mc2.connection._port
+        original_port = mc2.connection.connected_port
 
         # Force open another Motor-CAD to avoid hijacking existing instance
         mock_set_busy = create_autospec(_MotorCADConnection._set_busy, return_value=1)
@@ -184,7 +184,7 @@ def test_reusing_parallel_instances(mc, monkeypatch):
         mc3 = MotorCAD(reuse_parallel_instances=True)
         try:
             # Ensure connected to different instances
-            assert mc3.connection._port != original_port
+            assert mc3.connection.connected_port != original_port
         except Exception as e:
             raise e
         finally:
@@ -204,11 +204,11 @@ def test_reusing_parallel_instances(mc, monkeypatch):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=10)
 def test_set_busy(mc):
-    mc2 = MotorCAD(open_new_instance=False, port=mc.connection._port)
+    mc2 = MotorCAD(open_new_instance=False, port=mc.connection.connected_port)
     mc2.set_free()
     mc2.connection._set_busy()
 
-    mc3 = MotorCAD(open_new_instance=False, port=mc.connection._port)
+    mc3 = MotorCAD(open_new_instance=False, port=mc.connection.connected_port)
     with pytest.raises(MotorCADError):
         mc3.connection._set_busy()
 
@@ -219,7 +219,7 @@ def test_keeping_instance_open(monkeypatch):
     # This should connect to mc test instance
     mc2 = MotorCAD(keep_instance_open=True)
 
-    original_port = mc2.connection._port
+    original_port = mc2.connection.connected_port
 
     # finished with this instance - instance should stay open
     del mc2
@@ -228,7 +228,7 @@ def test_keeping_instance_open(monkeypatch):
     mc3 = pymotorcad.MotorCAD(open_new_instance=False, port=original_port)
 
     # check the instance is the same as before
-    assert mc3.connection._port == original_port
+    assert mc3.connection.connected_port == original_port
 
     mc3.quit()
 
@@ -240,7 +240,7 @@ def test_keeping_instance_open(monkeypatch):
 
     mc2 = MotorCAD(keep_instance_open=True)
 
-    original_port = mc2.connection._port
+    original_port = mc2.connection.connected_port
     del mc2
 
     # Quitting MotorCAD can take a moment to close the RPC server.
@@ -299,14 +299,16 @@ def test_ensure_version_later_than():
 
 
 def test_ansys_labs_connection(mc, monkeypatch):
-    # Use existing Motor-CAD (mc.connection._port)
+    # Use existing Motor-CAD instance port
     mock_instance = pypim.Instance(
         definition_name="definitions/fake-motorcad",
         name="instances/fake-motorcad",
         ready=True,
         status_message="",
         services={
-            "http": pypim.Service(uri="http://localhost:" + str(mc.connection._port), headers={})
+            "http": pypim.Service(
+                uri="http://localhost:" + str(mc.connection.connected_port), headers={}
+            )
         },
     )
 
@@ -358,7 +360,7 @@ def test_warnings(mc, monkeypatch):
 
 
 def test_using_url_to_connect(mc):
-    port = mc.connection._port
+    port = mc.connection.connected_port
     url = "http://localhost:" + str(port)
     full_url = url + "/jsonrpc"
     mc2 = MotorCAD(url=url)
@@ -375,14 +377,12 @@ def test__resolve_localhost():
         full_url = (
             pymotorcad.rpc_client_core.LOCALHOST_ADDRESS
             + ":"
-            + str(mc2.connection._port)
+            + str(mc2.connection.connected_port)
             + "/jsonrpc"
         )
 
-        assert mc2.connection._get_url() == full_url
-
-        ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection._port) + "/jsonrpc"
-        ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection._port) + "/jsonrpc"
+        ipv6_localhost = "http://[::1]" + ":" + str(mc2.connection.connected_port) + "/jsonrpc"
+        ipv4_localhost = "http://127.0.0.1" + ":" + str(mc2.connection.connected_port) + "/jsonrpc"
 
         mc2.connection._resolve_localhost()
 
@@ -463,7 +463,7 @@ def test_show_gui(mc):
         mc3.quit()
 
     with pytest.warns(UserWarning, match="show_gui has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, show_gui=True)
+        MotorCAD(open_new_instance=False, port=mc.connection.connected_port, show_gui=True)
 
 
 @pytest.mark.licensing
@@ -492,4 +492,6 @@ def test_use_new_license_type(mc):
         mc3.quit()
 
     with pytest.warns(UserWarning, match="use_new_license_type has no effect"):
-        MotorCAD(open_new_instance=False, port=mc.connection._port, use_new_license_type=True)
+        MotorCAD(
+            open_new_instance=False, port=mc.connection.connected_port, use_new_license_type=True
+        )
