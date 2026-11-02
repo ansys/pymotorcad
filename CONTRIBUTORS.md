@@ -27,6 +27,7 @@
 * [Kathy Pippert](https://github.com/PipKat)
 * [Kerry McAdams](https://github.com/klmcadams)
 * [Matthew Leak](https://github.com/matthew-leak)
+* [Matthew Roberts](https://github.com/MattR-Ansys)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [Misheel Ganzorig](https://github.com/MisheelGanzorigAnsys)
 * [Ravi Sundaria](https://github.com/ravi-ansys)
