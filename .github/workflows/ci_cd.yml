@@ -198,7 +198,7 @@ jobs:
 
       # TODO: This should be updated once changelog mechanism is added to the repo
       - name: Release to GitHub
-        uses: ansys/actions/release-github@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
+        uses: ansys/actions/release-github@f5e1481b9c128197a30d1dc1dfc52b8cd6865555 # v11.1.5
         with:
           library-name: ${{ env.LIBRARY_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
