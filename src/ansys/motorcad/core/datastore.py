@@ -55,6 +55,7 @@ class DataStoreRecord:
         self.default_value = None
 
         self.units = None
+        self.var_type = None
         self.input_or_output_type = None
 
         self.record_name = ""
@@ -132,6 +133,36 @@ class DataStoreRecord:
                         break
             return result
 
+    def _convert_var_type(self, var_type):
+        """Convert the var_type to a native Python representation.
+
+        Parameters
+        ----------
+        var_type : int
+            The var_type value from Motor-CAD.
+
+        Returns
+        -------
+        type
+            The corresponding Python type for the var_type.
+        """
+        match var_type:
+            case 0:  # varEmpty
+                return None
+            case 1:  # varNull
+                return None
+            case 3:  # varInteger
+                return int
+            case 5:  # varDouble
+                return float
+            case 8:  # varOleStr
+                return str
+            case 11:  # varBoolean
+                return bool
+            case 256:  # varString
+                return str
+        return None
+
     def to_json(self):
         """Convert DatastoreRecord to a serialisable dictionary for JSON export.
 
@@ -208,6 +239,9 @@ class DataStoreRecord:
             datastore_record.max_value = json["max_value"]
         if datastore_record.use_min_value:
             datastore_record.min_value = json["min_value"]
+
+        # Convert the var_type to a native Python representation for easier use in Python.
+        datastore_record.var_type = datastore_record._convert_var_type(json["var_type"])
 
         return datastore_record
 
