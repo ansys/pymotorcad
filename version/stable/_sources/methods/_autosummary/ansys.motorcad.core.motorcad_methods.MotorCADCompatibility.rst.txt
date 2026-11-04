@@ -1,0 +1,526 @@
+﻿MotorCADCompatibility
+=====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. autoclass:: MotorCADCompatibility
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MotorCADCompatibility.AddArc_Boundary_RT
+      
+      
+      MotorCADCompatibility.AddArc_Boundary_XY
+      
+      
+      MotorCADCompatibility.AddArc_CentreStartEnd_RT
+      
+      
+      MotorCADCompatibility.AddArc_CentreStartEnd_XY
+      
+      
+      MotorCADCompatibility.AddArc_RT
+      
+      
+      MotorCADCompatibility.AddArc_XY
+      
+      
+      MotorCADCompatibility.AddCircularConductor_A
+      
+      
+      MotorCADCompatibility.AddLine_Boundary_RT
+      
+      
+      MotorCADCompatibility.AddLine_Boundary_XY
+      
+      
+      MotorCADCompatibility.AddLine_RT
+      
+      
+      MotorCADCompatibility.AddLine_XY
+      
+      
+      MotorCADCompatibility.AddMagnetRegion_RT
+      
+      
+      MotorCADCompatibility.AddMagnetRegion_XY
+      
+      
+      MotorCADCompatibility.AddPoint_CustomMaterial_XY
+      
+      
+      MotorCADCompatibility.AddPoint_Magnetic_RT
+      
+      
+      MotorCADCompatibility.AddPoint_Magnetic_XY
+      
+      
+      MotorCADCompatibility.AddPoint_RT
+      
+      
+      MotorCADCompatibility.AddPoint_XY
+      
+      
+      MotorCADCompatibility.AddRectangularConductor_A
+      
+      
+      MotorCADCompatibility.AddRegion_RT
+      
+      
+      MotorCADCompatibility.AddRegion_XY
+      
+      
+      MotorCADCompatibility.Add_Region_Thermal
+      
+      
+      MotorCADCompatibility.Add_Region_Thermal_A
+      
+      
+      MotorCADCompatibility.AvoidImmediateUpdate
+      
+      
+      MotorCADCompatibility.BuildModel_Lab
+      
+      
+      MotorCADCompatibility.CalculateDutyCycle_Lab
+      
+      
+      MotorCADCompatibility.CalculateForceHarmonics_Spatial
+      
+      
+      MotorCADCompatibility.CalculateForceHarmonics_Temporal
+      
+      
+      MotorCADCompatibility.CalculateGenerator_Lab
+      
+      
+      MotorCADCompatibility.CalculateIMSaturationModel
+      
+      
+      MotorCADCompatibility.CalculateIronLossCoefficients
+      
+      
+      MotorCADCompatibility.CalculateMagnetParameters
+      
+      
+      MotorCADCompatibility.CalculateMagnetic_Lab
+      
+      
+      MotorCADCompatibility.CalculateOperatingPoint_Lab
+      
+      
+      MotorCADCompatibility.CalculateSaturationMap
+      
+      
+      MotorCADCompatibility.CalculateTestPerformance_Lab
+      
+      
+      MotorCADCompatibility.CalculateThermal_Lab
+      
+      
+      MotorCADCompatibility.CalculateTorqueEnvelope
+      
+      
+      MotorCADCompatibility.CheckIfGeometryIsValid
+      
+      
+      MotorCADCompatibility.ClearAllData
+      
+      
+      MotorCADCompatibility.ClearDutyCycle
+      
+      
+      MotorCADCompatibility.ClearExternalCircuit
+      
+      
+      MotorCADCompatibility.ClearFixedTemperatureValue
+      
+      
+      MotorCADCompatibility.ClearMessageLog
+      
+      
+      MotorCADCompatibility.ClearModelBuild_Lab
+      
+      
+      MotorCADCompatibility.CreateNewNode
+      
+      
+      MotorCADCompatibility.CreateOptimisedMesh
+      
+      
+      MotorCADCompatibility.CreateOptimisedMesh_Thermal
+      
+      
+      MotorCADCompatibility.CreateReport
+      
+      
+      MotorCADCompatibility.DeleteRegions
+      
+      
+      MotorCADCompatibility.DeleteSolidMaterial
+      
+      
+      MotorCADCompatibility.DisableErrorMessages
+      
+      
+      MotorCADCompatibility.DisplayScreen
+      
+      
+      MotorCADCompatibility.DoMagneticCalculation
+      
+      
+      MotorCADCompatibility.DoMagneticThermalCalculation
+      
+      
+      MotorCADCompatibility.DoMechanicalCalculation
+      
+      
+      MotorCADCompatibility.DoMultiForceCalculation
+      
+      
+      MotorCADCompatibility.DoSlotFiniteElement
+      
+      
+      MotorCADCompatibility.DoSteadyStateAnalysis
+      
+      
+      MotorCADCompatibility.DoTransientAnalysis
+      
+      
+      MotorCADCompatibility.DoWeightCalculation
+      
+      
+      MotorCADCompatibility.EditMagnetRegion
+      
+      
+      MotorCADCompatibility.ExportDutyCycle_Lab
+      
+      
+      MotorCADCompatibility.ExportFigure_Lab
+      
+      
+      MotorCADCompatibility.ExportForceAnimation
+      
+      
+      MotorCADCompatibility.ExportMatrices
+      
+      
+      MotorCADCompatibility.ExportMultiForceData
+      
+      
+      MotorCADCompatibility.ExportNVHResultsData
+      
+      
+      MotorCADCompatibility.ExportResults
+      
+      
+      MotorCADCompatibility.ExportSolidMaterial
+      
+      
+      MotorCADCompatibility.ExportToAnsysDiscovery
+      
+      
+      MotorCADCompatibility.ExportToAnsysElectronicsDesktop
+      
+      
+      MotorCADCompatibility.GeometryExport
+      
+      
+      MotorCADCompatibility.GetArrayVariable
+      
+      
+      MotorCADCompatibility.GetArrayVariable_2d
+      
+      
+      MotorCADCompatibility.GetComponentMaterial
+      
+      
+      MotorCADCompatibility.GetFEAGraphPoint
+      
+      
+      MotorCADCompatibility.GetForceFrequencyDomainAmplitude
+      
+      
+      MotorCADCompatibility.GetIMIronLoss
+      
+      
+      MotorCADCompatibility.GetLicence
+      
+      
+      MotorCADCompatibility.GetMagnetic3DGraphPoint
+      
+      
+      MotorCADCompatibility.GetMagneticGraphPoint
+      
+      
+      MotorCADCompatibility.GetMessages
+      
+      
+      MotorCADCompatibility.GetModelBuilt_Lab
+      
+      
+      MotorCADCompatibility.GetNodeCapacitance
+      
+      
+      MotorCADCompatibility.GetNodeExists
+      
+      
+      MotorCADCompatibility.GetNodePower
+      
+      
+      MotorCADCompatibility.GetNodeTemperature
+      
+      
+      MotorCADCompatibility.GetNodeToNodeResistance
+      
+      
+      MotorCADCompatibility.GetOffsetNodeNumber
+      
+      
+      MotorCADCompatibility.GetPointValue
+      
+      
+      MotorCADCompatibility.GetPowerGraphPoint
+      
+      
+      MotorCADCompatibility.GetRegionLoss
+      
+      
+      MotorCADCompatibility.GetRegionValue
+      
+      
+      MotorCADCompatibility.GetTemperatureGraphPoint
+      
+      
+      MotorCADCompatibility.GetVariable
+      
+      
+      MotorCADCompatibility.GetWindingCoil
+      
+      
+      MotorCADCompatibility.ImportSolidMaterial
+      
+      
+      MotorCADCompatibility.InitialiseTabNames
+      
+      
+      MotorCADCompatibility.InitiateGeometryFromScript
+      
+      
+      MotorCADCompatibility.IsStopRequested
+      
+      
+      MotorCADCompatibility.LoadCustomDriveCycle
+      
+      
+      MotorCADCompatibility.LoadDXFFile
+      
+      
+      MotorCADCompatibility.LoadDutyCycle
+      
+      
+      MotorCADCompatibility.LoadExternalCircuit
+      
+      
+      MotorCADCompatibility.LoadExternalModel_Lab
+      
+      
+      MotorCADCompatibility.LoadFEAResult
+      
+      
+      MotorCADCompatibility.LoadFromFile
+      
+      
+      MotorCADCompatibility.LoadMagnetisationCurves
+      
+      
+      MotorCADCompatibility.LoadReportStructure
+      
+      
+      MotorCADCompatibility.LoadReportTree
+      
+      
+      MotorCADCompatibility.LoadResults
+      
+      
+      MotorCADCompatibility.LoadScript
+      
+      
+      MotorCADCompatibility.LoadTemplate
+      
+      
+      MotorCADCompatibility.LoadWindingPattern
+      
+      
+      MotorCADCompatibility.ModifyNode
+      
+      
+      MotorCADCompatibility.Quit
+      
+      
+      MotorCADCompatibility.RemoveExternalComponent
+      
+      
+      MotorCADCompatibility.ResetRegions
+      
+      
+      MotorCADCompatibility.RestoreCompatibilitySettings
+      
+      
+      MotorCADCompatibility.RunScript
+      
+      
+      MotorCADCompatibility.SaveDutyCycle
+      
+      
+      MotorCADCompatibility.SaveExternalCircuit
+      
+      
+      MotorCADCompatibility.SaveFEAData
+      
+      
+      MotorCADCompatibility.SaveIronLossCoefficients
+      
+      
+      MotorCADCompatibility.SaveMagnetParameters
+      
+      
+      MotorCADCompatibility.SaveMagnetisationCurves
+      
+      
+      MotorCADCompatibility.SaveMotorCADScreenToFile
+      
+      
+      MotorCADCompatibility.SaveResults
+      
+      
+      MotorCADCompatibility.SaveScreenToFile
+      
+      
+      MotorCADCompatibility.SaveScript
+      
+      
+      MotorCADCompatibility.SaveTemplate
+      
+      
+      MotorCADCompatibility.SaveToFile
+      
+      
+      MotorCADCompatibility.SaveTransientPowerValues
+      
+      
+      MotorCADCompatibility.SaveTransientTemperatures
+      
+      
+      MotorCADCompatibility.SaveWindingPattern
+      
+      
+      MotorCADCompatibility.Set3DComponentVisibility
+      
+      
+      MotorCADCompatibility.SetAllEmagCalculations
+      
+      
+      MotorCADCompatibility.SetArrayVariable
+      
+      
+      MotorCADCompatibility.SetArrayVariable_2d
+      
+      
+      MotorCADCompatibility.SetBndCond
+      
+      
+      MotorCADCompatibility.SetCapacitanceValue
+      
+      
+      MotorCADCompatibility.SetComponentMaterial
+      
+      
+      MotorCADCompatibility.SetFEAPathArc
+      
+      
+      MotorCADCompatibility.SetFEAPathLine
+      
+      
+      MotorCADCompatibility.SetFEAPathPoint
+      
+      
+      MotorCADCompatibility.SetFixedTemperatureValue
+      
+      
+      MotorCADCompatibility.SetFluid
+      
+      
+      MotorCADCompatibility.SetMeshGeneratorParam
+      
+      
+      MotorCADCompatibility.SetMotorLABContext
+      
+      
+      MotorCADCompatibility.SetPowerInjectionValue
+      
+      
+      MotorCADCompatibility.SetPowerSourceValue
+      
+      
+      MotorCADCompatibility.SetRegionColour
+      
+      
+      MotorCADCompatibility.SetResistanceMultiplier
+      
+      
+      MotorCADCompatibility.SetResistanceValue
+      
+      
+      MotorCADCompatibility.SetVariable
+      
+      
+      MotorCADCompatibility.SetVisible
+      
+      
+      MotorCADCompatibility.SetWindingCoil
+      
+      
+      MotorCADCompatibility.ShowMagneticContext
+      
+      
+      MotorCADCompatibility.ShowMechanicalContext
+      
+      
+      MotorCADCompatibility.ShowMessage
+      
+      
+      MotorCADCompatibility.ShowResultsViewer_Lab
+      
+      
+      MotorCADCompatibility.ShowThermalContext
+      
+      
+      MotorCADCompatibility.SolveProblem
+      
+      
+      MotorCADCompatibility.StoreProblemData
+      
+      
+      MotorCADCompatibility.UpdateForceAnalysisResults
+      
+      
+      MotorCADCompatibility.UpdateInterface
+      
+      
+      
+      MotorCADCompatibility.set_free
+      
+   
+   
+
+   
+   
+   

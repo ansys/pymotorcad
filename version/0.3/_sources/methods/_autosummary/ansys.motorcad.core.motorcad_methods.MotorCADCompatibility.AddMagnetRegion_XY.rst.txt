@@ -1,0 +1,6 @@
+AddMagnetRegion\_XY
+===================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddMagnetRegion_XY

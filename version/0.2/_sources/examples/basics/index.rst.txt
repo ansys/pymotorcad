@@ -1,0 +1,77 @@
+
+
+.. _sphx_glr_examples_basics:
+
+Basic examples
+~~~~~~~~~~~~~~
+These examples show you how to use the basic functionality of PyMotorCAD.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD E-magnetic example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_emag_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_emag_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD E-magnetic example script</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD Lab model example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_lab_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_lab_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD Lab model example script</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Motor-CAD thermal example script">
+
+.. only:: html
+
+  .. image:: /examples/basics/images/thumb/sphx_glr_thermal_basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_basics_thermal_basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Motor-CAD thermal example script</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/basics/emag_basics
+   /examples/basics/lab_basics
+   /examples/basics/thermal_basics
+

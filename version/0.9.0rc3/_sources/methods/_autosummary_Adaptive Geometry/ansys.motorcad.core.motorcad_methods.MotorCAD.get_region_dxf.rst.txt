@@ -1,0 +1,6 @@
+﻿get\_region\_dxf
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_region_dxf

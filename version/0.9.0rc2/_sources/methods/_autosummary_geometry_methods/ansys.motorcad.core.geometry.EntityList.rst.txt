@@ -1,0 +1,69 @@
+﻿EntityList
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: EntityList
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      EntityList.append
+      
+      
+      EntityList.clear
+      
+      
+      EntityList.copy
+      
+      
+      EntityList.count
+      
+      
+      EntityList.extend
+      
+      
+      EntityList.index
+      
+      
+      EntityList.insert
+      
+      
+      EntityList.polygon
+      
+      
+      EntityList.pop
+      
+      
+      EntityList.remove
+      
+      
+      EntityList.reverse
+      
+      
+      EntityList.sort
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EntityList.has_valid_geometry
+      EntityList.is_anticlockwise
+      EntityList.is_closed
+      EntityList.points
+      EntityList.self_intersecting
+   
+   

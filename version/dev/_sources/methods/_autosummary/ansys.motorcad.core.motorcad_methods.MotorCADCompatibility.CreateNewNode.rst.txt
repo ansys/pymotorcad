@@ -1,0 +1,6 @@
+CreateNewNode
+=============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CreateNewNode

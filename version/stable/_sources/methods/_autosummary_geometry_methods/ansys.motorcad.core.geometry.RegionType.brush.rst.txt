@@ -1,0 +1,6 @@
+brush
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.brush

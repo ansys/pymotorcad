@@ -1,0 +1,6 @@
+lowercase\_keys
+===============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: GeometryTree.lowercase_keys

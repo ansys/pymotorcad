@@ -1,0 +1,6 @@
+﻿rt\_to\_xy
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autofunction:: rt_to_xy

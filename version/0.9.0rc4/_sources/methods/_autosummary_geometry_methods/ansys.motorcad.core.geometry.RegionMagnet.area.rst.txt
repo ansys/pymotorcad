@@ -1,0 +1,6 @@
+area
+====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: RegionMagnet.area

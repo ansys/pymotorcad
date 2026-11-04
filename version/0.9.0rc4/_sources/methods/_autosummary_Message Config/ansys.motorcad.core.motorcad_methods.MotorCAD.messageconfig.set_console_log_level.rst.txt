@@ -1,0 +1,8 @@
+﻿set\_console\_log\_level
+========================
+
+``MotorCAD.messageconfig.set_console_log_level``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.set_console_log_level

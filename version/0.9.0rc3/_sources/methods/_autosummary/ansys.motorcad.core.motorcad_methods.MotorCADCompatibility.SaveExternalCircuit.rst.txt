@@ -1,0 +1,6 @@
+SaveExternalCircuit
+===================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveExternalCircuit
