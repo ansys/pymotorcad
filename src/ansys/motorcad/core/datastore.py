@@ -24,6 +24,7 @@
 
 from collections.abc import Iterable
 from enum import Enum
+from typing import Any
 
 
 class DataTypes(Enum):
@@ -281,13 +282,13 @@ class DataStoreRecord:
                 datastore_record.current_value = value
                 datastore_record.array_length_2d = (len(value), len(value[0]))
                 datastore_record.is_array_2d = True
-                datastore_record.var_type = type(value[0][0]) if len(value[0]) > 0 else None
+                datastore_record.var_type = type(value[0][0]) if len(value[0]) > 0 else Any
             else:
                 datastore_record = DataStoreRecordArray(parent_datastore)
                 datastore_record.current_value = value
                 datastore_record.array_length = len(value)
                 datastore_record.is_array = True
-                datastore_record.var_type = type(value[0]) if len(value) > 0 else None
+                datastore_record.var_type = type(value[0]) if len(value) > 0 else Any
         else:
             datastore_record = cls(parent_datastore)
             datastore_record.current_value = value
