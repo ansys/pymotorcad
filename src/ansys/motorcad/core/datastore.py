@@ -270,6 +270,7 @@ class DataStoreRecord:
             # differently.
             datastore_record = cls(parent_datastore)
             datastore_record.current_value = value
+            datastore_record.var_type = str
         elif isinstance(value, Iterable):
             if (
                 (len(value) > 0)
@@ -280,14 +281,17 @@ class DataStoreRecord:
                 datastore_record.current_value = value
                 datastore_record.array_length_2d = (len(value), len(value[0]))
                 datastore_record.is_array_2d = True
+                datastore_record.var_type = type(value[0][0]) if len(value[0]) > 0 else None
             else:
                 datastore_record = DataStoreRecordArray(parent_datastore)
                 datastore_record.current_value = value
                 datastore_record.array_length = len(value)
                 datastore_record.is_array = True
+                datastore_record.var_type = type(value[0]) if len(value) > 0 else None
         else:
             datastore_record = cls(parent_datastore)
             datastore_record.current_value = value
+            datastore_record.var_type = type(value)
 
         datastore_record.record_name = key
         datastore_record.activex_name = key
