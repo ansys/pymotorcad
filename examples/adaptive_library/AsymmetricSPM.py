@@ -108,7 +108,7 @@ else:
         pass
     os.mkdir(working_folder)
     mot_name = "a2_Asymmetric_SPM"
-    mc.save_to_file(working_folder + "/" + mot_name + ".mot")
+    mc.save_to_file(f"{working_folder}\\{mot_name}.mot")
 
 # Reset geometry to default
 mc.reset_adaptive_geometry()
