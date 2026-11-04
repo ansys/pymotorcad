@@ -223,6 +223,7 @@ def test_get_datastore(mc):
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
         "EWdgLayerLength_R": datastore_dict["EWdgLayerLength_F"],  # 1D list
         "ConductorCentre_L_y": datastore_dict["ConductorCentre_L_y"],  # 2D list
+        "empty_array": [],  # empty array
     }
 
     new_datastore = Datastore.from_dict(test_dict)
