@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 
 
 def run_emag_demo(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     # Ensure that the BPM Motor Type is set
     mc.set_variable("Motor_Type", 0)
 
@@ -56,7 +56,7 @@ def run_emag_demo(mc):
 
 
 def run_mech_force_demo(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     # %%
     # Load e9 template
     mc.load_template("e9")
@@ -84,7 +84,7 @@ def run_mech_force_demo(mc):
 
 
 def run_mech_stress_demo(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     # %%
     # Load e9 template
     mc.load_template("e9")
@@ -113,7 +113,7 @@ def run_mech_stress_demo(mc):
 
 
 def run_thermal_steady_demo(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     # Ensure that the BPM Motor Type is set
     mc.set_variable("Motor_Type", 0)
     # %%
@@ -149,7 +149,7 @@ def run_thermal_steady_demo(mc):
 
 
 def run_thermal_transient_demo(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
 
     # %%
     # Load e9 template
@@ -198,7 +198,7 @@ def run_thermal_transient_demo(mc):
     # %%
     # Results
     # -------
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     time, winding_temp_average_transient = mc.get_temperature_graph("Winding (Avg)")
 
     # %%

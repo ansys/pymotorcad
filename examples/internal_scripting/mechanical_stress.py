@@ -46,7 +46,7 @@ class mechanical_stress:
     def initial(self):
         # %%
         # Disable pop-up messages
-        mc.set_variable("MessageDisplayState", 2)
+        mc.messageconfig.disable_popups()
         # Called before calculation
         mc.set_variable("ShaftSpeed", 1500)
 

@@ -33,7 +33,7 @@ import ansys.motorcad.core as pymotorcad
 
 # Open connection to Motor-CAD, and open e3 template (Sync machine)
 mc = pymotorcad.MotorCAD()
-mc.set_variable("MessageDisplayState", 2)
+mc.messageconfig.disable_popups()
 mc.load_template("e3")
 # Alternatively, use the following
 # mc = pymotorcad.MotorCAD()

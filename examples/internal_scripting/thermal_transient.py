@@ -46,7 +46,7 @@ class thermal_transient:
     def initial(self):
         # %%
         # Disable pop-up messages
-        mc.set_variable("MessageDisplayState", 2)
+        mc.messageconfig.disable_popups()
         mc.display_screen("Scripting")
         # initialise water jacket and rotor cooling flow rate
         mc.set_variable("Wet_Rotor_Fluid_Volume_Flow_Rate", 0.1)
