@@ -1,0 +1,6 @@
+﻿save\_winding\_pattern
+======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.save_winding_pattern

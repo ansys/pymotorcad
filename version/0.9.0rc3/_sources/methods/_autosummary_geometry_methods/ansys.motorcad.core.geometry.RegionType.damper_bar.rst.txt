@@ -1,0 +1,6 @@
+damper\_bar
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.damper_bar

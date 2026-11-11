@@ -1,0 +1,8 @@
+﻿get\_verbose\_messages\_enabled
+===============================
+
+``MotorCAD.messageconfig.get_verbose_messages_enabled``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.get_verbose_messages_enabled

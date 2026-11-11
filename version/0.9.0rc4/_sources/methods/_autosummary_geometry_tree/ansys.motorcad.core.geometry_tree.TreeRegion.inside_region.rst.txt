@@ -1,0 +1,6 @@
+inside\_region
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.inside_region

@@ -1,0 +1,6 @@
+GetMagnetic3DGraphPoint
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.GetMagnetic3DGraphPoint

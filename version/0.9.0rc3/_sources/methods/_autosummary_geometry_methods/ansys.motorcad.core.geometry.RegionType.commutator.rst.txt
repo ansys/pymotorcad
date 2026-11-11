@@ -1,0 +1,6 @@
+commutator
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.commutator

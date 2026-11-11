@@ -1,0 +1,6 @@
+bearings
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.bearings

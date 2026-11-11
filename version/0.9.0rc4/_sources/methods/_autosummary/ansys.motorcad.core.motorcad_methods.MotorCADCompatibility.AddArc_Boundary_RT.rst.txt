@@ -1,0 +1,6 @@
+AddArc\_Boundary\_RT
+====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddArc_Boundary_RT

@@ -1,0 +1,26 @@
+.. _ref_UI_API:
+UI
+==============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. autosummary::
+   :toctree: _autosummary_UI
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+    clear_messages
+    disable_error_messages
+    display_screen
+    initialise_tab_names
+    save_motorcad_screen_to_file
+    save_screen_to_file
+    set_3d_component_visibility
+    set_motorlab_context
+    set_visible
+    show_magnetic_context
+    show_mechanical_context
+    show_message
+    show_thermal_context

@@ -1,0 +1,6 @@
+ShowMechanicalContext
+=====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.ShowMechanicalContext

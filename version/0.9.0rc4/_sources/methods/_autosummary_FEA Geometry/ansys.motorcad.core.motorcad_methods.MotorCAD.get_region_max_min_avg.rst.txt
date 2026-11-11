@@ -1,0 +1,6 @@
+﻿get\_region\_max\_min\_avg
+==========================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.get_region_max_min_avg

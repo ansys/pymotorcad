@@ -1,0 +1,76 @@
+﻿Region
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: Region
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Region.add_entity
+      
+      
+      Region.add_point
+      
+      
+      Region.collides
+      
+      
+      Region.edit_point
+      
+      
+      Region.find_entity_from_coordinates
+      
+      
+      Region.from_coordinate_list
+      
+      
+      Region.insert_entity
+      
+      
+      Region.insert_polyline
+      
+      
+      Region.is_closed
+      
+      
+      Region.mirror
+      
+      
+      Region.remove_entity
+      
+      
+      Region.subtract
+      
+      
+      Region.unite
+      
+      
+      Region.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Region.child_names
+      Region.children
+      Region.motorcad_instance
+      Region.parent
+      Region.parent_name
+      Region.points
+   
+   

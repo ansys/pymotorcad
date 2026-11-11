@@ -1,0 +1,37 @@
+﻿Entity
+======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoclass:: Entity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Entity.get_intersection
+      
+      
+      Entity.mirror
+      
+      
+      Entity.reverse
+      
+      
+      Entity.rotate
+      
+      
+      Entity.translate
+      
+   
+   
+
+   
+   
+   

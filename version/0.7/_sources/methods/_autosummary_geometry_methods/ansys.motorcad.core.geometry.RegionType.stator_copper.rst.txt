@@ -1,0 +1,6 @@
+stator\_copper
+==============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.stator_copper

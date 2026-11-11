@@ -1,0 +1,6 @@
+clear
+=====
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: EntityList.clear
