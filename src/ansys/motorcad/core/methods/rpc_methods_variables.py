@@ -34,6 +34,69 @@ class _RpcMethodsVariables:
     def __init__(self, mc_connection):
         self.connection = mc_connection
 
+    def __cast_to_correct_type(self, value: Any, data_type: str) -> Any:
+        """Ensure that value is the correct type.
+
+        Parameters
+        ----------
+        value: Any
+            The value to be cast to the correct type (given by data_type)
+        data_type: str
+            The type to cast value to. data_type is an item from ["int", "float", "string", "bool"]
+
+        Returns
+        -------
+        Any
+            The parameter 'value' cast to the correct type.
+        """
+        # Convert all lists of int, float, and bool to numpy arrays.
+        if type(value) is list:
+            match data_type:
+                case "int":
+                    value = [int(val) for val in value]
+                case "float":
+                    value = [float(val) for val in value]
+                case "bool":
+                    value = [bool(val) for val in value]
+        # Cast to int, float, and bool
+        elif data_type == "int":
+            value = int(value)
+        elif data_type == "float":
+            value = float(value)
+        elif data_type == "bool":
+            value = bool(value)
+        elif data_type == "string":
+            # If a string value represents a boolean, convert this to a boolean.
+            if value == "True":
+                value = True
+            elif value == "False":
+                value = False
+
+        return value
+
+    def __check_serializable_input(self, value: Any) -> Any:
+        """Convert input value to a serializable type.
+
+        Parameters
+        ----------
+        value: Any
+            The input value to change to a serializable type.
+
+        Returns
+        -------
+        Any
+            The input value as a serializable type.
+        """
+        if isinstance(value, (np.ndarray, list)):
+            return [self.__check_serializable_input(element) for element in value]
+        else:
+            if isinstance(value, np.integer):
+                return int(value)
+            elif isinstance(value, np.floating):
+                return float(value)
+            else:
+                return value
+
     def get_array_variable_2d(self, array_name, array_index1, array_index2):
         """Get a value from a 2D array at element ``[array_index1,array_index2]``.
 
@@ -114,26 +177,6 @@ class _RpcMethodsVariables:
         params = [array_name, array_index]
         return self.connection.send_and_receive(method, params)
 
-    def get_array(self, array_name):
-        """Get every element of a Motor-CAD array variable in a single API call.
-
-        Parameters
-        ----------
-        array_name : str
-            Name of the array. This can be a 1D or a 2D array.
-
-        Returns
-        -------
-        list of int|float|str|bool|list
-            Values of the Motor-CAD array variable. A 2D array is returned as a list of lists.
-        """
-        self.connection.ensure_version_at_least("2026.0")
-        method = "LabInternal_GetArray"
-        params = [array_name]
-        result = self.connection.send_and_receive(method, params)
-        # result is a dict comprised of {"value" : list, "data_type" : str}
-        return result["value"]
-
     def get_full_array_variable(self, array_name):
         """Get the full array of a Motor-CAD array variable as a list.
 
@@ -145,7 +188,7 @@ class _RpcMethodsVariables:
         Returns
         -------
         list of int|float|str|bool|list
-            List of values of the Motor-CAD variable
+            Entire list of the Motor-CAD array variable. A 2D array is returned as a list of lists.
         """
         if self.connection.check_if_feature_exists("get_array"):
             method = "GetArray"
@@ -174,6 +217,38 @@ class _RpcMethodsVariables:
                 for value in value_string:
                     values.append(value_type(value))
             return values
+
+    def get_dict_of_variables(self, variable_names):
+        """Get multiple Motor-CAD variables with a single call.
+
+        Using a list of variable names, get all values from the Motor-CAD datastore with a
+        single call. These can be scalar variables or array variables.
+
+        Parameters
+        ----------
+        variable_names : list of str
+            Names of the variables to get.
+
+        Returns
+        -------
+        dict of int|float|str|bool|list
+            Dictionary of the Motor-CAD variables.
+        """
+        if not self.connection.check_if_feature_exists("get_list_of_variables"):
+            return None
+
+        if not isinstance(variable_names, list):
+            raise TypeError("variable_names must be a list of variable names.")
+
+        method = "GetListOfVariables"
+        params = [variable_names]
+        result = self.connection.send_and_receive(method, params)
+        return {
+            var_name: self.__cast_to_correct_type(
+                value_and_data_type["value"], value_and_data_type["data_type"]
+            )
+            for var_name, value_and_data_type in result.items()
+        }
 
     def set_variable(self, variable_name, variable_value):
         """Set a Motor-CAD variable.
@@ -205,27 +280,6 @@ class _RpcMethodsVariables:
         params = [array_name, array_index, {"variant": variable_value}]
         return self.connection.send_and_receive(method, params)
 
-    def set_array(self, array_name, array_values):
-        """Set every element of a Motor-CAD array variable in a single API call.
-
-        Dynamically sized arrays are resized to match the number of values provided.
-
-        Parameters
-        ----------
-        array_name : str
-            Name of the array. This can be a 1D or a 2D array.
-        array_values : list of int|float|str|bool|list
-            Values to set the array elements to. Use a list of lists for a 2D array.
-        """
-        self.connection.ensure_version_at_least("2026.0")
-
-        if not isinstance(array_values, list):
-            raise TypeError("array_values must be a list of values.")
-
-        method = "LabInternal_SetListOfVariables"
-        params = [{array_name: array_values}]
-        return self.connection.send_and_receive(method, params)
-
     def set_full_array_variable(self, array_name, variable_list):
         """Set the full array of a Motor-CAD array variable as a list.
 
@@ -237,30 +291,7 @@ class _RpcMethodsVariables:
             Values to set the variables to.
         """
 
-        def check_serializable_input(value: Any) -> Any:
-            """Convert input value to a serializable type.
-
-            Parameters
-            ----------
-            value: Any
-                The input value to change to a serializable type.
-
-            Returns
-            -------
-            Any
-                The input value as a serializable type.
-            """
-            if isinstance(value, (np.ndarray, list)):
-                return [check_serializable_input(element) for element in value]
-            else:
-                if isinstance(value, np.integer):
-                    return int(value)
-                elif isinstance(value, np.floating):
-                    return float(value)
-                else:
-                    return value
-
-        new_list = check_serializable_input(variable_list)
+        new_list = self.__check_serializable_input(variable_list)
 
         if not isinstance(new_list, list):
             raise TypeError("variable_list must be a list.")
@@ -287,6 +318,34 @@ class _RpcMethodsVariables:
             for i in range(len(new_list)):
                 value = new_list[i]
                 self.set_array_variable(array_name, i, value)
+
+    def set_dict_of_variables(self, vars_and_values):
+        """Set multiple variables values into Motor-CAD with a single call.
+
+        Using a dictionary, set all values into the Motor-CAD datastore with a single call.
+        Values will be converted from numpy arrays or values to JSON serializable versions.
+
+        Parameters
+        ----------
+        vars_and_values : dict of int|float|str|bool|list
+            Values to set the array elements to. Use a list of lists for a 2D array.
+        """
+        if not self.connection.check_if_feature_exists("set_list_of_variables"):
+            return None
+
+        if not isinstance(vars_and_values, dict):
+            raise TypeError("vars_and_values must be a dictionary.")
+
+        # Convert values that are not JSON serializable to a type that is
+        params = [
+            {
+                var_name: self.__check_serializable_input(var_value)
+                for var_name, var_value in vars_and_values.items()
+            }
+        ]
+
+        method = "SetListOfVariables"
+        return self.connection.send_and_receive(method, params)
 
     def get_file_name(self):
         """Get current .mot file name and path.
