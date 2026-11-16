@@ -22,6 +22,10 @@
 
 """RPC methods (general)."""
 
+import warnings
+
+import psutil
+
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
 
@@ -558,6 +562,13 @@ class _RpcMethodsGeneral:
             Maximum number of seconds to wait for the Motor-CAD process to exit before force
             killing it (Note: This argument only has an effect on Linux). Default is 200.
         """
+        if not psutil.pid_exists(self.connection.pid):
+            # The process has already exited, so send_and_recieve will fail.
+            # Possible that another MotorCAD object has already sent the Quit command,
+            # or the user has closed Motor-CAD.
+            warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+            return
+
         self.connection._quit(max_wait=max_wait)
 
     def set_free(self):
