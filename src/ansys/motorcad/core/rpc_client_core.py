@@ -970,10 +970,11 @@ class _MotorCADConnection:
         else:
             # local machine
             if not psutil.pid_exists(self.pid):
-                # The process has already exited, so send_and_recieve will fail.
-                # Possible that another MotorCAD object has already sent the Quit command,
-                # or the user has closed Motor-CAD.
-                warnings.warn("Motor-CAD process has already exited. Cannot send Quit command.")
+                # The process has already exited, so send_and_recieve will fail. Do nothing.
+                # A warning will be shown if the API call to mc.quit() has been attempted on an
+                # already exited process. Do not show here as _quit will be called as part of
+                # cleanup, so if a user calls mc.quit() this will always be called twice, invoking
+                # the warning falsely.
                 return
 
             method = "Quit"
