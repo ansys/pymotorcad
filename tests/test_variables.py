@@ -144,21 +144,46 @@ def test_set_full_array_variable(mc):
     print("hello")
 
 
-def test_get_set_array(mc):
+def test_get_dict_of_variables(mc):
+    if not mc.connection.check_if_feature_exists("get_list_of_variables"):
+        pytest.skip("Function is not available to test.")
+
     reset_to_default_file(mc)
 
-    values = mc.get_array("Aux_Loss_Distribution")
-    values[0] = 0.2
-    values[1] = 0.2
-    values[2] = 0.6
-    mc.set_array("Aux_Loss_Distribution", values)
-    assert mc.get_array("Aux_Loss_Distribution") == values
+    values_to_get = [
+        "Duty_Cycle_Points",  # array of ints
+        "Duty_Cycle_Elapsed_Time",  # array of floats
+        "ConductorCentre_L_x",  # 2D array of floats
+        "Python_Script",  # array of string
+        "DisableSleep",  # bool
+        "ScriptAutoRun",  # int
+        "TVent_Flow_Rate",  # float
+        "Material_Copper_Active_Aux",  # string
+    ]
 
-    values_2d = mc.get_array("ConductorCentre_L_x")
-    assert isinstance(values_2d[0], list)
-    values_2d[0][0] = -5
-    mc.set_array("ConductorCentre_L_x", values_2d)
-    assert mc.get_array("ConductorCentre_L_x") == values_2d
+    dict_of_vars = mc.get_dict_of_variables(values_to_get)
+
+    assert isinstance(dict_of_vars, dict)
+    assert "Duty_Cycle_Points" in dict_of_vars
+    assert "Material_Copper_Active_Aux" in dict_of_vars
+
+
+def test_set_dict_of_variables(mc):
+    if not mc.connection.check_if_feature_exists("set_list_of_variables"):
+        pytest.skip("Function is not available to test.")
+
+    reset_to_default_file(mc)
+    values_to_set = {
+        "Duty_Cycle_Points": [1, 2, 3],  # array of ints
+        "Duty_Cycle_Elapsed_Time": [0.1, 0.2, 0.3],  # array of floats
+        "ConductorCentre_L_x": [[0.1, 0.2], [0.3, 0.4]],  # 2D array of floats
+        "Python_Script": ["demo script", "print('hello')"],  # array of string
+        "DisableSleep": True,  # bool
+        "ScriptAutoRun": 1,  # int
+        "TVent_Flow_Rate": 0.2,  # float
+        "Material_Copper_Active_Aux": "Copper (Annealed)",  # string
+    }
+    mc.set_dict_of_variables(values_to_set)
 
 
 def test_get_set_array_variable_2d(mc):
