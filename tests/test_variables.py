@@ -218,11 +218,14 @@ def test_get_datastore(mc):
     param = datastore["TVent_Shaft_Speed"]
     test_dict = {
         "TVent_Shaft_Speed": param,  # scalar
+        "TVent_Shaft_Speed_Scalar": param.current_value,
+        "String_Test": "string_test", # string
         "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
         "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
         "EWdgLayerLength_R": datastore_dict["EWdgLayerLength_F"],  # 1D list
         "ConductorCentre_L_y": datastore_dict["ConductorCentre_L_y"],  # 2D list
+        "empty_array": [],  # empty array
     }
 
     new_datastore = Datastore.from_dict(test_dict)
