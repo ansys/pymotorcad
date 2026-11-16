@@ -281,7 +281,7 @@ class _RpcMethodsVariables:
         return self.connection.send_and_receive(method, params)
 
     def set_full_array_variable(self, array_name, variable_list):
-        """Set the full array of a Motor-CAD array variable as a list.
+        """Set the full array of a Motor-CAD array variable from a list.
 
         Parameters
         ----------
@@ -290,7 +290,6 @@ class _RpcMethodsVariables:
         variable_list : list of int|float|str|bool|list
             Values to set the variables to.
         """
-
         new_list = self.__check_serializable_input(variable_list)
 
         if not isinstance(new_list, list):
