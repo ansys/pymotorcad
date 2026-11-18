@@ -178,7 +178,7 @@ def test_external_custom_loss_functions(mc):
 
 
 def test_export_concept_ev_model(mc):
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     mc.load_template("e9")
     # run Efficiency Map calculation
     mc.calculate_magnetic_lab()
@@ -202,7 +202,7 @@ def test_export_concept_ev_model(mc):
     assert almost_equal_percentage(torque_sheet.cell(row=1, column=1).value, 274.16, 0.1)
     reset_to_default_file(mc)
     # check sync
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     mc.load_template("e3")
     # run Efficiency Map calculation
     mc.calculate_magnetic_lab()
@@ -233,7 +233,7 @@ def test_thermal_model_export(mc):
     ):
         pytest.skip("Motor-CAD version is missing LabThermalModel functions")
 
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     file_path = path.join(get_dir_path(), "test_files", "temp_files", "thermal_model_export.therm")
 
     mc.load_template("e3")
@@ -263,7 +263,7 @@ def test_thermal_model_export(mc):
 
 
 # def test_lab_model_export(mc):
-#     mc.set_variable("MessageDisplayState", 2)
+#     mc.messageconfig.disable_popups()
 #     file_path = os.path.join(get_dir_path(), "test_files", "temp_files", "lab_model_export.lab")
 #
 #     mc.load_template("e3")

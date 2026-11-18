@@ -642,7 +642,7 @@ def get_stress_data(mc, clean_up=True):
 # Load a template (for users this would normally be replaced by `load_from_file()`, and disable
 # popup messages.
 mc = pymotorcad.MotorCAD()
-mc.set_variable("MessageDisplayState", 2)
+mc.messageconfig.disable_popups()
 mc.load_template("e9")
 
 # %%

@@ -79,7 +79,7 @@ if pymotorcad.is_running_in_internal_scripting():
 else:
     mc = pymotorcad.MotorCAD(keep_instance_open=True)
     # Disable popup messages
-    mc.set_variable("MessageDisplayState", 2)
+    mc.messageconfig.disable_popups()
     if not "PYMOTORCAD_DOCS_BUILD" in os.environ:
         mc.set_visible(True)
     mc.load_template("e7")
