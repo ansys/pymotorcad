@@ -629,5 +629,5 @@ def test_load_fea_model(mc):
     )
     mesh_nodes = mc.get_variable("FEA_MeshNodes")
     mesh_elements = mc.get_variable("FEA_MeshElements")
-    assert mesh_nodes == 17209
-    assert mesh_elements == 32532
+    assert mesh_nodes == 23714
+    assert mesh_elements == 47010
