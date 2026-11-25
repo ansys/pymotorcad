@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ansys code style checks
-        uses: ansys/actions/code-style@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
+        uses: ansys/actions/code-style@06390ed64756cfc992121a6d6626a811e352c0e9 # v11.2.1
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
