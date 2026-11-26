@@ -1,0 +1,49 @@
+{
+  "data_records": [
+    {
+      "current_value": null,
+      "default_value": null,
+      "units": "",
+      "var_type": 0,
+      "input_or_output_type": 0,
+      "record_name": "var_empty",
+      "activex_name": "var_empty",
+      "alternative_activex_name": "xxx",
+      "file_section": "Test",
+      "is_array": false,
+      "is_array_2d": false,
+      "use_max_value": false,
+      "use_min_value": false
+    },
+    {
+      "current_value": null,
+      "default_value": null,
+      "units": "",
+      "var_type": 1,
+      "input_or_output_type": 0,
+      "record_name": "var_null",
+      "activex_name": "var_null",
+      "alternative_activex_name": "xxx",
+      "file_section": "Test",
+      "is_array": false,
+      "is_array_2d": false,
+      "use_max_value": false,
+      "use_min_value": false
+    },
+    {
+      "current_value": "test string",
+      "default_value": "",
+      "units": "",
+      "var_type": 256,
+      "input_or_output_type": 3,
+      "record_name": "var_string",
+      "activex_name": "var_string",
+      "alternative_activex_name": "xxx",
+      "file_section": "Test",
+      "is_array": false,
+      "is_array_2d": false,
+      "use_max_value": false,
+      "use_min_value": false
+    }
+  ]
+}
