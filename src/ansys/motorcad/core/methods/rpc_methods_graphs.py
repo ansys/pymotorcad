@@ -24,6 +24,8 @@
 
 from dataclasses import dataclass
 import math
+import sys
+from warnings import warn
 
 from ansys.motorcad.core.rpc_client_core import MotorCADError
 
@@ -65,6 +67,30 @@ def _dft_real(values):
             real[i] = real[i] + values[j] * math.cos(i * j * 2 * math.pi / length_in) / length_in
             imag[i] = imag[i] - values[j] * math.sin(i * j * 2 * math.pi / length_in) / length_in
     return real, imag
+
+
+def _warn_if_integer_graph_id(graph_id):
+    """Warn the user if an integer graph ID is used instead of a graph name.
+
+    Parameters
+    ----------
+    graph_id : int
+        The graph ID that is being checked.
+    """
+    if isinstance(graph_id, int):
+        # attempt to get the calling function's name for the warning message
+        try:
+            function_name = sys._getframe(1).f_code.co_name
+        except (AttributeError, ValueError):
+            function_name = "Graph Function"
+
+        # Report the line in the user's code that called the graph method
+        warn(
+            f"{function_name}: Integer graph ID is no longer supported. "
+            "Please use String graph name.",
+            FutureWarning,
+            stacklevel=3,
+        )
 
 
 class _RpcMethodsGraphs:
@@ -127,8 +153,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         point_number : int
             Point number to retrieve the x and y coordinate values from.
@@ -140,6 +166,7 @@ class _RpcMethodsGraphs:
         yValue : float
             Value of the y coordinate from the graph.
         """
+        _warn_if_integer_graph_id(graph_name)
         method = "GetMagneticGraphPoint"
         params = [{"variant": graph_name}, point_number]
         return self.connection.send_and_receive(method, params)
@@ -149,8 +176,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         point_number : int
             Point number to get the x and y coordinate values from.
@@ -162,6 +189,7 @@ class _RpcMethodsGraphs:
         yValue : float
             Value of the y coordinate from the graph.
         """
+        _warn_if_integer_graph_id(graph_name)
         method = "GetTemperatureGraphPoint"
         params = [{"variant": graph_name}, point_number]
         return self.connection.send_and_receive(method, params)
@@ -171,8 +199,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         point_number : int
             Point number to get x and y coordinate values from.
@@ -184,6 +212,7 @@ class _RpcMethodsGraphs:
         yValue : float
             Value of the y coordinate from the graph.
         """
+        _warn_if_integer_graph_id(graph_name)
         method = "GetPowerGraphPoint"
         params = [{"variant": graph_name}, point_number]
         return self.connection.send_and_receive(method, params)
@@ -195,8 +224,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         section_number : int
             Which modelled section to get results from. Section 1 is the first.
@@ -212,6 +241,7 @@ class _RpcMethodsGraphs:
         yValue : float
             Value of the y coordinate from the graph.
         """
+        _warn_if_integer_graph_id(graph_name)
         method = "GetMagnetic3DGraphPoint"
         params = [{"variant": graph_name}, section_number, point_number, time_step_number]
         return self.connection.send_and_receive(method, params)
@@ -221,8 +251,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_id : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_id : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         section_number : int
             Which modelled section to get results from. Section 1 is the first.
@@ -238,6 +268,7 @@ class _RpcMethodsGraphs:
         yValue : float
             Value of the y coordinate from the graph.
         """
+        _warn_if_integer_graph_id(graph_id)
         method = "GetFEAGraphPoint"
         params = [{"variant": graph_id}, section_number, point_number, time_step_number]
         return self.connection.send_and_receive(method, params)
@@ -247,8 +278,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         Returns
         -------
@@ -257,6 +288,7 @@ class _RpcMethodsGraphs:
         y_values : list
             Value of y coordinates from graph
         """
+        _warn_if_integer_graph_id(graph_name)
         if self.connection.check_version_at_least("2025.0"):
             method = "GetGenericGraph"
             params = [{"variant": graph_name}, "MagneticDataSource", -1, -1]
@@ -269,8 +301,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         Returns
         -------
@@ -281,6 +313,7 @@ class _RpcMethodsGraphs:
         angle_values : list
             Value of harmonic angles from graph in degrees
         """
+        _warn_if_integer_graph_id(graph_name)
         x, y = self.get_magnetic_graph(graph_name)
         # Find x-axis limits and range, as this is needed to find the phase information
         min_x = min(x)
@@ -332,8 +365,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         Returns
         -------
@@ -342,6 +375,7 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
+        _warn_if_integer_graph_id(graph_name)
         if self.connection.check_version_at_least("2025.0"):
             method = "GetGenericGraph"
             params = [{"variant": graph_name}, "TransientDataSource", -1, -1]
@@ -354,8 +388,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         Returns
         -------
@@ -364,6 +398,7 @@ class _RpcMethodsGraphs:
         y_values : list
             value of y coordinates from graph
         """
+        _warn_if_integer_graph_id(graph_name)
         if self.connection.check_version_at_least("2025.0"):
             method = "GetGenericGraph"
             params = [{"variant": graph_name}, "PowerDataSource", -1, -1]
@@ -376,8 +411,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         Returns
         -------
@@ -387,6 +422,7 @@ class _RpcMethodsGraphs:
             value of y coordinates from graph
         """
         self.connection.ensure_version_at_least("2025.0")
+        _warn_if_integer_graph_id(graph_name)
         method = "GetGenericGraph"
         params = [{"variant": graph_name}, "HeatFlowDataSource", -1, -1]
         return self.connection.send_and_receive(method, params)
@@ -396,9 +432,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
-            select **Help -> Graph Viewer** to see the graph name.
+        graph_name : str
+            In Motor-CAD, you can select **Help -> Graph Viewer** to see the graph name.
         section_number : int
             Which modelled section to get results from. Section 1 is the first.
         point_number : int
@@ -413,6 +448,9 @@ class _RpcMethodsGraphs:
             value of y coordinates from graph
         """
         self.connection.ensure_version_at_least("2025.0")
+
+        _warn_if_integer_graph_id(graph_name)
+
         method = "GetGenericGraph"
         params = [{"variant": graph_name}, "FEAPathDataSource", section_number, point_number]
         return self.connection.send_and_receive(method, params)
@@ -422,8 +460,8 @@ class _RpcMethodsGraphs:
 
         Parameters
         ----------
-        graph_name : str, int
-            Name (preferred) or ID of the graph. In Motor-CAD, you can
+        graph_name : str
+            Name of the graph. In Motor-CAD, you can
             select **Help -> Graph Viewer** to see the graph name.
         section_number : int
             Which modelled section to get results from. Section 1 is the first.
@@ -434,6 +472,7 @@ class _RpcMethodsGraphs:
             Class containing x, y and data as lists
         """
         self.connection.ensure_version_at_least("2025.0")
+        _warn_if_integer_graph_id(graph_name)
         method = "GetMagnetic3DGraph"
         params = [{"variant": graph_name}, section_number]
         graph_3d_dict = self.connection.send_and_receive(method, params)
