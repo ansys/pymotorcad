@@ -20,7 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 from os import path, remove
+from pathlib import Path
 
 import pytest
 
@@ -218,11 +220,30 @@ def test_get_datastore(mc):
     param = datastore["TVent_Shaft_Speed"]
     test_dict = {
         "TVent_Shaft_Speed": param,  # scalar
+        "TVent_Shaft_Speed_Scalar": param.current_value,
+        "String_Test": "string_test",  # string
         "Flow_Resistance_Airgap_Duct": datastore["Flow_Resistance_Airgap_Duct"],  # DataStoreRecord
         "EWdgLayerLength_F": datastore["EWdgLayerLength_F"],  # DataStoreRecordArray
         "ConductorCentre_L_x": datastore["ConductorCentre_L_x"],  # DataStoreRecordArray2D
         "EWdgLayerLength_R": datastore_dict["EWdgLayerLength_F"],  # 1D list
         "ConductorCentre_L_y": datastore_dict["ConductorCentre_L_y"],  # 2D list
+        "empty_array": [],  # empty array
     }
 
     new_datastore = Datastore.from_dict(test_dict)
+
+
+def test_get_datastore_from_json():
+    json_path = Path(__file__).parent / "test_files" / "datastore_var_types.json"
+    with json_path.open(encoding="utf-8") as json_file:
+        datastore = Datastore.from_json(json.load(json_file))
+
+    assert datastore.get_variable_record("var_empty").var_type is None
+    assert datastore.get_variable_record("var_null").var_type is None
+    assert datastore.get_variable_record("var_string").var_type is str
+    assert datastore.get_variable("var_string") == "test string"
+
+    filtered = datastore.filter_variables(inout_types=[DataTypes.settings, DataTypes.input])
+    assert set(filtered) == {"var_empty", "var_null", "var_string"}
+    settings = datastore.filter_variables(inout_types=[DataTypes.settings])
+    assert set(settings) == {"var_string"}
