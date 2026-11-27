@@ -124,7 +124,7 @@ def test_get_set_array_variable_2d(mc):
 
 
 def test_restore_deprecated_settings(mc):
-    test_deprecated_setting = "EWdgAreaCalculation"
+    test_deprecated_setting = "IMSinglePointTotalLossMethod"
     original_method = 0
     improved_method = 1
 
