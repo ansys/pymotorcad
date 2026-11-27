@@ -1,0 +1,6 @@
+LoadExternalModel\_Lab
+======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.LoadExternalModel_Lab

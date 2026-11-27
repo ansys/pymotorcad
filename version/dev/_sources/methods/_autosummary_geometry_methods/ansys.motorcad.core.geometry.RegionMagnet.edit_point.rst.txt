@@ -1,0 +1,6 @@
+edit\_point
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: RegionMagnet.edit_point

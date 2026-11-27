@@ -1,0 +1,6 @@
+SaveScript
+==========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveScript

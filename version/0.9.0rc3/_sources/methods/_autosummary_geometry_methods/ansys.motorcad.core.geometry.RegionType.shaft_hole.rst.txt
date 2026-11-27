@@ -1,0 +1,6 @@
+shaft\_hole
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.shaft_hole

@@ -1,0 +1,6 @@
+cowling\_grill\_hole
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.cowling_grill_hole

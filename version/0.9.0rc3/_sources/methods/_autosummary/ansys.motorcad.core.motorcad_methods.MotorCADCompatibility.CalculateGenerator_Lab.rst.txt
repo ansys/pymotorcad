@@ -1,0 +1,6 @@
+CalculateGenerator\_Lab
+=======================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CalculateGenerator_Lab

@@ -1,0 +1,6 @@
+﻿set\_motorcad\_exe
+==================
+
+.. currentmodule:: ansys.motorcad.core.rpc_client_core
+
+.. autofunction:: set_motorcad_exe

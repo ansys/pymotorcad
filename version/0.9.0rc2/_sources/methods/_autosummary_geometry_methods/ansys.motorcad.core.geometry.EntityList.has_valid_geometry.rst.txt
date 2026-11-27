@@ -1,0 +1,6 @@
+has\_valid\_geometry
+====================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: EntityList.has_valid_geometry

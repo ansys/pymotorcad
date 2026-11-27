@@ -1,0 +1,6 @@
+﻿add\_arc\_centre\_start\_end\_rt
+================================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.add_arc_centre_start_end_rt

@@ -1,0 +1,6 @@
+﻿load\_fea\_model
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.load_fea_model

@@ -1,0 +1,6 @@
+CreateReport
+============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.CreateReport

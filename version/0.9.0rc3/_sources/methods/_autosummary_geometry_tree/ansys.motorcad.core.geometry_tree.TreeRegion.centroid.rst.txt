@@ -1,0 +1,6 @@
+centroid
+========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegion.centroid

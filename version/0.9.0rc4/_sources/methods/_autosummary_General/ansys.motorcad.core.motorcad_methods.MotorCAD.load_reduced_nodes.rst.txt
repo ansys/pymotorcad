@@ -1,0 +1,6 @@
+﻿load\_reduced\_nodes
+====================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.load_reduced_nodes

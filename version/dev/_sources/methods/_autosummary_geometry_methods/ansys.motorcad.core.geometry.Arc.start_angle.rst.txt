@@ -1,0 +1,6 @@
+start\_angle
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Arc.start_angle

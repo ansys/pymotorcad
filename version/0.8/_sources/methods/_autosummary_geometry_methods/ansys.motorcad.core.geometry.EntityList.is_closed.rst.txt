@@ -1,0 +1,6 @@
+is\_closed
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: EntityList.is_closed

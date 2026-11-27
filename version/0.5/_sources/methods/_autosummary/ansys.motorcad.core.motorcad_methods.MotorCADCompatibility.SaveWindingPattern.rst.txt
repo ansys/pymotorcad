@@ -1,0 +1,6 @@
+SaveWindingPattern
+==================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.SaveWindingPattern

@@ -1,0 +1,6 @@
+﻿subtract\_region
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.subtract_region

@@ -1,0 +1,6 @@
+﻿save\_fea\_model
+================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.save_fea_model

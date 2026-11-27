@@ -1,0 +1,6 @@
+root\_node
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: GeometryTree.root_node

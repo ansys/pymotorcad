@@ -1,0 +1,6 @@
+dxf\_import
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.dxf_import

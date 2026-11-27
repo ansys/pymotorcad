@@ -1,0 +1,6 @@
+﻿offset\_region
+==============
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.offset_region

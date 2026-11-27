@@ -1,0 +1,6 @@
+AddArc\_XY
+==========
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCADCompatibility.AddArc_XY

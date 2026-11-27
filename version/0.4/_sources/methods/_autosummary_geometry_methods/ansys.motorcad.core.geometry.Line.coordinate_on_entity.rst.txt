@@ -1,0 +1,6 @@
+coordinate\_on\_entity
+======================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: Line.coordinate_on_entity

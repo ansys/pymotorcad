@@ -1,0 +1,8 @@
+﻿get\_console\_log\_level
+========================
+
+``MotorCAD.messageconfig.get_console_log_level``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD
+
+.. automethod:: messageconfig.get_console_log_level

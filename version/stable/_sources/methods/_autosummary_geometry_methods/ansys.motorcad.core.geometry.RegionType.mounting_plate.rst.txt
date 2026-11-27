@@ -1,0 +1,6 @@
+mounting\_plate
+===============
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.mounting_plate

@@ -1,0 +1,6 @@
+rotor\_air\_exc\_liner
+======================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoattribute:: RegionType.rotor_air_exc_liner

@@ -1,0 +1,6 @@
+﻿split\_region\_about\_entity
+============================
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods
+
+.. automethod:: MotorCAD.split_region_about_entity

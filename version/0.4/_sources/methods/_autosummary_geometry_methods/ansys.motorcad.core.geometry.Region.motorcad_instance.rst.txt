@@ -1,0 +1,6 @@
+motorcad\_instance
+==================
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. autoproperty:: Region.motorcad_instance

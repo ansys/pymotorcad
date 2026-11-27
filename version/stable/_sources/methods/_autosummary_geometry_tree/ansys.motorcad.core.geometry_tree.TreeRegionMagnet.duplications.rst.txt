@@ -1,0 +1,6 @@
+duplications
+============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.duplications

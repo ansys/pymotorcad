@@ -1,0 +1,29 @@
+.. _ref_Message Config_API:
+Message Config
+==============================
+
+``MotorCad.messageconfig``
+
+.. currentmodule:: ansys.motorcad.core.motorcad_methods.MotorCAD.messageconfig
+
+.. autosummary::
+   :toctree: _autosummary_Message Config
+   :template: generated/method_template_Message Config.rst
+
+   :methods:
+
+   .. start of auto documentation - do not write past this line
+
+   disable_popups
+   disable_verbose_fea_messages
+   disable_verbose_messages
+   enable_popups
+   enable_verbose_fea_messages
+   enable_verbose_messages
+   get_console_log_level
+   get_popup_display_level
+   get_popups_enabled
+   get_verbose_fea_messages_enabled
+   get_verbose_messages_enabled
+   set_console_log_level
+   set_popup_display_level

@@ -1,0 +1,6 @@
+is\_closed
+==========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.is_closed

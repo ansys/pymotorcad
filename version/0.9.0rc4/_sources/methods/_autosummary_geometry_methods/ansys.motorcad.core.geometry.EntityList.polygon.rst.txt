@@ -1,0 +1,6 @@
+polygon
+=======
+
+.. currentmodule:: ansys.motorcad.core.geometry
+
+.. automethod:: EntityList.polygon

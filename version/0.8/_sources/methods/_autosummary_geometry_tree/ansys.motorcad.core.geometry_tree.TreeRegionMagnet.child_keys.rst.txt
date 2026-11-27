@@ -1,0 +1,6 @@
+child\_keys
+===========
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. autoproperty:: TreeRegionMagnet.child_keys

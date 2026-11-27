@@ -1,0 +1,6 @@
+round\_corner
+=============
+
+.. currentmodule:: ansys.motorcad.core.geometry_tree
+
+.. automethod:: TreeRegion.round_corner
