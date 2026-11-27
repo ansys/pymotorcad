@@ -7,7 +7,7 @@ name="ansys-motorcad-core"
 version = "0.9.0rc4"
 description = "Pythonic interface to Ansys Motor-CAD."
 readme = "README.rst"
-requires-python = ">=3.10,<4"
+requires-python = ">=3.11,<4"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
@@ -21,11 +21,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Physics",
     "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14"
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15"
 ]
 dependencies = [
     "psutil >= 5.9.0",
